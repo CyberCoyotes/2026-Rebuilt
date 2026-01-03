@@ -1,12 +1,63 @@
 # 🚀 Practice Subsystem Assignment
 
-## Overview
+**This folder is temporary.** It exists for pre-season Git and subsystem practice. Everything here will be deleted after kickoff when we build real subsystems.
 
-Create a **fictional subsystem** for a robot mechanism that doesn't exist. This lets you practice the patterns without worrying about "getting it wrong" for real hardware.
+---
 
-**Time:** 1-2 hours  
-**Due:** Before kickoff (January 10, 2026)  
-**Submit:** Pull request to `training-main` branch
+## Purpose
+
+This assignment lets you practice:
+1. **Git workflow** — branching, committing, pushing, pull requests, issues
+2. **Subsystem structure** — how FRC subsystems are organized
+3. **Command patterns** — how commands interact with subsystems
+4. **Code review** — giving and receiving feedback
+
+---
+
+## Rules
+
+### ✅ DO
+- Create your own branch: `yourname-subsystem`
+- Make your subsystem something fun (HyperDrive, LightsaberHilt, PoolNoodleYeeter, etc.)
+- Use fake CAN IDs (pick numbers 50-99 to avoid conflicts)
+- Follow the same patterns as the examples
+- Ask questions in your PR!
+
+### ❌ DON'T
+- Merge directly to `main` — always use a PR
+- Use real CAN IDs (those are reserved for actual hardware)
+- Worry about perfect code — this is for learning
+- Skip the PR process "because it's just practice"
+
+---
+
+## Git Workflow
+
+```
+1. Create your branch
+   git checkout -b yourname-hyperdrive
+
+2. Create your files in this folder
+   training/
+   ├── HyperDrive_YourName.java        (your subsystem)
+   └── HyperDriveCommands_YourName.java (your commands)
+
+3. Commit often with good messages
+   git add .
+   git commit -m "Add basic motor control to HyperDrive"
+
+4. Push your branch
+   git push -u origin yourname-hyperdrive
+
+5. Open a Pull Request on GitHub
+   - Base: training-main (NOT main!)
+   - Compare: your branch
+   - Fill out the PR template (see below)
+
+6. Get code review, make changes, get approved
+
+7. Merge your PR (squash and merge)
+```
 
 ---
 
@@ -17,7 +68,7 @@ Create a **fictional subsystem** for a robot mechanism that doesn't exist. This 
 Create a subsystem class that includes:
 
 | Requirement | Details |
-|------------|---------|
+|-------------|---------|
 | **Extends SubsystemBase** | Standard FRC subsystem |
 | **At least one motor** | Use `TalonFX` with a fake CAN ID (50-99) |
 | **At least one sensor** | DigitalInput, analog sensor, or motor's built-in encoder |
@@ -32,7 +83,7 @@ Create a subsystem class that includes:
 Create a commands class with:
 
 | Requirement | Details |
-|------------|---------|
+|-------------|---------|
 | **Factory pattern** | `public class YourCommands` with static methods |
 | **Private constructor** | Prevent instantiation |
 | **At least 2 commands** | Using `Commands.startEnd()`, `Commands.run()`, or `Commands.runOnce()` |
@@ -42,7 +93,7 @@ Create a commands class with:
 
 If you finish early, try adding:
 
-- [ ] **State enum** — Track IDLE, ACTIVE, etc.
+- [ ] **State enum** — Track IDLE, ACTIVE, etc. (see LightsaberHilt example)
 - [ ] **Automatic transitions** — If sensor triggers, change state
 - [ ] **Logging** — Print state changes to console
 - [ ] **Second motor or servo** — Coordinated movement
@@ -50,150 +101,155 @@ If you finish early, try adding:
 
 ---
 
-## Example Ideas
+## Star Wars Examples
 
-Pick something fun! Here are some ideas:
+We've provided two complete examples in the `examples/` folder. **Study these before starting your own.**
 
-| Name | Description | Sensors |
-|------|-------------|---------|
-| CandyLauncher | Fires candy at mentors | Beam break for candy loaded |
-| PoolNoodleYeeter | Launches pool noodles | Limit switch for arm position |
-| BubbleMachine | Makes bubbles aggressively | Time-based (no sensor needed) |
-| ConfettiCannon | Celebration mechanism | Pressure sensor |
-| PizzaSpinner | Spins pizza dough | Encoder for rotation count |
-| SockSorter | Sorts socks by color | Color sensor |
-| TreatDispenser | Gives dog treats | IR distance sensor |
+### Example 1: HyperDrive (Simple Approach)
 
----
+**Files:** `examples/HyperDrive.java`, `examples/HyperDriveCommands.java`
 
-## File Template
+This is how you should START any new subsystem. It uses:
+- ✅ Boolean helper methods (`isReady()`, `isInHyperspace()`)
+- ✅ Direct action methods (`charge()`, `engage()`, `disengage()`)
+- ✅ One boolean to track state (`isEngaged`)
+- ✅ Simple commands with `Commands.startEnd()` and `Commands.runOnce()`
+- ✅ Sensor integration (`isMotivatorFunctional()`)
 
-Use this as your starting point:
+#### When This Works Great
+- Mechanism has 1-2 states to track
+- States don't have complex transitions
+- Boolean combinations are always valid
 
-### Subsystem File: `YourSubsystem_YourName.java`
+#### Key Patterns to Notice
 
+**Helper methods that read clearly:**
 ```java
-package frc.robot.training;
-
-import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import com.ctre.phoenix6.hardware.TalonFX;
-import edu.wpi.first.wpilibj.DigitalInput;
-
-public class CandyLauncher_YourName extends SubsystemBase {
-    
-    // ========== CONSTANTS ==========
-    // Use IDs 50-99 for practice (won't conflict with real robot)
-    private static final int LAUNCHER_MOTOR_ID = 50;
-    private static final int BEAM_BREAK_PORT = 0;
-    
-    private static final double LAUNCH_SPEED = 1.0;
-    private static final double INTAKE_SPEED = 0.3;
-    
-    // ========== HARDWARE ==========
-    private final TalonFX launcherMotor;
-    private final DigitalInput beamBreak;
-    
-    // ========== CONSTRUCTOR ==========
-    public CandyLauncher_YourName() {
-        launcherMotor = new TalonFX(LAUNCHER_MOTOR_ID);
-        beamBreak = new DigitalInput(BEAM_BREAK_PORT);
-        
-        // Configure motor settings here
-        // (We'll learn more about this with real hardware)
-    }
-    
-    // ========== ACTION METHODS ==========
-    
-    /** Run the launcher at full speed to fire candy */
-    public void launch() {
-        launcherMotor.set(LAUNCH_SPEED);
-    }
-    
-    /** Run slowly to intake a piece of candy */
-    public void intake() {
-        launcherMotor.set(INTAKE_SPEED);
-    }
-    
-    /** Stop the launcher motor */
-    public void stop() {
-        launcherMotor.set(0);
-    }
-    
-    // ========== SENSOR METHODS ==========
-    
-    /** 
-     * Check if candy is loaded and ready to fire.
-     * @return true if beam break is triggered (candy present)
-     */
-    public boolean hasCandyLoaded() {
-        // DigitalInput.get() returns true when NOT blocked
-        // So we invert it: blocked = candy present
-        return !beamBreak.get();
-    }
-    
-    // ========== PERIODIC ==========
-    
-    @Override
-    public void periodic() {
-        // This runs every 20ms
-        // Could add:
-        // - Logging current state
-        // - Updating SmartDashboard
-        // - State machine logic
-    }
+if (isReady() && isMotivatorFunctional()) {
+    // This reads like English!
 }
 ```
 
-### Commands File: `YourSubsystemCommands_YourName.java`
-
+**Commands that handle cleanup automatically:**
 ```java
-package frc.robot.training;
+return Commands.startEnd(
+    () -> hyperDrive.charge(),    // Runs when button pressed
+    () -> hyperDrive.disengage(), // Runs when button released
+    hyperDrive
+);
+```
 
-import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.Commands;
+---
 
-public class CandyLauncherCommands_YourName {
-    
-    // Private constructor prevents instantiation
-    // This class only has static factory methods
-    private CandyLauncherCommands_YourName() {}
-    
-    /**
-     * Command to intake candy until loaded.
-     * Runs intake, automatically stops when candy detected.
-     */
-    public static Command intakeCandy(CandyLauncher_YourName launcher) {
-        return Commands.startEnd(
-            () -> launcher.intake(),      // Start: begin intaking
-            () -> launcher.stop(),        // End: stop motor
-            launcher                      // Requires this subsystem
-        ).until(() -> launcher.hasCandyLoaded());  // Stop when candy loaded
-    }
-    
-    /**
-     * Command to launch candy.
-     * Runs while button is held, stops when released.
-     */
-    public static Command launchCandy(CandyLauncher_YourName launcher) {
-        return Commands.startEnd(
-            () -> launcher.launch(),      // Start: fire!
-            () -> launcher.stop(),        // End: stop motor
-            launcher                      // Requires this subsystem
-        );
-    }
-    
-    /**
-     * Command to launch only if candy is loaded.
-     * Does nothing if no candy present.
-     */
-    public static Command launchIfReady(CandyLauncher_YourName launcher) {
-        return Commands.either(
-            launchCandy(launcher),              // If candy loaded, launch
-            Commands.none(),                     // If no candy, do nothing
-            () -> launcher.hasCandyLoaded()     // Condition to check
-        );
-    }
+### Example 2: LightsaberHilt (State Machine)
+
+**Files:** `examples/LightsaberHilt.java`, `examples/LightsaberHiltCommands.java`
+
+This shows WHEN and WHY to upgrade to a state machine. It uses:
+- ✅ State enum (`RETRACTED`, `EXTENDING`, `EXTENDED`, `RETRACTING`, `BLOCKED`)
+- ✅ Sensor-driven transitions (contact sensor triggers BLOCKED)
+- ✅ Position-based transitions (encoder position triggers state changes)
+- ✅ Commands that REQUEST states and WAIT for completion
+- ✅ Command sequences for complex behaviors
+
+#### When You Need This
+- 3+ booleans tracking related state
+- You're preventing "impossible" boolean combinations
+- Transitions depend on sensors, timers, or other conditions
+- You need to know "how did we get here?" for debugging
+
+#### Why Not Just Booleans?
+
+Imagine tracking the lightsaber with booleans:
+```java
+// DANGER: What if isExtending AND isRetracted are both true?
+private boolean isExtending = false;
+private boolean isRetracting = false;  
+private boolean isExtended = false;
+private boolean isRetracted = true;
+private boolean isBlocked = false;
+```
+
+With an enum, this is impossible:
+```java
+// SAFE: Always exactly ONE state
+private State currentState = State.RETRACTED;
+```
+
+#### Key Patterns to Notice
+
+**State machine in periodic():**
+```java
+@Override
+public void periodic() {
+    handleSensorTransitions();       // Sensors can force state changes
+    handleDesiredStateTransitions(); // Move toward requested state
+    executeCurrentStateBehavior();   // Run motors based on state
 }
+```
+
+**Commands request states, not motor speeds:**
+```java
+// Command just requests - state machine handles the rest
+Commands.runOnce(() -> saber.requestIgnite(), saber)
+```
+
+**Waiting for state completion:**
+```java
+Commands.sequence(
+    Commands.runOnce(() -> saber.requestIgnite(), saber),
+    Commands.waitUntil(() -> saber.isReadyForCombat())
+)
+```
+
+---
+
+### The Progression
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│  SIMPLE (HyperDrive)                                        │
+│  • 1-2 booleans                                             │
+│  • Direct action methods                                    │
+│  • Commands call methods directly                           │
+│                                                             │
+│  START HERE for every new subsystem!                        │
+└─────────────────────────────────────────────────────────────┘
+                          │
+                          │ When you notice:
+                          │ • 3+ booleans
+                          │ • Impossible state bugs
+                          │ • Confusing transitions
+                          ▼
+┌─────────────────────────────────────────────────────────────┐
+│  STATE MACHINE (LightsaberHilt)                             │
+│  • State enum                                               │
+│  • Request/transition pattern                               │
+│  • Commands wait for states                                 │
+│                                                             │
+│  Only upgrade when simple becomes painful!                  │
+└─────────────────────────────────────────────────────────────┘
+```
+
+---
+
+## File Naming
+
+Put your name or initials in your filename to avoid conflicts:
+
+```
+training/
+├── ASSIGNMENT.md                        (this file)
+├── README.md                            (points here)
+├── HyperDrive_Chewie.java      
+├── HyperDriveCommands_Chewie.java
+├── LightsaberHilt_R2D2.java
+├── LightsaberHiltCommands_R2D2.java
+└── examples/                            (reference examples)
+    ├── HyperDrive.java
+    ├── HyperDriveCommands.java
+    ├── LightsaberHilt.java
+    └── LightsaberHiltCommands.java
 ```
 
 ---
@@ -203,10 +259,10 @@ public class CandyLauncherCommands_YourName {
 When you open your PR, use this format:
 
 ```markdown
-## What did I build?
+## What Did I Build?
 [Describe your fictional mechanism in 1-2 sentences]
 
-## What does it do?
+## What Does It Do?
 - [Action 1]
 - [Action 2]
 - [Sensor reading]
@@ -228,12 +284,12 @@ When you open your PR, use this format:
 
 ---
 
-## Grading Rubric
+## What We're Looking For
 
-This isn't graded for points, but here's what we're looking for:
+This isn't graded for points, but here's what good looks like:
 
 | Criteria | What Good Looks Like |
-|----------|---------------------|
+|----------|----------------------|
 | **Compiles** | No errors, imports are correct |
 | **Structure** | Follows the template organization |
 | **Naming** | Clear method names, constants named descriptively |
@@ -243,15 +299,31 @@ This isn't graded for points, but here's what we're looking for:
 
 ---
 
+## Discussion Questions
+
+After studying the examples and completing your subsystem, think about:
+
+1. **HyperDrive only has one boolean (`isEngaged`).** What would make you add a state enum to it?
+
+2. **LightsaberHilt has 5 states.** Could you reduce it to 3? What would you lose?
+
+3. **The motivator sensor in HyperDrive** prevents charging if broken. Where is this checked — in the command or subsystem? Why?
+
+4. **BLOCKED state in LightsaberHilt** is triggered by a sensor, not a request. Why is this handled differently than EXTENDING?
+
+5. **Commands in LightsaberHiltCommands** use sequences and waits. Why can't HyperDriveCommands use `waitUntil(() -> hyperDrive.isReady())`? (Hint: what happens when charging stops?)
+
+---
+
 ## Getting Help
 
 **Stuck on Git?**
 - Check the handbook Git section
-- Ask in Slack #programming channel
+- Ask in person or via email
 - Pair up with someone who's done it
 
 **Stuck on code?**
-- Look at the templates in this file
+- Look at the examples in `examples/`
 - Check the handbook Level 3/4 sections
 - Ask Claude (but make sure you understand the answer!)
 
@@ -263,17 +335,25 @@ This isn't graded for points, but here's what we're looking for:
 
 ---
 
-## After You're Done
+## After Kickoff
+
+This entire folder gets deleted (or archived for reference). Your real subsystems will live in:
+```
+src/main/java/frc/robot/subsystems/
+src/main/java/frc/robot/commands/
+```
+
+The patterns you practice here transfer directly — just with real mechanisms and real CAN IDs.
 
 Once your PR is merged:
+- ✅ You're ready for kickoff Git workflow
+- ✅ You understand subsystem structure
+- ✅ You can build real subsystems using these patterns
+- ✅ You've practiced code review
 
-1. ✅ You're ready for kickoff Git workflow
-2. ✅ You understand subsystem structure
-3. ✅ You can build real subsystems using these patterns
-4. ✅ You've practiced code review
-
-The training folder gets deleted, but **the knowledge stays with you!**
+**The training folder gets deleted, but the knowledge stays with you!**
 
 ---
 
-*Good luck, and make something fun! 🎉*
+*"Do. Or do not. There is no try."*
+*— Yoda (on writing clean code)*
