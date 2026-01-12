@@ -1,4 +1,4 @@
-package main.java.frc.robot.training.scoy;
+package frc.robot.training.scoy;
 
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import com.ctre.phoenix6.hardware.TalonFX;

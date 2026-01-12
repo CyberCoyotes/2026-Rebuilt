@@ -1,4 +1,4 @@
-package main.java.frc.robot.training.scoy;
+package frc.robot.training.scoy;
 
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
