@@ -1,0 +1,44 @@
+---
+name: PR Validation
+
+"on":
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+jobs:
+  validate-pr:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Validate PR title
+        run: |
+          PR_TITLE="${{ github.event.pull_request.title }}"
+          if [ -z "$PR_TITLE" ]; then
+            echo "Error: PR title cannot be empty"
+            exit 1
+          fi
+          echo "PR title is valid: $PR_TITLE"
+
+      - name: Check for merge conflicts
+        run: |
+          git fetch origin main
+          if git merge-tree $(git merge-base HEAD origin/main) \
+            HEAD origin/main | grep -q '<<<<<<<'; then
+            echo "Error: This PR has merge conflicts with main"
+            exit 1
+          fi
+          echo "No merge conflicts detected"
+
+      - name: Validate branch name
+        run: |
+          BRANCH_NAME="${{ github.head_ref }}"
+          if [[ "$BRANCH_NAME" == "main" ]]; then
+            echo "Error: Cannot create PR from main branch"
+            exit 1
+          fi
+          echo "Branch name is valid: $BRANCH_NAME"

@@ -1,0 +1,16 @@
+# CODEOWNERS file for branch protection
+# Each line is a file pattern followed by one or more owners.
+# These owners will be automatically requested for review when someone opens a pull request.
+
+# Default owners for everything in the repo
+* @CyberCoyotes/maintainers
+
+# Robot code requires review from team leads
+/src/main/java/frc/robot/ @CyberCoyotes/robot-leads
+
+# Build configuration requires review from mentors
+build.gradle @CyberCoyotes/mentors
+settings.gradle @CyberCoyotes/mentors
+
+# GitHub workflows require admin approval
+/.github/ @CyberCoyotes/admins
