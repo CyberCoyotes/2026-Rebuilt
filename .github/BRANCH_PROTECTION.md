@@ -67,9 +67,9 @@ main
 
 A `.github/CODEOWNERS` file has been created to automatically request reviews from appropriate team members. Update the teams/users in this file to match your organization structure:
 
-- `@CyberCoyotes/maintainers` - Default reviewers for all code
-- `@CyberCoyotes/robot-leads` - Required for robot code changes
-- `@CyberCoyotes/mentors` - Required for build configuration changes
+- `@CyberCoyotes/robot-team` - Default reviewers for all code
+- `@CyberCoyotes/programming-leads` - Required for robot code changes
+- `@CyberCoyotes/mentors` - Required for build configuration and vendor dependencies
 - `@CyberCoyotes/admins` - Required for GitHub workflow changes
 
 ## Benefits of Branch Protection
