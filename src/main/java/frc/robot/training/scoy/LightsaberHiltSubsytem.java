@@ -28,7 +28,7 @@ import edu.wpi.first.wpilibj.DriverStation;
  * "This is the weapon of a Jedi Knight. Not as clumsy or random as a blaster."
  *   - Obi-Wan Kenobi
  */
-public class LightsaberHilt extends SubsystemBase {
+public class LightsaberHiltSubsytem extends SubsystemBase {
     
     // ========== STATE ENUM ==========
     // All possible states in one place. The saber is ALWAYS in exactly one of these.
@@ -72,7 +72,7 @@ public class LightsaberHilt extends SubsystemBase {
     private double blockedTimestamp = 0.0;
     
     // ========== CONSTRUCTOR ==========
-    public LightsaberHilt() {
+    public LightsaberHiltSubsytem() {
         bladeMotor = new TalonFX(BLADE_MOTOR_ID);
         contactSensor = new DigitalInput(CONTACT_SENSOR_PORT);
         
