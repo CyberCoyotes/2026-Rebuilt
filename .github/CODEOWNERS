@@ -1,16 +1,25 @@
 # CODEOWNERS file for branch protection
 # Each line is a file pattern followed by one or more owners.
-# These owners will be automatically requested for review when someone opens a pull request.
+# These owners will be automatically requested for review when someone
+# opens a pull request.
+#
+# Update the team names and GitHub usernames below to match your organization.
+# Team names should be in the format @org/team-name
+# Individual users should be in the format @username
 
 # Default owners for everything in the repo
-* @CyberCoyotes/maintainers
+# Update this to your team's GitHub organization and team name
+* @CyberCoyotes/robot-team
 
-# Robot code requires review from team leads
-/src/main/java/frc/robot/ @CyberCoyotes/robot-leads
+# Robot code requires review from programming leads
+/src/main/java/frc/robot/ @CyberCoyotes/programming-leads
 
-# Build configuration requires review from mentors
+# Build configuration requires review from mentors or senior developers
 build.gradle @CyberCoyotes/mentors
 settings.gradle @CyberCoyotes/mentors
 
-# GitHub workflows require admin approval
+# Vendor dependencies require careful review
+/vendordeps/ @CyberCoyotes/mentors
+
+# GitHub workflows and branch protection settings require admin approval
 /.github/ @CyberCoyotes/admins
