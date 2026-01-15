@@ -71,7 +71,7 @@ public class Indexer extends SubsystemBase {
         }
     }
 
-    public void engage() { 
+    public void engage() {}
 
       if (isReady() && isMotivatorFunctional()) {
             IndexerMotor1.set(ENGAGE_SPEED);
@@ -79,8 +79,8 @@ public class Indexer extends SubsystemBase {
         } else {
             System.out.println("WARNING: Indexer not ready for engagement!");
         }
-    }
-
+    
+    
     public void emergancyStop() {
        IndexerMotor1.set(IDLE_SPEED);
         isEngaged = false;
@@ -117,7 +117,6 @@ public class Indexer extends SubsystemBase {
         }
         
       
+        }
     }
-}
-    
 }
