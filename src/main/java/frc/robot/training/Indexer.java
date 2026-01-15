@@ -40,7 +40,7 @@ public class Indexer extends SubsystemBase {
   private static final int Indexer_MOTOR_ID_2 = 52;
   private static final int Indexer_MOTOR_ID_3 = 53;
   private static final int Indexer_MOTOR_ID_4 = 54;
-  private static final int Distance_SENSOR_PORT = 1
+  private static final int Distance_SENSOR_PORT = 1;
 
   private final TalonFX IndexerMotor1;
   private final TalonFX IndexerMotor2;
@@ -51,16 +51,22 @@ public class Indexer extends SubsystemBase {
   private boolean isEngaged = false;
 
   public Indexer() { 
-    IndexerMotor = new TalonFX(Indexer_MOTOR_ID);
-        motivatorSensor = new DigitalInput(MOTIVATOR_SENSOR_PORT);
+    IndexerMotor1 = new TalonFX(Indexer_MOTOR_ID_1);
+    IndexerMotor2 = new TalonFX(Indexer_MOTOR_ID_2);
+    IndexerMotor3 = new TalonFX(Indexer_MOTOR_ID_3);
+    IndexerMotor4 = new TalonFX(Indexer_MOTOR_ID_4);
+    DistanceSensor = new DigitalInput(Distance_SENSOR_PORT);
 
-    public void charge() { 
+    public void go() { 
 
       if (isMotivatorFunctional()) {
-            IndexerMotor.set(CHARGE_SPEED);
+            IndexerMotor1.set(1);
+            IndexerMotor2.set(2);
+            IndexerMotor3.set(3);
+            IndexerMotor4.set(4);
         } else {
            
-            IndexerMotor.set(IDLE_SPEED);
+            IndexerMotor.set(1);
             System.out.println("WARNING: Indexer motivator malfunction!");
         }
     }
@@ -68,7 +74,7 @@ public class Indexer extends SubsystemBase {
     public void engage() { 
 
       if (isReady() && isMotivatorFunctional()) {
-            IndexerMotor.set(ENGAGE_SPEED);
+            IndexerMotor1.set(ENGAGE_SPEED);
             isEngaged = true;
         } else {
             System.out.println("WARNING: Indexer not ready for engagement!");
@@ -76,7 +82,7 @@ public class Indexer extends SubsystemBase {
     }
 
     public void emergancyStop() {
-       IndexerMotor.set(IDLE_SPEED);
+       IndexerMotor1.set(IDLE_SPEED);
         isEngaged = false;
         System.out.println("Indexer EMERGENCY STOP ACTIVATED");
     }
@@ -114,3 +120,4 @@ public class Indexer extends SubsystemBase {
     }
 }
     
+}
