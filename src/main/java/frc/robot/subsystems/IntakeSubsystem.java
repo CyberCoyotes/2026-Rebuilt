@@ -16,18 +16,17 @@ public class IntakeSubsystem extends SubsystemBase{
 
     //uses Kraken x44 with TalonFX interface
     IntakeSubsystem(){
-        m_rotator = new TalonFX(66); //TODO: filler PID
+        m_rotator = new TalonFX(66); //TODO: filler ID
         m_request = new VelocityVoltage(0).withSlot(0);
 
         var rotatorConfigs = new TalonFXConfiguration();
 
-        // set slot 0 gains and leave every other config factory-default
-        var slot0Configs = rotatorConfigs.Slot0; // tuner 6 reccomended values
+        var slot0Configs = rotatorConfigs.Slot0; // tuner reccomended values
         slot0Configs.kS = 0.1; // add 0.1 V to overcome static friction
         slot0Configs.kV = 0.12; // velocity target of 1 rps = 0.12 V output
         slot0Configs.kP = 0.11; // error of 1 rps = 0.11 V output
-        slot0Configs.kI = 0; // no output for integrated error
-        slot0Configs.kD = 0; // no output for integrated derivatve
+        slot0Configs.kI = 0; // no output
+        slot0Configs.kD = 0; // no output
 
         m_rotator.getConfigurator().apply(slot0Configs);
     }
