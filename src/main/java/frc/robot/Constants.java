@@ -45,6 +45,8 @@ public final class Constants {
 
     public static final int INTAKE_ROLLER_MOTOR_ID = 20;
     public static final int INTAKE_DEPLOY_RACK_PINION_MOTOR_ID = 21;
+    public static final int INTAKE_TOF_SENSOR_ID = 9000; //TODO: filler ID
+    public static final int INTAKE_TOF_THRESHOLD = 100; //in milimeters, around four inches
   }
 
   // =========================================================

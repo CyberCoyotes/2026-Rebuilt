@@ -5,19 +5,23 @@ import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.VelocityVoltage;
 import com.ctre.phoenix6.controls.VoltageOut;
 import com.ctre.phoenix6.hardware.TalonFX;
+import com.playingwithfusion.TimeOfFlight;
 
 import edu.wpi.first.units.measure.Voltage;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.Constants;
 
 public class IntakeSubsystem extends SubsystemBase{
 
     private final TalonFX m_rotator;
     private final VelocityVoltage m_request;
+    private final TimeOfFlight s_distance;
 
-    //uses Kraken x44 with TalonFX interface
+    //uses Kraken x44 with TalonFX interface, spins roller to induct balls into the indexer
     IntakeSubsystem(){
         m_rotator = new TalonFX(66); //TODO: filler ID
         m_request = new VelocityVoltage(0).withSlot(0);
+        s_distance = new TimeOfFlight(Constants.Intake.INTAKE_TOF_SENSOR_ID);
 
         var rotatorConfigs = new TalonFXConfiguration();
 
@@ -32,7 +36,7 @@ public class IntakeSubsystem extends SubsystemBase{
     }
 
     public void setVolts(double velocity){
-        m_rotator.setControl(m_request.withVelocity(velocity).withFeedForward(0.5));
+        m_rotator.setControl(m_request.withVelocity(velocity));
     }
 
     public void stop(){
@@ -41,6 +45,15 @@ public class IntakeSubsystem extends SubsystemBase{
 
     public StatusSignal<Voltage> getVolts(){
         return m_rotator.getMotorVoltage();
+    }
+
+    //returns true if the closest object is within a set threshold and if the last range check was valid
+    public boolean targetClose(){
+        return (s_distance.getRange() <= Constants.Intake.INTAKE_TOF_THRESHOLD) && s_distance.isRangeValid();
+    }
+
+    public double getDistance(){
+        return s_distance.getRange();
     }
 
 
