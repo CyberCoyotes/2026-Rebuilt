@@ -8,15 +8,19 @@ import com.ctre.phoenix6.hardware.TalonFX;
 
 import edu.wpi.first.units.measure.Voltage;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.Constants;
 
 public class IntakeSubsystem extends SubsystemBase{
 
     private final TalonFX m_rotator;
+    private final TalonFX m_slide;
     private final VelocityVoltage m_request;
-
+    
     //uses Kraken x44 with TalonFX interface
     IntakeSubsystem(){
-        m_rotator = new TalonFX(66); //TODO: filler ID
+        m_rotator = new TalonFX(Constants.Intake.INTAKE_ROTATOR_ID); // intaking "wheel"
+        m_slide = new TalonFX(Constants.Intake.INTAKE_SLIDE_ID);
+
         m_request = new VelocityVoltage(0).withSlot(0);
 
         var rotatorConfigs = new TalonFXConfiguration();

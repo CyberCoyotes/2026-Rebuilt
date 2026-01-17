@@ -8,12 +8,14 @@ import frc.robot.Constants;
 /* 
  *  
  * AUTHOR: @imadinosaur1
- * 
- * I moved your file to the correct branch.
- * Please complete the code below before submitting a pull request to the main repository.
+ *
+ * Purpose: Subsystem for the Climber mechanism 
+ * Hardware: 2 motors; Kraken 60x for extension, Minion for hook movement
+ * Functionality: Extend/retract climber arms, move hooks up/down
  * 
  */
-  // 2 motors; Kraken 60x for extension, Minion for hook movement
+
+@SuppressWarnings("unused")
 
 public class ClimberSubsystem extends SubsystemBase {
 
