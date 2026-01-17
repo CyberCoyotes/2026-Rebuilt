@@ -9,7 +9,7 @@ import com.ctre.phoenix6.hardware.TalonFX;
 import edu.wpi.first.wpilibj.DigitalInput;
 import com.ctre.phoenix6.controls.VelocityVoltage;
 
-public class ShooterSubsystem extends SubsystemBase{
+public class ShooterSubsystemADD extends SubsystemBase{
 
 private static final int motorOne_ID = 67;
 private static final int motorTwo_ID = 69;
@@ -24,7 +24,7 @@ private final TalonFX motorOne;
 private final TalonFX motorTwo;
 
 //Constructor
-public ShooterSubsystem(){
+public ShooterSubsystemADD(){
     motorOne = new TalonFX(motorOne_ID);
     motorTwo = new TalonFX(motorTwo_ID);
 }
