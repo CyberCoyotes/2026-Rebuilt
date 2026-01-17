@@ -118,37 +118,33 @@
  package frc.robot.subsystems;
 
 import com.ctre.phoenix6.hardware.TalonFX;
+import com.playingwithfusion.TimeOfFlight;
 
 import edu.wpi.first.wpilibj.DigitalInput;
 import frc.robot.Constants;
 
  public class IndexerSubsystem {
-    /* ToF  sensor */
     
-    // ========== CONSTANTS ==========
-    private static final int FLOOR_MOTOR_ID = 67;
-    private static final int KICK_MOTOR_ID = 41;
-    private static final int SENSOR_PORT = 2;
-
+    /* ToF  sensor */
      // ========== HARDWARE ==========
     private final TalonFX floorMotor;
-    private final TalonFX kickMotor;
-    private final DigitalInput sensor;
+    private final TalonFX feederMotor;
+    private final TimeOfFlight feederToF;
  
 
     // ========== CONSTRUCTOR ==========
     public IndexerSubsystem() {
-        floorMotor = new TalonFX(FLOOR_MOTOR_ID);
-        kickMotor = new TalonFX(KICK_MOTOR_ID);
-        sensor = new DigitalInput(SENSOR_PORT);
+        floorMotor = new TalonFX(Constants.Indexer.FLOOR_MOTOR_ID);
+        feederMotor = new TalonFX(Constants.Indexer.FEEDER_MOTOR_ID);
+        feederToF = new TimeOfFlight(Constants.Indexer.FEEDER_TOF_ID);
     }
 
 
     
     // ========== SENSOR METHODS ==========
-    public boolean isBallAtKick() {
-        return !sensor.get(); // Assuming sensor returns false when ball is present
-    }
+    // public boolean isBallAtKick() {
+        // return !feederToF(); // Assuming sensor returns false when ball is present
+    // }
 
     // ========== MOTOR METHODS ==========
     public void setFloorMotorSpeed(double speed) {
@@ -156,7 +152,7 @@ import frc.robot.Constants;
     }
 
     public void setKickMotorSpeed(double speed) {
-        kickMotor.set(speed);
+        feederMotor.set(speed);
     }
 
  }
