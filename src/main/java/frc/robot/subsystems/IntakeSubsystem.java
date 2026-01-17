@@ -14,12 +14,14 @@ import frc.robot.Constants;
 public class IntakeSubsystem extends SubsystemBase{
 
     private final TalonFX m_rotator;
+    private final TalonFX m_slide;
     private final VelocityVoltage m_request;
-    private final TimeOfFlight s_distance;
-
-    //uses Kraken x44 with TalonFX interface, spins roller to induct balls into the indexer
+    
+    //uses Kraken x44 with TalonFX interface
     IntakeSubsystem(){
-        m_rotator = new TalonFX(66); //TODO: filler ID
+        m_rotator = new TalonFX(Constants.Intake.INTAKE_ROTATOR_ID); // intaking "wheel"
+        m_slide = new TalonFX(Constants.Intake.INTAKE_SLIDE_ID);
+
         m_request = new VelocityVoltage(0).withSlot(0);
         s_distance = new TimeOfFlight(Constants.Intake.INTAKE_TOF_SENSOR_ID);
 

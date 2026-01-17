@@ -43,10 +43,8 @@ public final class Constants {
   public static final class Intake {
     private Intake() {}
 
-    public static final int INTAKE_ROLLER_MOTOR_ID = 20;
-    public static final int INTAKE_DEPLOY_RACK_PINION_MOTOR_ID = 21;
-    public static final int INTAKE_TOF_SENSOR_ID = 9000; //TODO: filler ID
-    public static final int INTAKE_TOF_THRESHOLD = 100; //in milimeters, around four inches
+    public static final int INTAKE_ROTATOR_ID = 20;
+    public static final int INTAKE_SLIDE_ID = 21;
   }
 
   // =========================================================
@@ -55,8 +53,11 @@ public final class Constants {
   public static final class Indexer {
     private Indexer() {}
 
-    public static final int ELEVATOR_TO_SHOOTER_MOTOR_ID = 22;
-    public static final int ACTIVE_FLOOR_MOTOR_ID = 23;
+    public static final int FEEDER_MOTOR_ID = 22;
+    public static final int FLOOR_MOTOR_ID = 23;
+    public static final int FEEDER_TOF_ID = 30;
+
+
   }
 
   // =========================================================
