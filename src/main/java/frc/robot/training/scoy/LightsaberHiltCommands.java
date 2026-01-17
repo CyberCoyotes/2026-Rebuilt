@@ -2,7 +2,7 @@ package frc.robot.training.scoy;
 
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
-import frc.robot.training.scoy.LightsaberHilt.State;
+import frc.robot.training.scoy.LightsaberHiltSubsytem.State;
 
 /**
  * LightsaberHilt Commands - STATE MACHINE COMMAND EXAMPLE
@@ -38,7 +38,7 @@ public class LightsaberHiltCommands {
      * @param saber the LightsaberHilt subsystem
      * @return command that ignites and waits for ready
      */
-    public static Command ignite(LightsaberHilt saber) {
+    public static Command ignite(LightsaberHiltSubsytem saber) {
         return Commands.sequence(
             // Step 1: Request the ignite
             Commands.runOnce(() -> saber.requestIgnite(), saber),
@@ -54,7 +54,7 @@ public class LightsaberHiltCommands {
      * @param saber the LightsaberHilt subsystem
      * @return command that extinguishes and waits for safe
      */
-    public static Command extinguish(LightsaberHilt saber) {
+    public static Command extinguish(LightsaberHiltSubsytem saber) {
         return Commands.sequence(
             Commands.runOnce(() -> saber.requestExtinguish(), saber),
             Commands.waitUntil(() -> saber.isSafeToHolster())
@@ -72,7 +72,7 @@ public class LightsaberHiltCommands {
      * @param saber the LightsaberHilt subsystem
      * @return command that keeps saber ignited while held
      */
-    public static Command holdIgnite(LightsaberHilt saber) {
+    public static Command holdIgnite(LightsaberHiltSubsytem saber) {
         return Commands.startEnd(
             () -> saber.requestIgnite(),
             () -> saber.requestExtinguish(),
@@ -88,7 +88,7 @@ public class LightsaberHiltCommands {
      * @param saber the LightsaberHilt subsystem
      * @return command that toggles saber state
      */
-    public static Command toggle(LightsaberHilt saber) {
+    public static Command toggle(LightsaberHiltSubsytem saber) {
         return Commands.either(
             // If currently retracted: ignite
             ignite(saber),
@@ -106,7 +106,7 @@ public class LightsaberHiltCommands {
      * @param saber the LightsaberHilt subsystem
      * @return command that ignites only from retracted state
      */
-    public static Command igniteIfSafe(LightsaberHilt saber) {
+    public static Command igniteIfSafe(LightsaberHiltSubsytem saber) {
         return Commands.either(
             ignite(saber),
             Commands.none(),
@@ -123,7 +123,7 @@ public class LightsaberHiltCommands {
      * @param saber the LightsaberHilt subsystem
      * @return command sequence for lightsaber flourish
      */
-    public static Command flourish(LightsaberHilt saber) {
+    public static Command flourish(LightsaberHiltSubsytem saber) {
         return Commands.sequence(
             // Step 1: Ignite
             ignite(saber),
@@ -141,7 +141,7 @@ public class LightsaberHiltCommands {
      * @param saber the LightsaberHilt subsystem
      * @return command that prepares for combat
      */
-    public static Command prepareForCombat(LightsaberHilt saber) {
+    public static Command prepareForCombat(LightsaberHiltSubsytem saber) {
         return Commands.sequence(
             // Print intent
             Commands.print("Preparing lightsaber for combat..."),
@@ -167,7 +167,7 @@ public class LightsaberHiltCommands {
      * @param saber the LightsaberHilt subsystem
      * @return command that monitors and logs state
      */
-    public static Command monitorState(LightsaberHilt saber) {
+    public static Command monitorState(LightsaberHiltSubsytem saber) {
         // Track previous state to detect changes
         final State[] previousState = { null };
         

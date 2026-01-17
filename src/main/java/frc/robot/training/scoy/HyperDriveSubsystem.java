@@ -20,7 +20,7 @@ import edu.wpi.first.wpilibj.DigitalInput;
  * "Traveling through hyperspace ain't like dusting crops, boy!"
  *   - Han Solo
  */
-public class HyperDrive extends SubsystemBase {
+public class HyperDriveSubsystem extends SubsystemBase {
     
     // ========== CONSTANTS ==========
     // Use CAN IDs 50-99 for practice (won't conflict with real robot)
@@ -44,7 +44,7 @@ public class HyperDrive extends SubsystemBase {
     private boolean isEngaged = false;
     
     // ========== CONSTRUCTOR ==========
-    public HyperDrive() {
+    public HyperDriveSubsystem() {
         hyperdriveMotor = new TalonFX(HYPERDRIVE_MOTOR_ID);
         motivatorSensor = new DigitalInput(MOTIVATOR_SENSOR_PORT);
         

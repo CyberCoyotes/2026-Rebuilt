@@ -35,7 +35,7 @@ public class HyperDriveCommands {
      * @param hyperDrive the HyperDrive subsystem
      * @return command that charges while held
      */
-    public static Command charge(HyperDrive hyperDrive) {
+    public static Command charge(HyperDriveSubsystem hyperDrive) {
         return Commands.startEnd(
             // Start action: begin charging
             () -> hyperDrive.charge(),
@@ -57,7 +57,7 @@ public class HyperDriveCommands {
      * @param hyperDrive the HyperDrive subsystem
      * @return command that engages while held
      */
-    public static Command engage(HyperDrive hyperDrive) {
+    public static Command engage(HyperDriveSubsystem hyperDrive) {
         return Commands.startEnd(
             () -> hyperDrive.engage(),
             () -> hyperDrive.disengage(),
@@ -73,7 +73,7 @@ public class HyperDriveCommands {
      * @param hyperDrive the HyperDrive subsystem
      * @return command that immediately stops the hyperdrive
      */
-    public static Command emergencyStop(HyperDrive hyperDrive) {
+    public static Command emergencyStop(HyperDriveSubsystem hyperDrive) {
         return Commands.runOnce(
             () -> hyperDrive.emergencyStop(),
             hyperDrive
@@ -92,7 +92,7 @@ public class HyperDriveCommands {
      * @param hyperDrive the HyperDrive subsystem
      * @return command that charges until ready threshold reached
      */
-    public static Command chargeUntilReady(HyperDrive hyperDrive) {
+    public static Command chargeUntilReady(HyperDriveSubsystem hyperDrive) {
         return Commands.startEnd(
             () -> hyperDrive.charge(),
             () -> {}, // Don't disengage - stay at ready speed
@@ -109,7 +109,7 @@ public class HyperDriveCommands {
      * @param hyperDrive the HyperDrive subsystem
      * @return command that engages only when ready
      */
-    public static Command engageIfReady(HyperDrive hyperDrive) {
+    public static Command engageIfReady(HyperDriveSubsystem hyperDrive) {
         return Commands.either(
             // If ready: run the engage command
             engage(hyperDrive),
