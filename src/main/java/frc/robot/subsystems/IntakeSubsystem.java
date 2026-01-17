@@ -19,7 +19,7 @@ public class IntakeSubsystem extends SubsystemBase{
 
     //uses Kraken x44 with TalonFX interface, spins roller to induct balls into the indexer
     IntakeSubsystem(){
-        m_rotator = new TalonFX(66); //TODO: filler ID
+        m_rotator = new TalonFX(Constants.Intake.INTAKE_ROLLER_MOTOR_ID);
         m_request = new VelocityVoltage(0).withSlot(0);
         s_distance = new TimeOfFlight(Constants.Intake.INTAKE_TOF_SENSOR_ID);
 
@@ -56,5 +56,12 @@ public class IntakeSubsystem extends SubsystemBase{
         return s_distance.getRange();
     }
 
+    public boolean isJammed(){
+        double setOutput = m_rotator.get();
+        double actualOutput = m_rotator.getVelocity().getValueAsDouble();
 
+        double setEpsilon = 0.1; //epsilon is error constant in math
+        double actualEpsilon = 0.1; //TODO: filler numbers 
+        return (setOutput > setEpsilon) && (actualOutput < actualEpsilon); // is jammed if the set output is over an error constant while the reported output is under a certain constant
+    }
 }
