@@ -120,24 +120,44 @@
 import com.ctre.phoenix6.hardware.TalonFX;
 
 import edu.wpi.first.wpilibj.DigitalInput;
+import frc.robot.Constants;
 
  public class IndexerSubsystem {
+    /* ToF  sensor */
     
     // ========== CONSTANTS ==========
     private static final int FLOOR_MOTOR_ID = 67;
-    private static final int KICK_MOTOR_ID = 67;
-    private static final int Sensor = 67;
+    private static final int KICK_MOTOR_ID = 41;
+    private static final int SENSOR_PORT = 2;
 
      // ========== HARDWARE ==========
     private final TalonFX floorMotor;
     private final TalonFX kickMotor;
-    private final DigitalInput Sensor;
+    private final DigitalInput sensor;
  
 
-    // Constructor
+    // ========== CONSTRUCTOR ==========
     public IndexerSubsystem() {
-
+        floorMotor = new TalonFX(FLOOR_MOTOR_ID);
+        kickMotor = new TalonFX(KICK_MOTOR_ID);
+        sensor = new DigitalInput(SENSOR_PORT);
     }
+
+
     
+    // ========== SENSOR METHODS ==========
+    public boolean isBallAtKick() {
+        return !sensor.get(); // Assuming sensor returns false when ball is present
+    }
+
+    // ========== MOTOR METHODS ==========
+    public void setFloorMotorSpeed(double speed) {
+        floorMotor.set(speed);
+    }
+
+    public void setKickMotorSpeed(double speed) {
+        kickMotor.set(speed);
+    }
 
  }
+
