@@ -5,6 +5,7 @@ import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.VelocityVoltage;
 import com.ctre.phoenix6.controls.VoltageOut;
 import com.ctre.phoenix6.hardware.TalonFX;
+import com.playingwithfusion.TimeOfFlight;
 
 import edu.wpi.first.units.measure.Voltage;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -22,6 +23,7 @@ public class IntakeSubsystem extends SubsystemBase{
         m_slide = new TalonFX(Constants.Intake.INTAKE_SLIDE_ID);
 
         m_request = new VelocityVoltage(0).withSlot(0);
+        s_distance = new TimeOfFlight(Constants.Intake.INTAKE_TOF_SENSOR_ID);
 
         var rotatorConfigs = new TalonFXConfiguration();
 
@@ -36,7 +38,7 @@ public class IntakeSubsystem extends SubsystemBase{
     }
 
     public void setVolts(double velocity){
-        m_rotator.setControl(m_request.withVelocity(velocity).withFeedForward(0.5));
+        m_rotator.setControl(m_request.withVelocity(velocity));
     }
 
     public void stop(){
@@ -45,6 +47,15 @@ public class IntakeSubsystem extends SubsystemBase{
 
     public StatusSignal<Voltage> getVolts(){
         return m_rotator.getMotorVoltage();
+    }
+
+    //returns true if the closest object is within a set threshold and if the last range check was valid
+    public boolean targetClose(){
+        return (s_distance.getRange() <= Constants.Intake.INTAKE_TOF_THRESHOLD) && s_distance.isRangeValid();
+    }
+
+    public double getDistance(){
+        return s_distance.getRange();
     }
 
 
