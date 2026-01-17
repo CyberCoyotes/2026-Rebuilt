@@ -18,7 +18,6 @@ import frc.robot.Constants;
 
  public class IndexerSubsystem {
     
-    /* ToF  sensor */
      // ========== HARDWARE ==========
     private final TalonFX floorMotor;
     private final TalonFX feederMotor;
@@ -32,13 +31,16 @@ import frc.robot.Constants;
         feederToF = new TimeOfFlight(Constants.Indexer.FEEDER_TOF_ID);
     }
 
-
+    // ========== State Machines ==========
+    private boolean isFuelDetected = false;
+    public void updateSensors() {
+        // Update the fuel detection state based on the ToF sensor reading
+        isFuelDetected = feederToF.getRange() < Constants.Indexer.FUEL_DETECTION_THRESHOLD;
+    }
+    public boolean isFuelDetected() {
+        return isFuelDetected;
+    }
     
-    // ========== SENSOR METHODS ==========
-    // public boolean isBallAtKick() {
-        // return !feederToF(); // Assuming sensor returns false when ball is present
-    // }
-
     // ========== MOTOR METHODS ==========
     public void setFloorMotorSpeed(double speed) {
         floorMotor.set(speed);
