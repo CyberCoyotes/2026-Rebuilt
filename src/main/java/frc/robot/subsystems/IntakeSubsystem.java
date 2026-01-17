@@ -16,6 +16,10 @@ public class IntakeSubsystem extends SubsystemBase{
     private final TalonFX m_rotator;
     private final TalonFX m_slide;
     private final VelocityVoltage m_request;
+    private final TimeOfFlight s_distance; 
+
+    private final int INTAKE_TOF_SENSOR_ID = 12345;
+    private final int INTAKE_TOF_THRESHOLD = 1000; //around four inches
     
     //uses Kraken x44 with TalonFX interface
     IntakeSubsystem(){
@@ -23,7 +27,7 @@ public class IntakeSubsystem extends SubsystemBase{
         m_slide = new TalonFX(Constants.Intake.INTAKE_SLIDE_ID);
 
         m_request = new VelocityVoltage(0).withSlot(0);
-        s_distance = new TimeOfFlight(Constants.Intake.INTAKE_TOF_SENSOR_ID);
+        s_distance = new TimeOfFlight(INTAKE_TOF_SENSOR_ID);
 
         var rotatorConfigs = new TalonFXConfiguration();
 
@@ -51,12 +55,19 @@ public class IntakeSubsystem extends SubsystemBase{
 
     //returns true if the closest object is within a set threshold and if the last range check was valid
     public boolean targetClose(){
-        return (s_distance.getRange() <= Constants.Intake.INTAKE_TOF_THRESHOLD) && s_distance.isRangeValid();
+        return (s_distance.getRange() <= INTAKE_TOF_THRESHOLD) && s_distance.isRangeValid();
     }
 
     public double getDistance(){
         return s_distance.getRange();
     }
 
+    public boolean isJammed(){
+        double setOutput = m_rotator.get();
+        double actualOutput = m_rotator.getVelocity().getValueAsDouble();
 
+        double setEpsilon = 0.1; //epsilon is error constant in math
+        double actualEpsilon = 0.1; //TODO: filler numbers 
+        return (setOutput > setEpsilon) && (actualOutput < actualEpsilon); // is jammed if the set output is over an error constant while the reported output is under a certain constant
+    }
 }
