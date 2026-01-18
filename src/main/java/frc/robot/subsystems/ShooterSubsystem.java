@@ -2,6 +2,9 @@ package frc.robot.subsystems;
 
 /*
  * AUTHOR: @Isaak3
+ * The shooter needs to be able to shoot the fuel and adjust the hood
+ * it will use 5 motors: 3 for the main flywheels(Falcon500), 1 for the hood movements(Minion),
+ * and 1 for the counter-wheel(Kraken x44);
  */
 
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
