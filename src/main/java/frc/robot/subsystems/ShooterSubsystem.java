@@ -9,62 +9,49 @@ package frc.robot.subsystems;
 
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import com.ctre.phoenix6.hardware.TalonFX;
-import edu.wpi.first.wpilibj.DigitalInput;
-import com.ctre.phoenix6.controls.PositionVoltage;
-import com.ctre.phoenix6.controls.VelocityTorqueCurrentFOC;
-import frc.robot.Constants;
+import com.ctre.phoenix6.controls.VelocityVoltage;
 
-public class ShooterSubsystem extends SubsystemBase {
+public class ShooterSubsystem extends SubsystemBase{
 
-    // speed presets
-    private static final double fullVel = 106.3;
-    private static final double octVel = 85.1;
+private static final int motorOne_ID = 67;
+private static final int motorTwo_ID = 69;
 
-    // Motors
-    private final TalonFX flywheelA;
-    private final TalonFX flywheelB;
-    private final TalonFX flywheelC;
-    private final TalonFX counterWheel;
-    private final TalonFX hoodMotor;
+//speed presets
+private static final int fullRPS = 100;
+private static final int halfRPS = 67;
+private static final int quarterRPS = 33;
 
-    // Constructor
-    public ShooterSubsystem() {
-        flywheelA = new TalonFX(Constants.Shooter.FLYWHEEL_A_MOTOR_ID);
-        flywheelB = new TalonFX(Constants.Shooter.FLYWHEEL_B_MOTOR_ID);
-        flywheelC = new TalonFX(Constants.Shooter.FLYWHEEL_C_MOTOR_ID);
-        counterWheel = new TalonFX(Constants.Shooter.COUNTER_WHEEL_MOTOR_ID);
-        hoodMotor = new TalonFX(Constants.Shooter.HOOD_MOTOR_ID);
-    }
+//Motors
+private final TalonFX motorOne;
+private final TalonFX motorTwo;
 
-    // Control Modes
-    PositionVoltage positionVoltage = new PositionVoltage(0);
-    VelocityTorqueCurrentFOC torqueRequest = new VelocityTorqueCurrentFOC(0);
+//Constructor
+public ShooterSubsystem(){
+    motorOne = new TalonFX(motorOne_ID);
+    motorTwo = new TalonFX(motorTwo_ID);
+}
 
-    // Commands
-    public void fullSpeed() {
-        flywheelA.setControl(torqueRequest.withVelocity(fullVel));
-        flywheelB.setControl(torqueRequest.withVelocity(fullVel));
-        flywheelC.setControl(torqueRequest.withVelocity(fullVel));
-    }
+VelocityVoltage velocityRequest = new VelocityVoltage(0);
 
-    public void eighthSpeed() {
-        flywheelA.setControl(torqueRequest.withVelocity(octVel));
-        flywheelB.setControl(torqueRequest.withVelocity(octVel));
-        flywheelC.setControl(torqueRequest.withVelocity(octVel));
-    }
+public void fullSpeed() {
+motorOne.setControl(velocityRequest.withVelocity(fullRPS));
+motorTwo.setControl(velocityRequest.withVelocity(fullRPS));
+}
+public void halfSpeed() {
+motorOne.setControl(velocityRequest.withVelocity(halfRPS));
+motorTwo.setControl(velocityRequest.withVelocity(halfRPS));
+}
+public void quarterSpeed() {
+    motorOne.setControl(velocityRequest.withVelocity(quarterRPS));
+    motorTwo.setControl(velocityRequest.withVelocity(quarterRPS));
+}
+public void stopShooter() {
+motorOne.setControl(velocityRequest.withVelocity(0));
+motorTwo.setControl(velocityRequest.withVelocity(0));
+}
 
-    public void setHoodStart() {
-        hoodMotor.setControl(positionVoltage.withPosition(0));
-    }
+@Override
+public void periodic(){
 
-    public void stopShooter() {
-        flywheelA.setControl(torqueRequest.withVelocity(0));
-        flywheelB.setControl(torqueRequest.withVelocity(0));
-        flywheelC.setControl(torqueRequest.withVelocity(0));
-    }
-
-    @Override
-    public void periodic() {
-
-    }
+}
 }
