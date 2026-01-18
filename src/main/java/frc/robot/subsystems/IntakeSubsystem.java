@@ -30,12 +30,8 @@ public class IntakeSubsystem extends SubsystemBase{
     
     //uses Kraken x44 with TalonFX interface
     IntakeSubsystem(){
-        m_rotator = new TalonFX(Constants.Intake.INTAKE_ROLLER_MOTOR_ID);
-        m_request = new VelocityVoltage(0).withSlot(0);
-        s_distance = new TimeOfFlight(Constants.Intake.INTAKE_TOF_SENSOR_ID);
         m_rotator = new TalonFX(Constants.Intake.INTAKE_ROTATOR_ID); // intaking "wheel"
         m_slide = new TalonFX(Constants.Intake.INTAKE_SLIDE_ID);
-
         m_rotator_request = new VelocityVoltage(0).withSlot(0);
         m_slide_request = new MotionMagicVoltage(0);
         s_distance = new TimeOfFlight(DISTANCE_SENSOR_ID);
@@ -95,6 +91,8 @@ public class IntakeSubsystem extends SubsystemBase{
         return s_distance.getRange();
     }
 
+    // TODO Debug and tune these values. There was a merge conflict so the previous implementation is commented out below.
+    /* 
     public boolean isJammed(){
         double setOutput = m_rotator.get();
         double actualOutput = m_rotator.getVelocity().getValueAsDouble();
@@ -103,9 +101,12 @@ public class IntakeSubsystem extends SubsystemBase{
         double actualEpsilon = 0.1; //TODO: filler numbers 
         return (setOutput > setEpsilon) && (actualOutput < actualEpsilon); // is jammed if the set output is over an error constant while the reported output is under a certain constant
     }
+
         double current = m_rotator.getSupplyCurrent().getValueAsDouble();
         double velocity = m_rotator.getVelocity().getValueAsDouble();
 
         return (current >= JAM_CURRENT_THRESHOLD) && (velocity <= JAM_VELOCITY_THRESHOLD);
   }
+*/
+
 }
