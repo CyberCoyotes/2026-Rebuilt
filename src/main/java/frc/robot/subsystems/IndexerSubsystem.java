@@ -123,7 +123,9 @@ import com.playingwithfusion.TimeOfFlight;
 import edu.wpi.first.wpilibj.DigitalInput;
 import frc.robot.Constants;
 
- public class IndexerSubsystem {
+@SuppressWarnings("unused")
+
+public class IndexerSubsystem {
     
     /* ToF  sensor */
      // ========== HARDWARE ==========
