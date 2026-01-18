@@ -96,6 +96,49 @@ public final class Constants {
   }
 
   // =========================================================
+  // Vision / Limelight
+  // =========================================================
+  public static final class Vision {
+    private Vision() {}
+
+    // Camera configuration
+    public static final String LIMELIGHT_NAME = "limelight";
+
+    // Pipeline indices
+    public static final int APRILTAG_PIPELINE = 0;
+    public static final int GAME_PIECE_PIPELINE = 1; // Optional: for note/game piece detection
+
+    // Camera mounting (ADJUST THESE FOR YOUR ROBOT!)
+    /** Height of Limelight lens from floor in meters */
+    public static final double CAMERA_HEIGHT_METERS = 0.5;  // TODO: Measure actual height
+
+    /** Angle of camera from horizontal in degrees (positive = tilted up) */
+    public static final double CAMERA_ANGLE_DEGREES = 25.0;  // TODO: Measure actual angle
+
+    // Target heights (from 2024 game manual - update for 2025/2026)
+    /** Height of AprilTag center from floor in meters */
+    public static final double APRILTAG_HEIGHT_METERS = 1.45;  // TODO: Update for 2026 game
+
+    // Alignment tolerances
+    /** Tolerance for horizontal alignment in degrees */
+    public static final double ALIGNMENT_TOLERANCE_DEGREES = 2.0;
+
+    /** Minimum target area to consider target valid (prevents false positives) */
+    public static final double MIN_TARGET_AREA_PERCENT = 0.1;
+
+    /** Maximum distance to trust vision measurement in meters */
+    public static final double MAX_DISTANCE_METERS = 5.0;
+
+    // Valid tag IDs (from 2024 field - update for 2026)
+    public static final int MIN_VALID_TAG_ID = 1;
+    public static final int MAX_VALID_TAG_ID = 16;  // TODO: Update for 2026 field
+
+    // State tracking
+    /** Time in seconds before considering target "lost" after losing sight */
+    public static final double TARGET_TIMEOUT_SECONDS = 0.5;
+  }
+
+  // =========================================================
   // Optional: PWM (if Minion motors are NOT on CAN)
   // =========================================================
   // public static final class PWM {
