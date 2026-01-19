@@ -85,11 +85,13 @@ public class ShooterIOTalonFX implements ShooterIO {
      */
     public ShooterIOTalonFX() {
         // Create motor objects
-        flywheelMotorA = new TalonFX(Constants.Shooter.FLYWHEEL_A_MOTOR_ID, Constants.kCANBus);
-        flywheelMotorB = new TalonFX(Constants.Shooter.FLYWHEEL_B_MOTOR_ID, Constants.kCANBus);
-        flywheelMotorC = new TalonFX(Constants.Shooter.FLYWHEEL_C_MOTOR_ID, Constants.kCANBus);
-        hoodMotor = new TalonFX(Constants.Shooter.HOOD_MOTOR_ID, Constants.kCANBus);
-        counterWheelMotor = new TalonFX(Constants.Shooter.COUNTER_WHEEL_MOTOR_ID, Constants.kCANBus);
+        // flywheelMotorA = new TalonFX(Constants.Shooter.FLYWHEEL_A_MOTOR_ID, Constants.kCANBus); // deprecated constructor
+        flywheelMotorA = new TalonFX(Constants.Shooter.FLYWHEEL_A_MOTOR_ID);
+        flywheelMotorB = new TalonFX(Constants.Shooter.FLYWHEEL_B_MOTOR_ID);
+        flywheelMotorC = new TalonFX(Constants.Shooter.FLYWHEEL_C_MOTOR_ID);
+        hoodMotor = new TalonFX(Constants.Shooter.HOOD_MOTOR_ID);
+        counterWheelMotor = new TalonFX(Constants.Shooter.COUNTER_WHEEL_MOTOR_ID);
+        // https://v6.docs.ctr-electronics.com/en/stable/docs/yearly-changes/yearly-changelog.html#talon-fx-improvements
 
         // Apply configurations from centralized config class
         flywheelMotorA.getConfigurator().apply(TalonFXConfigs.shooterFlywheelConfig());

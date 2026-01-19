@@ -59,8 +59,14 @@ public class IndexerIOTalonFX implements IndexerIO {
      * Configures motors and sensor to known good states.
      */
     public IndexerIOTalonFX() {
+        /*API Breaking Changes [https://v6.docs.ctr-electronics.com/en/stable/docs/yearly-changes/yearly-changelog.html#breaking-changes]
+        The new <Device>(int id, String canbus) constructors are now deprecated and will be removed in 2027.
+        Use the new <Device>(int id, CANBus canbus) constructors instead. 
+        This change is intended to prepare users for 2027, where an explicit CAN bus declaration is necessary. 
+        */
+
         // Create motor objects
-        floorMotor = new TalonFX(Constants.Indexer.FLOOR_MOTOR_ID, Constants.kCANBus);
+        floorMotor = new TalonFX(Constants.Indexer.FLOOR_MOTOR_ID, Constants.kCANBus); // TODO remove CAN bus arg if using default
         feederMotor = new TalonFX(Constants.Indexer.FEEDER_MOTOR_ID, Constants.kCANBus);
 
         // Apply configurations from centralized config class

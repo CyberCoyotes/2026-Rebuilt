@@ -1,6 +1,7 @@
 package frc.robot.subsystems.intake;
 
 import com.ctre.phoenix6.BaseStatusSignal;
+import com.ctre.phoenix6.CANBus;
 import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.controls.DutyCycleOut;
 import com.ctre.phoenix6.controls.PositionVoltage;
@@ -30,6 +31,8 @@ public class IntakeIOTalonFX implements IntakeIO {
     // ===== Hardware =====
     private final TalonFX rotatorMotor;
     private final TalonFX slideMotor;
+    private final CANBus kCANBus = new CANBus("rio");
+
 
     // ===== Control Requests =====
     private final DutyCycleOut rotatorDutyCycleRequest = new DutyCycleOut(0.0);
@@ -59,8 +62,9 @@ public class IntakeIOTalonFX implements IntakeIO {
      */
     public IntakeIOTalonFX() {
         // Create motor objects
-        rotatorMotor = new TalonFX(Constants.Intake.INTAKE_ROTATOR_ID, Constants.kCANBus);
-        slideMotor = new TalonFX(Constants.Intake.INTAKE_SLIDE_ID, Constants.kCANBus);
+
+        rotatorMotor = new TalonFX(Constants.Intake.INTAKE_ROTATOR_ID, kCANBus);
+        slideMotor = new TalonFX(Constants.Intake.INTAKE_SLIDE_ID, kCANBus);
 
         // Apply configurations from centralized config class
         rotatorMotor.getConfigurator().apply(TalonFXConfigs.intakeConfig());

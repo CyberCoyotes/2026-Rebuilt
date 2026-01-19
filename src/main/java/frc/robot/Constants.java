@@ -1,10 +1,15 @@
 package frc.robot;
 
+import com.ctre.phoenix6.CANBus;
+
 public final class Constants {
   private Constants() {}
 
   /** CTRE CAN bus name (empty string means "rio") */
-  public static final String kCANBus = "rio";
+  public static final CANBus kCANbus = new CANBus("rio");
+  
+  // public static final CANBus kCANBus
+
 
   // =========================================================
   // Drive / Swerve
