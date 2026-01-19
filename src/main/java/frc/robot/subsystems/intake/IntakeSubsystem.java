@@ -1,7 +1,13 @@
-package frc.robot.subsystems;
+package frc.robot.subsystems.intake;
 
+/*
+* enum IntakeState {
+IDLE, // Slide in, motors off
+INTAKING, // Slide out, motors intake
+EJECT // Slide out, motors reverse
+} 
+*/
 import com.ctre.phoenix6.StatusSignal;
-import com.ctre.phoenix6.configs.MotionMagicConfigs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.MotionMagicVoltage;
 import com.ctre.phoenix6.controls.VelocityVoltage;
