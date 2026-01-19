@@ -37,8 +37,6 @@ public class TalonFXConfigs {
 
         // Current limits - high for flywheels
         config.CurrentLimits.SupplyCurrentLimit = 60.0;
-        config.CurrentLimits.SupplyCurrentThreshold = 80.0;
-        config.CurrentLimits.SupplyTimeThreshold = 0.5;
         config.CurrentLimits.SupplyCurrentLimitEnable = true;
 
         // Stator (output) current limit
@@ -74,8 +72,6 @@ public class TalonFXConfigs {
 
         // Current limits - moderate for indexer
         config.CurrentLimits.SupplyCurrentLimit = 40.0;
-        config.CurrentLimits.SupplyCurrentThreshold = 50.0;
-        config.CurrentLimits.SupplyTimeThreshold = 0.5;
         config.CurrentLimits.SupplyCurrentLimitEnable = true;
 
         // Stator current limit
@@ -108,8 +104,6 @@ public class TalonFXConfigs {
 
         // Current limits - lower for intake
         config.CurrentLimits.SupplyCurrentLimit = 40.0;
-        config.CurrentLimits.SupplyCurrentThreshold = 50.0;
-        config.CurrentLimits.SupplyTimeThreshold = 0.5;
         config.CurrentLimits.SupplyCurrentLimitEnable = true;
 
         config.CurrentLimits.StatorCurrentLimit = 50.0;
@@ -138,8 +132,6 @@ public class TalonFXConfigs {
 
         // Current limits - lower for hood
         config.CurrentLimits.SupplyCurrentLimit = 30.0;
-        config.CurrentLimits.SupplyCurrentThreshold = 40.0;
-        config.CurrentLimits.SupplyTimeThreshold = 0.5;
         config.CurrentLimits.SupplyCurrentLimitEnable = true;
 
         // Position PID - Slot 0 (tune these values!)
@@ -175,8 +167,6 @@ public class TalonFXConfigs {
 
         // Current limits - high for climber
         config.CurrentLimits.SupplyCurrentLimit = 60.0;
-        config.CurrentLimits.SupplyCurrentThreshold = 80.0;
-        config.CurrentLimits.SupplyTimeThreshold = 0.5;
         config.CurrentLimits.SupplyCurrentLimitEnable = true;
 
         config.CurrentLimits.StatorCurrentLimit = 80.0;
