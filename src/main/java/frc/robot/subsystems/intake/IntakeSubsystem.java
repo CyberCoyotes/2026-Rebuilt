@@ -1,118 +1,253 @@
 package frc.robot.subsystems.intake;
 
-/*
-* enum IntakeState {
-IDLE, // Slide in, motors off
-INTAKING, // Slide out, motors intake
-EJECT // Slide out, motors reverse
-} 
-*/
-import com.ctre.phoenix6.StatusSignal;
-import com.ctre.phoenix6.configs.TalonFXConfiguration;
-import com.ctre.phoenix6.controls.MotionMagicVoltage;
-import com.ctre.phoenix6.controls.VelocityVoltage;
-import com.ctre.phoenix6.controls.VoltageOut;
-import com.ctre.phoenix6.hardware.TalonFX;
-import com.playingwithfusion.TimeOfFlight;
+import org.littletonrobotics.junction.Logger;
 
-import edu.wpi.first.units.measure.Angle;
-import edu.wpi.first.units.measure.Voltage;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.Constants;
 
-public class IntakeSubsystem extends SubsystemBase{
+/**
+ * IntakeSubsystem - Main intake subsystem with state machine control.
+ *
+ * HARDWARE:
+ * - 1x TalonFX motor (rotator) for spinning intake wheels
+ * - 1x TalonFX motor (slide) for extending/retracting intake
+ *
+ * STATE MACHINE:
+ * - IDLE: Slide retracted, motors off
+ * - INTAKING: Slide extended, motors intaking
+ * - EJECT: Slide extended, motors reverse
+ *
+ * USAGE:
+ * 1. Call startIntaking() to extend and start intake motors
+ * 2. Monitor hasGamePiece() from indexer or other sensors
+ * 3. Call retract() to pull intake back in when done
+ *
+ * @author @Isaak3
+ */
+public class IntakeSubsystem extends SubsystemBase {
 
-    private final TalonFX m_rotator; ///rotates the roller
-    private final TalonFX m_slide; //moves the intake forward and backwards
-    private final VelocityVoltage m_rotator_request;
-    private final MotionMagicVoltage m_slide_request;
-    private final TimeOfFlight s_distance; 
-
-    private final int DISTANCE_SENSOR_ID = 12345;
-    private final int DISTANCE_THRESHOLD = 1000; //around four inches
-
-    private final double JAM_CURRENT_THRESHOLD = 20.0; // current should be under this
-    private final double JAM_VELOCITY_THRESHOLD = 0.5; // velocity should be over this
-    
-    //uses Kraken x44 with TalonFX interface
-    IntakeSubsystem(){
-        m_rotator = new TalonFX(Constants.Intake.INTAKE_ROTATOR_ID); // intaking "wheel"
-        m_slide = new TalonFX(Constants.Intake.INTAKE_SLIDE_ID);
-        m_rotator_request = new VelocityVoltage(0).withSlot(0);
-        m_slide_request = new MotionMagicVoltage(0);
-        s_distance = new TimeOfFlight(DISTANCE_SENSOR_ID);
-
-        var rotatorConfigs = new TalonFXConfiguration();
-        var slideConfigs = new TalonFXConfiguration();
-
-        var rotatorSlot0 = rotatorConfigs.Slot0; // tuner reccomended values
-        rotatorSlot0.kS = 0.1; // add 0.1 V to overcome static friction
-        rotatorSlot0.kV = 0.12; // velocity target of 1 rps = 0.12 V output
-        rotatorSlot0.kP = 0.11; // error of 1 rps = 0.11 V output
-        rotatorSlot0.kI = 0; // no output
-        rotatorSlot0.kD = 0; // no output
-
-        var slideSlot0 = slideConfigs.Slot0;
-        slideSlot0.kS = 0.1;
-        slideSlot0.kV = 0.12;
-        slideSlot0.kP = 0.11;
-        slideSlot0.kI = 0;
-        slideSlot0.kD = 0;
-
-        var motionMagicConfigs = slideConfigs.MotionMagic;
-        motionMagicConfigs.MotionMagicCruiseVelocity = 80;
-        motionMagicConfigs.MotionMagicAcceleration = 160;
-        motionMagicConfigs.MotionMagicJerk = 1600;
-
-        m_rotator.getConfigurator().apply(rotatorSlot0);
-        m_slide.getConfigurator().apply(slideSlot0);
+    // ===== State Machine =====
+    public enum IntakeState {
+        IDLE,       // Slide retracted, motors off
+        INTAKING,   // Slide extended, motors running forward
+        EJECT       // Slide extended, motors running reverse
     }
 
-    public void setRotatorVolts(double velocity){
-        m_rotator.setControl(m_rotator_request.withVelocity(velocity));
+    // ===== Hardware Interface =====
+    private final IntakeIO io;
+    private final IntakeIO.IntakeIOInputs inputs = new IntakeIO.IntakeIOInputs();
+
+    // ===== State =====
+    private IntakeState currentState = IntakeState.IDLE;
+
+    // ===== Constants =====
+    /** Slide position when fully retracted (rotations) */
+    private static final double RETRACTED_POSITION = 0.0;
+
+    /** Slide position when fully extended (rotations) */
+    private static final double EXTENDED_POSITION = 10.0;  // TODO: Measure actual extension
+
+    /** Rotator motor speed when intaking (percent output) */
+    private static final double INTAKE_SPEED = 0.8;  // TODO: Tune
+
+    /** Rotator motor speed when ejecting (percent output, negative) */
+    private static final double EJECT_SPEED = -0.5;  // TODO: Tune
+
+    /** Tolerance for slide position (rotations) */
+    private static final double SLIDE_TOLERANCE = 0.5;  // TODO: Tune
+
+    /**
+     * Creates a new IntakeSubsystem.
+     *
+     * @param io Hardware interface (real hardware or simulation)
+     */
+    public IntakeSubsystem(IntakeIO io) {
+        this.io = io;
     }
 
-    public void stopRotator(){
-        m_rotator.setControl(new VoltageOut(0));
+    @Override
+    public void periodic() {
+        // Update inputs from hardware
+        io.updateInputs(inputs);
+        Logger.processInputs("Intake", inputs);
+
+        // Update state machine (automatic transitions handled here if needed)
+        updateStateMachine();
+
+        // Log state
+        Logger.recordOutput("Intake/State", currentState.toString());
+        Logger.recordOutput("Intake/IsExtended", isExtended());
+        Logger.recordOutput("Intake/IsRetracted", isRetracted());
+
+        // Update dashboard
+        SmartDashboard.putString("Intake State", currentState.toString());
+        SmartDashboard.putNumber("Intake Slide Position", inputs.slidePositionRotations);
+        SmartDashboard.putBoolean("Intake Extended", isExtended());
     }
 
-    public StatusSignal<Voltage> getRotatorVolts(){
-        return m_rotator.getMotorVoltage();
+    /**
+     * Updates the state machine based on current state and sensor readings.
+     * Currently no automatic transitions - all transitions are command-driven.
+     */
+    private void updateStateMachine() {
+        // No automatic state transitions for now
+        // All transitions are command-driven via startIntaking(), eject(), retract()
     }
 
-    public void setSlidePosition(int position){
-        m_slide.setControl(m_slide_request.withPosition(position));
+    // ===== State Transitions =====
+
+    /**
+     * Transitions to a new state and executes entry actions.
+     */
+    private void setState(IntakeState newState) {
+        if (currentState == newState) {
+            return;  // Already in this state
+        }
+
+        // Log state transition
+        Logger.recordOutput("Intake/StateTransition",
+            currentState.toString() + " -> " + newState.toString());
+
+        currentState = newState;
+
+        // Execute entry actions for new state
+        switch (newState) {
+            case IDLE:
+                io.setRotator(0.0);
+                io.setSlidePosition(RETRACTED_POSITION);
+                break;
+
+            case INTAKING:
+                io.setSlidePosition(EXTENDED_POSITION);
+                io.setRotator(INTAKE_SPEED);
+                break;
+
+            case EJECT:
+                io.setSlidePosition(EXTENDED_POSITION);
+                io.setRotator(EJECT_SPEED);
+                break;
+        }
     }
 
-    public StatusSignal<Angle> getSlidePosition(){
-        return m_slide.getPosition();
-    }
-    
-    //returns true if the closest object is within a set threshold and if the last range check was valid
-    public boolean targetClose(){
-        return (s_distance.getRange() <= DISTANCE_THRESHOLD) && s_distance.isRangeValid();
-    }
+    // ===== Public Command Methods =====
 
-    public double getDistance(){
-        return s_distance.getRange();
+    /**
+     * Starts intaking (extends slide, runs motors forward).
+     */
+    public void startIntaking() {
+        setState(IntakeState.INTAKING);
     }
 
-    // TODO Debug and tune these values. There was a merge conflict so the previous implementation is commented out below.
-    /* 
-    public boolean isJammed(){
-        double setOutput = m_rotator.get();
-        double actualOutput = m_rotator.getVelocity().getValueAsDouble();
-
-        double setEpsilon = 0.1; //epsilon is error constant in math
-        double actualEpsilon = 0.1; //TODO: filler numbers 
-        return (setOutput > setEpsilon) && (actualOutput < actualEpsilon); // is jammed if the set output is over an error constant while the reported output is under a certain constant
+    /**
+     * Starts ejecting (extends slide, runs motors reverse).
+     */
+    public void eject() {
+        setState(IntakeState.EJECT);
     }
 
-        double current = m_rotator.getSupplyCurrent().getValueAsDouble();
-        double velocity = m_rotator.getVelocity().getValueAsDouble();
+    /**
+     * Stops intake and retracts slide.
+     */
+    public void retract() {
+        setState(IntakeState.IDLE);
+    }
 
-        return (current >= JAM_CURRENT_THRESHOLD) && (velocity <= JAM_VELOCITY_THRESHOLD);
-  }
-*/
+    /**
+     * Stops all motors immediately without changing slide position.
+     * Use this for emergency stops.
+     */
+    public void stopMotors() {
+        io.stop();
+    }
 
+    /**
+     * Manually sets rotator speed (for testing/tuning).
+     *
+     * @param percent Motor output from -1.0 to 1.0
+     */
+    public void setRotatorSpeed(double percent) {
+        io.setRotator(percent);
+    }
+
+    /**
+     * Manually sets slide position (for testing/tuning).
+     *
+     * @param rotations Target position in rotations
+     */
+    public void setSlidePosition(double rotations) {
+        io.setSlidePosition(rotations);
+    }
+
+    /**
+     * Zeros the slide encoder at current position.
+     * Call this when intake is manually positioned at retracted position.
+     */
+    public void zeroSlide() {
+        io.zeroSlide();
+    }
+
+    // ===== Status Queries =====
+
+    /**
+     * Returns true if intake is extended.
+     */
+    public boolean isExtended() {
+        return Math.abs(inputs.slidePositionRotations - EXTENDED_POSITION) < SLIDE_TOLERANCE;
+    }
+
+    /**
+     * Returns true if intake is retracted.
+     */
+    public boolean isRetracted() {
+        return Math.abs(inputs.slidePositionRotations - RETRACTED_POSITION) < SLIDE_TOLERANCE;
+    }
+
+    /**
+     * Gets current state.
+     */
+    public IntakeState getState() {
+        return currentState;
+    }
+
+    /**
+     * Gets current slide position in rotations.
+     */
+    public double getSlidePosition() {
+        return inputs.slidePositionRotations;
+    }
+
+    /**
+     * Gets current rotator velocity in RPS.
+     */
+    public double getRotatorVelocity() {
+        return inputs.rotatorVelocityRPS;
+    }
+
+    // ===== Diagnostics =====
+
+    /**
+     * Returns true if rotator motor is over-temperature.
+     */
+    public boolean isOverheating() {
+        return inputs.rotatorTempCelsius > 80.0 || inputs.slideTempCelsius > 80.0;
+    }
+
+    /**
+     * Returns true if rotator current is too high (possible jam).
+     */
+    public boolean isOverCurrent() {
+        return inputs.rotatorCurrentAmps > 40.0;  // TODO: Tune threshold
+    }
+
+    /**
+     * Returns true if intake might be jammed.
+     * Detects high current with low velocity while motors are running.
+     */
+    public boolean isJammed() {
+        boolean motorsRunning = currentState == IntakeState.INTAKING || currentState == IntakeState.EJECT;
+        boolean highCurrent = inputs.rotatorCurrentAmps > 30.0;  // TODO: Tune
+        boolean lowVelocity = Math.abs(inputs.rotatorVelocityRPS) < 10.0;  // TODO: Tune
+
+        return motorsRunning && highCurrent && lowVelocity;
+    }
 }
