@@ -66,8 +66,8 @@ public class IndexerIOTalonFX implements IndexerIO {
         */
 
         // Create motor objects
-        floorMotor = new TalonFX(Constants.Indexer.FLOOR_MOTOR_ID, Constants.kCANBus); // TODO remove CAN bus arg if using default
-        feederMotor = new TalonFX(Constants.Indexer.FEEDER_MOTOR_ID, Constants.kCANBus);
+        floorMotor = new TalonFX(Constants.Indexer.FLOOR_MOTOR_ID); // TODO add new CANbus arg 
+        feederMotor = new TalonFX(Constants.Indexer.FEEDER_MOTOR_ID); // TODO add new CANbus arg 
 
         // Apply configurations from centralized config class
         floorMotor.getConfigurator().apply(TalonFXConfigs.indexerConfig());
