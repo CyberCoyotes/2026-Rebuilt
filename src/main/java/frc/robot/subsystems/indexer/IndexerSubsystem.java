@@ -8,7 +8,7 @@
  * sensor for ball to elevator
  */
 
- package frc.robot.subsystems;
+ package frc.robot.subsystems.indexer;
 
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.playingwithfusion.TimeOfFlight;
