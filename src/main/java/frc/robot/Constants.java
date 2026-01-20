@@ -6,7 +6,7 @@ public final class Constants {
   private Constants() {}
 
   /** CTRE CAN bus name (empty string means "rio") */
-  public static final CANBus kCANbus = new CANBus("rio");
+  public static final CANBus kCANBus = new CANBus("rio");
 
   // =========================================================
   // Drive / Swerve
