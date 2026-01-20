@@ -1,4 +1,4 @@
-package frc.robot.subsystems.indexer2;
+package frc.robot.subsystems.indexer;
 
 /**
  * IndexerIOSim - Simulation implementation of IndexerIO for testing without hardware.
