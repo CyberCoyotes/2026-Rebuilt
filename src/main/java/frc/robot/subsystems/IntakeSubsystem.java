@@ -1,9 +1,11 @@
-package frc.robot.subsystems.intake;
+package frc.robot.subsystems;
 
 import org.littletonrobotics.junction.Logger;
 
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.subsystems.intake.IntakeIO;
+import frc.robot.subsystems.intake.IntakeIO.IntakeIOInputs;
 
 /**
  * IntakeSubsystem - Main intake subsystem with state machine control.

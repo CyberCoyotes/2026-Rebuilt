@@ -1,9 +1,11 @@
-package frc.robot.subsystems.shooter;
+package frc.robot.subsystems;
 
 import org.littletonrobotics.junction.Logger;
 
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.subsystems.shooter.ShooterIO;
+import frc.robot.subsystems.shooter.ShooterIO.ShooterIOInputs;
 
 /**
  * ShooterSubsystem - Main shooter subsystem with state machine control.
