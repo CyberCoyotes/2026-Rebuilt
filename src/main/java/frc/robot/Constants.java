@@ -58,6 +58,7 @@ public final class Constants {
     public static final int FEEDER_MOTOR_ID = 22;
     public static final int FLOOR_MOTOR_ID = 23;
     public static final int FEEDER_TOF_ID = 30;
+    public static final double FUEL_DETECTION_THRESHOLD = 0;
 
 
   }
