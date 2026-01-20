@@ -1,4 +1,4 @@
-package frc.robot.subsystems.intake;
+package frc.robot.subsystems.intake2;
 
 /**
  * IntakeIOSim - Simulation implementation of IntakeIO for testing without hardware.

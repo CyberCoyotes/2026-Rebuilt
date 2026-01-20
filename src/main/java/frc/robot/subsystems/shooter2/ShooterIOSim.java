@@ -1,4 +1,4 @@
-package frc.robot.subsystems.shooter;
+package frc.robot.subsystems.shooter2;
 
 /**
  * ShooterIOSim - Simulation implementation of ShooterIO for testing without hardware.
