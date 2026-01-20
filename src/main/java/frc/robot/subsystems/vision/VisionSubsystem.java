@@ -127,7 +127,7 @@ public class VisionSubsystem extends SubsystemBase {
             } else {
                 currentState = AlignmentState.TARGET_ACQUIRED;
             }
-        } else {      
+        } else {
             // No valid target
             double timeSinceLastTarget = Timer.getFPGATimestamp() - lastTargetSeenTime;
 

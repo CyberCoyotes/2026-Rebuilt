@@ -6,7 +6,7 @@ public final class Constants {
   private Constants() {}
 
   /** CTRE CAN bus name (empty string means "rio") */
-  public static final CANBus kCANbus = new CANBus("rio");
+  public static final CANBus kCANBus = new CANBus("rio");
 
   // =========================================================
   // Drive / Swerve
@@ -133,7 +133,7 @@ public final class Constants {
 
     // Valid tag IDs (from 2024 field - update for 2026)
     public static final int MIN_VALID_TAG_ID = 1;
-    public static final int MAX_VALID_TAG_ID = 16;  // TODO: Update for 2026 field
+    public static final int MAX_VALID_TAG_ID = -1;  // TODO: Set to correct max tag ID for 2026 field before competition
 
     // State tracking
     /** Time in seconds before considering target "lost" after losing sight */
