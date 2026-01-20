@@ -1,4 +1,4 @@
-package frc.robot.subsystems.indexer2;
+package frc.robot.subsystems.indexer;
 
 import com.ctre.phoenix6.BaseStatusSignal;
 import com.ctre.phoenix6.StatusSignal;

@@ -1,4 +1,4 @@
-package frc.robot.subsystems.shooter2;
+package frc.robot.subsystems.shooter;
 
 import org.littletonrobotics.junction.LogTable;
 import org.littletonrobotics.junction.inputs.LoggableInputs;
