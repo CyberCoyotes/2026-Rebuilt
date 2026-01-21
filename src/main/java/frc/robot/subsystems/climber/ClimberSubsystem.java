@@ -2,8 +2,12 @@ package frc.robot.subsystems.climber;
 
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import com.ctre.phoenix6.hardware.TalonFX;
+
+import edu.wpi.first.units.measure.Voltage;
 import edu.wpi.first.wpilibj.DigitalInput;
 import frc.robot.Constants;
+import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 
 /* 
  *  
@@ -37,5 +41,29 @@ public class ClimberSubsystem extends SubsystemBase {
         hookMotor = new TalonFX(Constants.Climber.HOOK_RETRACT_MOTOR_ID);
      }
 
-    }
+       //Climber arm methods
+      public void setArmVolts(double voltage) { // Set arm to extend give it a variable and declare type
+         armMotor.setVoltage(voltage); // Full voltage to extend
+      }
+
+     //Climber command factory
+      public Command extendFast() {
+         return run(() -> setArmVolts(12));
+      
+     }
+
+      public Command extendSlow() {
+         return run(() -> setArmVolts(3));
+      
+     }
+ 
+      public Command retract(Climber climber) {
+         return Commands.startEnd(
+            () -> climber.retract(),
+            () -> climber.stop(),
+            climber
+         );
+      }
+
+    } // End of ClimberSubsystem class
     
