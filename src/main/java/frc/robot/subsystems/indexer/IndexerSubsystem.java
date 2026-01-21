@@ -10,11 +10,16 @@
 
  package frc.robot.subsystems.indexer;
 
+import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.Subsystem;
+
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.playingwithfusion.TimeOfFlight;
 
 import edu.wpi.first.wpilibj.DigitalInput;
 import frc.robot.Constants;
+import frc.robot.Constants.Indexer;
 
 @SuppressWarnings("unused")
 
@@ -53,5 +58,16 @@ public class IndexerSubsystem {
         feederMotor.set(speed);
     }
 
+    //========= COMMANDS ==========
+    // public class MySubsystemCommands {
+        // private Indexer() {}
+
+        public static Command doSomething (IndexerSubsystem indexer){
+            return Commands.startEnd(
+                () -> Indexer.Index(), // <-- this need to be actual methods
+                () -> Indexer.stop()
+            );
+        }
+    // }
  }
 
