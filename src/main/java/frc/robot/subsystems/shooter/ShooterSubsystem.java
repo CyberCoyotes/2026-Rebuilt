@@ -12,6 +12,9 @@ import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.controls.PositionVoltage;
 import com.ctre.phoenix6.controls.VelocityTorqueCurrentFOC;
 import frc.robot.Constants;
+import frc.robot.Constants.Shooter;
+import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 
 public class ShooterSubsystem extends SubsystemBase{
 
@@ -38,6 +41,21 @@ public ShooterSubsystem(){
 //Control Modes
 PositionVoltage positionVoltage = new PositionVoltage(0);
 VelocityTorqueCurrentFOC torqueRequest = new VelocityTorqueCurrentFOC(0);
+
+Command Factory
+private void ShooterCommands() {}
+
+/**
+ * @param subsystem
+ * @return
+ */
+public static Command startShooter(Shooter shooter) {
+return Commands.startEnd(
+() -> shooter.start(),
+() -> shooter.stop(),
+shooter
+);
+}
 
 //Commands
 public void fullSpeed() {
