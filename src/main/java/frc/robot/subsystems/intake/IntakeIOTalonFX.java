@@ -26,6 +26,9 @@ import frc.robot.util.TalonFXConfigs;
  *
  * @author @Isaak3
  */
+
+@SuppressWarnings("unused") // Remove when we approach comp ready code
+
 public class IntakeIOTalonFX implements IntakeIO {
 
     // ===== Hardware =====
