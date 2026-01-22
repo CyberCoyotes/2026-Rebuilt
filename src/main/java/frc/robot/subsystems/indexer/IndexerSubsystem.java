@@ -62,10 +62,11 @@ public class IndexerSubsystem {
     // public class MySubsystemCommands {
         // private Indexer() {}
 
-        public static Command doSomething (IndexerSubsystem indexer){
+        public static Command Indexing (IndexerSubsystem indexer){
             return Commands.startEnd(
-                () -> Indexer.Index(), // <-- this need to be actual methods
-                () -> Indexer.stop()
+                () -> Indexer.Indexing() // <-- this need to be actual methods
+                // () -> Indexer.stop()
+                
             );
         }
     // }
