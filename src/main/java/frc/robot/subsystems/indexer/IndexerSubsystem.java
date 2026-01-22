@@ -13,6 +13,7 @@
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.Subsystem;
+import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.playingwithfusion.TimeOfFlight;
@@ -23,7 +24,7 @@ import frc.robot.Constants.Indexer;
 
 @SuppressWarnings("unused")
 
-public class IndexerSubsystem {
+public class IndexerSubsystem extends SubsystemBase {
     
      // ========== HARDWARE ==========
     private final TalonFX floorMotor;
@@ -40,7 +41,9 @@ public class IndexerSubsystem {
     }
 
     // ========== State Machines ==========
+
     private boolean isFuelDetected = false;
+    
     public void updateSensors() {
         // Update the fuel detection state based on the ToF sensor reading
         isFuelDetected = feederToF.getRange() < Constants.Indexer.FUEL_DETECTION_THRESHOLD;
@@ -62,12 +65,10 @@ public class IndexerSubsystem {
     // public class MySubsystemCommands {
         // private Indexer() {}
 
-        public static Command Indexing (IndexerSubsystem indexer){
-            return Commands.startEnd(
-                () -> Indexer.Indexing() // <-- this need to be actual methods
-                // () -> Indexer.stop()
+        public Command Indexing(){
+            return runOnce(() -> setFloorMotorSpeed(10)); // <-- this need to be actual methods
                 
-            );
+            
         }
     // }
  }
