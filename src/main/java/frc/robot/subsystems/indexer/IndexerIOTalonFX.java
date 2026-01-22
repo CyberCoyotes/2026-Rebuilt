@@ -24,6 +24,9 @@ import frc.robot.util.TalonFXConfigs;
  * - ToF sensor configured for short-range detection
  * - All telemetry logged via AdvantageKit
  */
+
+@SuppressWarnings("unused") // Remove when we approach comp ready code
+
 public class IndexerIOTalonFX implements IndexerIO {
 
     // ===== Hardware =====
