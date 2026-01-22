@@ -1,5 +1,9 @@
 package frc.robot.training.scoy;
 
+import edu.wpi.first.networktables.BooleanPublisher;
+import edu.wpi.first.networktables.DoublePublisher;
+import edu.wpi.first.networktables.NetworkTable;
+import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import com.ctre.phoenix6.hardware.TalonFX;
 import edu.wpi.first.wpilibj.DigitalInput;
@@ -38,16 +42,32 @@ public class HyperDriveSubsystem extends SubsystemBase {
     // ========== HARDWARE ==========
     private final TalonFX hyperdriveMotor;
     private final DigitalInput motivatorSensor;
-    
+
     // ========== STATE TRACKING ==========
     // Simple booleans work great when you only have 1-2 to track
     private boolean isEngaged = false;
+
+    // ========== NETWORKTABLES PUBLISHERS ==========
+    // Publish to NetworkTables for Elastic dashboard (NOT SmartDashboard/Shuffleboard)
+    private final BooleanPublisher readyPublisher;
+    private final BooleanPublisher engagedPublisher;
+    private final BooleanPublisher motivatorPublisher;
+    private final DoublePublisher velocityPublisher;
     
     // ========== CONSTRUCTOR ==========
     public HyperDriveSubsystem() {
         hyperdriveMotor = new TalonFX(HYPERDRIVE_MOTOR_ID);
         motivatorSensor = new DigitalInput(MOTIVATOR_SENSOR_PORT);
-        
+
+        // Initialize NetworkTables publishers for Elastic dashboard
+        NetworkTableInstance inst = NetworkTableInstance.getDefault();
+        NetworkTable hyperDriveTable = inst.getTable("HyperDrive");
+
+        readyPublisher = hyperDriveTable.getBooleanTopic("Ready").publish();
+        engagedPublisher = hyperDriveTable.getBooleanTopic("Engaged").publish();
+        motivatorPublisher = hyperDriveTable.getBooleanTopic("Motivator").publish();
+        velocityPublisher = hyperDriveTable.getDoubleTopic("Velocity").publish();
+
         // Configure motor defaults
         // In a real subsystem, you'd configure:
         // - Current limits
@@ -161,16 +181,17 @@ public class HyperDriveSubsystem extends SubsystemBase {
         // - Logging/telemetry
         // - Safety checks
         // - Automatic state updates
-        
+
         // Example: Auto-disengage if motivator fails mid-jump
         if (isEngaged && !isMotivatorFunctional()) {
             System.out.println("CRITICAL: Motivator failure during hyperspace!");
             emergencyStop();
         }
-        
-        // Future: Add SmartDashboard logging here
-        // SmartDashboard.putBoolean("HyperDrive/Ready", isReady());
-        // SmartDashboard.putBoolean("HyperDrive/Engaged", isEngaged);
-        // SmartDashboard.putBoolean("HyperDrive/Motivator", isMotivatorFunctional());
+
+        // Publish telemetry to NetworkTables for Elastic dashboard
+        readyPublisher.set(isReady());
+        engagedPublisher.set(isEngaged);
+        motivatorPublisher.set(isMotivatorFunctional());
+        velocityPublisher.set(getVelocity());
     }
 }

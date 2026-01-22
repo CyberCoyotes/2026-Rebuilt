@@ -1,5 +1,10 @@
 package frc.robot.training.scoy;
 
+import edu.wpi.first.networktables.BooleanPublisher;
+import edu.wpi.first.networktables.DoublePublisher;
+import edu.wpi.first.networktables.NetworkTable;
+import edu.wpi.first.networktables.NetworkTableInstance;
+import edu.wpi.first.networktables.StringPublisher;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import com.ctre.phoenix6.hardware.TalonFX;
 import edu.wpi.first.wpilibj.DigitalInput;
@@ -65,17 +70,33 @@ public class LightsaberHiltSubsytem extends SubsystemBase {
     // ========== HARDWARE ==========
     private final TalonFX bladeMotor;
     private final DigitalInput contactSensor;
-    
+
     // ========== STATE ==========
     private State currentState = State.RETRACTED;
     private State desiredState = State.RETRACTED;
     private double blockedTimestamp = 0.0;
+
+    // ========== NETWORKTABLES PUBLISHERS ==========
+    // Publish to NetworkTables for Elastic dashboard (NOT SmartDashboard/Shuffleboard)
+    private final StringPublisher statePublisher;
+    private final StringPublisher desiredStatePublisher;
+    private final DoublePublisher positionPublisher;
+    private final BooleanPublisher contactPublisher;
     
     // ========== CONSTRUCTOR ==========
     public LightsaberHiltSubsytem() {
         bladeMotor = new TalonFX(BLADE_MOTOR_ID);
         contactSensor = new DigitalInput(CONTACT_SENSOR_PORT);
-        
+
+        // Initialize NetworkTables publishers for Elastic dashboard
+        NetworkTableInstance inst = NetworkTableInstance.getDefault();
+        NetworkTable lightsaberTable = inst.getTable("Lightsaber");
+
+        statePublisher = lightsaberTable.getStringTopic("State").publish();
+        desiredStatePublisher = lightsaberTable.getStringTopic("Desired").publish();
+        positionPublisher = lightsaberTable.getDoubleTopic("Position").publish();
+        contactPublisher = lightsaberTable.getBooleanTopic("Contact").publish();
+
         // Reset encoder position - blade starts retracted
         bladeMotor.setPosition(0);
     }
@@ -255,13 +276,13 @@ public class LightsaberHiltSubsytem extends SubsystemBase {
     }
     
     /**
-     * Log state for debugging.
+     * Log state for debugging - publishes to NetworkTables for Elastic dashboard.
      */
     private void logState() {
-        // Future: Add SmartDashboard logging
-        // SmartDashboard.putString("Lightsaber/State", currentState.name());
-        // SmartDashboard.putString("Lightsaber/Desired", desiredState.name());
-        // SmartDashboard.putNumber("Lightsaber/Position", getBladePosition());
-        // SmartDashboard.putBoolean("Lightsaber/Contact", isContactDetected());
+        // Publish telemetry to NetworkTables for Elastic dashboard
+        statePublisher.set(currentState.name());
+        desiredStatePublisher.set(desiredState.name());
+        positionPublisher.set(getBladePosition());
+        contactPublisher.set(isContactDetected());
     }
 }

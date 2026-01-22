@@ -13,7 +13,6 @@ import choreo.auto.AutoChooser;
 import choreo.auto.AutoFactory;
 
 import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.RobotModeTriggers;
@@ -69,7 +68,8 @@ public class RobotContainer {
         autoRoutines = new AutoRoutines(autoFactory);
 
         autoChooser.addRoutine("SimplePath", autoRoutines::simplePathAuto);
-        SmartDashboard.putData("Auto Chooser", autoChooser);
+        // AutoChooser automatically publishes to NetworkTables at "AutoChooser"
+        // Elastic dashboard can read this directly without SmartDashboard
 
         configureBindings();
     }

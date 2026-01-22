@@ -1,8 +1,13 @@
 package frc.robot.subsystems.vision;
 
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.networktables.BooleanPublisher;
+import edu.wpi.first.networktables.DoublePublisher;
+import edu.wpi.first.networktables.IntegerPublisher;
+import edu.wpi.first.networktables.NetworkTable;
+import edu.wpi.first.networktables.NetworkTableInstance;
+import edu.wpi.first.networktables.StringPublisher;
 import edu.wpi.first.wpilibj.Timer;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import org.littletonrobotics.junction.Logger;
@@ -47,6 +52,19 @@ public class VisionSubsystem extends SubsystemBase {
     private final VisionIO io;
     private final VisionIO.VisionIOInputs inputs = new VisionIO.VisionIOInputs();
 
+    // ===== NetworkTables Publishers for Elastic Dashboard =====
+    private final NetworkTable visionTable;
+    private final StringPublisher statePublisher;
+    private final BooleanPublisher hasTargetPublisher;
+    private final BooleanPublisher isAlignedPublisher;
+    private final IntegerPublisher tagIdPublisher;
+    private final DoublePublisher targetAreaPublisher;
+    private final DoublePublisher distanceMetersPublisher;
+    private final DoublePublisher distanceCmPublisher;
+    private final DoublePublisher horizontalAnglePublisher;
+    private final DoublePublisher verticalAnglePublisher;
+    private final DoublePublisher latencyPublisher;
+
     // ===== State Tracking =====
     /**
      * Alignment state for the vision system.
@@ -83,6 +101,21 @@ public class VisionSubsystem extends SubsystemBase {
      */
     public VisionSubsystem(VisionIO io) {
         this.io = io;
+
+        // Initialize NetworkTables publishers for Elastic dashboard
+        NetworkTableInstance inst = NetworkTableInstance.getDefault();
+        visionTable = inst.getTable("Vision");
+
+        statePublisher = visionTable.getStringTopic("State").publish();
+        hasTargetPublisher = visionTable.getBooleanTopic("HasTarget").publish();
+        isAlignedPublisher = visionTable.getBooleanTopic("IsAligned").publish();
+        tagIdPublisher = visionTable.getIntegerTopic("TagID").publish();
+        targetAreaPublisher = visionTable.getDoubleTopic("TargetArea").publish();
+        distanceMetersPublisher = visionTable.getDoubleTopic("Distance_m").publish();
+        distanceCmPublisher = visionTable.getDoubleTopic("Distance_cm").publish();
+        horizontalAnglePublisher = visionTable.getDoubleTopic("HorizontalAngle_deg").publish();
+        verticalAnglePublisher = visionTable.getDoubleTopic("VerticalAngle_deg").publish();
+        latencyPublisher = visionTable.getDoubleTopic("TotalLatency_ms").publish();
 
         // Initialize Limelight to known state
         io.setLEDMode(VisionIO.LEDMode.PIPELINE_DEFAULT);
@@ -341,28 +374,22 @@ public class VisionSubsystem extends SubsystemBase {
     // =========================================================================
 
     /**
-     * Logs comprehensive telemetry to SmartDashboard and AdvantageKit.
+     * Logs comprehensive telemetry to NetworkTables (for Elastic) and AdvantageKit.
      */
     private void logTelemetry() {
-        // State information
-        SmartDashboard.putString("Vision/State", currentState.name());
-        SmartDashboard.putBoolean("Vision/HasTarget", hasTarget());
-        SmartDashboard.putBoolean("Vision/IsAligned", isAligned());
+        // Publish to NetworkTables for Elastic dashboard
+        statePublisher.set(currentState.name());
+        hasTargetPublisher.set(hasTarget());
+        isAlignedPublisher.set(isAligned());
+        tagIdPublisher.set(getTagId());
+        targetAreaPublisher.set(inputs.targetArea);
+        distanceMetersPublisher.set(getDistanceToTargetMeters());
+        distanceCmPublisher.set(getDistanceToTargetCM());
+        horizontalAnglePublisher.set(getHorizontalAngleDegrees());
+        verticalAnglePublisher.set(getVerticalAngleDegrees());
+        latencyPublisher.set(inputs.totalLatencyMs);
 
-        // Raw values
-        SmartDashboard.putNumber("Vision/TagID", getTagId());
-        SmartDashboard.putNumber("Vision/TargetArea", inputs.targetArea);
-
-        // Calculated values
-        SmartDashboard.putNumber("Vision/Distance_m", getDistanceToTargetMeters());
-        SmartDashboard.putNumber("Vision/Distance_cm", getDistanceToTargetCM());
-        SmartDashboard.putNumber("Vision/HorizontalAngle_deg", getHorizontalAngleDegrees());
-        SmartDashboard.putNumber("Vision/VerticalAngle_deg", getVerticalAngleDegrees());
-
-        // Latency
-        SmartDashboard.putNumber("Vision/TotalLatency_ms", inputs.totalLatencyMs);
-
-        // AdvantageKit logging
+        // AdvantageKit logging (unchanged)
         Logger.recordOutput("Vision/State", currentState.name());
         Logger.recordOutput("Vision/HasTarget", hasTarget());
         Logger.recordOutput("Vision/IsAligned", isAligned());
