@@ -1,10 +1,34 @@
 package frc.robot.subsystems.shooter;
 
 /*
- * AUTHOR: @Isaak3
- * The shooter needs to be able to shoot the fuel and adjust the hood
- * it will use 5 motors: 3 for the main flywheels(Falcon500), 1 for the hood movements(Minion),
- * and 1 for the counter-wheel(Kraken x44);
+ * ===============================================================================
+ * ShooterSubsystemBasics - LEARNING REFERENCE / PARALLEL DEVELOPMENT
+ * ===============================================================================
+ *
+ * AUTHOR: @Isaak3 (Student)
+ *
+ * PURPOSE:
+ * This is a simplified shooter implementation preserved for learning and parallel
+ * development. The production code uses ShooterSubsystem (in the parent package)
+ * which follows the advanced IO-layered architecture pattern.
+ *
+ * ARCHITECTURAL DIFFERENCES:
+ * - This version: Direct TalonFX motor control (simple, easier to understand)
+ * - Production version: Uses ShooterIO abstraction layer (testable, replayable)
+ *
+ * USE THIS FOR:
+ * - Understanding basic shooter control concepts
+ * - Hardware testing on practice robot (if different configuration)
+ * - Parallel development of features before integrating into production code
+ * - Reference when tuning PID gains
+ *
+ * HARDWARE:
+ * - 3 Falcon 500 motors (main flywheels) for shooting game pieces
+ * - 1 TalonFX motor (hood) for angle adjustment
+ * - 1 Kraken X60 motor (counter-wheel) for optional backspin
+ *
+ * NOTE: For competition robot development, use the production ShooterSubsystem
+ * ===============================================================================
  */
 
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -18,7 +42,7 @@ import edu.wpi.first.wpilibj2.command.Commands;
 
 @SuppressWarnings("unused")
 
-public class ShooterSubsystem extends SubsystemBase{
+public class ShooterSubsystemBasics extends SubsystemBase{
 
 //speed presets
 private static final double fullVel = 106.3;
