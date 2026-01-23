@@ -6,6 +6,27 @@
  * 1 on floor
  * 1 on elevator 
  * sensor for ball to elevator
+ * /**
+ * IndexerSubsystem - Manages game piece movement from intake to shooter.
+ *
+ * HARDWARE:
+ * - Floor motor: Moves game pieces along the hopper floor toward the feeder
+ * - Feeder motor: Grabs pieces from hopper and feeds them into the shooter
+ * - ToF sensor: Detects when a game piece is staged and ready to shoot; might not be needed
+ *
+ * STATE MACHINE:
+ * - IDLE: All motors off, waiting for commands
+ * - FLOOR_TRANSPORT: Floor motor on, moving piece toward feeder
+ * - FEEDING: Feeder motor on, delivering piece to shooter
+ * - INDEXING: Both feeder and floor transport motors on, actively feeding piece to shooter
+ * - EJECTING: Both motors reversed, clearing jammed pieces
+ *
+ * TYPICAL FLOW:
+ * - Intake picks up game piece and launches it into hopper
+ * - ** UPDATE 1/22 Not needed** FLOOR_TRANSPORT: Floor motor moves piece toward feeder
+ * - ** UPDATE 1/22 Not needed** ToF sensor detects piece → transition to IDLE (piece staged)
+ * - When Shooting Button pressed && Flywheel Velocity Target met → INDEXING (FLOOR_TRANSPORT && FEEDING) into shooter
+ * - ** UPDATE 1//22 Not needed** ToF sensor clears → back to IDLE
  */
 
  package frc.robot.subsystems.indexer;
@@ -26,7 +47,12 @@ import frc.robot.Constants.Indexer;
 
 public class IndexerSubsystem extends SubsystemBase {
     
-     // ========== HARDWARE ==========
+     // ========== HARDWARE ========== 
+     
+    private final IndexerIO io;
+    private final IndexerIO.IndexerIOInputs inputs = new IndexerIO.IndexerIOInputs();
+
+
     private final TalonFX floorMotor;
     private final TalonFX feederMotor;
     private final TimeOfFlight feederToF;
