@@ -35,6 +35,8 @@ public class IntakeSubsystem extends SubsystemBase{
     public final double SLIDE_EXTENDED_POSITION = 0.5;
     public final double SLIDE_RESTING_POSITION = 0;
     public final double ROTATOR_RUNNING_VELOCITY = 0.5;
+
+    public final double ROTATOR_MAX_VELOCITY = 1;
     
     //uses Kraken x44 with TalonFX interface
     IntakeSubsystem(){
@@ -91,10 +93,6 @@ public class IntakeSubsystem extends SubsystemBase{
         return m_slide.getPosition();
     }
     
-    //returns true if the closest object is within a set threshold and if the last range check was valid
-    public boolean intakeTargetClose(){
-        return (s_intake.getRange() <= INTAKE_THRESHOLD) && s_intake.isRangeValid();
-    }
 
     public double getIntakeDistance(){
         return s_intake.getRange();
@@ -104,23 +102,29 @@ public class IntakeSubsystem extends SubsystemBase{
         return (s_indexer.getRange() <= INDEXER_THRESHOLD) && s_indexer.isRangeValid();
     }
 
+    public boolean intakeTargetClose(){
+        return (s_intake.getRange() <= INDEXER_THRESHOLD) && s_intake.isRangeValid();
+    }
+
     public double getIndexerDistance(){
         return s_indexer.getRange();
     }
 
     public void toRestingState(){
-        setSlidePosition(SLIDE_RESTING_POSITION);
+        if (!isJammed()){
+        setSlidePosition(SLIDE_RESTING_POSITION); // if ball is stuck, moving slide to rest is bad
+        }
         setRotatorVelocity(0);
     }
 
-    // TODO Debug and tune these values. There was a merge conflict so the previous implementation is commented out below.
-    /* 
+    // TODO Debug and tune these values.
+    
     public boolean isJammed(){
         double current = m_rotator.getSupplyCurrent().getValueAsDouble();
         double velocity = m_rotator.getVelocity().getValueAsDouble();
 
         return (current >= JAM_CURRENT_THRESHOLD) && (velocity <= JAM_VELOCITY_THRESHOLD);
   }
-*/
+
 
 }
