@@ -68,7 +68,6 @@ public class ShooterSubsystemBasics extends SubsystemBase {
 
     // Constructor
 public ShooterSubsystemBasics() {
-    // this.io = io;
     
     flywheelA = new TalonFX(Constants.Shooter.FLYWHEEL_A_MOTOR_ID);
     flywheelB = new TalonFX(Constants.Shooter.FLYWHEEL_B_MOTOR_ID);
