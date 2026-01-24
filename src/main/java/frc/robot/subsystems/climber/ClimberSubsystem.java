@@ -49,7 +49,7 @@ public class ClimberSubsystem extends SubsystemBase {
      //Climber command factory
       public Command extendFast() {
          return run(() -> setArmVolts(12));
-      
+
      }
 
       public Command extendSlow() {
@@ -57,13 +57,19 @@ public class ClimberSubsystem extends SubsystemBase {
       
      }
  
-      public Command retract(Climber climber) {
-         return Commands.startEnd(
-            () -> climber.retract(),
-            () -> climber.stop(),
-            climber
-         );
+      public Command retractFast() {
+         return run(() -> setArmVolts(-12));
+
       }
 
-    } // End of ClimberSubsystem class
+      public Command retractSlow() {
+         return run(() -> setArmVolts(-3));
+
+      }
+
+      public Command stopArm() {
+         return run(() -> setArmVolts(0));
+      }
+      
+      }// End of ClimberSubsystem class
     
