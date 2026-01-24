@@ -91,22 +91,14 @@ public class IntakeSubsystem extends SubsystemBase{
         return s_distance.getRange();
     }
 
-    // TODO Debug and tune these values. There was a merge conflict so the previous implementation is commented out below.
-    /* 
+    // TODO Debug and tune these values.
+    
     public boolean isJammed(){
-        double setOutput = m_rotator.get();
-        double actualOutput = m_rotator.getVelocity().getValueAsDouble();
-
-        double setEpsilon = 0.1; //epsilon is error constant in math
-        double actualEpsilon = 0.1; //TODO: filler numbers 
-        return (setOutput > setEpsilon) && (actualOutput < actualEpsilon); // is jammed if the set output is over an error constant while the reported output is under a certain constant
-    }
-
         double current = m_rotator.getSupplyCurrent().getValueAsDouble();
         double velocity = m_rotator.getVelocity().getValueAsDouble();
 
         return (current >= JAM_CURRENT_THRESHOLD) && (velocity <= JAM_VELOCITY_THRESHOLD);
   }
-*/
+
 
 }
