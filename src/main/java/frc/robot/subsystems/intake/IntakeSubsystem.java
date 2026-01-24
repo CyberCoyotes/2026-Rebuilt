@@ -20,10 +20,14 @@ public class IntakeSubsystem extends SubsystemBase{
     private final TalonFX m_slide; //moves the intake forward and backwards
     private final VelocityVoltage m_rotator_request;
     private final MotionMagicVoltage m_slide_request;
-    private final TimeOfFlight s_distance; 
+    private final TimeOfFlight s_intake; // detects objects near intake
+    private final TimeOfFlight s_indexer; // detects when ball capacity meets standards for indexer handoff 
 
-    private final int DISTANCE_SENSOR_ID = 12345;
-    private final int DISTANCE_THRESHOLD = 1000; //around four inches
+    private final int INTAKE_SENSOR_ID = 12345;
+    private final int INTAKE_THRESHOLD = 1000; //mm, around four inches
+
+    private final int INDEXER_SENSOR_ID = 234;
+    private final int INDEXER_THRESHOLD = 67; //mm
 
     private final double JAM_CURRENT_THRESHOLD = 20.0; // current should be under this
     private final double JAM_VELOCITY_THRESHOLD = 0.5; // velocity should be over this
@@ -34,7 +38,8 @@ public class IntakeSubsystem extends SubsystemBase{
         m_slide = new TalonFX(Constants.Intake.INTAKE_SLIDE_ID);
         m_rotator_request = new VelocityVoltage(0).withSlot(0);
         m_slide_request = new MotionMagicVoltage(0);
-        s_distance = new TimeOfFlight(DISTANCE_SENSOR_ID);
+        s_intake = new TimeOfFlight(INTAKE_SENSOR_ID);
+        s_indexer = new TimeOfFlight(INDEXER_SENSOR_ID);
 
         var rotatorConfigs = new TalonFXConfiguration();
         var slideConfigs = new TalonFXConfiguration();
@@ -83,25 +88,26 @@ public class IntakeSubsystem extends SubsystemBase{
     }
     
     //returns true if the closest object is within a set threshold and if the last range check was valid
-    public boolean targetClose(){
-        return (s_distance.getRange() <= DISTANCE_THRESHOLD) && s_distance.isRangeValid();
+    public boolean intakeTargetClose(){
+        return (s_intake.getRange() <= INTAKE_THRESHOLD) && s_intake.isRangeValid();
     }
 
-    public double getDistance(){
-        return s_distance.getRange();
+    public double getIntakeDistance(){
+        return s_intake.getRange();
     }
+
+    public boolean indexerTargetClose(){
+        return (s_indexer.getRange() <= INDEXER_THRESHOLD) && s_indexer.isRangeValid();
+    }
+
+    public double getIndexerDistance(){
+        return s_indexer.getRange();
+    }
+
 
     // TODO Debug and tune these values. There was a merge conflict so the previous implementation is commented out below.
     /* 
     public boolean isJammed(){
-        double setOutput = m_rotator.get();
-        double actualOutput = m_rotator.getVelocity().getValueAsDouble();
-
-        double setEpsilon = 0.1; //epsilon is error constant in math
-        double actualEpsilon = 0.1; //TODO: filler numbers 
-        return (setOutput > setEpsilon) && (actualOutput < actualEpsilon); // is jammed if the set output is over an error constant while the reported output is under a certain constant
-    }
-
         double current = m_rotator.getSupplyCurrent().getValueAsDouble();
         double velocity = m_rotator.getVelocity().getValueAsDouble();
 
