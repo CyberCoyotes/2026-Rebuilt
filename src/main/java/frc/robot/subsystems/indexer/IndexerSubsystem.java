@@ -11,7 +11,9 @@
  *
  * HARDWARE:
  * - Floor motor: Moves game pieces along the hopper floor toward the feeder
+ * - Kracken x44
  * - Feeder motor: Grabs pieces from hopper and feeds them into the shooter
+ * - Kracken x44
  * - ToF sensor: Detects when a game piece is staged and ready to shoot; might not be needed
  *
  * STATE MACHINE:
@@ -52,50 +54,52 @@ public class IndexerSubsystem extends SubsystemBase {
     private final IndexerIO io;
     private final IndexerIO.IndexerIOInputs inputs = new IndexerIO.IndexerIOInputs();
 
-
-    private final TalonFX floorMotor;
-    private final TalonFX feederMotor;
-    private final TimeOfFlight feederToF;
+    // private final TalonFX floorMotor; // These are completely correct in a basic subsystem. 
+    // private final TalonFX feederMotor;
+    // private final TimeOfFlight feederToF;
     
-    
-
     // ========== CONSTRUCTOR ==========
-    public IndexerSubsystem() {
-        floorMotor = new TalonFX(Constants.Indexer.FLOOR_MOTOR_ID);
-        feederMotor = new TalonFX(Constants.Indexer.FEEDER_MOTOR_ID);
-        feederToF = new TimeOfFlight(Constants.Indexer.FEEDER_TOF_ID);
+    public IndexerSubsystem(IndexerIO io) {
+        this.io = io;
+        // floorMotor = new TalonFX(Constants.Indexer.FLOOR_MOTOR_ID); // In a basic subsystem this is completely correct
+        // feederMotor = new TalonFX(Constants.Indexer.FEEDER_MOTOR_ID);
+        // feederToF = new TimeOfFlight(Constants.Indexer.FEEDER_TOF_ID);
+
     }
 
     // ========== State Machines ==========
 
-    private boolean isFuelDetected = false;
+
+    private boolean isFuelDetected;
     
-    public void updateSensors() {
+    // ======== Methods ============
+    public void updateSensors(IndexerIOTalonFX input) {
         // Update the fuel detection state based on the ToF sensor reading
-        isFuelDetected = feederToF.getRange() < Constants.Indexer.FUEL_DETECTION_THRESHOLD;
+        // Consider making the sensor reading a method rather than directly accessing
+        /*
+         *   public Command Indexing(){
+                return runOnce(() -> setFloorMotorSpeed(inputs, 10)); // <-- this need to be actual methods   
+        }
+         */
+        isFuelDetected = input.feederToF.getRange() < Constants.Indexer.FUEL_DETECTION_THRESHOLD;
     }
+
     public boolean isFuelDetected() {
         return isFuelDetected;
     }
     
     // ========== MOTOR METHODS ==========
-    public void setFloorMotorSpeed(double speed) {
-        floorMotor.set(speed);
+    public void setFloorMotorSpeed(IndexerIOTalonFX inputs, double speed) {
+        inputs.floorMotor.set(speed);
     }
 
-    public void setKickMotorSpeed(double speed) {
-        feederMotor.set(speed);
+    public void setKickMotorSpeed(IndexerIOTalonFX inputs, double speed) {
+        inputs.feederMotor.set(speed);
     }
 
     //========= COMMANDS ==========
-    // public class MySubsystemCommands {
-        // private Indexer() {}
-
-        public Command Indexing(){
-            return runOnce(() -> setFloorMotorSpeed(10)); // <-- this need to be actual methods
-                
-            
-        }
-    // }
+        // public Command Indexing(){
+        //     return runOnce(() -> setFloorMotorSpeed(10));
+        // }
  }
 
