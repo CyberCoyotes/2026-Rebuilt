@@ -96,23 +96,14 @@ public class IntakeSubsystem extends SubsystemBase{
         return s_intake.getRange();
     }
 
-    public boolean indexerTargetClose(){
-        return (s_indexer.getRange() <= INDEXER_THRESHOLD) && s_indexer.isRangeValid();
-    }
-
-    public double getIndexerDistance(){
-        return s_indexer.getRange();
-    }
-
-
-    // TODO Debug and tune these values. There was a merge conflict so the previous implementation is commented out below.
-    /* 
+    // TODO Debug and tune these values.
+    
     public boolean isJammed(){
         double current = m_rotator.getSupplyCurrent().getValueAsDouble();
         double velocity = m_rotator.getVelocity().getValueAsDouble();
 
         return (current >= JAM_CURRENT_THRESHOLD) && (velocity <= JAM_VELOCITY_THRESHOLD);
   }
-*/
+
 
 }
