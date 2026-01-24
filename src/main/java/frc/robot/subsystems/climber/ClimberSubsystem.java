@@ -41,12 +41,18 @@ public class ClimberSubsystem extends SubsystemBase {
         hookMotor = new TalonFX(Constants.Climber.HOOK_RETRACT_MOTOR_ID);
      }
 
-       //Climber arm methods
+       //Climber methods
       public void setArmVolts(double voltage) { // Set arm to extend give it a variable and declare type
          armMotor.setVoltage(voltage); // Full voltage to extend
       }
 
+      public void setHookVolts(double voltage) { // Set hook to move given variable and declare type
+         hookMotor.setVoltage(voltage); // Full voltage to move hook
+      }
+
      //Climber command factory
+
+     // Commands for arm movement
       public Command extendFast() {
          return run(() -> setArmVolts(12));
 
@@ -71,5 +77,17 @@ public class ClimberSubsystem extends SubsystemBase {
          return run(() -> setArmVolts(0));
       }
       
-      }// End of ClimberSubsystem class
+      // Commands for hook movement
+       public Command hookUp() {
+         return run(() -> setHookVolts(6));
+       }
+
+      public Command hookDown() {
+         return run(() -> setHookVolts(-6));
+      }
+
+      public Command hookStop() {
+         return run (() -> setHookVolts(0));
+      }
+         }// End of ClimberSubsystem class
     
