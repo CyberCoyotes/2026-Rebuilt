@@ -33,6 +33,7 @@ public class IntakeSubsystem extends SubsystemBase{
     private final double JAM_VELOCITY_THRESHOLD = 0.5; // velocity should be over this
 
     public final double SLIDE_EXTENDED_POSITION = 0.5;
+    public final double SLIDE_RESTING_POSITION = 0;
     public final double ROTATOR_RUNNING_VELOCITY = 0.5;
     
     //uses Kraken x44 with TalonFX interface
@@ -107,6 +108,10 @@ public class IntakeSubsystem extends SubsystemBase{
         return s_indexer.getRange();
     }
 
+    public void toRestingState(){
+        setSlidePosition(SLIDE_RESTING_POSITION);
+        setRotatorVelocity(0);
+    }
 
     // TODO Debug and tune these values. There was a merge conflict so the previous implementation is commented out below.
     /* 

@@ -10,29 +10,14 @@ public class IntakeCommands {
     
     private IntakeCommands(){}
 
-    public Command intakeMode(IntakeSubsystem intake){
-           /*   new FunctionalCommand(
-            () -> intake.setSlidePosition(intake.SLIDE_EXTENDED_POSITION),
-            () -> intake.setRotatorVelocity(intake.ROTATOR_RUNNING_VELOCITY),
-            () -> {
-                intake.setSlidePosition(intake.SLIDE_EXTENDED_POSITION);
-                intake.setRotatorVelocity(intake.ROTATOR_RUNNING_VELOCITY);
-            }, 
-            () -> false,
-        intake);
-        
-         return new  FunctionalCommand(
-       () -> intake.setSlidePosition(intake.SLIDE_EXTENDED_POSITION), 
-       () -> intake.setRotatorVelocity(intake.ROTATOR_RUNNING_VELOCITY), 
-       null, 
-       null, 
-       intake);
-        */
-       return new  FunctionalCommand(
-       () -> intake.setSlidePosition(intake.SLIDE_EXTENDED_POSITION), 
-       () -> intake.setRotatorVelocity(intake.ROTATOR_RUNNING_VELOCITY), 
-       null, 
-       () -> false, 
-       intake);
+    public Command enterIntakeMode(IntakeSubsystem intake){
+        return 
+        new  FunctionalCommand (
+       () -> intake.setSlidePosition(intake.SLIDE_EXTENDED_POSITION), //runs on init, extends slider
+       () -> intake.setRotatorVelocity(intake.ROTATOR_RUNNING_VELOCITY), // runs until command ends, runs rotator
+       interrupted -> intake.toRestingState(), // when the command is interrupted, return the subsystem to resting state (unexteded slider and stopped rotator)
+       () -> intake.intakeTargetClose() && intake.indexerTargetClose(), // stop the command when there is nothing to be picked up and nothing inside it
+       intake // the subsystem that the command depends on
+       );
         }
     }
