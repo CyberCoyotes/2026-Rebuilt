@@ -1,10 +1,9 @@
-package frc.robot.subsystems;
+package frc.robot.subsystems.shooter;
 
 import org.littletonrobotics.junction.Logger;
 
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.subsystems.shooter.ShooterIO;
 import frc.robot.subsystems.shooter.ShooterIO.ShooterIOInputs;
 
 /**
@@ -39,7 +38,7 @@ public class ShooterSubsystem extends SubsystemBase {
     // ===== State Machine =====
     public enum ShooterState {
         IDLE,      // Flywheel off, hood at home
-        SPINUP,    // Flywheel + hood moving to target
+        SPINUP,    // Flywheel + hood not IDLE and not at READY
         READY,     // Both at target, ready to shoot
         EJECT      // Flywheel reverse (clearing jams)
     }
