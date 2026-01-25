@@ -19,7 +19,7 @@ import frc.robot.Constants;
 
 @SuppressWarnings("unused")
 
-public class IndexerSubsystem extends SubsystemBase{
+public class IndexerSubsystemBasic extends SubsystemBase{
     
      // ========== HARDWARE ==========
      /* 
@@ -40,7 +40,7 @@ public class IndexerSubsystem extends SubsystemBase{
 
 
     // ========== CONSTRUCTOR ==========
-    public IndexerSubsystem() {
+    public IndexerSubsystemBasic() {
         conveyorMotor = new TalonFX(Constants.Indexer.CONVEYOR_MOTOR_ID);
         indexerMotor = new TalonFX(Constants.Indexer.INDEXER_MOTOR_ID);
         indexerToF = new TimeOfFlight(Constants.Indexer.INDEXER_TOF_ID);
