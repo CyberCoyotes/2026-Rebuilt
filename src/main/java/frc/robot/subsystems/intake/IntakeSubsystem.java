@@ -117,6 +117,15 @@ public class IntakeSubsystem extends SubsystemBase{
         setRotatorVelocity(0);
     }
 
+    //returns true if the closest object is within a set threshold and if the last range check was valid
+    public boolean intakeTargetClose(){
+        return (s_intake.getRange() <= INTAKE_THRESHOLD) && s_intake.isRangeValid();
+    }
+
+    public double getIntakeDistance(){
+        return s_intake.getRange();
+    }
+
     // TODO Debug and tune these values.
     
     public boolean isJammed(){
