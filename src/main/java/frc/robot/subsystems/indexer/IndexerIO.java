@@ -10,16 +10,19 @@ import org.littletonrobotics.junction.inputs.LoggableInputs;
  * It consists of:
  * - Floor motor: Moves pieces along the floor of the hopper toward the feeder
  * - Feeder motor: Grabs pieces from the hopper and feeds them into the shooter
- * - Time-of-Flight (ToF) sensor: Detects when a game piece is staged and ready
+ * - Feeder ToF sensor: Detects when a game piece is staged and ready to shoot
+ * - Hopper ToF sensors (A, B, C): Detect game pieces at different positions in hopper
  *
  * HARDWARE:
  * - 2x Kraken X60 motors (floor + feeder)
- * - 1x Playing With Fusion Time-of-Flight sensor
+ * - 4x Playing With Fusion Time-of-Flight sensors (1 feeder + 3 hopper)
  *
  * PATTERN: IO Interface
  * - IndexerIO: Interface defining what indexer hardware can do
  * - IndexerIOHardware: Real hardware implementation with motors and sensors
  * - IndexerIOSim: Simulation for testing without hardware
+ *
+ * @see IndexerSubsystemBasic for a simpler direct-hardware approach (good for learning)
  */
 public interface IndexerIO {
 
@@ -56,15 +59,43 @@ public interface IndexerIO {
         /** Feeder motor temperature in Celsius */
         public double feederTempCelsius = 0.0;
 
-        // ===== Time-of-Flight Sensor Data =====
-        /** Distance reading from ToF sensor in millimeters */
+        // ===== Feeder Time-of-Flight Sensor Data =====
+        /** Distance reading from feeder ToF sensor in millimeters */
         public double tofDistanceMM = 0.0;
 
-        /** True if ToF sensor has valid measurement */
+        /** True if feeder ToF sensor has valid measurement */
         public boolean tofValid = false;
 
-        /** True if a game piece is detected by ToF sensor */
+        /** True if a game piece is detected at the feeder (ready to shoot) */
         public boolean gamePieceDetected = false;
+
+        // ===== Hopper Time-of-Flight Sensor Data =====
+        /** Distance reading from hopper A ToF sensor in millimeters */
+        public double hopperADistanceMM = 0.0;
+
+        /** True if hopper A ToF sensor has valid measurement */
+        public boolean hopperAValid = false;
+
+        /** True if a game piece is detected at hopper position A */
+        public boolean hopperADetected = false;
+
+        /** Distance reading from hopper B ToF sensor in millimeters */
+        public double hopperBDistanceMM = 0.0;
+
+        /** True if hopper B ToF sensor has valid measurement */
+        public boolean hopperBValid = false;
+
+        /** True if a game piece is detected at hopper position B */
+        public boolean hopperBDetected = false;
+
+        /** Distance reading from hopper C ToF sensor in millimeters */
+        public double hopperCDistanceMM = 0.0;
+
+        /** True if hopper C ToF sensor has valid measurement */
+        public boolean hopperCValid = false;
+
+        /** True if a game piece is detected at hopper position C */
+        public boolean hopperCDetected = false;
 
         @Override
         public void toLog(LogTable table) {
@@ -80,10 +111,23 @@ public interface IndexerIO {
             table.put("FeederCurrentAmps", feederCurrentAmps);
             table.put("FeederTempCelsius", feederTempCelsius);
 
-            // ToF sensor
+            // Feeder ToF sensor
             table.put("TofDistanceMM", tofDistanceMM);
             table.put("TofValid", tofValid);
             table.put("GamePieceDetected", gamePieceDetected);
+
+            // Hopper ToF sensors
+            table.put("HopperADistanceMM", hopperADistanceMM);
+            table.put("HopperAValid", hopperAValid);
+            table.put("HopperADetected", hopperADetected);
+
+            table.put("HopperBDistanceMM", hopperBDistanceMM);
+            table.put("HopperBValid", hopperBValid);
+            table.put("HopperBDetected", hopperBDetected);
+
+            table.put("HopperCDistanceMM", hopperCDistanceMM);
+            table.put("HopperCValid", hopperCValid);
+            table.put("HopperCDetected", hopperCDetected);
         }
 
         @Override
@@ -100,10 +144,23 @@ public interface IndexerIO {
             feederCurrentAmps = table.get("FeederCurrentAmps", feederCurrentAmps);
             feederTempCelsius = table.get("FeederTempCelsius", feederTempCelsius);
 
-            // ToF sensor
+            // Feeder ToF sensor
             tofDistanceMM = table.get("TofDistanceMM", tofDistanceMM);
             tofValid = table.get("TofValid", tofValid);
             gamePieceDetected = table.get("GamePieceDetected", gamePieceDetected);
+
+            // Hopper ToF sensors
+            hopperADistanceMM = table.get("HopperADistanceMM", hopperADistanceMM);
+            hopperAValid = table.get("HopperAValid", hopperAValid);
+            hopperADetected = table.get("HopperADetected", hopperADetected);
+
+            hopperBDistanceMM = table.get("HopperBDistanceMM", hopperBDistanceMM);
+            hopperBValid = table.get("HopperBValid", hopperBValid);
+            hopperBDetected = table.get("HopperBDetected", hopperBDetected);
+
+            hopperCDistanceMM = table.get("HopperCDistanceMM", hopperCDistanceMM);
+            hopperCValid = table.get("HopperCValid", hopperCValid);
+            hopperCDetected = table.get("HopperCDetected", hopperCDetected);
         }
     }
 

@@ -2,24 +2,45 @@
  * AUTHOR: @Joel-Trumpet-67
  */
 
-/* 2 motor 
- * 1 on floor
- * 1 on elevator 
- * sensor for ball to elevator
- */
-
- package frc.robot.subsystems.indexer;
+package frc.robot.subsystems.indexer;
 
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.playingwithfusion.TimeOfFlight;
 
-import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 
+/**
+ * IndexerSubsystemBasic - A simplified indexer implementation for training purposes.
+ *
+ * RECOMMENDED FOR: Younger programmers learning FRC robot programming.
+ *
+ * This class demonstrates the fundamentals of subsystem design:
+ * - Direct hardware instantiation (TalonFX motors, TimeOfFlight sensors)
+ * - Simple motor control methods
+ * - Basic sensor reading
+ *
+ * WHY KEEP THIS CLASS:
+ * - Easier to understand than the IO pattern (fewer files, less abstraction)
+ * - Great for learning how hardware interfaces work
+ * - Good stepping stone before learning IndexerIO/IndexerIOHardware pattern
+ *
+ * HARDWARE:
+ * - 2x TalonFX motors (conveyor on floor, indexer for kicking to shooter)
+ * - 4x TimeOfFlight sensors (1 indexer, 3 hopper positions A/B/C)
+ *
+ * WHEN TO GRADUATE TO IndexerSubsystem:
+ * Once comfortable with this class, students should learn the IO pattern used
+ * in IndexerSubsystem + IndexerIOHardware. The IO pattern enables:
+ * - Simulation testing without hardware
+ * - AdvantageKit log replay
+ * - Cleaner separation of concerns
+ *
+ * @see IndexerSubsystem for the production implementation using the IO pattern
+ * @see IndexerIOHardware for how hardware is abstracted in the IO pattern
+ */
 @SuppressWarnings("unused")
-
-public class IndexerSubsystemBasic extends SubsystemBase{
+public class IndexerSubsystemBasic extends SubsystemBase {
     
      // ========== HARDWARE ==========
      /* 

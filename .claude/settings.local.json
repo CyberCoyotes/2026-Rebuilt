@@ -9,7 +9,9 @@
       "Bash(chmod:*)",
       "Bash(./gradlew:*)",
       "Bash(find:*)",
-      "Bash(javac:*)"
+      "Bash(javac:*)",
+      "Bash(cmd /c:*)",
+      "Bash(powershell:*)"
     ]
   }
 }
