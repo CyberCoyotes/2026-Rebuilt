@@ -31,6 +31,12 @@ public class IntakeSubsystem extends SubsystemBase{
 
     private final double JAM_CURRENT_THRESHOLD = 20.0; // current should be under this
     private final double JAM_VELOCITY_THRESHOLD = 0.5; // velocity should be over this
+
+    public final double SLIDE_EXTENDED_POSITION = 0.5;
+    public final double SLIDE_RESTING_POSITION = 0;
+    public final double ROTATOR_RUNNING_VELOCITY = 0.5;
+
+    public final double ROTATOR_MAX_VELOCITY = 1;
     
     //uses Kraken x44 with TalonFX interface
     IntakeSubsystem(){
@@ -67,7 +73,7 @@ public class IntakeSubsystem extends SubsystemBase{
         m_slide.getConfigurator().apply(slideSlot0);
     }
 
-    public void setRotatorVolts(double velocity){
+    public void setRotatorVelocity(double velocity){
         m_rotator.setControl(m_rotator_request.withVelocity(velocity));
     }
 
@@ -79,7 +85,7 @@ public class IntakeSubsystem extends SubsystemBase{
         return m_rotator.getMotorVoltage();
     }
 
-    public void setSlidePosition(int position){
+    public void setSlidePosition(double position){
         m_slide.setControl(m_slide_request.withPosition(position));
     }
 
@@ -87,6 +93,30 @@ public class IntakeSubsystem extends SubsystemBase{
         return m_slide.getPosition();
     }
     
+
+    public double getIntakeDistance(){
+        return s_intake.getRange();
+    }
+
+    public boolean indexerTargetClose(){
+        return (s_indexer.getRange() <= INDEXER_THRESHOLD) && s_indexer.isRangeValid();
+    }
+
+    public boolean intakeTargetClose(){
+        return (s_intake.getRange() <= INDEXER_THRESHOLD) && s_intake.isRangeValid();
+    }
+
+    public double getIndexerDistance(){
+        return s_indexer.getRange();
+    }
+
+    public void toRestingState(){
+        if (!isJammed()){
+        setSlidePosition(SLIDE_RESTING_POSITION); // if ball is stuck, moving slide to rest is bad
+        }
+        setRotatorVelocity(0);
+    }
+
     //returns true if the closest object is within a set threshold and if the last range check was valid
     public boolean intakeTargetClose(){
         return (s_intake.getRange() <= INTAKE_THRESHOLD) && s_intake.isRangeValid();
