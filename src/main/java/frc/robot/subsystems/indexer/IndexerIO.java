@@ -18,7 +18,7 @@ import org.littletonrobotics.junction.inputs.LoggableInputs;
  *
  * PATTERN: IO Interface
  * - IndexerIO: Interface defining what indexer hardware can do
- * - IndexerIOTalonFX: Real hardware implementation with CTRE motors
+ * - IndexerIOHardware: Real hardware implementation with motors and sensors
  * - IndexerIOSim: Simulation for testing without hardware
  */
 public interface IndexerIO {

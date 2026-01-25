@@ -28,7 +28,7 @@ import frc.robot.util.TalonFXConfigs;
  *
  * AUTHOR: @Isaak3
  */
-public class ShooterIOTalonFX implements ShooterIO {
+public class ShooterIOHardware implements ShooterIO {
 
     // ===== Hardware =====
     private final TalonFX flywheelMotorA;
@@ -83,7 +83,7 @@ public class ShooterIOTalonFX implements ShooterIO {
      * Creates a new ShooterIOTalonFX instance.
      * Configures all motors to known good states.
      */
-    public ShooterIOTalonFX() {
+    public ShooterIOHardware() {
         // Create motor objects
         // flywheelMotorA = new TalonFX(Constants.Shooter.FLYWHEEL_A_MOTOR_ID, Constants.kCANBus); // deprecated constructor
         flywheelMotorA = new TalonFX(Constants.Shooter.FLYWHEEL_A_MOTOR_ID); // TODO add new CANbus arg 
