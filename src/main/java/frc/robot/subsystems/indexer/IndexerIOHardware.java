@@ -14,8 +14,8 @@ import frc.robot.util.TalonFXConfigs;
  * IndexerIOHardware - Real hardware implementation for the indexer subsystem.
  *
  * This class interfaces with:
- * - 2x Kraken X60 motors (floor + feeder)
- * - 4x Playing With Fusion Time-of-Flight sensors (1 feeder + 3 hopper)
+ * - 2x Kraken X60 motors (conveyor + indexer)
+ * - 4x Playing With Fusion Time-of-Flight sensors (1 indexer + 3 hopper)
  *
  * Key features:
  * - Uses centralized TalonFXConfigs for motor configuration
@@ -24,8 +24,8 @@ import frc.robot.util.TalonFXConfigs;
  * - All telemetry logged via AdvantageKit
  *
  * Motor naming convention:
- * - "floor" motor = "conveyor" motor (moves pieces along hopper floor)
- * - "feeder" motor = "indexer" motor (feeds pieces to shooter)
+ * - "conveyor" motor = "conveyor" motor (moves pieces along hopper conveyor)
+ * - "indexer" motor = "indexer" motor (feeds pieces to shooter)
  *
  * @see IndexerSubsystemBasic for a simpler direct-hardware approach (good for learning)
  */
@@ -35,30 +35,30 @@ import frc.robot.util.TalonFXConfigs;
 public class IndexerIOHardware implements IndexerIO {
 
     // ===== Hardware =====
-    private final TalonFX floorMotor;   // Also called "conveyor" in Constants
-    private final TalonFX feederMotor;  // Also called "indexer" in Constants
+    private final TalonFX conveyorMotor;   // Also called "conveyor" in Constants
+    private final TalonFX indexerMotor;  // Also called "indexer" in Constants
 
     // Time-of-Flight sensors
-    private final TimeOfFlight feederToF;   // Detects game piece ready to shoot
+    private final TimeOfFlight indexerToF;   // Detects game piece ready to shoot
     private final TimeOfFlight hopperAToF;  // Hopper position A
     private final TimeOfFlight hopperBToF;  // Hopper position B
     private final TimeOfFlight hopperCToF;  // Hopper position C
 
     // ===== Control Requests =====
-    private final DutyCycleOut floorDutyCycleRequest = new DutyCycleOut(0.0);
-    private final DutyCycleOut feederDutyCycleRequest = new DutyCycleOut(0.0);
+    private final DutyCycleOut conveyorDutyCycleRequest = new DutyCycleOut(0.0);
+    private final DutyCycleOut indexerDutyCycleRequest = new DutyCycleOut(0.0);
 
     // ===== Status Signals (for efficient reading) =====
     // Note: Phoenix 6 uses typed StatusSignals, we just read the value
-    private final StatusSignal<?> floorVelocity;
-    private final StatusSignal<?> floorAppliedVolts;
-    private final StatusSignal<?> floorCurrent;
-    private final StatusSignal<?> floorTemp;
+    private final StatusSignal<?> conveyorVelocity;
+    private final StatusSignal<?> conveyorAppliedVolts;
+    private final StatusSignal<?> conveyorCurrent;
+    private final StatusSignal<?> conveyorTemp;
 
-    private final StatusSignal<?> feederVelocity;
-    private final StatusSignal<?> feederAppliedVolts;
-    private final StatusSignal<?> feederCurrent;
-    private final StatusSignal<?> feederTemp;
+    private final StatusSignal<?> indexerVelocity;
+    private final StatusSignal<?> indexerAppliedVolts;
+    private final StatusSignal<?> indexerCurrent;
+    private final StatusSignal<?> indexerTemp;
 
     // ===== Constants =====
     /**
@@ -79,18 +79,18 @@ public class IndexerIOHardware implements IndexerIO {
         */
 
         // Create motor objects
-        // Note: Constants use "CONVEYOR" and "INDEXER" naming, we use "floor" and "feeder"
-        floorMotor = new TalonFX(Constants.Indexer.CONVEYOR_MOTOR_ID); // TODO add new CANbus arg
-        feederMotor = new TalonFX(Constants.Indexer.INDEXER_MOTOR_ID); // TODO add new CANbus arg
+        // Note: Constants use "CONVEYOR" and "INDEXER" naming, we use "conveyor" and "indexer"
+        conveyorMotor = new TalonFX(Constants.Indexer.CONVEYOR_MOTOR_ID); // TODO add new CANbus arg
+        indexerMotor = new TalonFX(Constants.Indexer.INDEXER_MOTOR_ID); // TODO add new CANbus arg
 
         // Apply configurations from centralized config class
-        floorMotor.getConfigurator().apply(TalonFXConfigs.indexerConfig());
-        feederMotor.getConfigurator().apply(TalonFXConfigs.indexerConfig());
+        conveyorMotor.getConfigurator().apply(TalonFXConfigs.indexerConfig());
+        indexerMotor.getConfigurator().apply(TalonFXConfigs.indexerConfig());
 
         // Create and configure ToF sensors
-        // Feeder ToF - detects game piece ready to shoot
-        feederToF = new TimeOfFlight(Constants.Indexer.INDEXER_TOF_ID);
-        feederToF.setRangingMode(RangingMode.Short, 24);  // Short range, 24ms sample time
+        // Indexer ToF - detects game piece ready to shoot
+        indexerToF = new TimeOfFlight(Constants.Indexer.INDEXER_TOF_ID);
+        indexerToF.setRangingMode(RangingMode.Short, 24);  // Short range, 24ms sample time
 
         // Hopper ToF sensors - detect game pieces at different positions
         hopperAToF = new TimeOfFlight(Constants.Indexer.HOPPER_TOP_A_TOF_ID);
@@ -103,62 +103,62 @@ public class IndexerIOHardware implements IndexerIO {
         hopperCToF.setRangingMode(RangingMode.Short, 24);
 
         // Get status signals for efficient reading
-        floorVelocity = floorMotor.getVelocity();
-        floorAppliedVolts = floorMotor.getMotorVoltage();
-        floorCurrent = floorMotor.getSupplyCurrent();
-        floorTemp = floorMotor.getDeviceTemp();
+        conveyorVelocity = conveyorMotor.getVelocity();
+        conveyorAppliedVolts = conveyorMotor.getMotorVoltage();
+        conveyorCurrent = conveyorMotor.getSupplyCurrent();
+        conveyorTemp = conveyorMotor.getDeviceTemp();
 
-        feederVelocity = feederMotor.getVelocity();
-        feederAppliedVolts = feederMotor.getMotorVoltage();
-        feederCurrent = feederMotor.getSupplyCurrent();
-        feederTemp = feederMotor.getDeviceTemp();
+        indexerVelocity = indexerMotor.getVelocity();
+        indexerAppliedVolts = indexerMotor.getMotorVoltage();
+        indexerCurrent = indexerMotor.getSupplyCurrent();
+        indexerTemp = indexerMotor.getDeviceTemp();
 
         // Configure update frequencies for better performance
         // Critical signals: 100Hz, Less critical: 50Hz, Temperature: 4Hz
         BaseStatusSignal.setUpdateFrequencyForAll(
             100.0,  // 100Hz for velocity and voltage (critical for control)
-            floorVelocity, floorAppliedVolts,
-            feederVelocity, feederAppliedVolts
+            conveyorVelocity, conveyorAppliedVolts,
+            indexerVelocity, indexerAppliedVolts
         );
 
         BaseStatusSignal.setUpdateFrequencyForAll(
             50.0,  // 50Hz for current (important but not critical)
-            floorCurrent, feederCurrent
+            conveyorCurrent, indexerCurrent
         );
 
         BaseStatusSignal.setUpdateFrequencyForAll(
             4.0,  // 4Hz for temperature (slow-changing)
-            floorTemp, feederTemp
+            conveyorTemp, indexerTemp
         );
 
         // Optimize bus utilization
-        floorMotor.optimizeBusUtilization();
-        feederMotor.optimizeBusUtilization();
+        conveyorMotor.optimizeBusUtilization();
+        indexerMotor.optimizeBusUtilization();
     }
 
     @Override
     public void updateInputs(IndexerIOInputs inputs) {
         // Refresh all status signals efficiently
         BaseStatusSignal.refreshAll(
-            floorVelocity, floorAppliedVolts, floorCurrent, floorTemp,
-            feederVelocity, feederAppliedVolts, feederCurrent, feederTemp
+            conveyorVelocity, conveyorAppliedVolts, conveyorCurrent, conveyorTemp,
+            indexerVelocity, indexerAppliedVolts, indexerCurrent, indexerTemp
         );
 
-        // Update floor motor inputs
-        inputs.floorVelocityRPS = floorVelocity.getValueAsDouble();
-        inputs.floorAppliedVolts = floorAppliedVolts.getValueAsDouble();
-        inputs.floorCurrentAmps = floorCurrent.getValueAsDouble();
-        inputs.floorTempCelsius = floorTemp.getValueAsDouble();
+        // Update conveyor motor inputs
+        inputs.conveyorVelocityRPS = conveyorVelocity.getValueAsDouble();
+        inputs.conveyorAppliedVolts = conveyorAppliedVolts.getValueAsDouble();
+        inputs.conveyorCurrentAmps = conveyorCurrent.getValueAsDouble();
+        inputs.conveyorTempCelsius = conveyorTemp.getValueAsDouble();
 
-        // Update feeder motor inputs
-        inputs.feederVelocityRPS = feederVelocity.getValueAsDouble();
-        inputs.feederAppliedVolts = feederAppliedVolts.getValueAsDouble();
-        inputs.feederCurrentAmps = feederCurrent.getValueAsDouble();
-        inputs.feederTempCelsius = feederTemp.getValueAsDouble();
+        // Update indexer motor inputs
+        inputs.indexerVelocityRPS = indexerVelocity.getValueAsDouble();
+        inputs.indexerAppliedVolts = indexerAppliedVolts.getValueAsDouble();
+        inputs.indexerCurrentAmps = indexerCurrent.getValueAsDouble();
+        inputs.indexerTempCelsius = indexerTemp.getValueAsDouble();
 
-        // Update feeder ToF sensor inputs (detects game piece ready to shoot)
-        inputs.tofDistanceMM = feederToF.getRange();
-        inputs.tofValid = feederToF.isRangeValid();
+        // Update indexer ToF sensor inputs (detects game piece ready to shoot)
+        inputs.tofDistanceMM = indexerToF.getRange();
+        inputs.tofValid = indexerToF.isRangeValid();
         inputs.gamePieceDetected = inputs.tofValid &&
                                    inputs.tofDistanceMM < TOF_DETECTION_THRESHOLD_MM;
 
@@ -182,18 +182,18 @@ public class IndexerIOHardware implements IndexerIO {
     }
 
     @Override
-    public void setFloorMotor(double percent) {
-        floorMotor.setControl(floorDutyCycleRequest.withOutput(percent));
+    public void setConveyorMotor(double percent) {
+        conveyorMotor.setControl(conveyorDutyCycleRequest.withOutput(percent));
     }
 
     @Override
-    public void setFeederMotor(double percent) {
-        feederMotor.setControl(feederDutyCycleRequest.withOutput(percent));
+    public void setIndexerMotor(double percent) {
+        indexerMotor.setControl(indexerDutyCycleRequest.withOutput(percent));
     }
 
     @Override
     public void stop() {
-        floorMotor.stopMotor();
-        feederMotor.stopMotor();
+        conveyorMotor.stopMotor();
+        indexerMotor.stopMotor();
     }
 }

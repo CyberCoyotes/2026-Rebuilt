@@ -12,7 +12,7 @@ package frc.robot.subsystems.indexer;
  *
  * FEATURES:
  * - Simulated motor speeds
- * - Simulated game piece detection at feeder
+ * - Simulated game piece detection at indexer
  * - Simulated game piece detection at 3 hopper positions
  * - Methods to control simulation state for testing
  *
@@ -21,11 +21,11 @@ package frc.robot.subsystems.indexer;
 public class IndexerIOSim implements IndexerIO {
 
     // ===== Simulated State =====
-    private double floorMotorPercent = 0.0;
-    private double feederMotorPercent = 0.0;
+    private double conveyorMotorPercent = 0.0;
+    private double indexerMotorPercent = 0.0;
 
     // Game piece presence simulation
-    private boolean feederGamePiecePresent = false;
+    private boolean indexerGamePiecePresent = false;
     private boolean hopperAGamePiecePresent = false;
     private boolean hopperBGamePiecePresent = false;
     private boolean hopperCGamePiecePresent = false;
@@ -39,24 +39,24 @@ public class IndexerIOSim implements IndexerIO {
 
     @Override
     public void updateInputs(IndexerIOInputs inputs) {
-        // Simulate floor motor
-        inputs.floorVelocityRPS = floorMotorPercent * 10.0;  // Fake velocity
-        inputs.floorAppliedVolts = floorMotorPercent * MOTOR_VOLTAGE;
-        inputs.floorCurrentAmps = Math.abs(floorMotorPercent) * MOTOR_CURRENT_PER_PERCENT;
-        inputs.floorTempCelsius = MOTOR_TEMP;
+        // Simulate conveyor motor
+        inputs.conveyorVelocityRPS = conveyorMotorPercent * 10.0;  // Fake velocity
+        inputs.conveyorAppliedVolts = conveyorMotorPercent * MOTOR_VOLTAGE;
+        inputs.conveyorCurrentAmps = Math.abs(conveyorMotorPercent) * MOTOR_CURRENT_PER_PERCENT;
+        inputs.conveyorTempCelsius = MOTOR_TEMP;
 
-        // Simulate feeder motor
-        inputs.feederVelocityRPS = feederMotorPercent * 10.0;
-        inputs.feederAppliedVolts = feederMotorPercent * MOTOR_VOLTAGE;
-        inputs.feederCurrentAmps = Math.abs(feederMotorPercent) * MOTOR_CURRENT_PER_PERCENT;
-        inputs.feederTempCelsius = MOTOR_TEMP;
+        // Simulate indexer motor
+        inputs.indexerVelocityRPS = indexerMotorPercent * 10.0;
+        inputs.indexerAppliedVolts = indexerMotorPercent * MOTOR_VOLTAGE;
+        inputs.indexerCurrentAmps = Math.abs(indexerMotorPercent) * MOTOR_CURRENT_PER_PERCENT;
+        inputs.indexerTempCelsius = MOTOR_TEMP;
 
-        // Simulate feeder ToF sensor
-        inputs.tofDistanceMM = feederGamePiecePresent ?
+        // Simulate indexer ToF sensor
+        inputs.tofDistanceMM = indexerGamePiecePresent ?
             SIMULATED_TOF_DISTANCE_WITH_PIECE :
             SIMULATED_TOF_DISTANCE_NO_PIECE;
         inputs.tofValid = true;
-        inputs.gamePieceDetected = feederGamePiecePresent;
+        inputs.gamePieceDetected = indexerGamePiecePresent;
 
         // Simulate hopper A ToF sensor
         inputs.hopperADistanceMM = hopperAGamePiecePresent ?
@@ -81,38 +81,38 @@ public class IndexerIOSim implements IndexerIO {
     }
 
     @Override
-    public void setFloorMotor(double percent) {
-        this.floorMotorPercent = percent;
+    public void setConveyorMotor(double percent) {
+        this.conveyorMotorPercent = percent;
     }
 
     @Override
-    public void setFeederMotor(double percent) {
-        this.feederMotorPercent = percent;
+    public void setIndexerMotor(double percent) {
+        this.indexerMotorPercent = percent;
     }
 
     @Override
     public void stop() {
-        this.floorMotorPercent = 0.0;
-        this.feederMotorPercent = 0.0;
+        this.conveyorMotorPercent = 0.0;
+        this.indexerMotorPercent = 0.0;
     }
 
     // ===== Simulation Control Methods =====
 
     /**
-     * Simulates a game piece at the feeder position (ready to shoot).
+     * Simulates a game piece at the indexer position (ready to shoot).
      * Call this to test state transitions when a piece is ready to fire.
      *
      * @param present true if game piece should be simulated as present
      */
     public void setFeederGamePiecePresent(boolean present) {
-        this.feederGamePiecePresent = present;
+        this.indexerGamePiecePresent = present;
     }
 
     /**
-     * Gets whether a game piece is simulated as present at the feeder.
+     * Gets whether a game piece is simulated as present at the indexer.
      */
     public boolean isFeederGamePiecePresent() {
-        return feederGamePiecePresent;
+        return indexerGamePiecePresent;
     }
 
     /**
