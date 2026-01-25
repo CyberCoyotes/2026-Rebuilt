@@ -15,7 +15,7 @@ import frc.robot.util.TalonFXConfigs;
  * IndexerIOHardware - Real hardware implementation for the indexer subsystem.
  *
  * This class interfaces with:
- * - 2x Kraken X60 motors (floor + feeder)
+ * - 2x Kraken X44 motors (floor + feeder)
  * - 1x Playing With Fusion Time-of-Flight sensor
  *
  * Key features:
@@ -30,13 +30,13 @@ import frc.robot.util.TalonFXConfigs;
 public class IndexerIOTalonFX implements IndexerIO {
 
     // ===== Hardware =====
-    private final TalonFX floorMotor;
-    private final TalonFX feederMotor;
-    private final TimeOfFlight feederToF;
+    public final TalonFX floorMotor;
+    public final TalonFX feederMotor;
+    public final TimeOfFlight feederToF;
 
     // ===== Control Requests =====
     private final DutyCycleOut floorDutyCycleRequest = new DutyCycleOut(0.0);
-    private final DutyCycleOut feederDutyCycleRequest = new DutyCycleOut(0.0);
+    private final DutyCycleOut feederDutyCycleRequest = new DutyCycleOut(0.0); // TODO Change to VelocityVoltage
 
     // ===== Status Signals (for efficient reading) =====
     // Note: Phoenix 6 uses typed StatusSignals, we just read the value
