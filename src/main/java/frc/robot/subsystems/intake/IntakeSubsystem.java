@@ -94,21 +94,14 @@ public class IntakeSubsystem extends SubsystemBase{
     }
     
 
-    public double getIntakeDistance(){
-        return s_intake.getRange();
-    }
+    // public double getIntakeDistance(){
+    //     return s_intake.getRange();
+    // }
 
-    public boolean indexerTargetClose(){
-        return (s_indexer.getRange() <= INDEXER_THRESHOLD) && s_indexer.isRangeValid();
-    }
+    // public boolean intakeTargetClose(){
+    //     return (s_intake.getRange() <= INDEXER_THRESHOLD) && s_intake.isRangeValid();
+    // }
 
-    public boolean intakeTargetClose(){
-        return (s_intake.getRange() <= INDEXER_THRESHOLD) && s_intake.isRangeValid();
-    }
-
-    public double getIndexerDistance(){
-        return s_indexer.getRange();
-    }
 
     public void toRestingState(){
         if (!isJammed()){

@@ -21,24 +21,39 @@ import frc.robot.Constants;
 public class IndexerSubsystem {
     
      // ========== HARDWARE ==========
-    private final TalonFX floorMotor;
-    private final TalonFX feederMotor;
-    private final TimeOfFlight feederToF;
+     /* 
+     * Declare private, final instance fields on the IndexerSubsystem class. 
+     * private restricts access to the class, 
+     * and final means each reference must be assigned exactly once (typically in the constructor)
+     * and cannot be reassigned later
+     */
+    private final TalonFX conveyorMotor;
+    private final TalonFX indexerMotor;
+    private final TimeOfFlight indexerToF;
+    private final TimeOfFlight hopperAToF;
+    private final TimeOfFlight hopperBToF;
+    private final TimeOfFlight hopperCToF;    
     
-    
+    private double FUEL_DETECTION_THRESHOLD = 5; // TODO determine, and check units CM or IN
+ 
+
 
     // ========== CONSTRUCTOR ==========
     public IndexerSubsystem() {
-        floorMotor = new TalonFX(Constants.Indexer.FLOOR_MOTOR_ID);
-        feederMotor = new TalonFX(Constants.Indexer.FEEDER_MOTOR_ID);
-        feederToF = new TimeOfFlight(Constants.Indexer.FEEDER_TOF_ID);
+        conveyorMotor = new TalonFX(Constants.Indexer.CONVEYOR_MOTOR_ID);
+        indexerMotor = new TalonFX(Constants.Indexer.INDEXER_MOTOR_ID);
+        indexerToF = new TimeOfFlight(Constants.Indexer.INDEXER_TOF_ID);
+        hopperAToF = new TimeOfFlight(Constants.Indexer.HOPPER_TOP_A_TOF_ID);
+        hopperBToF = new TimeOfFlight(Constants.Indexer.HOPPER_TOP_B_TOF_ID);
+        hopperCToF = new TimeOfFlight(Constants.Indexer.HOPPER_TOP_C_TOF_ID);
+        
     }
 
     // ========== State Machines ==========
     private boolean isFuelDetected = false;
     public void updateSensors() {
         // Update the fuel detection state based on the ToF sensor reading
-        isFuelDetected = feederToF.getRange() < Constants.Indexer.FUEL_DETECTION_THRESHOLD;
+        isFuelDetected = indexerToF.getRange() < FUEL_DETECTION_THRESHOLD;
     }
     public boolean isFuelDetected() {
         return isFuelDetected;
@@ -46,11 +61,11 @@ public class IndexerSubsystem {
     
     // ========== MOTOR METHODS ==========
     public void setFloorMotorSpeed(double speed) {
-        floorMotor.set(speed);
+        conveyorMotor.set(speed);
     }
 
     public void setKickMotorSpeed(double speed) {
-        feederMotor.set(speed);
+        indexerMotor.set(speed);
     }
 
  }
