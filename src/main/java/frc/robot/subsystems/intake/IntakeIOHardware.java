@@ -11,11 +11,7 @@ import frc.robot.Constants;
 import frc.robot.util.TalonFXConfigs;
 
 /**
- * IntakeIOTalonFX - Real hardware implementation using CTRE TalonFX motors.
- *
- * This class interfaces with:
- * - 1x TalonFX (rotator) for spinning intake wheels
- * - 1x TalonFX (slide) for extending/retracting intake
+ * IntakeIOHardware - Real hardware implementation using CTRE TalonFX motors.
  *
  * Key features:
  * - Uses centralized TalonFXConfigs for motor configuration
@@ -24,6 +20,7 @@ import frc.robot.util.TalonFXConfigs;
  * - Optimized status signal updates for performance
  * - All telemetry logged via AdvantageKit
  *
+ * @see Constants.Intake for hardware configuration
  * @author @Isaak3
  */
 
@@ -66,8 +63,8 @@ public class IntakeIOHardware implements IntakeIO {
     public IntakeIOHardware() {
         // Create motor objects
 
-        rotatorMotor = new TalonFX(Constants.Intake.INTAKE_ROTATOR_ID, kCANBus); // TODO add new CANbus arg 
-        slideMotor = new TalonFX(Constants.Intake.INTAKE_SLIDE_ID, kCANBus); // TODO add new CANbus arg 
+        rotatorMotor = new TalonFX(Constants.Intake.INTAKE_ROTATOR_MOTOR_ID, kCANBus); // TODO add new CANbus arg 
+        slideMotor = new TalonFX(Constants.Intake.INTAKE_SLIDE_A_MOTOR_ID, kCANBus); // TODO add new CANbus arg 
 
         // Apply configurations from centralized config class
         rotatorMotor.getConfigurator().apply(TalonFXConfigs.intakeConfig());

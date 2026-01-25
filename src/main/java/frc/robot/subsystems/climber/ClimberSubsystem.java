@@ -5,14 +5,13 @@ import com.ctre.phoenix6.hardware.TalonFX;
 import edu.wpi.first.wpilibj.DigitalInput;
 import frc.robot.Constants;
 
-/* 
- *  
+/*
  * AUTHOR: @imadinosaur1
  *
- * Purpose: Subsystem for the Climber mechanism 
- * Hardware: 2 motors; Kraken 60x for extension, Minion for hook movement
- * Functionality: Extend/retract climber arms, move hooks up/down
- * 
+ * Purpose: Subsystem for the Climber mechanism
+ * Functionality: Extend/retract climber arms
+ *
+ * @see Constants.Climber for hardware configuration
  */
 
 @SuppressWarnings("unused")
@@ -28,13 +27,13 @@ public class ClimberSubsystem extends SubsystemBase {
     private static final double READY_VELOCITY_THRESHOLD = 3000.0; // RPM
 
     // Hardware; commented out until motors are assigned
-     private final TalonFX armMotor;
-     private final TalonFX hookMotor;
+     private final TalonFX climbAMotor;
+     private final TalonFX climbBMotor;
 
      // Constructor
      public ClimberSubsystem() {
-        armMotor = new TalonFX(Constants.Climber.CLIMB_EXTENSION_MOTOR_ID);
-        hookMotor = new TalonFX(Constants.Climber.HOOK_RETRACT_MOTOR_ID);
+        climbAMotor = new TalonFX(Constants.Climber.CLIMB_A_MOTOR_ID);
+        climbBMotor = new TalonFX(Constants.Climber.CLIMB_B_MOTOR_ID);
      }
 
     }

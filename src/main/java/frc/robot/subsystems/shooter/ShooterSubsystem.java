@@ -9,11 +9,6 @@ import frc.robot.subsystems.shooter.ShooterIO.ShooterIOInputs;
 /**
  * ShooterSubsystem - Main shooter subsystem with state machine control.
  *
- * HARDWARE:
- * - 3x Falcon 500 motors (main flywheels) for shooting game pieces
- * - 1x TalonFX motor (hood) for angle adjustment
- * - 1x Kraken X60 motor (counter-wheel) for optional backspin
- *
  * STATE MACHINE:
  * - IDLE: All motors off, hood at home position
  * - SPINUP: Flywheel accelerating to target, hood moving to target angle
@@ -29,8 +24,9 @@ import frc.robot.subsystems.shooter.ShooterIO.ShooterIOInputs;
  *
  * INTEGRATION WITH VISION:
  * - Use updateFromDistance() to automatically calculate velocity/angle from target distance
- * - Vision subsystem provides distance → shooter calculates ballistics
+ * - Vision subsystem provides distance -> shooter calculates ballistics
  *
+ * @see Constants.Shooter for hardware configuration
  * @author @Isaak3
  */
 public class ShooterSubsystem extends SubsystemBase {
