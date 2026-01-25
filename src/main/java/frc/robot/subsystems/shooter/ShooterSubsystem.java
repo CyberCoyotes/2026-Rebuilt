@@ -69,7 +69,7 @@ public class ShooterSubsystem extends SubsystemBase {
     private static final double HOOD_TOLERANCE_DEGREES = 1.0;  // TODO: Tune
 
     /** Eject velocity (negative = reverse) */
-    private static final double EJECT_RPM = -500.0;
+    private static final double EJECT_RPM = -1000.0;
 
     // ===== Shooting Presets =====
     /** Close shot velocity (RPM) */

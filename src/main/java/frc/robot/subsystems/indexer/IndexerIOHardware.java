@@ -27,7 +27,7 @@ import frc.robot.util.TalonFXConfigs;
 
 @SuppressWarnings("unused") // Remove when we approach comp ready code
 
-public class IndexerIOTalonFX implements IndexerIO {
+public class IndexerIOHardware implements IndexerIO {
 
     // ===== Hardware =====
     private final TalonFX floorMotor;
