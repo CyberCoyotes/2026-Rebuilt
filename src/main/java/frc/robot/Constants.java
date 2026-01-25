@@ -47,6 +47,10 @@ public final class Constants {
 
     public static final int INTAKE_ROTATOR_ID = 20;
     public static final int INTAKE_SLIDE_ID = 21;
+
+    // Time of Flight sensor for intake for comfirming fuel presence
+    // Exact hardbware model to be determined
+    public static final int INTAKE_SENSOR_ID = 41; 
   }
 
   // =========================================================
@@ -55,10 +59,16 @@ public final class Constants {
   public static final class Indexer {
     private Indexer() {}
 
-    public static final int FEEDER_MOTOR_ID = 22;
-    public static final int FLOOR_MOTOR_ID = 23;
-    public static final int FEEDER_TOF_ID = 30;
-    public static final double FUEL_DETECTION_THRESHOLD = 0;
+    public static final int INDEXER_MOTOR_ID = 22;
+    public static final int CONVEYOR_MOTOR_ID = 23;
+
+    public static final int INDEXER_TOF_ID = 42;
+
+    // Time of Flight sensor for hopper fuel detection
+    public static final int HOPPER_TOP_A_TOF_ID = 43;
+    public static final int HOPPER_TOP_B_TOF_ID = 44;
+    public static final int HOPPER_TOP_C_TOF_ID = 45;
+  
 
 
   }
@@ -75,8 +85,7 @@ public final class Constants {
     public static final int FLYWHEEL_C_MOTOR_ID = 26;
 
     /**
-     * Hood movement motor (Minion) — ONLY keep this as a CAN ID if the motor controller is on CAN.
-     * If this is PWM (SparkMAX PWM / Talon SRX PWM / etc.), move this to a PWM constants section.
+     * Hood movement motor (Minion).
      */
     public static final int HOOD_MOTOR_ID = 27;
 
@@ -105,7 +114,9 @@ public final class Constants {
     private Vision() {}
 
     // Camera configuration
-    public static final String LIMELIGHT_NAME = "limelight";
+    public static final String LIMELIGHT3_NAME = "limelight3";
+    public static final String LIMELIGHT4_NAME = "limelight4";
+
 
     // Pipeline indices
     public static final int APRILTAG_PIPELINE = 0;
