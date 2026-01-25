@@ -12,12 +12,7 @@ import frc.robot.Constants;
 import frc.robot.util.TalonFXConfigs;
 
 /**
- * ShooterIOTalonFX - Real hardware implementation using CTRE TalonFX motors.
- *
- * This class interfaces with:
- * - 3x Falcon 500 / TalonFX (main flywheels) - velocity control with FOC
- * - 1x TalonFX (hood adjustment) - position control
- * - 1x Kraken X60 / TalonFX (counter-wheel) - velocity control
+ * ShooterIOHardware - Real hardware implementation using CTRE TalonFX motors.
  *
  * Key features:
  * - Uses centralized TalonFXConfigs for motor configuration
@@ -26,7 +21,8 @@ import frc.robot.util.TalonFXConfigs;
  * - Optimized status signal updates for performance
  * - All telemetry logged via AdvantageKit
  *
- * AUTHOR: @Isaak3
+ * @see Constants.Shooter for hardware configuration
+ * @author @Isaak3
  */
 public class ShooterIOHardware implements ShooterIO {
 

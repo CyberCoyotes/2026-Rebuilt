@@ -13,15 +13,12 @@ import org.littletonrobotics.junction.inputs.LoggableInputs;
  * - Indexer ToF sensor: Detects when a game piece is staged and ready to shoot
  * - Hopper ToF sensors (A, B, C): Detect game pieces at different positions in hopper
  *
- * HARDWARE:
- * - 2x Kraken X60 motors (conveyor + indexer)
- * - 4x Playing With Fusion Time-of-Flight sensors (1 indexer + 3 hopper)
- *
  * PATTERN: IO Interface
  * - IndexerIO: Interface defining what indexer hardware can do
  * - IndexerIOHardware: Real hardware implementation with motors and sensors
  * - IndexerIOSim: Simulation for testing without hardware
  *
+ * @see Constants.Indexer for hardware configuration
  * @see IndexerSubsystemBasic for a simpler direct-hardware approach (good for learning)
  */
 public interface IndexerIO {

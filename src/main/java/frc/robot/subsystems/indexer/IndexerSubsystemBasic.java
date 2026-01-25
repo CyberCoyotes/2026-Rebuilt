@@ -25,10 +25,6 @@ import frc.robot.Constants;
  * - Great for learning how hardware interfaces work
  * - Good stepping stone before learning IndexerIO/IndexerIOHardware pattern
  *
- * HARDWARE:
- * - 2x TalonFX motors (conveyor on floor, indexer for kicking to shooter)
- * - 4x TimeOfFlight sensors (1 indexer, 3 hopper positions A/B/C)
- *
  * WHEN TO GRADUATE TO IndexerSubsystem:
  * Once comfortable with this class, students should learn the IO pattern used
  * in IndexerSubsystem + IndexerIOHardware. The IO pattern enables:
@@ -36,6 +32,7 @@ import frc.robot.Constants;
  * - AdvantageKit log replay
  * - Cleaner separation of concerns
  *
+ * @see Constants.Indexer for hardware configuration
  * @see IndexerSubsystem for the production implementation using the IO pattern
  * @see IndexerIOHardware for how hardware is abstracted in the IO pattern
  */

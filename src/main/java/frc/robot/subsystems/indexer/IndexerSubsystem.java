@@ -12,15 +12,12 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
  * - IndexerIOHardware: Real hardware implementation (motors + sensors)
  * - IndexerIOSim: Simulation for testing without hardware
  *
- * HARDWARE:
- * - 2x Kraken X60 motors (conveyor + indexer)
- * - 4x Time-of-Flight sensors (1 indexer + 3 hopper sensors)
- *
  * This pattern allows:
  * - Testing robot logic without hardware (simulation mode)
  * - Replaying logged matches with AdvantageKit
  * - Switching between different hardware implementations
  *
+ * @see Constants.Indexer for hardware configuration
  * @see IndexerSubsystemBasic for a simpler direct-hardware approach (good for learning)
  */
 public class IndexerSubsystem extends SubsystemBase {

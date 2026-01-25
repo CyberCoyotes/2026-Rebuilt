@@ -13,10 +13,6 @@ import frc.robot.util.TalonFXConfigs;
 /**
  * IndexerIOHardware - Real hardware implementation for the indexer subsystem.
  *
- * This class interfaces with:
- * - 2x Kraken X60 motors (conveyor + indexer)
- * - 4x Playing With Fusion Time-of-Flight sensors (1 indexer + 3 hopper)
- *
  * Key features:
  * - Uses centralized TalonFXConfigs for motor configuration
  * - Optimized status signal updates for performance
@@ -24,9 +20,10 @@ import frc.robot.util.TalonFXConfigs;
  * - All telemetry logged via AdvantageKit
  *
  * Motor naming convention:
- * - "conveyor" motor = "conveyor" motor (moves pieces along hopper conveyor)
- * - "indexer" motor = "indexer" motor (feeds pieces to shooter)
+ * - "conveyor" motor moves pieces along hopper conveyor
+ * - "indexer" motor feeds pieces to shooter
  *
+ * @see Constants.Indexer for hardware configuration
  * @see IndexerSubsystemBasic for a simpler direct-hardware approach (good for learning)
  */
 

@@ -22,12 +22,9 @@ package frc.robot.subsystems.shooter;
  * - Parallel development of features before integrating into production code
  * - Reference when tuning PID gains
  *
- * HARDWARE:
- * - 3 Falcon 500 motors (main flywheels) for shooting game pieces
- * - 1 TalonFX motor (hood) for angle adjustment
- * - 1 Kraken X60 motor (counter-wheel) for optional backspin
- *
  * NOTE: For competition robot development, use the production ShooterSubsystem
+ *
+ * @see Constants.Shooter for hardware configuration
  * ===============================================================================
  */
 

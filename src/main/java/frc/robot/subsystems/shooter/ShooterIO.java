@@ -7,21 +7,17 @@ import org.littletonrobotics.junction.inputs.LoggableInputs;
  * ShooterIO - Hardware abstraction interface for the shooter subsystem.
  *
  * The shooter launches game pieces using:
- * - 3x Flywheel motors: Spin up to launch game pieces at variable velocities
- * - 1x Hood motor: Adjusts launch angle for different distances
- * - 1x Counter-wheel motor: Provides backspin/control (optional)
- *
- * HARDWARE:
- * - 3x Falcon 500 / TalonFX (main flywheels) - velocity control with FOC
- * - 1x Minion motor (hood adjustment) - position control
- * - 1x Kraken X60 (counter-wheel) - velocity control
+ * - Flywheel motors: Spin up to launch game pieces at variable velocities
+ * - Hood motor: Adjusts launch angle for different distances
+ * - Counter-wheel motor: Provides backspin/control (optional)
  *
  * PATTERN: IO Interface
  * - ShooterIO: Interface defining what shooter hardware can do
- * - ShooterIOTalonFX: Real hardware implementation with CTRE motors
+ * - ShooterIOHardware: Real hardware implementation with CTRE motors
  * - ShooterIOSim: Simulation for testing without hardware
  *
- * AUTHOR: @Isaak3
+ * @see Constants.Shooter for hardware configuration
+ * @author @Isaak3
  */
 public interface ShooterIO {
 
