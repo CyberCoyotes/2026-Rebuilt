@@ -11,8 +11,16 @@ public final class Constants {
   // =========================================================
   // Drive / Swerve
   // =========================================================
-  // RESERVE CAN IDs 1 to 10 for drivertrain; drive motors, pigeon 2, canivore.
-  // Those IDs live in TunerConstants.java
+  // RESERVE CAN IDs 1 to 10 for drivetrain; drive motors, Pigeon 2, CANcoders.
+  // Motor and encoder IDs live in TunerConstants.java
+  // CAN Bus: canivore
+  //
+  // Drivetrain devices:
+  // - 8x TalonFX (4 drive + 4 steer motors)
+  // - 4x CANcoder (azimuth encoders)
+  // - 1x Pigeon 2 (IMU)
+  // - 1x CANivore (CAN FD bus)
+  // - 1x CANdle (LED controller)
   
   // =========================================================
   // Intake
@@ -29,7 +37,7 @@ public final class Constants {
     /** Intake slide motor B - Kraken X44 with TalonFX controller (paired with A) */
     public static final int INTAKE_SLIDE_B__MOTOR_ID = 51;
 
-    /** Time of Flight sensor - Playing With Fusion, confirms fuel presence */
+    /** Time of Flight sensor - CANrange, confirms fuel presence */
     public static final int INTAKE_SENSOR_ID = 41;
   }
 
@@ -39,22 +47,22 @@ public final class Constants {
   public static final class Indexer {
     private Indexer() {}
 
-    /** Indexer motor - Kraken X60 with TalonFX controller, feeds pieces to shooter */
+    /** Indexer motor - Kraken X44 with TalonFX controller, feeds pieces to shooter */
     public static final int INDEXER_MOTOR_ID = 22;
 
-    /** Conveyor motor - Kraken X60 with TalonFX controller, moves pieces along hopper */
+    /** Conveyor motor - Kraken X44 with TalonFX controller, moves pieces along hopper */
     public static final int CONVEYOR_MOTOR_ID = 23;
 
-    /** Time of Flight sensor - Playing With Fusion, detects fuel at indexer exit (optional) */
+    /** Time of Flight sensor - Detects fuel at indexer exit (optional) */
     public static final int INDEXER_TOF_ID = 42;
 
-    /** Time of Flight sensor A - Playing With Fusion, hopper position A detection */
+    /** Time of Flight sensor A - Detects "fullness" of hopper */
     public static final int HOPPER_TOP_A_TOF_ID = 43;
 
-    /** Time of Flight sensor B - Playing With Fusion, hopper position B detection */
+    /** Time of Flight sensor B - Detects "fullness" of hopper */
     public static final int HOPPER_TOP_B_TOF_ID = 44;
 
-    /** Time of Flight sensor C - Playing With Fusion, hopper position C detection */
+    /** Time of Flight sensor C - Detects "fullness" of hopper */
     public static final int HOPPER_TOP_C_TOF_ID = 45;
   }
 
