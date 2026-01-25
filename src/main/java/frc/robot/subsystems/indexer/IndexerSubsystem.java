@@ -1,72 +1,158 @@
-/*
- * AUTHOR: @Joel-Trumpet-67
+package frc.robot.subsystems.indexer;
+
+import org.littletonrobotics.junction.Logger;
+
+import edu.wpi.first.wpilibj2.command.SubsystemBase;
+
+/**
+ * IndexerSubsystem - Moves game pieces from intake through the robot to the shooter.
+ *
+ * This subsystem uses the IO pattern for hardware abstraction:
+ * - IndexerIO: Interface defining what hardware can do
+ * - IndexerIOHardware: Real hardware implementation (motors + sensors)
+ * - IndexerIOSim: Simulation for testing without hardware
+ *
+ * HARDWARE:
+ * - 2x Kraken X60 motors (conveyor + indexer)
+ * - 4x Time-of-Flight sensors (1 indexer + 3 hopper sensors)
+ *
+ * This pattern allows:
+ * - Testing robot logic without hardware (simulation mode)
+ * - Replaying logged matches with AdvantageKit
+ * - Switching between different hardware implementations
+ *
+ * @see IndexerSubsystemBasic for a simpler direct-hardware approach (good for learning)
  */
+public class IndexerSubsystem extends SubsystemBase {
 
-/* 2 motor 
- * 1 on floor
- * 1 on elevator 
- * sensor for ball to elevator
- */
+    // ===== IO Layer =====
+    private final IndexerIO io;
+    private final IndexerIO.IndexerIOInputs inputs = new IndexerIO.IndexerIOInputs();
 
- package frc.robot.subsystems.indexer;
-
-import com.ctre.phoenix6.hardware.TalonFX;
-import com.playingwithfusion.TimeOfFlight;
-
-import edu.wpi.first.wpilibj.DigitalInput;
-import frc.robot.Constants;
-
-@SuppressWarnings("unused")
-
-public class IndexerSubsystem {
-    
-     // ========== HARDWARE ==========
-     /* 
-     * Declare private, final instance fields on the IndexerSubsystem class. 
-     * private restricts access to the class, 
-     * and final means each reference must be assigned exactly once (typically in the constructor)
-     * and cannot be reassigned later
+    /**
+     * Creates a new IndexerSubsystem with the specified IO implementation.
+     *
+     * @param io The IndexerIO implementation (hardware or simulation)
      */
-    private final TalonFX conveyorMotor;
-    private final TalonFX indexerMotor;
-    private final TimeOfFlight indexerToF;
-    private final TimeOfFlight hopperAToF;
-    private final TimeOfFlight hopperBToF;
-    private final TimeOfFlight hopperCToF;    
-    
-    private double FUEL_DETECTION_THRESHOLD = 5; // TODO determine, and check units CM or IN
- 
-
-
-    // ========== CONSTRUCTOR ==========
-    public IndexerSubsystem() {
-        conveyorMotor = new TalonFX(Constants.Indexer.CONVEYOR_MOTOR_ID);
-        indexerMotor = new TalonFX(Constants.Indexer.INDEXER_MOTOR_ID);
-        indexerToF = new TimeOfFlight(Constants.Indexer.INDEXER_TOF_ID);
-        hopperAToF = new TimeOfFlight(Constants.Indexer.HOPPER_TOP_A_TOF_ID);
-        hopperBToF = new TimeOfFlight(Constants.Indexer.HOPPER_TOP_B_TOF_ID);
-        hopperCToF = new TimeOfFlight(Constants.Indexer.HOPPER_TOP_C_TOF_ID);
-        
+    public IndexerSubsystem(IndexerIO io) {
+        this.io = io;
     }
 
-    // ========== State Machines ==========
-    private boolean isFuelDetected = false;
-    public void updateSensors() {
-        // Update the fuel detection state based on the ToF sensor reading
-        isFuelDetected = indexerToF.getRange() < FUEL_DETECTION_THRESHOLD;
-    }
-    public boolean isFuelDetected() {
-        return isFuelDetected;
-    }
-    
-    // ========== MOTOR METHODS ==========
-    public void setFloorMotorSpeed(double speed) {
-        conveyorMotor.set(speed);
+    @Override
+    public void periodic() {
+        // Update inputs from hardware/simulation every cycle (20ms)
+        io.updateInputs(inputs);
+
+        // Log all inputs for AdvantageKit replay
+        Logger.processInputs("Indexer", inputs);
     }
 
-    public void setKickMotorSpeed(double speed) {
-        indexerMotor.set(speed);
+    // ========== Motor Control Methods ==========
+
+    /**
+     * Sets the conveyor motor speed (moves pieces toward indexer).
+     *
+     * @param percent Motor speed from -1.0 to 1.0 (+ = toward indexer)
+     */
+    public void setConveyorMotorSpeed(double percent) {
+       io.setConveyorMotor(percent); 
     }
 
- }
+    /**
+     * Sets the indexer motor speed (feeds pieces to shooter).
+     *
+     * @param percent Motor speed from -1.0 to 1.0 (+ = toward shooter)
+     */
+    public void setIndexerMotorSpeed(double percent) {
+        io.setIndexerMotor(percent);
+    }
 
+    /**
+     * Stops both motors immediately.
+     */
+    public void stop() {
+        io.stop();
+    }
+
+    // ========== Sensor Methods ==========
+
+    /**
+     * Returns true if a game piece is detected at the indexer (ready to shoot).
+     */
+    public boolean isGamePieceAtIndexer() {
+        return inputs.gamePieceDetected;
+    }
+
+    /**
+     * Returns true if a game piece is detected at hopper position A.
+     */
+    public boolean isGamePieceAtHopperA() {
+        return inputs.hopperADetected;
+    }
+
+    /**
+     * Returns true if a game piece is detected at hopper position B.
+     */
+    public boolean isGamePieceAtHopperB() {
+        return inputs.hopperBDetected;
+    }
+
+    /**
+     * Returns true if a game piece is detected at hopper position C.
+     */
+    public boolean isGamePieceAtHopperC() {
+        return inputs.hopperCDetected;
+    }
+
+    /**
+     * Returns true if any hopper sensor detects a game piece.
+     */
+    public boolean isGamePieceInHopper() {
+        return inputs.hopperADetected || inputs.hopperBDetected || inputs.hopperCDetected;
+    }
+
+    /**
+     * Returns the count of game pieces currently detected in the hopper (0-3).
+     */
+    public int getHopperGamePieceCount() {
+        int count = 0;
+        if (inputs.hopperADetected) count++;
+        if (inputs.hopperBDetected) count++;
+        if (inputs.hopperCDetected) count++;
+        return count;
+    }
+
+    /**
+     * Returns true if the hopper is full (all 3 positions have game pieces).
+     */
+    public boolean isHopperFull() {
+        return inputs.hopperADetected && inputs.hopperBDetected && inputs.hopperCDetected;
+    }
+
+    // ========== Telemetry Getters ==========
+
+    /** Gets conveyor motor velocity in rotations per second */
+    public double getConveyorVelocityRPS() {
+        return inputs.conveyorVelocityRPS;
+    }
+
+    /** Gets indexer motor velocity in rotations per second */
+    public double getIndexerVelocityRPS() {
+        return inputs.indexerVelocityRPS;
+    }
+
+    /** Gets conveyor motor current draw in amps */
+    public double getconveyorCurrentAmps() {
+        return inputs.conveyorCurrentAmps;
+    }
+
+    /** Gets indexer motor current draw in amps */
+    public double getIndexerCurrentAmps() {
+        return inputs.indexerCurrentAmps;
+    }
+
+    /** Gets the raw ToF distance at the indexer in mm */
+    public double getIndexerTofDistanceMM() {
+        return inputs.tofDistanceMM;
+    }
+}
