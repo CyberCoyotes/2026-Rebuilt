@@ -8,14 +8,14 @@ import org.littletonrobotics.junction.inputs.LoggableInputs;
  *
  * The indexer moves game pieces from the intake through the robot to the shooter.
  * It consists of:
- * - Floor motor: Moves pieces along the floor of the hopper toward the feeder
- * - Feeder motor: Grabs pieces from the hopper and feeds them into the shooter
- * - Feeder ToF sensor: Detects when a game piece is staged and ready to shoot
+ * - Conveyor motor: Moves pieces along the conveyor of the hopper toward the indexer
+ * - Indexer motor: Grabs pieces from the hopper and feeds them into the shooter
+ * - Indexer ToF sensor: Detects when a game piece is staged and ready to shoot
  * - Hopper ToF sensors (A, B, C): Detect game pieces at different positions in hopper
  *
  * HARDWARE:
- * - 2x Kraken X60 motors (floor + feeder)
- * - 4x Playing With Fusion Time-of-Flight sensors (1 feeder + 3 hopper)
+ * - 2x Kraken X60 motors (conveyor + indexer)
+ * - 4x Playing With Fusion Time-of-Flight sensors (1 indexer + 3 hopper)
  *
  * PATTERN: IO Interface
  * - IndexerIO: Interface defining what indexer hardware can do
@@ -33,40 +33,40 @@ public interface IndexerIO {
      * Implements LoggableInputs for automatic AdvantageKit logging and replay.
      */
     class IndexerIOInputs implements LoggableInputs {
-        // ===== Floor Motor Data =====
-        /** Floor motor velocity in rotations per second */
-        public double floorVelocityRPS = 0.0;
+        // ===== Conveyor Motor Data =====
+        /** Conveyor motor velocity in rotations per second */
+        public double conveyorVelocityRPS = 0.0;
 
-        /** Floor motor applied voltage */
-        public double floorAppliedVolts = 0.0;
+        /** Conveyor motor applied voltage */
+        public double conveyorAppliedVolts = 0.0;
 
-        /** Floor motor supply current in amps */
-        public double floorCurrentAmps = 0.0;
+        /** Conveyor motor supply current in amps */
+        public double conveyorCurrentAmps = 0.0;
 
-        /** Floor motor temperature in Celsius */
-        public double floorTempCelsius = 0.0;
+        /** Conveyor motor temperature in Celsius */
+        public double conveyorTempCelsius = 0.0;
 
-        // ===== Feeder Motor Data =====
-        /** Feeder motor velocity in rotations per second */
-        public double feederVelocityRPS = 0.0;
+        // ===== Indexer Motor Data =====
+        /** Indexer motor velocity in rotations per second */
+        public double indexerVelocityRPS = 0.0;
 
-        /** Feeder motor applied voltage */
-        public double feederAppliedVolts = 0.0;
+        /** Indexer motor applied voltage */
+        public double indexerAppliedVolts = 0.0;
 
-        /** Feeder motor supply current in amps */
-        public double feederCurrentAmps = 0.0;
+        /** Indexer motor supply current in amps */
+        public double indexerCurrentAmps = 0.0;
 
-        /** Feeder motor temperature in Celsius */
-        public double feederTempCelsius = 0.0;
+        /** Indexer motor temperature in Celsius */
+        public double indexerTempCelsius = 0.0;
 
-        // ===== Feeder Time-of-Flight Sensor Data =====
-        /** Distance reading from feeder ToF sensor in millimeters */
+        // ===== Indexer Time-of-Flight Sensor Data =====
+        /** Distance reading from indexer ToF sensor in millimeters */
         public double tofDistanceMM = 0.0;
 
-        /** True if feeder ToF sensor has valid measurement */
+        /** True if indexer ToF sensor has valid measurement */
         public boolean tofValid = false;
 
-        /** True if a game piece is detected at the feeder (ready to shoot) */
+        /** True if a game piece is detected at the indexer (ready to shoot) */
         public boolean gamePieceDetected = false;
 
         // ===== Hopper Time-of-Flight Sensor Data =====
@@ -99,19 +99,19 @@ public interface IndexerIO {
 
         @Override
         public void toLog(LogTable table) {
-            // Floor motor
-            table.put("FloorVelocityRPS", floorVelocityRPS);
-            table.put("FloorAppliedVolts", floorAppliedVolts);
-            table.put("FloorCurrentAmps", floorCurrentAmps);
-            table.put("FloorTempCelsius", floorTempCelsius);
+            // Conveyor motor
+            table.put("ConveyorVelocityRPS", conveyorVelocityRPS);
+            table.put("ConveyorAppliedVolts", conveyorAppliedVolts);
+            table.put("ConveyorCurrentAmps", conveyorCurrentAmps);
+            table.put("ConveyorTempCelsius", conveyorTempCelsius);
 
-            // Feeder motor
-            table.put("FeederVelocityRPS", feederVelocityRPS);
-            table.put("FeederAppliedVolts", feederAppliedVolts);
-            table.put("FeederCurrentAmps", feederCurrentAmps);
-            table.put("FeederTempCelsius", feederTempCelsius);
+            // Indexer motor
+            table.put("IndexerVelocityRPS", indexerVelocityRPS);
+            table.put("IndexerAppliedVolts", indexerAppliedVolts);
+            table.put("IndexerCurrentAmps", indexerCurrentAmps);
+            table.put("IndexerTempCelsius", indexerTempCelsius);
 
-            // Feeder ToF sensor
+            // Indexer ToF sensor
             table.put("TofDistanceMM", tofDistanceMM);
             table.put("TofValid", tofValid);
             table.put("GamePieceDetected", gamePieceDetected);
@@ -132,19 +132,19 @@ public interface IndexerIO {
 
         @Override
         public void fromLog(LogTable table) {
-            // Floor motor
-            floorVelocityRPS = table.get("FloorVelocityRPS", floorVelocityRPS);
-            floorAppliedVolts = table.get("FloorAppliedVolts", floorAppliedVolts);
-            floorCurrentAmps = table.get("FloorCurrentAmps", floorCurrentAmps);
-            floorTempCelsius = table.get("FloorTempCelsius", floorTempCelsius);
+            // Conveyor motor
+            conveyorVelocityRPS = table.get("ConveyorVelocityRPS", conveyorVelocityRPS);
+            conveyorAppliedVolts = table.get("ConveyorAppliedVolts", conveyorAppliedVolts);
+            conveyorCurrentAmps = table.get("ConveyorCurrentAmps", conveyorCurrentAmps);
+            conveyorTempCelsius = table.get("ConveyorTempCelsius", conveyorTempCelsius);
 
-            // Feeder motor
-            feederVelocityRPS = table.get("FeederVelocityRPS", feederVelocityRPS);
-            feederAppliedVolts = table.get("FeederAppliedVolts", feederAppliedVolts);
-            feederCurrentAmps = table.get("FeederCurrentAmps", feederCurrentAmps);
-            feederTempCelsius = table.get("FeederTempCelsius", feederTempCelsius);
+            // Indexer motor
+            indexerVelocityRPS = table.get("IndexerVelocityRPS", indexerVelocityRPS);
+            indexerAppliedVolts = table.get("IndexerAppliedVolts", indexerAppliedVolts);
+            indexerCurrentAmps = table.get("IndexerCurrentAmps", indexerCurrentAmps);
+            indexerTempCelsius = table.get("IndexerTempCelsius", indexerTempCelsius);
 
-            // Feeder ToF sensor
+            // Indexer ToF sensor
             tofDistanceMM = table.get("TofDistanceMM", tofDistanceMM);
             tofValid = table.get("TofValid", tofValid);
             gamePieceDetected = table.get("GamePieceDetected", gamePieceDetected);
@@ -173,18 +173,18 @@ public interface IndexerIO {
     default void updateInputs(IndexerIOInputs inputs) {}
 
     /**
-     * Sets the floor motor speed as a percentage.
+     * Sets the conveyor motor speed as a percentage.
      *
-     * @param percent Motor speed from -1.0 to 1.0 (+ = toward feeder, - = reverse)
+     * @param percent Motor speed from -1.0 to 1.0 (+ = toward indexer, - = reverse)
      */
-    default void setFloorMotor(double percent) {}
+    default void setConveyorMotor(double percent) {}
 
     /**
-     * Sets the feeder motor speed as a percentage.
+     * Sets the indexer motor speed as a percentage.
      *
      * @param percent Motor speed from -1.0 to 1.0 (+ = toward shooter, - = reverse)
      */
-    default void setFeederMotor(double percent) {}
+    default void setIndexerMotor(double percent) {}
 
     /**
      * Stops both motors.

@@ -13,8 +13,8 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
  * - IndexerIOSim: Simulation for testing without hardware
  *
  * HARDWARE:
- * - 2x Kraken X60 motors (floor + feeder)
- * - 4x Time-of-Flight sensors (1 feeder + 3 hopper sensors)
+ * - 2x Kraken X60 motors (conveyor + indexer)
+ * - 4x Time-of-Flight sensors (1 indexer + 3 hopper sensors)
  *
  * This pattern allows:
  * - Testing robot logic without hardware (simulation mode)
@@ -50,21 +50,21 @@ public class IndexerSubsystem extends SubsystemBase {
     // ========== Motor Control Methods ==========
 
     /**
-     * Sets the floor motor speed (moves pieces toward feeder).
+     * Sets the conveyor motor speed (moves pieces toward indexer).
      *
-     * @param percent Motor speed from -1.0 to 1.0 (+ = toward feeder)
+     * @param percent Motor speed from -1.0 to 1.0 (+ = toward indexer)
      */
-    public void setFloorMotorSpeed(double percent) {
-        io.setFloorMotor(percent);
+    public void setConveyorMotorSpeed(double percent) {
+       io.setConveyorMotor(percent); 
     }
 
     /**
-     * Sets the feeder motor speed (feeds pieces to shooter).
+     * Sets the indexer motor speed (feeds pieces to shooter).
      *
      * @param percent Motor speed from -1.0 to 1.0 (+ = toward shooter)
      */
-    public void setFeederMotorSpeed(double percent) {
-        io.setFeederMotor(percent);
+    public void setIndexerMotorSpeed(double percent) {
+        io.setIndexerMotor(percent);
     }
 
     /**
@@ -77,9 +77,9 @@ public class IndexerSubsystem extends SubsystemBase {
     // ========== Sensor Methods ==========
 
     /**
-     * Returns true if a game piece is detected at the feeder (ready to shoot).
+     * Returns true if a game piece is detected at the indexer (ready to shoot).
      */
-    public boolean isGamePieceAtFeeder() {
+    public boolean isGamePieceAtIndexer() {
         return inputs.gamePieceDetected;
     }
 
@@ -131,28 +131,28 @@ public class IndexerSubsystem extends SubsystemBase {
 
     // ========== Telemetry Getters ==========
 
-    /** Gets floor motor velocity in rotations per second */
-    public double getFloorVelocityRPS() {
-        return inputs.floorVelocityRPS;
+    /** Gets conveyor motor velocity in rotations per second */
+    public double getConveyorVelocityRPS() {
+        return inputs.conveyorVelocityRPS;
     }
 
-    /** Gets feeder motor velocity in rotations per second */
-    public double getFeederVelocityRPS() {
-        return inputs.feederVelocityRPS;
+    /** Gets indexer motor velocity in rotations per second */
+    public double getIndexerVelocityRPS() {
+        return inputs.indexerVelocityRPS;
     }
 
-    /** Gets floor motor current draw in amps */
-    public double getFloorCurrentAmps() {
-        return inputs.floorCurrentAmps;
+    /** Gets conveyor motor current draw in amps */
+    public double getconveyorCurrentAmps() {
+        return inputs.conveyorCurrentAmps;
     }
 
-    /** Gets feeder motor current draw in amps */
-    public double getFeederCurrentAmps() {
-        return inputs.feederCurrentAmps;
+    /** Gets indexer motor current draw in amps */
+    public double getIndexerCurrentAmps() {
+        return inputs.indexerCurrentAmps;
     }
 
-    /** Gets the raw ToF distance at the feeder in mm */
-    public double getFeederTofDistanceMM() {
+    /** Gets the raw ToF distance at the indexer in mm */
+    public double getIndexerTofDistanceMM() {
         return inputs.tofDistanceMM;
     }
 }
