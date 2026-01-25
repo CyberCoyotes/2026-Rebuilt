@@ -40,8 +40,8 @@
    "val":6.746031746031747
   },
   "radius":{
-   "exp":"2 in",
-   "val":0.0508
+   "exp":"2.25 in",
+   "val":0.05715
   },
   "vmax":{
    "exp":"6380 RPM",
@@ -57,16 +57,16 @@
   },
   "bumper":{
    "front":{
-    "exp":"17.5 in",
-    "val":0.4445
+    "exp":"17.25 in",
+    "val":0.43815
    },
    "side":{
-    "exp":"17.5 in",
-    "val":0.4445
+    "exp":"17.25 in",
+    "val":0.43815
    },
    "back":{
-    "exp":"17.5 in",
-    "val":0.4445
+    "exp":"17.25 in",
+    "val":0.43815
    }
   },
   "differentialTrackWidth":{

@@ -1,0 +1,15 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(./gradlew build:*)",
+      "Bash(gradlew.bat build:*)",
+      "Bash(cmd.exe /c gradlew.bat build)",
+      "Bash(./gradlew compileJava:*)",
+      "Bash(bash -c:*)",
+      "Bash(chmod:*)",
+      "Bash(./gradlew:*)",
+      "Bash(find:*)",
+      "Bash(javac:*)"
+    ]
+  }
+}

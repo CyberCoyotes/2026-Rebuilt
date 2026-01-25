@@ -14,9 +14,9 @@ import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.networktables.StringPublisher;
 import edu.wpi.first.networktables.StructArrayPublisher;
 import edu.wpi.first.networktables.StructPublisher;
+import edu.wpi.first.util.sendable.SendableRegistry;
 import edu.wpi.first.wpilibj.smartdashboard.Mechanism2d;
 import edu.wpi.first.wpilibj.smartdashboard.MechanismLigament2d;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj.util.Color8Bit;
 
@@ -32,9 +32,16 @@ public class Telemetry {
         MaxSpeed = maxSpeed;
         SignalLogger.start();
 
-        /* Set up the module state Mechanism2d telemetry */
+        /* Set up the module state Mechanism2d telemetry - publish directly to NetworkTables for Elastic */
         for (int i = 0; i < 4; ++i) {
-            SmartDashboard.putData("Module " + i, m_moduleMechanisms[i]);
+            // Mechanism2d objects are Sendable and automatically publish to NetworkTables
+            // when added to a NetworkTable. Elastic can visualize these directly.
+            NetworkTable moduleTable = inst.getTable("SwerveModules").getSubTable("Module" + i);
+            moduleTable.getEntry(".controllable").setBoolean(false);
+            moduleTable.getEntry(".name").setString("Module " + i);
+
+            // The Mechanism2d will update via the ligament angle/length changes in telemeterize()
+            SendableRegistry.add(m_moduleMechanisms[i], "SwerveModules", "Module" + i);
         }
     }
 

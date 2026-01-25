@@ -25,6 +25,8 @@ import frc.robot.util.TalonFXConfigs;
  * - All telemetry logged via AdvantageKit
  */
 
+@SuppressWarnings("unused") // Remove when we approach comp ready code
+
 public class IndexerIOTalonFX implements IndexerIO {
 
     // ===== Hardware =====
