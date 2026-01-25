@@ -1,7 +1,6 @@
 package frc.robot.subsystems.intake;
 
 import com.ctre.phoenix6.StatusSignal;
-import com.ctre.phoenix6.configs.MotionMagicConfigs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.MotionMagicVoltage;
 import com.ctre.phoenix6.controls.VelocityVoltage;
@@ -33,7 +32,7 @@ public class IntakeSubsystem extends SubsystemBase{
     private final double JAM_VELOCITY_THRESHOLD = 0.5; // velocity should be over this
 
     public final double SLIDE_EXTENDED_POSITION = 0.5;
-    public final double SLIDE_RESTING_POSITION = 0;
+    private final double SLIDE_RESTING_POSITION = 0;
     public final double ROTATOR_RUNNING_VELOCITY = 0.5;
 
     public final double ROTATOR_MAX_VELOCITY = 1;
@@ -73,18 +72,20 @@ public class IntakeSubsystem extends SubsystemBase{
         m_slide.getConfigurator().apply(slideSlot0);
     }
 
+    //rotator methods
     public void setRotatorVelocity(double velocity){
         m_rotator.setControl(m_rotator_request.withVelocity(velocity));
-    }
-
-    public void stopRotator(){
-        m_rotator.setControl(new VoltageOut(0));
     }
 
     public StatusSignal<Voltage> getRotatorVolts(){
         return m_rotator.getMotorVoltage();
     }
 
+    public void stopRotator(){
+        m_rotator.setControl(new VoltageOut(0));
+    }
+
+    //slide methods
     public void setSlidePosition(double position){
         m_slide.setControl(m_slide_request.withPosition(position));
     }
@@ -93,16 +94,26 @@ public class IntakeSubsystem extends SubsystemBase{
         return m_slide.getPosition();
     }
     
+    //intake sensor methods
+    public double getIntakeDistance(){
+        return s_intake.getRange();
+    }
 
-    // public double getIntakeDistance(){
-    //     return s_intake.getRange();
-    // }
+     public boolean intakeTargetClose(){
+        return (s_intake.getRange() <= INTAKE_THRESHOLD) && s_intake.isRangeValid();
+    }
 
-    // public boolean intakeTargetClose(){
-    //     return (s_intake.getRange() <= INDEXER_THRESHOLD) && s_intake.isRangeValid();
-    // }
+    //indexer sensor methods
+    public double getIndexerDistance(){
+        return s_indexer.getRange();
+    }
 
+    //is something close to indexer TOF
+    public boolean indexerTargetClose(){
+        return (s_indexer.getRange() <= INDEXER_THRESHOLD) && s_indexer.isRangeValid();
+    }
 
+    //multi-hardware methods
     public void toRestingState(){
         if (!isJammed()){
         setSlidePosition(SLIDE_RESTING_POSITION); // if ball is stuck, moving slide to rest is bad
@@ -110,17 +121,7 @@ public class IntakeSubsystem extends SubsystemBase{
         setRotatorVelocity(0);
     }
 
-    //returns true if the closest object is within a set threshold and if the last range check was valid
-    public boolean intakeTargetClose(){
-        return (s_intake.getRange() <= INTAKE_THRESHOLD) && s_intake.isRangeValid();
-    }
-
-    public double getIntakeDistance(){
-        return s_intake.getRange();
-    }
-
-    // TODO Debug and tune these values.
-    
+    // TODO tune
     public boolean isJammed(){
         double current = m_rotator.getSupplyCurrent().getValueAsDouble();
         double velocity = m_rotator.getVelocity().getValueAsDouble();
