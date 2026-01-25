@@ -13,7 +13,7 @@ import frc.robot.Constants;
 /**
  * IndexerSubsystemBasic - A simplified indexer implementation for training purposes.
  *
- * RECOMMENDED FOR: Younger programmers learning FRC robot programming.
+ * RECOMMENDED FOR: Newer programmers learning FRC robot programming.
  *
  * This class demonstrates the fundamentals of subsystem design:
  * - Direct hardware instantiation (TalonFX motors, TimeOfFlight sensors)

@@ -39,8 +39,8 @@ public class IntakeSubsystem extends SubsystemBase{
     
     //uses Kraken x44 with TalonFX interface
     IntakeSubsystem(){
-        m_rotator = new TalonFX(Constants.Intake.INTAKE_ROTATOR_ID); // intaking "wheel"
-        m_slide = new TalonFX(Constants.Intake.INTAKE_SLIDE_ID);
+        m_rotator = new TalonFX(Constants.Intake.INTAKE_ROTATOR_MOTOR_ID); // intaking "wheel"
+        m_slide = new TalonFX(Constants.Intake.INTAKE_SLIDE_A_MOTOR_ID);
         m_rotator_request = new VelocityVoltage(0).withSlot(0);
         m_slide_request = new MotionMagicVoltage(0);
         s_intake = new TimeOfFlight(INTAKE_SENSOR_ID);

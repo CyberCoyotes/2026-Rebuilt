@@ -28,13 +28,13 @@ public class ClimberSubsystem extends SubsystemBase {
     private static final double READY_VELOCITY_THRESHOLD = 3000.0; // RPM
 
     // Hardware; commented out until motors are assigned
-     private final TalonFX armMotor;
-     private final TalonFX hookMotor;
+     private final TalonFX climbAMotor;
+     private final TalonFX climbBMotor;
 
      // Constructor
      public ClimberSubsystem() {
-        armMotor = new TalonFX(Constants.Climber.CLIMB_EXTENSION_MOTOR_ID);
-        hookMotor = new TalonFX(Constants.Climber.HOOK_RETRACT_MOTOR_ID);
+        climbAMotor = new TalonFX(Constants.Climber.CLIMB_A_MOTOR_ID);
+        climbBMotor = new TalonFX(Constants.Climber.CLIMB_B_MOTOR_ID);
      }
 
     }

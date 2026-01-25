@@ -11,46 +11,26 @@ public final class Constants {
   // =========================================================
   // Drive / Swerve
   // =========================================================
-  // Here for reference only! CTRE Swerve drive will generate it's own
-  public static final class Drive {
-    private Drive() {}
-
-    // Front Left
-    // public static final int FL_DRIVE_MOTOR_ID = 1;
-    // public static final int FL_STEER_MOTOR_ID = 2;
-
-    // Front Right
-    // public static final int FR_DRIVE_MOTOR_ID = 3;
-    // public static final int FR_STEER_MOTOR_ID = 4;
-
-    // Back Left
-    // public static final int BL_DRIVE_MOTOR_ID = 5;
-    // public static final int BL_STEER_MOTOR_ID = 6;
-
-    // Back Right
-    // public static final int BR_DRIVE_MOTOR_ID = 7;
-    // public static final int BR_STEER_MOTOR_ID = 8;
-
-    // Navigation
-    // Pigeon
-    
-    // Feedback
-    // CANDLE
-
-  }
-
+  // RESERVE CAN IDs 1 to 10 for drivertrain; drive motors, pigeon 2, canivore.
+  // Those IDs live in TunerConstants.java
+  
   // =========================================================
   // Intake
   // =========================================================
   public static final class Intake {
     private Intake() {}
 
-    public static final int INTAKE_ROTATOR_ID = 20;
-    public static final int INTAKE_SLIDE_ID = 21;
+    /** Intake rotator motor - Kraken X44 with TalonFX controller */
+    public static final int INTAKE_ROTATOR_MOTOR_ID = 20;
 
-    // Time of Flight sensor for intake for comfirming fuel presence
-    // Exact hardbware model to be determined
-    public static final int INTAKE_SENSOR_ID = 41; 
+    /** Intake slide motor A - Kraken X44 with TalonFX controller */
+    public static final int INTAKE_SLIDE_A_MOTOR_ID = 21;
+
+    /** Intake slide motor B - Kraken X44 with TalonFX controller (paired with A) */
+    public static final int INTAKE_SLIDE_B__MOTOR_ID = 51;
+
+    /** Time of Flight sensor - Playing With Fusion, confirms fuel presence */
+    public static final int INTAKE_SENSOR_ID = 41;
   }
 
   // =========================================================
@@ -59,18 +39,23 @@ public final class Constants {
   public static final class Indexer {
     private Indexer() {}
 
+    /** Indexer motor - Kraken X60 with TalonFX controller, feeds pieces to shooter */
     public static final int INDEXER_MOTOR_ID = 22;
+
+    /** Conveyor motor - Kraken X60 with TalonFX controller, moves pieces along hopper */
     public static final int CONVEYOR_MOTOR_ID = 23;
 
+    /** Time of Flight sensor - Playing With Fusion, detects fuel at indexer exit (optional) */
     public static final int INDEXER_TOF_ID = 42;
 
-    // Time of Flight sensor for hopper fuel detection
+    /** Time of Flight sensor A - Playing With Fusion, hopper position A detection */
     public static final int HOPPER_TOP_A_TOF_ID = 43;
+
+    /** Time of Flight sensor B - Playing With Fusion, hopper position B detection */
     public static final int HOPPER_TOP_B_TOF_ID = 44;
+
+    /** Time of Flight sensor C - Playing With Fusion, hopper position C detection */
     public static final int HOPPER_TOP_C_TOF_ID = 45;
-  
-
-
   }
 
   // =========================================================
@@ -79,17 +64,19 @@ public final class Constants {
   public static final class Shooter {
     private Shooter() {}
 
-    // Main flywheels (Falcon 500 / TalonFX)
+    /** Flywheel A motor - Falcon 500 with TalonFX controller (leader) */
     public static final int FLYWHEEL_A_MOTOR_ID = 24;
+
+    /** Flywheel B motor - Falcon 500 with TalonFX controller (follower of A) */
     public static final int FLYWHEEL_B_MOTOR_ID = 25;
+
+    /** Flywheel C motor - Falcon 500 with TalonFX controller (follower of A) */
     public static final int FLYWHEEL_C_MOTOR_ID = 26;
 
-    /**
-     * Hood movement motor (Minion).
-     */
+    /** Hood motor - Minion with TalonFXS controller, adjusts shot angle */
     public static final int HOOD_MOTOR_ID = 27;
 
-    // Counter wheel (Kraken / TalonFX)
+    /** Counter wheel motor - Kraken X44 with TalonFX controller */
     public static final int COUNTER_WHEEL_MOTOR_ID = 28;
   }
 
@@ -99,12 +86,11 @@ public final class Constants {
   public static final class Climber {
     private Climber() {}
 
-    public static final int CLIMB_EXTENSION_MOTOR_ID = 29;
-    /**
-     * Hook retraction motor (Minion) — ONLY keep this as a CAN ID if the motor controller is on CAN.
-     * If this is PWM, move to a PWM constants section.
-     */
-    public static final int HOOK_RETRACT_MOTOR_ID = 30;
+    /** Climber motor A - Kraken X60 with TalonFX controller */
+    public static final int CLIMB_A_MOTOR_ID = 29;
+
+    /** Climber motor B - Kraken X60 with TalonFX controller */
+    public static final int CLIMB_B_MOTOR_ID = 30;
   }
 
   // =========================================================
@@ -152,14 +138,4 @@ public final class Constants {
     public static final double TARGET_TIMEOUT_SECONDS = 0.5;
   }
 
-  // =========================================================
-  // Optional: PWM (if Minion motors are NOT on CAN)
-  // =========================================================
-  // public static final class PWM {
-  //   private PWM() {}
-  //
-  //   // Example:
-  //   // public static final int SHOOTER_HOOD_PWM_CHANNEL = 0;
-  //   // public static final int CLIMBER_HOOK_PWM_CHANNEL = 1;
-  // }
 }

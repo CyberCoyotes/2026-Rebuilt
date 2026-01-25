@@ -66,8 +66,8 @@ public class IntakeIOHardware implements IntakeIO {
     public IntakeIOHardware() {
         // Create motor objects
 
-        rotatorMotor = new TalonFX(Constants.Intake.INTAKE_ROTATOR_ID, kCANBus); // TODO add new CANbus arg 
-        slideMotor = new TalonFX(Constants.Intake.INTAKE_SLIDE_ID, kCANBus); // TODO add new CANbus arg 
+        rotatorMotor = new TalonFX(Constants.Intake.INTAKE_ROTATOR_MOTOR_ID, kCANBus); // TODO add new CANbus arg 
+        slideMotor = new TalonFX(Constants.Intake.INTAKE_SLIDE_A_MOTOR_ID, kCANBus); // TODO add new CANbus arg 
 
         // Apply configurations from centralized config class
         rotatorMotor.getConfigurator().apply(TalonFXConfigs.intakeConfig());
