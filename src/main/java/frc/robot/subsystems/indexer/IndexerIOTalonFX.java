@@ -12,7 +12,7 @@ import frc.robot.Constants;
 import frc.robot.util.TalonFXConfigs;
 
 /**
- * IndexerIOTalonFX - Real hardware implementation using CTRE TalonFX (Kraken X60) motors.
+ * IndexerIOHardware - Real hardware implementation for the indexer subsystem.
  *
  * This class interfaces with:
  * - 2x Kraken X60 motors (floor + feeder)
@@ -58,8 +58,8 @@ public class IndexerIOTalonFX implements IndexerIO {
     private static final double TOF_DETECTION_THRESHOLD_MM = 100.0;  // TODO: Tune on robot
 
     /**
-     * Creates a new IndexerIOTalonFX instance.
-     * Configures motors and sensor to known good states.
+     * Creates a new IndexerIOHardware instance.
+     * Configures motors and sensors to known good states.
      */
     public IndexerIOTalonFX() {
         /*API Breaking Changes [https://v6.docs.ctr-electronics.com/en/stable/docs/yearly-changes/yearly-changelog.html#breaking-changes]
@@ -69,15 +69,15 @@ public class IndexerIOTalonFX implements IndexerIO {
         */
 
         // Create motor objects
-        floorMotor = new TalonFX(Constants.Indexer.FLOOR_MOTOR_ID); // TODO add new CANbus arg 
-        feederMotor = new TalonFX(Constants.Indexer.FEEDER_MOTOR_ID); // TODO add new CANbus arg 
+        floorMotor = new TalonFX(Constants.Indexer.CONVEYOR_MOTOR_ID); // TODO add new CANbus arg 
+        feederMotor = new TalonFX(Constants.Indexer.INDEXER_MOTOR_ID); // TODO add new CANbus arg 
 
         // Apply configurations from centralized config class
         floorMotor.getConfigurator().apply(TalonFXConfigs.indexerConfig());
         feederMotor.getConfigurator().apply(TalonFXConfigs.indexerConfig());
 
         // Create and configure ToF sensor
-        feederToF = new TimeOfFlight(Constants.Indexer.FEEDER_TOF_ID);
+        feederToF = new TimeOfFlight(Constants.Indexer.INDEXER_TOF_ID);
         feederToF.setRangingMode(RangingMode.Short, 24);  // Short range, 24ms sample time
 
         // Get status signals for efficient reading
