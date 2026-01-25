@@ -20,6 +20,6 @@ public class IntakeCommands {
         }
 
     public Command stopJam(IntakeSubsystem intake){
-        return Commands.startEnd(() -> intake.setRotatorVelocity(intake.ROTATOR_MAX_VELOCITY),() -> intake.setRotatorVelocity(0), intake).withTimeout(0.5);
+        return Commands.startEnd(() -> intake.setRotatorVelocity(-intake.ROTATOR_MAX_VELOCITY),() -> intake.setRotatorVelocity(0), intake).withTimeout(0.5);
     }
     }

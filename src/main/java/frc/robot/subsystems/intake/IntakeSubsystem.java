@@ -1,7 +1,6 @@
 package frc.robot.subsystems.intake;
 
 import com.ctre.phoenix6.StatusSignal;
-import com.ctre.phoenix6.configs.MotionMagicConfigs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.MotionMagicVoltage;
 import com.ctre.phoenix6.controls.VelocityVoltage;
@@ -33,7 +32,7 @@ public class IntakeSubsystem extends SubsystemBase{
     private final double JAM_VELOCITY_THRESHOLD = 0.5; // velocity should be over this
 
     public final double SLIDE_EXTENDED_POSITION = 0.5;
-    public final double SLIDE_RESTING_POSITION = 0;
+    private final double SLIDE_RESTING_POSITION = 0;
     public final double ROTATOR_RUNNING_VELOCITY = 0.5;
 
     public final double ROTATOR_MAX_VELOCITY = 1;
