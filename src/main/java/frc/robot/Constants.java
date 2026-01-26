@@ -146,4 +146,29 @@ public final class Constants {
     public static final double TARGET_TIMEOUT_SECONDS = 0.5;
   }
 
+  // =========================================================
+  // LEDs
+  // =========================================================
+  public static final class Led {
+    private Led() {}
+
+    /** CANdle device ID */
+    public static final int CANDLE_ID = 11;
+
+    /** CAN bus name for the CANdle (typically "canivore") */
+    public static final String CAN_BUS_NAME = "canivore";
+
+    /** WS2811 logical segments per meter */
+    public static final int SEGMENTS_PER_METER = 20;
+
+    /** WS2811 physical LEDs per logical segment */
+    public static final int LEDS_PER_SEGMENT = 36;
+
+    /** Total strip length in meters */
+    public static final int STRIP_LENGTH_METERS = 1;
+
+    /** Total number of logical addressable segments */
+    public static final int LOGICAL_LED_COUNT = SEGMENTS_PER_METER * STRIP_LENGTH_METERS;
+  }
+
 }
