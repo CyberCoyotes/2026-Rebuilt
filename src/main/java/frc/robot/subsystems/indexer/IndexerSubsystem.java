@@ -2,6 +2,12 @@ package frc.robot.subsystems.indexer;
 
 import org.littletonrobotics.junction.Logger;
 
+import edu.wpi.first.networktables.BooleanPublisher;
+import edu.wpi.first.networktables.DoublePublisher;
+import edu.wpi.first.networktables.IntegerPublisher;
+import edu.wpi.first.networktables.NetworkTable;
+import edu.wpi.first.networktables.NetworkTableInstance;
+import edu.wpi.first.networktables.StringPublisher;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 /**
@@ -26,6 +32,21 @@ public class IndexerSubsystem extends SubsystemBase {
     private final IndexerIO io;
     private final IndexerIO.IndexerIOInputs inputs = new IndexerIO.IndexerIOInputs();
 
+    // ===== NetworkTables Publishers for Elastic Dashboard =====
+    private final NetworkTable indexerTable;
+    private final StringPublisher statePublisher;
+    private final BooleanPublisher hasGamePiecePublisher;
+    private final BooleanPublisher hopperFullPublisher;
+    private final IntegerPublisher hopperCountPublisher;
+    private final BooleanPublisher hopperAPublisher;
+    private final BooleanPublisher hopperBPublisher;
+    private final BooleanPublisher hopperCPublisher;
+    private final DoublePublisher conveyorVelocityPublisher;
+    private final DoublePublisher indexerVelocityPublisher;
+
+    // ===== State Tracking =====
+    private String currentState = "IDLE";
+
     /**
      * Creates a new IndexerSubsystem with the specified IO implementation.
      *
@@ -33,6 +54,20 @@ public class IndexerSubsystem extends SubsystemBase {
      */
     public IndexerSubsystem(IndexerIO io) {
         this.io = io;
+
+        // Initialize NetworkTables publishers for Elastic dashboard
+        NetworkTableInstance inst = NetworkTableInstance.getDefault();
+        indexerTable = inst.getTable("Indexer");
+
+        statePublisher = indexerTable.getStringTopic("State").publish();
+        hasGamePiecePublisher = indexerTable.getBooleanTopic("HasGamePiece").publish();
+        hopperFullPublisher = indexerTable.getBooleanTopic("HopperFull").publish();
+        hopperCountPublisher = indexerTable.getIntegerTopic("HopperCount").publish();
+        hopperAPublisher = indexerTable.getBooleanTopic("HopperA").publish();
+        hopperBPublisher = indexerTable.getBooleanTopic("HopperB").publish();
+        hopperCPublisher = indexerTable.getBooleanTopic("HopperC").publish();
+        conveyorVelocityPublisher = indexerTable.getDoubleTopic("ConveyorVelocityRPS").publish();
+        indexerVelocityPublisher = indexerTable.getDoubleTopic("IndexerVelocityRPS").publish();
     }
 
     @Override
@@ -42,6 +77,33 @@ public class IndexerSubsystem extends SubsystemBase {
 
         // Log all inputs for AdvantageKit replay
         Logger.processInputs("Indexer", inputs);
+
+        // Publish to NetworkTables for Elastic dashboard
+        publishTelemetry();
+    }
+
+    /**
+     * Publishes indexer telemetry to NetworkTables for Elastic dashboard.
+     */
+    private void publishTelemetry() {
+        statePublisher.set(currentState);
+        hasGamePiecePublisher.set(isGamePieceAtIndexer());
+        hopperFullPublisher.set(isHopperFull());
+        hopperCountPublisher.set(getHopperGamePieceCount());
+        hopperAPublisher.set(inputs.hopperADetected);
+        hopperBPublisher.set(inputs.hopperBDetected);
+        hopperCPublisher.set(inputs.hopperCDetected);
+        conveyorVelocityPublisher.set(inputs.conveyorVelocityRPS);
+        indexerVelocityPublisher.set(inputs.indexerVelocityRPS);
+    }
+
+    /**
+     * Sets the current state for dashboard display.
+     *
+     * @param state State string (e.g., "IDLE", "FEEDING", "INTAKING")
+     */
+    public void setState(String state) {
+        this.currentState = state;
     }
 
     // ========== Motor Control Methods ==========

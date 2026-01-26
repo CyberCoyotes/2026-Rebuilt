@@ -2,7 +2,11 @@ package frc.robot.subsystems.shooter;
 
 import org.littletonrobotics.junction.Logger;
 
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.networktables.BooleanPublisher;
+import edu.wpi.first.networktables.DoublePublisher;
+import edu.wpi.first.networktables.NetworkTable;
+import edu.wpi.first.networktables.NetworkTableInstance;
+import edu.wpi.first.networktables.StringPublisher;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.subsystems.shooter.ShooterIO.ShooterIOInputs;
 
@@ -42,6 +46,17 @@ public class ShooterSubsystem extends SubsystemBase {
     // ===== Hardware Interface =====
     private final ShooterIO io;
     private final ShooterIO.ShooterIOInputs inputs = new ShooterIO.ShooterIOInputs();
+
+    // ===== NetworkTables Publishers for Elastic Dashboard =====
+    private final NetworkTable shooterTable;
+    private final StringPublisher statePublisher;
+    private final BooleanPublisher readyPublisher;
+    private final DoublePublisher flywheelRpmPublisher;
+    private final DoublePublisher targetRpmPublisher;
+    private final DoublePublisher hoodAnglePublisher;
+    private final DoublePublisher targetHoodPublisher;
+    private final DoublePublisher flywheelErrorPublisher;
+    private final DoublePublisher hoodErrorPublisher;
 
     // ===== State =====
     private ShooterState currentState = ShooterState.IDLE;
@@ -87,6 +102,19 @@ public class ShooterSubsystem extends SubsystemBase {
      */
     public ShooterSubsystem(ShooterIO io) {
         this.io = io;
+
+        // Initialize NetworkTables publishers for Elastic dashboard
+        NetworkTableInstance inst = NetworkTableInstance.getDefault();
+        shooterTable = inst.getTable("Shooter");
+
+        statePublisher = shooterTable.getStringTopic("State").publish();
+        readyPublisher = shooterTable.getBooleanTopic("IsReady").publish();
+        flywheelRpmPublisher = shooterTable.getDoubleTopic("FlywheelRPM").publish();
+        targetRpmPublisher = shooterTable.getDoubleTopic("TargetFlywheelRPM").publish();
+        hoodAnglePublisher = shooterTable.getDoubleTopic("HoodAngle").publish();
+        targetHoodPublisher = shooterTable.getDoubleTopic("TargetHoodAngle").publish();
+        flywheelErrorPublisher = shooterTable.getDoubleTopic("FlywheelError").publish();
+        hoodErrorPublisher = shooterTable.getDoubleTopic("HoodError").publish();
     }
 
     @Override
@@ -106,13 +134,15 @@ public class ShooterSubsystem extends SubsystemBase {
         Logger.recordOutput("Shooter/FlywheelError", getFlywheelError());
         Logger.recordOutput("Shooter/HoodError", getHoodError());
 
-        // Update dashboard
-        SmartDashboard.putString("Shooter State", currentState.toString());
-        SmartDashboard.putBoolean("Shooter Ready", isReady());
-        SmartDashboard.putNumber("Shooter RPM", inputs.flywheelVelocityRPM);
-        SmartDashboard.putNumber("Shooter Target RPM", targetFlywheelRPM);
-        SmartDashboard.putNumber("Hood Angle", inputs.hoodAngleDegrees);
-        SmartDashboard.putNumber("Hood Target", targetHoodAngle);
+        // Publish to NetworkTables for Elastic dashboard
+        statePublisher.set(currentState.toString());
+        readyPublisher.set(isReady());
+        flywheelRpmPublisher.set(inputs.flywheelVelocityRPM);
+        targetRpmPublisher.set(targetFlywheelRPM);
+        hoodAnglePublisher.set(inputs.hoodAngleDegrees);
+        targetHoodPublisher.set(targetHoodAngle);
+        flywheelErrorPublisher.set(getFlywheelError());
+        hoodErrorPublisher.set(getHoodError());
     }
 
     /**

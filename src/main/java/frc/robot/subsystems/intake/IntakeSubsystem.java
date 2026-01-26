@@ -8,6 +8,11 @@ import com.ctre.phoenix6.controls.VoltageOut;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.playingwithfusion.TimeOfFlight;
 
+import edu.wpi.first.networktables.BooleanPublisher;
+import edu.wpi.first.networktables.DoublePublisher;
+import edu.wpi.first.networktables.NetworkTable;
+import edu.wpi.first.networktables.NetworkTableInstance;
+import edu.wpi.first.networktables.StringPublisher;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.Voltage;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -20,7 +25,19 @@ public class IntakeSubsystem extends SubsystemBase{
     private final VelocityVoltage m_rotator_request;
     private final MotionMagicVoltage m_slide_request;
     private final TimeOfFlight s_intake; // detects objects near intake
-    private final TimeOfFlight s_indexer; // detects when ball capacity meets standards for indexer handoff 
+    private final TimeOfFlight s_indexer; // detects when ball capacity meets standards for indexer handoff
+
+    // ===== NetworkTables Publishers for Elastic Dashboard =====
+    private final NetworkTable intakeTable;
+    private final StringPublisher statePublisher;
+    private final BooleanPublisher targetDetectedPublisher;
+    private final BooleanPublisher isJammedPublisher;
+    private final DoublePublisher slidePositionPublisher;
+    private final DoublePublisher intakeDistancePublisher;
+    private final DoublePublisher rotatorCurrentPublisher;
+
+    // ===== State Tracking =====
+    private String currentState = "IDLE"; 
 
     private final int INTAKE_SENSOR_ID = 12345;
     private final int INTAKE_THRESHOLD = 1000; //mm, around four inches
@@ -70,6 +87,44 @@ public class IntakeSubsystem extends SubsystemBase{
 
         m_rotator.getConfigurator().apply(rotatorSlot0);
         m_slide.getConfigurator().apply(slideSlot0);
+
+        // Initialize NetworkTables publishers for Elastic dashboard
+        NetworkTableInstance inst = NetworkTableInstance.getDefault();
+        intakeTable = inst.getTable("Intake");
+
+        statePublisher = intakeTable.getStringTopic("State").publish();
+        targetDetectedPublisher = intakeTable.getBooleanTopic("TargetDetected").publish();
+        isJammedPublisher = intakeTable.getBooleanTopic("IsJammed").publish();
+        slidePositionPublisher = intakeTable.getDoubleTopic("SlidePosition").publish();
+        intakeDistancePublisher = intakeTable.getDoubleTopic("IntakeDistance_mm").publish();
+        rotatorCurrentPublisher = intakeTable.getDoubleTopic("RotatorCurrent").publish();
+    }
+
+    @Override
+    public void periodic() {
+        // Publish telemetry to NetworkTables for Elastic dashboard
+        publishTelemetry();
+    }
+
+    /**
+     * Publishes intake telemetry to NetworkTables for Elastic dashboard.
+     */
+    private void publishTelemetry() {
+        statePublisher.set(currentState);
+        targetDetectedPublisher.set(intakeTargetClose());
+        isJammedPublisher.set(isJammed());
+        slidePositionPublisher.set(m_slide.getPosition().getValueAsDouble());
+        intakeDistancePublisher.set(getIntakeDistance());
+        rotatorCurrentPublisher.set(m_rotator.getSupplyCurrent().getValueAsDouble());
+    }
+
+    /**
+     * Sets the current state for dashboard display.
+     *
+     * @param state State string (e.g., "IDLE", "INTAKING", "EXTENDED")
+     */
+    public void setState(String state) {
+        this.currentState = state;
     }
 
     //rotator methods
