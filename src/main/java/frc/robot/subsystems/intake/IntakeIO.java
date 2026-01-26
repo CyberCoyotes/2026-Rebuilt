@@ -1,7 +1,14 @@
 package frc.robot.subsystems.intake;
 
+import java.io.ObjectInputFilter.Status;
+
 import org.littletonrobotics.junction.LogTable;
 import org.littletonrobotics.junction.inputs.LoggableInputs;
+
+import com.ctre.phoenix6.StatusSignal;
+
+import edu.wpi.first.units.measure.Angle;
+import edu.wpi.first.units.measure.Voltage;
 
 /**
  * IntakeIO - Hardware abstraction interface for the intake subsystem.
@@ -98,30 +105,26 @@ public interface IntakeIO {
      *
      * @param inputs Object to populate with current sensor values
      */
-    default void updateInputs(IntakeIOInputs inputs) {}
+    void updateInputs(IntakeIOInputs inputs); //took out default because these methods are fine abstract
 
-    /**
-     * Sets the rotator motor output (intake wheels).
-     *
-     * @param percent Motor output from -1.0 to 1.0 (positive = intake)
-     */
-    default void setRotator(double percent) {}
+    //rotator methods
+    void setRotatorVelocity(double velocity);
+    StatusSignal<Voltage> getRotatorVolts();
 
-    /**
-     * Sets the slide position (extend/retract).
-     *
-     * @param rotations Target position in motor rotations (0 = retracted)
-     */
-    default void setSlidePosition(double rotations) {}
+    //slide methods
+    void setSlidePosition(double position);
+    StatusSignal<Angle> getSlidePosition();
 
-    /**
-     * Stops all intake motors.
-     */
-    default void stop() {}
+    //intake sensor methods
+    double getIntakeDistance();
+    boolean intakeTargetClose();
 
-    /**
-     * Zeros the slide encoder at the current position.
-     * Call this when the intake is manually moved to the retracted position.
-     */
-    default void zeroSlide() {}
+    //indexer sensor methods
+    double getIndexerDistance();
+    boolean indexerTargetClose();
+
+    //multi-hardware methods
+    void toRestingState();
+    boolean isJammed();
+
 }

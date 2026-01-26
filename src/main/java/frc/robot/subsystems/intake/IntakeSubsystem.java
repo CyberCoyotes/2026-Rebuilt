@@ -108,7 +108,7 @@ public class IntakeSubsystem extends SubsystemBase{
         return s_indexer.getRange();
     }
 
-    //is something close to indexer TOF
+    //returns true if is something close to indexer TOF
     public boolean indexerTargetClose(){
         return (s_indexer.getRange() <= INDEXER_THRESHOLD) && s_indexer.isRangeValid();
     }
