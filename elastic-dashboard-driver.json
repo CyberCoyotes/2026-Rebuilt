@@ -1,0 +1,682 @@
+{
+  "version": "2024.0.0",
+  "grid_size": 128,
+  "tabs": [
+    {
+      "name": "Driver",
+      "grid_layout": {
+        "layouts": [
+          {
+            "title": "Robot Status",
+            "x": 0,
+            "y": 0,
+            "width": 4,
+            "height": 2,
+            "type": "List Layout",
+            "properties": {
+              "Label position": "LEFT"
+            },
+            "children": [
+              {
+                "title": "Robot State",
+                "type": "Text Display",
+                "properties": {
+                  "topic": "/FMSInfo/FMSControlData"
+                }
+              },
+              {
+                "title": "Match Time",
+                "type": "Text Display",
+                "properties": {
+                  "topic": "/FMSInfo/MatchTime"
+                }
+              }
+            ]
+          },
+          {
+            "title": "Alliance",
+            "x": 4,
+            "y": 0,
+            "width": 2,
+            "height": 2,
+            "type": "Boolean Box",
+            "properties": {
+              "topic": "/FMSInfo/IsRedAlliance",
+              "Color when true": "#FF0000",
+              "Color when false": "#0000FF"
+            }
+          },
+          {
+            "title": "Hub Status",
+            "x": 6,
+            "y": 0,
+            "width": 3,
+            "height": 2,
+            "type": "Boolean Box",
+            "properties": {
+              "topic": "/Scoring/HubActive",
+              "Color when true": "#00FF00",
+              "Color when false": "#FF6600"
+            }
+          },
+          {
+            "title": "Limelight 3 - Shooter Cam",
+            "x": 0,
+            "y": 2,
+            "width": 5,
+            "height": 4,
+            "type": "Camera Stream",
+            "properties": {
+              "topic": "/CameraPublisher/limelight3",
+              "camera_url": "http://limelight3.local:5800/stream.mjpg"
+            }
+          },
+          {
+            "title": "Limelight 4 - Intake Cam",
+            "x": 5,
+            "y": 2,
+            "width": 5,
+            "height": 4,
+            "type": "Camera Stream",
+            "properties": {
+              "topic": "/CameraPublisher/limelight4",
+              "camera_url": "http://limelight4.local:5800/stream.mjpg"
+            }
+          },
+          {
+            "title": "Vision",
+            "x": 0,
+            "y": 6,
+            "width": 4,
+            "height": 3,
+            "type": "List Layout",
+            "properties": {
+              "Label position": "LEFT"
+            },
+            "children": [
+              {
+                "title": "Vision State",
+                "type": "Text Display",
+                "properties": {
+                  "topic": "/Vision/State"
+                }
+              },
+              {
+                "title": "Has Target",
+                "type": "Boolean Box",
+                "properties": {
+                  "topic": "/Vision/HasTarget",
+                  "Color when true": "#00FF00",
+                  "Color when false": "#333333"
+                }
+              },
+              {
+                "title": "Aligned",
+                "type": "Boolean Box",
+                "properties": {
+                  "topic": "/Vision/IsAligned",
+                  "Color when true": "#00FF00",
+                  "Color when false": "#FF0000"
+                }
+              },
+              {
+                "title": "Distance (m)",
+                "type": "Text Display",
+                "properties": {
+                  "topic": "/Vision/Distance_m"
+                }
+              },
+              {
+                "title": "Tag ID",
+                "type": "Text Display",
+                "properties": {
+                  "topic": "/Vision/TagID"
+                }
+              }
+            ]
+          },
+          {
+            "title": "Shooter",
+            "x": 4,
+            "y": 6,
+            "width": 3,
+            "height": 3,
+            "type": "List Layout",
+            "properties": {
+              "Label position": "LEFT"
+            },
+            "children": [
+              {
+                "title": "Shooter Ready",
+                "type": "Boolean Box",
+                "properties": {
+                  "topic": "/Shooter/IsReady",
+                  "Color when true": "#00FF00",
+                  "Color when false": "#FF0000"
+                }
+              },
+              {
+                "title": "Flywheel RPM",
+                "type": "Text Display",
+                "properties": {
+                  "topic": "/Shooter/FlywheelRPM"
+                }
+              },
+              {
+                "title": "Target RPM",
+                "type": "Text Display",
+                "properties": {
+                  "topic": "/Shooter/TargetFlywheelRPM"
+                }
+              },
+              {
+                "title": "Hood Angle",
+                "type": "Text Display",
+                "properties": {
+                  "topic": "/Shooter/HoodAngle"
+                }
+              }
+            ]
+          },
+          {
+            "title": "Indexer/Intake",
+            "x": 7,
+            "y": 6,
+            "width": 3,
+            "height": 3,
+            "type": "List Layout",
+            "properties": {
+              "Label position": "LEFT"
+            },
+            "children": [
+              {
+                "title": "Has Game Piece",
+                "type": "Boolean Box",
+                "properties": {
+                  "topic": "/Indexer/HasGamePiece",
+                  "Color when true": "#FFD700",
+                  "Color when false": "#333333"
+                }
+              },
+              {
+                "title": "Indexer State",
+                "type": "Text Display",
+                "properties": {
+                  "topic": "/Indexer/State"
+                }
+              },
+              {
+                "title": "Hopper Count",
+                "type": "Text Display",
+                "properties": {
+                  "topic": "/Indexer/HopperCount"
+                }
+              }
+            ]
+          },
+          {
+            "title": "Field Position",
+            "x": 10,
+            "y": 0,
+            "width": 5,
+            "height": 6,
+            "type": "Field",
+            "properties": {
+              "topic": "/Pose",
+              "field_game": "2026 Reefscape",
+              "robot_width": 0.8,
+              "robot_length": 0.8,
+              "Show other objects": true
+            }
+          },
+          {
+            "title": "Drivetrain",
+            "x": 10,
+            "y": 6,
+            "width": 5,
+            "height": 3,
+            "type": "List Layout",
+            "properties": {
+              "Label position": "LEFT"
+            },
+            "children": [
+              {
+                "title": "Speed (m/s)",
+                "type": "Text Display",
+                "properties": {
+                  "topic": "/DriveState/Speeds"
+                }
+              },
+              {
+                "title": "Odometry Hz",
+                "type": "Text Display",
+                "properties": {
+                  "topic": "/DriveState/OdometryFrequency"
+                }
+              }
+            ]
+          },
+          {
+            "title": "Auto Selector",
+            "x": 0,
+            "y": 9,
+            "width": 5,
+            "height": 1,
+            "type": "ComboBox Chooser",
+            "properties": {
+              "topic": "/AutoChooser"
+            }
+          },
+          {
+            "title": "Alerts",
+            "x": 5,
+            "y": 9,
+            "width": 10,
+            "height": 1,
+            "type": "Alerts",
+            "properties": {
+              "topic": "/Alerts"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "Operator",
+      "grid_layout": {
+        "layouts": [
+          {
+            "title": "Match Info",
+            "x": 0,
+            "y": 0,
+            "width": 4,
+            "height": 1,
+            "type": "List Layout",
+            "properties": {
+              "Label position": "LEFT"
+            },
+            "children": [
+              {
+                "title": "Match Time",
+                "type": "Match Time",
+                "properties": {
+                  "topic": "/FMSInfo/MatchTime"
+                }
+              }
+            ]
+          },
+          {
+            "title": "Hub Active",
+            "x": 4,
+            "y": 0,
+            "width": 3,
+            "height": 2,
+            "type": "Boolean Box",
+            "properties": {
+              "topic": "/Scoring/HubActive",
+              "Color when true": "#00FF00",
+              "Color when false": "#FF6600"
+            }
+          },
+          {
+            "title": "Scoring Status",
+            "x": 7,
+            "y": 0,
+            "width": 3,
+            "height": 2,
+            "type": "Text Display",
+            "properties": {
+              "topic": "/Scoring/Status"
+            }
+          },
+          {
+            "title": "Shooter Camera (Limelight 3)",
+            "x": 0,
+            "y": 2,
+            "width": 6,
+            "height": 5,
+            "type": "Camera Stream",
+            "properties": {
+              "topic": "/CameraPublisher/limelight3",
+              "camera_url": "http://limelight3.local:5800/stream.mjpg"
+            }
+          },
+          {
+            "title": "Intake Camera (Limelight 4)",
+            "x": 6,
+            "y": 2,
+            "width": 6,
+            "height": 5,
+            "type": "Camera Stream",
+            "properties": {
+              "topic": "/CameraPublisher/limelight4",
+              "camera_url": "http://limelight4.local:5800/stream.mjpg"
+            }
+          },
+          {
+            "title": "Vision Alignment",
+            "x": 0,
+            "y": 7,
+            "width": 4,
+            "height": 3,
+            "type": "List Layout",
+            "properties": {
+              "Label position": "LEFT"
+            },
+            "children": [
+              {
+                "title": "Alignment State",
+                "type": "Text Display",
+                "properties": {
+                  "topic": "/Vision/State"
+                }
+              },
+              {
+                "title": "Ready to Shoot",
+                "type": "Boolean Box",
+                "properties": {
+                  "topic": "/Vision/IsAligned",
+                  "Color when true": "#00FF00",
+                  "Color when false": "#FF0000"
+                }
+              },
+              {
+                "title": "Horizontal Angle",
+                "type": "Text Display",
+                "properties": {
+                  "topic": "/Vision/HorizontalAngle_deg"
+                }
+              },
+              {
+                "title": "Distance (cm)",
+                "type": "Text Display",
+                "properties": {
+                  "topic": "/Vision/Distance_cm"
+                }
+              }
+            ]
+          },
+          {
+            "title": "Shooter Status",
+            "x": 4,
+            "y": 7,
+            "width": 4,
+            "height": 3,
+            "type": "List Layout",
+            "properties": {
+              "Label position": "LEFT"
+            },
+            "children": [
+              {
+                "title": "Shooter State",
+                "type": "Text Display",
+                "properties": {
+                  "topic": "/Shooter/State"
+                }
+              },
+              {
+                "title": "Shooter Ready",
+                "type": "Boolean Box",
+                "properties": {
+                  "topic": "/Shooter/IsReady",
+                  "Color when true": "#00FF00",
+                  "Color when false": "#FFAA00"
+                }
+              },
+              {
+                "title": "Current RPM",
+                "type": "Number Bar",
+                "properties": {
+                  "topic": "/Shooter/FlywheelRPM",
+                  "min_value": 0,
+                  "max_value": 6000,
+                  "num_tick_marks": 5
+                }
+              },
+              {
+                "title": "RPM Error",
+                "type": "Text Display",
+                "properties": {
+                  "topic": "/Shooter/FlywheelError"
+                }
+              }
+            ]
+          },
+          {
+            "title": "Intake/Indexer",
+            "x": 8,
+            "y": 7,
+            "width": 4,
+            "height": 3,
+            "type": "List Layout",
+            "properties": {
+              "Label position": "LEFT"
+            },
+            "children": [
+              {
+                "title": "Game Piece Detected",
+                "type": "Boolean Box",
+                "properties": {
+                  "topic": "/Indexer/HasGamePiece",
+                  "Color when true": "#FFD700",
+                  "Color when false": "#333333"
+                }
+              },
+              {
+                "title": "Intake State",
+                "type": "Text Display",
+                "properties": {
+                  "topic": "/Intake/State"
+                }
+              },
+              {
+                "title": "Hopper Full",
+                "type": "Boolean Box",
+                "properties": {
+                  "topic": "/Indexer/HopperFull",
+                  "Color when true": "#00FF00",
+                  "Color when false": "#333333"
+                }
+              },
+              {
+                "title": "Intake Jammed",
+                "type": "Boolean Box",
+                "properties": {
+                  "topic": "/Intake/IsJammed",
+                  "Color when true": "#FF0000",
+                  "Color when false": "#333333"
+                }
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "name": "Debug",
+      "grid_layout": {
+        "layouts": [
+          {
+            "title": "Swerve Modules",
+            "x": 0,
+            "y": 0,
+            "width": 8,
+            "height": 4,
+            "type": "Swerve Drive",
+            "properties": {
+              "topic": "/SwerveModules",
+              "Show module vectors": true
+            }
+          },
+          {
+            "title": "Module States",
+            "x": 8,
+            "y": 0,
+            "width": 4,
+            "height": 4,
+            "type": "List Layout",
+            "children": [
+              {
+                "title": "Module States",
+                "type": "Text Display",
+                "properties": {
+                  "topic": "/DriveState/ModuleStates"
+                }
+              },
+              {
+                "title": "Module Targets",
+                "type": "Text Display",
+                "properties": {
+                  "topic": "/DriveState/ModuleTargets"
+                }
+              }
+            ]
+          },
+          {
+            "title": "Pose Data",
+            "x": 0,
+            "y": 4,
+            "width": 4,
+            "height": 2,
+            "type": "List Layout",
+            "children": [
+              {
+                "title": "Robot Pose",
+                "type": "Text Display",
+                "properties": {
+                  "topic": "/DriveState/Pose"
+                }
+              },
+              {
+                "title": "Chassis Speeds",
+                "type": "Text Display",
+                "properties": {
+                  "topic": "/DriveState/Speeds"
+                }
+              }
+            ]
+          },
+          {
+            "title": "Vision Debug",
+            "x": 4,
+            "y": 4,
+            "width": 4,
+            "height": 2,
+            "type": "List Layout",
+            "children": [
+              {
+                "title": "Target Area %",
+                "type": "Text Display",
+                "properties": {
+                  "topic": "/Vision/TargetArea"
+                }
+              },
+              {
+                "title": "Latency (ms)",
+                "type": "Text Display",
+                "properties": {
+                  "topic": "/Vision/TotalLatency_ms"
+                }
+              },
+              {
+                "title": "Vertical Angle",
+                "type": "Text Display",
+                "properties": {
+                  "topic": "/Vision/VerticalAngle_deg"
+                }
+              }
+            ]
+          },
+          {
+            "title": "Field View",
+            "x": 8,
+            "y": 4,
+            "width": 4,
+            "height": 4,
+            "type": "Field",
+            "properties": {
+              "topic": "/Pose",
+              "field_game": "2026 Reefscape",
+              "Show other objects": true
+            }
+          },
+          {
+            "title": "Shooter Debug",
+            "x": 0,
+            "y": 6,
+            "width": 4,
+            "height": 2,
+            "type": "List Layout",
+            "children": [
+              {
+                "title": "Hood Angle",
+                "type": "Text Display",
+                "properties": {
+                  "topic": "/Shooter/HoodAngle"
+                }
+              },
+              {
+                "title": "Hood Target",
+                "type": "Text Display",
+                "properties": {
+                  "topic": "/Shooter/TargetHoodAngle"
+                }
+              },
+              {
+                "title": "Hood Error",
+                "type": "Text Display",
+                "properties": {
+                  "topic": "/Shooter/HoodError"
+                }
+              }
+            ]
+          },
+          {
+            "title": "Indexer Debug",
+            "x": 4,
+            "y": 6,
+            "width": 4,
+            "height": 2,
+            "type": "List Layout",
+            "children": [
+              {
+                "title": "Hopper A",
+                "type": "Boolean Box",
+                "properties": {
+                  "topic": "/Indexer/HopperA",
+                  "Color when true": "#FFD700",
+                  "Color when false": "#333333"
+                }
+              },
+              {
+                "title": "Hopper B",
+                "type": "Boolean Box",
+                "properties": {
+                  "topic": "/Indexer/HopperB",
+                  "Color when true": "#FFD700",
+                  "Color when false": "#333333"
+                }
+              },
+              {
+                "title": "Hopper C",
+                "type": "Boolean Box",
+                "properties": {
+                  "topic": "/Indexer/HopperC",
+                  "Color when true": "#FFD700",
+                  "Color when false": "#333333"
+                }
+              },
+              {
+                "title": "Conveyor RPS",
+                "type": "Text Display",
+                "properties": {
+                  "topic": "/Indexer/ConveyorVelocityRPS"
+                }
+              }
+            ]
+          }
+        ]
+      }
+    }
+  ]
+}
