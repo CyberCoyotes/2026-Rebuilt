@@ -21,21 +21,6 @@ public class IntakeSubsystem extends SubsystemBase{
     private final MotionMagicVoltage m_slide_request;
     private final TimeOfFlight s_intake; // detects objects near intake
     private final TimeOfFlight s_indexer; // detects when ball capacity meets standards for indexer handoff 
-
-    private final int INTAKE_SENSOR_ID = 12345;
-    private final int INTAKE_THRESHOLD = 1000; //mm, around four inches
-
-    private final int INDEXER_SENSOR_ID = 234;
-    private final int INDEXER_THRESHOLD = 67; //mm
-
-    private final double JAM_CURRENT_THRESHOLD = 20.0; // current should be under this
-    private final double JAM_VELOCITY_THRESHOLD = 0.5; // velocity should be over this
-
-    public final double SLIDE_EXTENDED_POSITION = 0.5;
-    private final double SLIDE_RESTING_POSITION = 0;
-    public final double ROTATOR_RUNNING_VELOCITY = 0.5;
-
-    public final double ROTATOR_MAX_VELOCITY = 1;
     
     //uses Kraken x44 with TalonFX interface
     IntakeSubsystem(){
@@ -43,8 +28,8 @@ public class IntakeSubsystem extends SubsystemBase{
         m_slide = new TalonFX(Constants.Intake.INTAKE_SLIDE_ID);
         m_rotator_request = new VelocityVoltage(0).withSlot(0);
         m_slide_request = new MotionMagicVoltage(0);
-        s_intake = new TimeOfFlight(INTAKE_SENSOR_ID);
-        s_indexer = new TimeOfFlight(INDEXER_SENSOR_ID);
+        s_intake = new TimeOfFlight(IntakeConstants.INTAKE_SENSOR_ID);
+        s_indexer = new TimeOfFlight(IntakeConstants.INDEXER_SENSOR_ID);
 
         var rotatorConfigs = new TalonFXConfiguration();
         var slideConfigs = new TalonFXConfiguration();
@@ -100,7 +85,7 @@ public class IntakeSubsystem extends SubsystemBase{
     }
 
      public boolean intakeTargetClose(){
-        return (s_intake.getRange() <= INTAKE_THRESHOLD) && s_intake.isRangeValid();
+        return (s_intake.getRange() <= IntakeConstants.INTAKE_THRESHOLD) && s_intake.isRangeValid();
     }
 
     //indexer sensor methods
@@ -110,13 +95,13 @@ public class IntakeSubsystem extends SubsystemBase{
 
     //returns true if is something close to indexer TOF
     public boolean indexerTargetClose(){
-        return (s_indexer.getRange() <= INDEXER_THRESHOLD) && s_indexer.isRangeValid();
+        return (s_indexer.getRange() <= IntakeConstants.INDEXER_THRESHOLD) && s_indexer.isRangeValid();
     }
 
     //multi-hardware methods
     public void toRestingState(){
         if (!isJammed()){
-        setSlidePosition(SLIDE_RESTING_POSITION); // if ball is stuck, moving slide to rest is bad
+        setSlidePosition(IntakeConstants.SLIDE_RESTING_POSITION); // if ball is stuck, moving slide to rest is bad
         }
         setRotatorVelocity(0);
     }
@@ -126,7 +111,7 @@ public class IntakeSubsystem extends SubsystemBase{
         double current = m_rotator.getSupplyCurrent().getValueAsDouble();
         double velocity = m_rotator.getVelocity().getValueAsDouble();
 
-        return (current >= JAM_CURRENT_THRESHOLD) && (velocity <= JAM_VELOCITY_THRESHOLD);
+        return (current >= IntakeConstants.JAM_CURRENT_THRESHOLD) && (velocity <= IntakeConstants.JAM_VELOCITY_THRESHOLD);
   }
 
 
