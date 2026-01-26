@@ -1,5 +1,5 @@
 {
-  "version": "2024.0.0",
+  "version": 1.0,
   "grid_size": 128,
   "tabs": [
     {
@@ -7,278 +7,381 @@
       "grid_layout": {
         "layouts": [
           {
-            "title": "Robot Status",
-            "x": 0,
-            "y": 0,
-            "width": 4,
-            "height": 2,
+            "title": "Match Status",
+            "x": 0.0,
+            "y": 0.0,
+            "width": 384.0,
+            "height": 192.0,
             "type": "List Layout",
             "properties": {
-              "Label position": "LEFT"
+              "label_position": "TOP"
             },
             "children": [
               {
-                "title": "Robot State",
+                "title": "Match Time",
+                "x": 0.0,
+                "y": 0.0,
+                "width": 192.0,
+                "height": 64.0,
                 "type": "Text Display",
                 "properties": {
-                  "topic": "/FMSInfo/FMSControlData"
+                  "topic": "/FMSInfo/MatchTime",
+                  "period": 0.06,
+                  "data_type": "double",
+                  "show_submit_button": false
                 }
               },
               {
-                "title": "Match Time",
+                "title": "Robot State",
+                "x": 0.0,
+                "y": 0.0,
+                "width": 192.0,
+                "height": 64.0,
                 "type": "Text Display",
                 "properties": {
-                  "topic": "/FMSInfo/MatchTime"
+                  "topic": "/FMSInfo/FMSControlData",
+                  "period": 0.06,
+                  "data_type": "string",
+                  "show_submit_button": false
                 }
               }
             ]
           },
           {
-            "title": "Alliance",
-            "x": 4,
-            "y": 0,
-            "width": 2,
-            "height": 2,
-            "type": "Boolean Box",
-            "properties": {
-              "topic": "/FMSInfo/IsRedAlliance",
-              "Color when true": "#FF0000",
-              "Color when false": "#0000FF"
-            }
-          },
-          {
             "title": "Hub Status",
-            "x": 6,
-            "y": 0,
-            "width": 3,
-            "height": 2,
+            "x": 384.0,
+            "y": 0.0,
+            "width": 256.0,
+            "height": 192.0,
             "type": "Boolean Box",
             "properties": {
               "topic": "/Scoring/HubActive",
-              "Color when true": "#00FF00",
-              "Color when false": "#FF6600"
+              "period": 0.06,
+              "data_type": "boolean",
+              "true_color": 4278255360,
+              "false_color": 4294944000
             }
           },
           {
-            "title": "Limelight 3 - Shooter Cam",
-            "x": 0,
-            "y": 2,
-            "width": 5,
-            "height": 4,
+            "title": "Scoring Status",
+            "x": 640.0,
+            "y": 0.0,
+            "width": 256.0,
+            "height": 192.0,
+            "type": "Text Display",
+            "properties": {
+              "topic": "/Scoring/Status",
+              "period": 0.06,
+              "data_type": "string",
+              "show_submit_button": false
+            }
+          },
+          {
+            "title": "Limelight 3 - Shooter",
+            "x": 0.0,
+            "y": 192.0,
+            "width": 512.0,
+            "height": 384.0,
             "type": "Camera Stream",
             "properties": {
               "topic": "/CameraPublisher/limelight3",
-              "camera_url": "http://limelight3.local:5800/stream.mjpg"
+              "period": 0.06
             }
           },
           {
-            "title": "Limelight 4 - Intake Cam",
-            "x": 5,
-            "y": 2,
-            "width": 5,
-            "height": 4,
+            "title": "Limelight 4 - Intake",
+            "x": 512.0,
+            "y": 192.0,
+            "width": 512.0,
+            "height": 384.0,
             "type": "Camera Stream",
             "properties": {
               "topic": "/CameraPublisher/limelight4",
-              "camera_url": "http://limelight4.local:5800/stream.mjpg"
+              "period": 0.06
             }
           },
           {
             "title": "Vision",
-            "x": 0,
-            "y": 6,
-            "width": 4,
-            "height": 3,
+            "x": 0.0,
+            "y": 576.0,
+            "width": 384.0,
+            "height": 320.0,
             "type": "List Layout",
             "properties": {
-              "Label position": "LEFT"
+              "label_position": "TOP"
             },
             "children": [
               {
                 "title": "Vision State",
+                "x": 0.0,
+                "y": 0.0,
+                "width": 192.0,
+                "height": 64.0,
                 "type": "Text Display",
                 "properties": {
-                  "topic": "/Vision/State"
+                  "topic": "/Vision/State",
+                  "period": 0.06,
+                  "data_type": "string",
+                  "show_submit_button": false
                 }
               },
               {
                 "title": "Has Target",
+                "x": 0.0,
+                "y": 0.0,
+                "width": 128.0,
+                "height": 64.0,
                 "type": "Boolean Box",
                 "properties": {
                   "topic": "/Vision/HasTarget",
-                  "Color when true": "#00FF00",
-                  "Color when false": "#333333"
+                  "period": 0.06,
+                  "data_type": "boolean",
+                  "true_color": 4278255360,
+                  "false_color": 4281545523
                 }
               },
               {
                 "title": "Aligned",
+                "x": 0.0,
+                "y": 0.0,
+                "width": 128.0,
+                "height": 64.0,
                 "type": "Boolean Box",
                 "properties": {
                   "topic": "/Vision/IsAligned",
-                  "Color when true": "#00FF00",
-                  "Color when false": "#FF0000"
+                  "period": 0.06,
+                  "data_type": "boolean",
+                  "true_color": 4278255360,
+                  "false_color": 4294901760
                 }
               },
               {
                 "title": "Distance (m)",
+                "x": 0.0,
+                "y": 0.0,
+                "width": 128.0,
+                "height": 64.0,
                 "type": "Text Display",
                 "properties": {
-                  "topic": "/Vision/Distance_m"
+                  "topic": "/Vision/Distance_m",
+                  "period": 0.06,
+                  "data_type": "double",
+                  "show_submit_button": false
                 }
               },
               {
                 "title": "Tag ID",
+                "x": 0.0,
+                "y": 0.0,
+                "width": 128.0,
+                "height": 64.0,
                 "type": "Text Display",
                 "properties": {
-                  "topic": "/Vision/TagID"
+                  "topic": "/Vision/TagID",
+                  "period": 0.06,
+                  "data_type": "double",
+                  "show_submit_button": false
                 }
               }
             ]
           },
           {
             "title": "Shooter",
-            "x": 4,
-            "y": 6,
-            "width": 3,
-            "height": 3,
+            "x": 384.0,
+            "y": 576.0,
+            "width": 320.0,
+            "height": 320.0,
             "type": "List Layout",
             "properties": {
-              "Label position": "LEFT"
+              "label_position": "TOP"
             },
             "children": [
               {
                 "title": "Shooter Ready",
+                "x": 0.0,
+                "y": 0.0,
+                "width": 128.0,
+                "height": 128.0,
                 "type": "Boolean Box",
                 "properties": {
                   "topic": "/Shooter/IsReady",
-                  "Color when true": "#00FF00",
-                  "Color when false": "#FF0000"
+                  "period": 0.06,
+                  "data_type": "boolean",
+                  "true_color": 4278255360,
+                  "false_color": 4294901760
                 }
               },
               {
                 "title": "Flywheel RPM",
+                "x": 0.0,
+                "y": 0.0,
+                "width": 128.0,
+                "height": 64.0,
                 "type": "Text Display",
                 "properties": {
-                  "topic": "/Shooter/FlywheelRPM"
+                  "topic": "/Shooter/FlywheelRPM",
+                  "period": 0.06,
+                  "data_type": "double",
+                  "show_submit_button": false
                 }
               },
               {
                 "title": "Target RPM",
+                "x": 0.0,
+                "y": 0.0,
+                "width": 128.0,
+                "height": 64.0,
                 "type": "Text Display",
                 "properties": {
-                  "topic": "/Shooter/TargetFlywheelRPM"
+                  "topic": "/Shooter/TargetFlywheelRPM",
+                  "period": 0.06,
+                  "data_type": "double",
+                  "show_submit_button": false
                 }
               },
               {
                 "title": "Hood Angle",
+                "x": 0.0,
+                "y": 0.0,
+                "width": 128.0,
+                "height": 64.0,
                 "type": "Text Display",
                 "properties": {
-                  "topic": "/Shooter/HoodAngle"
+                  "topic": "/Shooter/HoodAngle",
+                  "period": 0.06,
+                  "data_type": "double",
+                  "show_submit_button": false
                 }
               }
             ]
           },
           {
             "title": "Indexer/Intake",
-            "x": 7,
-            "y": 6,
-            "width": 3,
-            "height": 3,
+            "x": 704.0,
+            "y": 576.0,
+            "width": 320.0,
+            "height": 320.0,
             "type": "List Layout",
             "properties": {
-              "Label position": "LEFT"
+              "label_position": "TOP"
             },
             "children": [
               {
                 "title": "Has Game Piece",
+                "x": 0.0,
+                "y": 0.0,
+                "width": 128.0,
+                "height": 128.0,
                 "type": "Boolean Box",
                 "properties": {
                   "topic": "/Indexer/HasGamePiece",
-                  "Color when true": "#FFD700",
-                  "Color when false": "#333333"
+                  "period": 0.06,
+                  "data_type": "boolean",
+                  "true_color": 4294956800,
+                  "false_color": 4281545523
                 }
               },
               {
                 "title": "Indexer State",
+                "x": 0.0,
+                "y": 0.0,
+                "width": 128.0,
+                "height": 64.0,
                 "type": "Text Display",
                 "properties": {
-                  "topic": "/Indexer/State"
+                  "topic": "/Indexer/State",
+                  "period": 0.06,
+                  "data_type": "string",
+                  "show_submit_button": false
                 }
               },
               {
                 "title": "Hopper Count",
+                "x": 0.0,
+                "y": 0.0,
+                "width": 128.0,
+                "height": 64.0,
                 "type": "Text Display",
                 "properties": {
-                  "topic": "/Indexer/HopperCount"
+                  "topic": "/Indexer/HopperCount",
+                  "period": 0.06,
+                  "data_type": "double",
+                  "show_submit_button": false
+                }
+              },
+              {
+                "title": "Intake Jammed",
+                "x": 0.0,
+                "y": 0.0,
+                "width": 128.0,
+                "height": 64.0,
+                "type": "Boolean Box",
+                "properties": {
+                  "topic": "/Intake/IsJammed",
+                  "period": 0.06,
+                  "data_type": "boolean",
+                  "true_color": 4294901760,
+                  "false_color": 4281545523
                 }
               }
             ]
           },
           {
             "title": "Field Position",
-            "x": 10,
-            "y": 0,
-            "width": 5,
-            "height": 6,
+            "x": 1024.0,
+            "y": 0.0,
+            "width": 512.0,
+            "height": 512.0,
             "type": "Field",
             "properties": {
               "topic": "/Pose",
+              "period": 0.06,
               "field_game": "2026 Reefscape",
               "robot_width": 0.8,
-              "robot_length": 0.8,
-              "Show other objects": true
+              "robot_length": 0.8
             }
           },
           {
             "title": "Drivetrain",
-            "x": 10,
-            "y": 6,
-            "width": 5,
-            "height": 3,
+            "x": 1024.0,
+            "y": 512.0,
+            "width": 512.0,
+            "height": 192.0,
             "type": "List Layout",
             "properties": {
-              "Label position": "LEFT"
+              "label_position": "TOP"
             },
             "children": [
               {
-                "title": "Speed (m/s)",
-                "type": "Text Display",
-                "properties": {
-                  "topic": "/DriveState/Speeds"
-                }
-              },
-              {
                 "title": "Odometry Hz",
+                "x": 0.0,
+                "y": 0.0,
+                "width": 128.0,
+                "height": 64.0,
                 "type": "Text Display",
                 "properties": {
-                  "topic": "/DriveState/OdometryFrequency"
+                  "topic": "/DriveState/OdometryFrequency",
+                  "period": 0.06,
+                  "data_type": "double",
+                  "show_submit_button": false
                 }
               }
             ]
           },
           {
             "title": "Auto Selector",
-            "x": 0,
-            "y": 9,
-            "width": 5,
-            "height": 1,
+            "x": 1024.0,
+            "y": 704.0,
+            "width": 512.0,
+            "height": 128.0,
             "type": "ComboBox Chooser",
             "properties": {
-              "topic": "/AutoChooser"
-            }
-          },
-          {
-            "title": "Alerts",
-            "x": 5,
-            "y": 9,
-            "width": 10,
-            "height": 1,
-            "type": "Alerts",
-            "properties": {
-              "topic": "/Alerts"
+              "topic": "/AutoChooser",
+              "period": 0.06
             }
           }
-        ]
+        ],
+        "containers": []
       }
     },
     {
@@ -287,209 +390,284 @@
         "layouts": [
           {
             "title": "Match Info",
-            "x": 0,
-            "y": 0,
-            "width": 4,
-            "height": 1,
+            "x": 0.0,
+            "y": 0.0,
+            "width": 384.0,
+            "height": 128.0,
             "type": "List Layout",
             "properties": {
-              "Label position": "LEFT"
+              "label_position": "TOP"
             },
             "children": [
               {
                 "title": "Match Time",
-                "type": "Match Time",
+                "x": 0.0,
+                "y": 0.0,
+                "width": 192.0,
+                "height": 64.0,
+                "type": "Text Display",
                 "properties": {
-                  "topic": "/FMSInfo/MatchTime"
+                  "topic": "/FMSInfo/MatchTime",
+                  "period": 0.06,
+                  "data_type": "double",
+                  "show_submit_button": false
                 }
               }
             ]
           },
           {
             "title": "Hub Active",
-            "x": 4,
-            "y": 0,
-            "width": 3,
-            "height": 2,
+            "x": 384.0,
+            "y": 0.0,
+            "width": 256.0,
+            "height": 192.0,
             "type": "Boolean Box",
             "properties": {
               "topic": "/Scoring/HubActive",
-              "Color when true": "#00FF00",
-              "Color when false": "#FF6600"
+              "period": 0.06,
+              "data_type": "boolean",
+              "true_color": 4278255360,
+              "false_color": 4294944000
             }
           },
           {
             "title": "Scoring Status",
-            "x": 7,
-            "y": 0,
-            "width": 3,
-            "height": 2,
+            "x": 640.0,
+            "y": 0.0,
+            "width": 256.0,
+            "height": 192.0,
             "type": "Text Display",
             "properties": {
-              "topic": "/Scoring/Status"
+              "topic": "/Scoring/Status",
+              "period": 0.06,
+              "data_type": "string",
+              "show_submit_button": false
             }
           },
           {
             "title": "Shooter Camera (Limelight 3)",
-            "x": 0,
-            "y": 2,
-            "width": 6,
-            "height": 5,
+            "x": 0.0,
+            "y": 192.0,
+            "width": 640.0,
+            "height": 480.0,
             "type": "Camera Stream",
             "properties": {
               "topic": "/CameraPublisher/limelight3",
-              "camera_url": "http://limelight3.local:5800/stream.mjpg"
+              "period": 0.06
             }
           },
           {
             "title": "Intake Camera (Limelight 4)",
-            "x": 6,
-            "y": 2,
-            "width": 6,
-            "height": 5,
+            "x": 640.0,
+            "y": 192.0,
+            "width": 640.0,
+            "height": 480.0,
             "type": "Camera Stream",
             "properties": {
               "topic": "/CameraPublisher/limelight4",
-              "camera_url": "http://limelight4.local:5800/stream.mjpg"
+              "period": 0.06
             }
           },
           {
             "title": "Vision Alignment",
-            "x": 0,
-            "y": 7,
-            "width": 4,
-            "height": 3,
+            "x": 0.0,
+            "y": 672.0,
+            "width": 384.0,
+            "height": 256.0,
             "type": "List Layout",
             "properties": {
-              "Label position": "LEFT"
+              "label_position": "TOP"
             },
             "children": [
               {
                 "title": "Alignment State",
+                "x": 0.0,
+                "y": 0.0,
+                "width": 192.0,
+                "height": 64.0,
                 "type": "Text Display",
                 "properties": {
-                  "topic": "/Vision/State"
+                  "topic": "/Vision/State",
+                  "period": 0.06,
+                  "data_type": "string",
+                  "show_submit_button": false
                 }
               },
               {
                 "title": "Ready to Shoot",
+                "x": 0.0,
+                "y": 0.0,
+                "width": 128.0,
+                "height": 64.0,
                 "type": "Boolean Box",
                 "properties": {
                   "topic": "/Vision/IsAligned",
-                  "Color when true": "#00FF00",
-                  "Color when false": "#FF0000"
+                  "period": 0.06,
+                  "data_type": "boolean",
+                  "true_color": 4278255360,
+                  "false_color": 4294901760
                 }
               },
               {
                 "title": "Horizontal Angle",
+                "x": 0.0,
+                "y": 0.0,
+                "width": 128.0,
+                "height": 64.0,
                 "type": "Text Display",
                 "properties": {
-                  "topic": "/Vision/HorizontalAngle_deg"
+                  "topic": "/Vision/HorizontalAngle_deg",
+                  "period": 0.06,
+                  "data_type": "double",
+                  "show_submit_button": false
                 }
               },
               {
                 "title": "Distance (cm)",
+                "x": 0.0,
+                "y": 0.0,
+                "width": 128.0,
+                "height": 64.0,
                 "type": "Text Display",
                 "properties": {
-                  "topic": "/Vision/Distance_cm"
+                  "topic": "/Vision/Distance_cm",
+                  "period": 0.06,
+                  "data_type": "double",
+                  "show_submit_button": false
                 }
               }
             ]
           },
           {
             "title": "Shooter Status",
-            "x": 4,
-            "y": 7,
-            "width": 4,
-            "height": 3,
+            "x": 384.0,
+            "y": 672.0,
+            "width": 384.0,
+            "height": 256.0,
             "type": "List Layout",
             "properties": {
-              "Label position": "LEFT"
+              "label_position": "TOP"
             },
             "children": [
               {
                 "title": "Shooter State",
+                "x": 0.0,
+                "y": 0.0,
+                "width": 192.0,
+                "height": 64.0,
                 "type": "Text Display",
                 "properties": {
-                  "topic": "/Shooter/State"
+                  "topic": "/Shooter/State",
+                  "period": 0.06,
+                  "data_type": "string",
+                  "show_submit_button": false
                 }
               },
               {
                 "title": "Shooter Ready",
+                "x": 0.0,
+                "y": 0.0,
+                "width": 128.0,
+                "height": 128.0,
                 "type": "Boolean Box",
                 "properties": {
                   "topic": "/Shooter/IsReady",
-                  "Color when true": "#00FF00",
-                  "Color when false": "#FFAA00"
-                }
-              },
-              {
-                "title": "Current RPM",
-                "type": "Number Bar",
-                "properties": {
-                  "topic": "/Shooter/FlywheelRPM",
-                  "min_value": 0,
-                  "max_value": 6000,
-                  "num_tick_marks": 5
+                  "period": 0.06,
+                  "data_type": "boolean",
+                  "true_color": 4278255360,
+                  "false_color": 4294944000
                 }
               },
               {
                 "title": "RPM Error",
+                "x": 0.0,
+                "y": 0.0,
+                "width": 128.0,
+                "height": 64.0,
                 "type": "Text Display",
                 "properties": {
-                  "topic": "/Shooter/FlywheelError"
+                  "topic": "/Shooter/FlywheelError",
+                  "period": 0.06,
+                  "data_type": "double",
+                  "show_submit_button": false
                 }
               }
             ]
           },
           {
             "title": "Intake/Indexer",
-            "x": 8,
-            "y": 7,
-            "width": 4,
-            "height": 3,
+            "x": 768.0,
+            "y": 672.0,
+            "width": 384.0,
+            "height": 256.0,
             "type": "List Layout",
             "properties": {
-              "Label position": "LEFT"
+              "label_position": "TOP"
             },
             "children": [
               {
                 "title": "Game Piece Detected",
+                "x": 0.0,
+                "y": 0.0,
+                "width": 128.0,
+                "height": 128.0,
                 "type": "Boolean Box",
                 "properties": {
                   "topic": "/Indexer/HasGamePiece",
-                  "Color when true": "#FFD700",
-                  "Color when false": "#333333"
+                  "period": 0.06,
+                  "data_type": "boolean",
+                  "true_color": 4294956800,
+                  "false_color": 4281545523
                 }
               },
               {
                 "title": "Intake State",
+                "x": 0.0,
+                "y": 0.0,
+                "width": 128.0,
+                "height": 64.0,
                 "type": "Text Display",
                 "properties": {
-                  "topic": "/Intake/State"
+                  "topic": "/Intake/State",
+                  "period": 0.06,
+                  "data_type": "string",
+                  "show_submit_button": false
                 }
               },
               {
                 "title": "Hopper Full",
+                "x": 0.0,
+                "y": 0.0,
+                "width": 128.0,
+                "height": 64.0,
                 "type": "Boolean Box",
                 "properties": {
                   "topic": "/Indexer/HopperFull",
-                  "Color when true": "#00FF00",
-                  "Color when false": "#333333"
+                  "period": 0.06,
+                  "data_type": "boolean",
+                  "true_color": 4278255360,
+                  "false_color": 4281545523
                 }
               },
               {
                 "title": "Intake Jammed",
+                "x": 0.0,
+                "y": 0.0,
+                "width": 128.0,
+                "height": 64.0,
                 "type": "Boolean Box",
                 "properties": {
                   "topic": "/Intake/IsJammed",
-                  "Color when true": "#FF0000",
-                  "Color when false": "#333333"
+                  "period": 0.06,
+                  "data_type": "boolean",
+                  "true_color": 4294901760,
+                  "false_color": 4281545523
                 }
               }
             ]
           }
-        ]
+        ],
+        "containers": []
       }
     },
     {
@@ -497,185 +675,229 @@
       "grid_layout": {
         "layouts": [
           {
-            "title": "Swerve Modules",
-            "x": 0,
-            "y": 0,
-            "width": 8,
-            "height": 4,
-            "type": "Swerve Drive",
+            "title": "Swerve Status",
+            "x": 0.0,
+            "y": 0.0,
+            "width": 512.0,
+            "height": 256.0,
+            "type": "List Layout",
             "properties": {
-              "topic": "/SwerveModules",
-              "Show module vectors": true
-            }
-          },
-          {
-            "title": "Module States",
-            "x": 8,
-            "y": 0,
-            "width": 4,
-            "height": 4,
-            "type": "List Layout",
+              "label_position": "TOP"
+            },
             "children": [
               {
-                "title": "Module States",
+                "title": "Odometry Hz",
+                "x": 0.0,
+                "y": 0.0,
+                "width": 128.0,
+                "height": 64.0,
                 "type": "Text Display",
                 "properties": {
-                  "topic": "/DriveState/ModuleStates"
-                }
-              },
-              {
-                "title": "Module Targets",
-                "type": "Text Display",
-                "properties": {
-                  "topic": "/DriveState/ModuleTargets"
-                }
-              }
-            ]
-          },
-          {
-            "title": "Pose Data",
-            "x": 0,
-            "y": 4,
-            "width": 4,
-            "height": 2,
-            "type": "List Layout",
-            "children": [
-              {
-                "title": "Robot Pose",
-                "type": "Text Display",
-                "properties": {
-                  "topic": "/DriveState/Pose"
-                }
-              },
-              {
-                "title": "Chassis Speeds",
-                "type": "Text Display",
-                "properties": {
-                  "topic": "/DriveState/Speeds"
+                  "topic": "/DriveState/OdometryFrequency",
+                  "period": 0.06,
+                  "data_type": "double",
+                  "show_submit_button": false
                 }
               }
             ]
           },
           {
             "title": "Vision Debug",
-            "x": 4,
-            "y": 4,
-            "width": 4,
-            "height": 2,
+            "x": 512.0,
+            "y": 0.0,
+            "width": 512.0,
+            "height": 256.0,
             "type": "List Layout",
+            "properties": {
+              "label_position": "TOP"
+            },
             "children": [
               {
                 "title": "Target Area %",
+                "x": 0.0,
+                "y": 0.0,
+                "width": 128.0,
+                "height": 64.0,
                 "type": "Text Display",
                 "properties": {
-                  "topic": "/Vision/TargetArea"
+                  "topic": "/Vision/TargetArea",
+                  "period": 0.06,
+                  "data_type": "double",
+                  "show_submit_button": false
                 }
               },
               {
                 "title": "Latency (ms)",
+                "x": 0.0,
+                "y": 0.0,
+                "width": 128.0,
+                "height": 64.0,
                 "type": "Text Display",
                 "properties": {
-                  "topic": "/Vision/TotalLatency_ms"
+                  "topic": "/Vision/TotalLatency_ms",
+                  "period": 0.06,
+                  "data_type": "double",
+                  "show_submit_button": false
                 }
               },
               {
                 "title": "Vertical Angle",
+                "x": 0.0,
+                "y": 0.0,
+                "width": 128.0,
+                "height": 64.0,
                 "type": "Text Display",
                 "properties": {
-                  "topic": "/Vision/VerticalAngle_deg"
+                  "topic": "/Vision/VerticalAngle_deg",
+                  "period": 0.06,
+                  "data_type": "double",
+                  "show_submit_button": false
                 }
               }
             ]
           },
           {
             "title": "Field View",
-            "x": 8,
-            "y": 4,
-            "width": 4,
-            "height": 4,
+            "x": 0.0,
+            "y": 256.0,
+            "width": 512.0,
+            "height": 384.0,
             "type": "Field",
             "properties": {
               "topic": "/Pose",
-              "field_game": "2026 Reefscape",
-              "Show other objects": true
+              "period": 0.06,
+              "field_game": "2026 Reefscape"
             }
           },
           {
             "title": "Shooter Debug",
-            "x": 0,
-            "y": 6,
-            "width": 4,
-            "height": 2,
+            "x": 512.0,
+            "y": 256.0,
+            "width": 256.0,
+            "height": 256.0,
             "type": "List Layout",
+            "properties": {
+              "label_position": "TOP"
+            },
             "children": [
               {
                 "title": "Hood Angle",
+                "x": 0.0,
+                "y": 0.0,
+                "width": 128.0,
+                "height": 64.0,
                 "type": "Text Display",
                 "properties": {
-                  "topic": "/Shooter/HoodAngle"
+                  "topic": "/Shooter/HoodAngle",
+                  "period": 0.06,
+                  "data_type": "double",
+                  "show_submit_button": false
                 }
               },
               {
                 "title": "Hood Target",
+                "x": 0.0,
+                "y": 0.0,
+                "width": 128.0,
+                "height": 64.0,
                 "type": "Text Display",
                 "properties": {
-                  "topic": "/Shooter/TargetHoodAngle"
+                  "topic": "/Shooter/TargetHoodAngle",
+                  "period": 0.06,
+                  "data_type": "double",
+                  "show_submit_button": false
                 }
               },
               {
                 "title": "Hood Error",
+                "x": 0.0,
+                "y": 0.0,
+                "width": 128.0,
+                "height": 64.0,
                 "type": "Text Display",
                 "properties": {
-                  "topic": "/Shooter/HoodError"
+                  "topic": "/Shooter/HoodError",
+                  "period": 0.06,
+                  "data_type": "double",
+                  "show_submit_button": false
                 }
               }
             ]
           },
           {
             "title": "Indexer Debug",
-            "x": 4,
-            "y": 6,
-            "width": 4,
-            "height": 2,
+            "x": 768.0,
+            "y": 256.0,
+            "width": 256.0,
+            "height": 256.0,
             "type": "List Layout",
+            "properties": {
+              "label_position": "TOP"
+            },
             "children": [
               {
                 "title": "Hopper A",
+                "x": 0.0,
+                "y": 0.0,
+                "width": 64.0,
+                "height": 64.0,
                 "type": "Boolean Box",
                 "properties": {
                   "topic": "/Indexer/HopperA",
-                  "Color when true": "#FFD700",
-                  "Color when false": "#333333"
+                  "period": 0.06,
+                  "data_type": "boolean",
+                  "true_color": 4294956800,
+                  "false_color": 4281545523
                 }
               },
               {
                 "title": "Hopper B",
+                "x": 0.0,
+                "y": 0.0,
+                "width": 64.0,
+                "height": 64.0,
                 "type": "Boolean Box",
                 "properties": {
                   "topic": "/Indexer/HopperB",
-                  "Color when true": "#FFD700",
-                  "Color when false": "#333333"
+                  "period": 0.06,
+                  "data_type": "boolean",
+                  "true_color": 4294956800,
+                  "false_color": 4281545523
                 }
               },
               {
                 "title": "Hopper C",
+                "x": 0.0,
+                "y": 0.0,
+                "width": 64.0,
+                "height": 64.0,
                 "type": "Boolean Box",
                 "properties": {
                   "topic": "/Indexer/HopperC",
-                  "Color when true": "#FFD700",
-                  "Color when false": "#333333"
+                  "period": 0.06,
+                  "data_type": "boolean",
+                  "true_color": 4294956800,
+                  "false_color": 4281545523
                 }
               },
               {
                 "title": "Conveyor RPS",
+                "x": 0.0,
+                "y": 0.0,
+                "width": 128.0,
+                "height": 64.0,
                 "type": "Text Display",
                 "properties": {
-                  "topic": "/Indexer/ConveyorVelocityRPS"
+                  "topic": "/Indexer/ConveyorVelocityRPS",
+                  "period": 0.06,
+                  "data_type": "double",
+                  "show_submit_button": false
                 }
               }
             ]
           }
-        ]
+        ],
+        "containers": []
       }
     }
   ]
