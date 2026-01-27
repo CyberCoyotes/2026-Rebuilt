@@ -156,7 +156,7 @@ public final class Constants {
     public static final int CANDLE_ID = 11;
 
     /** CAN bus name for the CANdle (typically "canivore") */
-    public static final String CAN_BUS_NAME = "canivore";
+    public static final String CAN_BUS_NAME = "canivore"; // 'TODO Adjust if needed'
 
     /** WS2811 logical segments per meter */
     public static final int SEGMENTS_PER_METER = 20;
@@ -168,7 +168,8 @@ public final class Constants {
     public static final int STRIP_LENGTH_METERS = 1;
 
     /** Total number of logical addressable segments */
-    public static final int LOGICAL_LED_COUNT = SEGMENTS_PER_METER * STRIP_LENGTH_METERS;
+    // 20 segments per meter
+    public static final int LOGICAL_LED_COUNT = SEGMENTS_PER_METER * STRIP_LENGTH_METERS; // TODO Adjust as needed
   }
 
 }
