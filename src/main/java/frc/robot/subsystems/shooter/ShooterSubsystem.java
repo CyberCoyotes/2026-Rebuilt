@@ -37,10 +37,11 @@ public class ShooterSubsystem extends SubsystemBase {
 
     // ===== State Machine =====
     public enum ShooterState {
-        IDLE,      // Flywheel off, hood at home
-        SPINUP,    // Flywheel + hood not IDLE and not at READY
-        READY,     // Both at target, ready to shoot
-        EJECT      // Flywheel reverse (clearing jams)
+        IDLE,      // Flywheel stopped, hood at MIN_POSE
+        SPINUP,    // Pre-rev flywheel (20% max), hood at mid position (0.5 * MAX_POSE)
+        READY,     // Flywheel and hood at vision-based targets, ready to shoot
+        PASS,      // Passing shot: 50% max velocity, hood at MAX_POSE
+        EJECT      // Clearing jams: -50% max velocity, hood at MIN_POSE
     }
 
     // ===== Hardware Interface =====
@@ -61,28 +62,42 @@ public class ShooterSubsystem extends SubsystemBase {
     // ===== State =====
     private ShooterState currentState = ShooterState.IDLE;
     private double targetFlywheelRPM = 0.0;
-    private double targetHoodAngle = HOME_ANGLE;
+    private double targetHoodPose = MIN_HOOD_POSE;
 
     // ===== Constants =====
-    /** Hood angle when at home/idle position (degrees) */
-    private static final double HOME_ANGLE = 20.0;  // TODO: Measure actual home angle
+    /** Maximum flywheel velocity (RPM) */
+    private static final double MAX_VELOCITY_RPM = 6000.0;  // TODO: Find actual max RPM
 
-    /** Minimum hood angle (degrees) */
-    private static final double MIN_HOOD_ANGLE = 15.0;  // TODO: Measure actual range
+    /** Minimum hood pose (degrees) - used for IDLE and EJECT */
+    private static final double MIN_HOOD_POSE = 15.0;  // TODO: Measure actual range
 
-    /** Maximum hood angle (degrees) */
-    private static final double MAX_HOOD_ANGLE = 60.0;  // TODO: Measure actual range
+    /** Maximum hood pose (degrees) - used for PASS */
+    private static final double MAX_HOOD_POSE = 60.0;  // TODO: Measure actual range
 
-    /** Flywheel velocity tolerance (RPM) */
-    private static final double VELOCITY_TOLERANCE_RPM = 50.0;  // TODO: Tune
+    /** Flywheel velocity tolerance (percentage of target, 0.0-1.0) */
+    private static final double FLYWHEEL_TOLERANCE_PERCENT = 0.05;  // 5% tolerance, TODO: Tune
 
-    /** Hood angle tolerance (degrees) */
-    private static final double HOOD_TOLERANCE_DEGREES = 1.0;  // TODO: Tune
+    /** Hood pose tolerance (degrees) */
+    private static final double HOOD_POSE_TOLERANCE = 1.0;  // TODO: Tune
 
-    /** Eject velocity (negative = reverse) */
-    private static final double EJECT_RPM = -1000.0;
+    // ===== State-Specific Constants =====
+    /** SPINUP: Pre-rev flywheel velocity (20% of max) */
+    private static final double SPINUP_VELOCITY_PERCENT = 0.20;
+    private static final double SPINUP_VELOCITY_RPM = MAX_VELOCITY_RPM * SPINUP_VELOCITY_PERCENT;
 
-    // ===== Shooting Presets =====
+    /** SPINUP: Hood pose (50% of max) */
+    private static final double SPINUP_POSE_PERCENT = 0.50;
+    private static final double SPINUP_HOOD_POSE = MIN_HOOD_POSE + (MAX_HOOD_POSE - MIN_HOOD_POSE) * SPINUP_POSE_PERCENT;
+
+    /** PASS: Flywheel velocity (50% of max) */
+    private static final double PASS_VELOCITY_PERCENT = 0.50;
+    private static final double PASS_VELOCITY_RPM = MAX_VELOCITY_RPM * PASS_VELOCITY_PERCENT;
+
+    /** EJECT: Flywheel velocity (-50% of max, negative for reverse) */
+    private static final double EJECT_VELOCITY_PERCENT = -0.50;
+    private static final double EJECT_VELOCITY_RPM = MAX_VELOCITY_RPM * EJECT_VELOCITY_PERCENT;
+
+    // ===== Shooting Presets (for READY state) =====
     /** Close shot velocity (RPM) */
     public static final double CLOSE_SHOT_RPM = 3000.0;  // TODO: Tune
     public static final double CLOSE_SHOT_ANGLE = 25.0;  // TODO: Tune
@@ -90,10 +105,6 @@ public class ShooterSubsystem extends SubsystemBase {
     /** Far shot velocity (RPM) */
     public static final double FAR_SHOT_RPM = 5000.0;  // TODO: Tune
     public static final double FAR_SHOT_ANGLE = 45.0;  // TODO: Tune
-
-    /** Pass velocity (RPM) */
-    public static final double PASS_RPM = 2000.0;  // TODO: Tune
-    public static final double PASS_ANGLE = 30.0;  // TODO: Tune
 
     /**
      * Creates a new ShooterSubsystem.
@@ -129,8 +140,11 @@ public class ShooterSubsystem extends SubsystemBase {
         // Log state and targets
         Logger.recordOutput("Shooter/State", currentState.toString());
         Logger.recordOutput("Shooter/TargetFlywheelRPM", targetFlywheelRPM);
-        Logger.recordOutput("Shooter/TargetHoodAngle", targetHoodAngle);
+        Logger.recordOutput("Shooter/TargetHoodPose", targetHoodPose);
         Logger.recordOutput("Shooter/IsReady", isReady());
+        Logger.recordOutput("Shooter/IsPassReady", isPassReady());
+        Logger.recordOutput("Shooter/FlywheelAtVelocity", isFlywheelAtVelocity());
+        Logger.recordOutput("Shooter/HoodAtPose", isHoodAtPose());
         Logger.recordOutput("Shooter/FlywheelError", getFlywheelError());
         Logger.recordOutput("Shooter/HoodError", getHoodError());
 
@@ -140,37 +154,49 @@ public class ShooterSubsystem extends SubsystemBase {
         flywheelRpmPublisher.set(inputs.flywheelVelocityRPM);
         targetRpmPublisher.set(targetFlywheelRPM);
         hoodAnglePublisher.set(inputs.hoodAngleDegrees);
-        targetHoodPublisher.set(targetHoodAngle);
+        targetHoodPublisher.set(targetHoodPose);
         flywheelErrorPublisher.set(getFlywheelError());
         hoodErrorPublisher.set(getHoodError());
     }
 
     /**
      * Updates the state machine based on current state and sensor readings.
+     *
+     * State transitions:
+     * - IDLE: Manual transition only (via spinup(), pass(), eject())
+     * - SPINUP: Stays in SPINUP until transitioned to READY via prepareToShoot()
+     * - READY: Falls back to SPINUP if targets are lost
+     * - PASS: Falls back to re-acquiring if targets are lost
+     * - EJECT: Manual transition out only (via setIdle())
      */
     private void updateStateMachine() {
         switch (currentState) {
             case IDLE:
-                // Stay idle - nothing to do
+                // Stay idle - manual transition only
                 break;
 
             case SPINUP:
-                // Check if both flywheel and hood have reached targets
-                if (isFlywheelAtVelocity() && isHoodAtTarget()) {
-                    setState(ShooterState.READY);
-                }
+                // Stay in SPINUP - this is a pre-rev state
+                // Transition to READY happens via prepareToShoot() when vision targets are set
                 break;
 
             case READY:
-                // Stay ready - wait for command to idle or eject
-                // Check if we've lost velocity/position (shouldn't happen but defensive)
-                if (!isFlywheelAtVelocity() || !isHoodAtTarget()) {
-                    setState(ShooterState.SPINUP);
+                // Check if we've lost velocity/position (defensive)
+                if (!isFlywheelAtVelocity() || !isHoodAtPose()) {
+                    // Lost targets - but stay in READY and keep commanding targets
+                    // The IO layer will work to recover
+                }
+                break;
+
+            case PASS:
+                // Check if we've lost velocity/position (defensive)
+                if (!isFlywheelAtVelocity() || !isHoodAtPose()) {
+                    // Lost targets - but stay in PASS and keep commanding targets
                 }
                 break;
 
             case EJECT:
-                // Stay ejecting - manual transition out
+                // Stay ejecting - manual transition out only
                 break;
         }
     }
@@ -194,26 +220,42 @@ public class ShooterSubsystem extends SubsystemBase {
         // Execute entry actions for new state
         switch (newState) {
             case IDLE:
-                io.stop();
+                // Stop flywheels, hood to MIN_POSE
+                io.stopFlywheels();
                 targetFlywheelRPM = 0.0;
-                targetHoodAngle = HOME_ANGLE;
-                io.setHoodAngle(HOME_ANGLE);
+                targetHoodPose = MIN_HOOD_POSE;
+                io.setHoodPose(MIN_HOOD_POSE);
                 break;
 
             case SPINUP:
-                // Targets already set by setTargetVelocity/setTargetHoodAngle
-                io.setFlywheelVelocity(targetFlywheelRPM);
-                io.setHoodAngle(targetHoodAngle);
+                // Pre-rev: 20% max velocity, hood at mid position
+                targetFlywheelRPM = SPINUP_VELOCITY_RPM;
+                targetHoodPose = SPINUP_HOOD_POSE;
+                io.setFlywheelVelocity(SPINUP_VELOCITY_RPM);
+                io.setHoodPose(SPINUP_HOOD_POSE);
                 break;
 
             case READY:
-                // Continue running at target velocity
-                // (Already set from SPINUP)
+                // Targets set externally via setTargetVelocity/setTargetHoodPose
+                // or via updateFromDistance() for vision-based shooting
+                io.setFlywheelVelocity(targetFlywheelRPM);
+                io.setHoodPose(targetHoodPose);
+                break;
+
+            case PASS:
+                // Passing: 50% max velocity, hood at MAX_POSE
+                targetFlywheelRPM = PASS_VELOCITY_RPM;
+                targetHoodPose = MAX_HOOD_POSE;
+                io.setFlywheelVelocity(PASS_VELOCITY_RPM);
+                io.setHoodPose(MAX_HOOD_POSE);
                 break;
 
             case EJECT:
-                io.setFlywheelVelocity(EJECT_RPM);
-                // Hood stays at current position during eject
+                // Clearing jams: -50% max velocity (reverse), hood at MIN_POSE
+                targetFlywheelRPM = EJECT_VELOCITY_RPM;
+                targetHoodPose = MIN_HOOD_POSE;
+                io.setFlywheelVelocity(EJECT_VELOCITY_RPM);
+                io.setHoodPose(MIN_HOOD_POSE);
                 break;
         }
     }
@@ -221,24 +263,39 @@ public class ShooterSubsystem extends SubsystemBase {
     // ===== Public Command Methods =====
 
     /**
-     * Sets the shooter to idle state (motors off, hood home).
+     * Sets the shooter to idle state (motors stopped, hood at MIN_POSE).
      */
     public void setIdle() {
         setState(ShooterState.IDLE);
     }
 
     /**
-     * Starts spinning up to the current target velocity and hood angle.
-     * Call setTargetVelocity/setTargetHoodAngle first to set targets.
+     * Starts spinning up to pre-rev the flywheel (20% max) and position hood (mid position).
+     * This decreases time to hit target velocity when transitioning to READY.
      */
     public void spinup() {
-        if (currentState == ShooterState.IDLE) {
-            setState(ShooterState.SPINUP);
-        }
+        setState(ShooterState.SPINUP);
     }
 
     /**
-     * Starts ejecting (reverse flywheel) to clear jams.
+     * Prepares shooter for shooting with specific targets.
+     * Call setTargetVelocity/setTargetHoodPose first to set targets,
+     * or use updateFromDistance() for vision-based targeting.
+     */
+    public void prepareToShoot() {
+        setState(ShooterState.READY);
+    }
+
+    /**
+     * Sets shooter to passing mode (50% max velocity, hood at MAX_POSE).
+     */
+    public void pass() {
+        setState(ShooterState.PASS);
+    }
+
+    /**
+     * Starts ejecting (reverse flywheel at -50% max) to clear jams.
+     * Hood moves to MIN_POSE.
      */
     public void eject() {
         setState(ShooterState.EJECT);
@@ -251,36 +308,36 @@ public class ShooterSubsystem extends SubsystemBase {
         setState(ShooterState.IDLE);
     }
 
-    // ===== Target Setters =====
+    // ===== Target Setters (for READY state) =====
 
     /**
-     * Sets the target flywheel velocity.
-     * Does not automatically start spinning - call spinup() to start.
+     * Sets the target flywheel velocity for READY state.
+     * Call prepareToShoot() after setting targets to transition to READY.
      *
      * @param rpm Target velocity in RPM
      */
     public void setTargetVelocity(double rpm) {
-        this.targetFlywheelRPM = Math.max(0, rpm);  // Clamp to non-negative
+        this.targetFlywheelRPM = Math.max(0, Math.min(MAX_VELOCITY_RPM, rpm));  // Clamp to valid range
 
-        // If already spinning, update velocity immediately
-        if (currentState == ShooterState.SPINUP || currentState == ShooterState.READY) {
+        // If in READY state, update velocity immediately
+        if (currentState == ShooterState.READY) {
             io.setFlywheelVelocity(targetFlywheelRPM);
         }
     }
 
     /**
-     * Sets the target hood angle.
-     * Does not automatically move hood - call spinup() to start.
+     * Sets the target hood pose for READY state.
+     * Call prepareToShoot() after setting targets to transition to READY.
      *
-     * @param degrees Target angle in degrees
+     * @param degrees Target pose in degrees
      */
-    public void setTargetHoodAngle(double degrees) {
-        this.targetHoodAngle = Math.max(MIN_HOOD_ANGLE,
-                                        Math.min(MAX_HOOD_ANGLE, degrees));  // Clamp to range
+    public void setTargetHoodPose(double degrees) {
+        this.targetHoodPose = Math.max(MIN_HOOD_POSE,
+                                       Math.min(MAX_HOOD_POSE, degrees));  // Clamp to range
 
-        // If already moving, update angle immediately
-        if (currentState == ShooterState.SPINUP || currentState == ShooterState.READY) {
-            io.setHoodAngle(targetHoodAngle);
+        // If in READY state, update pose immediately
+        if (currentState == ShooterState.READY) {
+            io.setHoodPose(targetHoodPose);
         }
     }
 
@@ -294,40 +351,32 @@ public class ShooterSubsystem extends SubsystemBase {
         io.setCounterWheelVelocity(rpm);
     }
 
-    // ===== Preset Shots =====
+    // ===== Preset Shots (convenience methods for READY state) =====
 
     /**
-     * Configures shooter for a close shot and starts spinning up.
+     * Configures shooter for a close shot and transitions to READY.
      */
     public void closeShot() {
         setTargetVelocity(CLOSE_SHOT_RPM);
-        setTargetHoodAngle(CLOSE_SHOT_ANGLE);
-        spinup();
+        setTargetHoodPose(CLOSE_SHOT_ANGLE);
+        prepareToShoot();
     }
 
     /**
-     * Configures shooter for a far shot and starts spinning up.
+     * Configures shooter for a far shot and transitions to READY.
      */
     public void farShot() {
         setTargetVelocity(FAR_SHOT_RPM);
-        setTargetHoodAngle(FAR_SHOT_ANGLE);
-        spinup();
-    }
-
-    /**
-     * Configures shooter for passing and starts spinning up.
-     */
-    public void pass() {
-        setTargetVelocity(PASS_RPM);
-        setTargetHoodAngle(PASS_ANGLE);
-        spinup();
+        setTargetHoodPose(FAR_SHOT_ANGLE);
+        prepareToShoot();
     }
 
     // ===== Vision Integration =====
 
     /**
      * Updates shooter targets based on distance to target.
-     * Uses ballistic calculations to determine velocity and angle.
+     * Uses ballistic calculations to determine velocity and pose.
+     * Does NOT change state - call prepareToShoot() after to transition to READY.
      *
      * @param distanceMeters Distance to target in meters
      */
@@ -342,37 +391,51 @@ public class ShooterSubsystem extends SubsystemBase {
         double t = (distance - 1.0) / (5.0 - 1.0);  // 0.0 to 1.0
 
         double velocity = CLOSE_SHOT_RPM + t * (FAR_SHOT_RPM - CLOSE_SHOT_RPM);
-        double angle = CLOSE_SHOT_ANGLE + t * (FAR_SHOT_ANGLE - CLOSE_SHOT_ANGLE);
+        double pose = CLOSE_SHOT_ANGLE + t * (FAR_SHOT_ANGLE - CLOSE_SHOT_ANGLE);
 
         setTargetVelocity(velocity);
-        setTargetHoodAngle(angle);
+        setTargetHoodPose(pose);
 
         Logger.recordOutput("Shooter/VisionDistance", distanceMeters);
         Logger.recordOutput("Shooter/CalculatedRPM", velocity);
-        Logger.recordOutput("Shooter/CalculatedAngle", angle);
+        Logger.recordOutput("Shooter/CalculatedPose", pose);
     }
 
     // ===== Status Queries =====
 
     /**
-     * Returns true if shooter is ready to shoot (both flywheel and hood at targets).
+     * Returns true if shooter is ready to shoot (in READY state with both flywheel and hood at targets).
      */
     public boolean isReady() {
-        return currentState == ShooterState.READY;
+        return currentState == ShooterState.READY && isFlywheelAtVelocity() && isHoodAtPose();
     }
 
     /**
-     * Returns true if flywheel is at target velocity (within tolerance).
+     * Returns true if shooter is in PASS state with both flywheel and hood at targets.
+     */
+    public boolean isPassReady() {
+        return currentState == ShooterState.PASS && isFlywheelAtVelocity() && isHoodAtPose();
+    }
+
+    /**
+     * Returns true if flywheel is at target velocity (within percentage tolerance).
+     * Uses FLYWHEEL_TOLERANCE_PERCENT of the target velocity.
      */
     public boolean isFlywheelAtVelocity() {
-        return Math.abs(inputs.flywheelVelocityRPM - targetFlywheelRPM) < VELOCITY_TOLERANCE_RPM;
+        // Handle zero target (IDLE state) - check if velocity is near zero
+        if (Math.abs(targetFlywheelRPM) < 1.0) {
+            return Math.abs(inputs.flywheelVelocityRPM) < 50.0;  // Within 50 RPM of stopped
+        }
+        // Percentage-based tolerance
+        double tolerance = Math.abs(targetFlywheelRPM) * FLYWHEEL_TOLERANCE_PERCENT;
+        return Math.abs(inputs.flywheelVelocityRPM - targetFlywheelRPM) < tolerance;
     }
 
     /**
-     * Returns true if hood is at target angle (within tolerance).
+     * Returns true if hood is at target pose (within HOOD_POSE_TOLERANCE degrees).
      */
-    public boolean isHoodAtTarget() {
-        return Math.abs(inputs.hoodAngleDegrees - targetHoodAngle) < HOOD_TOLERANCE_DEGREES;
+    public boolean isHoodAtPose() {
+        return Math.abs(inputs.hoodAngleDegrees - targetHoodPose) < HOOD_POSE_TOLERANCE;
     }
 
     /**
@@ -383,10 +446,10 @@ public class ShooterSubsystem extends SubsystemBase {
     }
 
     /**
-     * Gets current hood angle error (target - actual).
+     * Gets current hood pose error (target - actual).
      */
     public double getHoodError() {
-        return targetHoodAngle - inputs.hoodAngleDegrees;
+        return targetHoodPose - inputs.hoodAngleDegrees;
     }
 
     /**
@@ -404,9 +467,9 @@ public class ShooterSubsystem extends SubsystemBase {
     }
 
     /**
-     * Gets current hood angle.
+     * Gets current hood pose.
      */
-    public double getCurrentHoodAngle() {
+    public double getCurrentHoodPose() {
         return inputs.hoodAngleDegrees;
     }
 
@@ -418,10 +481,10 @@ public class ShooterSubsystem extends SubsystemBase {
     }
 
     /**
-     * Gets target hood angle.
+     * Gets target hood pose.
      */
-    public double getTargetHoodAngle() {
-        return targetHoodAngle;
+    public double getTargetHoodPose() {
+        return targetHoodPose;
     }
 
     // ===== Diagnostics =====
