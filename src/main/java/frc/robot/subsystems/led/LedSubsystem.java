@@ -1,6 +1,7 @@
 package frc.robot.subsystems.led;
 
-import com.ctre.phoenix6.hardware.CANdle;
+import com.ctre.phoenix.led.CANdle;
+// import com.ctre.phoenix6.hardware.CANdle; // TODO Check for Phoenix 6 release
 
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
@@ -15,9 +16,9 @@ import frc.robot.subsystems.shooter.ShooterSubsystem.ShooterState;
  */
 public class LedSubsystem extends SubsystemBase {
     private static final LedColor IDLE_COLOR = new LedColor(0, 0, 0);
-    private static final LedColor SPINUP_COLOR = new LedColor(255, 140, 0);
-    private static final LedColor READY_COLOR = new LedColor(0, 255, 0);
-    private static final LedColor EJECT_COLOR = new LedColor(255, 0, 0);
+    private static final LedColor SPINUP_COLOR = new LedColor(255, 140, 0); // Orange
+    private static final LedColor READY_COLOR = new LedColor(0, 255, 0); // Green
+    private static final LedColor EJECT_COLOR = new LedColor(255, 0, 0); // Red
 
     private final CANdle candle;
     private final ShooterSubsystem shooter;

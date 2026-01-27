@@ -42,11 +42,11 @@ public class ClimberSubsystem extends SubsystemBase {
 
        //Climber methods
       public void setArmVolts(double voltage) { // Set arm to extend give it a variable and declare type
-         armMotor.setVoltage(voltage); // Full voltage to extend
+         climbAMotor.setVoltage(voltage); // Full voltage to extend
       }
 
       public void setHookVolts(double voltage) { // Set hook to move given variable and declare type
-         hookMotor.setVoltage(voltage); // Full voltage to move hook
+         climbBMotor.setVoltage(voltage); // Full voltage to move hook
       }
 
      //Climber command factory
