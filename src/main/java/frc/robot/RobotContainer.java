@@ -55,6 +55,7 @@ public class RobotContainer {
             .withDriveRequestType(DriveRequestType.OpenLoopVoltage);
 
     private final Telemetry logger = new Telemetry(MaxSpeed);
+    private final GameDataTelemetry gameDataTelemetry = new GameDataTelemetry();
 
     private final CommandXboxController joystick = new CommandXboxController(0);
 
@@ -129,5 +130,20 @@ public class RobotContainer {
     public Command getAutonomousCommand() {
         /* Run the routine selected from the auto chooser */
         return autoChooser.selectedCommand();
+    }
+
+    /**
+     * Updates game data telemetry. Call this in robotPeriodic().
+     * Polls for FMS game-specific message and publishes to NetworkTables.
+     */
+    public void updateGameData() {
+        gameDataTelemetry.update();
+    }
+
+    /**
+     * Returns the game data telemetry instance for programmatic access.
+     */
+    public GameDataTelemetry getGameDataTelemetry() {
+        return gameDataTelemetry;
     }
 }

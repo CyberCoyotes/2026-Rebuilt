@@ -77,6 +77,49 @@
             }
           },
           {
+            "title": "Inactive First",
+            "x": 896.0,
+            "y": 0.0,
+            "width": 128.0,
+            "height": 192.0,
+            "type": "List Layout",
+            "properties": {
+              "label_position": "TOP"
+            },
+            "children": [
+              {
+                "title": "Red",
+                "x": 0.0,
+                "y": 0.0,
+                "width": 128.0,
+                "height": 80.0,
+                "type": "Boolean Box",
+                "properties": {
+                  "topic": "/GameData/IsRed",
+                  "period": 0.06,
+                  "data_type": "boolean",
+                  "true_color": 4294901760,
+                  "false_color": 4281545523
+                }
+              },
+              {
+                "title": "Blue",
+                "x": 0.0,
+                "y": 0.0,
+                "width": 128.0,
+                "height": 80.0,
+                "type": "Boolean Box",
+                "properties": {
+                  "topic": "/GameData/IsBlue",
+                  "period": 0.06,
+                  "data_type": "boolean",
+                  "true_color": 4278190335,
+                  "false_color": 4281545523
+                }
+              }
+            ]
+          },
+          {
             "title": "Limelight 3 - Shooter",
             "x": 0.0,
             "y": 192.0,
@@ -443,6 +486,49 @@
               "data_type": "string",
               "show_submit_button": false
             }
+          },
+          {
+            "title": "Inactive First",
+            "x": 896.0,
+            "y": 0.0,
+            "width": 128.0,
+            "height": 192.0,
+            "type": "List Layout",
+            "properties": {
+              "label_position": "TOP"
+            },
+            "children": [
+              {
+                "title": "Red",
+                "x": 0.0,
+                "y": 0.0,
+                "width": 128.0,
+                "height": 80.0,
+                "type": "Boolean Box",
+                "properties": {
+                  "topic": "/GameData/IsRed",
+                  "period": 0.06,
+                  "data_type": "boolean",
+                  "true_color": 4294901760,
+                  "false_color": 4281545523
+                }
+              },
+              {
+                "title": "Blue",
+                "x": 0.0,
+                "y": 0.0,
+                "width": 128.0,
+                "height": 80.0,
+                "type": "Boolean Box",
+                "properties": {
+                  "topic": "/GameData/IsBlue",
+                  "period": 0.06,
+                  "data_type": "boolean",
+                  "true_color": 4278190335,
+                  "false_color": 4281545523
+                }
+              }
+            ]
           },
           {
             "title": "Shooter Camera (Limelight 3)",

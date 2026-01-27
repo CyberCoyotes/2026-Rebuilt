@@ -16,7 +16,8 @@
       "Bash(git -C /c/Users/coyot/Git/2026-Rebuilt branch:*)",
       "Bash(git -C /c/Users/coyot/Git/2026-Rebuilt log:*)",
       "Bash(git -C /c/Users/coyot/Git/2026-Rebuilt diff main..81-create-a-dashboard-visual-based-on-hub-scoring-status --name-only)",
-      "Bash(./gradlew.bat compileJava:*)"
+      "Bash(./gradlew.bat compileJava:*)",
+      "Bash(./gradlew.bat build:*)"
     ]
   }
 }
