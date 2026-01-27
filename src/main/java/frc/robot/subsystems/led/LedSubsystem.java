@@ -18,6 +18,7 @@ public class LedSubsystem extends SubsystemBase {
     private static final LedColor IDLE_COLOR = new LedColor(0, 0, 0);
     private static final LedColor SPINUP_COLOR = new LedColor(255, 140, 0); // Orange
     private static final LedColor READY_COLOR = new LedColor(0, 255, 0); // Green
+    private static final LedColor PASS_COLOR = new LedColor(0, 0, 255); // Blue
     private static final LedColor EJECT_COLOR = new LedColor(255, 0, 0); // Red
 
     private final CANdle candle;
@@ -47,6 +48,7 @@ public class LedSubsystem extends SubsystemBase {
             case IDLE -> IDLE_COLOR;
             case SPINUP -> SPINUP_COLOR;
             case READY -> READY_COLOR;
+            case PASS -> PASS_COLOR;
             case EJECT -> EJECT_COLOR;
         };
     }

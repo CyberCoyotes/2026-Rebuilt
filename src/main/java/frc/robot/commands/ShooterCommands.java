@@ -19,24 +19,36 @@ import frc.robot.subsystems.shooter.ShooterSubsystem;
 public class ShooterCommands {
 
     /**
-     * Creates a command to spin up shooter to specific velocity and angle.
-     * Finishes when shooter is ready.
+     * Creates a command to pre-rev the shooter flywheel (SPINUP state).
+     * This gets the flywheel spinning at 20% max velocity to reduce spin-up time.
+     *
+     * @param shooter The shooter subsystem
+     * @return Command that enters SPINUP state
+     */
+    public static Command spinUp(ShooterSubsystem shooter) {
+        return Commands.runOnce(shooter::spinup, shooter)
+            .withName("SpinUpShooter");
+    }
+
+    /**
+     * Creates a command to prepare shooter for shooting with specific targets.
+     * Sets targets and transitions to READY state.
      *
      * @param shooter The shooter subsystem
      * @param velocityRPM Target flywheel velocity
-     * @param hoodAngleDegrees Target hood angle
-     * @return Command that spins up shooter and waits until ready
+     * @param hoodPoseDegrees Target hood pose
+     * @return Command that prepares shooter and waits until ready
      */
-    public static Command spinUp(ShooterSubsystem shooter, double velocityRPM, double hoodAngleDegrees) {
+    public static Command prepareToShoot(ShooterSubsystem shooter, double velocityRPM, double hoodPoseDegrees) {
         return Commands.sequence(
             Commands.runOnce(() -> {
                 shooter.setTargetVelocity(velocityRPM);
-                shooter.setTargetHoodAngle(hoodAngleDegrees);
-                shooter.spinup();
+                shooter.setTargetHoodPose(hoodPoseDegrees);
+                shooter.prepareToShoot();
             }, shooter),
             Commands.waitUntil(shooter::isReady)
         ).withTimeout(3.0)  // Safety timeout
-         .withName("SpinUpShooter");
+         .withName("PrepareToShoot");
     }
 
     /**
@@ -70,7 +82,8 @@ public class ShooterCommands {
     }
 
     /**
-     * Creates a command to pass to another robot.
+     * Creates a command to pass to another robot (PASS state).
+     * Sets 50% max velocity and MAX_POSE.
      * Finishes when shooter is ready.
      *
      * @param shooter The shooter subsystem
@@ -79,7 +92,7 @@ public class ShooterCommands {
     public static Command pass(ShooterSubsystem shooter) {
         return Commands.sequence(
             Commands.runOnce(shooter::pass, shooter),
-            Commands.waitUntil(shooter::isReady)
+            Commands.waitUntil(shooter::isPassReady)
         ).withTimeout(3.0)
          .withName("Pass");
     }
@@ -97,7 +110,7 @@ public class ShooterCommands {
             Commands.runOnce(() -> {
                 double distance = vision.getDistanceToTargetMeters();
                 shooter.updateFromDistance(distance);
-                shooter.spinup();
+                shooter.prepareToShoot();
             }, shooter, vision),
             Commands.waitUntil(shooter::isReady)
         ).withTimeout(3.0)
@@ -221,20 +234,15 @@ public class ShooterCommands {
     }
 
     /**
-     * Creates a command to warm up shooter at low speed.
-     * Keeps motors spinning for quick response.
+     * Creates a command to warm up shooter (SPINUP state).
+     * Pre-revs flywheel at 20% max for quick response when needed.
      *
      * @param shooter The shooter subsystem
-     * @return Command that runs shooter at warmup speed
+     * @return Command that enters SPINUP state
      */
     public static Command warmUp(ShooterSubsystem shooter) {
-        return Commands.runOnce(() -> {
-            shooter.setTargetVelocity(1000.0);  // Low warmup speed
-            shooter.setTargetHoodAngle(25.0);
-            shooter.spinup();
-        }, shooter)
-        .andThen(Commands.idle(shooter))
-        .withName("WarmUpShooter");
+        return Commands.runOnce(shooter::spinup, shooter)
+            .withName("WarmUpShooter");
     }
 
     // Private constructor to prevent instantiation

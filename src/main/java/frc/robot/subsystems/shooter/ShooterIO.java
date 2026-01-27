@@ -132,17 +132,22 @@ public interface ShooterIO {
      * Sets the flywheel target velocity in RPM.
      * Uses velocity closed-loop control with FOC for smooth acceleration.
      *
-     * @param rpm Target velocity in rotations per minute (0 = stop)
+     * @param rpm Target velocity in rotations per minute (positive = forward, negative = reverse)
      */
     default void setFlywheelVelocity(double rpm) {}
 
     /**
-     * Sets the hood target angle in degrees.
+     * Stops the flywheel motors (velocity = 0).
+     */
+    default void stopFlywheels() {}
+
+    /**
+     * Sets the hood target pose in degrees.
      * Uses position closed-loop control.
      *
-     * @param degrees Target angle in degrees (0 = home/low angle)
+     * @param degrees Target pose in degrees (MIN_POSE to MAX_POSE range)
      */
-    default void setHoodAngle(double degrees) {}
+    default void setHoodPose(double degrees) {}
 
     /**
      * Sets the counter-wheel velocity in RPM (optional).
@@ -152,7 +157,7 @@ public interface ShooterIO {
     default void setCounterWheelVelocity(double rpm) {}
 
     /**
-     * Stops all shooter motors.
+     * Stops all shooter motors (flywheels, hood, counter-wheel).
      */
     default void stop() {}
 }

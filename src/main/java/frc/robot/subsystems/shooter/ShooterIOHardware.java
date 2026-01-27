@@ -225,7 +225,13 @@ public class ShooterIOHardware implements ShooterIO {
     }
 
     @Override
-    public void setHoodAngle(double degrees) {
+    public void stopFlywheels() {
+        // Stop flywheel motors (followers stop automatically)
+        flywheelMotorA.stopMotor();
+    }
+
+    @Override
+    public void setHoodPose(double degrees) {
         // Convert degrees to motor rotations (accounting for gear ratio)
         double motorRotations = degreesToMotorRotations(degrees);
 

@@ -80,7 +80,12 @@ public class ShooterIOSim implements ShooterIO {
     }
 
     @Override
-    public void setHoodAngle(double degrees) {
+    public void stopFlywheels() {
+        this.targetFlywheelRPM = 0.0;
+    }
+
+    @Override
+    public void setHoodPose(double degrees) {
         this.targetHoodAngle = Math.max(0, Math.min(90, degrees));  // Clamp 0-90 degrees
     }
 
