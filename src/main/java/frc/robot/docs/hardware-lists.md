@@ -10,7 +10,7 @@ A central location for motors, motor controllers, sensors, and CAN devices for q
 |-----------|------|-----|-------|
 | Drive Motors | Kraken/Falcon + TalonFX | 4 | |
 | Steer Motors | Kraken/Falcon + TalonFX | 4 | |
-| Azimuth Encoders | CANcoder | 4 | |
+| Azimuth Encoders | CANcoder | 4 | encoders |
 | IMU | Pigeon 2 | 1 | Gyro/accelerometer |
 | LED Controller | CANdle | 1 | RGB LED strip control |
 | CAN Bus | CANivore | 1 | CAN FD for drivetrain |
@@ -39,7 +39,7 @@ A central location for motors, motor controllers, sensors, and CAN devices for q
 
 | Component | Motor | Controller | Qty | Notes |
 |-----------|-------|------------|-----|-------|
-| Indexer | Kraken X44 | TalonFX | 1 | Feeds pieces to shooter |
+| Indexer | Kraken X60 | TalonFX | 1 | Feeds pieces to shooter |
 | Conveyor | Kraken X44 | TalonFX | 1 | Moves pieces along hopper |
 
 ### Indexer Sensors
@@ -55,9 +55,9 @@ A central location for motors, motor controllers, sensors, and CAN devices for q
 
 | Component | Motor | Controller | Qty | Notes |
 |-----------|-------|------------|-----|-------|
-| Flywheel A | Falcon 500 | TalonFX | 3 | (A, B, C) 1 leader, 2 followers belted |
+| Flywheel  | Falcon 500 | TalonFX | 3 | (A, B, C) 1 leader, 2 followers belted |
 | Hood | Minion | TalonFXS | 1 | Adjusts shot angle |
-| Counter Wheel | Kraken X44 | TalonFX | 1 | Counter-spin wheel |
+| Counter Wheel | ---- | ---- | 0 | Counter-spin wheel |
 
 ---
 
@@ -65,7 +65,7 @@ A central location for motors, motor controllers, sensors, and CAN devices for q
 
 | Component | Motor | Controller | Qty | Notes |
 |-----------|-------|------------|-----|-------|
-| Climber | Kraken X60 | TalonFX | 2 | Likely a two climb motor mechanism |
+| Climber | Kraken X60 | TalonFX | 1 | Possible a two climb motor mechanism? |
 
 
 ---
@@ -79,36 +79,37 @@ A central location for motors, motor controllers, sensors, and CAN devices for q
 
 ---
 
+## Other
+
+| Device | Type | Qty | Notes |
+|--------|------|-----|-------|
+| MiniPDH | PDH | 2 | Power |
+| Network Switch | Com | 1 | Power |
+| Radio Power Mod | Com | 1 | Power |
+
+
+
 ## Hardware Summary
 
 ### Motors by Type
 
 | Motor Type | Controller | Count | Subsystems |
 |------------|------------|-------|------------|
-| Kraken X60 | TalonFX | 2 | Climber |
-| Kraken X44 | TalonFX | 6 | Intake (3), Indexer (2), Shooter (1) |
+| Kraken X60 | TalonFX | 5 | Climber (1), Drive (4) |
+| Kraken X44 | TalonFX | 10 | Intake (3), Indexer (1), Shooter (1), Drive (4) |
 | Falcon 500 | TalonFX | 3 | Shooter (3) |
 | Minion | TalonFXS | 1 | Shooter |
-| Kraken/Falcon | TalonFX | 8 | Swerve drive |
 
-**Total Motors:** 20
+**Total Motors:** 18
 
 ### Sensors by Type
 
 | Sensor Type | Count | Subsystems |
 |-------------|-------|------------|
-| CANrange ToF | 2 | Intake (1), Indexer (1) |
-| Grapple ToF | 3 | Indexer hopper (3) |
+| CANRange ToF | 5 | Intake (1), Indexer (4) |
 | CANcoder | 4 | Swerve azimuth |
 | Pigeon 2 | 1 | Navigation |
 | Limelight | 2 | Vision |
-
-### Other CAN Devices
-
-| Device | Type | Count | Subsystems |
-|--------|------|-------|------------|
-| CANivore | CAN FD Bus | 1 | Swerve drive |
-| CANdle | LED Controller | 1 | Feedback/status |
 
 ---
 
@@ -117,7 +118,7 @@ A central location for motors, motor controllers, sensors, and CAN devices for q
 | Bus | Subsystems |
 |-----|------------|
 | `canivore` | Swerve (motors, encoders, Pigeon, CANdle) |
-| `rio` | Intake, Indexer, Shooter, Climber |
+| `rio` | Intake, Indexer, Shooter, Climber, ToF |
 
 ---
 
