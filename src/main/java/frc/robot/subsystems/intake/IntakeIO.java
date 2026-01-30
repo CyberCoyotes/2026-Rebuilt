@@ -1,15 +1,6 @@
 package frc.robot.subsystems.intake;
 
-import java.io.ObjectInputFilter.Status;
-
 import org.littletonrobotics.junction.AutoLog;
-import org.littletonrobotics.junction.LogTable;
-import org.littletonrobotics.junction.inputs.LoggableInputs;
-
-import com.ctre.phoenix6.StatusSignal;
-
-import edu.wpi.first.units.measure.Angle;
-import edu.wpi.first.units.measure.Voltage;
 
 /**
  * IntakeIO - Hardware abstraction interface for the intake subsystem.

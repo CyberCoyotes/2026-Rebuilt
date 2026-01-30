@@ -9,7 +9,7 @@ public class IntakeSubsystem extends SubsystemBase{
     private final IntakeIO io;
     private final IntakeIOInputsAutoLogged inputs;
 
-    IntakeSubsystem(IntakeIO intakeIO){
+    public IntakeSubsystem(IntakeIO intakeIO){
         this.io = intakeIO;
         this.inputs = new IntakeIOInputsAutoLogged();
    }
