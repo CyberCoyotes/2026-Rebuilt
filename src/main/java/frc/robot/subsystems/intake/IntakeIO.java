@@ -66,6 +66,19 @@ public interface IntakeIO {
         /** Slide motor temperature in Celsius */
         public double slideTempCelsius = 0.0;
 
+        // Sensor Data
+        // distance from nearest thing to intake sensor in mm
+        public double intakeDistance = 0.0;
+
+        //is a target detected 
+        public boolean intakeTarget = false;
+
+        //distance from nearest thing to indexer in mm
+        public double indexerDistance = 0.0;
+
+        public boolean indexerTarget = false;
+
+
         @Override
         public void toLog(LogTable table) {
             // Rotator motor
@@ -80,6 +93,12 @@ public interface IntakeIO {
             table.put("SlideAppliedVolts", slideAppliedVolts);
             table.put("SlideCurrentAmps", slideCurrentAmps);
             table.put("SlideTempCelsius", slideTempCelsius);
+
+            //sensors
+            table.put("intakeSensorDistance", intakeDistance);
+            table.put("intakeTargetDetected", intakeTarget);
+            table.put("indexerSensorDistance", indexerDistance);
+            table.put("indexerTargetDetected", indexerTarget);
         }
 
         @Override
@@ -96,6 +115,12 @@ public interface IntakeIO {
             slideAppliedVolts = table.get("SlideAppliedVolts", slideAppliedVolts);
             slideCurrentAmps = table.get("SlideCurrentAmps", slideCurrentAmps);
             slideTempCelsius = table.get("SlideTempCelsius", slideTempCelsius);
+
+            //sensors
+            intakeDistance = table.get("intakeSensorDistance", intakeDistance);
+            intakeTarget = table.get("intakeTargetDetected", intakeTarget);
+            indexerDistance = table.get("indexerSensorDistance", indexerDistance);
+            indexerTarget = table.get("indexerTargetDetected", indexerTarget);
         }
     }
 
@@ -108,7 +133,7 @@ public interface IntakeIO {
     void updateInputs(IntakeIOInputs inputs); //took out default because these methods are fine abstract
 
     //rotator methods
-    void setRotatorVelocity(double velocity);
+    void setRotatorSpeed(double velocity);
     StatusSignal<Voltage> getRotatorVolts();
 
     //slide methods
