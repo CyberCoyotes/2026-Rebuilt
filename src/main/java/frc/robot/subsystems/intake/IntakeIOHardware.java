@@ -41,7 +41,7 @@ import frc.robot.util.TalonFXConfigs;
 
 @SuppressWarnings("unused") // Remove when we approach comp ready code
 
-public class IntakeIOTalonFX implements IntakeIO {
+public class IntakeIOHardware implements IntakeIO {
 
     // ===== Hardware =====
     private final TalonFX m_rotator;
@@ -76,7 +76,7 @@ public class IntakeIOTalonFX implements IntakeIO {
      * Creates a new IntakeIOTalonFX instance.
      * Configures motors to known good states.
      */
-    public IntakeIOTalonFX() {
+    public IntakeIOHardware() {
         // Create motor objects
         m_rotator = new TalonFX(Constants.Intake.INTAKE_ROTATOR_ID, kCANBus); // TODO add new CANbus arg 
         m_slide = new TalonFX(Constants.Intake.INTAKE_SLIDE_ID, kCANBus); // TODO add new CANbus arg 

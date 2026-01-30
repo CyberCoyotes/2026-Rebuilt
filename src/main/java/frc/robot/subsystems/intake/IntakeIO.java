@@ -35,10 +35,11 @@ public interface IntakeIO {
      * IntakeIOInputs - Container for all intake sensor data.
      *
      * This class holds all data we read from the intake hardware each cycle.
-     * Uses the Autolog feature for automatic logging and replayy
+     * Uses the Autolog feature for automatic logging and replay
+     * Autolog generates 
      */
     @AutoLog
-    class IntakeIOInputs {
+    public static class IntakeIOInputs {
         // ===== Rotator Motor Data =====
         /** Rotator motor velocity in rotations per second */
         public double rotatorVelocityRPS = 0.0;
@@ -92,6 +93,7 @@ public interface IntakeIO {
     //rotator methods
     void setRotatorSpeed(double velocity);
     StatusSignal<Voltage> getRotatorVolts();
+    void stopRotator();
 
     //slide methods
     void setSlidePosition(double position);
