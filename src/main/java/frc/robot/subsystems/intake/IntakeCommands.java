@@ -14,7 +14,7 @@ public class IntakeCommands {
        () -> intake.setSlidePosition(IntakeConstants.SLIDE_EXTENDED_POSITION), //runs on init, extends slider
        () -> intake.setRotatorSpeed(IntakeConstants.ROTATOR_RUNNING_VELOCITY), // runs until command ends, runs rotator
        interrupted -> intake.toRestingState(), // when the command is interrupted, return the subsystem to resting state (unexteded slider and stopped rotator)
-       () -> intake.intakeTargetClose() && intake.indexerTargetClose(), // stop the command when there is nothing to be picked up and nothing inside it
+       () -> !intake.intakeTargetClose() && intake.indexerTargetClose(), // stop the command when there is nothing to be picked up and nothing inside it
        intake // the subsystem that the command depends on
        );
         }

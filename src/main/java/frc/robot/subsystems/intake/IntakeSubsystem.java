@@ -2,9 +2,6 @@ package frc.robot.subsystems.intake;
 
 import org.littletonrobotics.junction.Logger;
 
-import com.ctre.phoenix6.StatusSignal;
-import edu.wpi.first.units.measure.Angle;
-import edu.wpi.first.units.measure.Voltage;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class IntakeSubsystem extends SubsystemBase{   
@@ -32,7 +29,7 @@ public class IntakeSubsystem extends SubsystemBase{
         io.stopRotator();
     }
 
-    public StatusSignal<Voltage> getRotatorVolts(){
+    public double getRotatorVolts(){
         return io.getRotatorVolts();
     }
 
@@ -41,27 +38,27 @@ public class IntakeSubsystem extends SubsystemBase{
         io.setSlidePosition(position);
     }
 
-    public StatusSignal<Angle> getSlidePosition(){
+    public double getSlidePosition(){
         return io.getSlidePosition();
     }
     
     //intake sensor methods
     public double getIntakeDistance(){
-        return io.getIntakeDistance();
+        return inputs.intakeDistance;
     }
 
      public boolean intakeTargetClose(){
-        return io.indexerTargetClose();
+        return inputs.intakeTarget;
     }
 
     //indexer sensor methods
     public double getIndexerDistance(){
-        return io.getIndexerDistance();
+        return inputs.indexerDistance;
     }
 
     //returns true if is something close to indexer TOF
     public boolean indexerTargetClose(){
-        return io.indexerTargetClose();
+        return inputs.indexerTarget;
     }
 
     //multi-hardware methods

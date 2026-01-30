@@ -92,12 +92,12 @@ public interface IntakeIO {
 
     //rotator methods
     void setRotatorSpeed(double velocity);
-    StatusSignal<Voltage> getRotatorVolts();
+    double getRotatorVolts(); // made doubles because sim can't handle motor-specific StatusSignals
     void stopRotator();
 
     //slide methods
     void setSlidePosition(double position);
-    StatusSignal<Angle> getSlidePosition();
+    double getSlidePosition();
 
     //intake sensor methods
     double getIntakeDistance();

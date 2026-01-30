@@ -149,6 +149,12 @@ public class IntakeIOHardware implements IntakeIO {
         inputs.slideAppliedVolts = slideVoltage.getValueAsDouble();
         inputs.slideCurrentAmps = slideCurrent.getValueAsDouble();
         inputs.slideTempCelsius = slideTemp.getValueAsDouble();
+
+        //sensor data
+        inputs.intakeDistance = getIntakeDistance();
+        inputs.intakeTarget = intakeTargetClose();
+        inputs.indexerDistance = getIndexerDistance();
+        inputs.indexerTarget = indexerTargetClose();
     }
 
 
@@ -158,8 +164,8 @@ public class IntakeIOHardware implements IntakeIO {
         m_rotator.setControl(m_rotator_request.withOutput(speed));
     }
 
-    public StatusSignal<Voltage> getRotatorVolts(){
-        return m_rotator.getMotorVoltage();
+    public double getRotatorVolts(){
+        return m_rotator.getMotorVoltage().getValueAsDouble();
     }
 
     public void stopRotator(){
@@ -171,8 +177,8 @@ public class IntakeIOHardware implements IntakeIO {
         m_slide.setControl(m_slide_request.withPosition(position));
     }
 
-    public StatusSignal<Angle> getSlidePosition(){
-        return m_slide.getPosition();
+    public double getSlidePosition(){
+        return m_slide.getPosition().getValueAsDouble();
     }
     
     //intake sensor methods
