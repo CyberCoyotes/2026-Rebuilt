@@ -2,6 +2,7 @@ package frc.robot.subsystems.intake;
 
 import java.io.ObjectInputFilter.Status;
 
+import org.littletonrobotics.junction.AutoLog;
 import org.littletonrobotics.junction.LogTable;
 import org.littletonrobotics.junction.inputs.LoggableInputs;
 
@@ -34,9 +35,10 @@ public interface IntakeIO {
      * IntakeIOInputs - Container for all intake sensor data.
      *
      * This class holds all data we read from the intake hardware each cycle.
-     * Implements LoggableInputs for automatic AdvantageKit logging and replay.
+     * Uses the Autolog feature for automatic logging and replayy
      */
-    class IntakeIOInputs implements LoggableInputs {
+    @AutoLog
+    class IntakeIOInputs {
         // ===== Rotator Motor Data =====
         /** Rotator motor velocity in rotations per second */
         public double rotatorVelocityRPS = 0.0;
@@ -77,51 +79,6 @@ public interface IntakeIO {
         public double indexerDistance = 0.0;
 
         public boolean indexerTarget = false;
-
-
-        @Override
-        public void toLog(LogTable table) {
-            // Rotator motor
-            table.put("RotatorVelocityRPS", rotatorVelocityRPS);
-            table.put("RotatorAppliedVolts", rotatorAppliedVolts);
-            table.put("RotatorCurrentAmps", rotatorCurrentAmps);
-            table.put("RotatorTempCelsius", rotatorTempCelsius);
-
-            // Slide motor
-            table.put("SlidePositionRotations", slidePositionRotations);
-            table.put("SlideVelocityRPS", slideVelocityRPS);
-            table.put("SlideAppliedVolts", slideAppliedVolts);
-            table.put("SlideCurrentAmps", slideCurrentAmps);
-            table.put("SlideTempCelsius", slideTempCelsius);
-
-            //sensors
-            table.put("intakeSensorDistance", intakeDistance);
-            table.put("intakeTargetDetected", intakeTarget);
-            table.put("indexerSensorDistance", indexerDistance);
-            table.put("indexerTargetDetected", indexerTarget);
-        }
-
-        @Override
-        public void fromLog(LogTable table) {
-            // Rotator motor
-            rotatorVelocityRPS = table.get("RotatorVelocityRPS", rotatorVelocityRPS);
-            rotatorAppliedVolts = table.get("RotatorAppliedVolts", rotatorAppliedVolts);
-            rotatorCurrentAmps = table.get("RotatorCurrentAmps", rotatorCurrentAmps);
-            rotatorTempCelsius = table.get("RotatorTempCelsius", rotatorTempCelsius);
-
-            // Slide motor
-            slidePositionRotations = table.get("SlidePositionRotations", slidePositionRotations);
-            slideVelocityRPS = table.get("SlideVelocityRPS", slideVelocityRPS);
-            slideAppliedVolts = table.get("SlideAppliedVolts", slideAppliedVolts);
-            slideCurrentAmps = table.get("SlideCurrentAmps", slideCurrentAmps);
-            slideTempCelsius = table.get("SlideTempCelsius", slideTempCelsius);
-
-            //sensors
-            intakeDistance = table.get("intakeSensorDistance", intakeDistance);
-            intakeTarget = table.get("intakeTargetDetected", intakeTarget);
-            indexerDistance = table.get("indexerSensorDistance", indexerDistance);
-            indexerTarget = table.get("indexerTargetDetected", indexerTarget);
-        }
     }
 
     /**
