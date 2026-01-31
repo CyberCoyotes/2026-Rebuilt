@@ -108,7 +108,7 @@ public final class Constants {
     private Climber() {}
 
     /** Climber motor A - Kraken X60 with TalonFX controller */
-    public static final int CLIMB_A_MOTOR_ID = 30;
+    public static final int CLIMB_MOTOR_ID = 30;
 
     /** Climber motor B - Kraken X60 with TalonFX controller */
     public static final int CLIMB_B_MOTOR_ID = 31;
