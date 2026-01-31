@@ -1,123 +1,26 @@
 package frc.robot.subsystems.intake;
 
-import com.ctre.phoenix6.StatusSignal;
-import com.ctre.phoenix6.configs.TalonFXConfiguration;
-import com.ctre.phoenix6.controls.MotionMagicVoltage;
-import com.ctre.phoenix6.controls.VelocityVoltage;
-import com.ctre.phoenix6.controls.VoltageOut;
-import com.ctre.phoenix6.hardware.TalonFX;
-import com.playingwithfusion.TimeOfFlight;
-
-import edu.wpi.first.networktables.BooleanPublisher;
-import edu.wpi.first.networktables.DoublePublisher;
-import edu.wpi.first.networktables.NetworkTable;
-import edu.wpi.first.networktables.NetworkTableInstance;
-import edu.wpi.first.networktables.StringPublisher;
-import edu.wpi.first.units.measure.Angle;
-import edu.wpi.first.units.measure.Voltage;
+import org.littletonrobotics.junction.Logger;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.Constants;
 
-public class IntakeSubsystem extends SubsystemBase{
+public class IntakeSubsystem extends SubsystemBase{   
 
-    private final TalonFX m_rotator; ///rotates the roller
-    private final TalonFX m_slide; //moves the intake forward and backwards
-    private final VelocityVoltage m_rotator_request;
-    private final MotionMagicVoltage m_slide_request;
-    private final TimeOfFlight s_intake; // detects objects near intake
-    private final TimeOfFlight s_indexer; // detects when ball capacity meets standards for indexer handoff
-
-    // ===== NetworkTables Publishers for Elastic Dashboard =====
-    private final NetworkTable intakeTable;
-    private final StringPublisher statePublisher;
-    private final BooleanPublisher targetDetectedPublisher;
-    private final BooleanPublisher isJammedPublisher;
-    private final DoublePublisher slidePositionPublisher;
-    private final DoublePublisher intakeDistancePublisher;
-    private final DoublePublisher rotatorCurrentPublisher;
+    private final IntakeIO io;
+    private final IntakeIOInputsAutoLogged inputs;
 
     // ===== State Tracking =====
     private String currentState = "IDLE"; 
 
-    private final int INTAKE_SENSOR_ID = 12345;
-    private final int INTAKE_THRESHOLD = 1000; //mm, around four inches
+    public IntakeSubsystem(IntakeIO intakeIO){
+        this.io = intakeIO;
+        this.inputs = new IntakeIOInputsAutoLogged();
+   }
 
-    private final int INDEXER_SENSOR_ID = 234;
-    private final int INDEXER_THRESHOLD = 67; //mm
-
-    private final double JAM_CURRENT_THRESHOLD = 20.0; // current should be under this
-    private final double JAM_VELOCITY_THRESHOLD = 0.5; // velocity should be over this
-
-    public final double SLIDE_EXTENDED_POSITION = 0.5;
-    private final double SLIDE_RESTING_POSITION = 0;
-    public final double ROTATOR_RUNNING_VELOCITY = 0.5;
-
-    public final double ROTATOR_MAX_VELOCITY = 1;
-    
-    //uses Kraken x44 with TalonFX interface
-    IntakeSubsystem(){
-        m_rotator = new TalonFX(Constants.Intake.INTAKE_ROTATOR_MOTOR_ID); // intaking "wheel"
-        m_slide = new TalonFX(Constants.Intake.INTAKE_SLIDE_A_MOTOR_ID);
-        m_rotator_request = new VelocityVoltage(0).withSlot(0);
-        m_slide_request = new MotionMagicVoltage(0);
-        s_intake = new TimeOfFlight(INTAKE_SENSOR_ID);
-        s_indexer = new TimeOfFlight(INDEXER_SENSOR_ID);
-
-        var rotatorConfigs = new TalonFXConfiguration();
-        var slideConfigs = new TalonFXConfiguration();
-
-        var rotatorSlot0 = rotatorConfigs.Slot0; // tuner reccomended values
-        rotatorSlot0.kS = 0.1; // add 0.1 V to overcome static friction
-        rotatorSlot0.kV = 0.12; // velocity target of 1 rps = 0.12 V output
-        rotatorSlot0.kP = 0.11; // error of 1 rps = 0.11 V output
-        rotatorSlot0.kI = 0; // no output
-        rotatorSlot0.kD = 0; // no output
-
-        var slideSlot0 = slideConfigs.Slot0;
-        slideSlot0.kS = 0.1;
-        slideSlot0.kV = 0.12;
-        slideSlot0.kP = 0.11;
-        slideSlot0.kI = 0;
-        slideSlot0.kD = 0;
-
-        var motionMagicConfigs = slideConfigs.MotionMagic;
-        motionMagicConfigs.MotionMagicCruiseVelocity = 80;
-        motionMagicConfigs.MotionMagicAcceleration = 160;
-        motionMagicConfigs.MotionMagicJerk = 1600;
-
-        m_rotator.getConfigurator().apply(rotatorSlot0);
-        m_slide.getConfigurator().apply(slideSlot0);
-
-        // Initialize NetworkTables publishers for Elastic dashboard
-        NetworkTableInstance inst = NetworkTableInstance.getDefault();
-        intakeTable = inst.getTable("Intake");
-
-        statePublisher = intakeTable.getStringTopic("State").publish();
-        targetDetectedPublisher = intakeTable.getBooleanTopic("TargetDetected").publish();
-        isJammedPublisher = intakeTable.getBooleanTopic("IsJammed").publish();
-        slidePositionPublisher = intakeTable.getDoubleTopic("SlidePosition").publish();
-        intakeDistancePublisher = intakeTable.getDoubleTopic("IntakeDistance_mm").publish();
-        rotatorCurrentPublisher = intakeTable.getDoubleTopic("RotatorCurrent").publish();
+       @Override
+    public void periodic(){
+        io.updateInputs(inputs);
+        Logger.processInputs("Intake", inputs);
     }
-
-    @Override
-    public void periodic() {
-        // Publish telemetry to NetworkTables for Elastic dashboard
-        publishTelemetry();
-    }
-
-    /**
-     * Publishes intake telemetry to NetworkTables for Elastic dashboard.
-     */
-    private void publishTelemetry() {
-        statePublisher.set(currentState);
-        targetDetectedPublisher.set(intakeTargetClose());
-        isJammedPublisher.set(isJammed());
-        slidePositionPublisher.set(m_slide.getPosition().getValueAsDouble());
-        intakeDistancePublisher.set(getIntakeDistance());
-        rotatorCurrentPublisher.set(m_rotator.getSupplyCurrent().getValueAsDouble());
-    }
-
     /**
      * Sets the current state for dashboard display.
      *
@@ -127,62 +30,56 @@ public class IntakeSubsystem extends SubsystemBase{
         this.currentState = state;
     }
 
-    //rotator methods
-    public void setRotatorVelocity(double velocity){
-        m_rotator.setControl(m_rotator_request.withVelocity(velocity));
+     //rotator methods
+    public void setRotatorSpeed(double speed){
+        io.setRotatorSpeed(speed);
     }
 
-    public StatusSignal<Voltage> getRotatorVolts(){
-        return m_rotator.getMotorVoltage();
+       public void stopRotator(){
+        io.stopRotator();
     }
 
-    public void stopRotator(){
-        m_rotator.setControl(new VoltageOut(0));
+    public double getRotatorVolts(){
+        return io.getRotatorVolts();
     }
 
     //slide methods
     public void setSlidePosition(double position){
-        m_slide.setControl(m_slide_request.withPosition(position));
+        io.setSlidePosition(position);
     }
 
-    public StatusSignal<Angle> getSlidePosition(){
-        return m_slide.getPosition();
+    public double getSlidePosition(){
+        return io.getSlidePosition();
     }
     
     //intake sensor methods
     public double getIntakeDistance(){
-        return s_intake.getRange();
+        return inputs.intakeDistance;
     }
 
      public boolean intakeTargetClose(){
-        return (s_intake.getRange() <= INTAKE_THRESHOLD) && s_intake.isRangeValid();
+        return inputs.intakeTarget;
     }
 
     //indexer sensor methods
     public double getIndexerDistance(){
-        return s_indexer.getRange();
+        return inputs.indexerDistance;
     }
 
-    //is something close to indexer TOF
+    //returns true if is something close to indexer TOF
     public boolean indexerTargetClose(){
-        return (s_indexer.getRange() <= INDEXER_THRESHOLD) && s_indexer.isRangeValid();
+        return inputs.indexerTarget;
     }
 
     //multi-hardware methods
     public void toRestingState(){
-        if (!isJammed()){
-        setSlidePosition(SLIDE_RESTING_POSITION); // if ball is stuck, moving slide to rest is bad
-        }
-        setRotatorVelocity(0);
+        io.toRestingState();
     }
 
-    // TODO tune
     public boolean isJammed(){
-        double current = m_rotator.getSupplyCurrent().getValueAsDouble();
-        double velocity = m_rotator.getVelocity().getValueAsDouble();
-
-        return (current >= JAM_CURRENT_THRESHOLD) && (velocity <= JAM_VELOCITY_THRESHOLD);
+        return io.isJammed();
   }
+
 
 
 }

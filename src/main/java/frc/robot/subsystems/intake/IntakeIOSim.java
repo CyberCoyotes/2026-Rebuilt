@@ -1,104 +1,202 @@
 package frc.robot.subsystems.intake;
 
-/**
- * IntakeIOSim - Simulation implementation of IntakeIO for testing without hardware.
- *
- * This class provides fake intake data for testing robot logic without real motors.
- * Useful for:
- * - Testing intake state machine logic
- * - Testing commands that use intake
- * - Simulation mode
- * - Rapid prototyping at home
- *
- * FEATURES:
- * - Simulated rotator velocity
- * - Simulated slide position with realistic movement
- * - Methods to control simulation state for testing
- */
+import edu.wpi.first.math.numbers.N1;
+import edu.wpi.first.math.system.LinearSystem;
+import edu.wpi.first.math.system.plant.DCMotor;
+import edu.wpi.first.math.system.plant.LinearSystemId;
+import edu.wpi.first.wpilibj.simulation.ElevatorSim;
+import edu.wpi.first.wpilibj.simulation.FlywheelSim;
+
 public class IntakeIOSim implements IntakeIO {
 
-    // ===== Simulated State =====
-    private double rotatorPercent = 0.0;
-    private double currentSlidePosition = 0.0;
-    private double targetSlidePosition = 0.0;
+    // ===== Physics Simulations =====
+    private final FlywheelSim m_rotatorSim;
+    private final ElevatorSim m_slideSim;
 
-    // ===== Simulation Parameters =====
-    private static final double SLIDE_SPEED_ROTATIONS_PER_CYCLE = 0.5;  // Rotations per 20ms cycle
-    private static final double MOTOR_VOLTAGE = 12.0;
-    private static final double ROTATOR_CURRENT_PER_PERCENT = 20.0;  // Amps at 100% output
-    private static final double SLIDE_CURRENT = 5.0;  // Amps when moving
-    private static final double MOTOR_TEMP = 40.0;  // Celsius
+    // ===== Commanded Setpoints =====
+    private double rotatorVoltageCommand = 0.0;
+    private double slidePositionCommand = 0.0;
+
+    // ===== Simulated Sensor State =====
+    private double simulatedIntakeDistance = Double.POSITIVE_INFINITY; // mm
+    private double simulatedIndexerDistance = Double.POSITIVE_INFINITY; // mm
+
+// ===== Simulation Constants =====
+private static final double ROTATOR_MOI = 0.001; // kg*m^2 - moment of inertia
+private static final double ROTATOR_GEARING = 1.5; // gear ratio
+private static final double[] ROTATOR_MEASUREMENT_STD_DEVS = {0.01}; // Standard deviation in rad/s
+
+private static final double SLIDE_CARRIAGE_MASS = 2.0; // kg
+private static final double SLIDE_DRUM_RADIUS = 0.02; // meters
+private static final double SLIDE_GEARING = 10.0;
+private static final double SLIDE_MIN_HEIGHT = 0.0; // meters
+private static final double SLIDE_MAX_HEIGHT = 0.3; // meters
+private static final double[] SLIDE_MEASUREMENT_STD_DEVS = {0.001}; // Standard deviation in meters
+    
+private static final double LOOP_PERIOD = 0.02; // 20ms
+
+/**
+ * Creates a new IntakeIOSim instance.
+ * Initializes physics simulations for rotator and slide.
+ */
+public IntakeIOSim() {
+    // Create flywheel sim for rotator (spinning intake wheels)
+    LinearSystem<N1, N1, N1> m_rotatorPlant = LinearSystemId.createFlywheelSystem(DCMotor.getKrakenX44(1), ROTATOR_MOI, ROTATOR_GEARING);
+    m_rotatorSim = new FlywheelSim(m_rotatorPlant , DCMotor.getKrakenX44(1), ROTATOR_MEASUREMENT_STD_DEVS);
+  
+    // Create elevator sim for slide (linear extension mechanism)
+    m_slideSim = new ElevatorSim(
+        DCMotor.getKrakenX44(1),      // Motor gearbox: 1x Falcon 500
+        SLIDE_GEARING,                // Gear ratio
+        SLIDE_CARRIAGE_MASS,          // Mass of carriage
+        SLIDE_DRUM_RADIUS,            // Drum/pulley radius
+        SLIDE_MIN_HEIGHT,             // Minimum height
+        SLIDE_MAX_HEIGHT,             // Maximum height
+        true,                         // Simulate gravity
+        0.0,                          // Starting position (retracted)
+        SLIDE_MEASUREMENT_STD_DEVS    // Measurement noise
+    );
+
+    // Initialize with a game piece nearby for testing
+    simulatedIntakeDistance = 500.0; // 500mm away
+}
 
     @Override
     public void updateInputs(IntakeIO.IntakeIOInputs inputs) {
-        // Simulate slide movement toward target
-        if (currentSlidePosition < targetSlidePosition) {
-            currentSlidePosition = Math.min(currentSlidePosition + SLIDE_SPEED_ROTATIONS_PER_CYCLE,
-                                            targetSlidePosition);
-        } else if (currentSlidePosition > targetSlidePosition) {
-            currentSlidePosition = Math.max(currentSlidePosition - SLIDE_SPEED_ROTATIONS_PER_CYCLE,
-                                            targetSlidePosition);
+        // ===== Update Physics Simulations =====
+        
+        // Update rotator with commanded voltage
+        m_rotatorSim.setInputVoltage(rotatorVoltageCommand);
+        m_rotatorSim.update(LOOP_PERIOD);
+
+        // Update slide with position control (simplified - real would use PID)
+        double slideVoltage = calculateSlideVoltageForPosition(slidePositionCommand);
+        m_slideSim.setInputVoltage(slideVoltage);
+        m_slideSim.update(LOOP_PERIOD);
+
+        // ===== Simulate Game Piece Collection =====
+        simulateGamePieceMovement();
+
+        // ===== Populate Rotator Inputs =====
+        inputs.rotatorVelocityRPS = m_rotatorSim.getAngularVelocityRPM() / 60.0;
+        inputs.rotatorAppliedVolts = rotatorVoltageCommand;
+        inputs.rotatorCurrentAmps = m_rotatorSim.getCurrentDrawAmps();
+        inputs.rotatorTempCelsius = 25.0; // Simulated temp (could model heating)
+
+        // ===== Populate Slide Inputs =====
+        // Convert meters to rotations for consistency with hardware
+        double slidePositionMeters = m_slideSim.getPositionMeters();
+        inputs.slidePositionRotations = slidePositionMeters / (SLIDE_DRUM_RADIUS * 2 * Math.PI);
+        inputs.slideVelocityRPS = m_slideSim.getVelocityMetersPerSecond() / (SLIDE_DRUM_RADIUS * 2 * Math.PI);
+        inputs.slideAppliedVolts = slideVoltage;
+        inputs.slideCurrentAmps = m_slideSim.getCurrentDrawAmps();
+        inputs.slideTempCelsius = 25.0;
+
+        // ===== Populate Sensor Inputs =====
+        inputs.intakeDistance = simulatedIntakeDistance;
+        inputs.intakeTarget = simulatedIntakeDistance <= IntakeConstants.INTAKE_THRESHOLD;
+        inputs.indexerDistance = simulatedIndexerDistance;
+        inputs.indexerTarget = simulatedIndexerDistance <= IntakeConstants.INDEXER_THRESHOLD;
+    }
+
+    /**
+     * Simple proportional control to move slide to desired position.
+     * Real hardware uses MotionMagic, but this is good enough for sim.
+     */
+    private double calculateSlideVoltageForPosition(double targetRotations) {
+        double targetMeters = targetRotations * (SLIDE_DRUM_RADIUS * 2 * Math.PI);
+        double currentMeters = m_slideSim.getPositionMeters();
+        double error = targetMeters - currentMeters;
+        
+        // Simple P controller (kP = 50 works okay for elevator sim)
+        double voltage = error * 50.0;
+        
+        // Clamp to ±12V
+        return Math.max(-12.0, Math.min(12.0, voltage));
+    }
+
+    /**
+     * Simulates game piece movement through the intake system.
+     * When rotator spins and piece is close, "intake" it into indexer.
+     */
+    private void simulateGamePieceMovement() {
+        boolean rotatorSpinning = Math.abs(m_rotatorSim.getAngularVelocityRPM()) > 10.0;
+        boolean intakeExtended = m_slideSim.getPositionMeters() > 0.1; // >10cm extended
+        boolean pieceAtIntake = simulatedIntakeDistance <= IntakeConstants.INTAKE_THRESHOLD;
+        
+        // If conditions met, move piece from intake → indexer
+        if (rotatorSpinning && intakeExtended && pieceAtIntake) {
+            simulatedIndexerDistance = 50.0; // 50mm - piece now in indexer
+            simulatedIntakeDistance = Double.POSITIVE_INFINITY; // no longer at intake
         }
+    }
 
-        // Rotator data (fake velocity based on percent output)
-        inputs.rotatorVelocityRPS = rotatorPercent * 100.0;  // Fake: 100 RPS at full power
-        inputs.rotatorAppliedVolts = Math.abs(rotatorPercent) * MOTOR_VOLTAGE;
-        inputs.rotatorCurrentAmps = Math.abs(rotatorPercent) * ROTATOR_CURRENT_PER_PERCENT;
-        inputs.rotatorTempCelsius = MOTOR_TEMP;
+    // ========== Command Methods ==========
+    // These just store commands, actual physics happens in updateInputs()
 
-        // Slide data
-        inputs.slidePositionRotations = currentSlidePosition;
-        inputs.slideVelocityRPS = (currentSlidePosition != targetSlidePosition) ?
-                                  SLIDE_SPEED_ROTATIONS_PER_CYCLE / 0.02 : 0.0;  // Convert to RPS
-        inputs.slideAppliedVolts = (currentSlidePosition != targetSlidePosition) ? MOTOR_VOLTAGE : 0.0;
-        inputs.slideCurrentAmps = (currentSlidePosition != targetSlidePosition) ? SLIDE_CURRENT : 0.0;
-        inputs.slideTempCelsius = MOTOR_TEMP;
+    @Override
+    public void setRotatorSpeed(double speed) {
+        // Convert percent output (-1 to 1) to voltage
+        rotatorVoltageCommand = speed * 12.0;
     }
 
     @Override
-    public void setRotator(double percent) {
-        this.rotatorPercent = percent;
+    public double getRotatorVolts() {
+        return rotatorVoltageCommand;
     }
 
     @Override
-    public void setSlidePosition(double rotations) {
-        this.targetSlidePosition = Math.max(0, rotations);  // Clamp to non-negative
+    public void stopRotator() {
+        rotatorVoltageCommand = 0.0;
     }
 
     @Override
-    public void stop() {
-        this.rotatorPercent = 0.0;
-        // Slide stays at current position when stopped
+    public void setSlidePosition(double position) {
+        slidePositionCommand = position;
     }
 
     @Override
-    public void zeroSlide() {
-        this.currentSlidePosition = 0.0;
-        this.targetSlidePosition = 0.0;
+    public double getSlidePosition() {
+        // Return current position in rotations
+        double positionMeters = m_slideSim.getPositionMeters();
+        return positionMeters / (SLIDE_DRUM_RADIUS * 2 * Math.PI);
     }
 
-    // ===== Simulation Control Methods =====
-
-    /**
-     * Instantly sets the slide to target position (for testing).
-     * Bypasses realistic movement simulation.
-     */
-    public void setSlideInstant(double rotations) {
-        this.currentSlidePosition = rotations;
-        this.targetSlidePosition = rotations;
+    @Override
+    public double getIntakeDistance() {
+        return simulatedIntakeDistance;
     }
 
-    /**
-     * Gets the current simulated slide position.
-     */
-    public double getCurrentSlidePosition() {
-        return currentSlidePosition;
+    @Override
+    public boolean intakeTargetClose() {
+        return simulatedIntakeDistance <= IntakeConstants.INTAKE_THRESHOLD;
     }
 
-    /**
-     * Gets the current simulated rotator output.
-     */
-    public double getRotatorPercent() {
-        return rotatorPercent;
+    @Override
+    public double getIndexerDistance() {
+        return simulatedIndexerDistance;
+    }
+
+    @Override
+    public boolean indexerTargetClose() {
+        return simulatedIndexerDistance <= IntakeConstants.INDEXER_THRESHOLD;
+    }
+
+    @Override
+    public void toRestingState() {
+        if (!isJammed()) {
+            setSlidePosition(IntakeConstants.SLIDE_RESTING_POSITION);
+        }
+        setRotatorSpeed(0);
+    }
+
+    @Override
+    public boolean isJammed() {
+        // Jam = high current + low velocity
+        double current = m_rotatorSim.getCurrentDrawAmps();
+        double velocity = m_rotatorSim.getAngularVelocityRPM() / 60.0; // Convert to RPS
+        
+        return (current >= IntakeConstants.JAM_CURRENT_THRESHOLD) 
+            && (velocity <= IntakeConstants.JAM_VELOCITY_THRESHOLD);
     }
 }

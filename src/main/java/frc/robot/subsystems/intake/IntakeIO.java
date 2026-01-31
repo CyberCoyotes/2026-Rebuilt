@@ -1,7 +1,6 @@
 package frc.robot.subsystems.intake;
 
-import org.littletonrobotics.junction.LogTable;
-import org.littletonrobotics.junction.inputs.LoggableInputs;
+import org.littletonrobotics.junction.AutoLog;
 
 /**
  * IntakeIO - Hardware abstraction interface for the intake subsystem.
@@ -24,9 +23,11 @@ public interface IntakeIO {
      * IntakeIOInputs - Container for all intake sensor data.
      *
      * This class holds all data we read from the intake hardware each cycle.
-     * Implements LoggableInputs for automatic AdvantageKit logging and replay.
+     * Uses the Autolog feature for automatic logging and replay
+     * Autolog generates 
      */
-    class IntakeIOInputs implements LoggableInputs {
+    @AutoLog
+    public static class IntakeIOInputs {
         // ===== Rotator Motor Data =====
         /** Rotator motor velocity in rotations per second */
         public double rotatorVelocityRPS = 0.0;
@@ -56,37 +57,17 @@ public interface IntakeIO {
         /** Slide motor temperature in Celsius */
         public double slideTempCelsius = 0.0;
 
-        @Override
-        public void toLog(LogTable table) {
-            // Rotator motor
-            table.put("RotatorVelocityRPS", rotatorVelocityRPS);
-            table.put("RotatorAppliedVolts", rotatorAppliedVolts);
-            table.put("RotatorCurrentAmps", rotatorCurrentAmps);
-            table.put("RotatorTempCelsius", rotatorTempCelsius);
+        // Sensor Data
+        // distance from nearest thing to intake sensor in mm
+        public double intakeDistance = 0.0;
 
-            // Slide motor
-            table.put("SlidePositionRotations", slidePositionRotations);
-            table.put("SlideVelocityRPS", slideVelocityRPS);
-            table.put("SlideAppliedVolts", slideAppliedVolts);
-            table.put("SlideCurrentAmps", slideCurrentAmps);
-            table.put("SlideTempCelsius", slideTempCelsius);
-        }
+        //is a target detected 
+        public boolean intakeTarget = false;
 
-        @Override
-        public void fromLog(LogTable table) {
-            // Rotator motor
-            rotatorVelocityRPS = table.get("RotatorVelocityRPS", rotatorVelocityRPS);
-            rotatorAppliedVolts = table.get("RotatorAppliedVolts", rotatorAppliedVolts);
-            rotatorCurrentAmps = table.get("RotatorCurrentAmps", rotatorCurrentAmps);
-            rotatorTempCelsius = table.get("RotatorTempCelsius", rotatorTempCelsius);
+        //distance from nearest thing to indexer in mm
+        public double indexerDistance = 0.0;
 
-            // Slide motor
-            slidePositionRotations = table.get("SlidePositionRotations", slidePositionRotations);
-            slideVelocityRPS = table.get("SlideVelocityRPS", slideVelocityRPS);
-            slideAppliedVolts = table.get("SlideAppliedVolts", slideAppliedVolts);
-            slideCurrentAmps = table.get("SlideCurrentAmps", slideCurrentAmps);
-            slideTempCelsius = table.get("SlideTempCelsius", slideTempCelsius);
-        }
+        public boolean indexerTarget = false;
     }
 
     /**
@@ -95,30 +76,27 @@ public interface IntakeIO {
      *
      * @param inputs Object to populate with current sensor values
      */
-    default void updateInputs(IntakeIOInputs inputs) {}
+    void updateInputs(IntakeIOInputs inputs); //took out default because these methods are fine abstract
 
-    /**
-     * Sets the rotator motor output (intake wheels).
-     *
-     * @param percent Motor output from -1.0 to 1.0 (positive = intake)
-     */
-    default void setRotator(double percent) {}
+    //rotator methods
+    void setRotatorSpeed(double velocity);
+    double getRotatorVolts(); // made doubles because sim can't handle motor-specific StatusSignals
+    void stopRotator();
 
-    /**
-     * Sets the slide position (extend/retract).
-     *
-     * @param rotations Target position in motor rotations (0 = retracted)
-     */
-    default void setSlidePosition(double rotations) {}
+    //slide methods
+    void setSlidePosition(double position);
+    double getSlidePosition();
 
-    /**
-     * Stops all intake motors.
-     */
-    default void stop() {}
+    //intake sensor methods
+    double getIntakeDistance();
+    boolean intakeTargetClose();
 
-    /**
-     * Zeros the slide encoder at the current position.
-     * Call this when the intake is manually moved to the retracted position.
-     */
-    default void zeroSlide() {}
+    //indexer sensor methods
+    double getIndexerDistance();
+    boolean indexerTargetClose();
+
+    //multi-hardware methods
+    void toRestingState();
+    boolean isJammed();
+
 }
