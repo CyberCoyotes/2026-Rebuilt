@@ -9,6 +9,7 @@ import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.networktables.StringPublisher;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.Constants;
 
 /**
  * IndexerSubsystem - Moves game pieces from intake through the robot to the shooter.
@@ -44,6 +45,13 @@ public class IndexerSubsystem extends SubsystemBase {
     private final DoublePublisher conveyorVelocityPublisher;
     private final DoublePublisher indexerVelocityPublisher;
 
+    // ===== Jam Detection Telemetry Publishers =====
+    // These publish jam status to the Elastic dashboard so drivers can see if something is stuck
+    private final BooleanPublisher hopperJammedPublisher;
+    private final BooleanPublisher indexerJammedPublisher;
+    private final DoublePublisher conveyorCurrentPublisher;
+    private final DoublePublisher indexerCurrentPublisher;
+
     // ===== State Tracking =====
     private String currentState = "IDLE";
 
@@ -68,6 +76,12 @@ public class IndexerSubsystem extends SubsystemBase {
         hopperCPublisher = indexerTable.getBooleanTopic("HopperC").publish();
         conveyorVelocityPublisher = indexerTable.getDoubleTopic("ConveyorVelocityRPS").publish();
         indexerVelocityPublisher = indexerTable.getDoubleTopic("IndexerVelocityRPS").publish();
+
+        // Initialize jam detection publishers for dashboard visibility
+        hopperJammedPublisher = indexerTable.getBooleanTopic("HopperJammed").publish();
+        indexerJammedPublisher = indexerTable.getBooleanTopic("IndexerJammed").publish();
+        conveyorCurrentPublisher = indexerTable.getDoubleTopic("ConveyorCurrentAmps").publish();
+        indexerCurrentPublisher = indexerTable.getDoubleTopic("IndexerCurrentAmps").publish();
     }
 
     @Override
@@ -95,6 +109,12 @@ public class IndexerSubsystem extends SubsystemBase {
         hopperCPublisher.set(inputs.hopperCDetected);
         conveyorVelocityPublisher.set(inputs.conveyorVelocityRPS);
         indexerVelocityPublisher.set(inputs.indexerVelocityRPS);
+
+        // Publish jam detection status and current draw for dashboard alerts
+        hopperJammedPublisher.set(isHopperJammed());
+        indexerJammedPublisher.set(isIndexerJammed());
+        conveyorCurrentPublisher.set(inputs.conveyorCurrentAmps);
+        indexerCurrentPublisher.set(inputs.indexerCurrentAmps);
     }
 
     /**
@@ -213,5 +233,70 @@ public class IndexerSubsystem extends SubsystemBase {
     /** Gets the raw ToF distance at the indexer in mm */
     public double getIndexerTofDistanceMM() {
         return inputs.tofDistanceMM;
+    }
+
+    // ========== Jam Detection Methods ==========
+    // Jam detection uses a dual-threshold approach:
+    //   - HIGH current means the motor is trying hard to spin
+    //   - LOW velocity means the motor is barely moving (or stalled)
+    //   - Both conditions together indicate something is physically blocking the motor
+    //
+    // This pattern is consistent with IntakeSubsystem.isJammed() for team familiarity.
+    // Thresholds are defined in Constants.Indexer and should be tuned on the real robot.
+
+    /**
+     * Checks if the hopper (conveyor) motor is jammed.
+     *
+     * A jam is detected when the conveyor motor is drawing high current
+     * but spinning at low velocity. This means a game piece (or multiple
+     * pieces) is stuck and the motor can't push past it.
+     *
+     * Common hopper jam causes:
+     * - Game pieces wedged against each other in the conveyor
+     * - Too many pieces fed in at once from intake
+     * - A piece caught between the conveyor and the hopper walls
+     *
+     * @return true if the hopper conveyor motor is jammed
+     * @see Constants.Indexer#HOPPER_JAM_CURRENT_THRESHOLD
+     * @see Constants.Indexer#HOPPER_JAM_VELOCITY_THRESHOLD
+     */
+    public boolean isHopperJammed() {
+        // Read current draw - high current means the motor is working hard
+        double current = inputs.conveyorCurrentAmps;
+
+        // Read velocity - low velocity means the motor is not spinning freely
+        double velocity = inputs.conveyorVelocityRPS;
+
+        // Jam = high current AND low velocity (motor stalled under load)
+        return (current >= Constants.Indexer.HOPPER_JAM_CURRENT_THRESHOLD)
+            && (Math.abs(velocity) <= Constants.Indexer.HOPPER_JAM_VELOCITY_THRESHOLD);
+    }
+
+    /**
+     * Checks if the indexer motor is jammed.
+     *
+     * A jam is detected when the indexer motor is drawing high current
+     * but spinning at low velocity. This means a game piece is stuck
+     * at the indexer and can't be fed to the shooter.
+     *
+     * Common indexer jam causes:
+     * - Game piece stuck between the indexer wheel and the shooter entrance
+     * - Misaligned game piece unable to pass into the shooter
+     * - Multiple pieces competing to enter the shooter at once
+     *
+     * @return true if the indexer motor is jammed
+     * @see Constants.Indexer#INDEXER_JAM_CURRENT_THRESHOLD
+     * @see Constants.Indexer#INDEXER_JAM_VELOCITY_THRESHOLD
+     */
+    public boolean isIndexerJammed() {
+        // Read current draw - high current means the motor is working hard
+        double current = inputs.indexerCurrentAmps;
+
+        // Read velocity - low velocity means the motor is not spinning freely
+        double velocity = inputs.indexerVelocityRPS;
+
+        // Jam = high current AND low velocity (motor stalled under load)
+        return (current >= Constants.Indexer.INDEXER_JAM_CURRENT_THRESHOLD)
+            && (Math.abs(velocity) <= Constants.Indexer.INDEXER_JAM_VELOCITY_THRESHOLD);
     }
 }
