@@ -8,7 +8,6 @@ import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.networktables.StringPublisher;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.subsystems.shooter.ShooterIO.ShooterIOInputs;
 
 /**
  * ShooterSubsystem - Main shooter subsystem with state machine control.
@@ -46,7 +45,7 @@ public class ShooterSubsystem extends SubsystemBase {
 
     // ===== Hardware Interface =====
     private final ShooterIO io;
-    private final ShooterIO.ShooterIOInputs inputs = new ShooterIO.ShooterIOInputs();
+    private final ShooterIOInputsAutoLogged inputs = new ShooterIOInputsAutoLogged();
 
     // ===== NetworkTables Publishers for Elastic Dashboard =====
     private final NetworkTable shooterTable;

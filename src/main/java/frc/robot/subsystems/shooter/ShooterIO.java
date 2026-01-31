@@ -1,5 +1,6 @@
 package frc.robot.subsystems.shooter;
 
+import org.littletonrobotics.junction.AutoLog;
 import org.littletonrobotics.junction.LogTable;
 import org.littletonrobotics.junction.inputs.LoggableInputs;
 
@@ -27,7 +28,8 @@ public interface ShooterIO {
      * This class holds all data we read from the shooter hardware each cycle.
      * Implements LoggableInputs for automatic AdvantageKit logging and replay.
      */
-    class ShooterIOInputs implements LoggableInputs {
+    @AutoLog
+    class ShooterIOInputs {
         // ===== Main Flywheel Data (average of 3 motors) =====
         /** Average flywheel velocity in RPM */
         public double flywheelVelocityRPM = 0.0;
@@ -70,54 +72,6 @@ public interface ShooterIO {
 
         /** Counter-wheel supply current in amps */
         public double counterWheelCurrentAmps = 0.0;
-
-        @Override
-        public void toLog(LogTable table) {
-            // Main flywheel (averaged)
-            table.put("FlywheelVelocityRPM", flywheelVelocityRPM);
-            table.put("FlywheelAppliedVolts", flywheelAppliedVolts);
-            table.put("FlywheelCurrentAmps", flywheelCurrentAmps);
-            table.put("FlywheelTempCelsius", flywheelTempCelsius);
-
-            // Individual flywheels (for diagnostics)
-            table.put("FlywheelAVelocityRPM", flywheelAVelocityRPM);
-            table.put("FlywheelBVelocityRPM", flywheelBVelocityRPM);
-            table.put("FlywheelCVelocityRPM", flywheelCVelocityRPM);
-
-            // Hood
-            table.put("HoodAngleDegrees", hoodAngleDegrees);
-            table.put("HoodAppliedVolts", hoodAppliedVolts);
-            table.put("HoodCurrentAmps", hoodCurrentAmps);
-
-            // Counter-wheel
-            table.put("CounterWheelVelocityRPM", counterWheelVelocityRPM);
-            table.put("CounterWheelAppliedVolts", counterWheelAppliedVolts);
-            table.put("CounterWheelCurrentAmps", counterWheelCurrentAmps);
-        }
-
-        @Override
-        public void fromLog(LogTable table) {
-            // Main flywheel
-            flywheelVelocityRPM = table.get("FlywheelVelocityRPM", flywheelVelocityRPM);
-            flywheelAppliedVolts = table.get("FlywheelAppliedVolts", flywheelAppliedVolts);
-            flywheelCurrentAmps = table.get("FlywheelCurrentAmps", flywheelCurrentAmps);
-            flywheelTempCelsius = table.get("FlywheelTempCelsius", flywheelTempCelsius);
-
-            // Individual flywheels
-            flywheelAVelocityRPM = table.get("FlywheelAVelocityRPM", flywheelAVelocityRPM);
-            flywheelBVelocityRPM = table.get("FlywheelBVelocityRPM", flywheelBVelocityRPM);
-            flywheelCVelocityRPM = table.get("FlywheelCVelocityRPM", flywheelCVelocityRPM);
-
-            // Hood
-            hoodAngleDegrees = table.get("HoodAngleDegrees", hoodAngleDegrees);
-            hoodAppliedVolts = table.get("HoodAppliedVolts", hoodAppliedVolts);
-            hoodCurrentAmps = table.get("HoodCurrentAmps", hoodCurrentAmps);
-
-            // Counter-wheel
-            counterWheelVelocityRPM = table.get("CounterWheelVelocityRPM", counterWheelVelocityRPM);
-            counterWheelAppliedVolts = table.get("CounterWheelAppliedVolts", counterWheelAppliedVolts);
-            counterWheelCurrentAmps = table.get("CounterWheelCurrentAmps", counterWheelCurrentAmps);
-        }
     }
 
     /**
