@@ -11,42 +11,31 @@ public final class Constants {
   // =========================================================
   // Drive / Swerve
   // =========================================================
-  // Here for reference only! CTRE Swerve drive will generate it's own
-  public static final class Drive {
-    private Drive() {}
-
-    // Front Left
-    // public static final int FL_DRIVE_MOTOR_ID = 1;
-    // public static final int FL_STEER_MOTOR_ID = 2;
-
-    // Front Right
-    // public static final int FR_DRIVE_MOTOR_ID = 3;
-    // public static final int FR_STEER_MOTOR_ID = 4;
-
-    // Back Left
-    // public static final int BL_DRIVE_MOTOR_ID = 5;
-    // public static final int BL_STEER_MOTOR_ID = 6;
-
-    // Back Right
-    // public static final int BR_DRIVE_MOTOR_ID = 7;
-    // public static final int BR_STEER_MOTOR_ID = 8;
-
-    // Navigation
-    // Pigeon
-    
-    // Feedback
-    // CANDLE
-
-  }
-
+  // CAN ID Allocation:
+  //   1-12  Drivetrain (drive motors, steer motors, CANcoders) — TunerConstants.java
+  //   14    Pigeon 2 (IMU) — TunerConstants.java
+  //   15    CANivore / CANdle (LED controller)
+  //   20-39 Other motors (intake, indexer, shooter, climber)
+  //   40+   Sensors (ToF, CANrange, etc.)
+  // CAN Bus: canivore (for drivetrain + CANdle), rio (for other subsystems)
+  
   // =========================================================
   // Intake
   // =========================================================
   public static final class Intake {
     private Intake() {}
 
-    public static final int INTAKE_ROTATOR_ID = 20;
-    public static final int INTAKE_SLIDE_ID = 21;
+    /** Intake rotator motor - Kraken X44 with TalonFX controller */
+    public static final int INTAKE_ROTATOR_MOTOR_ID = 20;
+
+    /** Intake slide motor A - Kraken X44 with TalonFX controller */
+    public static final int INTAKE_SLIDE_A_MOTOR_ID = 21;
+
+    /** Intake slide motor B - Kraken X44 with TalonFX controller (paired with A) */
+    public static final int INTAKE_SLIDE_B__MOTOR_ID = 22;
+
+    /** Time of Flight sensor - CANrange, confirms fuel presence */
+    public static final int INTAKE_SENSOR_ID = 41;
   }
 
   // =========================================================
@@ -55,12 +44,23 @@ public final class Constants {
   public static final class Indexer {
     private Indexer() {}
 
-    public static final int FEEDER_MOTOR_ID = 22;
-    public static final int FLOOR_MOTOR_ID = 23;
-    public static final int FEEDER_TOF_ID = 30;
-    public static final double FUEL_DETECTION_THRESHOLD = 0;
+    /** Indexer motor - Kraken X44 with TalonFX controller, feeds pieces to shooter */
+    public static final int INDEXER_MOTOR_ID = 23;
 
+    /** Conveyor motor - Kraken X44 with TalonFX controller, moves pieces along hopper */
+    public static final int CONVEYOR_MOTOR_ID = 24;
 
+    /** Time of Flight sensor - Detects fuel at indexer exit (optional) */
+    public static final int INDEXER_TOF_ID = 42;
+
+    /** Time of Flight sensor A - Detects "fullness" of hopper */
+    public static final int HOPPER_TOP_A_TOF_ID = 43;
+
+    /** Time of Flight sensor B - Detects "fullness" of hopper */
+    public static final int HOPPER_TOP_B_TOF_ID = 44;
+
+    /** Time of Flight sensor C - Detects "fullness" of hopper */
+    public static final int HOPPER_TOP_C_TOF_ID = 45;
   }
 
   // =========================================================
@@ -69,19 +69,20 @@ public final class Constants {
   public static final class Shooter {
     private Shooter() {}
 
-    // Main flywheels (Falcon 500 / TalonFX)
-    public static final int FLYWHEEL_A_MOTOR_ID = 24;
-    public static final int FLYWHEEL_B_MOTOR_ID = 25;
-    public static final int FLYWHEEL_C_MOTOR_ID = 26;
+    /** Flywheel A motor - Falcon 500 with TalonFX controller (leader) */
+    public static final int FLYWHEEL_A_MOTOR_ID = 25;
 
-    /**
-     * Hood movement motor (Minion) — ONLY keep this as a CAN ID if the motor controller is on CAN.
-     * If this is PWM (SparkMAX PWM / Talon SRX PWM / etc.), move this to a PWM constants section.
-     */
-    public static final int HOOD_MOTOR_ID = 27;
+    /** Flywheel B motor - Falcon 500 with TalonFX controller (follower of A) */
+    public static final int FLYWHEEL_B_MOTOR_ID = 26;
 
-    // Counter wheel (Kraken / TalonFX)
-    public static final int COUNTER_WHEEL_MOTOR_ID = 28;
+    /** Flywheel C motor - Falcon 500 with TalonFX controller (follower of A) */
+    public static final int FLYWHEEL_C_MOTOR_ID = 27;
+
+    /** Hood motor - Minion with TalonFXS controller, adjusts shot angle */
+    public static final int HOOD_MOTOR_ID = 28;
+
+    /** Counter wheel motor - Kraken X44 with TalonFX controller */
+    public static final int COUNTER_WHEEL_MOTOR_ID = 29;
   }
 
   // =========================================================
@@ -90,12 +91,11 @@ public final class Constants {
   public static final class Climber {
     private Climber() {}
 
-    public static final int CLIMB_EXTENSION_MOTOR_ID = 29;
-    /**
-     * Hook retraction motor (Minion) — ONLY keep this as a CAN ID if the motor controller is on CAN.
-     * If this is PWM, move to a PWM constants section.
-     */
-    public static final int HOOK_RETRACT_MOTOR_ID = 30;
+    /** Climber motor A - Kraken X60 with TalonFX controller */
+    public static final int CLIMB_A_MOTOR_ID = 30;
+
+    /** Climber motor B - Kraken X60 with TalonFX controller */
+    public static final int CLIMB_B_MOTOR_ID = 31;
   }
 
   // =========================================================
@@ -105,7 +105,9 @@ public final class Constants {
     private Vision() {}
 
     // Camera configuration
-    public static final String LIMELIGHT_NAME = "limelight";
+    public static final String LIMELIGHT3_NAME = "limelight3";
+    public static final String LIMELIGHT4_NAME = "limelight4";
+
 
     // Pipeline indices
     public static final int APRILTAG_PIPELINE = 0;
@@ -142,13 +144,29 @@ public final class Constants {
   }
 
   // =========================================================
-  // Optional: PWM (if Minion motors are NOT on CAN)
+  // LEDs
   // =========================================================
-  // public static final class PWM {
-  //   private PWM() {}
-  //
-  //   // Example:
-  //   // public static final int SHOOTER_HOOD_PWM_CHANNEL = 0;
-  //   // public static final int CLIMBER_HOOK_PWM_CHANNEL = 1;
-  // }
+  public static final class Led {
+    private Led() {}
+
+    /** CANdle device ID */
+    public static final int CANDLE_ID = 15;
+
+    /** CAN bus name for the CANdle (typically "canivore") */
+    public static final String CAN_BUS_NAME = "canivore"; // 'TODO Adjust if needed'
+
+    /** WS2811 logical segments per meter */
+    public static final int SEGMENTS_PER_METER = 20;
+
+    /** WS2811 physical LEDs per logical segment */
+    public static final int LEDS_PER_SEGMENT = 36;
+
+    /** Total strip length in meters */
+    public static final int STRIP_LENGTH_METERS = 1;
+
+    /** Total number of logical addressable segments */
+    // 20 segments per meter
+    public static final int LOGICAL_LED_COUNT = SEGMENTS_PER_METER * STRIP_LENGTH_METERS; // TODO Adjust as needed
+  }
+
 }

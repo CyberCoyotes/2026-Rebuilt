@@ -1,7 +1,6 @@
 package frc.robot.subsystems.intake;
 
 import org.littletonrobotics.junction.Logger;
-
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class IntakeSubsystem extends SubsystemBase{   
@@ -9,15 +8,26 @@ public class IntakeSubsystem extends SubsystemBase{
     private final IntakeIO io;
     private final IntakeIOInputsAutoLogged inputs;
 
+    // ===== State Tracking =====
+    private String currentState = "IDLE"; 
+
     public IntakeSubsystem(IntakeIO intakeIO){
         this.io = intakeIO;
         this.inputs = new IntakeIOInputsAutoLogged();
    }
 
-    @Override
+       @Override
     public void periodic(){
         io.updateInputs(inputs);
         Logger.processInputs("Intake", inputs);
+    }
+    /**
+     * Sets the current state for dashboard display.
+     *
+     * @param state State string (e.g., "IDLE", "INTAKING", "EXTENDED")
+     */
+    public void setState(String state) {
+        this.currentState = state;
     }
 
      //rotator methods

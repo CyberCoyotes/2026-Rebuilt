@@ -6,18 +6,15 @@ import org.littletonrobotics.junction.AutoLog;
  * IntakeIO - Hardware abstraction interface for the intake subsystem.
  *
  * The intake collects game pieces from the ground using:
- * - 1x Rotator motor: Spins intake wheels to pull in game pieces
- * - 1x Slide motor: Extends/retracts intake mechanism
- *
- * HARDWARE:
- * - 1x TalonFX (rotator) - percent output control
- * - 1x TalonFX (slide) - position control
+ * - Rotator motor: Spins intake wheels to pull in game pieces
+ * - Slide motors: Extends/retracts intake mechanism
  *
  * PATTERN: IO Interface
  * - IntakeIO: Interface defining what intake hardware can do
- * - IntakeIOTalonFX: Real hardware implementation with CTRE motors
+ * - IntakeIOHardware: Real hardware implementation with CTRE motors
  * - IntakeIOSim: Simulation for testing without hardware
  *
+ * @see Constants.Intake for hardware configuration
  * @author @Isaak3
  */
 public interface IntakeIO {

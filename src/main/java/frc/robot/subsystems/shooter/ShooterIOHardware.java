@@ -12,12 +12,7 @@ import frc.robot.Constants;
 import frc.robot.util.TalonFXConfigs;
 
 /**
- * ShooterIOTalonFX - Real hardware implementation using CTRE TalonFX motors.
- *
- * This class interfaces with:
- * - 3x Falcon 500 / TalonFX (main flywheels) - velocity control with FOC
- * - 1x TalonFX (hood adjustment) - position control
- * - 1x Kraken X60 / TalonFX (counter-wheel) - velocity control
+ * ShooterIOHardware - Real hardware implementation using CTRE TalonFX motors.
  *
  * Key features:
  * - Uses centralized TalonFXConfigs for motor configuration
@@ -26,9 +21,10 @@ import frc.robot.util.TalonFXConfigs;
  * - Optimized status signal updates for performance
  * - All telemetry logged via AdvantageKit
  *
- * AUTHOR: @Isaak3
+ * @see Constants.Shooter for hardware configuration
+ * @author @Isaak3
  */
-public class ShooterIOTalonFX implements ShooterIO {
+public class ShooterIOHardware implements ShooterIO {
 
     // ===== Hardware =====
     private final TalonFX flywheelMotorA;
@@ -83,7 +79,7 @@ public class ShooterIOTalonFX implements ShooterIO {
      * Creates a new ShooterIOTalonFX instance.
      * Configures all motors to known good states.
      */
-    public ShooterIOTalonFX() {
+    public ShooterIOHardware() {
         // Create motor objects
         // flywheelMotorA = new TalonFX(Constants.Shooter.FLYWHEEL_A_MOTOR_ID, Constants.kCANBus); // deprecated constructor
         flywheelMotorA = new TalonFX(Constants.Shooter.FLYWHEEL_A_MOTOR_ID); // TODO add new CANbus arg 
@@ -229,7 +225,13 @@ public class ShooterIOTalonFX implements ShooterIO {
     }
 
     @Override
-    public void setHoodAngle(double degrees) {
+    public void stopFlywheels() {
+        // Stop flywheel motors (followers stop automatically)
+        flywheelMotorA.stopMotor();
+    }
+
+    @Override
+    public void setHoodPose(double degrees) {
         // Convert degrees to motor rotations (accounting for gear ratio)
         double motorRotations = degreesToMotorRotations(degrees);
 

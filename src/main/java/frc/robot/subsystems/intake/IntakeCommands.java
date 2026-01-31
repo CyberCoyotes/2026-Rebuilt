@@ -5,9 +5,6 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.FunctionalCommand;
 
 public class IntakeCommands {
-    
-    private IntakeCommands(){}
-
      public Command enterIntakeMode(IntakeSubsystem intake){ //should be default command
         return 
         new  FunctionalCommand ( //TODO rapidly extending the slide whenever an object is close to the robot is a horrible idea
@@ -22,4 +19,4 @@ public class IntakeCommands {
     public Command stopJam(IntakeSubsystem intake){
         return Commands.startEnd(() -> intake.setRotatorSpeed(-IntakeConstants.ROTATOR_MAX_VELOCITY),() -> intake.setRotatorSpeed(0), intake).withTimeout(0.5);
     }
-    }
+}

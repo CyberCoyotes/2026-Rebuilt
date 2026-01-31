@@ -13,6 +13,7 @@ import choreo.auto.AutoChooser;
 import choreo.auto.AutoFactory;
 
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.RobotModeTriggers;
@@ -24,14 +25,15 @@ import frc.robot.subsystems.indexer.IndexerSubsystem;
 import frc.robot.subsystems.intake.IntakeSubsystem;
 import frc.robot.subsystems.indexer.IndexerIO;
 import frc.robot.subsystems.indexer.IndexerIOSim;
-import frc.robot.subsystems.indexer.IndexerIOTalonFX;
+import frc.robot.subsystems.indexer.IndexerIOHardware;
 import frc.robot.subsystems.intake.IntakeIO;
 import frc.robot.subsystems.intake.IntakeIOSim;
 import frc.robot.subsystems.intake.IntakeIOHardware;
 import frc.robot.subsystems.shooter.ShooterIO;
 import frc.robot.subsystems.shooter.ShooterIOSim;
-import frc.robot.subsystems.shooter.ShooterIOTalonFX;
+import frc.robot.subsystems.shooter.ShooterIOHardware;
 import frc.robot.subsystems.shooter.ShooterSubsystem;
+import frc.robot.subsystems.led.LedSubsystem;
 import frc.robot.subsystems.vision.VisionIO;
 import frc.robot.subsystems.vision.VisionIOLimelight;
 import frc.robot.subsystems.vision.VisionIOSim;
@@ -53,10 +55,13 @@ public class RobotContainer {
             .withDriveRequestType(DriveRequestType.OpenLoopVoltage);
 
     private final Telemetry logger = new Telemetry(MaxSpeed);
+    private final GameDataTelemetry gameDataTelemetry = new GameDataTelemetry();
 
     private final CommandXboxController joystick = new CommandXboxController(0);
 
     public final CommandSwerveDrivetrain drivetrain = TunerConstants.createDrivetrain();
+    private final ShooterSubsystem shooter;
+    private final LedSubsystem ledSubsystem;
 
     /* Path follower */
     private final AutoFactory autoFactory;
@@ -64,6 +69,10 @@ public class RobotContainer {
     private final AutoChooser autoChooser = new AutoChooser();
 
     public RobotContainer() {
+        ShooterIO shooterIO = RobotBase.isReal() ? new ShooterIOHardware() : new ShooterIOSim();
+        shooter = new ShooterSubsystem(shooterIO);
+        ledSubsystem = new LedSubsystem(shooter);
+
         autoFactory = drivetrain.createAutoFactory();
         autoRoutines = new AutoRoutines(autoFactory);
 
@@ -121,5 +130,20 @@ public class RobotContainer {
     public Command getAutonomousCommand() {
         /* Run the routine selected from the auto chooser */
         return autoChooser.selectedCommand();
+    }
+
+    /**
+     * Updates game data telemetry. Call this in robotPeriodic().
+     * Polls for FMS game-specific message and publishes to NetworkTables.
+     */
+    public void updateGameData() {
+        gameDataTelemetry.update();
+    }
+
+    /**
+     * Returns the game data telemetry instance for programmatic access.
+     */
+    public GameDataTelemetry getGameDataTelemetry() {
+        return gameDataTelemetry;
     }
 }
