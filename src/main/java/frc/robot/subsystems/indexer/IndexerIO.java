@@ -1,5 +1,6 @@
 package frc.robot.subsystems.indexer;
 
+import org.littletonrobotics.junction.AutoLog;
 import org.littletonrobotics.junction.LogTable;
 import org.littletonrobotics.junction.inputs.LoggableInputs;
 
@@ -27,9 +28,10 @@ public interface IndexerIO {
      * IndexerIOInputs - Container for all indexer sensor data.
      *
      * This class holds all data we read from the indexer hardware each cycle.
-     * Implements LoggableInputs for automatic AdvantageKit logging and replay.
+     * Uses @Autolog for automatic AdvantageKit logging and replay.
      */
-    class IndexerIOInputs implements LoggableInputs {
+    @AutoLog
+    class IndexerIOInputs {
         // ===== Conveyor Motor Data =====
         /** Conveyor motor velocity in rotations per second */
         public double conveyorVelocityRPS = 0.0;
@@ -94,71 +96,6 @@ public interface IndexerIO {
         /** True if a game piece is detected at hopper position C */
         public boolean hopperCDetected = false;
 
-        @Override
-        public void toLog(LogTable table) {
-            // Conveyor motor
-            table.put("ConveyorVelocityRPS", conveyorVelocityRPS);
-            table.put("ConveyorAppliedVolts", conveyorAppliedVolts);
-            table.put("ConveyorCurrentAmps", conveyorCurrentAmps);
-            table.put("ConveyorTempCelsius", conveyorTempCelsius);
-
-            // Indexer motor
-            table.put("IndexerVelocityRPS", indexerVelocityRPS);
-            table.put("IndexerAppliedVolts", indexerAppliedVolts);
-            table.put("IndexerCurrentAmps", indexerCurrentAmps);
-            table.put("IndexerTempCelsius", indexerTempCelsius);
-
-            // Indexer ToF sensor
-            table.put("TofDistanceMM", tofDistanceMM);
-            table.put("TofValid", tofValid);
-            table.put("GamePieceDetected", gamePieceDetected);
-
-            // Hopper ToF sensors
-            table.put("HopperADistanceMM", hopperADistanceMM);
-            table.put("HopperAValid", hopperAValid);
-            table.put("HopperADetected", hopperADetected);
-
-            table.put("HopperBDistanceMM", hopperBDistanceMM);
-            table.put("HopperBValid", hopperBValid);
-            table.put("HopperBDetected", hopperBDetected);
-
-            table.put("HopperCDistanceMM", hopperCDistanceMM);
-            table.put("HopperCValid", hopperCValid);
-            table.put("HopperCDetected", hopperCDetected);
-        }
-
-        @Override
-        public void fromLog(LogTable table) {
-            // Conveyor motor
-            conveyorVelocityRPS = table.get("ConveyorVelocityRPS", conveyorVelocityRPS);
-            conveyorAppliedVolts = table.get("ConveyorAppliedVolts", conveyorAppliedVolts);
-            conveyorCurrentAmps = table.get("ConveyorCurrentAmps", conveyorCurrentAmps);
-            conveyorTempCelsius = table.get("ConveyorTempCelsius", conveyorTempCelsius);
-
-            // Indexer motor
-            indexerVelocityRPS = table.get("IndexerVelocityRPS", indexerVelocityRPS);
-            indexerAppliedVolts = table.get("IndexerAppliedVolts", indexerAppliedVolts);
-            indexerCurrentAmps = table.get("IndexerCurrentAmps", indexerCurrentAmps);
-            indexerTempCelsius = table.get("IndexerTempCelsius", indexerTempCelsius);
-
-            // Indexer ToF sensor
-            tofDistanceMM = table.get("TofDistanceMM", tofDistanceMM);
-            tofValid = table.get("TofValid", tofValid);
-            gamePieceDetected = table.get("GamePieceDetected", gamePieceDetected);
-
-            // Hopper ToF sensors
-            hopperADistanceMM = table.get("HopperADistanceMM", hopperADistanceMM);
-            hopperAValid = table.get("HopperAValid", hopperAValid);
-            hopperADetected = table.get("HopperADetected", hopperADetected);
-
-            hopperBDistanceMM = table.get("HopperBDistanceMM", hopperBDistanceMM);
-            hopperBValid = table.get("HopperBValid", hopperBValid);
-            hopperBDetected = table.get("HopperBDetected", hopperBDetected);
-
-            hopperCDistanceMM = table.get("HopperCDistanceMM", hopperCDistanceMM);
-            hopperCValid = table.get("HopperCValid", hopperCValid);
-            hopperCDetected = table.get("HopperCDetected", hopperCDetected);
-        }
     }
 
     /**

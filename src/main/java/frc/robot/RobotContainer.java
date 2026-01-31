@@ -79,11 +79,16 @@ public class RobotContainer {
     public RobotContainer() {
         if(RobotBase.isReal()){
             intake = new IntakeSubsystem(new IntakeIOHardware());
+            indexer = new IndexerSubsystem(new IndexerIOHardware());
+            shooter = new ShooterSubsystem(new ShooterIOHardware());
+        } else {
+            intake = new IntakeSubsystem(new IntakeIOSim());
+            indexer = new IndexerSubsystem(new IndexerIOSim());
+            shooter = new ShooterSubsystem(new ShooterIOHardware());
         }
 
-        ShooterIO shooterIO = RobotBase.isReal() ? new ShooterIOHardware() : new ShooterIOSim();
-        shooter = new ShooterSubsystem(shooterIO);
         ledSubsystem = new LedSubsystem(shooter);
+        climber = new ClimberSubsystem();
 
         autoFactory = drivetrain.createAutoFactory();
         autoRoutines = new AutoRoutines(autoFactory);
