@@ -47,7 +47,7 @@ A central location for motors, motor controllers, sensors, and CAN devices for q
 | Sensor | Type | Qty | Purpose |
 |--------|------|-----|---------|
 | Indexer Exit | CANrange ToF | 1 | Detects fuel at indexer exit |
-| Hopper Top | Grapple ToF | 3 | (A, B, C) Detects hopper fullness |
+| Hopper Top | CANrange ToF | 3 | (A, B, C) Detects hopper fullness |
 
 ---
 
@@ -116,12 +116,12 @@ A central location for motors, motor controllers, sensors, and CAN devices for q
 
 | Sensor Type | Count | Subsystems |
 |-------------|-------|------------|
-| CANrange ToF | 2 | Intake (1), Indexer exit (1) |
-| Grapple ToF | 3 | Hopper fullness |
+| CANrange ToF | 5 | Intake (1), Indexer (1), Hopper (3) |
 | CANcoder | 4 | Swerve azimuth |
-| WCP ThroughBore Encoder | 1 | Shooter hood |
+| CANcoder (ThroughBore) | 1 | Shooter hood |
 | Pigeon 2 | 1 | Navigation |
 | Limelight | 2 | Vision |
+
 
 ---
 
@@ -133,6 +133,80 @@ A central location for motors, motor controllers, sensors, and CAN devices for q
 | `rio` | Intake, Indexer, Hopper conveyor, Shooter, Climber, ToF sensors |
 
 ---
+
+## Hypothetical Single-PDH Allocation (Capacity Check)
+
+This section models the robot using **one CTRE Mini PDH** to validate channel capacity.
+This configuration is **not viable**, but is documented to justify the use of multiple PDHs.
+
+### Assumptions
+- One **Mini PDH** with **24 total channels**
+- All motor controllers require individual PDH channels
+- RoboRIO requires a PDH channel
+- Mini Power Modules require PDH channels
+- All CAN devices and Limelights are powered from Mini Power Modules
+
+---
+
+### Single PDH — All Loads Combined
+
+#### Motors
+
+| Channel | Load |
+|--------:|------|
+| 1–4 | Swerve Drive Motors (4× Kraken X60) |
+| 5–8 | Swerve Steer Motors (4× Kraken X60) |
+| 9 | Intake Rotator (Kraken X44) |
+| 10–11 | Intake Slide Motors (2× Kraken X44) |
+| 12 | Indexer (Kraken X60) |
+| 13 | Hopper Conveyor (Minion) |
+| 14–16 | Shooter Flywheels (3× Falcon 500) |
+| 17 | Shooter Hood (Minion) |
+| 18 | Climber (Kraken X60) |
+
+**Motor Channels Used:** 18
+
+---
+
+#### Electronics
+
+| Channel | Load |
+|--------:|------|
+| 19 | RoboRIO |
+| 20 | Mini Power Module #1 |
+| 21 | Mini Power Module #2 |
+
+**Electronics Channels Used:** 3
+
+---
+
+### Channel Usage Summary
+
+| Category | Channels |
+|--------|----------|
+| Motors | 18 |
+| Electronics | 3 |
+| **Total Used** | **21** |
+| **Mini PDH Capacity** | **24** |
+| **Remaining** | **3** |
+
+---
+
+### Missing / Unallocated Loads
+
+The following required loads **do not fit** on a single Mini PDH:
+
+- ❌ No spare channels for:
+  - additional mechanisms
+  - testing motors
+  - future expansion
+- ❌ No margin for:
+  - temporary bring-up hardware
+  - inspection-required changes
+- ❌ Risky consolidation of critical systems onto minimal remaining channels
+
+---
+
 
 ## Implementation Status
 
