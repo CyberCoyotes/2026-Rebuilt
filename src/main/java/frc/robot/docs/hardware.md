@@ -140,7 +140,7 @@ A central location for motors, motor controllers, sensors, and CAN devices for q
 |-----------|-----------|-------------|--------|
 | Swerve | TunerConstants.java | CommandSwerveDrivetrain | Complete |
 | Intake | Complete | IntakeIOHardware.java | Partial |
-| Indexer / Hopper | Needs update | IndexerIOHardware.java | Needs update |
+| Indexer | Hopper | Needs update | IndexerIOHardware.java | Needs update |
 | Shooter | Complete | ShooterIOHardware.java | Complete |
 | Climber | Complete | ClimberIOHardware.java | Not implemented |
 | Vision | Complete | VisionIOLimelight.java | Complete |
@@ -151,6 +151,6 @@ A central location for motors, motor controllers, sensors, and CAN devices for q
 
 - Intake uses 3 motors total (1 rotator + 2 paired slide motors)
 - Shooter flywheels are leader–follower and mechanically belted
+- Hood uses external ThroughBore encoder for accurate position control 
 - Hopper conveyor uses Minion + TalonFXS
-- Hood uses external ThroughBore encoder for accurate position control
 - Swerve runs entirely on CANivore for performance isolation
