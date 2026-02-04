@@ -47,9 +47,9 @@ public final class Constants {
     /** Indexer motor - Kraken X44 with TalonFX controller, feeds pieces to shooter */
     public static final int INDEXER_MOTOR_ID = 23;
 
-    /** Conveyor motor - Kraken X44 with TalonFX controller, moves pieces along hopper */
+    /** Conveyor motor - Minion with TalonFXS controller, moves pieces along hopper */
     public static final int CONVEYOR_MOTOR_ID = 24;
-
+    
     /** Time of Flight sensor - Detects fuel at indexer exit (optional) */
     public static final int INDEXER_TOF_ID = 42;
 
@@ -96,6 +96,9 @@ public final class Constants {
 
     /** Hood motor - Minion with TalonFXS controller, adjusts shot angle */
     public static final int HOOD_MOTOR_ID = 28;
+
+    /** WCP ThroughBore Encoder Powered by CANcoder for measuring hood position */ 
+    public static final int HOOD_POSE_ENCODER_ID = 46; 
 
     /** Counter wheel motor - Kraken X44 with TalonFX controller */
     public static final int COUNTER_WHEEL_MOTOR_ID = 29;
