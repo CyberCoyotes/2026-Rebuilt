@@ -104,11 +104,11 @@ A central location for motors, motor controllers, sensors, and CAN devices for q
 | Motor Type | Controller | Count | Subsystems |
 |------------|------------|-------|------------|
 | Kraken X60 | TalonFX | 6 | Climber (1), Drive (4), Indexer (1) |
-| Kraken X44 | TalonFX | 9 | Intake (3), Drive (4) |
+| Kraken X44 | TalonFX | 6 | Intake (2), Drive (4) |
 | Falcon 500 | TalonFX | 3 | Shooter flywheels |
 | Minion | TalonFXS | 2 | Shooter hood, Hopper conveyor |
 
-**Total Motors:** 20
+**Total Motors:** 17
 
 ---
 
