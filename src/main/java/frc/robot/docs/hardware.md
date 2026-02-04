@@ -25,7 +25,7 @@ A central location for motors, motor controllers, sensors, and CAN devices for q
 | Component | Motor | Controller | Qty | Notes |
 |-----------|-------|------------|-----|-------|
 | Rotator | Kraken X44 | TalonFX | 1 | Spins intake wheels |
-| Slide  | Kraken X44 | TalonFX | 2 | (A, B) Paired extension/retraction |
+| Slide  | Kraken X44 | TalonFX | 1 | Extension/retraction |
 
 ### Intake Sensors
 
@@ -157,14 +157,14 @@ This configuration is **not viable**, but is documented to justify the use of mu
 | 1–4 | Swerve Drive Motors (4× Kraken X60) |
 | 5–8 | Swerve Steer Motors (4× Kraken X60) |
 | 9 | Intake Rotator (Kraken X44) |
-| 10–11 | Intake Slide Motors (2× Kraken X44) |
-| 12 | Indexer (Kraken X60) |
-| 13 | Hopper Conveyor (Minion) |
-| 14–16 | Shooter Flywheels (3× Falcon 500) |
-| 17 | Shooter Hood (Minion) |
-| 18 | Climber (Kraken X60) |
+| 10 | Intake Slide Motor (Kraken X44) |
+| 11 | Indexer (Kraken X60) |
+| 12 | Hopper Conveyor (Minion) |
+| 13–15 | Shooter Flywheels (3× Falcon 500) |
+| 16 | Shooter Hood (Minion) |
+| 17 | Climber (Kraken X60) |
 
-**Motor Channels Used:** 18
+**Motor Channels Used:** 17
 
 ---
 
@@ -172,9 +172,9 @@ This configuration is **not viable**, but is documented to justify the use of mu
 
 | Channel | Load |
 |--------:|------|
-| 19 | RoboRIO |
-| 20 | Mini Power Module #1 |
-| 21 | Mini Power Module #2 |
+| 18 | RoboRIO |
+| 19 | Mini Power Module #1 |
+| 20 | Mini Power Module #2 |
 
 **Electronics Channels Used:** 3
 
@@ -184,9 +184,9 @@ This configuration is **not viable**, but is documented to justify the use of mu
 
 | Category | Channels |
 |--------|----------|
-| Motors | 18 |
+| Motors | 17 |
 | Electronics | 3 |
-| **Total Used** | **21** |
+| **Total Used** | **20** |
 | **Mini PDH Capacity** | **24** |
 | **Remaining** | **3** |
 
@@ -223,7 +223,7 @@ The following required loads **do not fit** on a single Mini PDH:
 
 ## Notes for Design & Controls
 
-- Intake uses 3 motors total (1 rotator + 2 paired slide motors)
+- Intake uses 2 motors total (1 rotator + 1 slide motor)
 - Shooter flywheels are leader–follower and mechanically belted
 - Hood uses external ThroughBore encoder for accurate position control 
 - Hopper conveyor uses Minion + TalonFXS
