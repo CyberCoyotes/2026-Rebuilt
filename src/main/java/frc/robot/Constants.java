@@ -47,9 +47,9 @@ public final class Constants {
     /** Indexer motor - Kraken X44 with TalonFX controller, feeds pieces to shooter */
     public static final int INDEXER_MOTOR_ID = 23;
 
-    /** Conveyor motor - Kraken X44 with TalonFX controller, moves pieces along hopper */
+    /** Conveyor motor - Minion with TalonFXS controller, moves pieces along hopper */
     public static final int CONVEYOR_MOTOR_ID = 24;
-
+    
     /** Time of Flight sensor - Detects fuel at indexer exit (optional) */
     public static final int INDEXER_TOF_ID = 42;
 
@@ -61,6 +61,22 @@ public final class Constants {
 
     /** Time of Flight sensor C - Detects "fullness" of hopper */
     public static final int HOPPER_TOP_C_TOF_ID = 45;
+
+    // ===== Jam Detection Thresholds =====
+    // Pattern: A motor is jammed when current is HIGH but velocity is LOW.
+    // This means the motor is trying to spin but something is blocking it.
+
+    /** Conveyor (hopper) motor jam current threshold in amps (TODO: Tune on robot) */
+    public static final double HOPPER_JAM_CURRENT_THRESHOLD = 20.0;
+
+    /** Conveyor (hopper) motor jam velocity threshold in RPS (TODO: Tune on robot) */
+    public static final double HOPPER_JAM_VELOCITY_THRESHOLD = 0.5;
+
+    /** Indexer motor jam current threshold in amps (TODO: Tune on robot) */
+    public static final double INDEXER_JAM_CURRENT_THRESHOLD = 20.0;
+
+    /** Indexer motor jam velocity threshold in RPS (TODO: Tune on robot) */
+    public static final double INDEXER_JAM_VELOCITY_THRESHOLD = 0.5;
   }
 
   // =========================================================
@@ -81,6 +97,9 @@ public final class Constants {
     /** Hood motor - Minion with TalonFXS controller, adjusts shot angle */
     public static final int HOOD_MOTOR_ID = 28;
 
+    /** WCP ThroughBore Encoder Powered by CANcoder for measuring hood position */ 
+    public static final int HOOD_POSE_ENCODER_ID = 46; 
+
     /** Counter wheel motor - Kraken X44 with TalonFX controller */
     public static final int COUNTER_WHEEL_MOTOR_ID = 29;
   }
@@ -92,7 +111,7 @@ public final class Constants {
     private Climber() {}
 
     /** Climber motor A - Kraken X60 with TalonFX controller */
-    public static final int CLIMB_A_MOTOR_ID = 30;
+    public static final int CLIMB_MOTOR_ID = 30;
 
     /** Climber motor B - Kraken X60 with TalonFX controller */
     public static final int CLIMB_B_MOTOR_ID = 31;
