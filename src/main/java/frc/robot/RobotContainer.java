@@ -21,6 +21,7 @@ import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
 
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
+import frc.robot.subsystems.climber.ClimberSubsystem;
 import frc.robot.subsystems.indexer.IndexerSubsystem;
 import frc.robot.subsystems.intake.IntakeSubsystem;
 import frc.robot.subsystems.indexer.IndexerIO;
@@ -60,18 +61,31 @@ public class RobotContainer {
     private final CommandXboxController joystick = new CommandXboxController(0);
 
     public final CommandSwerveDrivetrain drivetrain = TunerConstants.createDrivetrain();
-    private final ShooterSubsystem shooter;
     private final LedSubsystem ledSubsystem;
 
+    private final IntakeSubsystem intake;
+    private final ClimberSubsystem climber;
+    private final IndexerSubsystem indexer;
+    private final ShooterSubsystem shooter;
+    
     /* Path follower */
     private final AutoFactory autoFactory;
     private final AutoRoutines autoRoutines;
     private final AutoChooser autoChooser = new AutoChooser();
 
     public RobotContainer() {
-        ShooterIO shooterIO = RobotBase.isReal() ? new ShooterIOHardware() : new ShooterIOSim();
-        shooter = new ShooterSubsystem(shooterIO);
+        if(RobotBase.isReal()){
+            intake = new IntakeSubsystem(new IntakeIOHardware());
+            indexer = new IndexerSubsystem(new IndexerIOHardware());
+            shooter = new ShooterSubsystem(new ShooterIOHardware());
+        } else {
+            intake = new IntakeSubsystem(new IntakeIOSim());
+            indexer = new IndexerSubsystem(new IndexerIOSim());
+            shooter = new ShooterSubsystem(new ShooterIOHardware());
+        }
+
         ledSubsystem = new LedSubsystem(shooter);
+        climber = new ClimberSubsystem();
 
         autoFactory = drivetrain.createAutoFactory();
         autoRoutines = new AutoRoutines(autoFactory);

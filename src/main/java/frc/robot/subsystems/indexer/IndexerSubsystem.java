@@ -31,7 +31,7 @@ public class IndexerSubsystem extends SubsystemBase {
 
     // ===== IO Layer =====
     private final IndexerIO io;
-    private final IndexerIO.IndexerIOInputs inputs = new IndexerIO.IndexerIOInputs();
+    private final IndexerIOInputsAutoLogged inputs = new IndexerIOInputsAutoLogged();
 
     // ===== NetworkTables Publishers for Elastic Dashboard =====
     private final NetworkTable indexerTable;
