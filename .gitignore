@@ -188,3 +188,4 @@ compile_commands.json
 
 # ClaudeAI settings
 tmpclaude-*
+.claude/settings.local.json
