@@ -3,7 +3,9 @@ package frc.robot.subsystems.shooter;
 import org.littletonrobotics.junction.Logger;
 
 import edu.wpi.first.networktables.BooleanPublisher;
+import edu.wpi.first.networktables.BooleanSubscriber;
 import edu.wpi.first.networktables.DoublePublisher;
+import edu.wpi.first.networktables.DoubleSubscriber;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.networktables.StringPublisher;
@@ -59,10 +61,25 @@ public class ShooterSubsystem extends SubsystemBase {
     private final DoublePublisher flywheelErrorPublisher;
     private final DoublePublisher hoodErrorPublisher;
 
+    // ===== NetworkTables Tuning Subscribers (read from Elastic) =====
+    private final NetworkTable tuningTable;
+    private final DoubleSubscriber tuneRpmSubscriber;
+    private final DoubleSubscriber tuneAngleSubscriber;
+    private final BooleanSubscriber tuneEnableSubscriber;
+
+    // ===== Tuning Publishers (write defaults so widgets appear in Elastic) =====
+    private final DoublePublisher tuneRpmPublisher;
+    private final DoublePublisher tuneAnglePublisher;
+    private final BooleanPublisher tuneEnablePublisher;
+    private final BooleanPublisher tuneActivePublisher;
+
     // ===== State =====
     private ShooterState currentState = ShooterState.IDLE;
     private double targetFlywheelRPM = 0.0;
     private double targetHoodPose = MIN_HOOD_POSE;
+
+    /** When true, tuning values from Elastic override normal targets */
+    private boolean tuningActive = false;
 
     // ===== Constants =====
     /** Maximum flywheel velocity (RPM) */
@@ -126,6 +143,28 @@ public class ShooterSubsystem extends SubsystemBase {
         targetHoodPublisher = shooterTable.getDoubleTopic("TargetHoodAngle").publish();
         flywheelErrorPublisher = shooterTable.getDoubleTopic("FlywheelError").publish();
         hoodErrorPublisher = shooterTable.getDoubleTopic("HoodError").publish();
+
+        // Initialize tuning table — separate subtable keeps Elastic organized
+        // In Elastic, add Number Slider widgets bound to /Shooter/Tuning/RPM and /Shooter/Tuning/Angle
+        // and a Toggle Switch bound to /Shooter/Tuning/Enable
+        tuningTable = shooterTable.getSubTable("Tuning");
+
+        // Publishers write default values so Elastic widgets auto-populate on first connect
+        tuneRpmPublisher = tuningTable.getDoubleTopic("RPM").publish();
+        tuneAnglePublisher = tuningTable.getDoubleTopic("Angle").publish();
+        tuneEnablePublisher = tuningTable.getBooleanTopic("Enable").publish();
+        tuneActivePublisher = tuningTable.getBooleanTopic("Active").publish();
+
+        // Subscribers read values back when changed from the Elastic dashboard
+        tuneRpmSubscriber = tuningTable.getDoubleTopic("RPM").subscribe(CLOSE_SHOT_RPM);
+        tuneAngleSubscriber = tuningTable.getDoubleTopic("Angle").subscribe(CLOSE_SHOT_ANGLE);
+        tuneEnableSubscriber = tuningTable.getBooleanTopic("Enable").subscribe(false);
+
+        // Publish initial defaults so widgets appear in Elastic with sensible starting values
+        tuneRpmPublisher.set(CLOSE_SHOT_RPM);
+        tuneAnglePublisher.set(CLOSE_SHOT_ANGLE);
+        tuneEnablePublisher.set(false);
+        tuneActivePublisher.set(false);
     }
 
     @Override
@@ -133,6 +172,33 @@ public class ShooterSubsystem extends SubsystemBase {
         // Update inputs from hardware
         io.updateInputs(inputs);
         Logger.processInputs("Shooter", inputs);
+
+        // ===== Live Tuning from Elastic Dashboard =====
+        // When "Enable" toggle is switched on in Elastic, tuning values override normal targets.
+        // This lets students adjust RPM and angle from the dashboard without redeploying code.
+        boolean tuneEnabled = tuneEnableSubscriber.get();
+        if (tuneEnabled) {
+            double tuneRPM = tuneRpmSubscriber.get();
+            double tuneAngle = tuneAngleSubscriber.get();
+
+            // Apply tuning values — overrides preset/vision targets
+            setTargetVelocity(tuneRPM);
+            setTargetHoodPose(tuneAngle);
+
+            // Auto-transition to READY so the tuning values actually run the motors
+            if (currentState != ShooterState.READY) {
+                prepareToShoot();
+            }
+
+            tuningActive = true;
+        } else if (tuningActive) {
+            // Tuning was just disabled — return to idle for safety
+            setIdle();
+            tuningActive = false;
+        }
+
+        // Publish tuning active state back to Elastic (for status indicator)
+        tuneActivePublisher.set(tuningActive);
 
         // Update state machine
         updateStateMachine();
@@ -147,6 +213,7 @@ public class ShooterSubsystem extends SubsystemBase {
         Logger.recordOutput("Shooter/HoodAtPose", isHoodAtPose());
         Logger.recordOutput("Shooter/FlywheelError", getFlywheelError());
         Logger.recordOutput("Shooter/HoodError", getHoodError());
+        Logger.recordOutput("Shooter/TuningActive", tuningActive);
 
         // Publish to NetworkTables for Elastic dashboard
         statePublisher.set(currentState.toString());
