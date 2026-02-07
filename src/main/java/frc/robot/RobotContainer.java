@@ -12,6 +12,7 @@ import com.ctre.phoenix6.swerve.SwerveRequest;
 import choreo.auto.AutoChooser;
 import choreo.auto.AutoFactory;
 
+import frc.robot.AutoRoutines;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -88,9 +89,10 @@ public class RobotContainer {
         climber = new ClimberSubsystem();
 
         autoFactory = drivetrain.createAutoFactory();
-        autoRoutines = new AutoRoutines(autoFactory);
+        autoRoutines = new AutoRoutines(autoFactory, drivetrain/* , ClimberSubsystem climber,
+            IndexerSubsystem indexer, IntakeSubsystem intake, ShooterSubsystem shooter*/);
 
-        autoChooser.addRoutine("SimplePath", autoRoutines::simplePathAuto);
+        autoChooser.addRoutine("FourMeters", autoRoutines::FM);
         // AutoChooser automatically publishes to NetworkTables at "AutoChooser"
         // Elastic dashboard can read this directly without SmartDashboard
 
