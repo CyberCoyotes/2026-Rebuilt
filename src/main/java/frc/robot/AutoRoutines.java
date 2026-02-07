@@ -32,7 +32,7 @@ public class AutoRoutines {
     }
 
     public AutoRoutine FM() {
-                final AutoRoutine routine = m_factory.newRoutine("FourMeters");
+                 final AutoRoutine routine = m_factory.newRoutine("FourMeters");
                 final AutoTrajectory FM = routine.trajectory("FourMeters", 0);
                // final AutoTrajectory FM2 = routine.trajectory("FourMeters", 1);
 
@@ -40,6 +40,25 @@ public class AutoRoutines {
                         Commands.sequence(
                                 FM.resetOdometry(), // Always reset odometry first
                                 FM.cmd()//, // Follow the path
+                                //m_drivetrain.stop().withTimeout(DRIVE_WAIT),
+                               // FM2.cmd()
+
+                        ));
+                //.atTime("Score").onTrue(m_indexerCommands.autoScore()); //score
+
+                // Consider using m_commandGroups.autoIntakeCoral(m_indexerCommands, m_shooterCommands,/*m_wrist*/);
+                // .atTime("Load").onTrue(m_intakeCommands.intake());
+                return routine;
+        }
+         public AutoRoutine B() {
+                 final AutoRoutine routine = m_factory.newRoutine("Basic");
+                final AutoTrajectory B = routine.trajectory("Basic", 0);
+               // final AutoTrajectory B2 = routine.trajectory("Basic", 1);
+
+                routine.active().onTrue(
+                        Commands.sequence(
+                                B.resetOdometry(), // Always reset odometry first
+                                B.cmd()//, // Follow the path
                                 //m_drivetrain.stop().withTimeout(DRIVE_WAIT),
                                // FM2.cmd()
 
