@@ -111,7 +111,7 @@ Controls all robot mechanisms including shooter, intake, indexer, and climber.
                        [POV/D-Pad]
                      
               [X]           [Y]
-                  [   ]   
+                  [Xbox]   
               [A]           [B]
 ```
 
@@ -141,10 +141,10 @@ LT: Run Intake                                 RT: Spin Up Shooter
 
 (unused)                                       (unused)
 
-              POV Up: Eject from Shooter
-POV Left:                            POV Right:
-Retract Climber                      Extend Climber
-              POV Down: Eject from Indexer
+                    POV Up: Eject from Shooter
+        POV Left:                  POV Right:
+        Retract Climber            Extend Climber
+                  POV Down: Eject from Indexer
 
               X: Far Shot   Y: Close Shot
                       
@@ -161,7 +161,7 @@ Retract Climber                      Extend Climber
 1. **Right Trigger (hold)** → Spin up shooter wheels
 2. Wait for shooter to reach target speed (LED indicator or dashboard)
 3. **Y** or **X** → Set shooter angle (close or far)
-4. Wait for ready indicator
+4. Wait for angle adjustment complete (dashboard feedback)
 5. **Right Bumper (hold)** → Feed game piece through indexer
 6. **B** → Return shooter to idle when done
 
