@@ -68,6 +68,19 @@ public class ShooterCommands {
     }
 
     /**
+     * Creates a command to using preset close shot.
+     * Finishes when shooter is ready.
+     *
+     * @param shooter The shooter subsystem
+     * @return Command that configures for close shot
+     */
+    public static Command closeShotPreset(ShooterSubsystem shooter) {
+        return Commands.runOnce(shooter::closeShot, shooter)
+                .withName("CloseShotPreset");
+    }
+
+
+    /**
      * Creates a command to shoot using preset far shot.
      * Finishes when shooter is ready.
      *
@@ -80,6 +93,19 @@ public class ShooterCommands {
             Commands.waitUntil(shooter::isReady)
         ).withTimeout(3.0)
          .withName("FarShot");
+    }
+
+    
+    /**
+     * Creates a command to using preset far shot.
+     * Finishes when shooter is ready.
+     *
+     * @param shooter The shooter subsystem
+     * @return Command that configures for far shot
+     */
+    public static Command farShotPreset(ShooterSubsystem shooter) {
+        return Commands.runOnce(shooter::farShot, shooter)
+         .withName("FarShotPreset");
     }
 
     /**
