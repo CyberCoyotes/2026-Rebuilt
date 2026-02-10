@@ -252,10 +252,7 @@ Before each match or practice session:
 
 ## Configuration Location
 
-Controller bindings are configured in:
-```
-src/main/java/frc/robot/RobotContainer.java
-```
+Controller bindings are configured in `src/main/java/frc/robot/RobotContainer.java`.
 
 See `configureBindings()` method for implementation details.
 
