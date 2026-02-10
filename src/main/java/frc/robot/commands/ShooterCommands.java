@@ -3,6 +3,7 @@ package frc.robot.commands;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import frc.robot.subsystems.vision.VisionSubsystem;
+import frc.robot.subsystems.indexer.IndexerCommands;
 import frc.robot.subsystems.indexer.IndexerSubsystem;
 import frc.robot.subsystems.shooter.ShooterSubsystem;
 
@@ -137,22 +138,19 @@ public class ShooterCommands {
 
     /**
      * Creates a complete shoot sequence with indexer coordination.
-     * Spins up shooter, waits until ready, feeds game piece, then idles.
+     * Prepares shooter to target velocity/angle, waits until ready, feeds game piece, then idles.
      *
      * @param shooter The shooter subsystem
      * @param indexer The indexer subsystem
      * @param velocityRPM Target flywheel velocity
      * @param hoodAngleDegrees Target hood angle
      * @return Complete shooting sequence
-     *
-     * TODO: Uncomment when IndexerCommands is available
      */
-    /*
     public static Command shootSequence(ShooterSubsystem shooter, IndexerSubsystem indexer,
                                         double velocityRPM, double hoodAngleDegrees) {
         return Commands.sequence(
-            // Spin up shooter
-            spinUp(shooter, velocityRPM, hoodAngleDegrees),
+            // Prepare shooter and wait until at target
+            prepareToShoot(shooter, velocityRPM, hoodAngleDegrees),
 
             // Feed game piece
             IndexerCommands.feedTimed(indexer, 0.5),
@@ -161,7 +159,6 @@ public class ShooterCommands {
             Commands.runOnce(shooter::setIdle, shooter)
         ).withName("ShootSequence");
     }
-    */
 
     /**
      * Creates a vision-based shoot sequence with indexer coordination.
@@ -170,10 +167,7 @@ public class ShooterCommands {
      * @param vision The vision subsystem
      * @param indexer The indexer subsystem
      * @return Vision-based shooting sequence
-     *
-     * TODO: Uncomment when IndexerCommands is available
      */
-    /*
     public static Command visionShootSequence(ShooterSubsystem shooter, VisionSubsystem vision,
                                               IndexerSubsystem indexer) {
         return Commands.sequence(
@@ -190,7 +184,6 @@ public class ShooterCommands {
             Commands.runOnce(shooter::setIdle, shooter)
         ).withName("VisionShootSequence");
     }
-    */
 
     /**
      * Creates a command to return shooter to idle state.
