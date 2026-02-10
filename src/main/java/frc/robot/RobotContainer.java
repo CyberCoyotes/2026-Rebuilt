@@ -20,27 +20,24 @@ import edu.wpi.first.wpilibj2.command.button.RobotModeTriggers;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
 
 import frc.robot.generated.TunerConstants;
+import frc.robot.commands.ShooterCommands;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
 import frc.robot.subsystems.climber.ClimberSubsystem;
+import frc.robot.subsystems.indexer.IndexerCommands;
 import frc.robot.subsystems.indexer.IndexerSubsystem;
+import frc.robot.subsystems.intake.IntakeCommands;
 import frc.robot.subsystems.intake.IntakeSubsystem;
-import frc.robot.subsystems.indexer.IndexerIO;
 import frc.robot.subsystems.indexer.IndexerIOSim;
 import frc.robot.subsystems.indexer.IndexerIOHardware;
-import frc.robot.subsystems.intake.IntakeIO;
 import frc.robot.subsystems.intake.IntakeIOSim;
 import frc.robot.subsystems.intake.IntakeIOHardware;
-import frc.robot.subsystems.shooter.ShooterIO;
 import frc.robot.subsystems.shooter.ShooterIOSim;
 import frc.robot.subsystems.shooter.ShooterIOHardware;
 import frc.robot.subsystems.shooter.ShooterSubsystem;
 import frc.robot.subsystems.led.LedSubsystem;
-import frc.robot.subsystems.vision.VisionIO;
 import frc.robot.subsystems.vision.VisionIOLimelight;
 import frc.robot.subsystems.vision.VisionIOSim;
 import frc.robot.subsystems.vision.VisionSubsystem;
-
-@SuppressWarnings("unused") // Remove when we approach comp ready code
 
 public class RobotContainer {
     private double MaxSpeed = 1.0 * TunerConstants.kSpeedAt12Volts.in(MetersPerSecond); // kSpeedAt12Volts desired top speed
@@ -58,30 +55,40 @@ public class RobotContainer {
     private final Telemetry logger = new Telemetry(MaxSpeed);
     private final GameDataTelemetry gameDataTelemetry = new GameDataTelemetry();
 
-    private final CommandXboxController joystick = new CommandXboxController(0);
+    // ===== Controllers =====
+    // Port 0: Driver controller (drivetrain movement)
+    // Port 1: Operator controller (mechanisms - shooter, intake, indexer, climber)
+    private final CommandXboxController driver = new CommandXboxController(0);
+    private final CommandXboxController operator = new CommandXboxController(1);
 
+    // ===== Subsystems =====
     public final CommandSwerveDrivetrain drivetrain = TunerConstants.createDrivetrain();
-    private final LedSubsystem ledSubsystem;
-
     private final IntakeSubsystem intake;
-    private final ClimberSubsystem climber;
     private final IndexerSubsystem indexer;
     private final ShooterSubsystem shooter;
-    
+    private final VisionSubsystem vision;
+    private final LedSubsystem ledSubsystem;
+    private final ClimberSubsystem climber;
+
+    // ===== Intake Commands (instance-based, not static) =====
+    private final IntakeCommands intakeCommands = new IntakeCommands();
+
     /* Path follower */
     private final AutoFactory autoFactory;
     private final AutoRoutines autoRoutines;
     private final AutoChooser autoChooser = new AutoChooser();
 
     public RobotContainer() {
-        if(RobotBase.isReal()){
+        if (RobotBase.isReal()) {
             intake = new IntakeSubsystem(new IntakeIOHardware());
             indexer = new IndexerSubsystem(new IndexerIOHardware());
             shooter = new ShooterSubsystem(new ShooterIOHardware());
+            vision = new VisionSubsystem(new VisionIOLimelight(Constants.Vision.LIMELIGHT3_NAME));
         } else {
             intake = new IntakeSubsystem(new IntakeIOSim());
             indexer = new IndexerSubsystem(new IndexerIOSim());
-            shooter = new ShooterSubsystem(new ShooterIOHardware());
+            shooter = new ShooterSubsystem(new ShooterIOSim());
+            vision = new VisionSubsystem(new VisionIOSim());
         }
 
         ledSubsystem = new LedSubsystem(shooter);
@@ -98,14 +105,16 @@ public class RobotContainer {
     }
 
     private void configureBindings() {
-        // Note that X is defined as forward according to WPILib convention,
-        // and Y is defined as to the left according to WPILib convention.
+        // =====================================================================
+        // DRIVER CONTROLLER (Port 0) - Drivetrain
+        // =====================================================================
+
+        // Default: Field-centric drive with left stick (translate) and right stick (rotate)
         drivetrain.setDefaultCommand(
-            // Drivetrain will execute this command periodically
             drivetrain.applyRequest(() ->
-                drive.withVelocityX(-joystick.getLeftY() * MaxSpeed) // Drive forward with negative Y (forward)
-                    .withVelocityY(-joystick.getLeftX() * MaxSpeed) // Drive left with negative X (left)
-                    .withRotationalRate(-joystick.getRightX() * MaxAngularRate) // Drive counterclockwise with negative X (left)
+                drive.withVelocityX(-driver.getLeftY() * MaxSpeed) // Drive forward with negative Y (forward)
+                    .withVelocityY(-driver.getLeftX() * MaxSpeed) // Drive left with negative X (left)
+                    .withRotationalRate(-driver.getRightX() * MaxAngularRate) // Drive counterclockwise with negative X (left)
             )
         );
 
@@ -116,29 +125,83 @@ public class RobotContainer {
             drivetrain.applyRequest(() -> idle).ignoringDisable(true)
         );
 
-        joystick.a().whileTrue(drivetrain.applyRequest(() -> brake));
-        joystick.b().whileTrue(drivetrain.applyRequest(() ->
-            point.withModuleDirection(new Rotation2d(-joystick.getLeftY(), -joystick.getLeftX()))
+        // A: Brake (lock wheels in X pattern)
+        driver.a().whileTrue(drivetrain.applyRequest(() -> brake));
+
+        // B: Point wheels at joystick direction (for testing)
+        driver.b().whileTrue(drivetrain.applyRequest(() ->
+            point.withModuleDirection(new Rotation2d(-driver.getLeftY(), -driver.getLeftX()))
         ));
 
-        joystick.povUp().whileTrue(drivetrain.applyRequest(() ->
+        // POV Up/Down: Slow manual drive (for alignment/testing)
+        driver.povUp().whileTrue(drivetrain.applyRequest(() ->
             forwardStraight.withVelocityX(0.5).withVelocityY(0))
         );
-        joystick.povDown().whileTrue(drivetrain.applyRequest(() ->
+        driver.povDown().whileTrue(drivetrain.applyRequest(() ->
             forwardStraight.withVelocityX(-0.5).withVelocityY(0))
         );
 
-        // Run SysId routines when holding back/start and X/Y.
-        // Note that each routine should be run exactly once in a single log.
-        joystick.back().and(joystick.y()).whileTrue(drivetrain.sysIdDynamic(Direction.kForward));
-        joystick.back().and(joystick.x()).whileTrue(drivetrain.sysIdDynamic(Direction.kReverse));
-        joystick.start().and(joystick.y()).whileTrue(drivetrain.sysIdQuasistatic(Direction.kForward));
-        joystick.start().and(joystick.x()).whileTrue(drivetrain.sysIdQuasistatic(Direction.kReverse));
+        // Left Bumper: Reset field-centric heading
+        driver.leftBumper().onTrue(drivetrain.runOnce(drivetrain::seedFieldCentric));
 
-        // Reset the field-centric heading on left bumper press.
-        joystick.leftBumper().onTrue(drivetrain.runOnce(drivetrain::seedFieldCentric));
+        // SysId routines (Back/Start + X/Y)
+        driver.back().and(driver.y()).whileTrue(drivetrain.sysIdDynamic(Direction.kForward));
+        driver.back().and(driver.x()).whileTrue(drivetrain.sysIdDynamic(Direction.kReverse));
+        driver.start().and(driver.y()).whileTrue(drivetrain.sysIdQuasistatic(Direction.kForward));
+        driver.start().and(driver.x()).whileTrue(drivetrain.sysIdQuasistatic(Direction.kReverse));
 
         drivetrain.registerTelemetry(logger::telemeterize);
+
+        // =====================================================================
+        // OPERATOR CONTROLLER (Port 1) - Mechanisms
+        // =====================================================================
+
+        // ----- Shooter -----
+        // Right Trigger: Spin up shooter (pre-rev while held)
+        operator.rightTrigger(0.5).whileTrue(ShooterCommands.spinUp(shooter));
+
+        // Y: Close shot (prepare and wait for ready)
+        operator.y().onTrue(ShooterCommands.closeShot(shooter));
+
+        // X: Far shot (prepare and wait for ready)
+        operator.x().onTrue(ShooterCommands.farShot(shooter));
+
+        // B: Shooter idle (stop all)
+        operator.b().onTrue(ShooterCommands.idle(shooter));
+
+        // POV Up: Eject from shooter (clear jams, 1 second reverse)
+        operator.povUp().onTrue(ShooterCommands.eject(shooter, 1.0));
+
+        // ----- Indexer -----
+        // Right Bumper: Feed game piece to shooter (while held)
+        operator.rightBumper().whileTrue(IndexerCommands.feed(indexer));
+
+        // POV Down: Eject from indexer (clear jams, 1 second reverse)
+        operator.povDown().onTrue(IndexerCommands.eject(indexer, 1.0));
+
+        // ----- Intake -----
+        // Left Trigger: Run intake (while held)
+        operator.leftTrigger(0.5).whileTrue(intakeCommands.enterIntakeMode(intake));
+
+        // Left Bumper: Stop intake jam (quick reverse)
+        operator.leftBumper().onTrue(intakeCommands.stopJam(intake));
+
+        // ----- Full Sequences -----
+        // A: Full shoot sequence - close shot with indexer feed, then idle
+        operator.a().onTrue(
+            ShooterCommands.shootSequence(shooter, indexer,
+                ShooterSubsystem.CLOSE_SHOT_RPM, ShooterSubsystem.CLOSE_SHOT_ANGLE)
+        );
+
+        // ----- Climber (POV Left/Right) -----
+        // POV Right: Extend climber arm (while held)
+        operator.povRight().whileTrue(climber.extendArm());
+
+        // POV Left: Retract climber arm (while held)
+        operator.povLeft().whileTrue(climber.retractArm());
+
+        // Start: Stop climber
+        operator.start().onTrue(climber.stopClimber());
     }
 
     public Command getAutonomousCommand() {

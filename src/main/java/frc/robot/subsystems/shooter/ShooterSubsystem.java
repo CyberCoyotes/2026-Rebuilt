@@ -91,10 +91,10 @@ public class ShooterSubsystem extends SubsystemBase {
     private static final double MAX_HOOD_POSE = 60.0;  // TODO: Measure actual range
 
     /** Flywheel velocity tolerance (percentage of target, 0.0-1.0) */
-    private static final double FLYWHEEL_TOLERANCE_PERCENT = 0.05;  // 5% tolerance, TODO: Tune
+    private static final double FLYWHEEL_TOLERANCE_PERCENT = 0.03;  // 3% tolerance — tight enough for accuracy, forgiving enough for real motors
 
     /** Hood pose tolerance (degrees) */
-    private static final double HOOD_POSE_TOLERANCE = 1.0;  // TODO: Tune
+    private static final double HOOD_POSE_TOLERANCE = 0.5;  // 0.5 degree tolerance — critical for shot consistency
 
     // ===== State-Specific Constants =====
     /** SPINUP: Pre-rev flywheel velocity (20% of max) */
