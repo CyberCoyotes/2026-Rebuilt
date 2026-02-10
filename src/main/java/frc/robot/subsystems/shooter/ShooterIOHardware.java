@@ -1,12 +1,16 @@
 package frc.robot.subsystems.shooter;
 
 import com.ctre.phoenix6.BaseStatusSignal;
+import com.ctre.phoenix6.StatusCode;
 import com.ctre.phoenix6.StatusSignal;
+import com.ctre.phoenix6.configs.CANcoderConfiguration;
 import com.ctre.phoenix6.controls.VelocityVoltage;
 import com.ctre.phoenix6.controls.PositionVoltage;
 import com.ctre.phoenix6.controls.Follower;
+import com.ctre.phoenix6.hardware.CANcoder;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.MotorAlignmentValue;
+import com.ctre.phoenix6.signals.SensorDirectionValue;
 
 import frc.robot.Constants;
 import frc.robot.util.TalonFXConfigs;
@@ -32,6 +36,7 @@ public class ShooterIOHardware implements ShooterIO {
     private final TalonFX flywheelMotorC;
     private final TalonFX hoodMotor;
     private final TalonFX counterWheelMotor;
+    private final CANcoder hoodEncoder; // WCP ThroughBore Encoder via CANcoder
 
     // ===== Control Requests =====
     // FOC (Field Oriented Control) for flywheels - smoother, more efficient
@@ -68,6 +73,9 @@ public class ShooterIOHardware implements ShooterIO {
     private final StatusSignal<?> counterWheelVoltage;
     private final StatusSignal<?> counterWheelCurrent;
 
+    // WCP ThroughBore Encoder (CANcoder)
+    private final StatusSignal<?> hoodEncoderAbsPosition;
+
     // ===== Conversion Constants =====
     /** Gear ratio from motor to flywheel (motor rotations per flywheel rotation) */
     private static final double FLYWHEEL_GEAR_RATIO = 1.5;  // TODO: Measure actual ratio
@@ -87,7 +95,15 @@ public class ShooterIOHardware implements ShooterIO {
         flywheelMotorC = new TalonFX(Constants.Shooter.FLYWHEEL_C_MOTOR_ID); // TODO add new CANbus arg 
         hoodMotor = new TalonFX(Constants.Shooter.HOOD_MOTOR_ID);
         counterWheelMotor = new TalonFX(Constants.Shooter.COUNTER_WHEEL_MOTOR_ID);
+        hoodEncoder = new CANcoder(Constants.Shooter.HOOD_POSE_ENCODER_ID);
         // https://v6.docs.ctr-electronics.com/en/stable/docs/yearly-changes/yearly-changelog.html#talon-fx-improvements
+
+        // Configure WCP ThroughBore encoder (CANcoder)
+        var encoderConfig = new CANcoderConfiguration();
+        encoderConfig.MagnetSensor.AbsoluteSensorDiscontinuityPoint = 1.0; // Unsigned [0, 1) range
+        encoderConfig.MagnetSensor.SensorDirection = SensorDirectionValue.CounterClockwise_Positive; // TODO: Verify direction on robot
+        encoderConfig.MagnetSensor.MagnetOffset = 0.0; // TODO: Measure offset when hood is at home position
+        hoodEncoder.getConfigurator().apply(encoderConfig);
 
         // Apply configurations from centralized config class
         flywheelMotorA.getConfigurator().apply(TalonFXConfigs.shooterFlywheelConfig());
@@ -132,6 +148,9 @@ public class ShooterIOHardware implements ShooterIO {
         counterWheelVoltage = counterWheelMotor.getMotorVoltage();
         counterWheelCurrent = counterWheelMotor.getSupplyCurrent();
 
+        // WCP ThroughBore Encoder (CANcoder)
+        hoodEncoderAbsPosition = hoodEncoder.getAbsolutePosition();
+
         // Configure update frequencies for better performance
         // Critical signals: 100Hz, Less critical: 50Hz, Temperature: 4Hz
         BaseStatusSignal.setUpdateFrequencyForAll(
@@ -140,7 +159,8 @@ public class ShooterIOHardware implements ShooterIO {
             flywheelBVelocity, flywheelBVoltage,
             flywheelCVelocity, flywheelCVoltage,
             hoodPosition, hoodVoltage,
-            counterWheelVelocity, counterWheelVoltage
+            counterWheelVelocity, counterWheelVoltage,
+            hoodEncoderAbsPosition
         );
 
         BaseStatusSignal.setUpdateFrequencyForAll(
@@ -160,6 +180,7 @@ public class ShooterIOHardware implements ShooterIO {
         flywheelMotorC.optimizeBusUtilization();
         hoodMotor.optimizeBusUtilization();
         counterWheelMotor.optimizeBusUtilization();
+        hoodEncoder.optimizeBusUtilization();
 
         // Zero hood encoder at startup (assumes hood is at home position)
         hoodMotor.setPosition(0.0);
@@ -178,7 +199,9 @@ public class ShooterIOHardware implements ShooterIO {
             // Hood
             hoodPosition, hoodVoltage, hoodCurrent,
             // Counter-wheel
-            counterWheelVelocity, counterWheelVoltage, counterWheelCurrent
+            counterWheelVelocity, counterWheelVoltage, counterWheelCurrent,
+            // WCP ThroughBore Encoder
+            hoodEncoderAbsPosition
         );
 
         // Convert motor velocities to flywheel RPM
@@ -213,6 +236,12 @@ public class ShooterIOHardware implements ShooterIO {
         inputs.counterWheelVelocityRPM = rpsToRPM(counterWheelVelocity.getValueAsDouble());
         inputs.counterWheelAppliedVolts = counterWheelVoltage.getValueAsDouble();
         inputs.counterWheelCurrentAmps = counterWheelCurrent.getValueAsDouble();
+
+        // WCP ThroughBore Encoder data (secondary feedback)
+        inputs.hoodThroughBorePositionRotations = hoodEncoderAbsPosition.getValueAsDouble();
+        inputs.hoodThroughBorePositionDegrees = inputs.hoodThroughBorePositionRotations * 360.0;
+        inputs.hoodThroughBoreConnected =
+            hoodEncoderAbsPosition.getStatus() == StatusCode.OK;
     }
 
     @Override

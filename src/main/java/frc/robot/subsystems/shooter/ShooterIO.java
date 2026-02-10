@@ -52,7 +52,7 @@ public interface ShooterIO {
         public double flywheelCVelocityRPM = 0.0;
 
         // ===== Hood Data =====
-        /** Hood angle in degrees (0 = home position) */
+        /** Hood angle in degrees from motor encoder (0 = home position) */
         public double hoodAngleDegrees = 0.0;
 
         /** Hood applied voltage */
@@ -60,6 +60,16 @@ public interface ShooterIO {
 
         /** Hood supply current in amps */
         public double hoodCurrentAmps = 0.0;
+
+        // ===== WCP ThroughBore Encoder (secondary feedback via CANcoder) =====
+        /** Hood absolute position from ThroughBore encoder in rotations (0.0 to 1.0) */
+        public double hoodThroughBorePositionRotations = 0.0;
+
+        /** Hood absolute position from ThroughBore encoder in degrees */
+        public double hoodThroughBorePositionDegrees = 0.0;
+
+        /** Whether the ThroughBore encoder (CANcoder) is connected */
+        public boolean hoodThroughBoreConnected = false;
 
         // ===== Counter-Wheel Data (optional) =====
         /** Counter-wheel velocity in RPM */

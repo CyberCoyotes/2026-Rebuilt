@@ -214,6 +214,11 @@ public class ShooterSubsystem extends SubsystemBase {
         Logger.recordOutput("Shooter/HoodError", getHoodError());
         Logger.recordOutput("Shooter/TuningActive", tuningActive);
 
+        // WCP ThroughBore Encoder (secondary feedback)
+        Logger.recordOutput("Shooter/ThroughBore/PositionRotations", inputs.hoodThroughBorePositionRotations);
+        Logger.recordOutput("Shooter/ThroughBore/PositionDegrees", inputs.hoodThroughBorePositionDegrees);
+        Logger.recordOutput("Shooter/ThroughBore/Connected", inputs.hoodThroughBoreConnected);
+
         // Publish to NetworkTables for Elastic dashboard
         statePublisher.set(currentState.toString());
         readyPublisher.set(isReady());
