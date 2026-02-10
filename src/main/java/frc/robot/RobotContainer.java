@@ -124,12 +124,12 @@ public class RobotContainer {
         RobotModeTriggers.disabled().whileTrue(
             drivetrain.applyRequest(() -> idle).ignoringDisable(true)
         );
-
+            // Dont think need
         // A: Brake (lock wheels in X pattern)
-        driver.a().whileTrue(drivetrain.applyRequest(() -> brake));
+       // driver.a().whileTrue(drivetrain.applyRequest(() -> brake));
 
         // B: Point wheels at joystick direction (for testing)
-        driver.b().whileTrue(drivetrain.applyRequest(() ->
+       /*  driver.b().whileTrue(drivetrain.applyRequest(() ->
             point.withModuleDirection(new Rotation2d(-driver.getLeftY(), -driver.getLeftX()))
         ));
 
@@ -139,69 +139,64 @@ public class RobotContainer {
         );
         driver.povDown().whileTrue(drivetrain.applyRequest(() ->
             forwardStraight.withVelocityX(-0.5).withVelocityY(0))
-        );
+        );*/
+        // start: Reset field-centric heading
+        driver.start().onTrue(drivetrain.runOnce(drivetrain::seedFieldCentric));
 
-        // Left Bumper: Reset field-centric heading
-        driver.leftBumper().onTrue(drivetrain.runOnce(drivetrain::seedFieldCentric));
-
-        // SysId routines (Back/Start + X/Y)
-        driver.back().and(driver.y()).whileTrue(drivetrain.sysIdDynamic(Direction.kForward));
-        driver.back().and(driver.x()).whileTrue(drivetrain.sysIdDynamic(Direction.kReverse));
-        driver.start().and(driver.y()).whileTrue(drivetrain.sysIdQuasistatic(Direction.kForward));
-        driver.start().and(driver.x()).whileTrue(drivetrain.sysIdQuasistatic(Direction.kReverse));
-
+        
         drivetrain.registerTelemetry(logger::telemeterize);
 
         // =====================================================================
-        // OPERATOR CONTROLLER (Port 1) - Mechanisms
+        // DRIVER CONTROLLER (Port 0) - Mechanisms
         // =====================================================================
 
         // ----- Shooter -----
-        // Right Trigger: Spin up shooter (pre-rev while held)
-        operator.rightTrigger(0.5).whileTrue(ShooterCommands.spinUp(shooter));
-
-        // Y: Close shot (prepare and wait for ready)
-        operator.y().onTrue(ShooterCommands.closeShot(shooter));
-
-        // X: Far shot (prepare and wait for ready)
-        operator.x().onTrue(ShooterCommands.farShot(shooter));
-
-        // B: Shooter idle (stop all)
-        operator.b().onTrue(ShooterCommands.idle(shooter));
-
-        // POV Up: Eject from shooter (clear jams, 1 second reverse)
-        operator.povUp().onTrue(ShooterCommands.eject(shooter, 1.0));
-
-        // ----- Indexer -----
-        // Right Bumper: Feed game piece to shooter (while held)
-        operator.rightBumper().whileTrue(IndexerCommands.feed(indexer));
-
-        // POV Down: Eject from indexer (clear jams, 1 second reverse)
-        operator.povDown().onTrue(IndexerCommands.eject(indexer, 1.0));
-
-        // ----- Intake -----
-        // Left Trigger: Run intake (while held)
-        operator.leftTrigger(0.5).whileTrue(intakeCommands.enterIntakeMode(intake));
-
-        // Left Bumper: Stop intake jam (quick reverse)
-        operator.leftBumper().onTrue(intakeCommands.stopJam(intake));
-
-        // ----- Full Sequences -----
+       // ----- Full Sequences -----
+       //FIXME
         // A: Full shoot sequence - close shot with indexer feed, then idle
-        operator.a().onTrue(
+        driver.rightTrigger(0.5).whileTrue(
             ShooterCommands.shootSequence(shooter, indexer,
                 ShooterSubsystem.CLOSE_SHOT_RPM, ShooterSubsystem.CLOSE_SHOT_ANGLE)
         );
+        // Y: Close shot (prepare and wait for ready)
+        driver.a().onTrue(ShooterCommands.closeShot(shooter));
 
-        // ----- Climber (POV Left/Right) -----
+        // X: Far shot (prepare and wait for ready)
+        driver.x().onTrue(ShooterCommands.farShot(shooter));
+
+        // B: Pass shot (prepare and wait for ready)
+        driver.b().onTrue(ShooterCommands.pass(shooter));
+
+        // POV Up: Eject from shooter (clear jams, 1 second reverse)
+        driver.povUp().onTrue(ShooterCommands.eject(shooter, 1.0));
+
+        // ----- Indexer -----
+        // Right Bumper: Feed game piece to shooter (while held)
+        //driver.rightBumper().whileTrue(IndexerCommands.feed(indexer));
+
+        // POV Down: Eject from indexer (clear jams, 1 second reverse)
+       // driver.povDown().onTrue(IndexerCommands.eject(indexer, 1.0));
+
+        // ----- Intake -----
+        // Left Trigger: Run intake (while held)
+        driver.leftTrigger(0.5).whileTrue(intakeCommands.enterIntakeMode(intake));
+
+        // Left Bumper: Stop intake jam (quick reverse)
+        driver.leftBumper().onTrue(intakeCommands.stopJam(intake));
+
+        // ----- Climber (POV) -----
+        // POV Up: Extend climber arm (preset})
+        //  driver.povUp().onTrue(climber.extendArm());
+        // POV Down: Retract climber arm (Preset)
+        // driver.povDown().onTrue(climber.retractArm());
+        
         // POV Right: Extend climber arm (while held)
-        operator.povRight().whileTrue(climber.extendArm());
-
+        driver.povRight().whileTrue(climber.extendArm());
         // POV Left: Retract climber arm (while held)
-        operator.povLeft().whileTrue(climber.retractArm());
+        driver.povLeft().whileTrue(climber.retractArm());
 
         // Start: Stop climber
-        operator.start().onTrue(climber.stopClimber());
+       // operator.start().onTrue(climber.stopClimber());
     }
 
     public Command getAutonomousCommand() {
