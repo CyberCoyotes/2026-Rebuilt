@@ -122,6 +122,9 @@ public class ShooterSubsystem extends SubsystemBase {
     public static final double FAR_SHOT_RPM = 5000.0;  // TODO: Tune
     public static final double FAR_SHOT_ANGLE = 45.0;  // TODO: Tune
 
+    /** Default tuning increment for flywheel speed adjustments during testing. */
+    public static final double FLYWHEEL_TEST_INCREMENT_RPM = 100.0;
+
     /**
      * Creates a new ShooterSubsystem.
      *
@@ -394,6 +397,30 @@ public class ShooterSubsystem extends SubsystemBase {
         if (currentState == ShooterState.READY) {
             io.setFlywheelVelocity(targetFlywheelRPM);
         }
+    }
+
+    /**
+     * Adjusts target flywheel velocity by a delta (positive increases, negative decreases).
+     * Useful for operator fine-tuning during testing.
+     *
+     * @param deltaRPM Amount to add to current target RPM
+     */
+    public void adjustTargetVelocity(double deltaRPM) {
+        setTargetVelocity(targetFlywheelRPM + deltaRPM);
+    }
+
+    /**
+     * Increases target flywheel velocity by the default testing increment.
+     */
+    public void increaseTargetVelocity() {
+        adjustTargetVelocity(FLYWHEEL_TEST_INCREMENT_RPM);
+    }
+
+    /**
+     * Decreases target flywheel velocity by the default testing increment.
+     */
+    public void decreaseTargetVelocity() {
+        adjustTargetVelocity(-FLYWHEEL_TEST_INCREMENT_RPM);
     }
 
     /**

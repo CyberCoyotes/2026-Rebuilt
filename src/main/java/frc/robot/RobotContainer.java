@@ -184,6 +184,11 @@ public class RobotContainer {
         // Left Bumper: Stop intake jam (quick reverse)
         driver.leftBumper().onTrue(intakeCommands.stopJam(intake));
 
+        // ----- Shooter fine-tune (Operator POV) -----
+        // TODO: Uncomment when hardware testing is scheduled.
+        // operator.povUp().onTrue(ShooterCommands.increaseTargetVelocity(shooter, ShooterSubsystem.FLYWHEEL_TEST_INCREMENT_RPM));
+        // operator.povDown().onTrue(ShooterCommands.decreaseTargetVelocity(shooter, ShooterSubsystem.FLYWHEEL_TEST_INCREMENT_RPM));
+
         // ----- Climber (POV) -----
         // POV Up: Extend climber arm (preset})
         //  driver.povUp().onTrue(climber.extendArm());
