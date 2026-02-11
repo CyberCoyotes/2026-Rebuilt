@@ -197,6 +197,16 @@ public class RobotContainer {
 
         // Start: Stop climber
        // operator.start().onTrue(climber.stopClimber());
+
+        // =====================================================================
+        // OPERATOR CONTROLLER (Port 1) - Hood Adjustment for Testing
+        // =====================================================================
+
+        // TODO: Uncomment for hood angle testing on the actual robot
+        // POV Left: Decrease hood position by increment (5 degrees)
+        // operator.povLeft().onTrue(ShooterCommands.decreaseHoodPosition(shooter));
+        // POV Right: Increase hood position by increment (5 degrees)
+        // operator.povRight().onTrue(ShooterCommands.increaseHoodPosition(shooter));
     }
 
     public Command getAutonomousCommand() {

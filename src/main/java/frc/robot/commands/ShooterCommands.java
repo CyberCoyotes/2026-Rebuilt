@@ -212,6 +212,32 @@ public class ShooterCommands {
     }
 
     /**
+     * Creates a command to increase hood position by HOOD_ADJUST_INCREMENT degrees.
+     * Used for manual testing of hood angles.
+     *
+     * @param shooter The shooter subsystem
+     * @return Command that increases hood position
+     */
+    public static Command increaseHoodPosition(ShooterSubsystem shooter) {
+        return Commands.runOnce(
+            () -> shooter.adjustHoodPose(ShooterSubsystem.HOOD_ADJUST_INCREMENT), shooter)
+            .withName("IncreaseHood");
+    }
+
+    /**
+     * Creates a command to decrease hood position by HOOD_ADJUST_INCREMENT degrees.
+     * Used for manual testing of hood angles.
+     *
+     * @param shooter The shooter subsystem
+     * @return Command that decreases hood position
+     */
+    public static Command decreaseHoodPosition(ShooterSubsystem shooter) {
+        return Commands.runOnce(
+            () -> shooter.adjustHoodPose(-ShooterSubsystem.HOOD_ADJUST_INCREMENT), shooter)
+            .withName("DecreaseHood");
+    }
+
+    /**
      * Creates a command to return shooter to idle state.
      * Stops motors and returns hood to home position.
      *

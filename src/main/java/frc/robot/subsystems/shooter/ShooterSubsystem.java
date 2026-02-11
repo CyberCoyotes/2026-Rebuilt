@@ -122,6 +122,9 @@ public class ShooterSubsystem extends SubsystemBase {
     public static final double FAR_SHOT_RPM = 5000.0;  // TODO: Tune
     public static final double FAR_SHOT_ANGLE = 45.0;  // TODO: Tune
 
+    /** Hood adjustment increment (degrees) for manual testing */
+    public static final double HOOD_ADJUST_INCREMENT = 5.0;
+
     /**
      * Creates a new ShooterSubsystem.
      *
@@ -410,6 +413,17 @@ public class ShooterSubsystem extends SubsystemBase {
         if (currentState == ShooterState.READY) {
             io.setHoodPose(targetHoodPose);
         }
+    }
+
+    /**
+     * Adjusts the target hood pose by the given delta (positive = increase, negative = decrease).
+     * Clamps result to [MIN_HOOD_POSE, MAX_HOOD_POSE].
+     * If in READY state, the new pose is applied immediately.
+     *
+     * @param deltaDegrees Amount to adjust hood pose in degrees
+     */
+    public void adjustHoodPose(double deltaDegrees) {
+        setTargetHoodPose(targetHoodPose + deltaDegrees);
     }
 
     /**
