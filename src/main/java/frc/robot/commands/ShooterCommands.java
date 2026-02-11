@@ -212,27 +212,27 @@ public class ShooterCommands {
     }
 
     /**
-     * Creates a command to increment flywheel velocity by FLYWHEEL_ADJUSTMENT_RPM.
-     * Used for testing — allows incremental speed increases via operator controls.
+     * Creates a command to increase target flywheel RPM by the provided increment.
      *
      * @param shooter The shooter subsystem
-     * @return Command that increases flywheel velocity by one increment
+     * @param incrementRPM RPM delta to apply (positive increases)
+     * @return Command that adjusts target flywheel velocity
      */
-    public static Command incrementFlywheel(ShooterSubsystem shooter) {
-        return Commands.runOnce(shooter::incrementFlywheelVelocity, shooter)
-            .withName("IncrementFlywheel");
+    public static Command increaseTargetVelocity(ShooterSubsystem shooter, double incrementRPM) {
+        return Commands.runOnce(() -> shooter.adjustTargetVelocity(Math.abs(incrementRPM)), shooter)
+            .withName("IncreaseShooterTargetVelocity");
     }
 
     /**
-     * Creates a command to decrement flywheel velocity by FLYWHEEL_ADJUSTMENT_RPM.
-     * Used for testing — allows incremental speed decreases via operator controls.
+     * Creates a command to decrease target flywheel RPM by the provided increment.
      *
      * @param shooter The shooter subsystem
-     * @return Command that decreases flywheel velocity by one increment
+     * @param decrementRPM RPM delta to apply (positive value expected)
+     * @return Command that adjusts target flywheel velocity
      */
-    public static Command decrementFlywheel(ShooterSubsystem shooter) {
-        return Commands.runOnce(shooter::decrementFlywheelVelocity, shooter)
-            .withName("DecrementFlywheel");
+    public static Command decreaseTargetVelocity(ShooterSubsystem shooter, double decrementRPM) {
+        return Commands.runOnce(() -> shooter.adjustTargetVelocity(-Math.abs(decrementRPM)), shooter)
+            .withName("DecreaseShooterTargetVelocity");
     }
 
     /**

@@ -122,8 +122,8 @@ public class ShooterSubsystem extends SubsystemBase {
     public static final double FAR_SHOT_RPM = 5000.0;  // TODO: Tune
     public static final double FAR_SHOT_ANGLE = 45.0;  // TODO: Tune
 
-    /** Flywheel velocity adjustment increment (RPM) for testing */
-    public static final double FLYWHEEL_ADJUSTMENT_RPM = 100.0;
+    /** Default flywheel velocity testing increment (RPM) */
+    public static final double FLYWHEEL_TEST_INCREMENT_RPM = 100.0;
 
     /**
      * Creates a new ShooterSubsystem.
@@ -448,27 +448,31 @@ public class ShooterSubsystem extends SubsystemBase {
     // ===== Flywheel Velocity Adjustment (for testing) =====
 
     /**
-     * Increments the flywheel target velocity by FLYWHEEL_ADJUSTMENT_RPM.
+     * Adjusts target flywheel velocity by a delta (positive increases, negative decreases).
      * Transitions to READY state so the motors run at the new velocity.
-     * Clamped to MAX_VELOCITY_RPM via setTargetVelocity().
+     * Clamped to [0, MAX_VELOCITY_RPM] via setTargetVelocity().
+     *
+     * @param deltaRPM Amount to add to current target RPM
      */
-    public void incrementFlywheelVelocity() {
-        setTargetVelocity(targetFlywheelRPM + FLYWHEEL_ADJUSTMENT_RPM);
+    public void adjustTargetVelocity(double deltaRPM) {
+        setTargetVelocity(targetFlywheelRPM + deltaRPM);
         if (currentState != ShooterState.READY) {
             prepareToShoot();
         }
     }
 
     /**
-     * Decrements the flywheel target velocity by FLYWHEEL_ADJUSTMENT_RPM.
-     * Transitions to READY state so the motors run at the new velocity.
-     * Clamped to 0 RPM via setTargetVelocity().
+     * Increases target flywheel velocity by the default testing increment.
      */
-    public void decrementFlywheelVelocity() {
-        setTargetVelocity(targetFlywheelRPM - FLYWHEEL_ADJUSTMENT_RPM);
-        if (currentState != ShooterState.READY) {
-            prepareToShoot();
-        }
+    public void increaseTargetVelocity() {
+        adjustTargetVelocity(FLYWHEEL_TEST_INCREMENT_RPM);
+    }
+
+    /**
+     * Decreases target flywheel velocity by the default testing increment.
+     */
+    public void decreaseTargetVelocity() {
+        adjustTargetVelocity(-FLYWHEEL_TEST_INCREMENT_RPM);
     }
 
     // ===== Vision Integration =====
