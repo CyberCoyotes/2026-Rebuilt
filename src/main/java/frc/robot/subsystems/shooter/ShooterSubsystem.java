@@ -122,6 +122,9 @@ public class ShooterSubsystem extends SubsystemBase {
     public static final double FAR_SHOT_RPM = 5000.0;  // TODO: Tune
     public static final double FAR_SHOT_ANGLE = 45.0;  // TODO: Tune
 
+    /** Flywheel velocity adjustment increment (RPM) for testing */
+    public static final double FLYWHEEL_ADJUSTMENT_RPM = 100.0;
+
     /**
      * Creates a new ShooterSubsystem.
      *
@@ -440,6 +443,32 @@ public class ShooterSubsystem extends SubsystemBase {
         setTargetVelocity(FAR_SHOT_RPM);
         setTargetHoodPose(FAR_SHOT_ANGLE);
         prepareToShoot();
+    }
+
+    // ===== Flywheel Velocity Adjustment (for testing) =====
+
+    /**
+     * Increments the flywheel target velocity by FLYWHEEL_ADJUSTMENT_RPM.
+     * Transitions to READY state so the motors run at the new velocity.
+     * Clamped to MAX_VELOCITY_RPM via setTargetVelocity().
+     */
+    public void incrementFlywheelVelocity() {
+        setTargetVelocity(targetFlywheelRPM + FLYWHEEL_ADJUSTMENT_RPM);
+        if (currentState != ShooterState.READY) {
+            prepareToShoot();
+        }
+    }
+
+    /**
+     * Decrements the flywheel target velocity by FLYWHEEL_ADJUSTMENT_RPM.
+     * Transitions to READY state so the motors run at the new velocity.
+     * Clamped to 0 RPM via setTargetVelocity().
+     */
+    public void decrementFlywheelVelocity() {
+        setTargetVelocity(targetFlywheelRPM - FLYWHEEL_ADJUSTMENT_RPM);
+        if (currentState != ShooterState.READY) {
+            prepareToShoot();
+        }
     }
 
     // ===== Vision Integration =====

@@ -212,6 +212,30 @@ public class ShooterCommands {
     }
 
     /**
+     * Creates a command to increment flywheel velocity by FLYWHEEL_ADJUSTMENT_RPM.
+     * Used for testing — allows incremental speed increases via operator controls.
+     *
+     * @param shooter The shooter subsystem
+     * @return Command that increases flywheel velocity by one increment
+     */
+    public static Command incrementFlywheel(ShooterSubsystem shooter) {
+        return Commands.runOnce(shooter::incrementFlywheelVelocity, shooter)
+            .withName("IncrementFlywheel");
+    }
+
+    /**
+     * Creates a command to decrement flywheel velocity by FLYWHEEL_ADJUSTMENT_RPM.
+     * Used for testing — allows incremental speed decreases via operator controls.
+     *
+     * @param shooter The shooter subsystem
+     * @return Command that decreases flywheel velocity by one increment
+     */
+    public static Command decrementFlywheel(ShooterSubsystem shooter) {
+        return Commands.runOnce(shooter::decrementFlywheelVelocity, shooter)
+            .withName("DecrementFlywheel");
+    }
+
+    /**
      * Creates a command to return shooter to idle state.
      * Stops motors and returns hood to home position.
      *

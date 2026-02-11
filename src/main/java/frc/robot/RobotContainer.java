@@ -197,6 +197,15 @@ public class RobotContainer {
 
         // Start: Stop climber
        // operator.start().onTrue(climber.stopClimber());
+
+        // =====================================================================
+        // OPERATOR CONTROLLER (Port 1) - Flywheel Velocity Adjustment
+        // =====================================================================
+        // TODO: Uncomment these bindings when ready for on-robot testing
+        // POV Up: Increase flywheel velocity by 100 RPM
+        // operator.povUp().onTrue(ShooterCommands.incrementFlywheel(shooter));
+        // POV Down: Decrease flywheel velocity by 100 RPM
+        // operator.povDown().onTrue(ShooterCommands.decrementFlywheel(shooter));
     }
 
     public Command getAutonomousCommand() {
