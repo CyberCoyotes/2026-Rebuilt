@@ -4,6 +4,7 @@ import com.ctre.phoenix6.BaseStatusSignal;
 import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.controls.DutyCycleOut;
 import com.ctre.phoenix6.hardware.TalonFX;
+import com.ctre.phoenix6.hardware.TalonFXS;
 import com.playingwithfusion.TimeOfFlight;
 import com.playingwithfusion.TimeOfFlight.RangingMode;
 
@@ -32,7 +33,7 @@ import frc.robot.util.TalonFXConfigs;
 public class IndexerIOHardware implements IndexerIO {
 
     // ===== Hardware =====
-    private final TalonFX conveyorMotor;   // Also called "conveyor" in Constants
+    private final TalonFXS conveyorMotor;   // TalonFXS with Minion motor
     private final TalonFX indexerMotor;  // Also called "indexer" in Constants
 
     // Time-of-Flight sensors
@@ -77,11 +78,11 @@ public class IndexerIOHardware implements IndexerIO {
 
         // Create motor objects
         // Note: Constants use "CONVEYOR" and "INDEXER" naming, we use "conveyor" and "indexer"
-        conveyorMotor = new TalonFX(Constants.Indexer.CONVEYOR_MOTOR_ID); // TODO add new CANbus arg
+        conveyorMotor = new TalonFXS(Constants.Indexer.CONVEYOR_MOTOR_ID); // TODO add new CANbus arg
         indexerMotor = new TalonFX(Constants.Indexer.INDEXER_MOTOR_ID); // TODO add new CANbus arg
 
         // Apply configurations from centralized config class
-        conveyorMotor.getConfigurator().apply(TalonFXConfigs.indexerConfig());
+        conveyorMotor.getConfigurator().apply(TalonFXConfigs.conveyorConfig());
         indexerMotor.getConfigurator().apply(TalonFXConfigs.indexerConfig());
 
         // Create and configure ToF sensors

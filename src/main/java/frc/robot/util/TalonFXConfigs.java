@@ -1,7 +1,9 @@
 package frc.robot.util;
 
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
+import com.ctre.phoenix6.configs.TalonFXSConfiguration;
 import com.ctre.phoenix6.signals.InvertedValue;
+import com.ctre.phoenix6.signals.MotorArrangementValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 
 /**
@@ -54,7 +56,7 @@ public class TalonFXConfigs {
     }
 
     /**
-     * Configuration for indexer motors (floor and feeder).
+     * Configuration for indexer motor (TalonFX - feeds pieces to shooter).
      *
      * Features:
      * - Percent output control
@@ -71,6 +73,42 @@ public class TalonFXConfigs {
         config.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
 
         // Current limits - moderate for indexer
+        config.CurrentLimits.SupplyCurrentLimit = 40.0;
+        config.CurrentLimits.SupplyCurrentLimitEnable = true;
+
+        // Stator current limit
+        config.CurrentLimits.StatorCurrentLimit = 50.0;
+        config.CurrentLimits.StatorCurrentLimitEnable = true;
+
+        // Voltage compensation for consistent behavior
+        config.Voltage.PeakForwardVoltage = 12.0;
+        config.Voltage.PeakReverseVoltage = -12.0;
+
+        return config;
+    }
+
+    /**
+     * Configuration for conveyor motor (TalonFXS with Minion motor).
+     *
+     * Features:
+     * - TalonFXS controller with Minion_JST motor arrangement
+     * - Percent output control
+     * - Brake mode (stop game pieces quickly)
+     * - Moderate current limits
+     *
+     * @return Configured TalonFXSConfiguration for conveyor use
+     */
+    public static TalonFXSConfiguration conveyorConfig() {
+        var config = new TalonFXSConfiguration();
+
+        // TalonFXS motor arrangement - Minion connected via JST
+        config.Commutation.MotorArrangement = MotorArrangementValue.Minion_JST;
+
+        // Motor output configuration
+        config.MotorOutput.NeutralMode = NeutralModeValue.Brake;  // Brake to stop game pieces
+        config.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
+
+        // Current limits - moderate for conveyor
         config.CurrentLimits.SupplyCurrentLimit = 40.0;
         config.CurrentLimits.SupplyCurrentLimitEnable = true;
 
@@ -113,18 +151,22 @@ public class TalonFXConfigs {
     }
 
     /**
-     * Configuration for hood adjustment motor.
+     * Configuration for hood adjustment motor (TalonFXS with Minion motor).
      *
      * Features:
+     * - TalonFXS controller with Minion_JST motor arrangement
      * - Position control with soft limits
      * - Brake mode (hold position)
      * - Lower current limits
      * - Slot 0 PID for position control
      *
-     * @return Configured TalonFXConfiguration for hood use
+     * @return Configured TalonFXSConfiguration for hood use
      */
-    public static TalonFXConfiguration shooterHoodConfig() {
-        var config = new TalonFXConfiguration();
+    public static TalonFXSConfiguration shooterHoodConfig() {
+        var config = new TalonFXSConfiguration();
+
+        // TalonFXS motor arrangement - Minion connected via JST
+        config.Commutation.MotorArrangement = MotorArrangementValue.Minion_JST;
 
         // Motor output configuration
         config.MotorOutput.NeutralMode = NeutralModeValue.Brake;  // Hold position
