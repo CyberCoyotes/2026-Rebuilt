@@ -212,6 +212,30 @@ public class ShooterCommands {
     }
 
     /**
+     * Creates a command to increase target flywheel RPM by the provided increment.
+     *
+     * @param shooter The shooter subsystem
+     * @param incrementRPM RPM delta to apply (positive increases)
+     * @return Command that adjusts target flywheel velocity
+     */
+    public static Command increaseTargetVelocity(ShooterSubsystem shooter, double incrementRPM) {
+        return Commands.runOnce(() -> shooter.adjustTargetVelocity(Math.abs(incrementRPM)), shooter)
+            .withName("IncreaseShooterTargetVelocity");
+    }
+
+    /**
+     * Creates a command to decrease target flywheel RPM by the provided increment.
+     *
+     * @param shooter The shooter subsystem
+     * @param decrementRPM RPM delta to apply (positive value expected)
+     * @return Command that adjusts target flywheel velocity
+     */
+    public static Command decreaseTargetVelocity(ShooterSubsystem shooter, double decrementRPM) {
+        return Commands.runOnce(() -> shooter.adjustTargetVelocity(-Math.abs(decrementRPM)), shooter)
+            .withName("DecreaseShooterTargetVelocity");
+    }
+
+    /**
      * Creates a command to return shooter to idle state.
      * Stops motors and returns hood to home position.
      *

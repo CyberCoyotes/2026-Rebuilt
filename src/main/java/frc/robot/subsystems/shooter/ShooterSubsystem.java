@@ -125,6 +125,9 @@ public class ShooterSubsystem extends SubsystemBase {
     public static final double FAR_SHOT_RPM = 5000.0;  // TODO: Tune
     public static final double FAR_SHOT_ANGLE = 45.0;  // TODO: Tune
 
+    /** Default flywheel velocity testing increment (RPM) */
+    public static final double FLYWHEEL_TEST_INCREMENT_RPM = 100.0;
+
     /**
      * Creates a new ShooterSubsystem.
      *
@@ -463,6 +466,36 @@ public class ShooterSubsystem extends SubsystemBase {
         setTargetVelocity(FAR_SHOT_RPM);
         setTargetHoodPose(FAR_SHOT_ANGLE);
         prepareToShoot();
+    }
+
+    // ===== Flywheel Velocity Adjustment (for testing) =====
+
+    /**
+     * Adjusts target flywheel velocity by a delta (positive increases, negative decreases).
+     * Transitions to READY state so the motors run at the new velocity.
+     * Clamped to [0, MAX_VELOCITY_RPM] via setTargetVelocity().
+     *
+     * @param deltaRPM Amount to add to current target RPM
+     */
+    public void adjustTargetVelocity(double deltaRPM) {
+        setTargetVelocity(targetFlywheelRPM + deltaRPM);
+        if (currentState != ShooterState.READY) {
+            prepareToShoot();
+        }
+    }
+
+    /**
+     * Increases target flywheel velocity by the default testing increment.
+     */
+    public void increaseTargetVelocity() {
+        adjustTargetVelocity(FLYWHEEL_TEST_INCREMENT_RPM);
+    }
+
+    /**
+     * Decreases target flywheel velocity by the default testing increment.
+     */
+    public void decreaseTargetVelocity() {
+        adjustTargetVelocity(-FLYWHEEL_TEST_INCREMENT_RPM);
     }
 
     // ===== Vision Integration =====

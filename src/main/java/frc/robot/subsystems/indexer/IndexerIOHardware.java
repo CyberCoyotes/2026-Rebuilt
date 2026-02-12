@@ -42,8 +42,8 @@ public class IndexerIOHardware implements IndexerIO {
     private final TimeOfFlight hopperCToF;  // Hopper position C
 
     // ===== Control Requests =====
-    private final DutyCycleOut conveyorDutyCycleRequest = new DutyCycleOut(0.0);
-    private final DutyCycleOut indexerDutyCycleRequest = new DutyCycleOut(0.0);
+    private final DutyCycleOut conveyorDutyCycleRequest = new DutyCycleOut(0.0); // TODO Change to VelocityOut if we want velocity control later
+    private final DutyCycleOut indexerDutyCycleRequest = new DutyCycleOut(0.0); // TODO Change to VelocityOut if we want velocity control later
 
     // ===== Status Signals (for efficient reading) =====
     // Note: Phoenix 6 uses typed StatusSignals, we just read the value
