@@ -33,7 +33,7 @@ public class TalonFXConfigs {
 
         // Motor output configuration
         config.MotorOutput.NeutralMode = NeutralModeValue.Coast;  // Coast to keep spinning
-        config.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
+        config.MotorOutput.Inverted = InvertedValue.Clockwise_Positive; // TODO : Verify direction on robot
 
         // Current limits - high for flywheels
         config.CurrentLimits.SupplyCurrentLimit = 60.0;
@@ -128,7 +128,7 @@ public class TalonFXConfigs {
 
         // Motor output configuration
         config.MotorOutput.NeutralMode = NeutralModeValue.Brake;  // Hold position
-        config.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
+        config.MotorOutput.Inverted = InvertedValue.Clockwise_Positive; // TODO: Verify direction on robot
 
         // Current limits - lower for hood
         config.CurrentLimits.SupplyCurrentLimit = 30.0;
