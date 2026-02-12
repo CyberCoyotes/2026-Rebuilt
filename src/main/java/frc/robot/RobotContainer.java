@@ -198,6 +198,10 @@ public class RobotContainer {
         // Start: Stop climber
        // operator.start().onTrue(climber.stopClimber());
 
+        // ----- Operator Controller (Port 1) - Shooter Hood Testing -----
+        // TODO: Uncomment these POV bindings once we are ready to do on-robot hood increment testing.
+        // operator.povLeft().onTrue(shooter.runOnce(shooter::decreaseHoodForTesting));
+        // operator.povRight().onTrue(shooter.runOnce(shooter::increaseHoodForTesting));
         // =====================================================================
         // OPERATOR CONTROLLER (Port 1) - Flywheel Velocity Adjustment
         // =====================================================================

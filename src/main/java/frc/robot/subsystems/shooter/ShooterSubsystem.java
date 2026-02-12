@@ -96,6 +96,9 @@ public class ShooterSubsystem extends SubsystemBase {
     /** Hood pose tolerance (degrees) */
     private static final double HOOD_POSE_TOLERANCE = 0.5;  // 0.5 degree tolerance — critical for shot consistency
 
+    /** Testing increment for manual hood adjustment (degrees). */
+    public static final double HOOD_TEST_INCREMENT_DEGREES = 5.0;
+
     // ===== State-Specific Constants =====
     /** SPINUP: Pre-rev flywheel velocity (20% of max) */
     private static final double SPINUP_VELOCITY_PERCENT = 0.20;
@@ -413,6 +416,26 @@ public class ShooterSubsystem extends SubsystemBase {
         if (currentState == ShooterState.READY) {
             io.setHoodPose(targetHoodPose);
         }
+    }
+
+    /**
+     * Adjusts the hood target by a delta amount for manual testing.
+     * Positive values raise the hood, negative values lower it.
+     *
+     * @param deltaDegrees Amount to add to current target hood pose
+     */
+    public void adjustTargetHoodPose(double deltaDegrees) {
+        setTargetHoodPose(targetHoodPose + deltaDegrees);
+    }
+
+    /** Raises hood target by the standard testing increment. */
+    public void increaseHoodForTesting() {
+        adjustTargetHoodPose(HOOD_TEST_INCREMENT_DEGREES);
+    }
+
+    /** Lowers hood target by the standard testing increment. */
+    public void decreaseHoodForTesting() {
+        adjustTargetHoodPose(-HOOD_TEST_INCREMENT_DEGREES);
     }
 
     /**
