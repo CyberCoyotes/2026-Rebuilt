@@ -106,7 +106,7 @@ public class TalonFXConfigs {
 
         // Motor output configuration
         config.MotorOutput.NeutralMode = NeutralModeValue.Brake;  // Brake to stop game pieces
-        config.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
+        config.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
 
         // Current limits - moderate for conveyor
         config.CurrentLimits.SupplyCurrentLimit = 40.0;

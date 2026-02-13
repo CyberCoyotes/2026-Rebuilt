@@ -52,6 +52,29 @@ public class IndexerSubsystem extends SubsystemBase {
     private final DoublePublisher conveyorCurrentPublisher;
     private final DoublePublisher indexerCurrentPublisher;
 
+
+        // ===== Jam Detection Thresholds =====
+    // Pattern: A motor is jammed when current is HIGH but velocity is LOW.
+    // This means the motor is trying to spin but something is blocking it.
+
+    /** Conveyor (hopper) motor jam current threshold in amps (TODO: Tune on robot) */
+    public static final double HOPPER_JAM_CURRENT_THRESHOLD = 20.0;
+
+    /** Conveyor (hopper) motor jam velocity threshold in RPS (TODO: Tune on robot) */
+    public static final double HOPPER_JAM_VELOCITY_THRESHOLD = 0.5;
+
+    /** Indexer motor jam current threshold in amps (TODO: Tune on robot) */
+    public static final double INDEXER_JAM_CURRENT_THRESHOLD = 20.0;
+
+    /** Indexer motor jam velocity threshold in RPS (TODO: Tune on robot) */
+    public static final double INDEXER_JAM_VELOCITY_THRESHOLD = 0.5;
+
+    public static final double CONVEYOR_FORWARD_VOLTAGE = 5.0; // TODO: Tune conveyor on robot
+    public static final double CONVEYOR_REVERSE_VOLTAGE = -5.0;
+
+    public static final double INDEXER_FORWARD_VOLTAGE = 5.0; // TODO: Tune indexer on robot
+    public static final double INDEXER_REVERSE_VOLTAGE = -5.0;
+
     // ===== State Tracking =====
     private String currentState = "IDLE";
 
@@ -129,21 +152,48 @@ public class IndexerSubsystem extends SubsystemBase {
     // ========== Motor Control Methods ==========
 
     /**
-     * Sets the conveyor motor speed (moves pieces toward indexer).
+     * Sets the conveyor motor voltage (moves pieces toward indexer).
      *
-     * @param percent Motor speed from -1.0 to 1.0 (+ = toward indexer)
+     * @param volts Motor voltage (+ = toward indexer, - = reverse)
      */
-    public void setConveyorMotorSpeed(double percent) {
-       io.setConveyorMotor(percent); 
+    public void setConveyorMotorVolts(double volts) {
+       io.setConveyorMotor(volts);
     }
 
+    public void conveyorForward() {
+        io.setConveyorMotor(CONVEYOR_FORWARD_VOLTAGE);
+    }
+
+    public void conveyorReverse() {
+        io.setConveyorMotor(CONVEYOR_REVERSE_VOLTAGE);
+    }
+
+    public void conveyorStop() {
+        io.setConveyorMotor(0.0);
+    }
+
+
     /**
-     * Sets the indexer motor speed (feeds pieces to shooter).
+     * Sets the indexer motor voltage (feeds pieces to shooter).
      *
-     * @param percent Motor speed from -1.0 to 1.0 (+ = toward shooter)
+     * @param volts Motor voltage (+ = toward shooter, - = reverse)
      */
-    public void setIndexerMotorSpeed(double percent) {
-        io.setIndexerMotor(percent);
+    public void setIndexerMotorVolts(double volts) {
+        io.setIndexerMotor(volts);
+    }
+
+
+    // Convenience methods for common actions
+    public void indexerForward() {
+        io.setIndexerMotor(INDEXER_FORWARD_VOLTAGE); // TODO: Tune indexer voltage on robot
+    }
+
+    public void indexerReverse() {
+        io.setIndexerMotor(INDEXER_REVERSE_VOLTAGE);
+    }
+
+    public void indexerStop() {
+        io.setIndexerMotor(0.0);
     }
 
     /**
@@ -268,8 +318,8 @@ public class IndexerSubsystem extends SubsystemBase {
         double velocity = inputs.conveyorVelocityRPS;
 
         // Jam = high current AND low velocity (motor stalled under load)
-        return (current >= Constants.Indexer.HOPPER_JAM_CURRENT_THRESHOLD)
-            && (Math.abs(velocity) <= Constants.Indexer.HOPPER_JAM_VELOCITY_THRESHOLD);
+        return (current >= HOPPER_JAM_CURRENT_THRESHOLD)
+            && (Math.abs(velocity) <= HOPPER_JAM_VELOCITY_THRESHOLD);
     }
 
     /**
@@ -296,7 +346,7 @@ public class IndexerSubsystem extends SubsystemBase {
         double velocity = inputs.indexerVelocityRPS;
 
         // Jam = high current AND low velocity (motor stalled under load)
-        return (current >= Constants.Indexer.INDEXER_JAM_CURRENT_THRESHOLD)
-            && (Math.abs(velocity) <= Constants.Indexer.INDEXER_JAM_VELOCITY_THRESHOLD);
+        return (current >= INDEXER_JAM_CURRENT_THRESHOLD)
+            && (Math.abs(velocity) <= INDEXER_JAM_VELOCITY_THRESHOLD);
     }
 }

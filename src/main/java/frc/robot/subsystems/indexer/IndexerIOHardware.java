@@ -2,7 +2,7 @@ package frc.robot.subsystems.indexer;
 
 import com.ctre.phoenix6.BaseStatusSignal;
 import com.ctre.phoenix6.StatusSignal;
-import com.ctre.phoenix6.controls.DutyCycleOut;
+import com.ctre.phoenix6.controls.VoltageOut;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.hardware.TalonFXS;
 import com.playingwithfusion.TimeOfFlight;
@@ -43,8 +43,8 @@ public class IndexerIOHardware implements IndexerIO {
     private final TimeOfFlight hopperCToF;  // Hopper position C
 
     // ===== Control Requests =====
-    private final DutyCycleOut conveyorDutyCycleRequest = new DutyCycleOut(0.0); // TODO Change to VelocityOut if we want velocity control later
-    private final DutyCycleOut indexerDutyCycleRequest = new DutyCycleOut(0.0); // TODO Change to VelocityOut if we want velocity control later
+    private final VoltageOut conveyorVoltageRequest = new VoltageOut(0.0);
+    private final VoltageOut indexerVoltageRequest = new VoltageOut(0.0);
 
     // ===== Status Signals (for efficient reading) =====
     // Note: Phoenix 6 uses typed StatusSignals, we just read the value
@@ -181,12 +181,12 @@ public class IndexerIOHardware implements IndexerIO {
 
     @Override
     public void setConveyorMotor(double percent) {
-        conveyorMotor.setControl(conveyorDutyCycleRequest.withOutput(percent));
+        conveyorMotor.setControl(conveyorVoltageRequest .withOutput(percent));
     }
 
     @Override
     public void setIndexerMotor(double percent) {
-        indexerMotor.setControl(indexerDutyCycleRequest.withOutput(percent));
+        indexerMotor.setControl(indexerVoltageRequest.withOutput(percent));
     }
 
     @Override

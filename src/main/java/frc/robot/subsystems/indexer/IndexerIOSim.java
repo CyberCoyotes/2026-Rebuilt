@@ -21,8 +21,8 @@ package frc.robot.subsystems.indexer;
 public class IndexerIOSim implements IndexerIO {
 
     // ===== Simulated State =====
-    private double conveyorMotorPercent = 0.0;
-    private double indexerMotorPercent = 0.0;
+    private double conveyorMotorVolts = 0.0;
+    private double indexerMotorVolts = 0.0;
 
     // Game piece presence simulation
     private boolean indexerGamePiecePresent = false;
@@ -33,22 +33,22 @@ public class IndexerIOSim implements IndexerIO {
     // ===== Simulation Parameters =====
     private static final double SIMULATED_TOF_DISTANCE_WITH_PIECE = 50.0;   // mm
     private static final double SIMULATED_TOF_DISTANCE_NO_PIECE = 500.0;    // mm
-    private static final double MOTOR_VOLTAGE = 12.0;
-    private static final double MOTOR_CURRENT_PER_PERCENT = 10.0;  // Amps per 100% speed
+    private static final double NOMINAL_VOLTAGE = 12.0;
+    private static final double MOTOR_CURRENT_PER_VOLT = 0.833;  // ~10A at 12V
     private static final double MOTOR_TEMP = 35.0;  // Celsius
 
     @Override
     public void updateInputs(IndexerIOInputs inputs) {
         // Simulate conveyor motor
-        inputs.conveyorVelocityRPS = conveyorMotorPercent * 10.0;  // Fake velocity
-        inputs.conveyorAppliedVolts = conveyorMotorPercent * MOTOR_VOLTAGE;
-        inputs.conveyorCurrentAmps = Math.abs(conveyorMotorPercent) * MOTOR_CURRENT_PER_PERCENT;
+        inputs.conveyorVelocityRPS = (conveyorMotorVolts / NOMINAL_VOLTAGE) * 10.0;  // Fake velocity
+        inputs.conveyorAppliedVolts = conveyorMotorVolts;
+        inputs.conveyorCurrentAmps = Math.abs(conveyorMotorVolts) * MOTOR_CURRENT_PER_VOLT;
         inputs.conveyorTempCelsius = MOTOR_TEMP;
 
         // Simulate indexer motor
-        inputs.indexerVelocityRPS = indexerMotorPercent * 10.0;
-        inputs.indexerAppliedVolts = indexerMotorPercent * MOTOR_VOLTAGE;
-        inputs.indexerCurrentAmps = Math.abs(indexerMotorPercent) * MOTOR_CURRENT_PER_PERCENT;
+        inputs.indexerVelocityRPS = (indexerMotorVolts / NOMINAL_VOLTAGE) * 10.0;
+        inputs.indexerAppliedVolts = indexerMotorVolts;
+        inputs.indexerCurrentAmps = Math.abs(indexerMotorVolts) * MOTOR_CURRENT_PER_VOLT;
         inputs.indexerTempCelsius = MOTOR_TEMP;
 
         // Simulate indexer ToF sensor
@@ -81,19 +81,19 @@ public class IndexerIOSim implements IndexerIO {
     }
 
     @Override
-    public void setConveyorMotor(double percent) {
-        this.conveyorMotorPercent = percent;
+    public void setConveyorMotor(double volts) {
+        this.conveyorMotorVolts = volts;
     }
 
     @Override
-    public void setIndexerMotor(double percent) {
-        this.indexerMotorPercent = percent;
+    public void setIndexerMotor(double volts) {
+        this.indexerMotorVolts = volts;
     }
 
     @Override
     public void stop() {
-        this.conveyorMotorPercent = 0.0;
-        this.indexerMotorPercent = 0.0;
+        this.conveyorMotorVolts = 0.0;
+        this.indexerMotorVolts = 0.0;
     }
 
     // ===== Simulation Control Methods =====
