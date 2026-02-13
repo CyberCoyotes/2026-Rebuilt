@@ -87,7 +87,7 @@ public class ShooterSubsystem extends SubsystemBase {
 
     // ===== Constants =====
     /** Maximum flywheel velocity (RPM) */
-    private static final double MAX_VELOCITY_RPM = 6000.0;  // TODO: Find actual max RPM
+    private static final double MAX_VELOCITY_RPM = 3000.0;  // TODO Find actual max RPM of flywheel with current gearing and motor configuration. Dropping to 3000 for testing without flywheel for now.
 
     /** Minimum hood pose (degrees) - used for IDLE and EJECT */
     private static final double MIN_HOOD_POSE = 0.0;  // TODO: RAW value of 0 on startup location. 
@@ -123,16 +123,16 @@ public class ShooterSubsystem extends SubsystemBase {
 
     // ===== Shooting Presets (for READY state) =====
     /** Close shot velocity (RPM) */
-    public static final double CLOSE_SHOT_RPM = 3000.0;  // TODO: Tune close shot RPM
+    public static final double CLOSE_SHOT_RPM = 1000.0;  // TODO: Tune close shot RPM
     public static final double CLOSE_SHOT_HOOD = 0.0;  // TODO: Tune close shot hood pose
     // public static final double CLOSE_SHOT_ANGLE = 25.0;
 
     /** Far shot velocity (RPM) */
-    public static final double FAR_SHOT_RPM = 3000.0;  // TODO: Tune far shot RPM
+    public static final double FAR_SHOT_RPM = 1500.0;  // TODO: Tune far shot RPM
     public static final double FAR_SHOT_HOOD = MAX_HOOD_POSE * (0.5);  // TODO: Tune far shot hood pose
     // public static final double FAR_SHOT_ANGLE = 45.0;  //
 
-    public static final double PASS_SHOT_RPM = 3000.0;  // TODO: Tune pass RPM
+    public static final double PASS_SHOT_RPM = 1500.0;  // TODO: Tune pass RPM
     public static final double PASS_SHOT_HOOD = MAX_HOOD_POSE - (0.10 * MAX_HOOD_POSE);  // TODO: Tune pass shot Hood Pose
     
     /** Default flywheel velocity testing increment (RPM) */
