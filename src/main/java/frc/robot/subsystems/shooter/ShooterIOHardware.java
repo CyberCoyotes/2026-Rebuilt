@@ -208,10 +208,16 @@ public class ShooterIOHardware implements ShooterIO {
             hoodEncoderAbsPosition
         );
 
+        // Raw motor RPS (native TalonFX unit — no conversion)
+        double motorARPS = flywheelAVelocity.getValueAsDouble();
+        double motorBRPS = flywheelBVelocity.getValueAsDouble();
+        double motorCRPS = flywheelCVelocity.getValueAsDouble();
+        inputs.flywheelMotorRPS = (motorARPS + motorBRPS + motorCRPS) / 3.0;
+
         // Convert motor velocities to flywheel RPM
-        double flywheelARPM = rpsToRPM(flywheelAVelocity.getValueAsDouble()) / FLYWHEEL_GEAR_RATIO;
-        double flywheelBRPM = rpsToRPM(flywheelBVelocity.getValueAsDouble()) / FLYWHEEL_GEAR_RATIO;
-        double flywheelCRPM = rpsToRPM(flywheelCVelocity.getValueAsDouble()) / FLYWHEEL_GEAR_RATIO;
+        double flywheelARPM = rpsToRPM(motorARPS) / FLYWHEEL_GEAR_RATIO;
+        double flywheelBRPM = rpsToRPM(motorBRPS) / FLYWHEEL_GEAR_RATIO;
+        double flywheelCRPM = rpsToRPM(motorCRPS) / FLYWHEEL_GEAR_RATIO;
 
         // Individual flywheel data
         inputs.flywheelAVelocityRPM = flywheelARPM;

@@ -41,6 +41,9 @@ public interface ShooterIO {
         /** Average flywheel temperature in Celsius */
         public double flywheelTempCelsius = 0.0;
 
+        /** Average raw motor velocity in RPS (native TalonFX unit, before gear ratio conversion) */
+        public double flywheelMotorRPS = 0.0;
+
         // ===== Individual Flywheel Data (for diagnostics) =====
         /** Flywheel A velocity in RPM */
         public double flywheelAVelocityRPM = 0.0;

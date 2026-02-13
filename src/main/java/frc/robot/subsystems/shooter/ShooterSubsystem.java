@@ -63,6 +63,7 @@ public class ShooterSubsystem extends SubsystemBase {
     private final DoublePublisher hoodErrorPublisher;
     private final BooleanPublisher hoodAtPosePublisher;
     private final DoublePublisher flywheelVoltsPublisher;
+    private final DoublePublisher flywheelMotorRpsPublisher;
     private final DoublePublisher throughBorePositionPublisher;
     private final BooleanPublisher throughBoreConnectedPublisher;
 
@@ -164,6 +165,7 @@ public class ShooterSubsystem extends SubsystemBase {
         hoodErrorPublisher = shooterTable.getDoubleTopic("HoodError").publish();
         hoodAtPosePublisher = shooterTable.getBooleanTopic("HoodAtPose").publish();
         flywheelVoltsPublisher = shooterTable.getDoubleTopic("FlywheelAppliedVolts").publish();
+        flywheelMotorRpsPublisher = shooterTable.getDoubleTopic("FlywheelMotorRPS").publish();
         throughBorePositionPublisher = shooterTable.getDoubleTopic("ThroughBorePosition").publish();
         throughBoreConnectedPublisher = shooterTable.getBooleanTopic("ThroughBoreConnected").publish();
 
@@ -254,6 +256,7 @@ public class ShooterSubsystem extends SubsystemBase {
         hoodErrorPublisher.set(getHoodError());
         hoodAtPosePublisher.set(isHoodAtPose());
         flywheelVoltsPublisher.set(inputs.flywheelAppliedVolts);
+        flywheelMotorRpsPublisher.set(inputs.flywheelMotorRPS);
         throughBorePositionPublisher.set(inputs.hoodThroughBorePositionRotations);
         throughBoreConnectedPublisher.set(inputs.hoodThroughBoreConnected);
     }
