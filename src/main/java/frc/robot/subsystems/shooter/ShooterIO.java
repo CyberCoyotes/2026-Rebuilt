@@ -119,6 +119,14 @@ public interface ShooterIO {
     default void setCounterWheelVelocity(double rpm) {}
 
     /**
+     * Sets the hood motor to a fixed voltage (open-loop).
+     * Used for safe, slow movement when finding hood travel limits.
+     *
+     * @param volts Voltage to apply (positive = forward, negative = reverse)
+     */
+    default void setHoodVoltage(double volts) {}
+
+    /**
      * Stops all shooter motors (flywheels, hood, counter-wheel).
      */
     default void stop() {}

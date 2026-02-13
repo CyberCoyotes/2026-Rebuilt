@@ -153,20 +153,29 @@ public class RobotContainer {
 
         // ----- Shooter -----
        // ----- Full Sequences -----
-       //FIXME
+       //FIXME The belt needs to be fixed before enabling these commands
         // A: Full shoot sequence - close shot with indexer feed, then idle
+        /*
         driver.rightTrigger(0.5).whileTrue(
             ShooterCommands.shootSequence(shooter, indexer,
-                ShooterSubsystem.CLOSE_SHOT_RPM, ShooterSubsystem.CLOSE_SHOT_ANGLE)
+                ShooterSubsystem.CLOSE_SHOT_RPM, ShooterSubsystem.CLOSE_SHOT_HOOD)
         );
+         */
+
         // Y: Close shot (prepare and wait for ready)
-        driver.a().onTrue(ShooterCommands.closeShot(shooter));
+        // driver.a().onTrue(ShooterCommands.closeShot(shooter)); // TODO Comment out for testing without flywheel
+        // Close shot hood preset
+        driver.a().onTrue(Commands.runOnce(() -> shooter.setTargetHoodPose(ShooterSubsystem.CLOSE_SHOT_HOOD)));
 
         // X: Far shot (prepare and wait for ready)
-        driver.x().onTrue(ShooterCommands.farShot(shooter));
+        // driver.x().onTrue(ShooterCommands.farShot(shooter)); // TODO Comment out for testing without flywheel
+        // Far shot hood preset
+        driver.x().onTrue(Commands.runOnce(() -> shooter.setTargetHoodPose(ShooterSubsystem.FAR_SHOT_HOOD)));
 
         // B: Pass shot (prepare and wait for ready)
-        driver.b().onTrue(ShooterCommands.pass(shooter));
+        // driver.b().onTrue(ShooterCommands.pass(shooter)); // TODO Comment out for testing without flywheel
+        // Pass shot hood preset
+        driver.b().onTrue(Commands.runOnce(() -> shooter.setTargetHoodPose(ShooterSubsystem.PASS_SHOT_HOOD)));
 
         // POV Up: Eject from shooter (clear jams, 1 second reverse)
         driver.povUp().onTrue(ShooterCommands.eject(shooter, 1.0));
@@ -203,6 +212,10 @@ public class RobotContainer {
         // TODO: Uncomment these POV bindings once we are ready to do on-robot hood increment testing.
         // operator.povLeft().onTrue(shooter.runOnce(shooter::decreaseHoodForTesting));
         // operator.povRight().onTrue(shooter.runOnce(shooter::increaseHoodForTesting));
+
+        // Hood position testing (closed-loop position control)
+        operator.rightBumper().onTrue(shooter.runHoodToMax());   // Move hood to MAX_HOOD_POSE
+        operator.leftBumper().onTrue(shooter.runHoodToMin());    // Move hood to MIN_HOOD_POSE
         // =====================================================================
         // OPERATOR CONTROLLER (Port 1) - Flywheel Velocity Adjustment
         // =====================================================================

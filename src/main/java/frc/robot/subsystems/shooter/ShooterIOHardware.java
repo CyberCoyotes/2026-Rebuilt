@@ -7,6 +7,7 @@ import com.ctre.phoenix6.configs.CANcoderConfiguration;
 import com.ctre.phoenix6.controls.VelocityVoltage;
 import com.ctre.phoenix6.controls.PositionVoltage;
 import com.ctre.phoenix6.controls.Follower;
+import com.ctre.phoenix6.controls.VoltageOut;
 import com.ctre.phoenix6.hardware.CANcoder;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.hardware.TalonFXS;
@@ -44,6 +45,7 @@ public class ShooterIOHardware implements ShooterIO {
     private final VelocityVoltage flywheelVelocityRequest = new VelocityVoltage(0.0).withEnableFOC(true);
     private final VelocityVoltage counterWheelVelocityRequest = new VelocityVoltage(0.0).withEnableFOC(true);
     private final PositionVoltage hoodPositionRequest = new PositionVoltage(0.0);
+    private final VoltageOut hoodVoltageRequest = new VoltageOut(0.0);
 
     // ===== Status Signals (for efficient reading) =====
     // Flywheel A
@@ -82,7 +84,7 @@ public class ShooterIOHardware implements ShooterIO {
     private static final double FLYWHEEL_GEAR_RATIO = 1.5;  // TODO: Measure actual ratio
 
     /** Gear ratio from motor to hood (motor rotations per degree of hood movement) */
-    private static final double HOOD_GEAR_RATIO = 100.0;  // TODO: Measure actual ratio
+    private static final double HOOD_GEAR_RATIO = 100.0;  // TODO: Measure actual ratio 23:1 or 1:23
 
     /**
      * Creates a new ShooterIOTalonFX instance.
@@ -267,6 +269,11 @@ public class ShooterIOHardware implements ShooterIO {
 
         // Set position
         hoodMotor.setControl(hoodPositionRequest.withPosition(motorRotations));
+    }
+
+    @Override
+    public void setHoodVoltage(double volts) {
+        hoodMotor.setControl(hoodVoltageRequest.withOutput(volts));
     }
 
     @Override

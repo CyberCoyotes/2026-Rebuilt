@@ -172,6 +172,10 @@ public class TalonFXConfigs {
         config.MotorOutput.NeutralMode = NeutralModeValue.Brake;  // Hold position
         config.MotorOutput.Inverted = InvertedValue.Clockwise_Positive; // TODO: Verify direction on robot
 
+        // Voltage limits - cap output for safe hood movement during testing
+        config.Voltage.PeakForwardVoltage = 4.0;   // TODO: Increase after hood travel is verified. 4 has been safe for testing.
+        config.Voltage.PeakReverseVoltage = -4.0;
+
         // Current limits - lower for hood
         config.CurrentLimits.SupplyCurrentLimit = 30.0;
         config.CurrentLimits.SupplyCurrentLimitEnable = true;
@@ -182,9 +186,9 @@ public class TalonFXConfigs {
         config.Slot0.kD = 0.0;
 
         // Soft limits (TODO: set based on physical hood range)
-        config.SoftwareLimitSwitch.ForwardSoftLimitEnable = false;  // Enable after tuning
-        config.SoftwareLimitSwitch.ForwardSoftLimitThreshold = 100.0;  // TODO: Measure
-        config.SoftwareLimitSwitch.ReverseSoftLimitEnable = false;  // Enable after tuning
+        config.SoftwareLimitSwitch.ForwardSoftLimitEnable = true;  // Enable after tuning
+        config.SoftwareLimitSwitch.ForwardSoftLimitThreshold = 9.15;  // Raw units
+        config.SoftwareLimitSwitch.ReverseSoftLimitEnable = true;  // Enable after tuning
         config.SoftwareLimitSwitch.ReverseSoftLimitThreshold = 0.0;
 
         return config;
