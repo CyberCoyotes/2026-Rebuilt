@@ -55,7 +55,7 @@ public class TalonFXConfigs {
         // Closed-loop ramp rate — limits how fast the PID output voltage can change.
         // Prevents belt slipping from sudden torque spikes during flywheel acceleration.
         // Shorten this value once belt mechanics are improved.
-        config.ClosedLoopRamps.VoltageClosedLoopRampPeriod = 8.0;  // seconds from 0 to full voltage
+        config.ClosedLoopRamps.VoltageClosedLoopRampPeriod = 6.0;  // TODO seconds from 0 to full voltage
 
         return config;
     }

@@ -191,8 +191,10 @@ public class RobotContainer {
             shooter.setTargetHoodPose(ShooterSubsystem.PASS_SHOT_HOOD);
             shooter.prepareToShoot();
         }));
-
+        driver.y().whileTrue(
+            Commands.startEnd(indexer::indexerForward, indexer::indexerStop));
         // POV Up: Eject from shooter (clear jams, 1 second reverse)
+        
         driver.povUp().onTrue(ShooterCommands.eject(shooter, 1.0));
 
         // ----- Indexer -----
