@@ -13,12 +13,12 @@ import edu.wpi.first.wpilibj2.command.Commands;
  */
 public class IndexerCommands {
 
-    // ===== Motor Speeds =====
-    // These are duty-cycle values (-1.0 to 1.0)
-    private static final double FEED_SPEED = 0.8;       // Forward speed to feed pieces to shooter
-    private static final double CONVEYOR_SPEED = 0.6;    // Forward speed for conveyor belt
-    private static final double EJECT_SPEED = -0.6;      // Reverse speed to eject jams
-    private static final double INTAKE_SPEED = 0.4;      // Slower speed for intaking into hopper
+    // ===== Motor Voltages =====
+    // These are voltage values sent via VoltageOut for battery-independent behavior
+    private static final double FEED_VOLTS = 9.6;        // Forward voltage to feed pieces to shooter
+    private static final double CONVEYOR_VOLTS = 7.2;    // Forward voltage for conveyor belt
+    private static final double EJECT_VOLTS = -7.2;      // Reverse voltage to eject jams
+    private static final double INTAKE_VOLTS = 4.8;      // Slower voltage for intaking into hopper
 
     /**
      * Creates a command that feeds a game piece to the shooter for a set duration.
@@ -32,8 +32,8 @@ public class IndexerCommands {
         return Commands.sequence(
             Commands.runOnce(() -> {
                 indexer.setState("FEEDING");
-                indexer.setConveyorMotorSpeed(CONVEYOR_SPEED);
-                indexer.setIndexerMotorSpeed(FEED_SPEED);
+                indexer.setConveyorMotorVolts(CONVEYOR_VOLTS);
+                indexer.setIndexerMotorVolts(FEED_VOLTS);
             }, indexer),
             Commands.waitSeconds(durationSeconds),
             Commands.runOnce(() -> {
@@ -54,8 +54,8 @@ public class IndexerCommands {
         return Commands.startEnd(
             () -> {
                 indexer.setState("FEEDING");
-                indexer.setConveyorMotorSpeed(CONVEYOR_SPEED);
-                indexer.setIndexerMotorSpeed(FEED_SPEED);
+                indexer.setConveyorMotorVolts(CONVEYOR_VOLTS);
+                indexer.setIndexerMotorVolts(FEED_VOLTS);
             },
             () -> {
                 indexer.stop();
@@ -77,7 +77,7 @@ public class IndexerCommands {
         return Commands.startEnd(
             () -> {
                 indexer.setState("INTAKING");
-                indexer.setConveyorMotorSpeed(INTAKE_SPEED);
+                indexer.setConveyorMotorVolts(INTAKE_VOLTS);
             },
             () -> {
                 indexer.stop();
@@ -99,8 +99,8 @@ public class IndexerCommands {
         return Commands.sequence(
             Commands.runOnce(() -> {
                 indexer.setState("EJECTING");
-                indexer.setConveyorMotorSpeed(EJECT_SPEED);
-                indexer.setIndexerMotorSpeed(EJECT_SPEED);
+                indexer.setConveyorMotorVolts(EJECT_VOLTS);
+                indexer.setIndexerMotorVolts(EJECT_VOLTS);
             }, indexer),
             Commands.waitSeconds(durationSeconds),
             Commands.runOnce(() -> {

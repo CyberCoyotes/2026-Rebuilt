@@ -15,6 +15,7 @@ import choreo.auto.AutoFactory;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.RobotModeTriggers;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
@@ -210,6 +211,17 @@ public class RobotContainer {
         // operator.povUp().onTrue(ShooterCommands.increaseTargetVelocity(shooter, ShooterSubsystem.FLYWHEEL_TEST_INCREMENT_RPM));
         // POV Down: Decrease flywheel velocity by 100 RPM
         // operator.povDown().onTrue(ShooterCommands.decreaseTargetVelocity(shooter, ShooterSubsystem.FLYWHEEL_TEST_INCREMENT_RPM));
+
+        // TODO Add testing bindings for conveyor and indexer
+        operator.a().whileTrue(
+            Commands.startEnd(indexer::conveyorForward, indexer::conveyorStop));
+        operator.b().whileTrue(
+            Commands.startEnd(indexer::conveyorReverse, indexer::conveyorStop));
+        operator.x().whileTrue(
+            Commands.startEnd(indexer::indexerForward, indexer::indexerStop));
+        operator.y().whileTrue(
+            Commands.startEnd(indexer::indexerReverse, indexer::indexerStop));       
+
     }
 
     public Command getAutonomousCommand() {

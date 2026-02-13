@@ -107,18 +107,18 @@ public interface IndexerIO {
     default void updateInputs(IndexerIOInputs inputs) {}
 
     /**
-     * Sets the conveyor motor speed as a percentage.
+     * Sets the conveyor motor output voltage.
      *
-     * @param percent Motor speed from -1.0 to 1.0 (+ = toward indexer, - = reverse)
+     * @param volts Motor voltage (+ = toward indexer, - = reverse)
      */
-    default void setConveyorMotor(double percent) {}
+    default void setConveyorMotor(double volts) {}
 
     /**
-     * Sets the indexer motor speed as a percentage.
+     * Sets the indexer motor output voltage.
      *
-     * @param percent Motor speed from -1.0 to 1.0 (+ = toward shooter, - = reverse)
+     * @param volts Motor voltage (+ = toward shooter, - = reverse)
      */
-    default void setIndexerMotor(double percent) {}
+    default void setIndexerMotor(double volts) {}
 
     /**
      * Stops both motors.

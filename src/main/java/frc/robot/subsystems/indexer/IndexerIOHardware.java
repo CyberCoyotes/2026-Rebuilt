@@ -2,8 +2,9 @@ package frc.robot.subsystems.indexer;
 
 import com.ctre.phoenix6.BaseStatusSignal;
 import com.ctre.phoenix6.StatusSignal;
-import com.ctre.phoenix6.controls.DutyCycleOut;
+import com.ctre.phoenix6.controls.VoltageOut;
 import com.ctre.phoenix6.hardware.TalonFX;
+import com.ctre.phoenix6.hardware.TalonFXS;
 import com.playingwithfusion.TimeOfFlight;
 import com.playingwithfusion.TimeOfFlight.RangingMode;
 
@@ -32,7 +33,7 @@ import frc.robot.util.TalonFXConfigs;
 public class IndexerIOHardware implements IndexerIO {
 
     // ===== Hardware =====
-    private final TalonFX conveyorMotor;   // Also called "conveyor" in Constants
+    private final TalonFXS conveyorMotor;   // TalonFXS with Minion motor
     private final TalonFX indexerMotor;  // Also called "indexer" in Constants
 
     // Time-of-Flight sensors
@@ -42,8 +43,8 @@ public class IndexerIOHardware implements IndexerIO {
     private final TimeOfFlight hopperCToF;  // Hopper position C
 
     // ===== Control Requests =====
-    private final DutyCycleOut conveyorDutyCycleRequest = new DutyCycleOut(0.0); // TODO Change to VelocityOut if we want velocity control later
-    private final DutyCycleOut indexerDutyCycleRequest = new DutyCycleOut(0.0); // TODO Change to VelocityOut if we want velocity control later
+    private final VoltageOut conveyorVoltageRequest = new VoltageOut(0.0);
+    private final VoltageOut indexerVoltageRequest = new VoltageOut(0.0);
 
     // ===== Status Signals (for efficient reading) =====
     // Note: Phoenix 6 uses typed StatusSignals, we just read the value
@@ -77,11 +78,11 @@ public class IndexerIOHardware implements IndexerIO {
 
         // Create motor objects
         // Note: Constants use "CONVEYOR" and "INDEXER" naming, we use "conveyor" and "indexer"
-        conveyorMotor = new TalonFX(Constants.Indexer.CONVEYOR_MOTOR_ID); // TODO add new CANbus arg
+        conveyorMotor = new TalonFXS(Constants.Indexer.CONVEYOR_MOTOR_ID); // TODO add new CANbus arg
         indexerMotor = new TalonFX(Constants.Indexer.INDEXER_MOTOR_ID); // TODO add new CANbus arg
 
         // Apply configurations from centralized config class
-        conveyorMotor.getConfigurator().apply(TalonFXConfigs.indexerConfig());
+        conveyorMotor.getConfigurator().apply(TalonFXConfigs.conveyorConfig());
         indexerMotor.getConfigurator().apply(TalonFXConfigs.indexerConfig());
 
         // Create and configure ToF sensors
@@ -180,12 +181,12 @@ public class IndexerIOHardware implements IndexerIO {
 
     @Override
     public void setConveyorMotor(double percent) {
-        conveyorMotor.setControl(conveyorDutyCycleRequest.withOutput(percent));
+        conveyorMotor.setControl(conveyorVoltageRequest .withOutput(percent));
     }
 
     @Override
     public void setIndexerMotor(double percent) {
-        indexerMotor.setControl(indexerDutyCycleRequest.withOutput(percent));
+        indexerMotor.setControl(indexerVoltageRequest.withOutput(percent));
     }
 
     @Override
