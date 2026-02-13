@@ -61,6 +61,7 @@ public class ShooterSubsystem extends SubsystemBase {
     private final DoublePublisher targetHoodPublisher;
     private final DoublePublisher flywheelErrorPublisher;
     private final DoublePublisher hoodErrorPublisher;
+    private final BooleanPublisher hoodAtPosePublisher;
 
     // ===== NetworkTables Tuning Subscribers (read from Elastic) =====
     private final NetworkTable tuningTable;
@@ -155,6 +156,7 @@ public class ShooterSubsystem extends SubsystemBase {
         targetHoodPublisher = shooterTable.getDoubleTopic("TargetHoodAngle").publish();
         flywheelErrorPublisher = shooterTable.getDoubleTopic("FlywheelError").publish();
         hoodErrorPublisher = shooterTable.getDoubleTopic("HoodError").publish();
+        hoodAtPosePublisher = shooterTable.getBooleanTopic("HoodAtPose").publish();
 
         // Initialize tuning table — separate subtable keeps Elastic organized
         // In Elastic, add Number Slider widgets bound to /Shooter/Tuning/RPM and /Shooter/Tuning/Angle
@@ -241,6 +243,7 @@ public class ShooterSubsystem extends SubsystemBase {
         targetHoodPublisher.set(targetHoodPose);
         flywheelErrorPublisher.set(getFlywheelError());
         hoodErrorPublisher.set(getHoodError());
+        hoodAtPosePublisher.set(isHoodAtPose());
     }
 
     /**
