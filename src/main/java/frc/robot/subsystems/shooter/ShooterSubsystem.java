@@ -88,9 +88,9 @@ public class ShooterSubsystem extends SubsystemBase {
     private boolean tuningActive = false;
 
     // ===== Constants =====
-    /** Maximum flywheel velocity (RPM) */
-    private static final double MAX_VELOCITY_RPM = 3000.0;  // TODO Find actual max RPM of flywheel with current gearing and motor configuration. Dropping to 3000 for testing without flywheel for now.
-
+    /** Maximum flywheel velocity (RPM) Free Spin*/
+    // TODO Find actual max RPM of flywheel with current gearing and motor configuration.
+    private static final double MAX_VELOCITY_RPM = 6380.0;  
     /** Minimum hood pose (degrees) - used for IDLE and EJECT */
     private static final double MIN_HOOD_POSE = 0.0;  // TODO: RAW value of 0 on startup location. 
 
@@ -101,7 +101,7 @@ public class ShooterSubsystem extends SubsystemBase {
     private static final double FLYWHEEL_TOLERANCE_PERCENT = 0.03;  // 3% tolerance — tight enough for accuracy, forgiving enough for real motors
 
     /** Hood pose tolerance (degrees) */
-    private static final double HOOD_POSE_TOLERANCE = 0.15;  // TODO Set an appropriate 0.5 degree tolerance — critical for shot consistency
+    private static final double HOOD_POSE_TOLERANCE = 0.10;  // TODO Set an appropriate 0.5 degree tolerance — critical for shot consistency
 
     /** Testing increment for manual hood adjustment (degrees). */
     public static final double HOOD_TEST_INCREMENT = 0.5;
