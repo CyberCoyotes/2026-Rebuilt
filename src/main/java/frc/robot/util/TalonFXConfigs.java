@@ -42,7 +42,7 @@ public class TalonFXConfigs {
         config.CurrentLimits.SupplyCurrentLimitEnable = true;
 
         // Stator (output) current limit
-        config.CurrentLimits.StatorCurrentLimit = 80.0;
+        config.CurrentLimits.StatorCurrentLimit = 20.0;
         config.CurrentLimits.StatorCurrentLimitEnable = true;
 
         // Velocity PID - Slot 0 (tune these values!)
@@ -51,6 +51,11 @@ public class TalonFXConfigs {
         config.Slot0.kD = 0.0;
         config.Slot0.kV = 0.12;  // Feedforward velocity term
         config.Slot0.kS = 0.0;   // Feedforward static friction term
+
+        // Closed-loop ramp rate — limits how fast the PID output voltage can change.
+        // Prevents belt slipping from sudden torque spikes during flywheel acceleration.
+        // Shorten this value once belt mechanics are improved.
+        config.ClosedLoopRamps.VoltageClosedLoopRampPeriod = 6.0;  // TODO seconds from 0 to full voltage
 
         return config;
     }
@@ -162,7 +167,7 @@ public class TalonFXConfigs {
      *
      * @return Configured TalonFXSConfiguration for hood use
      */
-    public static TalonFXSConfiguration shooterHoodConfig() {
+    public static TalonFXSConfiguration hoodConfig() {
         var config = new TalonFXSConfiguration();
 
         // TalonFXS motor arrangement - Minion connected via JST

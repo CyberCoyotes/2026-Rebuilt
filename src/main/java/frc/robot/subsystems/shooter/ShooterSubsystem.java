@@ -62,6 +62,8 @@ public class ShooterSubsystem extends SubsystemBase {
     private final DoublePublisher flywheelErrorPublisher;
     private final DoublePublisher hoodErrorPublisher;
     private final BooleanPublisher hoodAtPosePublisher;
+    private final DoublePublisher flywheelVoltsPublisher;
+    private final DoublePublisher flywheelMotorRpsPublisher;
     private final DoublePublisher throughBorePositionPublisher;
     private final BooleanPublisher throughBoreConnectedPublisher;
 
@@ -87,7 +89,7 @@ public class ShooterSubsystem extends SubsystemBase {
 
     // ===== Constants =====
     /** Maximum flywheel velocity (RPM) */
-    private static final double MAX_VELOCITY_RPM = 6000.0;  // TODO: Find actual max RPM
+    private static final double MAX_VELOCITY_RPM = 3000.0;  // TODO Find actual max RPM of flywheel with current gearing and motor configuration. Dropping to 3000 for testing without flywheel for now.
 
     /** Minimum hood pose (degrees) - used for IDLE and EJECT */
     private static final double MIN_HOOD_POSE = 0.0;  // TODO: RAW value of 0 on startup location. 
@@ -123,20 +125,25 @@ public class ShooterSubsystem extends SubsystemBase {
 
     // ===== Shooting Presets (for READY state) =====
     /** Close shot velocity (RPM) */
-    public static final double CLOSE_SHOT_RPM = 3000.0;  // TODO: Tune close shot RPM
+    public static final double CLOSE_SHOT_RPM = 1000.0;  // TODO: Tune close shot RPM
     public static final double CLOSE_SHOT_HOOD = 0.0;  // TODO: Tune close shot hood pose
     // public static final double CLOSE_SHOT_ANGLE = 25.0;
 
     /** Far shot velocity (RPM) */
-    public static final double FAR_SHOT_RPM = 3000.0;  // TODO: Tune far shot RPM
+    public static final double FAR_SHOT_RPM = 1500.0;  // TODO: Tune far shot RPM
     public static final double FAR_SHOT_HOOD = MAX_HOOD_POSE * (0.5);  // TODO: Tune far shot hood pose
     // public static final double FAR_SHOT_ANGLE = 45.0;  //
 
-    public static final double PASS_SHOT_RPM = 3000.0;  // TODO: Tune pass RPM
+    public static final double PASS_SHOT_RPM = 1500.0;  // TODO: Tune pass RPM
     public static final double PASS_SHOT_HOOD = MAX_HOOD_POSE - (0.10 * MAX_HOOD_POSE);  // TODO: Tune pass shot Hood Pose
     
     /** Default flywheel velocity testing increment (RPM) */
     public static final double FLYWHEEL_TEST_INCREMENT_RPM = 100.0;
+
+    /** Default target RPM for flywheel ramp-up testing */
+    public static final double RAMP_TEST_TARGET_RPM = 1500.0; // TODO Test this value // 1000 
+    // 1000 RPM is a soft lob
+    //
 
     /**
      * Creates a new ShooterSubsystem.
@@ -159,6 +166,8 @@ public class ShooterSubsystem extends SubsystemBase {
         flywheelErrorPublisher = shooterTable.getDoubleTopic("FlywheelError").publish();
         hoodErrorPublisher = shooterTable.getDoubleTopic("HoodError").publish();
         hoodAtPosePublisher = shooterTable.getBooleanTopic("HoodAtPose").publish();
+        flywheelVoltsPublisher = shooterTable.getDoubleTopic("FlywheelAppliedVolts").publish();
+        flywheelMotorRpsPublisher = shooterTable.getDoubleTopic("FlywheelMotorRPS").publish();
         throughBorePositionPublisher = shooterTable.getDoubleTopic("ThroughBorePosition").publish();
         throughBoreConnectedPublisher = shooterTable.getBooleanTopic("ThroughBoreConnected").publish();
 
@@ -248,6 +257,8 @@ public class ShooterSubsystem extends SubsystemBase {
         flywheelErrorPublisher.set(getFlywheelError());
         hoodErrorPublisher.set(getHoodError());
         hoodAtPosePublisher.set(isHoodAtPose());
+        flywheelVoltsPublisher.set(inputs.flywheelAppliedVolts);
+        flywheelMotorRpsPublisher.set(inputs.flywheelMotorRPS);
         throughBorePositionPublisher.set(inputs.hoodThroughBorePositionRotations);
         throughBoreConnectedPublisher.set(inputs.hoodThroughBoreConnected);
     }
@@ -538,6 +549,28 @@ public class ShooterSubsystem extends SubsystemBase {
      */
     public void decreaseTargetVelocity() {
         adjustTargetVelocity(-FLYWHEEL_TEST_INCREMENT_RPM);
+    }
+
+    // ===== Flywheel Ramp Testing =====
+
+    /**
+     * Creates a command that ramps the flywheel up to a target RPM from idle,
+     * then returns to idle when the command ends.
+     * The actual ramp rate is governed by ClosedLoopRamps in TalonFXConfigs.
+     * Use this to test belt slip behavior during acceleration.
+     *
+     * @param targetRPM Target flywheel velocity
+     * @return Command that ramps flywheel and idles on cancel
+     */
+    public Command flywheelRampTest(double targetRPM) {
+        return Commands.startEnd(
+            () -> {
+                setTargetVelocity(targetRPM);
+                prepareToShoot();
+            },
+            this::setIdle,
+            this
+        ).withName("FlywheelRampTest");
     }
 
     // ===== Vision Integration =====

@@ -162,6 +162,12 @@ public class RobotContainer {
         );
          */
 
+        // Right Trigger: Flywheel ramp-up test — hold to ramp to target RPM, release to idle.
+        // Ramp rate governed by ClosedLoopRamps in TalonFXConfigs (currently 4s).
+        driver.rightTrigger(0.5).whileTrue(
+            ShooterCommands.rampUpFlywheel(shooter, ShooterSubsystem.RAMP_TEST_TARGET_RPM)
+        );
+
         // Y: Close shot (prepare and wait for ready)
         // driver.a().onTrue(ShooterCommands.closeShot(shooter)); // TODO Comment out for testing without flywheel
         // Close shot hood preset — sets target AND transitions to READY so motor actually moves
@@ -185,8 +191,10 @@ public class RobotContainer {
             shooter.setTargetHoodPose(ShooterSubsystem.PASS_SHOT_HOOD);
             shooter.prepareToShoot();
         }));
-
+        driver.y().whileTrue(
+            Commands.startEnd(indexer::indexerForward, indexer::indexerStop));
         // POV Up: Eject from shooter (clear jams, 1 second reverse)
+        
         driver.povUp().onTrue(ShooterCommands.eject(shooter, 1.0));
 
         // ----- Indexer -----
