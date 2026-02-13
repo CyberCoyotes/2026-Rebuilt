@@ -288,6 +288,19 @@ public class ShooterCommands {
             .withName("WarmUpShooter");
     }
 
+    /**
+     * Creates a command that ramps the flywheel up to a target RPM for belt-slip testing.
+     * The ramp rate is controlled by ClosedLoopRamps in TalonFXConfigs (currently 4 seconds).
+     * Hold the button to keep the flywheel spinning; release to idle.
+     *
+     * @param shooter The shooter subsystem
+     * @param targetRPM Target flywheel velocity
+     * @return Command that ramps flywheel and idles on release
+     */
+    public static Command rampUpFlywheel(ShooterSubsystem shooter, double targetRPM) {
+        return shooter.flywheelRampTest(targetRPM);
+    }
+
     // Private constructor to prevent instantiation
     private ShooterCommands() {
         throw new UnsupportedOperationException("This is a utility class!");

@@ -52,6 +52,11 @@ public class TalonFXConfigs {
         config.Slot0.kV = 0.12;  // Feedforward velocity term
         config.Slot0.kS = 0.0;   // Feedforward static friction term
 
+        // Closed-loop ramp rate — limits how fast the PID output voltage can change.
+        // Prevents belt slipping from sudden torque spikes during flywheel acceleration.
+        // Shorten this value once belt mechanics are improved.
+        config.ClosedLoopRamps.VoltageClosedLoopRampPeriod = 4.0;  // seconds from 0 to full voltage
+
         return config;
     }
 

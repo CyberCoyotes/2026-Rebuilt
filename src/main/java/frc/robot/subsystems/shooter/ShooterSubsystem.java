@@ -138,6 +138,9 @@ public class ShooterSubsystem extends SubsystemBase {
     /** Default flywheel velocity testing increment (RPM) */
     public static final double FLYWHEEL_TEST_INCREMENT_RPM = 100.0;
 
+    /** Default target RPM for flywheel ramp-up testing */
+    public static final double RAMP_TEST_TARGET_RPM = 3000.0;
+
     /**
      * Creates a new ShooterSubsystem.
      *
@@ -538,6 +541,28 @@ public class ShooterSubsystem extends SubsystemBase {
      */
     public void decreaseTargetVelocity() {
         adjustTargetVelocity(-FLYWHEEL_TEST_INCREMENT_RPM);
+    }
+
+    // ===== Flywheel Ramp Testing =====
+
+    /**
+     * Creates a command that ramps the flywheel up to a target RPM from idle,
+     * then returns to idle when the command ends.
+     * The actual ramp rate is governed by ClosedLoopRamps in TalonFXConfigs.
+     * Use this to test belt slip behavior during acceleration.
+     *
+     * @param targetRPM Target flywheel velocity
+     * @return Command that ramps flywheel and idles on cancel
+     */
+    public Command flywheelRampTest(double targetRPM) {
+        return Commands.startEnd(
+            () -> {
+                setTargetVelocity(targetRPM);
+                prepareToShoot();
+            },
+            this::setIdle,
+            this
+        ).withName("FlywheelRampTest");
     }
 
     // ===== Vision Integration =====
