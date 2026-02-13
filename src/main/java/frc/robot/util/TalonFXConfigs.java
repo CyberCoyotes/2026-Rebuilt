@@ -42,7 +42,7 @@ public class TalonFXConfigs {
         config.CurrentLimits.SupplyCurrentLimitEnable = true;
 
         // Stator (output) current limit
-        config.CurrentLimits.StatorCurrentLimit = 80.0;
+        config.CurrentLimits.StatorCurrentLimit = 20.0;
         config.CurrentLimits.StatorCurrentLimitEnable = true;
 
         // Velocity PID - Slot 0 (tune these values!)
