@@ -90,7 +90,7 @@ public class ShooterSubsystem extends SubsystemBase {
     private static final double MIN_HOOD_POSE = 0.0;  // TODO: RAW value of 0 on startup location. 
 
     /** Maximum hood pose (degrees) - used for PASS */
-    private static final double MAX_HOOD_POSE = 9.18;  // TODO: RAW value measured in Phoenix Tuner
+    private static final double MAX_HOOD_POSE = 9.14;  // TODO: RAW value measured in Phoenix Tuner
 
     /** Flywheel velocity tolerance (percentage of target, 0.0-1.0) */
     private static final double FLYWHEEL_TOLERANCE_PERCENT = 0.03;  // 3% tolerance — tight enough for accuracy, forgiving enough for real motors
@@ -99,9 +99,7 @@ public class ShooterSubsystem extends SubsystemBase {
     private static final double HOOD_POSE_TOLERANCE = 0.15;  // TODO Set an appropriate 0.5 degree tolerance — critical for shot consistency
 
     /** Testing increment for manual hood adjustment (degrees). */
-    public static final double HOOD_TEST_INCREMENTS = 0.5;
-
-    public static final double HOOD_TEST_INCREMENT_DEGREES = 5.0;
+    public static final double HOOD_TEST_INCREMENT = 0.5;
 
     // ===== State-Specific Constants =====
     /** SPINUP: Pre-rev flywheel velocity (20% of max) */
@@ -439,12 +437,12 @@ public class ShooterSubsystem extends SubsystemBase {
 
     /** Raises hood target by the standard testing increment. */
     public void increaseHoodForTesting() {
-        adjustTargetHoodPose(HOOD_TEST_INCREMENT_DEGREES);
+        adjustTargetHoodPose(HOOD_TEST_INCREMENT);
     }
 
     /** Lowers hood target by the standard testing increment. */
     public void decreaseHoodForTesting() {
-        adjustTargetHoodPose(-HOOD_TEST_INCREMENT_DEGREES);
+        adjustTargetHoodPose(-HOOD_TEST_INCREMENT);
     }
 
     /**

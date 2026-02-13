@@ -164,18 +164,27 @@ public class RobotContainer {
 
         // Y: Close shot (prepare and wait for ready)
         // driver.a().onTrue(ShooterCommands.closeShot(shooter)); // TODO Comment out for testing without flywheel
-        // Close shot hood preset
-        driver.a().onTrue(Commands.runOnce(() -> shooter.setTargetHoodPose(ShooterSubsystem.CLOSE_SHOT_HOOD)));
+        // Close shot hood preset — sets target AND transitions to READY so motor actually moves
+        driver.a().onTrue(Commands.runOnce(() -> {
+            shooter.setTargetHoodPose(ShooterSubsystem.CLOSE_SHOT_HOOD);
+            shooter.prepareToShoot();
+        }));
 
         // X: Far shot (prepare and wait for ready)
         // driver.x().onTrue(ShooterCommands.farShot(shooter)); // TODO Comment out for testing without flywheel
         // Far shot hood preset
-        driver.x().onTrue(Commands.runOnce(() -> shooter.setTargetHoodPose(ShooterSubsystem.FAR_SHOT_HOOD)));
+        driver.x().onTrue(Commands.runOnce(() -> {
+            shooter.setTargetHoodPose(ShooterSubsystem.FAR_SHOT_HOOD);
+            shooter.prepareToShoot();
+        }));
 
         // B: Pass shot (prepare and wait for ready)
         // driver.b().onTrue(ShooterCommands.pass(shooter)); // TODO Comment out for testing without flywheel
         // Pass shot hood preset
-        driver.b().onTrue(Commands.runOnce(() -> shooter.setTargetHoodPose(ShooterSubsystem.PASS_SHOT_HOOD)));
+        driver.b().onTrue(Commands.runOnce(() -> {
+            shooter.setTargetHoodPose(ShooterSubsystem.PASS_SHOT_HOOD);
+            shooter.prepareToShoot();
+        }));
 
         // POV Up: Eject from shooter (clear jams, 1 second reverse)
         driver.povUp().onTrue(ShooterCommands.eject(shooter, 1.0));
@@ -201,17 +210,17 @@ public class RobotContainer {
         // driver.povDown().onTrue(climber.retractArm());
         
         // POV Right: Extend climber arm (while held)
-        driver.povRight().whileTrue(climber.extendArm());
+        // driver.povRight().whileTrue(climber.extendArm());
         // POV Left: Retract climber arm (while held)
-        driver.povLeft().whileTrue(climber.retractArm());
+        // driver.povLeft().whileTrue(climber.retractArm());
 
         // Start: Stop climber
        // operator.start().onTrue(climber.stopClimber());
 
         // ----- Operator Controller (Port 1) - Shooter Hood Testing -----
         // TODO: Uncomment these POV bindings once we are ready to do on-robot hood increment testing.
-        // operator.povLeft().onTrue(shooter.runOnce(shooter::decreaseHoodForTesting));
-        // operator.povRight().onTrue(shooter.runOnce(shooter::increaseHoodForTesting));
+        operator.povLeft().onTrue(shooter.runOnce(shooter::decreaseHoodForTesting));
+        operator.povRight().onTrue(shooter.runOnce(shooter::increaseHoodForTesting));
 
         // Hood position testing (closed-loop position control)
         operator.rightBumper().onTrue(shooter.runHoodToMax());   // Move hood to MAX_HOOD_POSE
