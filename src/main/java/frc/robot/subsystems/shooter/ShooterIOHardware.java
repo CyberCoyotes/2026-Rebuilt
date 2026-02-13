@@ -7,6 +7,7 @@ import com.ctre.phoenix6.configs.CANcoderConfiguration;
 import com.ctre.phoenix6.controls.VelocityVoltage;
 import com.ctre.phoenix6.controls.PositionVoltage;
 import com.ctre.phoenix6.controls.Follower;
+import com.ctre.phoenix6.controls.VoltageOut;
 import com.ctre.phoenix6.hardware.CANcoder;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.hardware.TalonFXS;
@@ -44,6 +45,7 @@ public class ShooterIOHardware implements ShooterIO {
     private final VelocityVoltage flywheelVelocityRequest = new VelocityVoltage(0.0).withEnableFOC(true);
     private final VelocityVoltage counterWheelVelocityRequest = new VelocityVoltage(0.0).withEnableFOC(true);
     private final PositionVoltage hoodPositionRequest = new PositionVoltage(0.0);
+    private final VoltageOut hoodVoltageRequest = new VoltageOut(0.0);
 
     // ===== Status Signals (for efficient reading) =====
     // Flywheel A
@@ -81,8 +83,9 @@ public class ShooterIOHardware implements ShooterIO {
     /** Gear ratio from motor to flywheel (motor rotations per flywheel rotation) */
     private static final double FLYWHEEL_GEAR_RATIO = 1.5;  // TODO: Measure actual ratio
 
-    /** Gear ratio from motor to hood (motor rotations per degree of hood movement) */
-    private static final double HOOD_GEAR_RATIO = 100.0;  // TODO: Measure actual ratio
+    // Hood gear ratio — NOT currently used. Hood values are raw motor rotations from Phoenix Tuner.
+    // Uncomment if a mechanical gear ratio conversion is needed later.
+    // private static final double HOOD_GEAR_RATIO = 100.0;  // TODO: Measure actual ratio 23:1 or 1:23
 
     /**
      * Creates a new ShooterIOTalonFX instance.
@@ -228,8 +231,8 @@ public class ShooterIOHardware implements ShooterIO {
             flywheelBTemp.getValueAsDouble()),
             flywheelCTemp.getValueAsDouble());  // Highest temp
 
-        // Hood data (convert motor rotations to degrees)
-        inputs.hoodAngleDegrees = motorRotationsToDegrees(hoodPosition.getValueAsDouble());
+        // Hood data — raw motor rotations, no conversion needed (matches Phoenix Tuner units)
+        inputs.hoodAngleDegrees = hoodPosition.getValueAsDouble();
         inputs.hoodAppliedVolts = hoodVoltage.getValueAsDouble();
         inputs.hoodCurrentAmps = hoodCurrent.getValueAsDouble();
 
@@ -261,12 +264,15 @@ public class ShooterIOHardware implements ShooterIO {
     }
 
     @Override
-    public void setHoodPose(double degrees) {
-        // Convert degrees to motor rotations (accounting for gear ratio)
-        double motorRotations = degreesToMotorRotations(degrees);
+    public void setHoodPose(double rawPosition) {
+        // rawPosition is in motor rotations as measured in Phoenix Tuner (0 to ~9.14)
+        // No gear ratio conversion needed — values are already in motor units
+        hoodMotor.setControl(hoodPositionRequest.withPosition(rawPosition));
+    }
 
-        // Set position
-        hoodMotor.setControl(hoodPositionRequest.withPosition(motorRotations));
+    @Override
+    public void setHoodVoltage(double volts) {
+        hoodMotor.setControl(hoodVoltageRequest.withOutput(volts));
     }
 
     @Override
@@ -297,13 +303,18 @@ public class ShooterIOHardware implements ShooterIO {
         return rpm / 60.0;
     }
 
-    /** Converts hood angle in degrees to motor rotations */
-    private double degreesToMotorRotations(double degrees) {
-        return degrees * HOOD_GEAR_RATIO / 360.0;
-    }
-
-    /** Converts motor rotations to hood angle in degrees */
-    private double motorRotationsToDegrees(double rotations) {
-        return rotations * 360.0 / HOOD_GEAR_RATIO;
-    }
+    // Hood gear ratio conversion helpers — NOT currently used.
+    // Hood pose values (0 to ~9.14) are raw motor rotations from Phoenix Tuner,
+    // so no conversion is needed. These are kept in case a mechanical gear ratio
+    // is added later that requires converting between degrees and motor rotations.
+    //
+    // /** Converts hood angle in degrees to motor rotations */
+    // private double degreesToMotorRotations(double degrees) {
+    //     return degrees * HOOD_GEAR_RATIO / 360.0;
+    // }
+    //
+    // /** Converts motor rotations to hood angle in degrees */
+    // private double motorRotationsToDegrees(double rotations) {
+    //     return rotations * 360.0 / HOOD_GEAR_RATIO;
+    // }
 }

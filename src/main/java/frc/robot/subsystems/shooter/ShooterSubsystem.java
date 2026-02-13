@@ -9,6 +9,8 @@ import edu.wpi.first.networktables.DoubleSubscriber;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.networktables.StringPublisher;
+import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 /**
@@ -59,6 +61,9 @@ public class ShooterSubsystem extends SubsystemBase {
     private final DoublePublisher targetHoodPublisher;
     private final DoublePublisher flywheelErrorPublisher;
     private final DoublePublisher hoodErrorPublisher;
+    private final BooleanPublisher hoodAtPosePublisher;
+    private final DoublePublisher throughBorePositionPublisher;
+    private final BooleanPublisher throughBoreConnectedPublisher;
 
     // ===== NetworkTables Tuning Subscribers (read from Elastic) =====
     private final NetworkTable tuningTable;
@@ -85,19 +90,19 @@ public class ShooterSubsystem extends SubsystemBase {
     private static final double MAX_VELOCITY_RPM = 6000.0;  // TODO: Find actual max RPM
 
     /** Minimum hood pose (degrees) - used for IDLE and EJECT */
-    private static final double MIN_HOOD_POSE = 15.0;  // TODO: Measure actual range
+    private static final double MIN_HOOD_POSE = 0.0;  // TODO: RAW value of 0 on startup location. 
 
     /** Maximum hood pose (degrees) - used for PASS */
-    private static final double MAX_HOOD_POSE = 60.0;  // TODO: Measure actual range
+    private static final double MAX_HOOD_POSE = 9.14;  // TODO: RAW value measured in Phoenix Tuner
 
     /** Flywheel velocity tolerance (percentage of target, 0.0-1.0) */
     private static final double FLYWHEEL_TOLERANCE_PERCENT = 0.03;  // 3% tolerance — tight enough for accuracy, forgiving enough for real motors
 
     /** Hood pose tolerance (degrees) */
-    private static final double HOOD_POSE_TOLERANCE = 0.5;  // 0.5 degree tolerance — critical for shot consistency
+    private static final double HOOD_POSE_TOLERANCE = 0.15;  // TODO Set an appropriate 0.5 degree tolerance — critical for shot consistency
 
     /** Testing increment for manual hood adjustment (degrees). */
-    public static final double HOOD_TEST_INCREMENT_DEGREES = 5.0;
+    public static final double HOOD_TEST_INCREMENT = 0.5;
 
     // ===== State-Specific Constants =====
     /** SPINUP: Pre-rev flywheel velocity (20% of max) */
@@ -118,13 +123,18 @@ public class ShooterSubsystem extends SubsystemBase {
 
     // ===== Shooting Presets (for READY state) =====
     /** Close shot velocity (RPM) */
-    public static final double CLOSE_SHOT_RPM = 3000.0;  // TODO: Tune
-    public static final double CLOSE_SHOT_ANGLE = 25.0;  // TODO: Tune
+    public static final double CLOSE_SHOT_RPM = 3000.0;  // TODO: Tune close shot RPM
+    public static final double CLOSE_SHOT_HOOD = 0.0;  // TODO: Tune close shot hood pose
+    // public static final double CLOSE_SHOT_ANGLE = 25.0;
 
     /** Far shot velocity (RPM) */
-    public static final double FAR_SHOT_RPM = 5000.0;  // TODO: Tune
-    public static final double FAR_SHOT_ANGLE = 45.0;  // TODO: Tune
+    public static final double FAR_SHOT_RPM = 3000.0;  // TODO: Tune far shot RPM
+    public static final double FAR_SHOT_HOOD = MAX_HOOD_POSE * (0.5);  // TODO: Tune far shot hood pose
+    // public static final double FAR_SHOT_ANGLE = 45.0;  //
 
+    public static final double PASS_SHOT_RPM = 3000.0;  // TODO: Tune pass RPM
+    public static final double PASS_SHOT_HOOD = MAX_HOOD_POSE - (0.10 * MAX_HOOD_POSE);  // TODO: Tune pass shot Hood Pose
+    
     /** Default flywheel velocity testing increment (RPM) */
     public static final double FLYWHEEL_TEST_INCREMENT_RPM = 100.0;
 
@@ -148,6 +158,9 @@ public class ShooterSubsystem extends SubsystemBase {
         targetHoodPublisher = shooterTable.getDoubleTopic("TargetHoodAngle").publish();
         flywheelErrorPublisher = shooterTable.getDoubleTopic("FlywheelError").publish();
         hoodErrorPublisher = shooterTable.getDoubleTopic("HoodError").publish();
+        hoodAtPosePublisher = shooterTable.getBooleanTopic("HoodAtPose").publish();
+        throughBorePositionPublisher = shooterTable.getDoubleTopic("ThroughBorePosition").publish();
+        throughBoreConnectedPublisher = shooterTable.getBooleanTopic("ThroughBoreConnected").publish();
 
         // Initialize tuning table — separate subtable keeps Elastic organized
         // In Elastic, add Number Slider widgets bound to /Shooter/Tuning/RPM and /Shooter/Tuning/Angle
@@ -162,12 +175,12 @@ public class ShooterSubsystem extends SubsystemBase {
 
         // Subscribers read values back when changed from the Elastic dashboard
         tuneRpmSubscriber = tuningTable.getDoubleTopic("RPM").subscribe(CLOSE_SHOT_RPM);
-        tuneAngleSubscriber = tuningTable.getDoubleTopic("Angle").subscribe(CLOSE_SHOT_ANGLE);
+        tuneAngleSubscriber = tuningTable.getDoubleTopic("Hood RAW").subscribe(CLOSE_SHOT_HOOD);
         tuneEnableSubscriber = tuningTable.getBooleanTopic("Enable").subscribe(false);
 
         // Publish initial defaults so widgets appear in Elastic with sensible starting values
         tuneRpmPublisher.set(CLOSE_SHOT_RPM);
-        tuneAnglePublisher.set(CLOSE_SHOT_ANGLE);
+        tuneAnglePublisher.set(CLOSE_SHOT_HOOD);
         tuneEnablePublisher.set(false);
         tuneActivePublisher.set(false);
     }
@@ -234,6 +247,9 @@ public class ShooterSubsystem extends SubsystemBase {
         targetHoodPublisher.set(targetHoodPose);
         flywheelErrorPublisher.set(getFlywheelError());
         hoodErrorPublisher.set(getHoodError());
+        hoodAtPosePublisher.set(isHoodAtPose());
+        throughBorePositionPublisher.set(inputs.hoodThroughBorePositionRotations);
+        throughBoreConnectedPublisher.set(inputs.hoodThroughBoreConnected);
     }
 
     /**
@@ -430,12 +446,38 @@ public class ShooterSubsystem extends SubsystemBase {
 
     /** Raises hood target by the standard testing increment. */
     public void increaseHoodForTesting() {
-        adjustTargetHoodPose(HOOD_TEST_INCREMENT_DEGREES);
+        adjustTargetHoodPose(HOOD_TEST_INCREMENT);
     }
 
     /** Lowers hood target by the standard testing increment. */
     public void decreaseHoodForTesting() {
-        adjustTargetHoodPose(-HOOD_TEST_INCREMENT_DEGREES);
+        adjustTargetHoodPose(-HOOD_TEST_INCREMENT);
+    }
+
+    /**
+     * Commands the hood to MAX_HOOD_POSE using closed-loop position control.
+     * Uses the existing PositionVoltage PID — precise and repeatable.
+     */
+    public Command runHoodToMax() {
+        return Commands.runOnce(() -> {
+            setTargetHoodPose(MAX_HOOD_POSE);
+            if (currentState != ShooterState.READY) {
+                prepareToShoot();
+            }
+        }, this);
+    }
+
+    /**
+     * Commands the hood to MIN_HOOD_POSE using closed-loop position control.
+     * Uses the existing PositionVoltage PID — precise and repeatable.
+     */
+    public Command runHoodToMin() {
+        return Commands.runOnce(() -> {
+            setTargetHoodPose(MIN_HOOD_POSE);
+            if (currentState != ShooterState.READY) {
+                prepareToShoot();
+            }
+        }, this);
     }
 
     /**
@@ -455,7 +497,7 @@ public class ShooterSubsystem extends SubsystemBase {
      */
     public void closeShot() {
         setTargetVelocity(CLOSE_SHOT_RPM);
-        setTargetHoodPose(CLOSE_SHOT_ANGLE);
+        setTargetHoodPose(CLOSE_SHOT_HOOD);
         prepareToShoot();
     }
 
@@ -464,7 +506,7 @@ public class ShooterSubsystem extends SubsystemBase {
      */
     public void farShot() {
         setTargetVelocity(FAR_SHOT_RPM);
-        setTargetHoodPose(FAR_SHOT_ANGLE);
+        setTargetHoodPose(FAR_SHOT_HOOD);
         prepareToShoot();
     }
 
@@ -518,7 +560,7 @@ public class ShooterSubsystem extends SubsystemBase {
         double t = (distance - 1.0) / (5.0 - 1.0);  // 0.0 to 1.0
 
         double velocity = CLOSE_SHOT_RPM + t * (FAR_SHOT_RPM - CLOSE_SHOT_RPM);
-        double pose = CLOSE_SHOT_ANGLE + t * (FAR_SHOT_ANGLE - CLOSE_SHOT_ANGLE);
+        double pose = CLOSE_SHOT_HOOD + t * (FAR_SHOT_HOOD - CLOSE_SHOT_HOOD);
 
         setTargetVelocity(velocity);
         setTargetHoodPose(pose);
