@@ -167,7 +167,7 @@ public class TalonFXConfigs {
      *
      * @return Configured TalonFXSConfiguration for hood use
      */
-    public static TalonFXSConfiguration shooterHoodConfig() {
+    public static TalonFXSConfiguration hoodConfig() {
         var config = new TalonFXSConfiguration();
 
         // TalonFXS motor arrangement - Minion connected via JST

@@ -113,7 +113,7 @@ public class ShooterIOHardware implements ShooterIO {
         flywheelMotorA.getConfigurator().apply(TalonFXConfigs.shooterFlywheelConfig());
         flywheelMotorB.getConfigurator().apply(TalonFXConfigs.shooterFlywheelConfig());
         flywheelMotorC.getConfigurator().apply(TalonFXConfigs.shooterFlywheelConfig());
-        hoodMotor.getConfigurator().apply(TalonFXConfigs.shooterHoodConfig());
+        hoodMotor.getConfigurator().apply(TalonFXConfigs.hoodConfig());
         counterWheelMotor.getConfigurator().apply(TalonFXConfigs.shooterFlywheelConfig());
 
         // Set follower relationships (B and C follow A)
