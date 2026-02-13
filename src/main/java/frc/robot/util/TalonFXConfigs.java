@@ -180,9 +180,11 @@ public class TalonFXConfigs {
         config.CurrentLimits.SupplyCurrentLimit = 30.0;
         config.CurrentLimits.SupplyCurrentLimitEnable = true;
 
-        // Position PID - Slot 0 (tune these values!)
-        config.Slot0.kP = 1.0;   // TODO: Tune on real robot
-        config.Slot0.kI = 0.0;
+        // Position PID - Slot 0
+        // kP=1.0 alone leaves ~0.2-0.45 raw unit steady-state error (not enough voltage to overcome friction)
+        // kI accumulates error over time to push through that last bit
+        config.Slot0.kP = 1.0;   // TODO: Tune — increase if response is too sluggish
+        config.Slot0.kI = 0.75;   // TODO: Tune — helps eliminate steady-state error from friction/gravity
         config.Slot0.kD = 0.0;
 
         // Soft limits (TODO: set based on physical hood range)
