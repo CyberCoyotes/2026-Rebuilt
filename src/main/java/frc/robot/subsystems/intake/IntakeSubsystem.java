@@ -2,6 +2,7 @@ package frc.robot.subsystems.intake;
 
 import org.littletonrobotics.junction.Logger;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.Constants.Intake;
 
 
 @SuppressWarnings("unused") // Suppress warnings for unused right now
@@ -38,7 +39,11 @@ public class IntakeSubsystem extends SubsystemBase{
         io.setRotatorSpeed(speed);
     }
 
-       public void stopRotator(){
+    public void runRotator(){
+        io.setRotatorSpeed(IntakeConstants.ROTATOR_RUNNING_VELOCITY);
+    }
+    
+    public void stopRotator(){
         io.stopRotator();
     }
 
@@ -49,6 +54,16 @@ public class IntakeSubsystem extends SubsystemBase{
     //slide methods
     public void setSlidePosition(double position){
         io.setSlidePosition(position);
+    }
+
+    // Method wrapper to set the slide to the resting position
+    public void restSlides(){
+        io.setSlidePosition(IntakeConstants.SLIDE_RESTING_POSITION);
+    }
+
+    // Method wrapper to set the slide to the extended position
+    public void extendSlides(){
+        io.setSlidePosition(IntakeConstants.SLIDE_EXTENDED_POSITION);
     }
 
     public double getSlidePosition(){
