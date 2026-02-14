@@ -19,4 +19,13 @@ public class IntakeCommands {
     public Command stopJam(IntakeSubsystem intake){
         return Commands.startEnd(() -> intake.setRotatorSpeed(-IntakeConstants.ROTATOR_MAX_VELOCITY),() -> intake.setRotatorSpeed(0), intake).withTimeout(0.5);
     }
+
+    public Command slidesExtended(IntakeSubsystem intake, double position){
+        return Commands.runOnce(() -> intake.setSlidePosition(IntakeConstants.SLIDE_EXTENDED_POSITION), intake);
+    }
+
+    public Command slidesResting(IntakeSubsystem intake, double position){
+        return Commands.runOnce(() -> intake.setSlidePosition(IntakeConstants.SLIDE_RESTING_POSITION), intake);
+    }
+
 }
