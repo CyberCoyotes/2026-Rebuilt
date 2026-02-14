@@ -28,7 +28,7 @@ import frc.robot.util.TalonFXConfigs;
  * @see IndexerSubsystemBasic for a simpler direct-hardware approach (good for learning)
  */
 
-@SuppressWarnings("unused") // Remove when we approach comp ready code
+@SuppressWarnings("unused") // Suppress warnings for unused right now
 
 public class IndexerIOHardware implements IndexerIO {
 

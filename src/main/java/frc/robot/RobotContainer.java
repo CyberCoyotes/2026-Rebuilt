@@ -40,6 +40,8 @@ import frc.robot.subsystems.vision.VisionIOLimelight;
 import frc.robot.subsystems.vision.VisionIOSim;
 import frc.robot.subsystems.vision.VisionSubsystem;
 
+@SuppressWarnings("unused") // Suppress warnings for unused right now
+
 public class RobotContainer {
     private double MaxSpeed = 1.0 * TunerConstants.kSpeedAt12Volts.in(MetersPerSecond); // kSpeedAt12Volts desired top speed
     private double MaxAngularRate = RotationsPerSecond.of(0.75).in(RadiansPerSecond); // 3/4 of a rotation per second max angular velocity
@@ -153,7 +155,6 @@ public class RobotContainer {
 
         // ----- Shooter -----
        // ----- Full Sequences -----
-       //FIXME The belt needs to be fixed before enabling these commands
         // A: Full shoot sequence - close shot with indexer feed, then idle
         /*
         driver.rightTrigger(0.5).whileTrue(
