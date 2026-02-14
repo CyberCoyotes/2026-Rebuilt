@@ -196,9 +196,11 @@ public class IntakeIOHardware implements IntakeIO {
     }
 
     //returns true if is something close to indexer TOF
+    // /* */
     public boolean indexerTargetClose(){
         return (s_indexer.getRange() <= IntakeConstants.INDEXER_THRESHOLD) && s_indexer.isRangeValid();
     }
+    
 
     //multi-hardware methods
     public void toRestingState(){

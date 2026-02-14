@@ -22,6 +22,9 @@ import org.littletonrobotics.junction.inputs.LoggableInputs;
  * @see Constants.Indexer for hardware configuration
  * @see IndexerSubsystemBasic for a simpler direct-hardware approach (good for learning)
  */
+
+@SuppressWarnings("unused") // TODO Suppress warnings for unused right now
+
 public interface IndexerIO {
 
     /**
