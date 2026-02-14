@@ -97,8 +97,9 @@ public class ShooterSubsystem extends SubsystemBase {
     /** Maximum hood pose (degrees) - used for PASS */
     private static final double MAX_HOOD_POSE = 9.14;  // TODO: RAW value measured in Phoenix Tuner
 
-    /** Flywheel velocity tolerance (percentage of target, 0.0-1.0) */
-    private static final double FLYWHEEL_TOLERANCE_PERCENT = 0.03;  // 3% tolerance — tight enough for accuracy, forgiving enough for real motors
+    /** Flywheel velocity tolerance (percentage of target, 0.0-1.0) */ // 
+    private static final double FLYWHEEL_TOLERANCE_PERCENT = 0.10;  // TODO Increasing for basic testing
+    // 3% tolerance — tight enough for accuracy, forgiving enough for real motors
 
     /** Hood pose tolerance (degrees) */
     private static final double HOOD_POSE_TOLERANCE = 0.10;  // TODO Set an appropriate 0.5 degree tolerance — critical for shot consistency

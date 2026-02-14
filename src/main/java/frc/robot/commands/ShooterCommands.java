@@ -19,6 +19,46 @@ import frc.robot.subsystems.shooter.ShooterSubsystem;
  */
 public class ShooterCommands {
 
+    /** Percent tolerance for starting feed during ramp test (5%). */
+    private static final double RAMP_TEST_FEED_TOLERANCE = 0.05;
+
+
+    /**
+     * Basic ramp-test shooter command.
+     *
+     * Behavior:
+     *  - Commands the flywheel to ShooterSubsystem.RAMP_TEST_TARGET_RPM
+     *  - Once flywheel is within 5% of target RPM, starts feeding (conveyor + indexer)
+     *  - On end/cancel, stops feeding and returns shooter to IDLE
+     *
+     * Intended for use with a whileTrue() button binding.
+     */
+    public static Command rampTestShoot(ShooterSubsystem shooter, IndexerSubsystem indexer) {
+        final double targetRPM = ShooterSubsystem.RAMP_TEST_TARGET_RPM;
+
+        return Commands.sequence(
+            // Spin up to the ramp-test target
+            Commands.runOnce(() -> {
+                shooter.setTargetVelocity(targetRPM);
+                shooter.prepareToShoot();
+            }, shooter),
+
+            // Wait until flywheel is within 5% of the target RPM
+            Commands.waitUntil(() ->
+                Math.abs(shooter.getCurrentVelocityRPM() - targetRPM)
+                    <= Math.abs(targetRPM) * RAMP_TEST_FEED_TOLERANCE
+            ),
+
+            // Feed continuously until the command is released/canceled
+            IndexerCommands.feed(indexer)
+        )
+        .finallyDo(() -> {
+            indexer.stop();
+            shooter.setIdle();
+        })
+        .withName("RampTestShoot");
+    }
+
     /**
      * Creates a command to pre-rev the shooter flywheel (SPINUP state).
      * This gets the flywheel spinning at 20% max velocity to reduce spin-up time.
