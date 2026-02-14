@@ -16,19 +16,22 @@ public class IntakeCommands {
        );
         }
 
-    public Command intakeFuel(IntakeSubsystem intake){
+    public Command intakeFuelWithSubCommands(IntakeSubsystem intake){
         // Make a parallel command that (1) extends the slides and (2) runs the rotator at the same time
         return Commands.parallel(
             // Wrap actions as Commands
             Commands.runOnce(() -> intake.extendSlides(), intake), // extends the slides
             // Commands.runOnce(intake::extendSlides, intake), // Functionally equivalent to the above line
             Commands.run(() -> intake.runRotator(), intake) // runs the rotator
-            // Commands.run(intake::runRotator, intake) 
-            /*Functionally equivalent to the above line. 
-             * Posted for demonstration of method reference syntax
-             * The lambda version is more consistent with the other command in this class and more flexible for future edits
-             * e.g. if we want to change the rotator speed based on sensor input, we would need to switch to a lambda anyway
-             */
+            // Commands.run(intake::runRotator, intake) // Functionally equivalent to the above line
+        );
+    }
+
+    public Command intakeFuel(IntakeSubsystem intake){
+        // Make a parallel command that (1) extends the slides and (2) runs the rotator at the same time
+        return Commands.parallel(
+            intake.extendSlidesCommand(), // extends the slides
+            intake.runRotatorCommand() // runs the rotator
         );
     }
 
