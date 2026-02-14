@@ -1,12 +1,18 @@
 package frc.robot.subsystems.shooter;
 
 import com.ctre.phoenix6.BaseStatusSignal;
+import com.ctre.phoenix6.StatusCode;
 import com.ctre.phoenix6.StatusSignal;
+import com.ctre.phoenix6.configs.CANcoderConfiguration;
 import com.ctre.phoenix6.controls.VelocityVoltage;
 import com.ctre.phoenix6.controls.PositionVoltage;
 import com.ctre.phoenix6.controls.Follower;
+import com.ctre.phoenix6.controls.VoltageOut;
+import com.ctre.phoenix6.hardware.CANcoder;
 import com.ctre.phoenix6.hardware.TalonFX;
+import com.ctre.phoenix6.hardware.TalonFXS;
 import com.ctre.phoenix6.signals.MotorAlignmentValue;
+import com.ctre.phoenix6.signals.SensorDirectionValue;
 
 import frc.robot.Constants;
 import frc.robot.util.TalonFXConfigs;
@@ -30,14 +36,16 @@ public class ShooterIOHardware implements ShooterIO {
     private final TalonFX flywheelMotorA;
     private final TalonFX flywheelMotorB;
     private final TalonFX flywheelMotorC;
-    private final TalonFX hoodMotor;
+    private final TalonFXS hoodMotor;
     private final TalonFX counterWheelMotor;
+    private final CANcoder hoodEncoder; // WCP ThroughBore Encoder via CANcoder
 
     // ===== Control Requests =====
     // FOC (Field Oriented Control) for flywheels - smoother, more efficient
     private final VelocityVoltage flywheelVelocityRequest = new VelocityVoltage(0.0).withEnableFOC(true);
     private final VelocityVoltage counterWheelVelocityRequest = new VelocityVoltage(0.0).withEnableFOC(true);
     private final PositionVoltage hoodPositionRequest = new PositionVoltage(0.0);
+    private final VoltageOut hoodVoltageRequest = new VoltageOut(0.0);
 
     // ===== Status Signals (for efficient reading) =====
     // Flywheel A
@@ -68,12 +76,16 @@ public class ShooterIOHardware implements ShooterIO {
     private final StatusSignal<?> counterWheelVoltage;
     private final StatusSignal<?> counterWheelCurrent;
 
+    // WCP ThroughBore Encoder (CANcoder)
+    private final StatusSignal<?> hoodEncoderAbsPosition;
+
     // ===== Conversion Constants =====
     /** Gear ratio from motor to flywheel (motor rotations per flywheel rotation) */
     private static final double FLYWHEEL_GEAR_RATIO = 1.5;  // TODO: Measure actual ratio
 
-    /** Gear ratio from motor to hood (motor rotations per degree of hood movement) */
-    private static final double HOOD_GEAR_RATIO = 100.0;  // TODO: Measure actual ratio
+    // Hood gear ratio — NOT currently used. Hood values are raw motor rotations from Phoenix Tuner.
+    // Uncomment if a mechanical gear ratio conversion is needed later.
+    // private static final double HOOD_GEAR_RATIO = 100.0;  // TODO: Measure actual ratio 23:1 or 1:23
 
     /**
      * Creates a new ShooterIOTalonFX instance.
@@ -85,15 +97,23 @@ public class ShooterIOHardware implements ShooterIO {
         flywheelMotorA = new TalonFX(Constants.Shooter.FLYWHEEL_A_MOTOR_ID); // TODO add new CANbus arg 
         flywheelMotorB = new TalonFX(Constants.Shooter.FLYWHEEL_B_MOTOR_ID); // TODO add new CANbus arg 
         flywheelMotorC = new TalonFX(Constants.Shooter.FLYWHEEL_C_MOTOR_ID); // TODO add new CANbus arg 
-        hoodMotor = new TalonFX(Constants.Shooter.HOOD_MOTOR_ID);
+        hoodMotor = new TalonFXS(Constants.Shooter.HOOD_MOTOR_ID);
         counterWheelMotor = new TalonFX(Constants.Shooter.COUNTER_WHEEL_MOTOR_ID);
+        hoodEncoder = new CANcoder(Constants.Shooter.HOOD_POSE_ENCODER_ID);
         // https://v6.docs.ctr-electronics.com/en/stable/docs/yearly-changes/yearly-changelog.html#talon-fx-improvements
+
+        // Configure WCP ThroughBore encoder (CANcoder)
+        var encoderConfig = new CANcoderConfiguration();
+        encoderConfig.MagnetSensor.AbsoluteSensorDiscontinuityPoint = 1.0; // Unsigned [0, 1) range
+        encoderConfig.MagnetSensor.SensorDirection = SensorDirectionValue.CounterClockwise_Positive; // TODO: Verify direction on robot
+        encoderConfig.MagnetSensor.MagnetOffset = 0.0; // TODO: Measure offset when hood is at home position
+        hoodEncoder.getConfigurator().apply(encoderConfig);
 
         // Apply configurations from centralized config class
         flywheelMotorA.getConfigurator().apply(TalonFXConfigs.shooterFlywheelConfig());
         flywheelMotorB.getConfigurator().apply(TalonFXConfigs.shooterFlywheelConfig());
         flywheelMotorC.getConfigurator().apply(TalonFXConfigs.shooterFlywheelConfig());
-        hoodMotor.getConfigurator().apply(TalonFXConfigs.shooterHoodConfig());
+        hoodMotor.getConfigurator().apply(TalonFXConfigs.hoodConfig());
         counterWheelMotor.getConfigurator().apply(TalonFXConfigs.shooterFlywheelConfig());
 
         // Set follower relationships (B and C follow A)
@@ -132,6 +152,9 @@ public class ShooterIOHardware implements ShooterIO {
         counterWheelVoltage = counterWheelMotor.getMotorVoltage();
         counterWheelCurrent = counterWheelMotor.getSupplyCurrent();
 
+        // WCP ThroughBore Encoder (CANcoder)
+        hoodEncoderAbsPosition = hoodEncoder.getAbsolutePosition();
+
         // Configure update frequencies for better performance
         // Critical signals: 100Hz, Less critical: 50Hz, Temperature: 4Hz
         BaseStatusSignal.setUpdateFrequencyForAll(
@@ -140,7 +163,8 @@ public class ShooterIOHardware implements ShooterIO {
             flywheelBVelocity, flywheelBVoltage,
             flywheelCVelocity, flywheelCVoltage,
             hoodPosition, hoodVoltage,
-            counterWheelVelocity, counterWheelVoltage
+            counterWheelVelocity, counterWheelVoltage,
+            hoodEncoderAbsPosition
         );
 
         BaseStatusSignal.setUpdateFrequencyForAll(
@@ -160,6 +184,7 @@ public class ShooterIOHardware implements ShooterIO {
         flywheelMotorC.optimizeBusUtilization();
         hoodMotor.optimizeBusUtilization();
         counterWheelMotor.optimizeBusUtilization();
+        hoodEncoder.optimizeBusUtilization();
 
         // Zero hood encoder at startup (assumes hood is at home position)
         hoodMotor.setPosition(0.0);
@@ -178,13 +203,21 @@ public class ShooterIOHardware implements ShooterIO {
             // Hood
             hoodPosition, hoodVoltage, hoodCurrent,
             // Counter-wheel
-            counterWheelVelocity, counterWheelVoltage, counterWheelCurrent
+            counterWheelVelocity, counterWheelVoltage, counterWheelCurrent,
+            // WCP ThroughBore Encoder
+            hoodEncoderAbsPosition
         );
 
+        // Raw motor RPS (native TalonFX unit — no conversion)
+        double motorARPS = flywheelAVelocity.getValueAsDouble();
+        double motorBRPS = flywheelBVelocity.getValueAsDouble();
+        double motorCRPS = flywheelCVelocity.getValueAsDouble();
+        inputs.flywheelMotorRPS = (motorARPS + motorBRPS + motorCRPS) / 3.0;
+
         // Convert motor velocities to flywheel RPM
-        double flywheelARPM = rpsToRPM(flywheelAVelocity.getValueAsDouble()) / FLYWHEEL_GEAR_RATIO;
-        double flywheelBRPM = rpsToRPM(flywheelBVelocity.getValueAsDouble()) / FLYWHEEL_GEAR_RATIO;
-        double flywheelCRPM = rpsToRPM(flywheelCVelocity.getValueAsDouble()) / FLYWHEEL_GEAR_RATIO;
+        double flywheelARPM = rpsToRPM(motorARPS) / FLYWHEEL_GEAR_RATIO;
+        double flywheelBRPM = rpsToRPM(motorBRPS) / FLYWHEEL_GEAR_RATIO;
+        double flywheelCRPM = rpsToRPM(motorCRPS) / FLYWHEEL_GEAR_RATIO;
 
         // Individual flywheel data
         inputs.flywheelAVelocityRPM = flywheelARPM;
@@ -204,8 +237,8 @@ public class ShooterIOHardware implements ShooterIO {
             flywheelBTemp.getValueAsDouble()),
             flywheelCTemp.getValueAsDouble());  // Highest temp
 
-        // Hood data (convert motor rotations to degrees)
-        inputs.hoodAngleDegrees = motorRotationsToDegrees(hoodPosition.getValueAsDouble());
+        // Hood data — raw motor rotations, no conversion needed (matches Phoenix Tuner units)
+        inputs.hoodAngleDegrees = hoodPosition.getValueAsDouble();
         inputs.hoodAppliedVolts = hoodVoltage.getValueAsDouble();
         inputs.hoodCurrentAmps = hoodCurrent.getValueAsDouble();
 
@@ -213,6 +246,12 @@ public class ShooterIOHardware implements ShooterIO {
         inputs.counterWheelVelocityRPM = rpsToRPM(counterWheelVelocity.getValueAsDouble());
         inputs.counterWheelAppliedVolts = counterWheelVoltage.getValueAsDouble();
         inputs.counterWheelCurrentAmps = counterWheelCurrent.getValueAsDouble();
+
+        // WCP ThroughBore Encoder data (secondary feedback)
+        inputs.hoodThroughBorePositionRotations = hoodEncoderAbsPosition.getValueAsDouble();
+        inputs.hoodThroughBorePositionDegrees = inputs.hoodThroughBorePositionRotations * 360.0;
+        inputs.hoodThroughBoreConnected =
+            hoodEncoderAbsPosition.getStatus() == StatusCode.OK;
     }
 
     @Override
@@ -231,12 +270,15 @@ public class ShooterIOHardware implements ShooterIO {
     }
 
     @Override
-    public void setHoodPose(double degrees) {
-        // Convert degrees to motor rotations (accounting for gear ratio)
-        double motorRotations = degreesToMotorRotations(degrees);
+    public void setHoodPose(double rawPosition) {
+        // rawPosition is in motor rotations as measured in Phoenix Tuner (0 to ~9.14)
+        // No gear ratio conversion needed — values are already in motor units
+        hoodMotor.setControl(hoodPositionRequest.withPosition(rawPosition));
+    }
 
-        // Set position
-        hoodMotor.setControl(hoodPositionRequest.withPosition(motorRotations));
+    @Override
+    public void setHoodVoltage(double volts) {
+        hoodMotor.setControl(hoodVoltageRequest.withOutput(volts));
     }
 
     @Override
@@ -267,13 +309,18 @@ public class ShooterIOHardware implements ShooterIO {
         return rpm / 60.0;
     }
 
-    /** Converts hood angle in degrees to motor rotations */
-    private double degreesToMotorRotations(double degrees) {
-        return degrees * HOOD_GEAR_RATIO / 360.0;
-    }
-
-    /** Converts motor rotations to hood angle in degrees */
-    private double motorRotationsToDegrees(double rotations) {
-        return rotations * 360.0 / HOOD_GEAR_RATIO;
-    }
+    // Hood gear ratio conversion helpers — NOT currently used.
+    // Hood pose values (0 to ~9.14) are raw motor rotations from Phoenix Tuner,
+    // so no conversion is needed. These are kept in case a mechanical gear ratio
+    // is added later that requires converting between degrees and motor rotations.
+    //
+    // /** Converts hood angle in degrees to motor rotations */
+    // private double degreesToMotorRotations(double degrees) {
+    //     return degrees * HOOD_GEAR_RATIO / 360.0;
+    // }
+    //
+    // /** Converts motor rotations to hood angle in degrees */
+    // private double motorRotationsToDegrees(double rotations) {
+    //     return rotations * 360.0 / HOOD_GEAR_RATIO;
+    // }
 }

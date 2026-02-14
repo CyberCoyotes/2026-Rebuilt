@@ -26,13 +26,13 @@ public final class Constants {
     private Intake() {}
 
     /** Intake rotator motor - Kraken X44 with TalonFX controller */
-    public static final int INTAKE_ROTATOR_MOTOR_ID = 20;
+    public static final int INTAKE_ROLLER_MOTOR_ID = 20; // Set in Tuner
 
     /** Intake slide motor A - Kraken X44 with TalonFX controller */
-    public static final int INTAKE_SLIDE_A_MOTOR_ID = 21;
+    public static final int INTAKE_SLIDE_MOTOR_ID = 21; // Set in Tuner
 
     /** Intake slide motor B - Kraken X44 with TalonFX controller (paired with A) */
-    public static final int INTAKE_SLIDE_B__MOTOR_ID = 22;
+    // public static final int INTAKE_SLIDE_B__MOTOR_ID = 22; // Not needed
 
     /** Time of Flight sensor - CANrange, confirms fuel presence */
     public static final int INTAKE_SENSOR_ID = 41;
@@ -48,7 +48,7 @@ public final class Constants {
     public static final int INDEXER_MOTOR_ID = 23;
 
     /** Conveyor motor - Minion with TalonFXS controller, moves pieces along hopper */
-    public static final int CONVEYOR_MOTOR_ID = 24;
+    public static final int CONVEYOR_MOTOR_ID = 24; // Set in Tuner
     
     /** Time of Flight sensor - Detects fuel at indexer exit (optional) */
     public static final int INDEXER_TOF_ID = 42;
@@ -57,26 +57,12 @@ public final class Constants {
     public static final int HOPPER_TOP_A_TOF_ID = 43;
 
     /** Time of Flight sensor B - Detects "fullness" of hopper */
-    public static final int HOPPER_TOP_B_TOF_ID = 44;
+    public static final int HOPPER_TOP_B_TOF_ID = 44; // Set in Tuner
 
     /** Time of Flight sensor C - Detects "fullness" of hopper */
     public static final int HOPPER_TOP_C_TOF_ID = 45;
 
-    // ===== Jam Detection Thresholds =====
-    // Pattern: A motor is jammed when current is HIGH but velocity is LOW.
-    // This means the motor is trying to spin but something is blocking it.
 
-    /** Conveyor (hopper) motor jam current threshold in amps (TODO: Tune on robot) */
-    public static final double HOPPER_JAM_CURRENT_THRESHOLD = 20.0;
-
-    /** Conveyor (hopper) motor jam velocity threshold in RPS (TODO: Tune on robot) */
-    public static final double HOPPER_JAM_VELOCITY_THRESHOLD = 0.5;
-
-    /** Indexer motor jam current threshold in amps (TODO: Tune on robot) */
-    public static final double INDEXER_JAM_CURRENT_THRESHOLD = 20.0;
-
-    /** Indexer motor jam velocity threshold in RPS (TODO: Tune on robot) */
-    public static final double INDEXER_JAM_VELOCITY_THRESHOLD = 0.5;
   }
 
   // =========================================================
@@ -95,10 +81,10 @@ public final class Constants {
     public static final int FLYWHEEL_C_MOTOR_ID = 27;
 
     /** Hood motor - Minion with TalonFXS controller, adjusts shot angle */
-    public static final int HOOD_MOTOR_ID = 28;
+    public static final int HOOD_MOTOR_ID = 28; // Set in Tuner
 
     /** WCP ThroughBore Encoder Powered by CANcoder for measuring hood position */ 
-    public static final int HOOD_POSE_ENCODER_ID = 46; 
+    public static final int HOOD_POSE_ENCODER_ID = 46;  // Set in Tuner
 
     /** Counter wheel motor - Kraken X44 with TalonFX controller */
     public static final int COUNTER_WHEEL_MOTOR_ID = 29;
@@ -111,10 +97,10 @@ public final class Constants {
     private Climber() {}
 
     /** Climber motor A - Kraken X60 with TalonFX controller */
-    public static final int CLIMB_MOTOR_ID = 30;
+    public static final int CLIMB_MOTOR_ID = 30; // Set in Tuner
 
     /** Climber motor B - Kraken X60 with TalonFX controller */
-    public static final int CLIMB_B_MOTOR_ID = 31;
+    // public static final int CLIMB_B_MOTOR_ID = 31; // Not needed with single motor climber design
   }
 
   // =========================================================
@@ -165,14 +151,16 @@ public final class Constants {
   // =========================================================
   // LEDs
   // =========================================================
+    /** CAN bus name */
+    public static final String CAN_BUS_NAME = "rio"; // 'TODO Adjust if needed'
+    public static final String CAN_BUS_2_NAME = "canivore"; // 'TODO Adjust if needed'
+
   public static final class Led {
     private Led() {}
 
     /** CANdle device ID */
-    public static final int CANDLE_ID = 15;
+    public static final int CANDLE_ID = 15; // Set in Tuner
 
-    /** CAN bus name for the CANdle (typically "canivore") */
-    public static final String CAN_BUS_NAME = "canivore"; // 'TODO Adjust if needed'
 
     /** WS2811 logical segments per meter */
     public static final int SEGMENTS_PER_METER = 20;

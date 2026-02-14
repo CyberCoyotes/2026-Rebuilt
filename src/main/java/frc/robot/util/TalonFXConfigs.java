@@ -1,7 +1,9 @@
 package frc.robot.util;
 
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
+import com.ctre.phoenix6.configs.TalonFXSConfiguration;
 import com.ctre.phoenix6.signals.InvertedValue;
+import com.ctre.phoenix6.signals.MotorArrangementValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 
 /**
@@ -33,14 +35,14 @@ public class TalonFXConfigs {
 
         // Motor output configuration
         config.MotorOutput.NeutralMode = NeutralModeValue.Coast;  // Coast to keep spinning
-        config.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
+        config.MotorOutput.Inverted = InvertedValue.Clockwise_Positive; // TODO : Verify direction on robot
 
         // Current limits - high for flywheels
         config.CurrentLimits.SupplyCurrentLimit = 60.0;
         config.CurrentLimits.SupplyCurrentLimitEnable = true;
 
         // Stator (output) current limit
-        config.CurrentLimits.StatorCurrentLimit = 80.0;
+        config.CurrentLimits.StatorCurrentLimit = 20.0;
         config.CurrentLimits.StatorCurrentLimitEnable = true;
 
         // Velocity PID - Slot 0 (tune these values!)
@@ -50,11 +52,16 @@ public class TalonFXConfigs {
         config.Slot0.kV = 0.12;  // Feedforward velocity term
         config.Slot0.kS = 0.0;   // Feedforward static friction term
 
+        // Closed-loop ramp rate — limits how fast the PID output voltage can change.
+        // Prevents belt slipping from sudden torque spikes during flywheel acceleration.
+        // Shorten this value once belt mechanics are improved.
+        config.ClosedLoopRamps.VoltageClosedLoopRampPeriod = 3.0;  // TODO seconds from 0 to full voltage
+
         return config;
     }
 
     /**
-     * Configuration for indexer motors (floor and feeder).
+     * Configuration for indexer motor (TalonFX - feeds pieces to shooter).
      *
      * Features:
      * - Percent output control
@@ -71,6 +78,42 @@ public class TalonFXConfigs {
         config.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
 
         // Current limits - moderate for indexer
+        config.CurrentLimits.SupplyCurrentLimit = 40.0;
+        config.CurrentLimits.SupplyCurrentLimitEnable = true;
+
+        // Stator current limit
+        config.CurrentLimits.StatorCurrentLimit = 50.0;
+        config.CurrentLimits.StatorCurrentLimitEnable = true;
+
+        // Voltage compensation for consistent behavior
+        config.Voltage.PeakForwardVoltage = 12.0;
+        config.Voltage.PeakReverseVoltage = -12.0;
+
+        return config;
+    }
+
+    /**
+     * Configuration for conveyor motor (TalonFXS with Minion motor).
+     *
+     * Features:
+     * - TalonFXS controller with Minion_JST motor arrangement
+     * - Percent output control
+     * - Brake mode (stop game pieces quickly)
+     * - Moderate current limits
+     *
+     * @return Configured TalonFXSConfiguration for conveyor use
+     */
+    public static TalonFXSConfiguration conveyorConfig() {
+        var config = new TalonFXSConfiguration();
+
+        // TalonFXS motor arrangement - Minion connected via JST
+        config.Commutation.MotorArrangement = MotorArrangementValue.Minion_JST;
+
+        // Motor output configuration
+        config.MotorOutput.NeutralMode = NeutralModeValue.Brake;  // Brake to stop game pieces
+        config.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
+
+        // Current limits - moderate for conveyor
         config.CurrentLimits.SupplyCurrentLimit = 40.0;
         config.CurrentLimits.SupplyCurrentLimitEnable = true;
 
@@ -113,36 +156,46 @@ public class TalonFXConfigs {
     }
 
     /**
-     * Configuration for hood adjustment motor.
+     * Configuration for hood adjustment motor (TalonFXS with Minion motor).
      *
      * Features:
+     * - TalonFXS controller with Minion_JST motor arrangement
      * - Position control with soft limits
      * - Brake mode (hold position)
      * - Lower current limits
      * - Slot 0 PID for position control
      *
-     * @return Configured TalonFXConfiguration for hood use
+     * @return Configured TalonFXSConfiguration for hood use
      */
-    public static TalonFXConfiguration shooterHoodConfig() {
-        var config = new TalonFXConfiguration();
+    public static TalonFXSConfiguration hoodConfig() {
+        var config = new TalonFXSConfiguration();
+
+        // TalonFXS motor arrangement - Minion connected via JST
+        config.Commutation.MotorArrangement = MotorArrangementValue.Minion_JST;
 
         // Motor output configuration
         config.MotorOutput.NeutralMode = NeutralModeValue.Brake;  // Hold position
-        config.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
+        config.MotorOutput.Inverted = InvertedValue.Clockwise_Positive; // TODO: Verify direction on robot
+
+        // Voltage limits - cap output for safe hood movement during testing
+        config.Voltage.PeakForwardVoltage = 4.0;   // TODO: Increase after hood travel is verified. 4 has been safe for testing.
+        config.Voltage.PeakReverseVoltage = -4.0;
 
         // Current limits - lower for hood
         config.CurrentLimits.SupplyCurrentLimit = 30.0;
         config.CurrentLimits.SupplyCurrentLimitEnable = true;
 
-        // Position PID - Slot 0 (tune these values!)
-        config.Slot0.kP = 1.0;   // TODO: Tune on real robot
-        config.Slot0.kI = 0.0;
+        // Position PID - Slot 0
+        // kP=1.0 alone leaves ~0.2-0.45 raw unit steady-state error (not enough voltage to overcome friction)
+        // kI accumulates error over time to push through that last bit
+        config.Slot0.kP = 1.0;   // TODO: Tune — increase if response is too sluggish
+        config.Slot0.kI = 0.75;   // TODO: Tune — helps eliminate steady-state error from friction/gravity
         config.Slot0.kD = 0.0;
 
         // Soft limits (TODO: set based on physical hood range)
-        config.SoftwareLimitSwitch.ForwardSoftLimitEnable = false;  // Enable after tuning
-        config.SoftwareLimitSwitch.ForwardSoftLimitThreshold = 100.0;  // TODO: Measure
-        config.SoftwareLimitSwitch.ReverseSoftLimitEnable = false;  // Enable after tuning
+        config.SoftwareLimitSwitch.ForwardSoftLimitEnable = true;  // Enable after tuning
+        config.SoftwareLimitSwitch.ForwardSoftLimitThreshold = 9.15;  // Raw units
+        config.SoftwareLimitSwitch.ReverseSoftLimitEnable = true;  // Enable after tuning
         config.SoftwareLimitSwitch.ReverseSoftLimitThreshold = 0.0;
 
         return config;

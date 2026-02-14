@@ -78,8 +78,8 @@ public class IntakeIOHardware implements IntakeIO {
      */
     public IntakeIOHardware() {
         // Create motor objects
-        m_rotator = new TalonFX(Constants.Intake.INTAKE_ROTATOR_MOTOR_ID, kCANBus); // TODO add new CANbus arg 
-        m_slide = new TalonFX(Constants.Intake.INTAKE_SLIDE_A_MOTOR_ID, kCANBus); // TODO add new CANbus arg 
+        m_rotator = new TalonFX(Constants.Intake.INTAKE_ROLLER_MOTOR_ID, kCANBus); // TODO add new CANbus arg 
+        m_slide = new TalonFX(Constants.Intake.INTAKE_SLIDE_MOTOR_ID, kCANBus); // TODO add new CANbus arg 
 
         //create sensor objects
         s_intake = new TimeOfFlight(IntakeConstants.INTAKE_SENSOR_ID);
@@ -196,9 +196,11 @@ public class IntakeIOHardware implements IntakeIO {
     }
 
     //returns true if is something close to indexer TOF
+    // /* */
     public boolean indexerTargetClose(){
         return (s_indexer.getRange() <= IntakeConstants.INDEXER_THRESHOLD) && s_indexer.isRangeValid();
     }
+    
 
     //multi-hardware methods
     public void toRestingState(){

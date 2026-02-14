@@ -41,6 +41,9 @@ public interface ShooterIO {
         /** Average flywheel temperature in Celsius */
         public double flywheelTempCelsius = 0.0;
 
+        /** Average raw motor velocity in RPS (native TalonFX unit, before gear ratio conversion) */
+        public double flywheelMotorRPS = 0.0;
+
         // ===== Individual Flywheel Data (for diagnostics) =====
         /** Flywheel A velocity in RPM */
         public double flywheelAVelocityRPM = 0.0;
@@ -52,7 +55,7 @@ public interface ShooterIO {
         public double flywheelCVelocityRPM = 0.0;
 
         // ===== Hood Data =====
-        /** Hood angle in degrees (0 = home position) */
+        /** Hood angle in degrees from motor encoder (0 = home position) */
         public double hoodAngleDegrees = 0.0;
 
         /** Hood applied voltage */
@@ -60,6 +63,16 @@ public interface ShooterIO {
 
         /** Hood supply current in amps */
         public double hoodCurrentAmps = 0.0;
+
+        // ===== WCP ThroughBore Encoder (secondary feedback via CANcoder) =====
+        /** Hood absolute position from ThroughBore encoder in rotations (0.0 to 1.0) */
+        public double hoodThroughBorePositionRotations = 0.0;
+
+        /** Hood absolute position from ThroughBore encoder in degrees */
+        public double hoodThroughBorePositionDegrees = 0.0;
+
+        /** Whether the ThroughBore encoder (CANcoder) is connected */
+        public boolean hoodThroughBoreConnected = false;
 
         // ===== Counter-Wheel Data (optional) =====
         /** Counter-wheel velocity in RPM */
@@ -107,6 +120,14 @@ public interface ShooterIO {
      * @param rpm Target velocity in rotations per minute
      */
     default void setCounterWheelVelocity(double rpm) {}
+
+    /**
+     * Sets the hood motor to a fixed voltage (open-loop).
+     * Used for safe, slow movement when finding hood travel limits.
+     *
+     * @param volts Voltage to apply (positive = forward, negative = reverse)
+     */
+    default void setHoodVoltage(double volts) {}
 
     /**
      * Stops all shooter motors (flywheels, hood, counter-wheel).

@@ -3,6 +3,7 @@ package frc.robot.commands;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import frc.robot.subsystems.vision.VisionSubsystem;
+import frc.robot.subsystems.indexer.IndexerCommands;
 import frc.robot.subsystems.indexer.IndexerSubsystem;
 import frc.robot.subsystems.shooter.ShooterSubsystem;
 
@@ -17,6 +18,46 @@ import frc.robot.subsystems.shooter.ShooterSubsystem;
  * @author @Isaak3
  */
 public class ShooterCommands {
+
+    /** Percent tolerance for starting feed during ramp test (5%). */
+    private static final double RAMP_TEST_FEED_TOLERANCE = 0.05;
+
+
+    /**
+     * Basic ramp-test shooter command.
+     *
+     * Behavior:
+     *  - Commands the flywheel to ShooterSubsystem.RAMP_TEST_TARGET_RPM
+     *  - Once flywheel is within 5% of target RPM, starts feeding (conveyor + indexer)
+     *  - On end/cancel, stops feeding and returns shooter to IDLE
+     *
+     * Intended for use with a whileTrue() button binding.
+     */
+    public static Command rampTestShoot(ShooterSubsystem shooter, IndexerSubsystem indexer) {
+        final double targetRPM = ShooterSubsystem.RAMP_TEST_TARGET_RPM;
+
+        return Commands.sequence(
+            // Spin up to the ramp-test target
+            Commands.runOnce(() -> {
+                shooter.setTargetVelocity(targetRPM);
+                shooter.prepareToShoot();
+            }, shooter),
+
+            // Wait until flywheel is within 5% of the target RPM
+            Commands.waitUntil(() ->
+                Math.abs(shooter.getCurrentVelocityRPM() - targetRPM)
+                    <= Math.abs(targetRPM) * RAMP_TEST_FEED_TOLERANCE
+            ),
+
+            // Feed continuously until the command is released/canceled
+            IndexerCommands.feed(indexer)
+        )
+        .finallyDo(() -> {
+            indexer.stop();
+            shooter.setIdle();
+        })
+        .withName("RampTestShoot");
+    }
 
     /**
      * Creates a command to pre-rev the shooter flywheel (SPINUP state).
@@ -67,6 +108,19 @@ public class ShooterCommands {
     }
 
     /**
+     * Creates a command to using preset close shot.
+     * Finishes when shooter is ready.
+     *
+     * @param shooter The shooter subsystem
+     * @return Command that configures for close shot
+     */
+    public static Command closeShotPreset(ShooterSubsystem shooter) {
+        return Commands.runOnce(shooter::closeShot, shooter)
+                .withName("CloseShotPreset");
+    }
+
+
+    /**
      * Creates a command to shoot using preset far shot.
      * Finishes when shooter is ready.
      *
@@ -79,6 +133,19 @@ public class ShooterCommands {
             Commands.waitUntil(shooter::isReady)
         ).withTimeout(3.0)
          .withName("FarShot");
+    }
+
+    
+    /**
+     * Creates a command to using preset far shot.
+     * Finishes when shooter is ready.
+     *
+     * @param shooter The shooter subsystem
+     * @return Command that configures for far shot
+     */
+    public static Command farShotPreset(ShooterSubsystem shooter) {
+        return Commands.runOnce(shooter::farShot, shooter)
+         .withName("FarShotPreset");
     }
 
     /**
@@ -137,22 +204,19 @@ public class ShooterCommands {
 
     /**
      * Creates a complete shoot sequence with indexer coordination.
-     * Spins up shooter, waits until ready, feeds game piece, then idles.
+     * Prepares shooter to target velocity/angle, waits until ready, feeds game piece, then idles.
      *
      * @param shooter The shooter subsystem
      * @param indexer The indexer subsystem
      * @param velocityRPM Target flywheel velocity
      * @param hoodAngleDegrees Target hood angle
      * @return Complete shooting sequence
-     *
-     * TODO: Uncomment when IndexerCommands is available
      */
-    /*
     public static Command shootSequence(ShooterSubsystem shooter, IndexerSubsystem indexer,
                                         double velocityRPM, double hoodAngleDegrees) {
         return Commands.sequence(
-            // Spin up shooter
-            spinUp(shooter, velocityRPM, hoodAngleDegrees),
+            // Prepare shooter and wait until at target
+            prepareToShoot(shooter, velocityRPM, hoodAngleDegrees),
 
             // Feed game piece
             IndexerCommands.feedTimed(indexer, 0.5),
@@ -161,7 +225,6 @@ public class ShooterCommands {
             Commands.runOnce(shooter::setIdle, shooter)
         ).withName("ShootSequence");
     }
-    */
 
     /**
      * Creates a vision-based shoot sequence with indexer coordination.
@@ -170,10 +233,7 @@ public class ShooterCommands {
      * @param vision The vision subsystem
      * @param indexer The indexer subsystem
      * @return Vision-based shooting sequence
-     *
-     * TODO: Uncomment when IndexerCommands is available
      */
-    /*
     public static Command visionShootSequence(ShooterSubsystem shooter, VisionSubsystem vision,
                                               IndexerSubsystem indexer) {
         return Commands.sequence(
@@ -190,7 +250,30 @@ public class ShooterCommands {
             Commands.runOnce(shooter::setIdle, shooter)
         ).withName("VisionShootSequence");
     }
-    */
+
+    /**
+     * Creates a command to increase target flywheel RPM by the provided increment.
+     *
+     * @param shooter The shooter subsystem
+     * @param incrementRPM RPM delta to apply (positive increases)
+     * @return Command that adjusts target flywheel velocity
+     */
+    public static Command increaseTargetVelocity(ShooterSubsystem shooter, double incrementRPM) {
+        return Commands.runOnce(() -> shooter.adjustTargetVelocity(Math.abs(incrementRPM)), shooter)
+            .withName("IncreaseShooterTargetVelocity");
+    }
+
+    /**
+     * Creates a command to decrease target flywheel RPM by the provided increment.
+     *
+     * @param shooter The shooter subsystem
+     * @param decrementRPM RPM delta to apply (positive value expected)
+     * @return Command that adjusts target flywheel velocity
+     */
+    public static Command decreaseTargetVelocity(ShooterSubsystem shooter, double decrementRPM) {
+        return Commands.runOnce(() -> shooter.adjustTargetVelocity(-Math.abs(decrementRPM)), shooter)
+            .withName("DecreaseShooterTargetVelocity");
+    }
 
     /**
      * Creates a command to return shooter to idle state.
@@ -243,6 +326,19 @@ public class ShooterCommands {
     public static Command warmUp(ShooterSubsystem shooter) {
         return Commands.runOnce(shooter::spinup, shooter)
             .withName("WarmUpShooter");
+    }
+
+    /**
+     * Creates a command that ramps the flywheel up to a target RPM for belt-slip testing.
+     * The ramp rate is controlled by ClosedLoopRamps in TalonFXConfigs (currently 4 seconds).
+     * Hold the button to keep the flywheel spinning; release to idle.
+     *
+     * @param shooter The shooter subsystem
+     * @param targetRPM Target flywheel velocity
+     * @return Command that ramps flywheel and idles on release
+     */
+    public static Command rampUpFlywheel(ShooterSubsystem shooter, double targetRPM) {
+        return shooter.flywheelRampTest(targetRPM);
     }
 
     // Private constructor to prevent instantiation

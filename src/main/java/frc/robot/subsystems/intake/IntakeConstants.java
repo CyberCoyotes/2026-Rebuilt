@@ -11,7 +11,7 @@ public class IntakeConstants {
      final static double JAM_CURRENT_THRESHOLD = 20.0; // current should be under this
      final static double JAM_VELOCITY_THRESHOLD = 0.5; // velocity should be over this
 
-     final static double SLIDE_EXTENDED_POSITION = 0.5;
+     final static double SLIDE_EXTENDED_POSITION = 1.85; // Updated to true values 2/13/26
      final static double SLIDE_RESTING_POSITION = 0;
      final static double ROTATOR_RUNNING_VELOCITY = 0.5;
 
