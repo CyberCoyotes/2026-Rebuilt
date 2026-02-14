@@ -215,10 +215,10 @@ public class RobotContainer {
 
         // ----- Intake -----
         // Left Trigger: Run intake rotator and slides(while held)
-        driver.leftTrigger(0.5).whileTrue(intakeCommands.intakeFuel(intake));
+        driver.leftTrigger(0.5).whileTrue(intake.intakeFuel());
 
         // Left Bumper: Stop intake jam (quick reverse)
-        driver.leftBumper().onTrue(intakeCommands.outakeFuel(intake));
+        driver.leftBumper().onTrue(intake.outakeFuelCommand());
 
         // ----- Climber (POV) -----
         // POV Up: Extend climber arm (preset})
