@@ -6,7 +6,7 @@ import org.littletonrobotics.junction.AutoLog;
  * IntakeIO - Hardware abstraction interface for the intake subsystem.
  *
  * The intake collects game pieces from the ground using:
- * - Rotator motor: Spins intake wheels to pull in game pieces
+ * - Roller motor: Spins intake wheels to pull in game pieces
  * - Slide motors: Extends/retracts intake mechanism
  *
  * PATTERN: IO Interface
@@ -28,18 +28,18 @@ public interface IntakeIO {
      */
     @AutoLog
     public static class IntakeIOInputs {
-        // ===== Rotator Motor Data =====
-        /** Rotator motor velocity in rotations per second */
-        public double rotatorVelocityRPS = 0.0;
+        // ===== Roller Motor Data =====
+        /** Roller motor velocity in rotations per second */
+        public double rollerVelocityRPS = 0.0;
 
-        /** Rotator motor applied voltage */
-        public double rotatorAppliedVolts = 0.0;
+        /** Roller motor applied voltage */
+        public double rollerAppliedVolts = 0.0;
 
-        /** Rotator motor supply current in amps */
-        public double rotatorCurrentAmps = 0.0;
+        /** Roller motor supply current in amps */
+        public double rollerCurrentAmps = 0.0;
 
-        /** Rotator motor temperature in Celsius */
-        public double rotatorTempCelsius = 0.0;
+        /** Roller motor temperature in Celsius */
+        public double rollerTempCelsius = 0.0;
 
         // ===== Slide Motor Data =====
         /** Slide position in rotations (0 = retracted) */
@@ -78,10 +78,10 @@ public interface IntakeIO {
      */
     void updateInputs(IntakeIOInputs inputs); //took out default because these methods are fine abstract
 
-    //rotator methods
-    void setRotatorSpeed(double velocity);
-    double getRotatorVolts(); // made doubles because sim can't handle motor-specific StatusSignals
-    void stopRotator();
+    //roller methods
+    void setRollerSpeed(double velocity);
+    double getRollerVolts(); // made doubles because sim can't handle motor-specific StatusSignals
+    void stopRoller();
 
     //slide methods
     void setSlidePosition(double position);

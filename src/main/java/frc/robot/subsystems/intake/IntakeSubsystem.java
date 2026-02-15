@@ -50,27 +50,26 @@ public class IntakeSubsystem extends SubsystemBase{
         this.currentState = state;
     }
 
-     //rotator methods
-    public void setRotatorSpeed(double speed){
-        io.setRotatorSpeed(speed);
+     //roller methods
+    public void setRollerSpeed(double speed){
+        io.setRollerSpeed(speed);
     }
 
-    public void runRotator(){
-        io.setRotatorSpeed(IntakeConstants.ROTATOR_RUNNING_VELOCITY);
+    public void runRoller(){
+        io.setRollerSpeed(IntakeConstants.ROTATOR_RUNNING_VELOCITY);
     }
     
-    public void stopRotator(){
-        io.setRotatorSpeed(0);
+    public void stopRoller(){
+        io.setRollerSpeed(0);
     }
 
     public void outakeFuel(){
-        // Reverse the rotator to eject fuel
-        io.setRotatorSpeed(-IntakeConstants.ROTATOR_RUNNING_VELOCITY);
+        // Reverse the roller to eject fuel
+        io.setRollerSpeed(-IntakeConstants.ROTATOR_RUNNING_VELOCITY);
     } 
 
-
-    public double getRotatorVolts(){
-        return io.getRotatorVolts();
+    public double getRollerVolts(){
+        return io.getRollerVolts();
     }
 
     //slide methods
@@ -158,29 +157,30 @@ public class IntakeSubsystem extends SubsystemBase{
   public Command outakeFuelCommand(){
     return Commands.startEnd(
         this::outakeFuel,
-        this::stopRotator, this);
+        this::stopRoller, this);
   }
 
-  public Command runRotatorCommand(){
+  public Command runRollerCommand(){
     return Commands.startEnd(
-        this::runRotator, 
-        this::stopRotator, this);
+        this::runRoller, 
+        this::stopRoller, this);
   }
 
-  public Command stopRotatorCommand(){
-    return Commands.run(this::stopRotator, this);
+  public Command stopRollerCommand(){
+    return Commands.run(this::stopRoller, this);
   }
 
   // ===== Command Combinations =====
   /* Make a parallel command sequence that 
    * (1) extends the slides and stops
-   * (2) runs the rotator while button pressed and stops it when released
+   * (2) runs the roller while button pressed and stops it when released
    */
-
+  // This is the main command for intaking fuel, and will be bound to the intake button on the controller
+  // FIXME there were code crashes that mentioned this command
   public Command intakeFuel(){
         return Commands.parallel(
             extendSlidesCommand(), // extends the slides
-            runRotatorCommand()
+            runRollerCommand()
         );
     }
 
@@ -188,7 +188,7 @@ public class IntakeSubsystem extends SubsystemBase{
         return Commands.parallel(
             // Wrap actions as Commands
             returnSlidesCommand(), // retracts the slides
-            stopRotatorCommand() // stops the rotator
+            stopRollerCommand() // stops the roller
         );
     }
 
@@ -201,7 +201,7 @@ public class IntakeSubsystem extends SubsystemBase{
     */ 
     public Command collapseHopperCommand(double duration){
         return Commands.sequence(
-            Commands.runOnce(this::stopRotator, this), // Ensure rotator is off
+            Commands.runOnce(this::stopRoller, this), // Ensure roller is off
             returnSlidesCommand() // Retract the slides to the resting position
         );
     }

@@ -26,12 +26,12 @@ import frc.robot.util.TalonFXConfigs;
  * IntakeIOTalonFX - Real hardware implementation using CTRE TalonFX motors.
  *
  * This class interfaces with:
- * - 1x TalonFX (rotator) for spinning intake wheels
+ * - 1x TalonFX (roller) for spinning intake wheels
  * - 1x TalonFX (slide) for extending/retracting intake
  *
  * Key features:
  * - Uses centralized TalonFXConfigs for motor configuration
- * - Percent output control for rotator (simple and responsive)
+ * - Percent output control for roller (simple and responsive)
  * - Position control for slide (precise positioning)
  * - Optimized status signal updates for performance
  * - All telemetry logged via AdvantageKit
@@ -44,7 +44,7 @@ import frc.robot.util.TalonFXConfigs;
 public class IntakeIOHardware implements IntakeIO {
 
     // ===== Hardware =====
-    private final TalonFX m_rotator;
+    private final TalonFX m_roller;
     private final TalonFX m_slide;
     private final TimeOfFlight s_intake; // detects objects near intake
     private final TimeOfFlight s_indexer; // detects when ball capacity meets standards for indexer handoff 
@@ -52,14 +52,14 @@ public class IntakeIOHardware implements IntakeIO {
 
 
     // ===== Control Requests =====
-    private final VoltageOut m_rotator_request = new VoltageOut(0);
+    private final VoltageOut m_roller_request = new VoltageOut(0);
     private final MotionMagicVoltage m_slide_request = new MotionMagicVoltage(0); //TODO add limit switches
    // ===== Status Signals (for efficient reading) =====
-    // Rotator
-    private final StatusSignal<AngularVelocity> rotatorVelocity;
-    private final StatusSignal<Voltage> rotatorVoltage;
-    private final StatusSignal<Current> rotatorCurrent;
-    private final StatusSignal<Temperature> rotatorTemp;
+    // Roller
+    private final StatusSignal<AngularVelocity> rollerVelocity;
+    private final StatusSignal<Voltage> rollerVoltage;
+    private final StatusSignal<Current> rollerCurrent;
+    private final StatusSignal<Temperature> rollerTemp;
 
     // Slide
     private final StatusSignal<Angle> slidePosition;
@@ -78,7 +78,7 @@ public class IntakeIOHardware implements IntakeIO {
      */
     public IntakeIOHardware() {
         // Create motor objects
-        m_rotator = new TalonFX(Constants.Intake.INTAKE_ROLLER_MOTOR_ID, kCANBus); // TODO add new CANbus arg 
+        m_roller = new TalonFX(Constants.Intake.INTAKE_ROLLER_MOTOR_ID, kCANBus); // TODO add new CANbus arg 
         m_slide = new TalonFX(Constants.Intake.INTAKE_SLIDE_MOTOR_ID, kCANBus); // TODO add new CANbus arg 
 
         //create sensor objects
@@ -86,15 +86,15 @@ public class IntakeIOHardware implements IntakeIO {
         s_indexer = new TimeOfFlight(IntakeConstants.INDEXER_SENSOR_ID);
 
         // Apply configurations from centralized config class
-        m_rotator.getConfigurator().apply(TalonFXConfigs.intakeConfig());
+        m_roller.getConfigurator().apply(TalonFXConfigs.intakeConfig());
         m_slide.getConfigurator().apply(TalonFXConfigs.intakeConfig()); //TODO should both motors have the same config?
 
         // Get status signals for efficient reading
-        // Rotator
-        rotatorVelocity = m_rotator.getVelocity();
-        rotatorVoltage = m_rotator.getMotorVoltage();
-        rotatorCurrent = m_rotator.getSupplyCurrent();
-        rotatorTemp = m_rotator.getDeviceTemp();
+        // Roller
+        rollerVelocity = m_roller.getVelocity();
+        rollerVoltage = m_roller.getMotorVoltage();
+        rollerCurrent = m_roller.getSupplyCurrent();
+        rollerTemp = m_roller.getDeviceTemp();
 
         // Slide
         slidePosition = m_slide.getPosition();
@@ -107,22 +107,22 @@ public class IntakeIOHardware implements IntakeIO {
         // Critical signals: 100Hz, Less critical: 50Hz, Temperature: 4Hz
         BaseStatusSignal.setUpdateFrequencyForAll(
             100.0,  // 100Hz for velocity/position/voltage (critical for control)
-            rotatorVelocity, rotatorVoltage,
+            rollerVelocity, rollerVoltage,
             slidePosition, slideVelocity, slideVoltage
         );
 
         BaseStatusSignal.setUpdateFrequencyForAll(
             50.0,  // 50Hz for current
-            rotatorCurrent, slideCurrent
+            rollerCurrent, slideCurrent
         );
 
         BaseStatusSignal.setUpdateFrequencyForAll(
             4.0,  // 4Hz for temperature
-            rotatorTemp, slideTemp
+            rollerTemp, slideTemp
         );
 
         // Optimize bus utilization
-        m_rotator.optimizeBusUtilization();
+        m_roller.optimizeBusUtilization();
         m_slide.optimizeBusUtilization();
 
         // Zero slide encoder at startup (assumes slide is retracted at startup)
@@ -133,15 +133,15 @@ public class IntakeIOHardware implements IntakeIO {
     public void updateInputs(IntakeIO.IntakeIOInputs inputs) {
         // Refresh all status signals efficiently
         BaseStatusSignal.refreshAll(
-            rotatorVelocity, rotatorVoltage, rotatorCurrent, rotatorTemp,
+            rollerVelocity, rollerVoltage, rollerCurrent, rollerTemp,
             slidePosition, slideVelocity, slideVoltage, slideCurrent, slideTemp
         );
 
-        // Rotator motor data
-        inputs.rotatorVelocityRPS = rotatorVelocity.getValueAsDouble();
-        inputs.rotatorAppliedVolts = rotatorVoltage.getValueAsDouble();
-        inputs.rotatorCurrentAmps = rotatorCurrent.getValueAsDouble();
-        inputs.rotatorTempCelsius = rotatorTemp.getValueAsDouble();
+        // Roller motor data
+        inputs.rollerVelocityRPS = rollerVelocity.getValueAsDouble();
+        inputs.rollerAppliedVolts = rollerVoltage.getValueAsDouble();
+        inputs.rollerCurrentAmps = rollerCurrent.getValueAsDouble();
+        inputs.rollerTempCelsius = rollerTemp.getValueAsDouble();
 
         // Slide motor data
         inputs.slidePositionRotations = slidePosition.getValueAsDouble();
@@ -159,17 +159,17 @@ public class IntakeIOHardware implements IntakeIO {
 
 
     
-    //rotator methods
-    public void setRotatorSpeed(double speed){
-        m_rotator.setControl(m_rotator_request.withOutput(speed));
+    //roller methods
+    public void setRollerSpeed(double speed){
+        m_roller.setControl(m_roller_request.withOutput(speed));
     }
 
-    public double getRotatorVolts(){
-        return m_rotator.getMotorVoltage().getValueAsDouble();
+    public double getRollerVolts(){
+        return m_roller.getMotorVoltage().getValueAsDouble();
     }
 
-    public void stopRotator(){
-        m_rotator.setControl(new VoltageOut(0));
+    public void stopRoller(){
+        m_roller.setControl(new VoltageOut(0));
     }
 
     //slide methods
@@ -207,13 +207,13 @@ public class IntakeIOHardware implements IntakeIO {
         if (!isJammed()){
         setSlidePosition(IntakeConstants.SLIDE_RESTING_POSITION); // if ball is stuck, moving slide to rest is bad
         }
-        setRotatorSpeed(0);
+        setRollerSpeed(0);
     }
 
     // TODO tune
     public boolean isJammed(){
-        double current = m_rotator.getSupplyCurrent().getValueAsDouble();
-        double velocity = m_rotator.getVelocity().getValueAsDouble();
+        double current = m_roller.getSupplyCurrent().getValueAsDouble();
+        double velocity = m_roller.getVelocity().getValueAsDouble();
 
         return (current >= IntakeConstants.JAM_CURRENT_THRESHOLD) && (velocity <= IntakeConstants.JAM_VELOCITY_THRESHOLD);
   }
