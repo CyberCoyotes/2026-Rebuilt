@@ -95,8 +95,6 @@ public IntakeIOSim() {
         // ===== Populate Sensor Inputs =====
         inputs.intakeDistance = simulatedIntakeDistance;
         inputs.intakeTarget = simulatedIntakeDistance <= IntakeSubsystem.INTAKE_THRESHOLD;
-        inputs.indexerDistance = simulatedIndexerDistance;
-        // inputs.indexerTarget = simulatedIndexerDistance <= IntakeSubsystem.INDEXER_THRESHOLD;
     }
 
     /**
@@ -172,39 +170,4 @@ public IntakeIOSim() {
         return simulatedIntakeDistance <= IntakeSubsystem.INTAKE_THRESHOLD;
     }
 
-    @Override
-    public double getIndexerDistance() {
-        return simulatedIndexerDistance;
-    }
-
-    // @Override
-    // public boolean indexerTargetClose() {
-    //     return simulatedIndexerDistance <= IntakeSubsystem.INDEXER_THRESHOLD;
-    // }
-
-    @Override
-    public void toRestingState() {
-        // if (!isJammed()) {
-            // setSlidePosition(IntakeSubsystem.SLIDE_RETRACTED_POSITION);
-        // }
-        // setRollerSpeed(0);
-    }
-
-    @Override
-    public boolean indexerTargetClose() {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'indexerTargetClose'");
-    }
-
-
-    @Override
-    public void isJammed() {
-        // Jam = high current + low velocity
-        // double current = m_rollerSim.getCurrentDrawAmps();
-        // double velocity = m_rollerSim.getAngularVelocityRPM() / 60.0; // Convert to RPS
-        
-        return;
-        // (current >= IntakeSubsystem.JAM_CURRENT_THRESHOLD) 
-            // && (velocity <= IntakeSubsystem.JAM_VELOCITY_THRESHOLD);
-    }
 }

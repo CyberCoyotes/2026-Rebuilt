@@ -155,8 +155,6 @@ public class IntakeIOHardware implements IntakeIO {
         //sensor data
         inputs.intakeDistance = getIntakeDistance();
         inputs.intakeTarget = intakeTargetClose();
-        inputs.indexerDistance = getIndexerDistance();
-        inputs.indexerTarget = indexerTargetClose();
     }
 
 
@@ -192,39 +190,5 @@ public class IntakeIOHardware implements IntakeIO {
         return (s_intakeTOF.getRange() <= IntakeSubsystem.INTAKE_THRESHOLD) && s_intakeTOF.isRangeValid();
     }
 
-    //indexer sensor methods
-    public double getIndexerDistance(){
-        return s_indexerTOF.isRangeValid() ? s_indexerTOF.getRange(): Double.NaN; //only gets the range if the range is valid, if not 
-    }
-
-        // returns true if is something close to indexer TOF
-        // public boolean indexerTargetClose(){
-            // return (s_indexerTOF.getRange() <= IntakeSubsystem.INDEXER_THRESHOLD) && s_indexerTOF.isRangeValid();
-        // }
     
-
-    //multi-hardware methods
-    public void toRestingState(){
-        // if (!isJammed()){
-        // setSlidePosition(IntakeSubsystem.SLIDE_RETRACTED_POSITION); // if ball is stuck, moving slide to rest is bad
-        // }
-        // setRollerSpeed(0);
-    }
-
-    @Override
-    public boolean indexerTargetClose() {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'indexerTargetClose'");
-    }
-
-    // TODO tune
-    
-    public void isJammed(){
-        double current = m_roller.getSupplyCurrent().getValueAsDouble();
-        double velocity = m_roller.getVelocity().getValueAsDouble();
-
-        return; // (current >= IntakeSubsystem.JAM_CURRENT_THRESHOLD) && (velocity <= IntakeSubsystem.JAM_VELOCITY_THRESHOLD);
-  } 
-        
-
     } // end of class

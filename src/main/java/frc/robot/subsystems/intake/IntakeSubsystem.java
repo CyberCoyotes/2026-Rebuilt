@@ -107,14 +107,8 @@ public class IntakeSubsystem extends SubsystemBase {
         return inputs.intakeTarget;
     }
 
-
-    // multi-hardware methods
-    public void toRestingState() {
-        io.toRestingState();
-    }
-
     public boolean isJammed() {
-        return io.isJammed();
+        return false; //io.isJammed();
     }
 
     // ===== Commands =====
