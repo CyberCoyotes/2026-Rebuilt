@@ -52,7 +52,7 @@ public class IntakeIOHardware implements IntakeIO {
 
 
     // ===== Control Requests =====
-    private final DutyCycleOut m_rotator_request = new DutyCycleOut(0);
+    private final VoltageOut m_rotator_request = new VoltageOut(0);
     private final MotionMagicVoltage m_slide_request = new MotionMagicVoltage(0); //TODO add limit switches
    // ===== Status Signals (for efficient reading) =====
     // Rotator

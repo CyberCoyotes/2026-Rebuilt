@@ -30,7 +30,7 @@ public class TalonFXConfigs {
      *
      * @return Configured TalonFXConfiguration for flywheel use
      */
-    public static TalonFXConfiguration shooterFlywheelConfig() {
+    public static TalonFXConfiguration flywheelConfig() {
         var config = new TalonFXConfiguration();
 
         // Motor output configuration
@@ -118,7 +118,7 @@ public class TalonFXConfigs {
         config.CurrentLimits.SupplyCurrentLimitEnable = true;
 
         // Stator current limit
-        config.CurrentLimits.StatorCurrentLimit = 50.0;
+        config.CurrentLimits.StatorCurrentLimit = 40.0;
         config.CurrentLimits.StatorCurrentLimitEnable = true;
 
         // Voltage compensation for consistent behavior
@@ -149,7 +149,7 @@ public class TalonFXConfigs {
         config.CurrentLimits.SupplyCurrentLimit = 40.0;
         config.CurrentLimits.SupplyCurrentLimitEnable = true;
 
-        config.CurrentLimits.StatorCurrentLimit = 50.0;
+        config.CurrentLimits.StatorCurrentLimit = 40.0;
         config.CurrentLimits.StatorCurrentLimitEnable = true;
 
         return config;
