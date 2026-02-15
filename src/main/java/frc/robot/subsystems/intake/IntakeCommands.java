@@ -18,38 +18,51 @@ public class IntakeCommands {
 
     /* FIXME
     public Command intakeFuelWithSubCommands(IntakeSubsystem intake){
-        // Make a parallel command that (1) extends the slides and (2) runs the rotator at the same time
-        return Commands.parallel(
-            // Wrap actions as Commands
-            Commands.runOnce(() -> intake.extendSlides(), intake), // extends the slides
-            // Commands.runOnce(intake::extendSlides, intake), // Functionally equivalent to the above line
-            Commands.run(() -> intake.runRotator(), intake) // runs the rotator
-            // Commands.run(intake::runRotator, intake) // Functionally equivalent to the above line
+        // Extend slides and run rotator in a single command (same subsystem, cannot use parallel)
+        return Commands.startEnd(
+            () -> {
+                intake.extendSlides();
+                intake.runRotator();
+            },
+            () -> {
+                intake.stopRotator();
+            },
+            intake
         );
     }
     */
 
 /* FIXME    
     public Command intakeFuel(IntakeSubsystem intake){
-        // Make a parallel command that (1) extends the slides and (2) runs the rotator at the same time
-        return Commands.parallel(
-            intake.extendSlidesCommand(), // extends the slides
-            intake.runRotatorCommand() // runs the rotator
+        // Extend slides and run rotator in a single command (same subsystem, cannot use parallel)
+        return Commands.startEnd(
+            () -> {
+                intake.extendSlides();
+                intake.runRotator();
+            },
+            () -> {
+                intake.stopRotator();
+            },
+            intake
         );
     }
 
     public Command stopFuelIntake(IntakeSubsystem intake){
-        // Make a parallel command that (1) retracts the slides and (2) stops the rotator at the same time
-        return Commands.parallel(
-            // Wrap actions as Commands
-            Commands.runOnce(() -> intake.restSlides(), intake), // retracts the slides
-            Commands.run(() -> intake.stopRotator(), intake) // stops the rotator
+        // Retract slides and stop rotator in a single command (same subsystem, cannot use parallel)
+        return Commands.runOnce(
+            () -> {
+                intake.restSlides();
+                intake.stopRotator();
+            },
+            intake
         );
     }
     */
 
     public Command outakeFuel(IntakeSubsystem intake){
-        return Commands.startEnd(() -> intake.setRotatorSpeed(-IntakeConstants.ROTATOR_MAX_VELOCITY),() -> intake.setRotatorSpeed(0), intake);
+        return Commands.startEnd(
+            () -> intake.setRotatorSpeed(-IntakeConstants.ROTATOR_MAX_VELOCITY),
+            () -> intake.setRotatorSpeed(0), intake);
     }
 
 }
