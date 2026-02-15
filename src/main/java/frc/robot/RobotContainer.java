@@ -212,7 +212,7 @@ public class RobotContainer {
         driver.leftTrigger(0.5).whileTrue(intake.intakeFuel());
 
         // Left Bumper: Stop intake jam (quick reverse)
-        driver.leftBumper().onTrue(intake.outakeFuelCommand());
+        driver.leftBumper().whileTrue(intake.ejectFuel());
 
         // ----- Climber (POV) -----
         // POV Up: Extend climber arm (preset})
@@ -229,7 +229,6 @@ public class RobotContainer {
        // operator.start().onTrue(climber.stopClimber());
 
         // ----- Operator Controller (Port 1) - Shooter Hood Testing -----
-        // TODO: Uncomment these POV bindings once we are ready to do on-robot hood increment testing.
         operator.povLeft().onTrue(shooter.runOnce(shooter::decreaseHoodForTesting));
         operator.povRight().onTrue(shooter.runOnce(shooter::increaseHoodForTesting));
 

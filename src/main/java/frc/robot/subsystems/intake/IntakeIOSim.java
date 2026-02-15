@@ -10,11 +10,11 @@ import edu.wpi.first.wpilibj.simulation.FlywheelSim;
 public class IntakeIOSim implements IntakeIO {
 
     // ===== Physics Simulations =====
-    private final FlywheelSim m_rotatorSim;
+    private final FlywheelSim m_rollerSim;
     private final ElevatorSim m_slideSim;
 
     // ===== Commanded Setpoints =====
-    private double rotatorVoltageCommand = 0.0;
+    private double rollerVoltageCommand = 0.0;
     private double slidePositionCommand = 0.0;
 
     // ===== Simulated Sensor State =====
@@ -37,12 +37,12 @@ private static final double LOOP_PERIOD = 0.02; // 20ms
 
 /**
  * Creates a new IntakeIOSim instance.
- * Initializes physics simulations for rotator and slide.
+ * Initializes physics simulations for roller and slide.
  */
 public IntakeIOSim() {
-    // Create flywheel sim for rotator (spinning intake wheels)
-    LinearSystem<N1, N1, N1> m_rotatorPlant = LinearSystemId.createFlywheelSystem(DCMotor.getKrakenX44(1), ROTATOR_MOI, ROTATOR_GEARING);
-    m_rotatorSim = new FlywheelSim(m_rotatorPlant , DCMotor.getKrakenX44(1), ROTATOR_MEASUREMENT_STD_DEVS);
+    // Create flywheel sim for roller (spinning intake wheels)
+    LinearSystem<N1, N1, N1> m_rollerPlant = LinearSystemId.createFlywheelSystem(DCMotor.getKrakenX44(1), ROTATOR_MOI, ROTATOR_GEARING);
+    m_rollerSim = new FlywheelSim(m_rollerPlant , DCMotor.getKrakenX44(1), ROTATOR_MEASUREMENT_STD_DEVS);
   
     // Create elevator sim for slide (linear extension mechanism)
     m_slideSim = new ElevatorSim(
@@ -65,9 +65,9 @@ public IntakeIOSim() {
     public void updateInputs(IntakeIO.IntakeIOInputs inputs) {
         // ===== Update Physics Simulations =====
         
-        // Update rotator with commanded voltage
-        m_rotatorSim.setInputVoltage(rotatorVoltageCommand);
-        m_rotatorSim.update(LOOP_PERIOD);
+        // Update roller with commanded voltage
+        m_rollerSim.setInputVoltage(rollerVoltageCommand);
+        m_rollerSim.update(LOOP_PERIOD);
 
         // Update slide with position control (simplified - real would use PID)
         double slideVoltage = calculateSlideVoltageForPosition(slidePositionCommand);
@@ -77,11 +77,11 @@ public IntakeIOSim() {
         // ===== Simulate Game Piece Collection =====
         simulateGamePieceMovement();
 
-        // ===== Populate Rotator Inputs =====
-        inputs.rotatorVelocityRPS = m_rotatorSim.getAngularVelocityRPM() / 60.0;
-        inputs.rotatorAppliedVolts = rotatorVoltageCommand;
-        inputs.rotatorCurrentAmps = m_rotatorSim.getCurrentDrawAmps();
-        inputs.rotatorTempCelsius = 25.0; // Simulated temp (could model heating)
+        // ===== Populate Roller Inputs =====
+        inputs.rollerVelocityRPS = m_rollerSim.getAngularVelocityRPM() / 60.0;
+        inputs.rollerAppliedVolts = rollerVoltageCommand;
+        inputs.rollerCurrentAmps = m_rollerSim.getCurrentDrawAmps();
+        inputs.rollerTempCelsius = 25.0; // Simulated temp (could model heating)
 
         // ===== Populate Slide Inputs =====
         // Convert meters to rotations for consistency with hardware
@@ -94,9 +94,9 @@ public IntakeIOSim() {
 
         // ===== Populate Sensor Inputs =====
         inputs.intakeDistance = simulatedIntakeDistance;
-        inputs.intakeTarget = simulatedIntakeDistance <= IntakeConstants.INTAKE_THRESHOLD;
+        inputs.intakeTarget = simulatedIntakeDistance <= IntakeSubsystem.INTAKE_THRESHOLD;
         inputs.indexerDistance = simulatedIndexerDistance;
-        inputs.indexerTarget = simulatedIndexerDistance <= IntakeConstants.INDEXER_THRESHOLD;
+        inputs.indexerTarget = simulatedIndexerDistance <= IntakeSubsystem.INDEXER_THRESHOLD;
     }
 
     /**
@@ -117,15 +117,15 @@ public IntakeIOSim() {
 
     /**
      * Simulates game piece movement through the intake system.
-     * When rotator spins and piece is close, "intake" it into indexer.
+     * When roller spins and piece is close, "intake" it into indexer.
      */
     private void simulateGamePieceMovement() {
-        boolean rotatorSpinning = Math.abs(m_rotatorSim.getAngularVelocityRPM()) > 10.0;
+        boolean rollerSpinning = Math.abs(m_rollerSim.getAngularVelocityRPM()) > 10.0;
         boolean intakeExtended = m_slideSim.getPositionMeters() > 0.1; // >10cm extended
-        boolean pieceAtIntake = simulatedIntakeDistance <= IntakeConstants.INTAKE_THRESHOLD;
+        boolean pieceAtIntake = simulatedIntakeDistance <= IntakeSubsystem.INTAKE_THRESHOLD;
         
         // If conditions met, move piece from intake → indexer
-        if (rotatorSpinning && intakeExtended && pieceAtIntake) {
+        if (rollerSpinning && intakeExtended && pieceAtIntake) {
             simulatedIndexerDistance = 50.0; // 50mm - piece now in indexer
             simulatedIntakeDistance = Double.POSITIVE_INFINITY; // no longer at intake
         }
@@ -135,19 +135,19 @@ public IntakeIOSim() {
     // These just store commands, actual physics happens in updateInputs()
 
     @Override
-    public void setRotatorSpeed(double speed) {
+    public void setRollerSpeed(double speed) {
         // Convert percent output (-1 to 1) to voltage
-        rotatorVoltageCommand = speed * 12.0;
+        rollerVoltageCommand = speed * 12.0;
     }
 
     @Override
-    public double getRotatorVolts() {
-        return rotatorVoltageCommand;
+    public double getRollerVolts() {
+        return rollerVoltageCommand;
     }
 
     @Override
-    public void stopRotator() {
-        rotatorVoltageCommand = 0.0;
+    public void stopRoller() {
+        rollerVoltageCommand = 0.0;
     }
 
     @Override
@@ -169,7 +169,7 @@ public IntakeIOSim() {
 
     @Override
     public boolean intakeTargetClose() {
-        return simulatedIntakeDistance <= IntakeConstants.INTAKE_THRESHOLD;
+        return simulatedIntakeDistance <= IntakeSubsystem.INTAKE_THRESHOLD;
     }
 
     @Override
@@ -179,24 +179,24 @@ public IntakeIOSim() {
 
     @Override
     public boolean indexerTargetClose() {
-        return simulatedIndexerDistance <= IntakeConstants.INDEXER_THRESHOLD;
+        return simulatedIndexerDistance <= IntakeSubsystem.INDEXER_THRESHOLD;
     }
 
     @Override
     public void toRestingState() {
         if (!isJammed()) {
-            setSlidePosition(IntakeConstants.SLIDE_RESTING_POSITION);
+            setSlidePosition(IntakeSubsystem.SLIDE_RETRACTED_POSITION);
         }
-        setRotatorSpeed(0);
+        setRollerSpeed(0);
     }
 
     @Override
     public boolean isJammed() {
         // Jam = high current + low velocity
-        double current = m_rotatorSim.getCurrentDrawAmps();
-        double velocity = m_rotatorSim.getAngularVelocityRPM() / 60.0; // Convert to RPS
+        double current = m_rollerSim.getCurrentDrawAmps();
+        double velocity = m_rollerSim.getAngularVelocityRPM() / 60.0; // Convert to RPS
         
-        return (current >= IntakeConstants.JAM_CURRENT_THRESHOLD) 
-            && (velocity <= IntakeConstants.JAM_VELOCITY_THRESHOLD);
+        return (current >= IntakeSubsystem.JAM_CURRENT_THRESHOLD) 
+            && (velocity <= IntakeSubsystem.JAM_VELOCITY_THRESHOLD);
     }
 }

@@ -86,7 +86,7 @@ public class IndexerIOHardware implements IndexerIO {
 
         // Create and configure ToF sensors
         // Indexer ToF - detects game piece ready to shoot
-        indexerToF = new TimeOfFlight(Constants.Indexer.INDEXER_TOF_ID);
+        indexerToF = new TimeOfFlight(Constants.Indexer.INDEXER_SENSOR_ID);
         indexerToF.setRangingMode(RangingMode.Short, 24);  // Short range, 24ms sample time
 
         // Hopper ToF sensors - detect game pieces at different positions
