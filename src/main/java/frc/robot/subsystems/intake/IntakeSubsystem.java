@@ -134,23 +134,31 @@ public class IntakeSubsystem extends SubsystemBase{
   }
 
   // ===== Command Combinations =====
-  /* Make a parallel command sequence that 
-   * (1) extends the slides and stops
-   * (2) runs the rotator while button pressed and stops it when released
+  /* Single command that (1) extends the slides and (2) runs the rotator.
+   * Both actions are on the same subsystem, so they cannot be in a parallel
+   * group — instead we call both methods inside one command.
    */
 
   public Command intakeFuel(){
-        return Commands.parallel(
-            extendSlidesCommand(), // extends the slides
-            runRotatorCommand()
+        return Commands.startEnd(
+            () -> {
+                extendSlides();
+                runRotator();
+            },
+            () -> {
+                stopRotator();
+            },
+            this
         );
     }
 
     public Command stopFuelIntake(){
-        return Commands.parallel(
-            // Wrap actions as Commands
-            returnSlidesCommand(), // retracts the slides
-            stopRotatorCommand() // stops the rotator
+        return Commands.runOnce(
+            () -> {
+                restSlides();
+                stopRotator();
+            },
+            this
         );
     }
 
