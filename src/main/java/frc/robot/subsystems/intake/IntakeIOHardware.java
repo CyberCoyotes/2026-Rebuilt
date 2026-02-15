@@ -20,6 +20,7 @@ import edu.wpi.first.units.measure.Velocity;
 import edu.wpi.first.units.measure.Voltage;
 import edu.wpi.first.units.Units;
 import frc.robot.Constants;
+import frc.robot.Constants.Intake;
 import frc.robot.util.TalonFXConfigs;
 
 /**
@@ -46,14 +47,15 @@ public class IntakeIOHardware implements IntakeIO {
     // ===== Hardware =====
     private final TalonFX m_roller;
     private final TalonFX m_slide;
-    private final TimeOfFlight s_intake; // detects objects near intake
-    private final TimeOfFlight s_indexer; // detects when ball capacity meets standards for indexer handoff 
-    private final CANBus kCANBus = new CANBus("rio");
+    private final TimeOfFlight s_intakeTOF; // detects objects near intake
+    private final TimeOfFlight s_indexerTOF; // detects when ball capacity meets standards for indexer handoff 
+    // private final CANBus kCANBus = new CANBus("rio");
 
 
     // ===== Control Requests =====
-    private final VoltageOut m_roller_request = new VoltageOut(0);
-    private final MotionMagicVoltage m_slide_request = new MotionMagicVoltage(0); //TODO add limit switches
+    private final VoltageOut m_rollerRequest = new VoltageOut(0);
+    private final MotionMagicVoltage m_slideRequest = new MotionMagicVoltage(0);
+
    // ===== Status Signals (for efficient reading) =====
     // Roller
     private final StatusSignal<AngularVelocity> rollerVelocity;
@@ -70,7 +72,7 @@ public class IntakeIOHardware implements IntakeIO {
 
     // ===== Conversion Constants =====
     /** Gear ratio from slide motor to slide mechanism (motor rotations per slide extension) */
-    private static final double SLIDE_GEAR_RATIO = 10.0;  // TODO: Measure actual ratio
+    private static final double SLIDE_GEAR_RATIO = 10.0;  // TODO: Measure actual slide ratio
 
     /**
      * Creates a new IntakeIOTalonFX instance.
@@ -78,16 +80,16 @@ public class IntakeIOHardware implements IntakeIO {
      */
     public IntakeIOHardware() {
         // Create motor objects
-        m_roller = new TalonFX(Constants.Intake.INTAKE_ROLLER_MOTOR_ID, kCANBus); // TODO add new CANbus arg 
-        m_slide = new TalonFX(Constants.Intake.INTAKE_SLIDE_MOTOR_ID, kCANBus); // TODO add new CANbus arg 
+        m_roller = new TalonFX(Constants.Intake.INTAKE_ROLLER_MOTOR_ID, Constants.kCANBus);
+        m_slide = new TalonFX(Constants.Intake.INTAKE_SLIDE_MOTOR_ID, Constants.kCANBus);
 
         //create sensor objects
-        s_intake = new TimeOfFlight(IntakeConstants.INTAKE_SENSOR_ID);
-        s_indexer = new TimeOfFlight(IntakeConstants.INDEXER_SENSOR_ID);
+        s_intakeTOF = new TimeOfFlight(Constants.Intake.INTAKE_SENSOR_ID);
+        s_indexerTOF = new TimeOfFlight(Constants.Indexer.INDEXER_SENSOR_ID);
 
         // Apply configurations from centralized config class
-        m_roller.getConfigurator().apply(TalonFXConfigs.intakeConfig());
-        m_slide.getConfigurator().apply(TalonFXConfigs.intakeConfig()); //TODO should both motors have the same config?
+        m_roller.getConfigurator().apply(TalonFXConfigs.rollerConfig());
+        m_slide.getConfigurator().apply(TalonFXConfigs.slideConfig());
 
         // Get status signals for efficient reading
         // Roller
@@ -161,7 +163,7 @@ public class IntakeIOHardware implements IntakeIO {
     
     //roller methods
     public void setRollerSpeed(double speed){
-        m_roller.setControl(m_roller_request.withOutput(speed));
+        m_roller.setControl(m_rollerRequest.withOutput(speed));
     }
 
     public double getRollerVolts(){
@@ -174,7 +176,7 @@ public class IntakeIOHardware implements IntakeIO {
 
     //slide methods
     public void setSlidePosition(double position){
-        m_slide.setControl(m_slide_request.withPosition(position));
+        m_slide.setControl(m_slideRequest.withPosition(position));
     }
 
     public double getSlidePosition(){
@@ -183,29 +185,28 @@ public class IntakeIOHardware implements IntakeIO {
     
     //intake sensor methods
     public double getIntakeDistance(){
-        return s_intake.isRangeValid() ? s_intake.getRange(): Double.NaN; //only gets the range if the range is valid, if not 
+        return s_intakeTOF.isRangeValid() ? s_intakeTOF.getRange(): Double.NaN; //only gets the range if the range is valid, if not 
     }
 
      public boolean intakeTargetClose(){
-        return (s_intake.getRange() <= IntakeConstants.INTAKE_THRESHOLD) && s_intake.isRangeValid();
+        return (s_intakeTOF.getRange() <= IntakeSubsystem.INTAKE_THRESHOLD) && s_intakeTOF.isRangeValid();
     }
 
     //indexer sensor methods
     public double getIndexerDistance(){
-        return s_indexer.isRangeValid() ? s_indexer.getRange(): Double.NaN; //only gets the range if the range is valid, if not 
+        return s_indexerTOF.isRangeValid() ? s_indexerTOF.getRange(): Double.NaN; //only gets the range if the range is valid, if not 
     }
 
-    //returns true if is something close to indexer TOF
-    // /* */
-    public boolean indexerTargetClose(){
-        return (s_indexer.getRange() <= IntakeConstants.INDEXER_THRESHOLD) && s_indexer.isRangeValid();
-    }
+        // returns true if is something close to indexer TOF
+        public boolean indexerTargetClose(){
+            return (s_indexerTOF.getRange() <= IntakeSubsystem.INDEXER_THRESHOLD) && s_indexerTOF.isRangeValid();
+        }
     
 
     //multi-hardware methods
     public void toRestingState(){
         if (!isJammed()){
-        setSlidePosition(IntakeConstants.SLIDE_RESTING_POSITION); // if ball is stuck, moving slide to rest is bad
+        setSlidePosition(IntakeSubsystem.SLIDE_RETRACTED_POSITION); // if ball is stuck, moving slide to rest is bad
         }
         setRollerSpeed(0);
     }
@@ -215,6 +216,7 @@ public class IntakeIOHardware implements IntakeIO {
         double current = m_roller.getSupplyCurrent().getValueAsDouble();
         double velocity = m_roller.getVelocity().getValueAsDouble();
 
-        return (current >= IntakeConstants.JAM_CURRENT_THRESHOLD) && (velocity <= IntakeConstants.JAM_VELOCITY_THRESHOLD);
+        return (current >= IntakeSubsystem.JAM_CURRENT_THRESHOLD) && (velocity <= IntakeSubsystem.JAM_VELOCITY_THRESHOLD);
   }
-}
+
+    } // end of class

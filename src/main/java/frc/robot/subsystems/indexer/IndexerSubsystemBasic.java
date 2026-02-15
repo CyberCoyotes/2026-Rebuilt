@@ -61,7 +61,7 @@ public class IndexerSubsystemBasic extends SubsystemBase {
     public IndexerSubsystemBasic() {
         conveyorMotor = new TalonFX(Constants.Indexer.CONVEYOR_MOTOR_ID);
         indexerMotor = new TalonFX(Constants.Indexer.INDEXER_MOTOR_ID);
-        indexerToF = new TimeOfFlight(Constants.Indexer.INDEXER_TOF_ID);
+        indexerToF = new TimeOfFlight(Constants.Indexer.INDEXER_SENSOR_ID);
         hopperAToF = new TimeOfFlight(Constants.Indexer.HOPPER_TOP_A_TOF_ID);
         hopperBToF = new TimeOfFlight(Constants.Indexer.HOPPER_TOP_B_TOF_ID);
         hopperCToF = new TimeOfFlight(Constants.Indexer.HOPPER_TOP_C_TOF_ID);

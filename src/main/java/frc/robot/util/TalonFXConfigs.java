@@ -129,16 +129,43 @@ public class TalonFXConfigs {
     }
 
     /**
-     * Configuration for intake motors.
+     * Configuration for intake roller motors.
      *
      * Features:
      * - Percent output control
      * - Brake mode
      * - Lower current limits (intake doesn't need high power)
      *
-     * @return Configured TalonFXConfiguration for intake use
+     * @return Configured TalonFXConfiguration for intake roller use
      */
-    public static TalonFXConfiguration intakeConfig() {
+    public static TalonFXConfiguration rollerConfig() {
+        var config = new TalonFXConfiguration();
+
+        // Motor output configuration
+        config.MotorOutput.NeutralMode = NeutralModeValue.Brake;
+        config.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
+
+        // Current limits - lower for intake
+        config.CurrentLimits.SupplyCurrentLimit = 40.0;
+        config.CurrentLimits.SupplyCurrentLimitEnable = true;
+
+        config.CurrentLimits.StatorCurrentLimit = 40.0;
+        config.CurrentLimits.StatorCurrentLimitEnable = true;
+
+        return config;
+    }
+
+      /**
+     * Configuration for intake slide motors.
+     *
+     * Features:
+     * - Percent output control
+     * - Brake mode
+     * - Lower current limits (intake slide doesn't need high power)
+     *
+     * @return Configured TalonFXConfiguration for intake slide use
+     */
+    public static TalonFXConfiguration slideConfig() {
         var config = new TalonFXConfiguration();
 
         // Motor output configuration

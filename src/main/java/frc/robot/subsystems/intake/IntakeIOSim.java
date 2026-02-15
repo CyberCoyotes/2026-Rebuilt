@@ -94,9 +94,9 @@ public IntakeIOSim() {
 
         // ===== Populate Sensor Inputs =====
         inputs.intakeDistance = simulatedIntakeDistance;
-        inputs.intakeTarget = simulatedIntakeDistance <= IntakeConstants.INTAKE_THRESHOLD;
+        inputs.intakeTarget = simulatedIntakeDistance <= IntakeSubsystem.INTAKE_THRESHOLD;
         inputs.indexerDistance = simulatedIndexerDistance;
-        inputs.indexerTarget = simulatedIndexerDistance <= IntakeConstants.INDEXER_THRESHOLD;
+        inputs.indexerTarget = simulatedIndexerDistance <= IntakeSubsystem.INDEXER_THRESHOLD;
     }
 
     /**
@@ -122,7 +122,7 @@ public IntakeIOSim() {
     private void simulateGamePieceMovement() {
         boolean rollerSpinning = Math.abs(m_rollerSim.getAngularVelocityRPM()) > 10.0;
         boolean intakeExtended = m_slideSim.getPositionMeters() > 0.1; // >10cm extended
-        boolean pieceAtIntake = simulatedIntakeDistance <= IntakeConstants.INTAKE_THRESHOLD;
+        boolean pieceAtIntake = simulatedIntakeDistance <= IntakeSubsystem.INTAKE_THRESHOLD;
         
         // If conditions met, move piece from intake → indexer
         if (rollerSpinning && intakeExtended && pieceAtIntake) {
@@ -169,7 +169,7 @@ public IntakeIOSim() {
 
     @Override
     public boolean intakeTargetClose() {
-        return simulatedIntakeDistance <= IntakeConstants.INTAKE_THRESHOLD;
+        return simulatedIntakeDistance <= IntakeSubsystem.INTAKE_THRESHOLD;
     }
 
     @Override
@@ -179,13 +179,13 @@ public IntakeIOSim() {
 
     @Override
     public boolean indexerTargetClose() {
-        return simulatedIndexerDistance <= IntakeConstants.INDEXER_THRESHOLD;
+        return simulatedIndexerDistance <= IntakeSubsystem.INDEXER_THRESHOLD;
     }
 
     @Override
     public void toRestingState() {
         if (!isJammed()) {
-            setSlidePosition(IntakeConstants.SLIDE_RESTING_POSITION);
+            setSlidePosition(IntakeSubsystem.SLIDE_RETRACTED_POSITION);
         }
         setRollerSpeed(0);
     }
@@ -196,7 +196,7 @@ public IntakeIOSim() {
         double current = m_rollerSim.getCurrentDrawAmps();
         double velocity = m_rollerSim.getAngularVelocityRPM() / 60.0; // Convert to RPS
         
-        return (current >= IntakeConstants.JAM_CURRENT_THRESHOLD) 
-            && (velocity <= IntakeConstants.JAM_VELOCITY_THRESHOLD);
+        return (current >= IntakeSubsystem.JAM_CURRENT_THRESHOLD) 
+            && (velocity <= IntakeSubsystem.JAM_VELOCITY_THRESHOLD);
     }
 }
