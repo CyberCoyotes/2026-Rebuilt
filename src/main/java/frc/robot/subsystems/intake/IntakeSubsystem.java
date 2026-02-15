@@ -181,14 +181,16 @@ public class IntakeSubsystem extends SubsystemBase {
             this);
     }
 
-    // public Command stopFuelIntake() {
-    //     return Commands.runOnce(
-    //             // Wrap actions as Commands
-    //             this::stopRoller,
-    //             this::restSlides // retracts the slides
-    //     // stops the roller
-    //     );
-    // }
+    public Command restingIntake() {
+        return Commands.runOnce(
+                // Wrap actions as a single Runnable command
+                () -> {
+                    this.stopRoller();
+                    this.retractSlides();
+                },
+                this
+        );
+    }
 
     /*
      * Command to move slides from SLIDE_EXTENDED_POSITION to SLIDE_BUMPER_POSITION
