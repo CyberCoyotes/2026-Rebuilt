@@ -53,15 +53,16 @@ public class ShooterCommands {
             // IndexerCommands.feed(indexer),
             Commands.run(() -> {
                 indexer.indexerForward();
-            }, indexer),
-
-            Commands.run(() -> { 
-                indexer.conveyorForward();
             }, indexer)
+
+            // FIXME The conveyor is not running
+            // Commands.run(() -> {
+                // indexer.conveyorForward();
+            // }, indexer)
         )
         .finallyDo(() -> {
-            indexer.indexerStop();
-            indexer.conveyorStop();
+            indexer.indexerStop(); // FIXME Indexer is not stopping when button is released
+            // indexer.conveyorStop();
             shooter.setIdle();
         });
     }
