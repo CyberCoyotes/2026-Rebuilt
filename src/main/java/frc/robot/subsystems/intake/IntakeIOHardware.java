@@ -205,10 +205,10 @@ public class IntakeIOHardware implements IntakeIO {
 
     //multi-hardware methods
     public void toRestingState(){
-        if (!isJammed()){
-        setSlidePosition(IntakeSubsystem.SLIDE_RETRACTED_POSITION); // if ball is stuck, moving slide to rest is bad
-        }
-        setRollerSpeed(0);
+        // if (!isJammed()){
+        // setSlidePosition(IntakeSubsystem.SLIDE_RETRACTED_POSITION); // if ball is stuck, moving slide to rest is bad
+        // }
+        // setRollerSpeed(0);
     }
 
     @Override
@@ -217,20 +217,14 @@ public class IntakeIOHardware implements IntakeIO {
         throw new UnsupportedOperationException("Unimplemented method 'indexerTargetClose'");
     }
 
-    @Override
-    public boolean isJammed() {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'isJammed'");
-    }
-
     // TODO tune
-    /*
-    public boolean isJammed(){
+    
+    public void isJammed(){
         double current = m_roller.getSupplyCurrent().getValueAsDouble();
         double velocity = m_roller.getVelocity().getValueAsDouble();
 
-        return (current >= IntakeSubsystem.JAM_CURRENT_THRESHOLD) && (velocity <= IntakeSubsystem.JAM_VELOCITY_THRESHOLD);
+        return; // (current >= IntakeSubsystem.JAM_CURRENT_THRESHOLD) && (velocity <= IntakeSubsystem.JAM_VELOCITY_THRESHOLD);
   } 
-        */
+        
 
     } // end of class

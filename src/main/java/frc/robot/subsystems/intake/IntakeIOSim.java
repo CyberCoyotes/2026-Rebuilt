@@ -184,10 +184,10 @@ public IntakeIOSim() {
 
     @Override
     public void toRestingState() {
-        if (!isJammed()) {
-            setSlidePosition(IntakeSubsystem.SLIDE_RETRACTED_POSITION);
-        }
-        setRollerSpeed(0);
+        // if (!isJammed()) {
+            // setSlidePosition(IntakeSubsystem.SLIDE_RETRACTED_POSITION);
+        // }
+        // setRollerSpeed(0);
     }
 
     @Override
@@ -196,19 +196,15 @@ public IntakeIOSim() {
         throw new UnsupportedOperationException("Unimplemented method 'indexerTargetClose'");
     }
 
-    @Override
-    public boolean isJammed() {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'isJammed'");
-    }
 
-    // @Override
-    // public boolean isJammed() {
-    //     // Jam = high current + low velocity
-    //     double current = m_rollerSim.getCurrentDrawAmps();
-    //     double velocity = m_rollerSim.getAngularVelocityRPM() / 60.0; // Convert to RPS
+    @Override
+    public void isJammed() {
+        // Jam = high current + low velocity
+        // double current = m_rollerSim.getCurrentDrawAmps();
+        // double velocity = m_rollerSim.getAngularVelocityRPM() / 60.0; // Convert to RPS
         
-    //     return (current >= IntakeSubsystem.JAM_CURRENT_THRESHOLD) 
-    //         && (velocity <= IntakeSubsystem.JAM_VELOCITY_THRESHOLD);
-    // }
+        return;
+        // (current >= IntakeSubsystem.JAM_CURRENT_THRESHOLD) 
+            // && (velocity <= IntakeSubsystem.JAM_VELOCITY_THRESHOLD);
+    }
 }

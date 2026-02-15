@@ -97,6 +97,6 @@ public interface IntakeIO {
 
     //multi-hardware methods
     void toRestingState();
-    boolean isJammed();
+    void isJammed();
 
 }
