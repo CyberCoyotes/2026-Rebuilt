@@ -110,11 +110,11 @@ public class ShooterIOHardware implements ShooterIO {
         hoodEncoder.getConfigurator().apply(encoderConfig);
 
         // Apply configurations from centralized config class
-        flywheelMotorA.getConfigurator().apply(TalonFXConfigs.shooterFlywheelConfig());
-        flywheelMotorB.getConfigurator().apply(TalonFXConfigs.shooterFlywheelConfig());
-        flywheelMotorC.getConfigurator().apply(TalonFXConfigs.shooterFlywheelConfig());
+        flywheelMotorA.getConfigurator().apply(TalonFXConfigs.flywheelConfig());
+        flywheelMotorB.getConfigurator().apply(TalonFXConfigs.flywheelConfig());
+        flywheelMotorC.getConfigurator().apply(TalonFXConfigs.flywheelConfig());
         hoodMotor.getConfigurator().apply(TalonFXConfigs.hoodConfig());
-        counterWheelMotor.getConfigurator().apply(TalonFXConfigs.shooterFlywheelConfig());
+        counterWheelMotor.getConfigurator().apply(TalonFXConfigs.flywheelConfig());
 
         // Set follower relationships (B and C follow A)
         // Aligned = same direction as leader (not opposed)
