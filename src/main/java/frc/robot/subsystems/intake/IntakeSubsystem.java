@@ -151,8 +151,102 @@ public class IntakeSubsystem extends SubsystemBase {
                 this::stopRoller, this);
     }
 
-    public Command stopRollerCommand() {
-        return Commands.run(this::stopRoller, this);
+    public boolean isJammed(){
+        return io.isJammed();
+  }
+
+  // ===== Commands =====
+  public Command extendSlidesCommand(){
+    return Commands.runOnce(this::extendSlides, this);
+    
+  }
+
+  public Command returnSlidesCommand(){
+    return Commands.runOnce(this::restSlides, this);
+  }
+
+  // Return slides to resting position over a set amount of time (e.g., 2 second) to help feed fuel into the indexer and shooter
+  public Command returnSlidesCommandSlowyly(){
+        final double duration = 2.0; // seconds to move to resting position
+        final double[] startPos = new double[1];
+        final edu.wpi.first.wpilibj.Timer timer = new edu.wpi.first.wpilibj.Timer();
+
+        return Commands.sequence(
+            Commands.runOnce(() -> {
+                startPos[0] = getSlidePosition();
+                timer.reset();
+                timer.start();
+            }, this),
+            Commands.run(() -> {
+                double progress = Math.min(1.0, timer.get() / duration);
+                double target = IntakeConstants.SLIDE_RESTING_POSITION;
+                double position = startPos[0] + (target - startPos[0]) * progress;
+                setSlidePosition(position);
+            }, this).withTimeout(duration),
+            Commands.runOnce(() -> {
+                timer.stop();
+                setSlidePosition(IntakeConstants.SLIDE_RESTING_POSITION);
+            }, this)
+        );
+    }
+
+  public Command outakeFuelCommand(){
+    return Commands.startEnd(
+        this::outakeFuel,
+        this::stopRotator, this);
+  }
+
+  public Command runRotatorCommand(){
+    return Commands.startEnd(
+        this::runRotator, 
+        this::stopRotator, this);
+  }
+
+  public Command stopRotatorCommand(){
+    return Commands.run(this::stopRotator, this);
+  }
+
+  // ===== Command Combinations =====
+  /* Single command that (1) extends the slides and (2) runs the rotator.
+   * Both actions are on the same subsystem, so they cannot be in a parallel
+   * group — instead we call both methods inside one command.
+   */
+
+  public Command intakeFuel(){
+        return Commands.startEnd(
+            () -> {
+                extendSlides();
+                runRotator();
+            },
+            () -> {
+                stopRotator();
+            },
+            this
+        );
+    }
+
+    public Command stopFuelIntake(){
+        return Commands.runOnce(
+            () -> {
+                restSlides();
+                stopRotator();
+            },
+            this
+        );
+    }
+
+
+    /* 
+    Simple command to bring in the slides to the home-resting position over a set amount of time
+    Intake Roller is off
+    Intention is to "collapse" the hopper and with the slide position coming to rest, 
+    decrease the hopper volume to help feed fuel into the indexer and shooter
+    */ 
+    public Command collapseHopperCommand(double duration){
+        return Commands.sequence(
+            Commands.runOnce(this::stopRotator, this), // Ensure rotator is off
+            returnSlidesCommand() // Retract the slides to the resting position
+        );
     }
 
     // ===== Command Combinations =====
