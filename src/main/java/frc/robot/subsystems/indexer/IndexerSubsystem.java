@@ -69,8 +69,8 @@ public class IndexerSubsystem extends SubsystemBase {
     /** Indexer motor jam velocity threshold in RPS (TODO: Tune on robot) */
     public static final double INDEXER_JAM_VELOCITY_THRESHOLD = 0.5;
 
-    public static final double CONVEYOR_FORWARD_VOLTAGE = 5.0; // TODO: Tune conveyor on robot
-    public static final double CONVEYOR_REVERSE_VOLTAGE = -5.0;
+    public static final double CONVEYOR_FORWARD_VOLTAGE = 2.0; // TODO: Tune conveyor on robot
+    public static final double CONVEYOR_REVERSE_VOLTAGE = -2.0;
 
     public static final double INDEXER_FORWARD_VOLTAGE = 5.0; // TODO: Tune indexer on robot
     public static final double INDEXER_REVERSE_VOLTAGE = -5.0;

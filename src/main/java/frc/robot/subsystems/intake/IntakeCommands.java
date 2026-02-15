@@ -16,6 +16,7 @@ public class IntakeCommands {
        );
         }
 
+    /* FIXME
     public Command intakeFuelWithSubCommands(IntakeSubsystem intake){
         // Make a parallel command that (1) extends the slides and (2) runs the rotator at the same time
         return Commands.parallel(
@@ -26,7 +27,9 @@ public class IntakeCommands {
             // Commands.run(intake::runRotator, intake) // Functionally equivalent to the above line
         );
     }
+    */
 
+/* FIXME    
     public Command intakeFuel(IntakeSubsystem intake){
         // Make a parallel command that (1) extends the slides and (2) runs the rotator at the same time
         return Commands.parallel(
@@ -43,6 +46,7 @@ public class IntakeCommands {
             Commands.run(() -> intake.stopRotator(), intake) // stops the rotator
         );
     }
+    */
 
     public Command outakeFuel(IntakeSubsystem intake){
         return Commands.startEnd(() -> intake.setRotatorSpeed(-IntakeConstants.ROTATOR_MAX_VELOCITY),() -> intake.setRotatorSpeed(0), intake);
