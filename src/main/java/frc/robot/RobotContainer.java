@@ -59,9 +59,10 @@ public class RobotContainer {
     private final GameDataTelemetry gameDataTelemetry = new GameDataTelemetry();
 
     // ===== Controllers =====
-    // Port 0: Driver controller (drivetrain movement)
-    // Port 1: Operator controller (mechanisms - shooter, intake, indexer, climber)
+    // Port 0: Driver controller
     private final CommandXboxController driver = new CommandXboxController(0);
+    
+    // Port 1: Operator controller
     private final CommandXboxController operator = new CommandXboxController(1);
 
     // ===== Subsystems =====
@@ -127,10 +128,7 @@ public class RobotContainer {
         RobotModeTriggers.disabled().whileTrue(
             drivetrain.applyRequest(() -> idle).ignoringDisable(true)
         );
-            // Dont think need
-        // A: Brake (lock wheels in X pattern)
-       // driver.a().whileTrue(drivetrain.applyRequest(() -> brake));
-
+       
         // B: Point wheels at joystick direction (for testing)
        /*  driver.b().whileTrue(drivetrain.applyRequest(() ->
             point.withModuleDirection(new Rotation2d(-driver.getLeftY(), -driver.getLeftX()))
@@ -154,7 +152,7 @@ public class RobotContainer {
         // =====================================================================
 
         // ----- Shooter -----
-       // ----- Full Sequences -----
+        // ----- Full Sequences -----
         // A: Full shoot sequence - close shot with indexer feed, then idle
         /*
         driver.rightTrigger(0.5).whileTrue(
@@ -169,13 +167,13 @@ public class RobotContainer {
           ShooterCommands.rampTestShoot(shooter, indexer)
         );
 
-        // driver.rightTrigger(0.5).whileTrue(
-        //     Commands.parallel(
-        //         ShooterCommands.rampUpFlywheel(shooter, ShooterSubsystem.RAMP_TEST_TARGET_RPM),
-        //         // Commands.waitUntil(shooter::isReady).withTimeout(5.0), // Timeout to prevent indefinite waiting if something goes wrong
-        //         Commands.run(indexer::indexerForward)
-        //     )
-        // );
+        driver.rightTrigger(0.5).whileTrue(
+            Commands.parallel(
+                ShooterCommands.rampUpFlywheel(shooter, ShooterSubsystem.RAMP_TEST_TARGET_RPM),
+                Commands.waitUntil(shooter::isReady).withTimeout(5.0), // Timeout to prevent indefinite waiting if something goes wrong
+                Commands.run(indexer::indexerForward)
+            )
+        );
 
         // Y: Close shot (prepare and wait for ready)
         // driver.a().onTrue(ShooterCommands.closeShot(shooter)); // TODO Comment out for testing without flywheel
@@ -186,16 +184,12 @@ public class RobotContainer {
         }));
 
         // X: Far shot (prepare and wait for ready)
-        // driver.x().onTrue(ShooterCommands.farShot(shooter)); // TODO Comment out for testing without flywheel
-        // Far shot hood preset
         driver.x().onTrue(Commands.runOnce(() -> {
             shooter.setTargetHoodPose(ShooterSubsystem.FAR_SHOT_HOOD);
             shooter.prepareToShoot();
         }));
 
         // B: Pass shot (prepare and wait for ready)
-        // driver.b().onTrue(ShooterCommands.pass(shooter)); // TODO Comment out for testing without flywheel
-        // Pass shot hood preset
         driver.b().onTrue(Commands.runOnce(() -> {
             shooter.setTargetHoodPose(ShooterSubsystem.PASS_SHOT_HOOD);
             shooter.prepareToShoot();
@@ -215,10 +209,10 @@ public class RobotContainer {
 
         // ----- Intake -----
         // Left Trigger: Run intake rotator and slides(while held)
-        // driver.leftTrigger(0.5).whileTrue(intake.intakeFuel());
+        driver.leftTrigger(0.5).whileTrue(intake.intakeFuel());
 
         // Left Bumper: Stop intake jam (quick reverse)
-        // driver.leftBumper().onTrue(intake.outakeFuelCommand());
+        driver.leftBumper().onTrue(intake.outakeFuelCommand());
 
         // ----- Climber (POV) -----
         // POV Up: Extend climber arm (preset})
