@@ -56,7 +56,9 @@ public class IntakeCommands {
     }
 
     public Command outakeFuel(IntakeSubsystem intake){
-        return Commands.startEnd(() -> intake.setRotatorSpeed(-IntakeConstants.ROTATOR_MAX_VELOCITY),() -> intake.setRotatorSpeed(0), intake);
+        return Commands.startEnd(
+            () -> intake.setRotatorSpeed(-IntakeConstants.ROTATOR_MAX_VELOCITY),
+            () -> intake.setRotatorSpeed(0), intake);
     }
 
 }
