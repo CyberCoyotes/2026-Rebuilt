@@ -198,9 +198,9 @@ public class IntakeIOHardware implements IntakeIO {
     }
 
         // returns true if is something close to indexer TOF
-        public boolean indexerTargetClose(){
-            return (s_indexerTOF.getRange() <= IntakeSubsystem.INDEXER_THRESHOLD) && s_indexerTOF.isRangeValid();
-        }
+        // public boolean indexerTargetClose(){
+            // return (s_indexerTOF.getRange() <= IntakeSubsystem.INDEXER_THRESHOLD) && s_indexerTOF.isRangeValid();
+        // }
     
 
     //multi-hardware methods
@@ -211,12 +211,26 @@ public class IntakeIOHardware implements IntakeIO {
         setRollerSpeed(0);
     }
 
+    @Override
+    public boolean indexerTargetClose() {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'indexerTargetClose'");
+    }
+
+    @Override
+    public boolean isJammed() {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'isJammed'");
+    }
+
     // TODO tune
+    /*
     public boolean isJammed(){
         double current = m_roller.getSupplyCurrent().getValueAsDouble();
         double velocity = m_roller.getVelocity().getValueAsDouble();
 
         return (current >= IntakeSubsystem.JAM_CURRENT_THRESHOLD) && (velocity <= IntakeSubsystem.JAM_VELOCITY_THRESHOLD);
-  }
+  } 
+        */
 
     } // end of class

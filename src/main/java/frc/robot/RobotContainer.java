@@ -233,8 +233,15 @@ public class RobotContainer {
         operator.povRight().onTrue(shooter.runOnce(shooter::increaseHoodForTesting));
 
         // Hood position testing (closed-loop position control)
-        operator.rightBumper().onTrue(shooter.runHoodToMax());   // Move hood to MAX_HOOD_POSE
-        operator.leftBumper().onTrue(shooter.runHoodToMin());    // Move hood to MIN_HOOD_POSE
+        // operator.rightBumper().onTrue(shooter.runHoodToMax());   // Move hood to MAX_HOOD_POSE
+        // operator.leftBumper().onTrue(shooter.runHoodToMin());    // Move hood to MIN_HOOD_POSE
+        operator.rightBumper().whileTrue(
+            Commands.startEnd(
+                () -> indexer.conveyorForward(), 
+                () -> indexer.conveyorStop(), 
+                indexer)
+        );
+
         // =====================================================================
         // OPERATOR CONTROLLER (Port 1) - Flywheel Velocity Adjustment
         // =====================================================================

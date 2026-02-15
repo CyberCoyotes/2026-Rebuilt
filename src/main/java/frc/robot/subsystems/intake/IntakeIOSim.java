@@ -96,7 +96,7 @@ public IntakeIOSim() {
         inputs.intakeDistance = simulatedIntakeDistance;
         inputs.intakeTarget = simulatedIntakeDistance <= IntakeSubsystem.INTAKE_THRESHOLD;
         inputs.indexerDistance = simulatedIndexerDistance;
-        inputs.indexerTarget = simulatedIndexerDistance <= IntakeSubsystem.INDEXER_THRESHOLD;
+        // inputs.indexerTarget = simulatedIndexerDistance <= IntakeSubsystem.INDEXER_THRESHOLD;
     }
 
     /**
@@ -177,10 +177,10 @@ public IntakeIOSim() {
         return simulatedIndexerDistance;
     }
 
-    @Override
-    public boolean indexerTargetClose() {
-        return simulatedIndexerDistance <= IntakeSubsystem.INDEXER_THRESHOLD;
-    }
+    // @Override
+    // public boolean indexerTargetClose() {
+    //     return simulatedIndexerDistance <= IntakeSubsystem.INDEXER_THRESHOLD;
+    // }
 
     @Override
     public void toRestingState() {
@@ -191,12 +191,24 @@ public IntakeIOSim() {
     }
 
     @Override
-    public boolean isJammed() {
-        // Jam = high current + low velocity
-        double current = m_rollerSim.getCurrentDrawAmps();
-        double velocity = m_rollerSim.getAngularVelocityRPM() / 60.0; // Convert to RPS
-        
-        return (current >= IntakeSubsystem.JAM_CURRENT_THRESHOLD) 
-            && (velocity <= IntakeSubsystem.JAM_VELOCITY_THRESHOLD);
+    public boolean indexerTargetClose() {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'indexerTargetClose'");
     }
+
+    @Override
+    public boolean isJammed() {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'isJammed'");
+    }
+
+    // @Override
+    // public boolean isJammed() {
+    //     // Jam = high current + low velocity
+    //     double current = m_rollerSim.getCurrentDrawAmps();
+    //     double velocity = m_rollerSim.getAngularVelocityRPM() / 60.0; // Convert to RPS
+        
+    //     return (current >= IntakeSubsystem.JAM_CURRENT_THRESHOLD) 
+    //         && (velocity <= IntakeSubsystem.JAM_VELOCITY_THRESHOLD);
+    // }
 }
