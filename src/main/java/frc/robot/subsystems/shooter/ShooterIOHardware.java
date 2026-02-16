@@ -87,19 +87,19 @@ public class ShooterIOHardware implements ShooterIO {
     // Uncomment if a mechanical gear ratio conversion is needed later.
     // private static final double HOOD_GEAR_RATIO = 100.0;  // TODO: Measure actual ratio 23:1 or 1:23
 
-    /**
+    /** 
      * Creates a new ShooterIOTalonFX instance.
      * Configures all motors to known good states.
      */
     public ShooterIOHardware() {
         // Create motor objects
         // flywheelMotorA = new TalonFX(Constants.Shooter.FLYWHEEL_A_MOTOR_ID, Constants.kCANBus); // deprecated constructor
-        flywheelMotorA = new TalonFX(Constants.Shooter.FLYWHEEL_A_MOTOR_ID); // TODO add new CANbus arg 
-        flywheelMotorB = new TalonFX(Constants.Shooter.FLYWHEEL_B_MOTOR_ID); // TODO add new CANbus arg 
-        flywheelMotorC = new TalonFX(Constants.Shooter.FLYWHEEL_C_MOTOR_ID); // TODO add new CANbus arg 
-        hoodMotor = new TalonFXS(Constants.Shooter.HOOD_MOTOR_ID);
-        counterWheelMotor = new TalonFX(Constants.Shooter.COUNTER_WHEEL_MOTOR_ID);
-        hoodEncoder = new CANcoder(Constants.Shooter.HOOD_POSE_ENCODER_ID);
+        flywheelMotorA = new TalonFX(Constants.Shooter.FLYWHEEL_A_MOTOR_ID, Constants.CAN_BUS_NAME); // TODO add new CANbus arg 
+        flywheelMotorB = new TalonFX(Constants.Shooter.FLYWHEEL_B_MOTOR_ID, Constants.CAN_BUS_NAME); // TODO add new CANbus arg 
+        flywheelMotorC = new TalonFX(Constants.Shooter.FLYWHEEL_C_MOTOR_ID, Constants.CAN_BUS_NAME); // TODO add new CANbus arg 
+        hoodMotor = new TalonFXS(Constants.Shooter.HOOD_MOTOR_ID, Constants.CAN_BUS_NAME);
+        counterWheelMotor = new TalonFX(Constants.Shooter.COUNTER_WHEEL_MOTOR_ID, Constants.CAN_BUS_NAME);
+        hoodEncoder = new CANcoder(Constants.Shooter.HOOD_POSE_ENCODER_ID, Constants.CAN_BUS_NAME);
         // https://v6.docs.ctr-electronics.com/en/stable/docs/yearly-changes/yearly-changelog.html#talon-fx-improvements
 
         // Configure WCP ThroughBore encoder (CANcoder)
