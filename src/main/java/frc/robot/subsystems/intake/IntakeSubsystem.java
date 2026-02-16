@@ -28,8 +28,7 @@ public class IntakeSubsystem extends SubsystemBase {
     final static double SLIDE_MIN_POSITION = 0;
     final static double SLIDE_MAX_POSITION = 1.91;
 
-    final static double SLIDE_RETRACTED_POSITION = 0.3;
-    // final static double SLIDE_BUMPER_POSITION = 0.5; // TODO Find the slide position where the slides come back to rest on the bumper but not fully retracted, up, and tucked
+    final static double SLIDE_RETRACTED_POSITION = 0.25;
     final static double SLIDE_EXTENDED_POSITION = 1.85;
 
     final static double ROLLER_VOLTS = 8; // Voltage to run the roller at for intaking fuel, may need to be tuned
