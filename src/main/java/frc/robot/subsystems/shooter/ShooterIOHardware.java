@@ -50,31 +50,31 @@ public class ShooterIOHardware implements ShooterIO {
     // ===== Status Signals (for efficient reading) =====
     // Flywheel A
     private final StatusSignal<?> flywheelAVelocity;
-    private final StatusSignal<?> flywheelAVoltage;
-    private final StatusSignal<?> flywheelACurrent;
-    private final StatusSignal<?> flywheelATemp;
+    // private final StatusSignal<?> flywheelAVoltage;
+    // private final StatusSignal<?> flywheelACurrent;
+    // private final StatusSignal<?> flywheelATemp;
 
     // Flywheel B
     private final StatusSignal<?> flywheelBVelocity;
-    private final StatusSignal<?> flywheelBVoltage;
-    private final StatusSignal<?> flywheelBCurrent;
-    private final StatusSignal<?> flywheelBTemp;
+    // private final StatusSignal<?> flywheelBVoltage;
+    // private final StatusSignal<?> flywheelBCurrent;
+    // private final StatusSignal<?> flywheelBTemp;
 
     // Flywheel C
     private final StatusSignal<?> flywheelCVelocity;
-    private final StatusSignal<?> flywheelCVoltage;
-    private final StatusSignal<?> flywheelCCurrent;
-    private final StatusSignal<?> flywheelCTemp;
+    // private final StatusSignal<?> flywheelCVoltage;
+    // private final StatusSignal<?> flywheelCCurrent;
+    // private final StatusSignal<?> flywheelCTemp;
 
     // Hood
     private final StatusSignal<?> hoodPosition;
     private final StatusSignal<?> hoodVoltage;
     private final StatusSignal<?> hoodCurrent;
 
-    // Counter-wheel
-    private final StatusSignal<?> counterWheelVelocity;
-    private final StatusSignal<?> counterWheelVoltage;
-    private final StatusSignal<?> counterWheelCurrent;
+    // // Counter-wheel
+    // private final StatusSignal<?> counterWheelVelocity;
+    // private final StatusSignal<?> counterWheelVoltage;
+    // private final StatusSignal<?> counterWheelCurrent;
 
     // WCP ThroughBore Encoder (CANcoder)
     private final StatusSignal<?> hoodEncoderAbsPosition;
@@ -119,28 +119,28 @@ public class ShooterIOHardware implements ShooterIO {
         // Set follower relationships (B and C follow A)
         // Aligned = same direction as leader (not opposed)
         flywheelMotorB.setControl(new Follower(
-            Constants.Shooter.FLYWHEEL_A_MOTOR_ID, MotorAlignmentValue.Aligned));
+            Constants.Shooter.FLYWHEEL_A_MOTOR_ID, MotorAlignmentValue.Aligned)); // 
         flywheelMotorC.setControl(new Follower(
             Constants.Shooter.FLYWHEEL_A_MOTOR_ID, MotorAlignmentValue.Aligned));
 
         // Get status signals for efficient reading
         // Flywheel A (leader)
         flywheelAVelocity = flywheelMotorA.getVelocity();
-        flywheelAVoltage = flywheelMotorA.getMotorVoltage();
-        flywheelACurrent = flywheelMotorA.getSupplyCurrent();
-        flywheelATemp = flywheelMotorA.getDeviceTemp();
+        // flywheelAVoltage = flywheelMotorA.getMotorVoltage();
+        // flywheelACurrent = flywheelMotorA.getSupplyCurrent();
+        // flywheelATemp = flywheelMotorA.getDeviceTemp();
 
         // Flywheel B (follower)
         flywheelBVelocity = flywheelMotorB.getVelocity();
-        flywheelBVoltage = flywheelMotorB.getMotorVoltage();
-        flywheelBCurrent = flywheelMotorB.getSupplyCurrent();
-        flywheelBTemp = flywheelMotorB.getDeviceTemp();
+        // flywheelBVoltage = flywheelMotorB.getMotorVoltage();
+        // flywheelBCurrent = flywheelMotorB.getSupplyCurrent();
+        // flywheelBTemp = flywheelMotorB.getDeviceTemp();
 
         // Flywheel C (follower)
         flywheelCVelocity = flywheelMotorC.getVelocity();
-        flywheelCVoltage = flywheelMotorC.getMotorVoltage();
-        flywheelCCurrent = flywheelMotorC.getSupplyCurrent();
-        flywheelCTemp = flywheelMotorC.getDeviceTemp();
+        // flywheelCVoltage = flywheelMotorC.getMotorVoltage();
+        // flywheelCCurrent = flywheelMotorC.getSupplyCurrent();
+        // flywheelCTemp = flywheelMotorC.getDeviceTemp();
 
         // Hood
         hoodPosition = hoodMotor.getPosition();
@@ -148,35 +148,34 @@ public class ShooterIOHardware implements ShooterIO {
         hoodCurrent = hoodMotor.getSupplyCurrent();
 
         // Counter-wheel
-        counterWheelVelocity = counterWheelMotor.getVelocity();
-        counterWheelVoltage = counterWheelMotor.getMotorVoltage();
-        counterWheelCurrent = counterWheelMotor.getSupplyCurrent();
+        // counterWheelVelocity = counterWheelMotor.getVelocity();
+        // counterWheelVoltage = counterWheelMotor.getMotorVoltage();
+        // counterWheelCurrent = counterWheelMotor.getSupplyCurrent();
 
         // WCP ThroughBore Encoder (CANcoder)
         hoodEncoderAbsPosition = hoodEncoder.getAbsolutePosition();
 
         // Configure update frequencies for better performance
         // Critical signals: 100Hz, Less critical: 50Hz, Temperature: 4Hz
-        BaseStatusSignal.setUpdateFrequencyForAll(
-            100.0,  // 100Hz for velocity/position/voltage (critical for control)
-            flywheelAVelocity, flywheelAVoltage,
-            flywheelBVelocity, flywheelBVoltage,
-            flywheelCVelocity, flywheelCVoltage,
-            hoodPosition, hoodVoltage,
-            counterWheelVelocity, counterWheelVoltage,
-            hoodEncoderAbsPosition
-        );
+        // BaseStatusSignal.setUpdateFrequencyForAll(
+        //     100.0,  // 100Hz for velocity/position/voltage (critical for control)
+        //     flywheelAVelocity,
+        //     flywheelBVelocity,
+        //     flywheelCVelocity,
+        //     hoodPosition, hoodVoltage,
+        //     hoodEncoderAbsPosition
+        // );
 
-        BaseStatusSignal.setUpdateFrequencyForAll(
-            50.0,  // 50Hz for current
-            flywheelACurrent, flywheelBCurrent, flywheelCCurrent,
-            hoodCurrent, counterWheelCurrent
-        );
+        // BaseStatusSignal.setUpdateFrequencyForAll(
+        //     50.0,  // 50Hz for current
+        //     flywheelACurrent, flywheelBCurrent, flywheelCCurrent,
+        //     hoodCurrent, counterWheelCurrent
+        // );
 
-        BaseStatusSignal.setUpdateFrequencyForAll(
-            4.0,  // 4Hz for temperature
-            flywheelATemp, flywheelBTemp, flywheelCTemp
-        );
+        // BaseStatusSignal.setUpdateFrequencyForAll(
+        //     4.0,  // 4Hz for temperature
+        //     flywheelATemp, flywheelBTemp, flywheelCTemp
+        // );
 
         // Optimize bus utilization
         flywheelMotorA.optimizeBusUtilization();
@@ -195,57 +194,56 @@ public class ShooterIOHardware implements ShooterIO {
         // Refresh all status signals efficiently
         BaseStatusSignal.refreshAll(
             // Flywheel A
-            flywheelAVelocity, flywheelAVoltage, flywheelACurrent, flywheelATemp,
+            flywheelAVelocity,
             // Flywheel B
-            flywheelBVelocity, flywheelBVoltage, flywheelBCurrent, flywheelBTemp,
+            // flywheelBVelocity,
             // Flywheel C
-            flywheelCVelocity, flywheelCVoltage, flywheelCCurrent, flywheelCTemp,
+            // flywheelCVelocity,
             // Hood
             hoodPosition, hoodVoltage, hoodCurrent,
             // Counter-wheel
-            counterWheelVelocity, counterWheelVoltage, counterWheelCurrent,
             // WCP ThroughBore Encoder
             hoodEncoderAbsPosition
         );
 
         // Raw motor RPS (native TalonFX unit — no conversion)
         double motorARPS = flywheelAVelocity.getValueAsDouble();
-        double motorBRPS = flywheelBVelocity.getValueAsDouble();
-        double motorCRPS = flywheelCVelocity.getValueAsDouble();
-        inputs.flywheelMotorRPS = (motorARPS + motorBRPS + motorCRPS) / 3.0;
+        // double motorBRPS = flywheelBVelocity.getValueAsDouble();
+        // double motorCRPS = flywheelCVelocity.getValueAsDouble();
+        // inputs.flywheelMotorRPS = (motorARPS + motorBRPS + motorCRPS) / 3.0;
 
         // Convert motor velocities to flywheel RPM
         double flywheelARPM = rpsToRPM(motorARPS) / FLYWHEEL_GEAR_RATIO;
-        double flywheelBRPM = rpsToRPM(motorBRPS) / FLYWHEEL_GEAR_RATIO;
-        double flywheelCRPM = rpsToRPM(motorCRPS) / FLYWHEEL_GEAR_RATIO;
+        // double flywheelBRPM = rpsToRPM(motorBRPS) / FLYWHEEL_GEAR_RATIO;
+        // double flywheelCRPM = rpsToRPM(motorCRPS) / FLYWHEEL_GEAR_RATIO;
 
         // Individual flywheel data
-        inputs.flywheelAVelocityRPM = flywheelARPM;
-        inputs.flywheelBVelocityRPM = flywheelBRPM;
-        inputs.flywheelCVelocityRPM = flywheelCRPM;
+        // inputs.flywheelAVelocityRPM = flywheelARPM;
+        // inputs.flywheelBVelocityRPM = flywheelBRPM;
+        // inputs.flywheelCVelocityRPM = flywheelCRPM;
 
         // Average flywheel data
-        inputs.flywheelVelocityRPM = (flywheelARPM + flywheelBRPM + flywheelCRPM) / 3.0;
-        inputs.flywheelAppliedVolts = (flywheelAVoltage.getValueAsDouble() +
-                                       flywheelBVoltage.getValueAsDouble() +
-                                       flywheelCVoltage.getValueAsDouble()) / 3.0;
-        inputs.flywheelCurrentAmps = (flywheelACurrent.getValueAsDouble() +
-                                      flywheelBCurrent.getValueAsDouble() +
-                                      flywheelCCurrent.getValueAsDouble());  // Sum, not average
-        inputs.flywheelTempCelsius = Math.max(Math.max(
-            flywheelATemp.getValueAsDouble(),
-            flywheelBTemp.getValueAsDouble()),
-            flywheelCTemp.getValueAsDouble());  // Highest temp
+        // inputs.flywheelVelocityRPM = (flywheelARPM + flywheelBRPM + flywheelCRPM) / 3.0;
+        // inputs.flywheelAppliedVolts = (flywheelAVoltage.getValueAsDouble() +
+        //                                flywheelBVoltage.getValueAsDouble() +
+        //                                flywheelCVoltage.getValueAsDouble()) / 3.0;
+        // inputs.flywheelCurrentAmps = (flywheelACurrent.getValueAsDouble() +
+        //                               flywheelBCurrent.getValueAsDouble() +
+        //                               flywheelCCurrent.getValueAsDouble());  // Sum, not average
+        // inputs.flywheelTempCelsius = Math.max(Math.max(
+        //     flywheelATemp.getValueAsDouble(),
+        //     flywheelBTemp.getValueAsDouble()),
+        //     flywheelCTemp.getValueAsDouble());  // Highest temp
 
         // Hood data — raw motor rotations, no conversion needed (matches Phoenix Tuner units)
-        inputs.hoodAngleDegrees = hoodPosition.getValueAsDouble();
-        inputs.hoodAppliedVolts = hoodVoltage.getValueAsDouble();
-        inputs.hoodCurrentAmps = hoodCurrent.getValueAsDouble();
+        // inputs.hoodAngleDegrees = hoodPosition.getValueAsDouble();
+        // inputs.hoodAppliedVolts = hoodVoltage.getValueAsDouble();
+        // inputs.hoodCurrentAmps = hoodCurrent.getValueAsDouble();
 
         // Counter-wheel data
-        inputs.counterWheelVelocityRPM = rpsToRPM(counterWheelVelocity.getValueAsDouble());
-        inputs.counterWheelAppliedVolts = counterWheelVoltage.getValueAsDouble();
-        inputs.counterWheelCurrentAmps = counterWheelCurrent.getValueAsDouble();
+        // inputs.counterWheelVelocityRPM = rpsToRPM(counterWheelVelocity.getValueAsDouble());
+        // inputs.counterWheelAppliedVolts = counterWheelVoltage.getValueAsDouble();
+        // inputs.counterWheelCurrentAmps = counterWheelCurrent.getValueAsDouble();
 
         // WCP ThroughBore Encoder data (secondary feedback)
         inputs.hoodThroughBorePositionRotations = hoodEncoderAbsPosition.getValueAsDouble();
