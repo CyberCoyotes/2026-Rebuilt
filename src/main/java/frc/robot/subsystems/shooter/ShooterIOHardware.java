@@ -43,7 +43,7 @@ public class ShooterIOHardware implements ShooterIO {
     // ===== Control Requests =====
     // FOC (Field Oriented Control) for flywheels - smoother, more efficient
     private final VelocityVoltage flywheelVelocityRequest = new VelocityVoltage(0.0).withEnableFOC(true);
-    private final VelocityVoltage counterWheelVelocityRequest = new VelocityVoltage(0.0).withEnableFOC(true);
+    // private final VelocityVoltage counterWheelVelocityRequest = new VelocityVoltage(0.0).withEnableFOC(true);
     private final PositionVoltage hoodPositionRequest = new PositionVoltage(0.0);
     private final VoltageOut hoodVoltageRequest = new VoltageOut(0.0);
 
