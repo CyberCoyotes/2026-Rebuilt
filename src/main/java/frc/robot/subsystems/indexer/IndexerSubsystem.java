@@ -12,7 +12,6 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import frc.robot.Robot;
 import frc.robot.subsystems.indexer.IndexerIO.IndexerIOInputs;
-import frc.robot.training.IndexerSubsystemBasic;
 
 /**
  * IndexerSubsystem - Moves game pieces from intake through the robot to the shooter.

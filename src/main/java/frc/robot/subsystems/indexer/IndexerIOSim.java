@@ -1,7 +1,5 @@
 package frc.robot.subsystems.indexer;
 
-import frc.robot.training.IndexerSubsystemBasic;
-
 /**
  * IndexerIOSim - Simulation implementation of IndexerIO for testing without hardware.
  *
