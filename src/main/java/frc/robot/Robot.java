@@ -32,8 +32,12 @@ public class Robot extends LoggedRobot {
     private final boolean kUseLimelight = false;
 
     /** Set to true to enable AdvantageKit logging and replay features. 
-     * This is separate from the Logger features, which are still active when this is false. */
-    private static final boolean ENABLE_ADVANTAGEKIT = false;
+     * This is separate from the Logger features, which are still active when this is false. 
+     * 
+     * TODO Toggle on/off for testing 
+     * 
+     * */
+    public static final boolean ENABLE_ADVANTAGEKIT = false;
 
     public Robot() {
         
@@ -71,7 +75,7 @@ public class Robot extends LoggedRobot {
             Logger.recordOutput("Robot/BrownedOut", RobotController.isBrownedOut());
             Logger.recordOutput("Robot/CANBusUtilization", RobotController.getCANStatus().percentBusUtilization);
         }
-        
+
         // Update game data telemetry (polls FMS for scoring shift data)
         m_robotContainer.updateGameData();
 
