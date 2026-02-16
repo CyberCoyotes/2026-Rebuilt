@@ -1,4 +1,4 @@
-package frc.robot.training.scoy;
+package frc.robot.training;
 
 import edu.wpi.first.networktables.BooleanPublisher;
 import edu.wpi.first.networktables.DoublePublisher;

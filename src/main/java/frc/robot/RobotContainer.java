@@ -21,12 +21,12 @@ import edu.wpi.first.wpilibj2.command.button.RobotModeTriggers;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
 
 import frc.robot.generated.TunerConstants;
+import frc.robot.commands.IndexerCommands;
+// import frc.robot.commands.IntakeCommands;
 import frc.robot.commands.ShooterCommands;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
 import frc.robot.subsystems.climber.ClimberSubsystem;
-import frc.robot.subsystems.indexer.IndexerCommands;
 import frc.robot.subsystems.indexer.IndexerSubsystem;
-import frc.robot.subsystems.intake.IntakeCommands;
 import frc.robot.subsystems.intake.IntakeSubsystem;
 import frc.robot.subsystems.indexer.IndexerIOSim;
 import frc.robot.subsystems.indexer.IndexerIOHardware;
@@ -73,9 +73,7 @@ public class RobotContainer {
     private final VisionSubsystem vision;
     private final LedSubsystem ledSubsystem;
     private final ClimberSubsystem climber;
-
-    // ===== Intake Commands (instance-based, not static) =====
-    private final IntakeCommands intakeCommands = new IntakeCommands();
+    // private final IntakeCommands intakeCommands; // Not needed since we can just use intake subsystem methods directly in bindings
 
     /* Path follower */
     private final AutoFactory autoFactory;
@@ -87,7 +85,7 @@ public class RobotContainer {
             intake = new IntakeSubsystem(new IntakeIOHardware());
             indexer = new IndexerSubsystem(new IndexerIOHardware());
             shooter = new ShooterSubsystem(new ShooterIOHardware());
-            vision = new VisionSubsystem(new VisionIOLimelight(Constants.Vision.LIMELIGHT3_NAME));
+            vision = new VisionSubsystem(new VisionIOLimelight(Constants.Vision.LIMELIGHT4_NAME));
         } else {
             intake = new IntakeSubsystem(new IntakeIOSim());
             indexer = new IndexerSubsystem(new IndexerIOSim());
@@ -167,13 +165,16 @@ public class RobotContainer {
           ShooterCommands.rampTestShoot(shooter, indexer)
         );
 
+        /* TODO Test rampTestShoot first, comment out, and try this one */
+        /*
         driver.rightTrigger(0.5).whileTrue(
             Commands.parallel(
                 ShooterCommands.rampUpFlywheel(shooter, ShooterSubsystem.RAMP_TEST_TARGET_RPM),
                 Commands.waitUntil(shooter::isReady).withTimeout(5.0), // Timeout to prevent indefinite waiting if something goes wrong
-                Commands.run(indexer::indexerForward)
+                Commands.run(indexer::indexerForward).withTimeout(10.0) // Run indexer forward for 10 seconds or until interrupted (e.g., by releasing trigger)
             )
         );
+        */
 
         // Y: Close shot (prepare and wait for ready)
         // driver.a().onTrue(ShooterCommands.closeShot(shooter)); // TODO Comment out for testing without flywheel
@@ -198,7 +199,7 @@ public class RobotContainer {
             Commands.startEnd(indexer::indexerForward, indexer::indexerStop));
         // POV Up: Eject from shooter (clear jams, 1 second reverse)
         
-        driver.povUp().onTrue(ShooterCommands.eject(shooter, 1.0));
+        driver.povLeft().onTrue(ShooterCommands.eject(shooter, 1.0));
 
         // ----- Indexer -----
         // Right Bumper: Feed game piece to shooter (while held)
@@ -212,7 +213,8 @@ public class RobotContainer {
         driver.leftTrigger(0.5).whileTrue(intake.intakeFuel());
 
         // Left Bumper: Stop intake jam (quick reverse)
-        driver.leftBumper().whileTrue(intake.ejectFuel());
+        // driver.leftBumper().whileTrue(intake.ejectFuel());
+        driver.leftBumper().onTrue(Commands.runOnce(intake::retractSlides, intake));
 
         // ----- Climber (POV) -----
         // POV Up: Extend climber arm (preset})
@@ -229,8 +231,8 @@ public class RobotContainer {
        // operator.start().onTrue(climber.stopClimber());
 
         // ----- Operator Controller (Port 1) - Shooter Hood Testing -----
-        operator.povLeft().onTrue(shooter.runOnce(shooter::decreaseHoodForTesting));
-        operator.povRight().onTrue(shooter.runOnce(shooter::increaseHoodForTesting));
+        operator.povDown().onTrue(shooter.runOnce(shooter::decreaseHoodForTesting));
+        operator.povUp().onTrue(shooter.runOnce(shooter::increaseHoodForTesting));
 
         // Hood position testing (closed-loop position control)
         // operator.rightBumper().onTrue(shooter.runHoodToMax());   // Move hood to MAX_HOOD_POSE
@@ -282,4 +284,5 @@ public class RobotContainer {
     public GameDataTelemetry getGameDataTelemetry() {
         return gameDataTelemetry;
     }
-}
+
+} // End of

@@ -2,13 +2,15 @@
  * AUTHOR: @Joel-Trumpet-67
  */
 
-package frc.robot.subsystems.indexer;
+package frc.robot.training;
 
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.playingwithfusion.TimeOfFlight;
 
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
+import frc.robot.subsystems.indexer.IndexerIOHardware;
+import frc.robot.subsystems.indexer.IndexerSubsystem;
 
 /**
  * IndexerSubsystemBasic - A simplified indexer implementation for training purposes.
