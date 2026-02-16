@@ -11,6 +11,7 @@ import edu.wpi.first.networktables.StringPublisher;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import frc.robot.Robot;
+import frc.robot.subsystems.indexer.IndexerIO.IndexerIOInputs;
 import frc.robot.training.IndexerSubsystemBasic;
 
 /**
@@ -34,7 +35,7 @@ public class IndexerSubsystem extends SubsystemBase {
     // ===== IO Layer =====
     private final IndexerIO io;
 
-    private final IndexerIOInputsAutoLogged inputs = new IndexerIOInputsAutoLogged();
+    private final IndexerIOInputs inputs = new IndexerIOInputs();
 
     // ===== NetworkTables Publishers for Elastic Dashboard =====
     private final NetworkTable indexerTable;
@@ -119,9 +120,9 @@ public class IndexerSubsystem extends SubsystemBase {
         io.updateInputs(inputs);
 
         // Log all inputs for AdvantageKit replay
-        if (Robot.ENABLE_ADVANTAGEKIT) {  // make it public or put in Constants
-            Logger.processInputs("Indexer", inputs);
-        }
+        // if (Robot.ENABLE_ADVANTAGEKIT) {  // make it public or put in Constants
+        //     Logger.processInputs("Indexer", inputs);
+        // }
 
         // Publish to NetworkTables for Elastic dashboard
         publishTelemetry();

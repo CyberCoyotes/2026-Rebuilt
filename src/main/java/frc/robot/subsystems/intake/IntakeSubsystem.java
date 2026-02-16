@@ -6,13 +6,14 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.Intake;
+import frc.robot.subsystems.intake.IntakeIO.IntakeIOInputs;
 
 @SuppressWarnings("unused") // Suppress warnings for unused right now
 
 public class IntakeSubsystem extends SubsystemBase {
 
     private final IntakeIO io;
-    private final IntakeIOInputsAutoLogged inputs;
+    private final IntakeIOInputs inputs = new IntakeIOInputs();
 
     // ===== State Tracking =====
     private String currentState = "IDLE";
@@ -38,13 +39,13 @@ public class IntakeSubsystem extends SubsystemBase {
 
     public IntakeSubsystem(IntakeIO intakeIO) {
         this.io = intakeIO;
-        this.inputs = new IntakeIOInputsAutoLogged();
+        // this.inputs = new IntakeIOInputsAutoLogged(); // FIXME
     }
 
     @Override
     public void periodic() {
         io.updateInputs(inputs);
-        Logger.processInputs("Intake", inputs);
+        // Logger.processInputs("Intake", inputs); // FIXME
     }
 
     /**
