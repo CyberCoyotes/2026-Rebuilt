@@ -173,11 +173,28 @@ public class TalonFXConfigs {
         config.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
 
         // Current limits - lower for intake
-        config.CurrentLimits.SupplyCurrentLimit = 40.0;
+        config.CurrentLimits.SupplyCurrentLimit = 20.0;
         config.CurrentLimits.SupplyCurrentLimitEnable = true;
 
-        config.CurrentLimits.StatorCurrentLimit = 40.0;
+        config.CurrentLimits.StatorCurrentLimit = 20.0;
         config.CurrentLimits.StatorCurrentLimitEnable = true;
+
+        // Set MotionMagicVoltage settings
+        // Motion Magic Cruise Velocity = 8;
+        // Motion Magic Acceleration = 4;
+        // Motion Magic Jerk = 0;
+        config.Slot0.kP = 1.0;   // TODO: Tune — increase if response is too sluggish
+        config.Slot0.kI = 0.0;   // TODO: Tune — helps eliminate steady-state error from friction/gravity
+        config.Slot0.kD = 0.0;
+
+        config.MotionMagic.MotionMagicCruiseVelocity = 8;
+        config.MotionMagic.MotionMagicAcceleration = 4;
+
+        // Soft limits
+        config.SoftwareLimitSwitch.ForwardSoftLimitEnable = true;
+        config.SoftwareLimitSwitch.ForwardSoftLimitThreshold = 1.90;
+        config.SoftwareLimitSwitch.ReverseSoftLimitEnable = true;
+        config.SoftwareLimitSwitch.ReverseSoftLimitThreshold = 0.00;
 
         return config;
     }

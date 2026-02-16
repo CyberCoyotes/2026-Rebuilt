@@ -19,8 +19,8 @@ import frc.robot.subsystems.shooter.ShooterSubsystem;
  */
 public class ShooterCommands {
 
-    /** Percent tolerance for starting feed during ramp test (5%). */
-    private static final double RAMP_TEST_FEED_TOLERANCE = 0.05;
+    /** Percent tolerance for starting feed during ramp test (15%). */
+    private static final double RAMP_TEST_FEED_TOLERANCE = 0.15;
 
 
     /**
@@ -28,7 +28,7 @@ public class ShooterCommands {
      *
      * Behavior:
      *  - Commands the flywheel to ShooterSubsystem.RAMP_TEST_TARGET_RPM
-     *  - Once flywheel is within 5% of target RPM, starts feeding (conveyor + indexer)
+     *  - Once flywheel is within 15% of target RPM, starts feeding (conveyor + indexer)
      *  - On end/cancel, stops feeding and returns shooter to IDLE
      *
      * Intended for use with a whileTrue() button binding.
@@ -50,13 +50,21 @@ public class ShooterCommands {
             ),
 
             // Feed continuously until the command is released/canceled
-            IndexerCommands.feed(indexer)
+            // IndexerCommands.feed(indexer),
+            Commands.run(() -> {
+                indexer.indexerForward();
+            }, indexer)
+
+            // FIXME The conveyor is not running
+            // Commands.run(() -> {
+                // indexer.conveyorForward();
+            // }, indexer)
         )
         .finallyDo(() -> {
-            indexer.stop();
+            indexer.indexerStop(); // FIXME Indexer is not stopping when button is released
+            // indexer.conveyorStop();
             shooter.setIdle();
-        })
-        .withName("RampTestShoot");
+        });
     }
 
     /**

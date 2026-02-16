@@ -64,10 +64,6 @@ public interface IntakeIO {
         //is a target detected 
         public boolean intakeTarget = false;
 
-        //distance from nearest thing to indexer in mm
-        public double indexerDistance = 0.0;
-
-        public boolean indexerTarget = false;
     }
 
     /**
@@ -90,13 +86,5 @@ public interface IntakeIO {
     //intake sensor methods
     double getIntakeDistance();
     boolean intakeTargetClose();
-
-    //indexer sensor methods
-    double getIndexerDistance();
-    boolean indexerTargetClose();
-
-    //multi-hardware methods
-    void toRestingState();
-    boolean isJammed();
 
 }
