@@ -12,6 +12,7 @@ import edu.wpi.first.networktables.StringPublisher;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.subsystems.shooter.ShooterIO.ShooterIOInputs;
 
 /**
  * ShooterSubsystem - Main shooter subsystem with state machine control.
@@ -49,7 +50,7 @@ public class ShooterSubsystem extends SubsystemBase {
 
     // ===== Hardware Interface =====
     private final ShooterIO io;
-    private final ShooterIOInputsAutoLogged inputs = new ShooterIOInputsAutoLogged();
+    private final ShooterIOInputs inputs = new ShooterIOInputs();
 
     // ===== NetworkTables Publishers for Elastic Dashboard =====
     private final NetworkTable shooterTable;
@@ -199,7 +200,7 @@ public class ShooterSubsystem extends SubsystemBase {
     public void periodic() {
         // Update inputs from hardware
         io.updateInputs(inputs);
-        Logger.processInputs("Shooter", inputs);
+        // Logger.processInputs("Shooter", inputs); // FIXME Testing CPU without
 
         // ===== Live Tuning from Elastic Dashboard =====
         // When "Enable" toggle is switched on in Elastic, tuning values override normal targets.
