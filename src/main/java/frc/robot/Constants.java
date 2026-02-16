@@ -1,5 +1,7 @@
 package frc.robot;
 
+import java.util.Set;
+
 import com.ctre.phoenix6.CANBus;
 
 public final class Constants {
@@ -139,9 +141,22 @@ public final class Constants {
     /** Maximum distance to trust vision measurement in meters */
     public static final double MAX_DISTANCE_METERS = 5.0;
 
-    // Valid tag IDs (from 2024 field - update for 2026)
+    // Valid tag IDs (update for current field layout)
     public static final int MIN_VALID_TAG_ID = 1;
-    public static final int MAX_VALID_TAG_ID = -1;  // TODO: Set to correct max tag ID for 2026 field before competition
+    public static final int MAX_VALID_TAG_ID = 22;  // TODO: Verify max tag ID for 2026 field
+
+    /**
+     * AprilTag IDs used for distance-based hood positioning.
+     * When the vision system sees one of these tags, it provides distance
+     * data to the shooter for automatic hood angle adjustment.
+     *
+     * TODO: Replace with the specific tag IDs for your shooting targets
+     * (e.g., only Reef/Speaker tags, not source or amp tags).
+     * For now, all field tags are included so the feature works during testing.
+     */
+    public static final Set<Integer> HOOD_POSITIONING_TAG_IDS = Set.of(
+        1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22
+    );
 
     // State tracking
     /** Time in seconds before considering target "lost" after losing sight */

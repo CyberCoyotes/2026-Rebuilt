@@ -204,6 +204,57 @@ public class ShooterCommands {
     }
 
     /**
+     * Creates a command for AprilTag-based hood positioning with continuous tracking.
+     *
+     * While held:
+     *  - Transitions shooter to READY state
+     *  - Continuously reads distance from vision when seeing a hood-positioning AprilTag
+     *    (tag IDs defined in Constants.Vision.HOOD_POSITIONING_TAG_IDS)
+     *  - Updates flywheel RPM and hood pose based on distance via updateFromDistance()
+     *  - When flywheel and hood are at target and a valid tag is visible, feeds the indexer
+     *
+     * On release:
+     *  - Stops indexer and returns shooter to IDLE
+     *
+     * Intended for use with a whileTrue() button binding.
+     *
+     * @param shooter The shooter subsystem
+     * @param vision The vision subsystem
+     * @param indexer The indexer subsystem
+     * @return Command that tracks AprilTag distance and shoots when ready
+     */
+    public static Command aprilTagHoodTracking(ShooterSubsystem shooter,
+                                                VisionSubsystem vision,
+                                                IndexerSubsystem indexer) {
+        return Commands.sequence(
+            // Transition shooter to READY so motors respond to target updates
+            Commands.runOnce(shooter::prepareToShoot, shooter),
+
+            // Continuously update hood/flywheel from vision distance
+            Commands.run(() -> {
+                if (vision.isHoodPositioningTag()) {
+                    double distance = vision.getDistanceToTargetMeters();
+                    shooter.updateFromDistance(distance);
+                }
+                // If shooter is at target and we see a valid tag, feed
+                if (shooter.isReady() && vision.isHoodPositioningTag()) {
+                    indexer.indexerForward();
+                    indexer.conveyorForward();
+                } else {
+                    indexer.indexerStop();
+                    indexer.conveyorStop();
+                }
+            }, shooter, vision, indexer)
+        )
+        .finallyDo(() -> {
+            indexer.indexerStop();
+            indexer.conveyorStop();
+            shooter.setIdle();
+        })
+        .withName("AprilTagHoodTracking");
+    }
+
+    /**
      * Creates a complete shoot sequence with indexer coordination.
      * Prepares shooter to target velocity/angle, waits until ready, feeds game piece, then idles.
      *

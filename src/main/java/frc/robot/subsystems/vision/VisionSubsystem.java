@@ -256,6 +256,17 @@ public class VisionSubsystem extends SubsystemBase {
         return inputs.tagId;
     }
 
+    /**
+     * Checks if the currently tracked AprilTag is in the hood positioning subset.
+     * Used to filter which tags should trigger distance-based hood adjustment.
+     *
+     * @return true if a valid target is visible AND its tag ID is in HOOD_POSITIONING_TAG_IDS
+     */
+    public boolean isHoodPositioningTag() {
+        return hasTarget()
+            && Constants.Vision.HOOD_POSITIONING_TAG_IDS.contains(inputs.tagId);
+    }
+
     // =========================================================================
     // PUBLIC API - Calculated Values for Shooter
     // =========================================================================

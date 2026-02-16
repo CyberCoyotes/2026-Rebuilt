@@ -201,9 +201,13 @@ public class RobotContainer {
         
         driver.povLeft().onTrue(ShooterCommands.eject(shooter, 1.0));
 
-        // ----- Indexer -----
-        // Right Bumper: Feed game piece to shooter (while held)
-        //driver.rightBumper().whileTrue(IndexerCommands.feed(indexer));
+        // ----- Vision Hood Tracking -----
+        // Right Bumper: AprilTag-based hood positioning + auto-feed (while held)
+        // Continuously adjusts hood and flywheel based on distance to target AprilTags.
+        // Feeds when shooter is ready and a valid hood-positioning tag is visible.
+        driver.rightBumper().whileTrue(
+            ShooterCommands.aprilTagHoodTracking(shooter, vision, indexer)
+        );
 
         // POV Down: Eject from indexer (clear jams, 1 second reverse)
        // driver.povDown().onTrue(IndexerCommands.eject(indexer, 1.0));
