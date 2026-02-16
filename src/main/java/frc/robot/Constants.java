@@ -110,8 +110,8 @@ public final class Constants {
     private Vision() {}
 
     // Camera configuration
-    public static final String LIMELIGHT3_NAME = "limelight3";
-    public static final String LIMELIGHT4_NAME = "limelight4";
+    public static final String LIMELIGHT3_NAME = "three";
+    public static final String LIMELIGHT4_NAME = "four";
 
 
     // Pipeline indices

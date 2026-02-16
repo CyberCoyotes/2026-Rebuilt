@@ -22,7 +22,7 @@ import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
 
 import frc.robot.generated.TunerConstants;
 import frc.robot.commands.IndexerCommands;
-import frc.robot.commands.IntakeCommands;
+// import frc.robot.commands.IntakeCommands;
 import frc.robot.commands.ShooterCommands;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
 import frc.robot.subsystems.climber.ClimberSubsystem;
@@ -73,9 +73,7 @@ public class RobotContainer {
     private final VisionSubsystem vision;
     private final LedSubsystem ledSubsystem;
     private final ClimberSubsystem climber;
-
-    // ===== Intake Commands (instance-based, not static) =====
-    private final IntakeCommands intakeCommands = new IntakeCommands();
+    // private final IntakeCommands intakeCommands; // Not needed since we can just use intake subsystem methods directly in bindings
 
     /* Path follower */
     private final AutoFactory autoFactory;
@@ -87,7 +85,7 @@ public class RobotContainer {
             intake = new IntakeSubsystem(new IntakeIOHardware());
             indexer = new IndexerSubsystem(new IndexerIOHardware());
             shooter = new ShooterSubsystem(new ShooterIOHardware());
-            vision = new VisionSubsystem(new VisionIOLimelight(Constants.Vision.LIMELIGHT3_NAME));
+            vision = new VisionSubsystem(new VisionIOLimelight(Constants.Vision.LIMELIGHT4_NAME));
         } else {
             intake = new IntakeSubsystem(new IntakeIOSim());
             indexer = new IndexerSubsystem(new IndexerIOSim());
@@ -286,4 +284,5 @@ public class RobotContainer {
     public GameDataTelemetry getGameDataTelemetry() {
         return gameDataTelemetry;
     }
-}
+
+} // End of

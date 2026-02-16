@@ -4,8 +4,6 @@ import org.littletonrobotics.junction.AutoLog;
 import org.littletonrobotics.junction.LogTable;
 import org.littletonrobotics.junction.inputs.LoggableInputs;
 
-import frc.robot.training.IndexerSubsystemBasic;
-
 /**
  * IndexerIO - Hardware abstraction interface for the indexer subsystem.
  *
