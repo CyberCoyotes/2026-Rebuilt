@@ -176,7 +176,7 @@ public class IntakeSubsystem extends SubsystemBase {
             this);
     }
 
-    public Command restingIntake() {
+    public Command stopFuelIntake() {
         return Commands.runOnce(
                 // Wrap actions as a single Runnable command
                 () -> {

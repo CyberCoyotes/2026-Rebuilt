@@ -167,13 +167,16 @@ public class RobotContainer {
           ShooterCommands.rampTestShoot(shooter, indexer)
         );
 
+        /* TODO Test rampTestShoot first, comment out, and try this one */
+        /*
         driver.rightTrigger(0.5).whileTrue(
             Commands.parallel(
                 ShooterCommands.rampUpFlywheel(shooter, ShooterSubsystem.RAMP_TEST_TARGET_RPM),
                 Commands.waitUntil(shooter::isReady).withTimeout(5.0), // Timeout to prevent indefinite waiting if something goes wrong
-                Commands.run(indexer::indexerForward)
+                Commands.run(indexer::indexerForward).withTimeout(10.0) // Run indexer forward for 10 seconds or until interrupted (e.g., by releasing trigger)
             )
         );
+        */
 
         // Y: Close shot (prepare and wait for ready)
         // driver.a().onTrue(ShooterCommands.closeShot(shooter)); // TODO Comment out for testing without flywheel
@@ -212,7 +215,8 @@ public class RobotContainer {
         driver.leftTrigger(0.5).whileTrue(intake.intakeFuel());
 
         // Left Bumper: Stop intake jam (quick reverse)
-        driver.leftBumper().whileTrue(intake.ejectFuel());
+        // driver.leftBumper().whileTrue(intake.ejectFuel());
+        driver.leftBumper().onTrue(Commands.runOnce(intake::retractSlides, intake));
 
         // ----- Climber (POV) -----
         // POV Up: Extend climber arm (preset})

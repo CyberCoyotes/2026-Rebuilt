@@ -179,22 +179,23 @@ public class TalonFXConfigs {
         config.CurrentLimits.StatorCurrentLimit = 20.0;
         config.CurrentLimits.StatorCurrentLimitEnable = true;
 
-        // Set MotionMagicVoltage settings
-        // Motion Magic Cruise Velocity = 8;
-        // Motion Magic Acceleration = 4;
-        // Motion Magic Jerk = 0;
-        config.Slot0.kP = 1.0;   // TODO: Tune — increase if response is too sluggish
-        config.Slot0.kI = 0.0;   // TODO: Tune — helps eliminate steady-state error from friction/gravity
-        config.Slot0.kD = 0.0;
-
-        config.MotionMagic.MotionMagicCruiseVelocity = 8;
-        config.MotionMagic.MotionMagicAcceleration = 4;
-
         // Soft limits
         config.SoftwareLimitSwitch.ForwardSoftLimitEnable = true;
         config.SoftwareLimitSwitch.ForwardSoftLimitThreshold = 1.90;
         config.SoftwareLimitSwitch.ReverseSoftLimitEnable = true;
         config.SoftwareLimitSwitch.ReverseSoftLimitThreshold = 0.00;
+
+        config.Slot0.kP = 1.0;   // TODO: Tune — increase if response is too sluggish
+        config.Slot0.kI = 0.0;   // TODO: Tune — helps eliminate steady-state error from friction/gravity
+        config.Slot0.kD = 0.0;
+
+        
+        // Set MotionMagicVoltage settings
+        config.MotionMagic.MotionMagicCruiseVelocity = 8; // TODO tune the slide speed - 8 is a good starting point for smooth movement without slipping
+        config.MotionMagic.MotionMagicAcceleration = 4; // TODO tune the slide acceleration - 4 is a good starting point for smooth movement without slipping
+        config.MotionMagic.MotionMagicJerk = 0;
+
+
 
         return config;
     }
@@ -226,12 +227,10 @@ public class TalonFXConfigs {
         config.Voltage.PeakReverseVoltage = -4.0;
 
         // Current limits - lower for hood
-        config.CurrentLimits.SupplyCurrentLimit = 30.0;
+        config.CurrentLimits.SupplyCurrentLimit = 20.0;
         config.CurrentLimits.SupplyCurrentLimitEnable = true;
 
         // Position PID - Slot 0
-        // kP=1.0 alone leaves ~0.2-0.45 raw unit steady-state error (not enough voltage to overcome friction)
-        // kI accumulates error over time to push through that last bit
         config.Slot0.kP = 1.0;   // TODO: Tune — increase if response is too sluggish
         config.Slot0.kI = 0.75;   // TODO: Tune — helps eliminate steady-state error from friction/gravity
         config.Slot0.kD = 0.0;
