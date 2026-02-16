@@ -283,9 +283,6 @@ public class ShooterIOHardware implements ShooterIO {
     public void setCounterWheelVelocity(double rpm) {
         // Convert RPM to RPS
         double rps = rpmToRPS(rpm);
-
-        // Set velocity
-        counterWheelMotor.setControl(counterWheelVelocityRequest.withVelocity(rps));
     }
 
     @Override
