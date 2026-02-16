@@ -185,14 +185,14 @@ public class TalonFXConfigs {
         config.SoftwareLimitSwitch.ReverseSoftLimitEnable = true;
         config.SoftwareLimitSwitch.ReverseSoftLimitThreshold = 0.00;
 
-        config.Slot0.kP = 1.0;   // TODO: Tune — increase if response is too sluggish
+        config.Slot0.kP = 2.0;   // TODO: Tune — increase if response is too sluggish
         config.Slot0.kI = 0.0;   // TODO: Tune — helps eliminate steady-state error from friction/gravity
         config.Slot0.kD = 0.0;
 
         
         // Set MotionMagicVoltage settings
         config.MotionMagic.MotionMagicCruiseVelocity = 8; // TODO tune the slide speed - 8 is a good starting point for smooth movement without slipping
-        config.MotionMagic.MotionMagicAcceleration = 4; // TODO tune the slide acceleration - 4 is a good starting point for smooth movement without slipping
+        config.MotionMagic.MotionMagicAcceleration = 8; // TODO tune the slide acceleration - 4 is a good starting point for smooth movement without slipping
         config.MotionMagic.MotionMagicJerk = 0;
 
 
