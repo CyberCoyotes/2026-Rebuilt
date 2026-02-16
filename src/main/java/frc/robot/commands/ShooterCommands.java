@@ -38,30 +38,24 @@ public class ShooterCommands {
         return Commands.sequence(
             // Spin up to the ramp-test target
             Commands.runOnce(() -> {
+                shooter.setTargetHoodPose(ShooterSubsystem.FAR_SHOT_HOOD);
                 shooter.setTargetVelocity(targetRPM);
                 shooter.prepareToShoot();
             }, shooter),
 
-            // Wait until flywheel is within 5% of the target RPM
+            // Wait until flywheel is within 15% of the target RPM
             Commands.waitUntil(() ->
                 Math.abs(shooter.getCurrentVelocityRPM() - targetRPM)
                     <= Math.abs(targetRPM) * RAMP_TEST_FEED_TOLERANCE
             ),
-
-            // Feed continuously until the command is released/canceled
-            // IndexerCommands.feed(indexer),
             Commands.run(() -> {
                 indexer.indexerForward();
+                indexer.conveyorForward();
             }, indexer)
-
-            // FIXME The conveyor is not running
-            // Commands.run(() -> {
-                // indexer.conveyorForward();
-            // }, indexer)
         )
         .finallyDo(() -> {
-            indexer.indexerStop(); // FIXME Indexer is not stopping when button is released
-            // indexer.conveyorStop();
+            indexer.indexerStop();
+            indexer.conveyorStop();
             shooter.setIdle();
         });
     }

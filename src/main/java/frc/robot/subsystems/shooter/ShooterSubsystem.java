@@ -142,7 +142,7 @@ public class ShooterSubsystem extends SubsystemBase {
     public static final double FLYWHEEL_TEST_INCREMENT_RPM = 100.0;
 
     /** Default target RPM for flywheel ramp-up testing */
-    public static final double RAMP_TEST_TARGET_RPM = 1800.0; // TODO Test this value // 1000 
+    public static final double RAMP_TEST_TARGET_RPM = 2000.0; // TODO Test this value // 1000 
     // 1000 RPM is a soft lob
     //
 
@@ -508,7 +508,7 @@ public class ShooterSubsystem extends SubsystemBase {
      * Configures shooter for a close shot and transitions to READY.
      */
     public void closeShot() {
-        setTargetVelocity(CLOSE_SHOT_RPM);
+        // setTargetVelocity(CLOSE_SHOT_RPM);
         setTargetHoodPose(CLOSE_SHOT_HOOD);
         prepareToShoot();
     }
@@ -517,7 +517,7 @@ public class ShooterSubsystem extends SubsystemBase {
      * Configures shooter for a far shot and transitions to READY.
      */
     public void farShot() {
-        setTargetVelocity(FAR_SHOT_RPM);
+        // setTargetVelocity(FAR_SHOT_RPM);
         setTargetHoodPose(FAR_SHOT_HOOD);
         prepareToShoot();
     }
