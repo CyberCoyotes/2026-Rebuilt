@@ -10,6 +10,7 @@ import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.networktables.StringPublisher;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
+import frc.robot.training.IndexerSubsystemBasic;
 
 /**
  * IndexerSubsystem - Moves game pieces from intake through the robot to the shooter.

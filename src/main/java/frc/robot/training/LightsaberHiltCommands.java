@@ -1,8 +1,8 @@
-package frc.robot.training.scoy;
+package frc.robot.training;
 
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
-import frc.robot.training.scoy.LightsaberHiltSubsytem.State;
+import frc.robot.training.LightsaberHiltSubsytem.State;
 
 /**
  * LightsaberHilt Commands - STATE MACHINE COMMAND EXAMPLE
