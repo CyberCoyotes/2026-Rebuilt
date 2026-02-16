@@ -105,7 +105,7 @@ public class ShooterSubsystem extends SubsystemBase {
     private static final double HOOD_POSE_TOLERANCE = 0.10;  // TODO Set an appropriate 0.5 degree tolerance — critical for shot consistency
 
     /** Testing increment for manual hood adjustment (degrees). */
-    public static final double HOOD_TEST_INCREMENT = 0.5;
+    public static final double HOOD_TEST_INCREMENT = 0.5; // 0.5 degree increments for fine-tuning hood position during testing
 
     // ===== State-Specific Constants =====
     /** SPINUP: Pre-rev flywheel velocity (20% of max) */

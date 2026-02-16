@@ -201,7 +201,7 @@ public class RobotContainer {
             Commands.startEnd(indexer::indexerForward, indexer::indexerStop));
         // POV Up: Eject from shooter (clear jams, 1 second reverse)
         
-        driver.povUp().onTrue(ShooterCommands.eject(shooter, 1.0));
+        driver.povLeft().onTrue(ShooterCommands.eject(shooter, 1.0));
 
         // ----- Indexer -----
         // Right Bumper: Feed game piece to shooter (while held)
@@ -233,8 +233,8 @@ public class RobotContainer {
        // operator.start().onTrue(climber.stopClimber());
 
         // ----- Operator Controller (Port 1) - Shooter Hood Testing -----
-        operator.povLeft().onTrue(shooter.runOnce(shooter::decreaseHoodForTesting));
-        operator.povRight().onTrue(shooter.runOnce(shooter::increaseHoodForTesting));
+        operator.povDown().onTrue(shooter.runOnce(shooter::decreaseHoodForTesting));
+        operator.povUp().onTrue(shooter.runOnce(shooter::increaseHoodForTesting));
 
         // Hood position testing (closed-loop position control)
         // operator.rightBumper().onTrue(shooter.runHoodToMax());   // Move hood to MAX_HOOD_POSE
