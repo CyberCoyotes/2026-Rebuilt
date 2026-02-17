@@ -32,7 +32,8 @@ public class Robot extends LoggedRobot {
     /**
      *
      */
-    private final boolean kUseLimelight = false;
+    // Limelight integration is currently disabled. Set to true if vision processing will be used in the future.
+    private final boolean kUseLimelight =true;
 
     /** Set to true to enable AdvantageKit logging and replay features. 
      * This is separate from the Logger features, which are still active when this is false. 

@@ -105,11 +105,7 @@ public class ShooterSubsystem extends SubsystemBase {
                                                           // testing
 
     // ===== State-Specific Constants =====
-    /** SPINUP: Pre-rev flywheel velocity (20% of max) */
-    private static final double SPINUP_VELOCITY_PERCENT = 0.20;
-
-    private static final double SPINUP_VELOCITY_RPM = MAX_FLYWHEEL_MOTOR_RPM * SPINUP_VELOCITY_PERCENT;
-
+    
     /** PASS: Flywheel velocity (50% of max) */
     private static final double PASS_VELOCITY_PERCENT = 0.50;
     private static final double PASS_VELOCITY_RPM = MAX_FLYWHEEL_MOTOR_RPM * PASS_VELOCITY_PERCENT;
@@ -120,21 +116,28 @@ public class ShooterSubsystem extends SubsystemBase {
 
     // ===== Shooting Presets (for READY state) =====
     /** Close shot velocity (RPM) */
-    public static final double CLOSE_SHOT_RPM = 1000.0; // TODO: Tune close shot RPM
+    public static final double CLOSE_SHOT_RPM = 1800.0; // TODO: Tune close shot RPM
     public static final double CLOSE_SHOT_HOOD = 0.0; // TODO: Tune close shot hood pose
     // public static final double CLOSE_SHOT_ANGLE = 25.0;
 
     /** Far shot velocity (RPM) */
-    public static final double FAR_SHOT_RPM = 1500.0; // TODO: Tune far shot RPM
+    public static final double FAR_SHOT_RPM = 2000.0; // TODO: Tune far shot RPM
     
     public static final double FAR_SHOT_HOOD = MAX_HOOD_POSE_ROT * (0.5); // TODO: Tune far shot hood pose
     
     // public static final double FAR_SHOT_ANGLE = 45.0; //
 
-    public static final double PASS_SHOT_RPM = 1500.0; // TODO: Tune pass RPM
+    public static final double PASS_SHOT_RPM = 3000.0; // TODO: Tune pass RPM
 
     // TODO: Tune pass shot Hood Pose
     public static final double PASS_SHOT_HOOD = MAX_HOOD_POSE_ROT - (0.10 * MAX_HOOD_POSE_ROT); 
+
+    /** 
+     * SPINUP: a good starting point is often ~60–80% of your lowest real shot RPM.
+     * Example: if your lowest shot is ~1800 RPM, try 1200–1500 RPM hold. 
+     */
+
+    private static final double SPINUP_RPM = 0.80 * CLOSE_SHOT_RPM; // 80% of max RPM for spinup, adjust as needed based on testing
 
     /** Default flywheel velocity testing increment (RPM) */
     public static final double FLYWHEEL_TEST_INCREMENT_RPM = 100.0;
@@ -277,11 +280,10 @@ public class ShooterSubsystem extends SubsystemBase {
                 break;
 
             case SPINUP:
-                // Pre-rev: 20% max velocity, hood at mid position
-                targetFlywheelMotorRPM = SPINUP_VELOCITY_RPM;
-                io.setFlywheelVelocity(SPINUP_VELOCITY_RPM);
+                // Pre-rev of close shot RPM
+                targetFlywheelMotorRPM = SPINUP_RPM;
                 break;
-
+                
             case READY:
                 // Targets set externally via setTargetVelocity/setTargetHoodPose
                 // or via updateFromDistance() for vision-based shooting
