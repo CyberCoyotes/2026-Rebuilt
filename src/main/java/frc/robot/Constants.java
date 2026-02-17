@@ -17,7 +17,9 @@ public final class Constants {
   //   15    CANivore / CANdle (LED controller)
   //   20-39 Other motors (intake, indexer, shooter, climber)
   //   40+   Sensors (ToF, CANrange, etc.)
-  // CAN Bus: canivore (for drivetrain + CANdle), rio (for other subsystems)
+  // CAN Bus: 
+  //  > canivore (for drivetrain + CANdle)
+  //  > rio (for other subsystems)
   
   // =========================================================
   // Intake
@@ -58,10 +60,6 @@ public final class Constants {
 
     /** Time of Flight sensor B - Detects distance -> "fullness" of hopper */
     public static final int HOPPER_B_TOF_ID = 44; // Set in Tuner
-
-    /** Time of Flight sensor C - Detects distance -> "fullness" of hopper */
-    // public static final int HOPPER_C_TOF_ID = 45;
-
 
   }
 
