@@ -6,7 +6,12 @@ public final class Constants {
   private Constants() {}
 
   /** CTRE CAN bus name (empty string means "rio") */
-  public static final CANBus kCANBus = new CANBus("rio");
+  // public static final CANBus kCANBus = new CANBus("rio");
+
+  public static final CANBus RIO_CANBUS = CANBus.roboRIO(); // native rio bus
+
+  //  public static final String RIO_CAN_BoS = "rio";
+    public static final String CANIVORE_CAN_BUS = "canivore"; // 'TODO Adjust if needed'
 
   // =========================================================
   // Drive / Swerve
@@ -17,7 +22,9 @@ public final class Constants {
   //   15    CANivore / CANdle (LED controller)
   //   20-39 Other motors (intake, indexer, shooter, climber)
   //   40+   Sensors (ToF, CANrange, etc.)
-  // CAN Bus: canivore (for drivetrain + CANdle), rio (for other subsystems)
+  // CAN Bus: 
+  //  > canivore (for drivetrain + CANdle)
+  //  > rio (for other subsystems)
   
   // =========================================================
   // Intake
@@ -54,14 +61,10 @@ public final class Constants {
     public static final int INDEXER_SENSOR_ID = 42;
 
     /** Time of Flight sensor A - Detects distance -> "fullness" of hopper */
-    public static final int HOPPER_TOP_A_TOF_ID = 43;
+    public static final int HOPPER_A_TOF_ID = 43;
 
     /** Time of Flight sensor B - Detects distance -> "fullness" of hopper */
-    public static final int HOPPER_TOP_B_TOF_ID = 44; // Set in Tuner
-
-    /** Time of Flight sensor C - Detects distance -> "fullness" of hopper */
-    public static final int HOPPER_TOP_C_TOF_ID = 45;
-
+    public static final int HOPPER_B_TOF_ID = 44; // Set in Tuner
 
   }
 
@@ -86,8 +89,6 @@ public final class Constants {
     /** WCP ThroughBore Encoder Powered by CANcoder for measuring hood position */ 
     public static final int HOOD_POSE_ENCODER_ID = 46;  // Set in Tuner
 
-    /** Counter wheel motor - Kraken X44 with TalonFX controller */
-    public static final int COUNTER_WHEEL_MOTOR_ID = 29;
   }
 
   // =========================================================
@@ -98,9 +99,6 @@ public final class Constants {
 
     /** Climber motor A - Kraken X60 with TalonFX controller */
     public static final int CLIMB_MOTOR_ID = 30; // Set in Tuner
-
-    /** Climber motor B - Kraken X60 with TalonFX controller */
-    // public static final int CLIMB_B_MOTOR_ID = 31; // Not needed with single motor climber design
   }
 
   // =========================================================
@@ -152,8 +150,7 @@ public final class Constants {
   // LEDs
   // =========================================================
     /** CAN bus name */
-    public static final String CAN_BUS_NAME = "rio"; // 'TODO Adjust if needed'
-    public static final String CAN_BUS_2_NAME = "canivore"; // 'TODO Adjust if needed'
+ 
 
   public static final class Led {
     private Led() {}
