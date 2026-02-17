@@ -633,7 +633,7 @@ public class ShooterSubsystem extends SubsystemBase {
      * Returns true if any flywheel motor is over-temperature.
      */
     // public boolean isOverheating() {
-    // return inputs.flywheelTempCelsius > 80.0; // TODO: Tune threshold
+    // return inputs.flywheelTempCelsius > 80.0;
     // }
 
     /**
