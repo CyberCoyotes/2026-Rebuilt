@@ -84,17 +84,11 @@ public class RobotContainer {
     private final AutoChooser autoChooser = new AutoChooser();
 
     public RobotContainer() {
-        if (RobotBase.isReal()) {
             intake = new IntakeSubsystem(new IntakeIOHardware());
             indexer = new IndexerSubsystem(new IndexerIOHardware());
             shooter = new ShooterSubsystem(new ShooterIOHardware());
             vision = new VisionSubsystem(new VisionIOLimelight(Constants.Vision.LIMELIGHT4_NAME));
-        } else {
-            intake = new IntakeSubsystem(new IntakeIOSim());
-            indexer = new IndexerSubsystem(new IndexerIOSim());
-            shooter = new ShooterSubsystem(new ShooterIOSim());
-            vision = new VisionSubsystem(new VisionIOSim());
-        }
+
 
         ledSubsystem = new LedSubsystem();
         // climber = new ClimberSubsystem();
@@ -245,6 +239,10 @@ public class RobotContainer {
                 () -> indexer.conveyorForward(), 
                 () -> indexer.conveyorStop(), 
                 indexer)
+        );
+
+        operator.rightTrigger(0.5).whileTrue(
+            ShooterCommands.visionShot(shooter, vision)
         );
 
         // =====================================================================
