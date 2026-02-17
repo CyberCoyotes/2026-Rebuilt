@@ -152,8 +152,8 @@ public final class Constants {
   // LEDs
   // =========================================================
     /** CAN bus name */
-    public static final String CAN_BUS_NAME = "rio"; // 'TODO Adjust if needed'
-    public static final String CAN_BUS_2_NAME = "canivore"; // 'TODO Adjust if needed'
+    public static final String RIO_CAN_BUS = "rio";
+    public static final String CANIVORE_CAN_BUS = "canivore"; // 'TODO Adjust if needed'
 
   public static final class Led {
     private Led() {}

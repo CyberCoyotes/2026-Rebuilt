@@ -29,7 +29,7 @@ public class LedSubsystem extends SubsystemBase {
 
     public LedSubsystem(ShooterSubsystem shooter) {
         this.shooter = shooter;
-        this.candle = new CANdle(Constants.Led.CANDLE_ID, Constants.CAN_BUS_NAME);
+        this.candle = new CANdle(Constants.Led.CANDLE_ID, Constants.RIO_CAN_BUS);
         this.ledCount = Math.max(1, Constants.Led.LOGICAL_LED_COUNT);
         setSolidColor(IDLE_COLOR);
     }

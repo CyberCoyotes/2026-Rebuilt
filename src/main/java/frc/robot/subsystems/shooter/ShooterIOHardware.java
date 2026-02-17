@@ -42,11 +42,11 @@ public class ShooterIOHardware implements ShooterIO {
 //   private static final double FLYWHEEL_GEAR_RATIO = 1.5; // TODO measure actual
 
   public ShooterIOHardware() {
-    flywheelMotorA = new TalonFX(Constants.Shooter.FLYWHEEL_A_MOTOR_ID, Constants.CAN_BUS_NAME);
-    flywheelMotorB = new TalonFX(Constants.Shooter.FLYWHEEL_B_MOTOR_ID, Constants.CAN_BUS_NAME);
-    flywheelMotorC = new TalonFX(Constants.Shooter.FLYWHEEL_C_MOTOR_ID, Constants.CAN_BUS_NAME);
-    hoodMotor = new TalonFXS(Constants.Shooter.HOOD_MOTOR_ID, Constants.CAN_BUS_NAME);
-    hoodEncoder = new CANcoder(Constants.Shooter.HOOD_POSE_ENCODER_ID, Constants.CAN_BUS_NAME);
+    flywheelMotorA = new TalonFX(Constants.Shooter.FLYWHEEL_A_MOTOR_ID, Constants.RIO_CAN_BUS);
+    flywheelMotorB = new TalonFX(Constants.Shooter.FLYWHEEL_B_MOTOR_ID, Constants.RIO_CAN_BUS);
+    flywheelMotorC = new TalonFX(Constants.Shooter.FLYWHEEL_C_MOTOR_ID, Constants.RIO_CAN_BUS);
+    hoodMotor = new TalonFXS(Constants.Shooter.HOOD_MOTOR_ID, Constants.RIO_CAN_BUS);
+    hoodEncoder = new CANcoder(Constants.Shooter.HOOD_POSE_ENCODER_ID, Constants.RIO_CAN_BUS);
 
     // CANcoder config
     var encoderConfig = new CANcoderConfiguration();
