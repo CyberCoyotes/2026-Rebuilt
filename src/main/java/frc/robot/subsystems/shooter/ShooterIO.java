@@ -30,7 +30,7 @@ public interface ShooterIO {
     class ShooterIOInputs {
         // ===== Main Flywheel Data (average of 3 motors) =====
         /** Average flywheel velocity in RPM */
-        public double flywheelVelocityRPM = 0.0;
+        public double flywheelMotorVelocityRPM = 0.0;
 
         /** Average flywheel applied voltage */
         public double flywheelAppliedVolts = 0.0;
@@ -45,8 +45,8 @@ public interface ShooterIO {
         public double flywheelMotorRPS = 0.0;
 
         // ===== Individual Flywheel Data (for diagnostics) =====
-        /** Flywheel A velocity in RPM */
-        public double flywheelAVelocityRPM = 0.0;
+        /** Flywheel velocity in RPM */
+        public double flywheelLeaderMotorVelocityRPM = 0.0;
 
         // ===== Hood Data =====
         /** Hood angle in degrees from motor encoder (0 = home position) */
