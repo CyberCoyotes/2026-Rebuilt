@@ -115,12 +115,17 @@ public class ShooterIOHardware implements ShooterIO {
     double motorRPM = rpsToRPM(motorRPS);
 
     inputs.flywheelMotorRPS = motorRPS;
-    inputs.flywheelMotorRPM = motorRPM;
-    inputs.flywheelVelocityRPM = motorRPM; // system speed = leader motor
+    inputs.flywheelLeaderMotorRPM = motorRPM;
+    inputs.flywheelLeaderMotorRPS = motorRPS; // system speed = leader motor
+    // inputs.flywheelWheelRPM = motorRPM / FLYWHEEL_GEAR_RATIO; // when you measure it
 
 
+
+    double hoodRotate = hoodPosition.getValueAsDouble();
     // Hood (keep these minimal but useful)
-    inputs.hoodAngleDegrees = hoodPosition.getValueAsDouble(); // still "raw rotations" in your comment; rename later if you want
+    inputs.hoodPositionRotations = hoodRotate;
+    // FIXME if real degrees are needed, measure actual hood gear ratio and convert properly instead of assuming 1:1
+    inputs.hoodAngleDegrees = hoodRotate * 360.0; // only if 1 rot == 1 hood rev (usually not true)
     inputs.hoodAppliedVolts = hoodVoltage.getValueAsDouble();
     inputs.hoodCurrentAmps = hoodCurrent.getValueAsDouble();
 

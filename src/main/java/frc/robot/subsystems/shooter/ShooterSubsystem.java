@@ -3,9 +3,7 @@ package frc.robot.subsystems.shooter;
 import org.littletonrobotics.junction.Logger;
 
 import edu.wpi.first.networktables.BooleanPublisher;
-import edu.wpi.first.networktables.BooleanSubscriber;
 import edu.wpi.first.networktables.DoublePublisher;
-import edu.wpi.first.networktables.DoubleSubscriber;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.networktables.StringPublisher;
@@ -58,8 +56,8 @@ public class ShooterSubsystem extends SubsystemBase {
     private final BooleanPublisher readyPublisher;
     private final DoublePublisher flywheelRpmPublisher;
     private final DoublePublisher targetRpmPublisher;
-    private final DoublePublisher hoodAnglePublisher;
-    private final DoublePublisher targetHoodPublisher;
+    // private final DoublePublisher hoodAnglePublisher;
+    // private final DoublePublisher targetHoodPublisher;
     private final DoublePublisher flywheelErrorPublisher;
     private final DoublePublisher hoodErrorPublisher;
     private final BooleanPublisher hoodAtPosePublisher;
@@ -69,21 +67,21 @@ public class ShooterSubsystem extends SubsystemBase {
     private final BooleanPublisher throughBoreConnectedPublisher;
 
     // ===== NetworkTables Tuning Subscribers (read from Elastic) =====
-    private final NetworkTable tuningTable;
-    private final DoubleSubscriber tuneRpmSubscriber;
-    private final DoubleSubscriber tuneAngleSubscriber;
-    private final BooleanSubscriber tuneEnableSubscriber;
+    // private final NetworkTable tuningTable;
+    // private final DoubleSubscriber tuneRpmSubscriber;
+    // private final DoubleSubscriber tuneAngleSubscriber;
+    // private final BooleanSubscriber tuneEnableSubscriber;
 
     // ===== Tuning Publishers (write defaults so widgets appear in Elastic) =====
-    private final DoublePublisher tuneRpmPublisher;
-    private final DoublePublisher tuneAnglePublisher;
-    private final BooleanPublisher tuneEnablePublisher;
-    private final BooleanPublisher tuneActivePublisher;
+    // private final DoublePublisher tuneRpmPublisher;
+    // private final DoublePublisher tuneAnglePublisher;
+    // private final BooleanPublisher tuneEnablePublisher;
+    // private final BooleanPublisher tuneActivePublisher;
 
     // ===== State =====
     private ShooterState currentState = ShooterState.IDLE;
-    private double targetFlywheelRPM = 0.0;
-    private double targetHoodPose = MIN_HOOD_POSE;
+    private double targetFlywheelMotorRPM = 0.0;
+    private double targetHoodPoseRot = MIN_HOOD_POSE_ROT;
 
     /** When true, tuning values from Elastic override normal targets */
     private boolean tuningActive = false;
@@ -91,12 +89,12 @@ public class ShooterSubsystem extends SubsystemBase {
     // ===== Constants =====
     /** Maximum flywheel velocity (RPM) Free Spin*/
     // TODO Find actual max RPM of flywheel with current gearing and motor configuration.
-    private static final double MAX_VELOCITY_RPM = 6380.0;  
+    private static final double MAX_FLYWHEEL_MOTOR_RPM = 6380.0;  
     /** Minimum hood pose (degrees) - used for IDLE and EJECT */
-    private static final double MIN_HOOD_POSE = 0.0;  // TODO: RAW value of 0 on startup location. 
+    private static final double MIN_HOOD_POSE_ROT = 0.0;  // TODO: RAW value of 0 on startup location. 
 
     /** Maximum hood pose (degrees) - used for PASS */
-    private static final double MAX_HOOD_POSE = 9.14;  // TODO: RAW value measured in Phoenix Tuner
+    private static final double MAX_HOOD_POSE_ROT = 9.14;  // TODO: RAW value measured in Phoenix Tuner
 
     /** Flywheel velocity tolerance (percentage of target, 0.0-1.0) */ // 
     private static final double FLYWHEEL_TOLERANCE_PERCENT = 0.10;  // TODO Increasing for basic testing
@@ -111,19 +109,19 @@ public class ShooterSubsystem extends SubsystemBase {
     // ===== State-Specific Constants =====
     /** SPINUP: Pre-rev flywheel velocity (20% of max) */
     private static final double SPINUP_VELOCITY_PERCENT = 0.20;
-    private static final double SPINUP_VELOCITY_RPM = MAX_VELOCITY_RPM * SPINUP_VELOCITY_PERCENT;
+    private static final double SPINUP_VELOCITY_RPM = MAX_FLYWHEEL_MOTOR_RPM * SPINUP_VELOCITY_PERCENT;
 
     /** SPINUP: Hood pose (50% of max) */
     private static final double SPINUP_POSE_PERCENT = 0.50;
-    private static final double SPINUP_HOOD_POSE = MIN_HOOD_POSE + (MAX_HOOD_POSE - MIN_HOOD_POSE) * SPINUP_POSE_PERCENT;
+    private static final double SPINUP_HOOD_POSE = MIN_HOOD_POSE_ROT + (MAX_HOOD_POSE_ROT - MIN_HOOD_POSE_ROT) * SPINUP_POSE_PERCENT;
 
     /** PASS: Flywheel velocity (50% of max) */
     private static final double PASS_VELOCITY_PERCENT = 0.50;
-    private static final double PASS_VELOCITY_RPM = MAX_VELOCITY_RPM * PASS_VELOCITY_PERCENT;
+    private static final double PASS_VELOCITY_RPM = MAX_FLYWHEEL_MOTOR_RPM * PASS_VELOCITY_PERCENT;
 
     /** EJECT: Flywheel velocity (-50% of max, negative for reverse) */
     private static final double EJECT_VELOCITY_PERCENT = -0.50;
-    private static final double EJECT_VELOCITY_RPM = MAX_VELOCITY_RPM * EJECT_VELOCITY_PERCENT;
+    private static final double EJECT_VELOCITY_RPM = MAX_FLYWHEEL_MOTOR_RPM * EJECT_VELOCITY_PERCENT;
 
     // ===== Shooting Presets (for READY state) =====
     /** Close shot velocity (RPM) */
@@ -133,11 +131,11 @@ public class ShooterSubsystem extends SubsystemBase {
 
     /** Far shot velocity (RPM) */
     public static final double FAR_SHOT_RPM = 1500.0;  // TODO: Tune far shot RPM
-    public static final double FAR_SHOT_HOOD = MAX_HOOD_POSE * (0.5);  // TODO: Tune far shot hood pose
+    public static final double FAR_SHOT_HOOD = MAX_HOOD_POSE_ROT * (0.5);  // TODO: Tune far shot hood pose
     // public static final double FAR_SHOT_ANGLE = 45.0;  //
 
     public static final double PASS_SHOT_RPM = 1500.0;  // TODO: Tune pass RPM
-    public static final double PASS_SHOT_HOOD = MAX_HOOD_POSE - (0.10 * MAX_HOOD_POSE);  // TODO: Tune pass shot Hood Pose
+    public static final double PASS_SHOT_HOOD = MAX_HOOD_POSE_ROT - (0.10 * MAX_HOOD_POSE_ROT);  // TODO: Tune pass shot Hood Pose
     
     /** Default flywheel velocity testing increment (RPM) */
     public static final double FLYWHEEL_TEST_INCREMENT_RPM = 100.0;
@@ -161,39 +159,39 @@ public class ShooterSubsystem extends SubsystemBase {
 
         statePublisher = shooterTable.getStringTopic("State").publish();
         readyPublisher = shooterTable.getBooleanTopic("IsReady").publish();
-        flywheelRpmPublisher = shooterTable.getDoubleTopic("FlywheelRPM").publish();
-        targetRpmPublisher = shooterTable.getDoubleTopic("TargetFlywheelRPM").publish();
-        hoodAnglePublisher = shooterTable.getDoubleTopic("HoodAngle").publish();
-        targetHoodPublisher = shooterTable.getDoubleTopic("TargetHoodAngle").publish();
+        flywheelRpmPublisher = shooterTable.getDoubleTopic("FlywheelLeaderMotorRPM").publish();
+        targetRpmPublisher = shooterTable.getDoubleTopic("TargetFlywheelLeaderMotorRPM").publish();
+        // hoodAnglePublisher = shooterTable.getDoubleTopic("HoodDegrees").publish();
+        // targetHoodPublisher = shooterTable.getDoubleTopic("TargetHoodDegrees").publish();
         flywheelErrorPublisher = shooterTable.getDoubleTopic("FlywheelError").publish();
         hoodErrorPublisher = shooterTable.getDoubleTopic("HoodError").publish();
         hoodAtPosePublisher = shooterTable.getBooleanTopic("HoodAtPose").publish();
         flywheelVoltsPublisher = shooterTable.getDoubleTopic("FlywheelAppliedVolts").publish();
-        flywheelMotorRpsPublisher = shooterTable.getDoubleTopic("FlywheelMotorRPS").publish();
+        flywheelMotorRpsPublisher = shooterTable.getDoubleTopic("FlywheelLeaderMotorRPS").publish();
         throughBorePositionPublisher = shooterTable.getDoubleTopic("ThroughBorePosition").publish();
         throughBoreConnectedPublisher = shooterTable.getBooleanTopic("ThroughBoreConnected").publish();
 
         // Initialize tuning table — separate subtable keeps Elastic organized
         // In Elastic, add Number Slider widgets bound to /Shooter/Tuning/RPM and /Shooter/Tuning/Angle
         // and a Toggle Switch bound to /Shooter/Tuning/Enable
-        tuningTable = shooterTable.getSubTable("Tuning");
+        // tuningTable = shooterTable.getSubTable("Tuning");
 
-        // Publishers write default values so Elastic widgets auto-populate on first connect
-        tuneRpmPublisher = tuningTable.getDoubleTopic("RPM").publish();
-        tuneAnglePublisher = tuningTable.getDoubleTopic("Angle").publish();
-        tuneEnablePublisher = tuningTable.getBooleanTopic("Enable").publish();
-        tuneActivePublisher = tuningTable.getBooleanTopic("Active").publish();
+        // // Publishers write default values so Elastic widgets auto-populate on first connect
+        // tuneRpmPublisher = tuningTable.getDoubleTopic("RPM").publish();
+        // tuneAnglePublisher = tuningTable.getDoubleTopic("Angle").publish();
+        // tuneEnablePublisher = tuningTable.getBooleanTopic("Enable").publish();
+        // tuneActivePublisher = tuningTable.getBooleanTopic("Active").publish();
 
-        // Subscribers read values back when changed from the Elastic dashboard
-        tuneRpmSubscriber = tuningTable.getDoubleTopic("RPM").subscribe(CLOSE_SHOT_RPM);
-        tuneAngleSubscriber = tuningTable.getDoubleTopic("Hood RAW").subscribe(CLOSE_SHOT_HOOD);
-        tuneEnableSubscriber = tuningTable.getBooleanTopic("Enable").subscribe(false);
+        // // Subscribers read values back when changed from the Elastic dashboard
+        // tuneRpmSubscriber = tuningTable.getDoubleTopic("RPM").subscribe(CLOSE_SHOT_RPM);
+        // tuneAngleSubscriber = tuningTable.getDoubleTopic("Hood RAW").subscribe(CLOSE_SHOT_HOOD);
+        // tuneEnableSubscriber = tuningTable.getBooleanTopic("Enable").subscribe(false);
 
-        // Publish initial defaults so widgets appear in Elastic with sensible starting values
-        tuneRpmPublisher.set(CLOSE_SHOT_RPM);
-        tuneAnglePublisher.set(CLOSE_SHOT_HOOD);
-        tuneEnablePublisher.set(false);
-        tuneActivePublisher.set(false);
+        // // Publish initial defaults so widgets appear in Elastic with sensible starting values
+        // tuneRpmPublisher.set(CLOSE_SHOT_RPM);
+        // tuneAnglePublisher.set(CLOSE_SHOT_HOOD);
+        // tuneEnablePublisher.set(false);
+        // tuneActivePublisher.set(false);
     }
 
     @Override
@@ -202,40 +200,14 @@ public class ShooterSubsystem extends SubsystemBase {
         io.updateInputs(inputs);
         // Logger.processInputs("Shooter", inputs); // FIXME Testing CPU without
 
-        // ===== Live Tuning from Elastic Dashboard =====
-        // When "Enable" toggle is switched on in Elastic, tuning values override normal targets.
-        // This lets students adjust RPM and angle from the dashboard without redeploying code.
-        boolean tuneEnabled = tuneEnableSubscriber.get();
-        if (tuneEnabled) {
-            double tuneRPM = tuneRpmSubscriber.get();
-            double tuneAngle = tuneAngleSubscriber.get();
-
-            // Apply tuning values — overrides preset/vision targets
-            setTargetVelocity(tuneRPM);
-            setTargetHoodPose(tuneAngle);
-
-            // Auto-transition to READY so the tuning values actually run the motors
-            if (currentState != ShooterState.READY) {
-                prepareToShoot();
-            }
-
-            tuningActive = true;
-        } else if (tuningActive) {
-            // Tuning was just disabled — return to idle for safety
-            setIdle();
-            tuningActive = false;
-        }
-
-        // Publish tuning active state back to Elastic (for status indicator)
-        tuneActivePublisher.set(tuningActive);
 
         // Update state machine
         updateStateMachine();
 
         // Log state and targets
         Logger.recordOutput("Shooter/State", currentState.toString());
-        Logger.recordOutput("Shooter/TargetFlywheelRPM", targetFlywheelRPM);
-        Logger.recordOutput("Shooter/TargetHoodPose", targetHoodPose);
+        Logger.recordOutput("Shooter/TargetFlywheelLeaderMotorRPM", targetFlywheelMotorRPM);
+        Logger.recordOutput("Shooter/TargetHoodPose", targetHoodPoseRot);
         Logger.recordOutput("Shooter/IsReady", isReady());
         Logger.recordOutput("Shooter/IsPassReady", isPassReady());
         Logger.recordOutput("Shooter/FlywheelAtVelocity", isFlywheelAtVelocity());
@@ -252,10 +224,10 @@ public class ShooterSubsystem extends SubsystemBase {
         // Publish to NetworkTables for Elastic dashboard
         statePublisher.set(currentState.toString());
         readyPublisher.set(isReady());
-        flywheelRpmPublisher.set(inputs.flywheelVelocityRPM);
-        targetRpmPublisher.set(targetFlywheelRPM);
-        hoodAnglePublisher.set(inputs.hoodAngleDegrees);
-        targetHoodPublisher.set(targetHoodPose);
+        flywheelRpmPublisher.set(inputs.flywheelLeaderMotorRPM);
+        targetRpmPublisher.set(targetFlywheelMotorRPM);
+        // hoodAnglePublisher.set(inputs.hoodPositionRotations);
+        // targetHoodPublisher.set(targetHoodPoseRot);
         flywheelErrorPublisher.set(getFlywheelError());
         hoodErrorPublisher.set(getHoodError());
         hoodAtPosePublisher.set(isHoodAtPose());
@@ -328,15 +300,15 @@ public class ShooterSubsystem extends SubsystemBase {
             case IDLE:
                 // Stop flywheels, hood to MIN_POSE
                 io.stopFlywheels();
-                targetFlywheelRPM = 0.0;
-                targetHoodPose = MIN_HOOD_POSE;
-                io.setHoodPose(MIN_HOOD_POSE);
+                targetFlywheelMotorRPM = 0.0;
+                targetHoodPoseRot = MIN_HOOD_POSE_ROT;
+                io.setHoodPose(MIN_HOOD_POSE_ROT);
                 break;
 
             case SPINUP:
                 // Pre-rev: 20% max velocity, hood at mid position
-                targetFlywheelRPM = SPINUP_VELOCITY_RPM;
-                targetHoodPose = SPINUP_HOOD_POSE;
+                targetFlywheelMotorRPM = SPINUP_VELOCITY_RPM;
+                targetHoodPoseRot = SPINUP_HOOD_POSE;
                 io.setFlywheelVelocity(SPINUP_VELOCITY_RPM);
                 io.setHoodPose(SPINUP_HOOD_POSE);
                 break;
@@ -344,24 +316,24 @@ public class ShooterSubsystem extends SubsystemBase {
             case READY:
                 // Targets set externally via setTargetVelocity/setTargetHoodPose
                 // or via updateFromDistance() for vision-based shooting
-                io.setFlywheelVelocity(targetFlywheelRPM);
-                io.setHoodPose(targetHoodPose);
+                io.setFlywheelVelocity(targetFlywheelMotorRPM);
+                io.setHoodPose(targetHoodPoseRot);
                 break;
 
             case PASS:
                 // Passing: 50% max velocity, hood at MAX_POSE
-                targetFlywheelRPM = PASS_VELOCITY_RPM;
-                targetHoodPose = MAX_HOOD_POSE;
+                targetFlywheelMotorRPM = PASS_VELOCITY_RPM;
+                targetHoodPoseRot = MAX_HOOD_POSE_ROT;
                 io.setFlywheelVelocity(PASS_VELOCITY_RPM);
-                io.setHoodPose(MAX_HOOD_POSE);
+                io.setHoodPose(MAX_HOOD_POSE_ROT);
                 break;
 
             case EJECT:
                 // Clearing jams: -50% max velocity (reverse), hood at MIN_POSE
-                targetFlywheelRPM = EJECT_VELOCITY_RPM;
-                targetHoodPose = MIN_HOOD_POSE;
+                targetFlywheelMotorRPM = EJECT_VELOCITY_RPM;
+                targetHoodPoseRot = MIN_HOOD_POSE_ROT;
                 io.setFlywheelVelocity(EJECT_VELOCITY_RPM);
-                io.setHoodPose(MIN_HOOD_POSE);
+                io.setHoodPose(MIN_HOOD_POSE_ROT);
                 break;
         }
     }
@@ -423,11 +395,11 @@ public class ShooterSubsystem extends SubsystemBase {
      * @param rpm Target velocity in RPM
      */
     public void setTargetVelocity(double rpm) {
-        this.targetFlywheelRPM = Math.max(0, Math.min(MAX_VELOCITY_RPM, rpm));  // Clamp to valid range
+        this.targetFlywheelMotorRPM = Math.max(0, Math.min(MAX_FLYWHEEL_MOTOR_RPM, rpm));  // Clamp to valid range
 
         // If in READY state, update velocity immediately
         if (currentState == ShooterState.READY) {
-            io.setFlywheelVelocity(targetFlywheelRPM);
+            io.setFlywheelVelocity(targetFlywheelMotorRPM);
         }
     }
 
@@ -438,12 +410,12 @@ public class ShooterSubsystem extends SubsystemBase {
      * @param degrees Target pose in degrees
      */
     public void setTargetHoodPose(double degrees) {
-        this.targetHoodPose = Math.max(MIN_HOOD_POSE,
-                                       Math.min(MAX_HOOD_POSE, degrees));  // Clamp to range
+        this.targetHoodPoseRot = Math.max(MIN_HOOD_POSE_ROT,
+                                       Math.min(MAX_HOOD_POSE_ROT, degrees));  // Clamp to range
 
         // If in READY state, update pose immediately
         if (currentState == ShooterState.READY) {
-            io.setHoodPose(targetHoodPose);
+            io.setHoodPose(targetHoodPoseRot);
         }
     }
 
@@ -454,7 +426,7 @@ public class ShooterSubsystem extends SubsystemBase {
      * @param deltaDegrees Amount to add to current target hood pose
      */
     public void adjustTargetHoodPose(double deltaDegrees) {
-        setTargetHoodPose(targetHoodPose + deltaDegrees);
+        setTargetHoodPose(targetHoodPoseRot + deltaDegrees);
     }
 
     /** Raises hood target by the standard testing increment. */
@@ -468,12 +440,12 @@ public class ShooterSubsystem extends SubsystemBase {
     }
 
     /**
-     * Commands the hood to MAX_HOOD_POSE using closed-loop position control.
+     * Commands the hood to MAX_HOOD_POSE_ROT using closed-loop position control.
      * Uses the existing PositionVoltage PID — precise and repeatable.
      */
     public Command runHoodToMax() {
         return Commands.runOnce(() -> {
-            setTargetHoodPose(MAX_HOOD_POSE);
+            setTargetHoodPose(MAX_HOOD_POSE_ROT);
             if (currentState != ShooterState.READY) {
                 prepareToShoot();
             }
@@ -481,12 +453,12 @@ public class ShooterSubsystem extends SubsystemBase {
     }
 
     /**
-     * Commands the hood to MIN_HOOD_POSE using closed-loop position control.
+     * Commands the hood to MIN_HOOD_POSE_ROT using closed-loop position control.
      * Uses the existing PositionVoltage PID — precise and repeatable.
      */
     public Command runHoodToMin() {
         return Commands.runOnce(() -> {
-            setTargetHoodPose(MIN_HOOD_POSE);
+            setTargetHoodPose(MIN_HOOD_POSE_ROT);
             if (currentState != ShooterState.READY) {
                 prepareToShoot();
             }
@@ -528,12 +500,12 @@ public class ShooterSubsystem extends SubsystemBase {
     /**
      * Adjusts target flywheel velocity by a delta (positive increases, negative decreases).
      * Transitions to READY state so the motors run at the new velocity.
-     * Clamped to [0, MAX_VELOCITY_RPM] via setTargetVelocity().
+     * Clamped to [0, MAX_FLYWHEEL_MOTOR_RPM] via setTargetVelocity().
      *
      * @param deltaRPM Amount to add to current target RPM
      */
     public void adjustTargetVelocity(double deltaRPM) {
-        setTargetVelocity(targetFlywheelRPM + deltaRPM);
+        setTargetVelocity(targetFlywheelMotorRPM + deltaRPM);
         if (currentState != ShooterState.READY) {
             prepareToShoot();
         }
@@ -627,33 +599,33 @@ public class ShooterSubsystem extends SubsystemBase {
      */
     public boolean isFlywheelAtVelocity() {
         // Handle zero target (IDLE state) - check if velocity is near zero
-        if (Math.abs(targetFlywheelRPM) < 1.0) {
-            return Math.abs(inputs.flywheelVelocityRPM) < 50.0;  // Within 50 RPM of stopped
+        if (Math.abs(targetFlywheelMotorRPM) < 1.0) {
+            return Math.abs(inputs.flywheelLeaderMotorRPM) < 50.0;  // Within 50 RPM of stopped
         }
         // Percentage-based tolerance
-        double tolerance = Math.abs(targetFlywheelRPM) * FLYWHEEL_TOLERANCE_PERCENT;
-        return Math.abs(inputs.flywheelVelocityRPM - targetFlywheelRPM) < tolerance;
+        double tolerance = Math.abs(targetFlywheelMotorRPM) * FLYWHEEL_TOLERANCE_PERCENT;
+        return Math.abs(inputs.flywheelLeaderMotorRPM - targetFlywheelMotorRPM) < tolerance;
     }
 
     /**
      * Returns true if hood is at target pose (within HOOD_POSE_TOLERANCE degrees).
      */
     public boolean isHoodAtPose() {
-        return Math.abs(inputs.hoodAngleDegrees - targetHoodPose) < HOOD_POSE_TOLERANCE;
+        return Math.abs(inputs.hoodPositionRotations - targetHoodPoseRot) < HOOD_POSE_TOLERANCE;
     }
 
     /**
      * Gets current flywheel velocity error (target - actual).
      */
     public double getFlywheelError() {
-        return targetFlywheelRPM - inputs.flywheelVelocityRPM;
+        return targetFlywheelMotorRPM - inputs.flywheelLeaderMotorRPM;
     }
 
     /**
      * Gets current hood pose error (target - actual).
      */
     public double getHoodError() {
-        return targetHoodPose - inputs.hoodAngleDegrees;
+        return targetHoodPoseRot - inputs.hoodPositionRotations;
     }
 
     /**
@@ -667,28 +639,28 @@ public class ShooterSubsystem extends SubsystemBase {
      * Gets current flywheel velocity.
      */
     public double getCurrentVelocityRPM() {
-        return inputs.flywheelVelocityRPM;
+        return inputs.flywheelLeaderMotorRPM;
     }
 
     /**
      * Gets current hood pose.
      */
     public double getCurrentHoodPose() {
-        return inputs.hoodAngleDegrees;
+        return inputs.hoodPositionRotations;
     }
 
     /**
      * Gets target flywheel velocity.
      */
     public double getTargetVelocityRPM() {
-        return targetFlywheelRPM;
+        return targetFlywheelMotorRPM;
     }
 
     /**
      * Gets target hood pose.
      */
     public double getTargetHoodPose() {
-        return targetHoodPose;
+        return targetHoodPoseRot;
     }
 
     // ===== Diagnostics =====
@@ -696,9 +668,9 @@ public class ShooterSubsystem extends SubsystemBase {
     /**
      * Returns true if any flywheel motor is over-temperature.
      */
-    public boolean isOverheating() {
-        return inputs.flywheelTempCelsius > 80.0;  // TODO: Tune threshold
-    }
+    // public boolean isOverheating() {
+    //     return inputs.flywheelTempCelsius > 80.0;  // TODO: Tune threshold
+    // }
 
     /**
      * Returns true if total flywheel current is too high.
@@ -707,17 +679,4 @@ public class ShooterSubsystem extends SubsystemBase {
         return inputs.flywheelCurrentAmps > 150.0;  // TODO: Tune threshold (sum of 3 motors)
     }
 
-    /**
-     * Gets maximum difference between individual flywheel velocities.
-     * Useful for detecting if followers are out of sync.
-     */
-    public double getFlywheelVelocitySpread() {
-        double max = Math.max(Math.max(inputs.flywheelAVelocityRPM,
-                                       inputs.flywheelBVelocityRPM),
-                                       inputs.flywheelCVelocityRPM);
-        double min = Math.min(Math.min(inputs.flywheelAVelocityRPM,
-                                       inputs.flywheelBVelocityRPM),
-                                       inputs.flywheelCVelocityRPM);
-        return max - min;
-    }
 }

@@ -53,15 +53,13 @@ public class ShooterIOSim implements ShooterIO {
         }
 
         // Main flywheel data (averaged - all the same in sim)
-        inputs.flywheelVelocityRPM = currentFlywheelRPM;
+        inputs.flywheelWheelVelocityRPM = currentFlywheelRPM;
         inputs.flywheelAppliedVolts = (currentFlywheelRPM > 0) ? MOTOR_VOLTAGE : 0.0;
         inputs.flywheelCurrentAmps = (currentFlywheelRPM / 1000.0) * FLYWHEEL_CURRENT_PER_1000_RPM;
         inputs.flywheelTempCelsius = MOTOR_TEMP;
 
         // Individual flywheel data (all the same in sim)
-        inputs.flywheelAVelocityRPM = currentFlywheelRPM;
-        inputs.flywheelBVelocityRPM = currentFlywheelRPM;
-        inputs.flywheelCVelocityRPM = currentFlywheelRPM;
+        inputs.flywheelLeaderMotorVelocityRPM = currentFlywheelRPM;
 
         // Hood data
         inputs.hoodAngleDegrees = currentHoodAngle;

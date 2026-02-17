@@ -30,7 +30,11 @@ public interface ShooterIO {
     class ShooterIOInputs {
         // ===== Main Flywheel Data (average of 3 motors) =====
         /** Average flywheel velocity in RPM */
-        public double flywheelMotorVelocityRPM = 0.0;
+        public double flywheelWheelVelocityRPM = 0.0;   // what you care about for shooting
+
+        public double flywheelLeaderMotorRPS = 0.0;    // raw motor velocity for diagnostics (native TalonFX unit, before gear ratio conversion)
+        
+        public double flywheelLeaderMotorRPM = 0.0;    // raw motor velocity for diagnostics (native TalonFX unit, before gear ratio conversion)
 
         /** Average flywheel applied voltage */
         public double flywheelAppliedVolts = 0.0;
@@ -50,7 +54,9 @@ public interface ShooterIO {
 
         // ===== Hood Data =====
         /** Hood angle in degrees from motor encoder (0 = home position) */
-        public double hoodAngleDegrees = 0.0;
+        public double hoodPositionRotations = 0.0;
+
+        public double hoodAngleDegrees = 0.0; // approximate, derived from hoodPositionRotations
 
         /** Hood applied voltage */
         public double hoodAppliedVolts = 0.0;
