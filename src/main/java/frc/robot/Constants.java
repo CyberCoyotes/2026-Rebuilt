@@ -60,7 +60,7 @@ public final class Constants {
     public static final int HOPPER_B_TOF_ID = 44; // Set in Tuner
 
     /** Time of Flight sensor C - Detects distance -> "fullness" of hopper */
-    public static final int HOPPER_C_TOF_ID = 45;
+    // public static final int HOPPER_C_TOF_ID = 45;
 
 
   }
@@ -86,8 +86,6 @@ public final class Constants {
     /** WCP ThroughBore Encoder Powered by CANcoder for measuring hood position */ 
     public static final int HOOD_POSE_ENCODER_ID = 46;  // Set in Tuner
 
-    /** Counter wheel motor - Kraken X44 with TalonFX controller */
-    public static final int COUNTER_WHEEL_MOTOR_ID = 29;
   }
 
   // =========================================================
@@ -98,9 +96,6 @@ public final class Constants {
 
     /** Climber motor A - Kraken X60 with TalonFX controller */
     public static final int CLIMB_MOTOR_ID = 30; // Set in Tuner
-
-    /** Climber motor B - Kraken X60 with TalonFX controller */
-    // public static final int CLIMB_B_MOTOR_ID = 31; // Not needed with single motor climber design
   }
 
   // =========================================================
