@@ -24,31 +24,34 @@ public interface ShooterIO {
      *
      * This class holds all data we read from the shooter hardware each cycle.
      * Implements LoggableInputs for automatic AdvantageKit logging and replay.
+     *
+     * PERFORMANCE NOTE:
+     * Fields are split into "fast" (updated every cycle) and "slow" (updated at 10Hz).
+     * The fast fields are control-critical; the slow fields are for diagnostics/dashboard.
      */
     @AutoLog
     class ShooterIOInputs {
-        // ===== Flywheel Data (leader motor A only; B/C are followers) =====
+        // ===== Fast Fields (updated every 20ms cycle) =====
+        // These drive closed-loop control and must be fresh every cycle.
+
         /** Leader motor velocity in RPM (motor shaft, no gear ratio applied) */
         public double flywheelLeaderMotorRPM = 0.0;
 
         /** Leader motor velocity in RPS (native TalonFX unit) */
         public double flywheelLeaderMotorRPS = 0.0;
 
-        /** Leader motor velocity in RPS (alias for logging compatibility) */
-        public double flywheelMotorRPS = 0.0;
-
         /** Flywheel applied voltage */
         public double flywheelAppliedVolts = 0.0;
 
-        /** Flywheel supply current in amps */
-        public double flywheelCurrentAmps = 0.0;
-
-        // ===== Hood Data =====
         /** Hood position in raw motor rotations (0 = home, ~9.14 = max) */
         public double hoodPositionRotations = 0.0;
 
-        /** Hood angle in degrees (approximate, derived from rotations) */
-        public double hoodAngleDegrees = 0.0;
+        // ===== Slow Fields (updated at 10Hz — diagnostics only) =====
+        // These are for dashboard display, overcurrent detection, and logging.
+        // Updated via updateSlowInputs() every 5th cycle.
+
+        /** Flywheel supply current in amps */
+        public double flywheelCurrentAmps = 0.0;
 
         /** Hood applied voltage */
         public double hoodAppliedVolts = 0.0;
@@ -56,7 +59,10 @@ public interface ShooterIO {
         /** Hood supply current in amps */
         public double hoodCurrentAmps = 0.0;
 
-        // ===== WCP ThroughBore Encoder (secondary feedback via CANcoder) =====
+        /** Hood angle in degrees (approximate, derived from rotations) */
+        public double hoodAngleDegrees = 0.0;
+
+        // ===== WCP ThroughBore Encoder (slow — secondary feedback via CANcoder) =====
         /** Hood absolute position from ThroughBore encoder in rotations (0.0 to 1.0) */
         public double hoodThroughBorePositionRotations = 0.0;
 
@@ -68,12 +74,26 @@ public interface ShooterIO {
     }
 
     /**
-     * Updates inputs from hardware.
-     * Called periodically (every 20ms) by ShooterSubsystem.
+     * Updates control-critical inputs from hardware.
+     * Called every cycle (every 20ms) by ShooterSubsystem.
+     * Only refreshes fast signals: flywheel velocity, flywheel voltage, hood position.
      *
      * @param inputs The ShooterIOInputs object to populate with current data
      */
     default void updateInputs(ShooterIOInputs inputs) {}
+
+    /**
+     * Updates diagnostic inputs from hardware.
+     * Called at 10Hz (every 5th cycle) by ShooterSubsystem.
+     * Refreshes slow signals: currents, hood voltage, ThroughBore encoder.
+     *
+     * WHY SEPARATE? These signals are set to 10Hz update rate on the CAN bus,
+     * so refreshing them every 20ms just reads stale cached values and wastes
+     * JNI calls. Matching our read rate to the CAN update rate is cleaner.
+     *
+     * @param inputs The ShooterIOInputs object to populate with diagnostic data
+     */
+    default void updateSlowInputs(ShooterIOInputs inputs) {}
 
     /**
      * Sets the flywheel target velocity in RPM.
