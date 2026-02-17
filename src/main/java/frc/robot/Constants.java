@@ -6,11 +6,11 @@ public final class Constants {
   private Constants() {}
 
   /** CTRE CAN bus name (empty string means "rio") */
-  public static final CANBus kCANBus = new CANBus("rio");
+  // public static final CANBus kCANBus = new CANBus("rio");
 
   public static final CANBus RIO_CANBUS = CANBus.roboRIO(); // native rio bus
 
-   public static final String RIO_CAN_BoS = "rio";
+  //  public static final String RIO_CAN_BoS = "rio";
     public static final String CANIVORE_CAN_BUS = "canivore"; // 'TODO Adjust if needed'
 
   // =========================================================

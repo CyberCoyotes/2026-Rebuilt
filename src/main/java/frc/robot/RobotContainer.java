@@ -25,7 +25,7 @@ import frc.robot.commands.IndexerCommands;
 // import frc.robot.commands.IntakeCommands;
 import frc.robot.commands.ShooterCommands;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
-import frc.robot.subsystems.climber.ClimberSubsystem;
+// import frc.robot.subsystems.climber.ClimberSubsystem;
 import frc.robot.subsystems.indexer.IndexerSubsystem;
 import frc.robot.subsystems.intake.IntakeSubsystem;
 import frc.robot.subsystems.indexer.IndexerIOSim;
@@ -75,7 +75,7 @@ public class RobotContainer {
     private final ShooterSubsystem shooter;
     private final VisionSubsystem vision;
     private final LedSubsystem ledSubsystem;
-    private final ClimberSubsystem climber;
+    // private final ClimberSubsystem climber;
     // private final IntakeCommands intakeCommands; // Not needed since we can just use intake subsystem methods directly in bindings
 
     /* Path follower */
@@ -96,8 +96,8 @@ public class RobotContainer {
             vision = new VisionSubsystem(new VisionIOSim());
         }
 
-        ledSubsystem = new LedSubsystem(shooter);
-        climber = new ClimberSubsystem();
+        ledSubsystem = new LedSubsystem();
+        // climber = new ClimberSubsystem();
 
         autoFactory = drivetrain.createAutoFactory();
         autoRoutines = new AutoRoutines(autoFactory);
