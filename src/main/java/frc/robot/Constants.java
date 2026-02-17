@@ -54,13 +54,13 @@ public final class Constants {
     public static final int INDEXER_SENSOR_ID = 42;
 
     /** Time of Flight sensor A - Detects distance -> "fullness" of hopper */
-    public static final int HOPPER_TOP_A_TOF_ID = 43;
+    public static final int HOPPER_A_TOF_ID = 43;
 
     /** Time of Flight sensor B - Detects distance -> "fullness" of hopper */
-    public static final int HOPPER_TOP_B_TOF_ID = 44; // Set in Tuner
+    public static final int HOPPER_B_TOF_ID = 44; // Set in Tuner
 
     /** Time of Flight sensor C - Detects distance -> "fullness" of hopper */
-    public static final int HOPPER_TOP_C_TOF_ID = 45;
+    public static final int HOPPER_C_TOF_ID = 45;
 
 
   }

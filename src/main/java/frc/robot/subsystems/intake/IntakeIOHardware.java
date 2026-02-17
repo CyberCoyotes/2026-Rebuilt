@@ -80,8 +80,8 @@ public class IntakeIOHardware implements IntakeIO {
      */
     public IntakeIOHardware() {
         // Create motor objects
-        m_roller = new TalonFX(Constants.Intake.INTAKE_ROLLER_MOTOR_ID, Constants.kCANBus);
-        m_slide = new TalonFX(Constants.Intake.INTAKE_SLIDE_MOTOR_ID, Constants.kCANBus);
+        m_roller = new TalonFX(Constants.Intake.INTAKE_ROLLER_MOTOR_ID, Constants.RIO_CAN_BUS);
+        m_slide = new TalonFX(Constants.Intake.INTAKE_SLIDE_MOTOR_ID, Constants.RIO_CAN_BUS);
 
         //create sensor objects
         s_intakeTOF = new TimeOfFlight(Constants.Intake.INTAKE_SENSOR_ID);

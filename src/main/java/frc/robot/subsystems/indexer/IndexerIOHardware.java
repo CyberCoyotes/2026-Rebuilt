@@ -3,11 +3,9 @@ package frc.robot.subsystems.indexer;
 import com.ctre.phoenix6.BaseStatusSignal;
 import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.controls.VoltageOut;
+import com.ctre.phoenix6.hardware.CANrange;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.hardware.TalonFXS;
-import com.playingwithfusion.TimeOfFlight;
-import com.playingwithfusion.TimeOfFlight.RangingMode;
-
 import frc.robot.Constants;
 import frc.robot.util.TalonFXConfigs;
 
@@ -18,7 +16,6 @@ import frc.robot.util.TalonFXConfigs;
  * - Uses centralized TalonFXConfigs for motor configuration
  * - Optimized status signal updates for performance
  * - ToF sensors configured for short-range detection
- * - All telemetry logged via AdvantageKit
  *
  * Motor naming convention:
  * - "conveyor" motor moves pieces along hopper conveyor
@@ -28,7 +25,6 @@ import frc.robot.util.TalonFXConfigs;
  * @see IndexerSubsystemBasic for a simpler direct-hardware approach (good for learning)
  */
 
-
 public class IndexerIOHardware implements IndexerIO {
 
     // ===== Hardware =====
@@ -36,10 +32,10 @@ public class IndexerIOHardware implements IndexerIO {
     private final TalonFX indexerMotor;  // Also called "indexer" in Constants
 
     // Time-of-Flight sensors
-    private final TimeOfFlight indexerToF;   // Detects game piece ready to shoot
-    private final TimeOfFlight hopperAToF;  // Hopper position A
-    private final TimeOfFlight hopperBToF;  // Hopper position B
-    private final TimeOfFlight hopperCToF;  // Hopper position C
+    // private final CANrange indexerToF;   // Detects game piece ready to shoot
+    private final CANrange hopperAToF; 
+    private final CANrange hopperBToF;
+    // private final CANrange hopperCToF;
 
     // ===== Control Requests =====
     private final VoltageOut conveyorVoltageRequest = new VoltageOut(0.0);
@@ -51,7 +47,6 @@ public class IndexerIOHardware implements IndexerIO {
     private final StatusSignal<?> conveyorAppliedVolts;
     private final StatusSignal<?> conveyorCurrent;
     private final StatusSignal<?> conveyorTemp;
-
     private final StatusSignal<?> indexerVelocity;
     private final StatusSignal<?> indexerAppliedVolts;
     private final StatusSignal<?> indexerCurrent;
@@ -62,7 +57,7 @@ public class IndexerIOHardware implements IndexerIO {
      * Distance threshold in millimeters below which we consider a game piece "detected".
      * Tune this value based on your game piece size and sensor mounting.
      */
-    private static final double TOF_DETECTION_THRESHOLD_MM = 100.0;  // TODO: Tune on robot
+    // private static final double TOF_DETECTION_THRESHOLD_MM = 100.0;  // TODO: Tune on robot
 
     /**
      * Creates a new IndexerIOHardware instance.
@@ -77,27 +72,23 @@ public class IndexerIOHardware implements IndexerIO {
 
         // Create motor objects
         // Note: Constants use "CONVEYOR" and "INDEXER" naming, we use "conveyor" and "indexer"
-        conveyorMotor = new TalonFXS(Constants.Indexer.CONVEYOR_MOTOR_ID); // TODO add new CANbus arg
-        indexerMotor = new TalonFX(Constants.Indexer.INDEXER_MOTOR_ID); // TODO add new CANbus arg
+        conveyorMotor = new TalonFXS(Constants.Indexer.CONVEYOR_MOTOR_ID, Constants.RIO_CAN_BUS);
+        indexerMotor = new TalonFX(Constants.Indexer.INDEXER_MOTOR_ID, Constants.RIO_CAN_BUS);
 
         // Apply configurations from centralized config class
         conveyorMotor.getConfigurator().apply(TalonFXConfigs.conveyorConfig());
         indexerMotor.getConfigurator().apply(TalonFXConfigs.indexerConfig());
 
-        // Create and configure ToF sensors
-        // Indexer ToF - detects game piece ready to shoot
-        indexerToF = new TimeOfFlight(Constants.Indexer.INDEXER_SENSOR_ID);
-        indexerToF.setRangingMode(RangingMode.Short, 24);  // Short range, 24ms sample time
-
         // Hopper ToF sensors - detect game pieces at different positions
-        hopperAToF = new TimeOfFlight(Constants.Indexer.HOPPER_TOP_A_TOF_ID);
-        hopperAToF.setRangingMode(RangingMode.Short, 24);
+        /* These are CANrange time-of-flight sensors */
+        hopperAToF = new CANrange(Constants.Indexer.HOPPER_A_TOF_ID);
+        // hopperAToF.setRangingMode(RangingMode.Short, 24);
 
-        hopperBToF = new TimeOfFlight(Constants.Indexer.HOPPER_TOP_B_TOF_ID);
-        hopperBToF.setRangingMode(RangingMode.Short, 24);
+        hopperBToF = new CANrange(Constants.Indexer.HOPPER_B_TOF_ID);
+        // hopperBToF.setRangingMode(RangingMode.Short, 24);
 
-        hopperCToF = new TimeOfFlight(Constants.Indexer.HOPPER_TOP_C_TOF_ID);
-        hopperCToF.setRangingMode(RangingMode.Short, 24);
+        // hopperCToF = new CANrange(Constants.Indexer.HOPPER_C_TOF_ID);
+        // hopperCToF.setRangingMode(RangingMode.Short, 24);
 
         // Get status signals for efficient reading
         conveyorVelocity = conveyorMotor.getVelocity();
@@ -111,22 +102,10 @@ public class IndexerIOHardware implements IndexerIO {
         indexerTemp = indexerMotor.getDeviceTemp();
 
         // Configure update frequencies for better performance
-        // Critical signals: 100Hz, Less critical: 50Hz, Temperature: 4Hz
-        BaseStatusSignal.setUpdateFrequencyForAll(
-            100.0,  // 100Hz for velocity and voltage (critical for control)
-            conveyorVelocity, conveyorAppliedVolts,
-            indexerVelocity, indexerAppliedVolts
-        );
-
         BaseStatusSignal.setUpdateFrequencyForAll(
             50.0,  // 50Hz for current (important but not critical)
-            conveyorCurrent, indexerCurrent
-        );
-
-        BaseStatusSignal.setUpdateFrequencyForAll(
-            4.0,  // 4Hz for temperature (slow-changing)
-            conveyorTemp, indexerTemp
-        );
+            conveyorVelocity, conveyorAppliedVolts,
+            indexerVelocity, indexerAppliedVolts, conveyorCurrent, indexerCurrent);
 
         // Optimize bus utilization
         conveyorMotor.optimizeBusUtilization();
@@ -154,28 +133,28 @@ public class IndexerIOHardware implements IndexerIO {
         inputs.indexerTempCelsius = indexerTemp.getValueAsDouble();
 
         // Update indexer ToF sensor inputs (detects game piece ready to shoot)
-        inputs.tofDistanceMM = indexerToF.getRange();
-        inputs.tofValid = indexerToF.isRangeValid();
-        inputs.gamePieceDetected = inputs.tofValid &&
-                                   inputs.tofDistanceMM < TOF_DETECTION_THRESHOLD_MM;
+        // inputs.tofDistanceMM = indexerToF.getRange();
+        // inputs.tofValid = indexerToF.isRangeValid();
+        // inputs.gamePieceDetected = inputs.tofValid &&
+        //                            inputs.tofDistanceMM < TOF_DETECTION_THRESHOLD_MM;
 
         // Update hopper A ToF sensor inputs
-        inputs.hopperADistanceMM = hopperAToF.getRange();
-        inputs.hopperAValid = hopperAToF.isRangeValid();
-        inputs.hopperADetected = inputs.hopperAValid &&
-                                 inputs.hopperADistanceMM < TOF_DETECTION_THRESHOLD_MM;
+        // inputs.hopperADistanceMM = hopperAToF.getRange();
+        // inputs.hopperAValid = hopperAToF.isRangeValid();
+        // inputs.hopperADetected = inputs.hopperAValid &&
+        //                          inputs.hopperADistanceMM < TOF_DETECTION_THRESHOLD_MM;
 
-        // Update hopper B ToF sensor inputs
-        inputs.hopperBDistanceMM = hopperBToF.getRange();
-        inputs.hopperBValid = hopperBToF.isRangeValid();
-        inputs.hopperBDetected = inputs.hopperBValid &&
-                                 inputs.hopperBDistanceMM < TOF_DETECTION_THRESHOLD_MM;
+        // // Update hopper B ToF sensor inputs
+        // inputs.hopperBDistanceMM = hopperBToF.getRange();
+        // inputs.hopperBValid = hopperBToF.isRangeValid();
+        // inputs.hopperBDetected = inputs.hopperBValid &&
+        //                          inputs.hopperBDistanceMM < TOF_DETECTION_THRESHOLD_MM;
 
-        // Update hopper C ToF sensor inputs
-        inputs.hopperCDistanceMM = hopperCToF.getRange();
-        inputs.hopperCValid = hopperCToF.isRangeValid();
-        inputs.hopperCDetected = inputs.hopperCValid &&
-                                 inputs.hopperCDistanceMM < TOF_DETECTION_THRESHOLD_MM;
+        // // Update hopper C ToF sensor inputs
+        // inputs.hopperCDistanceMM = hopperCToF.getRange();
+        // inputs.hopperCValid = hopperCToF.isRangeValid();
+        // inputs.hopperCDetected = inputs.hopperCValid &&
+        //                          inputs.hopperCDistanceMM < TOF_DETECTION_THRESHOLD_MM;
     }
 
     @Override
@@ -193,4 +172,4 @@ public class IndexerIOHardware implements IndexerIO {
         conveyorMotor.stopMotor();
         indexerMotor.stopMotor();
     }
-}
+} // End of class
