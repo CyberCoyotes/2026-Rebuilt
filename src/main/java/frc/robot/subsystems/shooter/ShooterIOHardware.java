@@ -33,6 +33,8 @@ public class ShooterIOHardware implements ShooterIO {
 
   // ===== Status Signals =====
   private final StatusSignal<?> flywheelAVelocity;
+  private final StatusSignal<?> flywheelAVoltage;
+  private final StatusSignal<?> flywheelACurrent;
   private final StatusSignal<?> hoodPosition;
   private final StatusSignal<?> hoodVoltage;
   private final StatusSignal<?> hoodCurrent;
@@ -61,8 +63,10 @@ public class ShooterIOHardware implements ShooterIO {
     flywheelMotorC.getConfigurator().apply(TalonFXConfigs.flywheelConfig());
     hoodMotor.getConfigurator().apply(TalonFXConfigs.hoodConfig());
 
-    // Status signals (minimal set)
+    // Status signals (minimal set — leader only for flywheel)
     flywheelAVelocity = flywheelMotorA.getVelocity();
+    flywheelAVoltage = flywheelMotorA.getMotorVoltage();
+    flywheelACurrent = flywheelMotorA.getSupplyCurrent();
     hoodPosition = hoodMotor.getPosition();
     hoodVoltage = hoodMotor.getMotorVoltage();
     hoodCurrent = hoodMotor.getSupplyCurrent();
@@ -73,12 +77,14 @@ public class ShooterIOHardware implements ShooterIO {
     BaseStatusSignal.setUpdateFrequencyForAll(
         50.0,
         flywheelAVelocity,
+        flywheelAVoltage,
         hoodPosition
     );
 
-    // 10 Hz = every 100ms for current (slow)
+    // 10 Hz = every 100ms for current/diagnostics (slow)
     BaseStatusSignal.setUpdateFrequencyForAll(
         10.0,
+        flywheelACurrent,
         hoodVoltage,
         hoodCurrent,
         hoodEncoderAbsPosition
@@ -104,8 +110,10 @@ public class ShooterIOHardware implements ShooterIO {
   public void updateInputs(ShooterIOInputs inputs) {
     BaseStatusSignal.refreshAll(
         flywheelAVelocity,
+        flywheelAVoltage,
+        flywheelACurrent,
         hoodPosition,
-        hoodVoltage, 
+        hoodVoltage,
         hoodCurrent,
         hoodEncoderAbsPosition
     );
@@ -116,10 +124,9 @@ public class ShooterIOHardware implements ShooterIO {
 
     inputs.flywheelMotorRPS = motorRPS;
     inputs.flywheelLeaderMotorRPM = motorRPM;
-    inputs.flywheelLeaderMotorRPS = motorRPS; // system speed = leader motor
-    // inputs.flywheelWheelRPM = motorRPM / FLYWHEEL_GEAR_RATIO; // when you measure it
-
-
+    inputs.flywheelLeaderMotorRPS = motorRPS;
+    inputs.flywheelAppliedVolts = flywheelAVoltage.getValueAsDouble();
+    inputs.flywheelCurrentAmps = flywheelACurrent.getValueAsDouble();
 
     double hoodRotate = hoodPosition.getValueAsDouble();
     // Hood (keep these minimal but useful)

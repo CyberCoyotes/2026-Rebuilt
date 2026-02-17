@@ -6,9 +6,8 @@ import org.littletonrobotics.junction.AutoLog;
  * ShooterIO - Hardware abstraction interface for the shooter subsystem.
  *
  * The shooter launches game pieces using:
- * - Flywheel motors: Spin up to launch game pieces at variable velocities
- * - Hood motor: Adjusts launch angle for different distances
- * - Counter-wheel motor: Provides backspin/control (optional)
+ * - Flywheel motors: 3x TalonFX (A=leader, B/C=followers) spin up to launch game pieces
+ * - Hood motor: TalonFXS adjusts launch angle for different distances
  *
  * PATTERN: IO Interface
  * - ShooterIO: Interface defining what shooter hardware can do
@@ -28,35 +27,28 @@ public interface ShooterIO {
      */
     @AutoLog
     class ShooterIOInputs {
-        // ===== Main Flywheel Data (average of 3 motors) =====
-        /** Average flywheel velocity in RPM */
-        public double flywheelWheelVelocityRPM = 0.0;   // what you care about for shooting
+        // ===== Flywheel Data (leader motor A only; B/C are followers) =====
+        /** Leader motor velocity in RPM (motor shaft, no gear ratio applied) */
+        public double flywheelLeaderMotorRPM = 0.0;
 
-        public double flywheelLeaderMotorRPS = 0.0;    // raw motor velocity for diagnostics (native TalonFX unit, before gear ratio conversion)
-        
-        public double flywheelLeaderMotorRPM = 0.0;    // raw motor velocity for diagnostics (native TalonFX unit, before gear ratio conversion)
+        /** Leader motor velocity in RPS (native TalonFX unit) */
+        public double flywheelLeaderMotorRPS = 0.0;
 
-        /** Average flywheel applied voltage */
-        public double flywheelAppliedVolts = 0.0;
-
-        /** Average flywheel supply current in amps */
-        public double flywheelCurrentAmps = 0.0;
-
-        /** Average flywheel temperature in Celsius */
-        public double flywheelTempCelsius = 0.0;
-
-        /** Average raw motor velocity in RPS (native TalonFX unit, before gear ratio conversion) */
+        /** Leader motor velocity in RPS (alias for logging compatibility) */
         public double flywheelMotorRPS = 0.0;
 
-        // ===== Individual Flywheel Data (for diagnostics) =====
-        /** Flywheel velocity in RPM */
-        public double flywheelLeaderMotorVelocityRPM = 0.0;
+        /** Flywheel applied voltage */
+        public double flywheelAppliedVolts = 0.0;
+
+        /** Flywheel supply current in amps */
+        public double flywheelCurrentAmps = 0.0;
 
         // ===== Hood Data =====
-        /** Hood angle in degrees from motor encoder (0 = home position) */
+        /** Hood position in raw motor rotations (0 = home, ~9.14 = max) */
         public double hoodPositionRotations = 0.0;
 
-        public double hoodAngleDegrees = 0.0; // approximate, derived from hoodPositionRotations
+        /** Hood angle in degrees (approximate, derived from rotations) */
+        public double hoodAngleDegrees = 0.0;
 
         /** Hood applied voltage */
         public double hoodAppliedVolts = 0.0;
@@ -73,16 +65,6 @@ public interface ShooterIO {
 
         /** Whether the ThroughBore encoder (CANcoder) is connected */
         public boolean hoodThroughBoreConnected = false;
-
-        // ===== Counter-Wheel Data (optional) =====
-        /** Counter-wheel velocity in RPM */
-        public double counterWheelVelocityRPM = 0.0;
-
-        /** Counter-wheel applied voltage */
-        public double counterWheelAppliedVolts = 0.0;
-
-        /** Counter-wheel supply current in amps */
-        public double counterWheelCurrentAmps = 0.0;
     }
 
     /**
@@ -107,19 +89,12 @@ public interface ShooterIO {
     default void stopFlywheels() {}
 
     /**
-     * Sets the hood target pose in degrees.
+     * Sets the hood target pose in raw motor rotations.
      * Uses position closed-loop control.
      *
-     * @param degrees Target pose in degrees (MIN_POSE to MAX_POSE range)
+     * @param rawPosition Target pose in motor rotations (MIN_HOOD_POSE_ROT to MAX_HOOD_POSE_ROT)
      */
-    default void setHoodPose(double degrees) {}
-
-    /**
-     * Sets the counter-wheel velocity in RPM (optional).
-     *
-     * @param rpm Target velocity in rotations per minute
-     */
-    default void setCounterWheelVelocity(double rpm) {}
+    default void setHoodPose(double rawPosition) {}
 
     /**
      * Sets the hood motor to a fixed voltage (open-loop).
@@ -130,7 +105,7 @@ public interface ShooterIO {
     default void setHoodVoltage(double volts) {}
 
     /**
-     * Stops all shooter motors (flywheels, hood, counter-wheel).
+     * Stops all shooter motors (flywheels, hood).
      */
     default void stop() {}
 }

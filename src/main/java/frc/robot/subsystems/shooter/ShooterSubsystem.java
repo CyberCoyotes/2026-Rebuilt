@@ -83,8 +83,8 @@ public class ShooterSubsystem extends SubsystemBase {
     private double targetFlywheelMotorRPM = 0.0;
     private double targetHoodPoseRot = MIN_HOOD_POSE_ROT;
 
-    /** When true, tuning values from Elastic override normal targets */
-    private boolean tuningActive = false;
+    // Tuning system disabled — uncomment when ready to re-enable Elastic dashboard tuning
+    // private boolean tuningActive = false;
 
     // ===== Constants =====
     /** Maximum flywheel velocity (RPM) Free Spin*/
@@ -214,7 +214,7 @@ public class ShooterSubsystem extends SubsystemBase {
         Logger.recordOutput("Shooter/HoodAtPose", isHoodAtPose());
         Logger.recordOutput("Shooter/FlywheelError", getFlywheelError());
         Logger.recordOutput("Shooter/HoodError", getHoodError());
-        Logger.recordOutput("Shooter/TuningActive", tuningActive);
+        // Logger.recordOutput("Shooter/TuningActive", tuningActive);
 
         // WCP ThroughBore Encoder (secondary feedback)
         Logger.recordOutput("Shooter/ThroughBore/PositionRotations", inputs.hoodThroughBorePositionRotations);
@@ -463,16 +463,6 @@ public class ShooterSubsystem extends SubsystemBase {
                 prepareToShoot();
             }
         }, this);
-    }
-
-    /**
-     * Sets counter-wheel velocity for backspin.
-     * Independent of state machine.
-     *
-     * @param rpm Counter-wheel velocity in RPM
-     */
-    public void setCounterWheelVelocity(double rpm) {
-        io.setCounterWheelVelocity(rpm);
     }
 
     // ===== Preset Shots (convenience methods for READY state) =====
