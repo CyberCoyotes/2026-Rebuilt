@@ -4,6 +4,12 @@ import choreo.auto.AutoFactory;
 import choreo.auto.AutoRoutine;
 import choreo.auto.AutoTrajectory;
 import edu.wpi.first.wpilibj2.command.Commands;
+import frc.robot.subsystems.shooter.ShooterSubsystem;
+import frc.robot.commands.ShooterCommands;
+import frc.robot.subsystems.led.LedSubsystem;
+import frc.robot.subsystems.vision.VisionSubsystem;
+import frc.robot.subsystems.indexer.IndexerSubsystem;
+import frc.robot.subsystems.intake.IntakeSubsystem;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
 
 @SuppressWarnings("unused")
@@ -11,24 +17,28 @@ import frc.robot.subsystems.CommandSwerveDrivetrain;
 public class AutoRoutines {
     private final AutoFactory m_factory;
     private final CommandSwerveDrivetrain m_drivetrain;
-    /*private final ClimberSubsystem m_climber;
-    private final IndexerSubsystem m_indexer;
     private final IntakeSubsystem m_intake;
-    private final ShooterSubsystem m_shooter;*/
+    private final IndexerSubsystem m_indexer;
+    private final ShooterSubsystem m_shooter;
+    private final ShooterCommands m_shooterCommands;
+   // private final VisionSubsystem m_vision;
+
+  //  private final LedSubsystem m_ledSubsystem;
 
     // How long to wait after driving before doing something else
     private final double DRIVE_WAIT = 1.0; // Cut 2.0 -> 1.0 or less 
 
     private final double SCORE_WAIT = 1.0; // Cut 2.0 -> 1.0 or less 
 
-    public AutoRoutines(AutoFactory factory, CommandSwerveDrivetrain drivetrain/* , ClimberSubsystem climber,
-            IndexerSubsystem indexer, IntakeSubsystem intake, ShooterSubsystem shooter*/) {
+    public AutoRoutines(AutoFactory factory, CommandSwerveDrivetrain drivetrain,/* , ClimberSubsystem climber,*/
+         IndexerSubsystem indexer,IntakeSubsystem intake, ShooterSubsystem shooter, ShooterCommands shooterCommands/*, VisionSubsystem vision, LedSubsystem ledSubsystem*/) {
         m_factory = factory;
         m_drivetrain = drivetrain;
-       /*  m_climber = climber;
+        //m_climber = climber;
         m_indexer = indexer;
         m_intake = intake;
-        m_shooter = shooter;*/
+        m_shooter = shooter;
+        m_shooterCommands = shooterCommands;
     }
 
     public AutoRoutine FM() {
@@ -67,6 +77,25 @@ public class AutoRoutines {
 
                 // Consider using m_commandGroups.autoIntakeCoral(m_indexerCommands, m_shooterCommands,/*m_wrist*/);
                 // .atTime("Load").onTrue(m_intakeCommands.intake());
+                return routine;
+        }
+          public AutoRoutine Lob() {
+                 final AutoRoutine routine = m_factory.newRoutine("Lob");
+                final AutoTrajectory Lob = routine.trajectory("Lob", 0);
+               // final AutoTrajectory Lob2 = routine.trajectory("Lob", 1);
+
+                routine.active().onTrue(
+                        Commands.sequence(
+                                Lob.resetOdometry(), // Always reset odometry first
+                                Lob.cmd()//, // Follow the path
+                                //m_drivetrain.stop().withTimeout(DRIVE_WAIT),
+                               // Lob2.cmd()
+
+                        ));
+                Lob.atTime("Score").onTrue(ShooterCommands.rampTestShoot(m_shooter, m_indexer)); //score
+
+                // Consider using m_commandGroups.autoIntakeCoral(m_indexerCommands, m_shooterCommands,/*m_wrist*/);
+                //   Lob2.atTime("Load").onTrue(m_intakeCommands.intake());
                 return routine;
         }
 }
