@@ -228,8 +228,8 @@ public class RobotContainer {
        // operator.start().onTrue(climber.stopClimber());
 
         // ----- Operator Controller (Port 1) - Shooter Hood Testing -----
-        operator.povDown().onTrue(shooter.runOnce(shooter::decreaseHoodForTesting));
-        operator.povUp().onTrue(shooter.runOnce(shooter::increaseHoodForTesting));
+        // operator.povDown().onTrue(shooter.runOnce(shooter::decreaseHoodForTesting));
+        // operator.povUp().onTrue(shooter.runOnce(shooter::increaseHoodForTesting));
 
         // Hood position testing (closed-loop position control)
         // operator.rightBumper().onTrue(shooter.runHoodToMax());   // Move hood to MAX_HOOD_POSE
