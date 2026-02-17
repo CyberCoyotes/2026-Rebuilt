@@ -22,12 +22,12 @@ import edu.wpi.first.wpilibj2.command.button.RobotModeTriggers;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
 
 import frc.robot.generated.TunerConstants;
+import frc.robot.commands.IndexerCommands;
+// import frc.robot.commands.IntakeCommands;
 import frc.robot.commands.ShooterCommands;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
-import frc.robot.subsystems.climber.ClimberSubsystem;
-import frc.robot.subsystems.indexer.IndexerCommands;
+// import frc.robot.subsystems.climber.ClimberSubsystem;
 import frc.robot.subsystems.indexer.IndexerSubsystem;
-import frc.robot.subsystems.intake.IntakeCommands;
 import frc.robot.subsystems.intake.IntakeSubsystem;
 import frc.robot.subsystems.indexer.IndexerIOSim;
 import frc.robot.subsystems.indexer.IndexerIOHardware;
@@ -44,12 +44,15 @@ import frc.robot.subsystems.vision.VisionSubsystem;
 @SuppressWarnings("unused") // Suppress warnings for unused right now
 
 public class RobotContainer {
-    private double MaxSpeed = 1.0 * TunerConstants.kSpeedAt12Volts.in(MetersPerSecond); // kSpeedAt12Volts desired top speed
-    private double MaxAngularRate = RotationsPerSecond.of(0.75).in(RadiansPerSecond); // 3/4 of a rotation per second max angular velocity
+    /* TODO Lower max speed and angular rate for testing, 
+    * then increase to actual desired values once we have tested the robot's responsiveness and handling at lower speeds.
+    * This will help prevent runaway situations while tuning.*/
+    private double MaxSpeed = 0.5 * TunerConstants.kSpeedAt12Volts.in(MetersPerSecond); // kSpeedAt12Volts desired top speed
+    private double MaxAngularRate = RotationsPerSecond.of(0.5).in(RadiansPerSecond); // 3/4 0.75 of a rotation per second max angular velocity
 
     /* Setting up bindings for necessary control of the swerve drive platform */
     private final SwerveRequest.FieldCentric drive = new SwerveRequest.FieldCentric()
-            .withDeadband(MaxSpeed * 0.1).withRotationalDeadband(MaxAngularRate * 0.1) // Add a 10% deadband
+            .withDeadband(MaxSpeed * 0.15).withRotationalDeadband(MaxAngularRate * 0.15) // Add a 15% deadband
             .withDriveRequestType(DriveRequestType.OpenLoopVoltage); // Use open-loop control for drive motors
     private final SwerveRequest.SwerveDriveBrake brake = new SwerveRequest.SwerveDriveBrake();
     private final SwerveRequest.PointWheelsAt point = new SwerveRequest.PointWheelsAt();
@@ -60,9 +63,10 @@ public class RobotContainer {
     private final GameDataTelemetry gameDataTelemetry = new GameDataTelemetry();
 
     // ===== Controllers =====
-    // Port 0: Driver controller (drivetrain movement)
-    // Port 1: Operator controller (mechanisms - shooter, intake, indexer, climber)
+    // Port 0: Driver controller
     private final CommandXboxController driver = new CommandXboxController(0);
+    
+    // Port 1: Operator controller
     private final CommandXboxController operator = new CommandXboxController(1);
 
     // ===== Subsystems =====
@@ -72,10 +76,8 @@ public class RobotContainer {
     private final ShooterSubsystem shooter;
     private final VisionSubsystem vision;
     private final LedSubsystem ledSubsystem;
-    private final ClimberSubsystem climber;
-
-    // ===== Intake Commands (instance-based, not static) =====
-    private final IntakeCommands intakeCommands = new IntakeCommands();
+    // private final ClimberSubsystem climber;
+    // private final IntakeCommands intakeCommands; // Not needed since we can just use intake subsystem methods directly in bindings
 
     /* Path follower */
     private final AutoFactory autoFactory;
@@ -83,20 +85,14 @@ public class RobotContainer {
     private final AutoChooser autoChooser = new AutoChooser();
 
     public RobotContainer() {
-        if (RobotBase.isReal()) {
             intake = new IntakeSubsystem(new IntakeIOHardware());
             indexer = new IndexerSubsystem(new IndexerIOHardware());
             shooter = new ShooterSubsystem(new ShooterIOHardware());
-            vision = new VisionSubsystem(new VisionIOLimelight(Constants.Vision.LIMELIGHT3_NAME));
-        } else {
-            intake = new IntakeSubsystem(new IntakeIOSim());
-            indexer = new IndexerSubsystem(new IndexerIOSim());
-            shooter = new ShooterSubsystem(new ShooterIOSim());
-            vision = new VisionSubsystem(new VisionIOSim());
-        }
+            vision = new VisionSubsystem(new VisionIOLimelight(Constants.Vision.LIMELIGHT4_NAME));
 
-        ledSubsystem = new LedSubsystem(shooter);
-        climber = new ClimberSubsystem();
+
+        ledSubsystem = new LedSubsystem();
+        // climber = new ClimberSubsystem();
 
         autoFactory = drivetrain.createAutoFactory();
         autoRoutines = new AutoRoutines(autoFactory, drivetrain/* , ClimberSubsystem climber,
@@ -129,10 +125,7 @@ public class RobotContainer {
         RobotModeTriggers.disabled().whileTrue(
             drivetrain.applyRequest(() -> idle).ignoringDisable(true)
         );
-            // Dont think need
-        // A: Brake (lock wheels in X pattern)
-       // driver.a().whileTrue(drivetrain.applyRequest(() -> brake));
-
+       
         // B: Point wheels at joystick direction (for testing)
        /*  driver.b().whileTrue(drivetrain.applyRequest(() ->
             point.withModuleDirection(new Rotation2d(-driver.getLeftY(), -driver.getLeftX()))
@@ -156,7 +149,7 @@ public class RobotContainer {
         // =====================================================================
 
         // ----- Shooter -----
-       // ----- Full Sequences -----
+        // ----- Full Sequences -----
         // A: Full shoot sequence - close shot with indexer feed, then idle
         /*
         driver.rightTrigger(0.5).whileTrue(
@@ -171,13 +164,16 @@ public class RobotContainer {
           ShooterCommands.rampTestShoot(shooter, indexer)
         );
 
-        // driver.rightTrigger(0.5).whileTrue(
-        //     Commands.parallel(
-        //         ShooterCommands.rampUpFlywheel(shooter, ShooterSubsystem.RAMP_TEST_TARGET_RPM),
-        //         // Commands.waitUntil(shooter::isReady).withTimeout(5.0), // Timeout to prevent indefinite waiting if something goes wrong
-        //         Commands.run(indexer::indexerForward)
-        //     )
-        // );
+        /* TODO Test rampTestShoot first, comment out, and try this one */
+        /*
+        driver.rightTrigger(0.5).whileTrue(
+            Commands.parallel(
+                ShooterCommands.rampUpFlywheel(shooter, ShooterSubsystem.RAMP_TEST_TARGET_RPM),
+                Commands.waitUntil(shooter::isReady).withTimeout(5.0), // Timeout to prevent indefinite waiting if something goes wrong
+                Commands.run(indexer::indexerForward).withTimeout(10.0) // Run indexer forward for 10 seconds or until interrupted (e.g., by releasing trigger)
+            )
+        );
+        */
 
         // Y: Close shot (prepare and wait for ready)
         // driver.a().onTrue(ShooterCommands.closeShot(shooter)); // TODO Comment out for testing without flywheel
@@ -188,16 +184,12 @@ public class RobotContainer {
         }));
 
         // X: Far shot (prepare and wait for ready)
-        // driver.x().onTrue(ShooterCommands.farShot(shooter)); // TODO Comment out for testing without flywheel
-        // Far shot hood preset
         driver.x().onTrue(Commands.runOnce(() -> {
             shooter.setTargetHoodPose(ShooterSubsystem.FAR_SHOT_HOOD);
             shooter.prepareToShoot();
         }));
 
         // B: Pass shot (prepare and wait for ready)
-        // driver.b().onTrue(ShooterCommands.pass(shooter)); // TODO Comment out for testing without flywheel
-        // Pass shot hood preset
         driver.b().onTrue(Commands.runOnce(() -> {
             shooter.setTargetHoodPose(ShooterSubsystem.PASS_SHOT_HOOD);
             shooter.prepareToShoot();
@@ -206,7 +198,7 @@ public class RobotContainer {
             Commands.startEnd(indexer::indexerForward, indexer::indexerStop));
         // POV Up: Eject from shooter (clear jams, 1 second reverse)
         
-        driver.povUp().onTrue(ShooterCommands.eject(shooter, 1.0));
+        driver.povLeft().onTrue(ShooterCommands.eject(shooter, 1.0));
 
         // ----- Indexer -----
         // Right Bumper: Feed game piece to shooter (while held)
@@ -220,7 +212,8 @@ public class RobotContainer {
         driver.leftTrigger(0.5).whileTrue(intake.intakeFuel());
 
         // Left Bumper: Stop intake jam (quick reverse)
-        driver.leftBumper().onTrue(intake.outakeFuelCommand());
+        // driver.leftBumper().whileTrue(intake.ejectFuel());
+        driver.leftBumper().onTrue(Commands.runOnce(intake::retractSlides, intake));
 
         // ----- Climber (POV) -----
         // POV Up: Extend climber arm (preset})
@@ -237,13 +230,23 @@ public class RobotContainer {
        // operator.start().onTrue(climber.stopClimber());
 
         // ----- Operator Controller (Port 1) - Shooter Hood Testing -----
-        // TODO: Uncomment these POV bindings once we are ready to do on-robot hood increment testing.
-        operator.povLeft().onTrue(shooter.runOnce(shooter::decreaseHoodForTesting));
-        operator.povRight().onTrue(shooter.runOnce(shooter::increaseHoodForTesting));
+        // operator.povDown().onTrue(shooter.runOnce(shooter::decreaseHoodForTesting));
+        // operator.povUp().onTrue(shooter.runOnce(shooter::increaseHoodForTesting));
 
         // Hood position testing (closed-loop position control)
-        operator.rightBumper().onTrue(shooter.runHoodToMax());   // Move hood to MAX_HOOD_POSE
-        operator.leftBumper().onTrue(shooter.runHoodToMin());    // Move hood to MIN_HOOD_POSE
+        // operator.rightBumper().onTrue(shooter.runHoodToMax());   // Move hood to MAX_HOOD_POSE
+        // operator.leftBumper().onTrue(shooter.runHoodToMin());    // Move hood to MIN_HOOD_POSE
+        operator.rightBumper().whileTrue(
+            Commands.startEnd(
+                () -> indexer.conveyorForward(), 
+                () -> indexer.conveyorStop(), 
+                indexer)
+        );
+
+        operator.rightTrigger(0.5).whileTrue(
+            ShooterCommands.visionShot(shooter, vision)
+        );
+
         // =====================================================================
         // OPERATOR CONTROLLER (Port 1) - Flywheel Velocity Adjustment
         // =====================================================================
@@ -284,4 +287,5 @@ public class RobotContainer {
     public GameDataTelemetry getGameDataTelemetry() {
         return gameDataTelemetry;
     }
-}
+
+} // End of

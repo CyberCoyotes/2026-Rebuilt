@@ -2,13 +2,15 @@
  * AUTHOR: @Joel-Trumpet-67
  */
 
-package frc.robot.subsystems.indexer;
+package frc.robot.training;
 
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.playingwithfusion.TimeOfFlight;
 
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
+import frc.robot.subsystems.indexer.IndexerIOHardware;
+import frc.robot.subsystems.indexer.IndexerSubsystem;
 
 /**
  * IndexerSubsystemBasic - A simplified indexer implementation for training purposes.
@@ -51,7 +53,6 @@ public class IndexerSubsystemBasic extends SubsystemBase {
     private final TimeOfFlight indexerToF;
     private final TimeOfFlight hopperAToF;
     private final TimeOfFlight hopperBToF;
-    private final TimeOfFlight hopperCToF;    
     
     private double FUEL_DETECTION_THRESHOLD = 5; // TODO determine, and check units CM or IN
  
@@ -61,10 +62,9 @@ public class IndexerSubsystemBasic extends SubsystemBase {
     public IndexerSubsystemBasic() {
         conveyorMotor = new TalonFX(Constants.Indexer.CONVEYOR_MOTOR_ID);
         indexerMotor = new TalonFX(Constants.Indexer.INDEXER_MOTOR_ID);
-        indexerToF = new TimeOfFlight(Constants.Indexer.INDEXER_TOF_ID);
-        hopperAToF = new TimeOfFlight(Constants.Indexer.HOPPER_TOP_A_TOF_ID);
-        hopperBToF = new TimeOfFlight(Constants.Indexer.HOPPER_TOP_B_TOF_ID);
-        hopperCToF = new TimeOfFlight(Constants.Indexer.HOPPER_TOP_C_TOF_ID);
+        indexerToF = new TimeOfFlight(Constants.Indexer.INDEXER_SENSOR_ID);
+        hopperAToF = new TimeOfFlight(Constants.Indexer.HOPPER_A_TOF_ID);
+        hopperBToF = new TimeOfFlight(Constants.Indexer.HOPPER_B_TOF_ID);
         
     }
 

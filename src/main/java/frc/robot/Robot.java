@@ -29,10 +29,25 @@ public class Robot extends LoggedRobot {
         .withTimestampReplay()
         .withJoystickReplay();
 
-    private final boolean kUseLimelight = false;
+    /**
+     *
+     */
+    // Limelight integration is currently disabled. Set to true if vision processing will be used in the future.
+    private final boolean kUseLimelight =true;
+
+    /** Set to true to enable AdvantageKit logging and replay features. 
+     * This is separate from the Logger features, which are still active when this is false. 
+     * 
+     * TODO Toggle on/off for testing 
+     * 
+     * */
+    public static final boolean ENABLE_ADVANTAGEKIT = false;
 
     public Robot() {
-        Logger.recordMetadata("ProjectName", "2026 Rebuilt"); // Set a metadata value
+        
+    Logger.recordMetadata("ProjectName", "2026 Rebuilt"); // Set a metadata value
+
+    if (ENABLE_ADVANTAGEKIT) {
 
         if (isReal()) {
             Logger.addDataReceiver(new WPILOGWriter()); // Log to a USB stick ("/U/logs")
@@ -44,20 +59,26 @@ public class Robot extends LoggedRobot {
             Logger.addDataReceiver(new WPILOGWriter(LogFileUtil.addPathSuffix(logPath, "_sim"))); // Save outputs to a new log
         }
 
-    Logger.start(); // Start logging! No more data receivers, replay sources, or metadata values may be added.
+        Logger.start(); // Start logging! No more data receivers, replay sources, or metadata values may be added.
+    }
 
         m_robotContainer = new RobotContainer();
     }
 
     @Override
     public void robotPeriodic() {
-        m_timeAndJoystickReplay.update();
+        if (ENABLE_ADVANTAGEKIT) {
+            m_timeAndJoystickReplay.update();
+        }
+
         CommandScheduler.getInstance().run();
 
-        // Log system health data for post-match analysis
-        Logger.recordOutput("Robot/BatteryVoltage", RobotController.getBatteryVoltage());
-        Logger.recordOutput("Robot/BrownedOut", RobotController.isBrownedOut());
-        Logger.recordOutput("Robot/CANBusUtilization", RobotController.getCANStatus().percentBusUtilization);
+        if (ENABLE_ADVANTAGEKIT) {
+            // Log system health data for post-match analysis
+            Logger.recordOutput("Robot/BatteryVoltage", RobotController.getBatteryVoltage());
+            Logger.recordOutput("Robot/BrownedOut", RobotController.isBrownedOut());
+            Logger.recordOutput("Robot/CANBusUtilization", RobotController.getCANStatus().percentBusUtilization);
+        }
 
         // Update game data telemetry (polls FMS for scoring shift data)
         m_robotContainer.updateGameData();

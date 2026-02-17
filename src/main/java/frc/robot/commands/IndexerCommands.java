@@ -1,7 +1,8 @@
-package frc.robot.subsystems.indexer;
+package frc.robot.commands;
 
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
+import frc.robot.subsystems.indexer.IndexerSubsystem;
 
 /**
  * IndexerCommands - Factory for indexer-related commands.
@@ -50,11 +51,12 @@ public class IndexerCommands {
      * @param indexer The indexer subsystem
      * @return Continuous feed command (runs until interrupted)
      */
+    /*
     public static Command feed(IndexerSubsystem indexer) {
         return Commands.startEnd(
             () -> {
-                indexer.setState("FEEDING");
-                indexer.setConveyorMotorVolts(CONVEYOR_VOLTS);
+                // indexer.setState("FEEDING");
+                indexer.conveyorForward;
                 indexer.setIndexerMotorVolts(FEED_VOLTS);
             },
             () -> {
@@ -63,7 +65,8 @@ public class IndexerCommands {
             },
             indexer
         ).withName("Feed");
-    }
+    } 
+    */
 
     /**
      * Creates a command that runs the conveyor to intake game pieces into the hopper.
@@ -73,19 +76,19 @@ public class IndexerCommands {
      * @param indexer The indexer subsystem
      * @return Continuous intake command
      */
-    public static Command intake(IndexerSubsystem indexer) {
-        return Commands.startEnd(
-            () -> {
-                indexer.setState("INTAKING");
-                indexer.setConveyorMotorVolts(INTAKE_VOLTS);
-            },
-            () -> {
-                indexer.stop();
-                indexer.setState("IDLE");
-            },
-            indexer
-        ).withName("IndexerIntake");
-    }
+    // public static Command intake(IndexerSubsystem indexer) {
+    //     return Commands.startEnd(
+    //         () -> {
+    //             indexer.setState("INTAKING");
+    //             indexer.setConveyorMotorVolts(INTAKE_VOLTS);
+    //         },
+    //         () -> {
+    //             indexer.stop();
+    //             indexer.setState("IDLE");
+    //         },
+    //         indexer
+    //     ).withName("IndexerIntake");
+    // }
 
     /**
      * Creates a command that reverses both motors to eject jammed game pieces.

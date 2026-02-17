@@ -3,7 +3,6 @@ package frc.robot.commands;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import frc.robot.subsystems.vision.VisionSubsystem;
-import frc.robot.subsystems.indexer.IndexerCommands;
 import frc.robot.subsystems.indexer.IndexerSubsystem;
 import frc.robot.subsystems.shooter.ShooterSubsystem;
 
@@ -19,8 +18,8 @@ import frc.robot.subsystems.shooter.ShooterSubsystem;
  */
 public class ShooterCommands {
 
-    /** Percent tolerance for starting feed during ramp test (5%). */
-    private static final double RAMP_TEST_FEED_TOLERANCE = 0.05;
+    /** Percent tolerance for starting feed during ramp test (10%). */
+    private static final double RAMP_TEST_FEED_TOLERANCE = 0.10;
 
 
     /**
@@ -28,7 +27,7 @@ public class ShooterCommands {
      *
      * Behavior:
      *  - Commands the flywheel to ShooterSubsystem.RAMP_TEST_TARGET_RPM
-     *  - Once flywheel is within 5% of target RPM, starts feeding (conveyor + indexer)
+     *  - Once flywheel is within target RPM tolerance, starts feeding (conveyor + indexer)
      *  - On end/cancel, stops feeding and returns shooter to IDLE
      *
      * Intended for use with a whileTrue() button binding.
@@ -39,24 +38,26 @@ public class ShooterCommands {
         return Commands.sequence(
             // Spin up to the ramp-test target
             Commands.runOnce(() -> {
+                shooter.setTargetHoodPose(4.2);
                 shooter.setTargetVelocity(targetRPM);
                 shooter.prepareToShoot();
             }, shooter),
 
-            // Wait until flywheel is within 5% of the target RPM
+            // Wait until flywheel is within 15% of the target RPM
             Commands.waitUntil(() ->
                 Math.abs(shooter.getCurrentVelocityRPM() - targetRPM)
                     <= Math.abs(targetRPM) * RAMP_TEST_FEED_TOLERANCE
             ),
-
-            // Feed continuously until the command is released/canceled
-            IndexerCommands.feed(indexer)
+            Commands.run(() -> {
+                indexer.indexerForward();
+                indexer.conveyorForward();
+            }, indexer)
         )
         .finallyDo(() -> {
-            indexer.stop();
+            indexer.indexerStop();
+            indexer.conveyorStop();
             shooter.setIdle();
-        })
-        .withName("RampTestShoot");
+        });
     }
 
     /**
