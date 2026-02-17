@@ -48,12 +48,6 @@ public interface ShooterIO {
         /** Flywheel A velocity in RPM */
         public double flywheelAVelocityRPM = 0.0;
 
-        /** Flywheel B velocity in RPM */
-        public double flywheelBVelocityRPM = 0.0;
-
-        /** Flywheel C velocity in RPM */
-        public double flywheelCVelocityRPM = 0.0;
-
         // ===== Hood Data =====
         /** Hood angle in degrees from motor encoder (0 = home position) */
         public double hoodAngleDegrees = 0.0;

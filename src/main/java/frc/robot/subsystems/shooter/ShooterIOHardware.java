@@ -111,12 +111,13 @@ public class ShooterIOHardware implements ShooterIO {
     );
 
     // Flywheel (A is leader; B/C follow, so logging A is enough for control)
-    double motorARPS = flywheelAVelocity.getValueAsDouble();
-    double flywheelARPM = rpsToRPM(motorARPS);
+    double motorRPS = flywheelAVelocity.getValueAsDouble();
+    double motorRPM = rpsToRPM(motorRPS);
 
-    inputs.flywheelAVelocityRPM = flywheelARPM;
-    inputs.flywheelVelocityRPM = flywheelARPM; // use leader as "the" flywheel speed
-    inputs.flywheelMotorRPS = motorARPS;
+    inputs.flywheelMotorRPS = motorRPS;
+    inputs.flywheelMotorRPM = motorRPM;
+    inputs.flywheelVelocityRPM = motorRPM; // system speed = leader motor
+
 
     // Hood (keep these minimal but useful)
     inputs.hoodAngleDegrees = hoodPosition.getValueAsDouble(); // still "raw rotations" in your comment; rename later if you want
