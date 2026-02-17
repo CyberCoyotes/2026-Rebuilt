@@ -10,6 +10,8 @@ import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.networktables.StringPublisher;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
+import frc.robot.Robot;
+import frc.robot.subsystems.indexer.IndexerIO.IndexerIOInputs;
 
 /**
  * IndexerSubsystem - Moves game pieces from intake through the robot to the shooter.
@@ -31,7 +33,8 @@ public class IndexerSubsystem extends SubsystemBase {
 
     // ===== IO Layer =====
     private final IndexerIO io;
-    private final IndexerIOInputsAutoLogged inputs = new IndexerIOInputsAutoLogged();
+
+    private final IndexerIOInputs inputs = new IndexerIOInputs();
 
     // ===== NetworkTables Publishers for Elastic Dashboard =====
     private final NetworkTable indexerTable;
@@ -39,15 +42,18 @@ public class IndexerSubsystem extends SubsystemBase {
     private final BooleanPublisher hasGamePiecePublisher;
     private final BooleanPublisher hopperFullPublisher;
     private final IntegerPublisher hopperCountPublisher;
-    private final BooleanPublisher hopperAPublisher;
+    private final BooleanPublisher hopperAPublisher; 
     private final BooleanPublisher hopperBPublisher;
     private final BooleanPublisher hopperCPublisher;
     private final DoublePublisher conveyorVelocityPublisher;
     private final DoublePublisher indexerVelocityPublisher;
 
     // ===== Jam Detection Telemetry Publishers =====
+
+    // FIXME These don't belong here
+
     // These publish jam status to the Elastic dashboard so drivers can see if something is stuck
-    private final BooleanPublisher hopperJammedPublisher;
+    private final BooleanPublisher hopperJammedPublisher; 
     private final BooleanPublisher indexerJammedPublisher;
     private final DoublePublisher conveyorCurrentPublisher;
     private final DoublePublisher indexerCurrentPublisher;
@@ -95,8 +101,8 @@ public class IndexerSubsystem extends SubsystemBase {
         hopperFullPublisher = indexerTable.getBooleanTopic("HopperFull").publish();
         hopperCountPublisher = indexerTable.getIntegerTopic("HopperCount").publish();
         hopperAPublisher = indexerTable.getBooleanTopic("HopperA").publish();
-        hopperBPublisher = indexerTable.getBooleanTopic("HopperB").publish();
-        hopperCPublisher = indexerTable.getBooleanTopic("HopperC").publish();
+        hopperBPublisher = indexerTable.getBooleanTopic("HopperB").publish(); 
+        hopperCPublisher = indexerTable.getBooleanTopic("HopperC").publish(); 
         conveyorVelocityPublisher = indexerTable.getDoubleTopic("ConveyorVelocityRPS").publish();
         indexerVelocityPublisher = indexerTable.getDoubleTopic("IndexerVelocityRPS").publish();
 
@@ -113,7 +119,9 @@ public class IndexerSubsystem extends SubsystemBase {
         io.updateInputs(inputs);
 
         // Log all inputs for AdvantageKit replay
-        Logger.processInputs("Indexer", inputs);
+        // if (Robot.ENABLE_ADVANTAGEKIT) {  // make it public or put in Constants
+        //     Logger.processInputs("Indexer", inputs);
+        // }
 
         // Publish to NetworkTables for Elastic dashboard
         publishTelemetry();

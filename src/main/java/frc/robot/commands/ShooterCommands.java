@@ -18,8 +18,8 @@ import frc.robot.subsystems.shooter.ShooterSubsystem;
  */
 public class ShooterCommands {
 
-    /** Percent tolerance for starting feed during ramp test (15%). */
-    private static final double RAMP_TEST_FEED_TOLERANCE = 0.15;
+    /** Percent tolerance for starting feed during ramp test (10%). */
+    private static final double RAMP_TEST_FEED_TOLERANCE = 0.10;
 
 
     /**
@@ -27,7 +27,7 @@ public class ShooterCommands {
      *
      * Behavior:
      *  - Commands the flywheel to ShooterSubsystem.RAMP_TEST_TARGET_RPM
-     *  - Once flywheel is within 15% of target RPM, starts feeding (conveyor + indexer)
+     *  - Once flywheel is within target RPM tolerance, starts feeding (conveyor + indexer)
      *  - On end/cancel, stops feeding and returns shooter to IDLE
      *
      * Intended for use with a whileTrue() button binding.

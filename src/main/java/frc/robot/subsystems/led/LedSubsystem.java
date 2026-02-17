@@ -22,36 +22,36 @@ public class LedSubsystem extends SubsystemBase {
     private static final LedColor EJECT_COLOR = new LedColor(255, 0, 0); // Red
 
     private final CANdle candle;
-    private final ShooterSubsystem shooter;
+    // private final ShooterSubsystem shooter;
     private final int ledCount;
 
     private LedColor lastColor = IDLE_COLOR;
 
-    public LedSubsystem(ShooterSubsystem shooter) {
-        this.shooter = shooter;
-        this.candle = new CANdle(Constants.Led.CANDLE_ID, Constants.CAN_BUS_NAME);
+    public LedSubsystem() {
+        // this.shooter = shooter;
+        this.candle = new CANdle(Constants.Led.CANDLE_ID);
         this.ledCount = Math.max(1, Constants.Led.LOGICAL_LED_COUNT);
         setSolidColor(IDLE_COLOR);
     }
 
     @Override
     public void periodic() {
-        LedColor desiredColor = getShooterColor();
-        if (!desiredColor.equals(lastColor)) {
-            setSolidColor(desiredColor);
-        }
+        // LedColor desiredColor = getShooterColor();
+        // if (!desiredColor.equals(lastColor)) {
+        //     setSolidColor(desiredColor);
+        // }
     }
 
-    private LedColor getShooterColor() {
-        ShooterState state = shooter.getState();
-        return switch (state) {
-            case IDLE -> IDLE_COLOR;
-            case SPINUP -> SPINUP_COLOR;
-            case READY -> READY_COLOR;
-            case PASS -> PASS_COLOR;
-            case EJECT -> EJECT_COLOR;
-        };
-    }
+    // private LedColor getShooterColor() {
+    //     ShooterState state = shooter.getState();
+    //     return switch (state) {
+    //         case IDLE -> IDLE_COLOR;
+    //         case SPINUP -> SPINUP_COLOR;
+    //         case READY -> READY_COLOR;
+    //         case PASS -> PASS_COLOR;
+    //         case EJECT -> EJECT_COLOR;
+    //     };
+    // }
 
     private void setSolidColor(LedColor color) {
         candle.setLEDs(color.red(), color.green(), color.blue(), 0, 0, ledCount);

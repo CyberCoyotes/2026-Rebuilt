@@ -191,7 +191,7 @@ public class TalonFXConfigs {
 
         
         // Set MotionMagicVoltage settings
-        config.MotionMagic.MotionMagicCruiseVelocity = 8; // TODO tune the slide speed - 8 is a good starting point for smooth movement without slipping
+        config.MotionMagic.MotionMagicCruiseVelocity = 16; // TODO tune the slide speed - 8 is a good starting point for smooth movement without slipping
         config.MotionMagic.MotionMagicAcceleration = 16; // TODO tune the slide acceleration - 4 is a good starting point for smooth movement without slipping
         config.MotionMagic.MotionMagicJerk = 0;
 
