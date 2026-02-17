@@ -72,8 +72,8 @@ public class IndexerIOHardware implements IndexerIO {
 
         // Create motor objects
         // Note: Constants use "CONVEYOR" and "INDEXER" naming, we use "conveyor" and "indexer"
-        conveyorMotor = new TalonFXS(Constants.Indexer.CONVEYOR_MOTOR_ID, Constants.RIO_CAN_BUS);
-        indexerMotor = new TalonFX(Constants.Indexer.INDEXER_MOTOR_ID, Constants.RIO_CAN_BUS);
+        conveyorMotor = new TalonFXS(Constants.Indexer.CONVEYOR_MOTOR_ID, Constants.RIO_CANBUS);
+        indexerMotor = new TalonFX(Constants.Indexer.INDEXER_MOTOR_ID, Constants.RIO_CANBUS);
 
         // Apply configurations from centralized config class
         conveyorMotor.getConfigurator().apply(TalonFXConfigs.conveyorConfig());
