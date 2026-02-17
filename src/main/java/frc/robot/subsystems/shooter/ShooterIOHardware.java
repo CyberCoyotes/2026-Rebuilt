@@ -65,7 +65,7 @@ public class ShooterIOHardware implements ShooterIO {
     var encoderConfig = new CANcoderConfiguration();
     encoderConfig.MagnetSensor.AbsoluteSensorDiscontinuityPoint = 1.0;
     encoderConfig.MagnetSensor.SensorDirection = SensorDirectionValue.CounterClockwise_Positive;
-    encoderConfig.MagnetSensor.MagnetOffset = 0.0;
+    encoderConfig.MagnetSensor.MagnetOffset = 0.0; // TODO Set in Tuner, adjust based on actual mounting
     hoodEncoder.getConfigurator().apply(encoderConfig);
 
     // Apply motor configs
@@ -113,8 +113,14 @@ public class ShooterIOHardware implements ShooterIO {
     flywheelMotorB.setControl(new Follower(Constants.Shooter.FLYWHEEL_A_MOTOR_ID, MotorAlignmentValue.Aligned));
     flywheelMotorC.setControl(new Follower(Constants.Shooter.FLYWHEEL_A_MOTOR_ID, MotorAlignmentValue.Aligned));
 
-    // If hood is physically at "home" on boot, this seeds the position.
-    hoodMotor.setPosition(0.0);
+    /* TODO 
+    * not sure if this goes here or somewhere else, 
+    * but we need to set the hood's position to the encoder's absolute position at startup for closed-loop control to work immediately
+    */
+    double absPosition = hoodEncoder.getAbsolutePosition().getValueAsDouble();
+    hoodMotor.setPosition(absPosition);
+
+
   }
 
   /**
