@@ -50,7 +50,6 @@ public class ShooterSubsystemBasics extends SubsystemBase {
     private final TalonFX flywheelA;
     private final TalonFX flywheelB;
     private final TalonFX flywheelC;
-    private final TalonFX counterWheel;
     private final TalonFX hoodMotor;
 
     // State
@@ -69,7 +68,6 @@ public ShooterSubsystemBasics() {
     flywheelA = new TalonFX(Constants.Shooter.FLYWHEEL_A_MOTOR_ID);
     flywheelB = new TalonFX(Constants.Shooter.FLYWHEEL_B_MOTOR_ID);
     flywheelC = new TalonFX(Constants.Shooter.FLYWHEEL_C_MOTOR_ID);
-    counterWheel = new TalonFX(Constants.Shooter.COUNTER_WHEEL_MOTOR_ID);
     hoodMotor = new TalonFX(Constants.Shooter.HOOD_MOTOR_ID);
     
 }
