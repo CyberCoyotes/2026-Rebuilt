@@ -61,11 +61,6 @@ public class ShooterIOHardware implements ShooterIO {
     flywheelMotorC.getConfigurator().apply(TalonFXConfigs.flywheelConfig());
     hoodMotor.getConfigurator().apply(TalonFXConfigs.hoodConfig());
 
-    // Followers (THIS IS THE IMPORTANT PART YOU WORRIED ABOUT)
-    // Note: follower references the LEADER DEVICE ID on the SAME BUS.
-    flywheelMotorB.setControl(new Follower(Constants.Shooter.FLYWHEEL_A_MOTOR_ID, MotorAlignmentValue.Aligned));
-    flywheelMotorC.setControl(new Follower(Constants.Shooter.FLYWHEEL_A_MOTOR_ID, MotorAlignmentValue.Aligned));
-
     // Status signals (minimal set)
     flywheelAVelocity = flywheelMotorA.getVelocity();
     hoodPosition = hoodMotor.getPosition();
@@ -95,6 +90,11 @@ public class ShooterIOHardware implements ShooterIO {
     flywheelMotorC.optimizeBusUtilization();
     hoodMotor.optimizeBusUtilization();
     hoodEncoder.optimizeBusUtilization();
+
+    // Followers MUST be set AFTER optimizeBusUtilization() — otherwise the
+    // aggressive frame disabling can break the follower control link.
+    flywheelMotorB.setControl(new Follower(Constants.Shooter.FLYWHEEL_A_MOTOR_ID, MotorAlignmentValue.Aligned));
+    flywheelMotorC.setControl(new Follower(Constants.Shooter.FLYWHEEL_A_MOTOR_ID, MotorAlignmentValue.Aligned));
 
     // If hood is physically at "home" on boot, this is fine. Otherwise remove.
     hoodMotor.setPosition(0.0);
