@@ -116,12 +116,9 @@ public class ShooterIOHardware implements ShooterIO {
         hoodMotor.getConfigurator().apply(TalonFXConfigs.hoodConfig());
         counterWheelMotor.getConfigurator().apply(TalonFXConfigs.flywheelConfig());
 
-        // Set follower relationships (B and C follow A)
-        // Aligned = same direction as leader (not opposed)
-        flywheelMotorB.setControl(new Follower(
-            Constants.Shooter.FLYWHEEL_A_MOTOR_ID, MotorAlignmentValue.Aligned));
-        flywheelMotorC.setControl(new Follower(
-            Constants.Shooter.FLYWHEEL_A_MOTOR_ID, MotorAlignmentValue.Aligned));
+        // NOTE: Follower setControl moved AFTER optimizeBusUtilization() below.
+        // Setting followers here then calling optimizeBusUtilization() disables
+        // the status frames needed for the follower link, causing B/C to go orange.
 
         // Get status signals for efficient reading
         // Flywheel A (leader)
@@ -185,6 +182,15 @@ public class ShooterIOHardware implements ShooterIO {
         hoodMotor.optimizeBusUtilization();
         counterWheelMotor.optimizeBusUtilization();
         hoodEncoder.optimizeBusUtilization();
+
+        // Set follower relationships AFTER optimizeBusUtilization()
+        // optimizeBusUtilization() disables all status frames not explicitly set,
+        // which breaks the follower control link if it was established before.
+        // Setting followers last ensures the control request sticks.
+        flywheelMotorB.setControl(new Follower(
+            Constants.Shooter.FLYWHEEL_A_MOTOR_ID, MotorAlignmentValue.Aligned));
+        flywheelMotorC.setControl(new Follower(
+            Constants.Shooter.FLYWHEEL_A_MOTOR_ID, MotorAlignmentValue.Aligned));
 
         // Zero hood encoder at startup (assumes hood is at home position)
         hoodMotor.setPosition(0.0);
