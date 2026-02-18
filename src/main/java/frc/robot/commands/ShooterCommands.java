@@ -38,7 +38,7 @@ public class ShooterCommands {
         return Commands.sequence(
             // Spin up to the ramp-test target
             Commands.runOnce(() -> {
-                shooter.setTargetHoodPose(4.2);
+                shooter.setTargetHoodPose(0);
                 shooter.setTargetVelocity(targetRPM);
                 shooter.prepareToShoot();
             }, shooter),

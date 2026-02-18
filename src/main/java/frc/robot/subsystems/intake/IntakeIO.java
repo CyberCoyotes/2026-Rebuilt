@@ -57,12 +57,12 @@ public interface IntakeIO {
         /** Slide motor temperature in Celsius */
         public double slideTempCelsius = 0.0;
 
-        // Sensor Data
-        // distance from nearest thing to intake sensor in mm
-        public double intakeDistance = 0.0;
+        // // Sensor Data
+        // // distance from nearest thing to intake sensor in mm
+        // public double intakeDistance = 0.0;
 
-        //is a target detected 
-        public boolean intakeTarget = false;
+        // //is a target detected 
+        // public boolean intakeTarget = false;
 
     }
 
@@ -84,7 +84,7 @@ public interface IntakeIO {
     double getSlidePosition();
 
     //intake sensor methods
-    double getIntakeDistance();
-    boolean intakeTargetClose();
+    // double getIntakeDistance();
+    // boolean intakeTargetClose();
 
 }

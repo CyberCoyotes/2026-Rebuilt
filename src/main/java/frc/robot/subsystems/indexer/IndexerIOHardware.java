@@ -46,11 +46,10 @@ public class IndexerIOHardware implements IndexerIO {
     private final StatusSignal<?> conveyorVelocity;
     private final StatusSignal<?> conveyorAppliedVolts;
     private final StatusSignal<?> conveyorCurrent;
-    private final StatusSignal<?> conveyorTemp;
     private final StatusSignal<?> indexerVelocity;
     private final StatusSignal<?> indexerAppliedVolts;
     private final StatusSignal<?> indexerCurrent;
-    private final StatusSignal<?> indexerTemp;
+
 
     // ===== Constants =====
     /**
@@ -94,12 +93,11 @@ public class IndexerIOHardware implements IndexerIO {
         conveyorVelocity = conveyorMotor.getVelocity();
         conveyorAppliedVolts = conveyorMotor.getMotorVoltage();
         conveyorCurrent = conveyorMotor.getSupplyCurrent();
-        conveyorTemp = conveyorMotor.getDeviceTemp();
+
 
         indexerVelocity = indexerMotor.getVelocity();
         indexerAppliedVolts = indexerMotor.getMotorVoltage();
         indexerCurrent = indexerMotor.getSupplyCurrent();
-        indexerTemp = indexerMotor.getDeviceTemp();
 
         // Configure update frequencies for better performance
         BaseStatusSignal.setUpdateFrequencyForAll(
@@ -116,45 +114,20 @@ public class IndexerIOHardware implements IndexerIO {
     public void updateInputs(IndexerIOInputs inputs) {
         // Refresh all status signals efficiently
         BaseStatusSignal.refreshAll(
-            conveyorVelocity, conveyorAppliedVolts, conveyorCurrent, conveyorTemp,
-            indexerVelocity, indexerAppliedVolts, indexerCurrent, indexerTemp
+            conveyorVelocity, conveyorAppliedVolts, conveyorCurrent,
+            indexerVelocity, indexerAppliedVolts, indexerCurrent
         );
 
         // Update conveyor motor inputs
         inputs.conveyorVelocityRPS = conveyorVelocity.getValueAsDouble();
         inputs.conveyorAppliedVolts = conveyorAppliedVolts.getValueAsDouble();
         inputs.conveyorCurrentAmps = conveyorCurrent.getValueAsDouble();
-        inputs.conveyorTempCelsius = conveyorTemp.getValueAsDouble();
 
         // Update indexer motor inputs
         inputs.indexerVelocityRPS = indexerVelocity.getValueAsDouble();
         inputs.indexerAppliedVolts = indexerAppliedVolts.getValueAsDouble();
         inputs.indexerCurrentAmps = indexerCurrent.getValueAsDouble();
-        inputs.indexerTempCelsius = indexerTemp.getValueAsDouble();
 
-        // Update indexer ToF sensor inputs (detects game piece ready to shoot)
-        // inputs.tofDistanceMM = indexerToF.getRange();
-        // inputs.tofValid = indexerToF.isRangeValid();
-        // inputs.gamePieceDetected = inputs.tofValid &&
-        //                            inputs.tofDistanceMM < TOF_DETECTION_THRESHOLD_MM;
-
-        // Update hopper A ToF sensor inputs
-        // inputs.hopperADistanceMM = hopperAToF.getRange();
-        // inputs.hopperAValid = hopperAToF.isRangeValid();
-        // inputs.hopperADetected = inputs.hopperAValid &&
-        //                          inputs.hopperADistanceMM < TOF_DETECTION_THRESHOLD_MM;
-
-        // // Update hopper B ToF sensor inputs
-        // inputs.hopperBDistanceMM = hopperBToF.getRange();
-        // inputs.hopperBValid = hopperBToF.isRangeValid();
-        // inputs.hopperBDetected = inputs.hopperBValid &&
-        //                          inputs.hopperBDistanceMM < TOF_DETECTION_THRESHOLD_MM;
-
-        // // Update hopper C ToF sensor inputs
-        // inputs.hopperCDistanceMM = hopperCToF.getRange();
-        // inputs.hopperCValid = hopperCToF.isRangeValid();
-        // inputs.hopperCDetected = inputs.hopperCValid &&
-        //                          inputs.hopperCDistanceMM < TOF_DETECTION_THRESHOLD_MM;
     }
 
     @Override

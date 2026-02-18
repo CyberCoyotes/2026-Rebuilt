@@ -84,17 +84,11 @@ public class RobotContainer {
     private final AutoChooser autoChooser = new AutoChooser();
 
     public RobotContainer() {
-        if (RobotBase.isReal()) {
             intake = new IntakeSubsystem(new IntakeIOHardware());
             indexer = new IndexerSubsystem(new IndexerIOHardware());
             shooter = new ShooterSubsystem(new ShooterIOHardware());
             vision = new VisionSubsystem(new VisionIOLimelight(Constants.Vision.LIMELIGHT4_NAME));
-        } else {
-            intake = new IntakeSubsystem(new IntakeIOSim());
-            indexer = new IndexerSubsystem(new IndexerIOSim());
-            shooter = new ShooterSubsystem(new ShooterIOSim());
-            vision = new VisionSubsystem(new VisionIOSim());
-        }
+
 
         ledSubsystem = new LedSubsystem();
         // climber = new ClimberSubsystem();
@@ -166,6 +160,11 @@ public class RobotContainer {
         // Ramp rate governed by ClosedLoopRamps in TalonFXConfigs (currently 4s).
         driver.rightTrigger(0.5).whileTrue(
           ShooterCommands.rampTestShoot(shooter, indexer)
+
+        // TODO Test Just run the flywheels
+        // Commands.run(
+            // () -> shooter.setTargetVelocity(ShooterSubsystem.RAMP_TEST_TARGET_RPM)).withTimeout(10.0) // Timeout to prevent indefinite running if something goes wrong;
+        
         );
 
         /* TODO Test rampTestShoot first, comment out, and try this one */
@@ -238,8 +237,8 @@ public class RobotContainer {
        // operator.start().onTrue(climber.stopClimber());
 
         // ----- Operator Controller (Port 1) - Shooter Hood Testing -----
-        operator.povDown().onTrue(shooter.runOnce(shooter::decreaseHoodForTesting));
-        operator.povUp().onTrue(shooter.runOnce(shooter::increaseHoodForTesting));
+        // operator.povDown().onTrue(shooter.runOnce(shooter::decreaseHoodForTesting));
+        // operator.povUp().onTrue(shooter.runOnce(shooter::increaseHoodForTesting));
 
         // Hood position testing (closed-loop position control)
         // operator.rightBumper().onTrue(shooter.runHoodToMax());   // Move hood to MAX_HOOD_POSE
@@ -250,6 +249,23 @@ public class RobotContainer {
                 () -> indexer.conveyorStop(), 
                 indexer)
         );
+
+
+        //
+        operator.rightTrigger(0.5).whileTrue(
+            ShooterCommands.visionShot(shooter, vision)
+        );
+        
+
+        // /* */
+        // operator.rightTrigger(0.5).whileTrue(
+        //     Commands.parallel(
+        //         ShooterCommands.rampUpFlywheel(shooter, ShooterSubsystem.RAMP_TEST_TARGET_RPM),
+        //         Commands.waitUntil(shooter::isReady).withTimeout(10.0), // Timeout to prevent indefinite waiting if something goes wrong
+        //         Commands.run(indexer::indexerForward).withTimeout(10.0) // Run indexer forward for 10 seconds or until interrupted (e.g., by releasing trigger)
+        //     )
+        // );
+    
 
         // =====================================================================
         // OPERATOR CONTROLLER (Port 1) - Flywheel Velocity Adjustment

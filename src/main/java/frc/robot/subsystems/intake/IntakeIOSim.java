@@ -93,8 +93,8 @@ public IntakeIOSim() {
         inputs.slideTempCelsius = 25.0;
 
         // ===== Populate Sensor Inputs =====
-        inputs.intakeDistance = simulatedIntakeDistance;
-        inputs.intakeTarget = simulatedIntakeDistance <= IntakeSubsystem.INTAKE_THRESHOLD;
+        // inputs.intakeDistance = simulatedIntakeDistance;
+        // inputs.intakeTarget = simulatedIntakeDistance <= IntakeSubsystem.INTAKE_THRESHOLD;
     }
 
     /**
@@ -160,14 +160,14 @@ public IntakeIOSim() {
         return positionMeters / (SLIDE_DRUM_RADIUS * 2 * Math.PI);
     }
 
-    @Override
-    public double getIntakeDistance() {
-        return simulatedIntakeDistance;
-    }
+    // @Override
+    // public double getIntakeDistance() {
+    //     return simulatedIntakeDistance;
+    // }
 
-    @Override
-    public boolean intakeTargetClose() {
-        return simulatedIntakeDistance <= IntakeSubsystem.INTAKE_THRESHOLD;
-    }
+    // @Override
+    // public boolean intakeTargetClose() {
+    //     return simulatedIntakeDistance <= IntakeSubsystem.INTAKE_THRESHOLD;
+    // }
 
 }
