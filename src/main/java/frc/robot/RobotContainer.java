@@ -160,6 +160,11 @@ public class RobotContainer {
         // Ramp rate governed by ClosedLoopRamps in TalonFXConfigs (currently 4s).
         driver.rightTrigger(0.5).whileTrue(
           ShooterCommands.rampTestShoot(shooter, indexer)
+
+        // TODO Test Just run the flywheels
+        // Commands.run(
+            // () -> shooter.setTargetVelocity(ShooterSubsystem.RAMP_TEST_TARGET_RPM)).withTimeout(10.0) // Timeout to prevent indefinite running if something goes wrong;
+        
         );
 
         /* TODO Test rampTestShoot first, comment out, and try this one */
@@ -241,9 +246,22 @@ public class RobotContainer {
                 indexer)
         );
 
+
+        //
         operator.rightTrigger(0.5).whileTrue(
             ShooterCommands.visionShot(shooter, vision)
         );
+        
+
+        // /* */
+        // operator.rightTrigger(0.5).whileTrue(
+        //     Commands.parallel(
+        //         ShooterCommands.rampUpFlywheel(shooter, ShooterSubsystem.RAMP_TEST_TARGET_RPM),
+        //         Commands.waitUntil(shooter::isReady).withTimeout(10.0), // Timeout to prevent indefinite waiting if something goes wrong
+        //         Commands.run(indexer::indexerForward).withTimeout(10.0) // Run indexer forward for 10 seconds or until interrupted (e.g., by releasing trigger)
+        //     )
+        // );
+    
 
         // =====================================================================
         // OPERATOR CONTROLLER (Port 1) - Flywheel Velocity Adjustment
