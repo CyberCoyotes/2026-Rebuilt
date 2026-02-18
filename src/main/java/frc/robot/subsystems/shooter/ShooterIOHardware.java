@@ -136,7 +136,9 @@ public class ShooterIOHardware implements ShooterIO {
   @Override
   public void updateInputs(ShooterIOInputs inputs) {
     // Batch-read the 3 fast signals in one CAN transaction
-    BaseStatusSignal.refreshAll(
+    // TODO added to avoid over runs
+    BaseStatusSignal.waitForAll(0.02,
+    // refreshAll(
         flywheelAVelocity,
         flywheelAVoltage,
         hoodPosition
