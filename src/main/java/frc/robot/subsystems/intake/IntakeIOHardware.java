@@ -66,7 +66,7 @@ public class IntakeIOHardware implements IntakeIO {
 
     // ===== Conversion Constants =====
     /** Gear ratio from slide motor to slide mechanism (motor rotations per slide extension) */
-    private static final double SLIDE_GEAR_RATIO = 10.0;  // TODO: Measure actual slide ratio
+    private static final double SLIDE_GEAR_RATIO = 1.0;  // TODO: Measure actual slide ratio
 
     /**
      * Creates a new IntakeIOTalonFX instance.
