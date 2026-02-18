@@ -19,7 +19,7 @@ public class IndexerCommands {
     private static final double FEED_VOLTS = 9.6;        // Forward voltage to feed pieces to shooter
     private static final double CONVEYOR_VOLTS = 7.2;    // Forward voltage for conveyor belt
     private static final double EJECT_VOLTS = -7.2;      // Reverse voltage to eject jams
-    private static final double INTAKE_VOLTS = 4.8;      // Slower voltage for intaking into hopper
+    // private static final double INTAKE_VOLTS = 4.8;      // Slower voltage for intaking into hopper
 
     /**
      * Creates a command that feeds a game piece to the shooter for a set duration.
