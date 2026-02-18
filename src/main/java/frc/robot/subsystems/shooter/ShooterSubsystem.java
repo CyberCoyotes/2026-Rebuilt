@@ -133,7 +133,7 @@ public class ShooterSubsystem extends SubsystemBase {
     public static final double FLYWHEEL_TEST_INCREMENT_RPM = 100.0;
 
     /** Default target RPM for flywheel ramp-up testing */
-    public static final double RAMP_TEST_TARGET_RPM = 1800.0; // TODO Test this value
+    public static final double RAMP_TEST_TARGET_RPM = 2800.0; // TODO Test this value
 
     // =========================================================================
     // CONSTRUCTOR
