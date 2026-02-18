@@ -137,7 +137,7 @@ public class RobotContainer {
             forwardStraight.withVelocityX(-0.5).withVelocityY(0))
         );*/
         // start: Reset field-centric heading
-        driver.start().onTrue(drivetrain.runOnce(drivetrain::seedFieldCentric));
+        // driver.start().onTrue(drivetrain.runOnce(drivetrain::seedFieldCentric));
 
         
         drivetrain.registerTelemetry(logger::telemeterize);
@@ -181,27 +181,27 @@ public class RobotContainer {
         // Y: Close shot (prepare and wait for ready)
         // driver.a().onTrue(ShooterCommands.closeShot(shooter)); // TODO Comment out for testing without flywheel
         // Close shot hood preset — sets target AND transitions to READY so motor actually moves
-        driver.a().onTrue(Commands.runOnce(() -> {
-            shooter.setTargetHoodPose(ShooterSubsystem.CLOSE_SHOT_HOOD);
-            shooter.prepareToShoot();
-        }));
+        // driver.a().onTrue(Commands.runOnce(() -> {
+        //     shooter.setTargetHoodPose(ShooterSubsystem.CLOSE_SHOT_HOOD);
+        //     shooter.prepareToShoot();
+        // }));
 
         // X: Far shot (prepare and wait for ready)
-        driver.x().onTrue(Commands.runOnce(() -> {
-            shooter.setTargetHoodPose(ShooterSubsystem.FAR_SHOT_HOOD);
-            shooter.prepareToShoot();
-        }));
+        // driver.x().onTrue(Commands.runOnce(() -> {
+        //     shooter.setTargetHoodPose(ShooterSubsystem.FAR_SHOT_HOOD);
+        //     shooter.prepareToShoot();
+        // }));
 
         // B: Pass shot (prepare and wait for ready)
-        driver.b().onTrue(Commands.runOnce(() -> {
-            shooter.setTargetHoodPose(ShooterSubsystem.PASS_SHOT_HOOD);
-            shooter.prepareToShoot();
-        }));
-        driver.y().whileTrue(
-            Commands.startEnd(indexer::indexerForward, indexer::indexerStop));
-        // POV Up: Eject from shooter (clear jams, 1 second reverse)
+        // driver.b().onTrue(Commands.runOnce(() -> {
+        //     shooter.setTargetHoodPose(ShooterSubsystem.PASS_SHOT_HOOD);
+        //     shooter.prepareToShoot();
+        // }));
+        // driver.y().whileTrue(
+        //     Commands.startEnd(indexer::indexerForward, indexer::indexerStop));
+        // // POV Up: Eject from shooter (clear jams, 1 second reverse)
         
-        driver.povLeft().onTrue(ShooterCommands.eject(shooter, 1.0));
+        // driver.povLeft().onTrue(ShooterCommands.eject(shooter, 1.0));
 
         // ----- Indexer -----
         // Right Bumper: Feed game piece to shooter (while held)
@@ -212,11 +212,11 @@ public class RobotContainer {
 
         // ----- Intake -----
         // Left Trigger: Run intake rotator and slides(while held)
-        driver.leftTrigger(0.5).whileTrue(intake.intakeFuel());
+        // driver.leftTrigger(0.5).whileTrue(intake.intakeFuel());
 
-        // Left Bumper: Stop intake jam (quick reverse)
-        // driver.leftBumper().whileTrue(intake.ejectFuel());
-        driver.leftBumper().onTrue(Commands.runOnce(intake::retractSlides, intake));
+        // // Left Bumper: Stop intake jam (quick reverse)
+        // // driver.leftBumper().whileTrue(intake.ejectFuel());
+        // driver.leftBumper().onTrue(Commands.runOnce(intake::retractSlides, intake));
 
         // ----- Climber (POV) -----
         // POV Up: Extend climber arm (preset})
@@ -239,18 +239,18 @@ public class RobotContainer {
         // Hood position testing (closed-loop position control)
         // operator.rightBumper().onTrue(shooter.runHoodToMax());   // Move hood to MAX_HOOD_POSE
         // operator.leftBumper().onTrue(shooter.runHoodToMin());    // Move hood to MIN_HOOD_POSE
-        operator.rightBumper().whileTrue(
-            Commands.startEnd(
-                () -> indexer.conveyorForward(), 
-                () -> indexer.conveyorStop(), 
-                indexer)
-        );
+        // operator.rightBumper().whileTrue(
+        //     Commands.startEnd(
+        //         () -> indexer.conveyorForward(), 
+        //         () -> indexer.conveyorStop(), 
+        //         indexer)
+        // );
 
 
-        //
-        operator.rightTrigger(0.5).whileTrue(
-            ShooterCommands.visionShot(shooter, vision)
-        );
+        // //
+        // operator.rightTrigger(0.5).whileTrue(
+        //     ShooterCommands.visionShot(shooter, vision)
+        // );
         
 
         // /* */
@@ -273,14 +273,14 @@ public class RobotContainer {
         // operator.povDown().onTrue(ShooterCommands.decreaseTargetVelocity(shooter, ShooterSubsystem.FLYWHEEL_TEST_INCREMENT_RPM));
 
         // TODO Add testing bindings for conveyor and indexer
-        operator.a().whileTrue(
-            Commands.startEnd(indexer::conveyorForward, indexer::conveyorStop));
-        operator.b().whileTrue(
-            Commands.startEnd(indexer::conveyorReverse, indexer::conveyorStop));
-        operator.x().whileTrue(
-            Commands.startEnd(indexer::indexerForward, indexer::indexerStop));
-        operator.y().whileTrue(
-            Commands.startEnd(indexer::indexerReverse, indexer::indexerStop));       
+        // operator.a().whileTrue(
+        //     Commands.startEnd(indexer::conveyorForward, indexer::conveyorStop));
+        // operator.b().whileTrue(
+        //     Commands.startEnd(indexer::conveyorReverse, indexer::conveyorStop));
+        // operator.x().whileTrue(
+        //     Commands.startEnd(indexer::indexerForward, indexer::indexerStop));
+        // operator.y().whileTrue(
+        //     Commands.startEnd(indexer::indexerReverse, indexer::indexerStop));       
 
     }
 

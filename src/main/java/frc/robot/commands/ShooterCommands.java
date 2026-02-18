@@ -18,8 +18,8 @@ import frc.robot.subsystems.shooter.ShooterSubsystem;
  */
 public class ShooterCommands {
 
-    /** Percent tolerance for starting feed during ramp test (10%). */
-    private static final double RAMP_TEST_FEED_TOLERANCE = 0.10;
+    /** Percent tolerance for starting feed during ramp test (5%). */
+    private static final double RAMP_TEST_FEED_TOLERANCE = 0.05;
 
 
     /**
@@ -38,8 +38,8 @@ public class ShooterCommands {
         return Commands.sequence(
             // Spin up to the ramp-test target
             Commands.runOnce(() -> {
-                shooter.setTargetHoodPose(0);
-                shooter.setTargetVelocity(targetRPM);
+                shooter.setTargetHoodPose(4.00); // TODO Test this value
+                shooter.setTargetVelocity(2800); // TODO Test this value
                 shooter.prepareToShoot();
             }, shooter),
 
