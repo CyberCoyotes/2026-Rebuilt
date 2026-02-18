@@ -1,6 +1,6 @@
 package frc.robot.subsystems.shooter;
 
-import org.littletonrobotics.junction.Logger;
+// import org.littletonrobotics.junction.Logger;
 
 import edu.wpi.first.networktables.BooleanPublisher;
 import edu.wpi.first.networktables.DoublePublisher;
@@ -133,7 +133,7 @@ public class ShooterSubsystem extends SubsystemBase {
     public static final double FLYWHEEL_TEST_INCREMENT_RPM = 100.0;
 
     /** Default target RPM for flywheel ramp-up testing */
-    public static final double RAMP_TEST_TARGET_RPM = 3000.0; // TODO Test this value
+    public static final double RAMP_TEST_TARGET_RPM = 2800.0; // TODO Test this value
 
     // =========================================================================
     // CONSTRUCTOR
@@ -246,8 +246,9 @@ public class ShooterSubsystem extends SubsystemBase {
             return; // Already in this state
         }
 
-        Logger.recordOutput("Shooter/StateTransition",
-                currentStateString + " -> " + newState.toString());
+        // Log state transition for debugging (comment out if too verbose)
+        // Logger.recordOutput("Shooter/StateTransition",
+        //         currentStateString + " -> " + newState.toString());
 
         currentState = newState;
         currentStateString = newState.toString(); // cache once per transition
@@ -423,9 +424,10 @@ public class ShooterSubsystem extends SubsystemBase {
         setTargetVelocity(velocity);
         setTargetHoodPose(pose);
 
-        Logger.recordOutput("Shooter/VisionDistance", distanceMeters);
-        Logger.recordOutput("Shooter/CalculatedRPM", velocity);
-        Logger.recordOutput("Shooter/CalculatedPose", pose);
+        // Log calculated targets for debugging (comment out if too verbose)
+        // Logger.recordOutput("Shooter/VisionDistance", distanceMeters);
+        // Logger.recordOutput("Shooter/CalculatedRPM", velocity);
+        // Logger.recordOutput("Shooter/CalculatedPose", pose);
     }
 
     // =========================================================================

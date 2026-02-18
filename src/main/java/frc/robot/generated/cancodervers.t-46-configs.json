@@ -1,0 +1,29 @@
+{
+  "Device": [
+    {
+      "name": "Magnet Sensor",
+      "summary": "",
+      "description": "",
+      "ordinal": 0,
+      "configs": [
+        {
+          "name": "Absolute Sensor Discontinuity Point",
+          "summary": "The positive discontinuity point of the absolute sensor in rotations. This determines the point at which the absolute sensor wraps around, keeping the absolute position (after offset) in the range [x-1, x).\n\n- Setting this to 1 makes the absolute position unsigned [0, 1)\n- Setting this to 0.5 makes the absolute position signed [-0.5, 0.5)\n- Setting this to 0 makes the absolute position always negative [-1, 0)\n\nMany rotational mechanisms such as arms have a region of motion that is unreachable. This should be set to the center of that region of motion, in non-negative rotations. This affects the position of the device at bootup.",
+          "ordinal": 0,
+          "type": "double",
+          "description": "For example, consider an arm which can travel from -0.2 to 0.6 rotations with a little leeway, where 0 is horizontally forward. Since -0.2 rotations has the same absolute position as 0.8 rotations, we can say that the arm typically does not travel in the range (0.6, 0.8) rotations. As a result, the discontinuity point would be the center of that range, which is 0.7 rotations. This results in an absolute sensor range of [-0.3, 0.7) rotations.\n\nGiven a total range of motion less than 1 rotation, users can calculate the discontinuity point using mean(lowerLimit, upperLimit) \u002B 0.5. If that results in a value outside the range [0, 1], either cap the value to [0, 1], or add/subtract 1.0 rotation from your lower and upper limits of motion.\n\nOn a Talon motor controller, this is only supported when using the PulseWidth sensor source.",
+          "units": "rotations",
+          "min_value": 0,
+          "max_value": 1,
+          "signal_id": 2457,
+          "signal_name": "Config_AbsoluteSensorDiscontinuityPoint",
+          "default_value": 0.5,
+          "value": 1,
+          "param_value": 1,
+          "enum_values": []
+        }
+      ]
+    }
+  ],
+  "JsonVersion": 2
+}
