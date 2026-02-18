@@ -115,6 +115,18 @@ public class ShooterIOHardware implements ShooterIO {
 
     // If hood is physically at "home" on boot, this seeds the position.
     hoodMotor.setPosition(0.0);
+
+    // ✅ HERE — warm up signals ONCE at startup // TODO See if this fixes overruns
+    BaseStatusSignal.refreshAll(
+        flywheelAVelocity,
+        flywheelAVoltage,
+        hoodPosition,
+        flywheelACurrent,
+        hoodVoltage,
+        hoodCurrent,
+        hoodEncoderAbsPosition
+    );
+
   }
 
   /**
