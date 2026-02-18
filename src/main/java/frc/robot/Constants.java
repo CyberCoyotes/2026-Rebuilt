@@ -7,11 +7,7 @@ public final class Constants {
 
   /** CTRE CAN bus name (empty string means "rio") */
   // public static final CANBus kCANBus = new CANBus("rio");
-
-  public static final CANBus RIO_CANBUS = CANBus.roboRIO(); // native rio bus
-
-  //  public static final String RIO_CAN_BoS = "rio";
-    public static final String CANIVORE_CAN_BUS = "canivore"; // 'TODO Adjust if needed'
+  public static final CANBus RIO_CANBUS = CANBus.roboRIO("rio"); // native rio bus
 
   // =========================================================
   // Drive / Swerve
@@ -125,6 +121,7 @@ public final class Constants {
 
     // Target heights (from 2024 game manual - update for 2025/2026)
     /** Height of AprilTag center from floor in meters */
+    // EXAMPLE
     public static final double APRILTAG_HEIGHT_METERS = 1.45;  // TODO: Update for 2026 game
 
     // Alignment tolerances
@@ -135,7 +132,7 @@ public final class Constants {
     public static final double MIN_TARGET_AREA_PERCENT = 0.1;
 
     /** Maximum distance to trust vision measurement in meters */
-    public static final double MAX_DISTANCE_METERS = 5.0;
+    public static final double MAX_DISTANCE_METERS = 8.0;
 
     // Valid tag IDs (from 2024 field - update for 2026)
     public static final int MIN_VALID_TAG_ID = 1;

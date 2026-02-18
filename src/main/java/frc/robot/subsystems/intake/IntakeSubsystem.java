@@ -99,17 +99,17 @@ public class IntakeSubsystem extends SubsystemBase {
     }
 
     // intake sensor methods
-    public double getIntakeDistance() {
-        return inputs.intakeDistance;
-    }
+    // public double getIntakeDistance() {
+    //     return inputs.intakeDistance;
+    // }
 
-    public boolean intakeTargetClose() {
-        return inputs.intakeTarget;
-    }
+    // public boolean intakeTargetClose() {
+    //     return inputs.intakeTarget;
+    // }
 
-    public boolean isJammed() {
-        return false; //io.isJammed();
-    }
+    // public boolean isJammed() {
+    //     return false; //io.isJammed();
+    // }
 
     // ===== Commands =====
 
