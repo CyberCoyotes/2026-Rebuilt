@@ -390,10 +390,10 @@ public class VisionSubsystem extends SubsystemBase {
         latencyPublisher.set(inputs.totalLatencyMs);
 
         // AdvantageKit logging (unchanged)
-        Logger.recordOutput("Vision/State", currentState.name());
-        Logger.recordOutput("Vision/HasTarget", hasTarget());
-        Logger.recordOutput("Vision/IsAligned", isAligned());
-        Logger.recordOutput("Vision/Distance_m", getDistanceToTargetMeters());
-        Logger.recordOutput("Vision/HorizontalAngle_deg", getHorizontalAngleDegrees());
+        // Logger.recordOutput("Vision/State", currentState.name());
+        // Logger.recordOutput("Vision/HasTarget", hasTarget());
+        // Logger.recordOutput("Vision/IsAligned", isAligned());
+        // Logger.recordOutput("Vision/Distance_m", getDistanceToTargetMeters());
+        // Logger.recordOutput("Vision/HorizontalAngle_deg", getHorizontalAngleDegrees());
     }
 }
