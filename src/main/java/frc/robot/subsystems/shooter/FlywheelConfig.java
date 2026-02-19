@@ -1,6 +1,7 @@
 package frc.robot.subsystems.shooter;
 
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
+import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 
 public final class FlywheelConfig {
@@ -45,6 +46,7 @@ public final class FlywheelConfig {
 
     // ===== Motor Output =====
     config.MotorOutput.NeutralMode = NeutralModeValue.Coast;
+    config.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
 
     // ===== Closed Loop Gains (Velocity Slot 0) =====
     config.Slot0.kP = 0.12;
