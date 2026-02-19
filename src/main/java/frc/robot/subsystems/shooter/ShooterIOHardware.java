@@ -113,6 +113,7 @@ public class ShooterIOHardware implements ShooterIO {
     // otherwise the aggressive frame disabling can break the follower control link
     flywheelMotorB.setControl(new Follower(Constants.Shooter.FLYWHEEL_A_MOTOR_ID, MotorAlignmentValue.Aligned));
     flywheelMotorC.setControl(new Follower(Constants.Shooter.FLYWHEEL_A_MOTOR_ID, MotorAlignmentValue.Aligned));
+  
 
     // If hood is physically at "home" on boot, this seeds the position.
     hoodMotor.setPosition(0.0);
