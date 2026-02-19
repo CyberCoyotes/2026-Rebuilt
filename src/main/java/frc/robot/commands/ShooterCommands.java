@@ -39,8 +39,8 @@ public class ShooterCommands {
             // Spin up to the ramp-test target
             Commands.runOnce(() -> {
                 shooter.setTargetHoodPose(4.00); // TODO Test this value
-                shooter.setTargetVelocity(2800); // TODO Test this value
-                shooter.prepareToShoot();
+                shooter.setTargetVelocity(3200); // TODO Test this value
+                shooter.prepareToShoot(); // state machine
             }, shooter),
 
             // Wait until flywheel is within 15% of the target RPM

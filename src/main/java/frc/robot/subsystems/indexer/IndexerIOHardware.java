@@ -33,8 +33,8 @@ public class IndexerIOHardware implements IndexerIO {
 
     // Time-of-Flight sensors
     // private final CANrange indexerToF;   // Detects game piece ready to shoot
-    private final CANrange hopperAToF; 
-    private final CANrange hopperBToF;
+    // private final CANrange hopperAToF; 
+    // private final CANrange hopperBToF;
     // private final CANrange hopperCToF;
 
     // ===== Control Requests =====
@@ -80,10 +80,10 @@ public class IndexerIOHardware implements IndexerIO {
 
         // Hopper ToF sensors - detect game pieces at different positions
         /* These are CANrange time-of-flight sensors */
-        hopperAToF = new CANrange(Constants.Indexer.HOPPER_A_TOF_ID);
+        // hopperAToF = new CANrange(Constants.Indexer.HOPPER_A_TOF_ID);
         // hopperAToF.setRangingMode(RangingMode.Short, 24);
 
-        hopperBToF = new CANrange(Constants.Indexer.HOPPER_B_TOF_ID);
+        // hopperBToF = new CANrange(Constants.Indexer.HOPPER_B_TOF_ID);
         // hopperBToF.setRangingMode(RangingMode.Short, 24);
 
         // hopperCToF = new CANrange(Constants.Indexer.HOPPER_C_TOF_ID);

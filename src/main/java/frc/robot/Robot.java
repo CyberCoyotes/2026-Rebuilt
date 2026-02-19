@@ -15,7 +15,7 @@ import com.ctre.phoenix6.HootAutoReplay;
 
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.RobotController;
-// import edu.wpi.first.wpilibj.TimedRobot;
+import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 
@@ -33,7 +33,7 @@ public class Robot extends LoggedRobot {
      *
      */
     // Limelight integration is currently disabled. Set to true if vision processing will be used in the future.
-    private final boolean kUseLimelight =true;
+    // private final boolean kUseLimelight =true;
 
     /** Set to true to enable AdvantageKit logging and replay features. 
      * This is separate from the Logger features, which are still active when this is false. 
@@ -46,21 +46,21 @@ public class Robot extends LoggedRobot {
     public Robot() {
         
     Logger.recordMetadata("ProjectName", "2026 Rebuilt"); // Set a metadata value
+    com.ctre.phoenix6.SignalLogger.stop(); // Stop the hoot disk drain
+    // if (ENABLE_ADVANTAGEKIT) {
 
-    if (ENABLE_ADVANTAGEKIT) {
+    //     if (isReal()) {
+    //         Logger.addDataReceiver(new WPILOGWriter()); // Log to a USB stick ("/U/logs")
+    //         Logger.addDataReceiver(new NT4Publisher()); // Publish data to NetworkTables
+    //     } else {
+    //         setUseTiming(false); // Run as fast as possible
+    //         String logPath = LogFileUtil.findReplayLog(); // Pull the replay log from AdvantageScope (or prompt the user)
+    //         Logger.setReplaySource(new WPILOGReader(logPath)); // Read replay log
+    //         Logger.addDataReceiver(new WPILOGWriter(LogFileUtil.addPathSuffix(logPath, "_sim"))); // Save outputs to a new log
+    //     }
 
-        if (isReal()) {
-            Logger.addDataReceiver(new WPILOGWriter()); // Log to a USB stick ("/U/logs")
-            Logger.addDataReceiver(new NT4Publisher()); // Publish data to NetworkTables
-        } else {
-            setUseTiming(false); // Run as fast as possible
-            String logPath = LogFileUtil.findReplayLog(); // Pull the replay log from AdvantageScope (or prompt the user)
-            Logger.setReplaySource(new WPILOGReader(logPath)); // Read replay log
-            Logger.addDataReceiver(new WPILOGWriter(LogFileUtil.addPathSuffix(logPath, "_sim"))); // Save outputs to a new log
-        }
-
-        Logger.start(); // Start logging! No more data receivers, replay sources, or metadata values may be added.
-    }
+    //     Logger.start(); // Start logging! No more data receivers, replay sources, or metadata values may be added.
+    // }
 
         m_robotContainer = new RobotContainer();
     }
@@ -91,17 +91,17 @@ public class Robot extends LoggedRobot {
          * This example is sufficient to show that vision integration is possible, though exact implementation
          * of how to use vision should be tuned per-robot and to the team's specification.
          */
-        if (kUseLimelight) {
-            var driveState = m_robotContainer.drivetrain.getState();
-            double headingDeg = driveState.Pose.getRotation().getDegrees();
-            double omegaRps = Units.radiansToRotations(driveState.Speeds.omegaRadiansPerSecond);
+        // if (kUseLimelight) {
+        //     var driveState = m_robotContainer.drivetrain.getState();
+        //     double headingDeg = driveState.Pose.getRotation().getDegrees();
+        //     double omegaRps = Units.radiansToRotations(driveState.Speeds.omegaRadiansPerSecond);
 
-            LimelightHelpers.SetRobotOrientation("limelight", headingDeg, 0, 0, 0, 0, 0);
-            var llMeasurement = LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2("limelight");
-            if (llMeasurement != null && llMeasurement.tagCount > 0 && Math.abs(omegaRps) < 2.0) {
-                m_robotContainer.drivetrain.addVisionMeasurement(llMeasurement.pose, llMeasurement.timestampSeconds);
-            }
-        }
+        //     LimelightHelpers.SetRobotOrientation("limelight", headingDeg, 0, 0, 0, 0, 0);
+        //     var llMeasurement = LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2("limelight");
+        //     if (llMeasurement != null && llMeasurement.tagCount > 0 && Math.abs(omegaRps) < 2.0) {
+        //         m_robotContainer.drivetrain.addVisionMeasurement(llMeasurement.pose, llMeasurement.timestampSeconds);
+        //     }
+        // }
     }
 
     @Override
