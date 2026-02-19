@@ -30,35 +30,35 @@ public class TalonFXConfigs {
      *
      * @return Configured TalonFXConfiguration for flywheel use
      */
-    public static TalonFXConfiguration flywheelConfig() {
-        var config = new TalonFXConfiguration();
+    // public static TalonFXConfiguration flywheelConfig() {
+    //     var config = new TalonFXConfiguration();
 
-        // Motor output configuration
-        config.MotorOutput.NeutralMode = NeutralModeValue.Coast;  // Coast to keep spinning
-        config.MotorOutput.Inverted = InvertedValue.Clockwise_Positive; // TODO : Verify direction on robot
+    //     // Motor output configuration
+    //     config.MotorOutput.NeutralMode = NeutralModeValue.Coast;  // Coast to keep spinning
+    //     config.MotorOutput.Inverted = InvertedValue.Clockwise_Positive; // TODO : Verify direction on robot
 
-        // Current limits - high for flywheels
-        config.CurrentLimits.SupplyCurrentLimit = 20.0; // TODO tune
-        config.CurrentLimits.SupplyCurrentLimitEnable = true;
+    //     // Current limits - high for flywheels
+    //     config.CurrentLimits.SupplyCurrentLimit = 20.0; // TODO tune
+    //     config.CurrentLimits.SupplyCurrentLimitEnable = true;
 
-        // Stator (output) current limit
-        config.CurrentLimits.StatorCurrentLimit = 20.0; // TODO Tune
-        config.CurrentLimits.StatorCurrentLimitEnable = true;
+    //     // Stator (output) current limit
+    //     config.CurrentLimits.StatorCurrentLimit = 20.0; // TODO Tune
+    //     config.CurrentLimits.StatorCurrentLimitEnable = true;
 
-        // Velocity PID - Slot 0 (tune these values!)
-        config.Slot0.kP = 0.1;   // TODO: Tune on real robot
-        config.Slot0.kI = 0.0;
-        config.Slot0.kD = 0.0;
-        config.Slot0.kV = 0.12;  // Feedforward velocity term
-        config.Slot0.kS = 0.0;   // Feedforward static friction term
+    //     // Velocity PID - Slot 0 (tune these values!)
+    //     config.Slot0.kP = 0.1;   // TODO: Tune on real robot
+    //     config.Slot0.kI = 0.0;
+    //     config.Slot0.kD = 0.0;
+    //     config.Slot0.kV = 0.12;  // Feedforward velocity term
+    //     config.Slot0.kS = 0.0;   // Feedforward static friction term
 
-        // Closed-loop ramp rate — limits how fast the PID output voltage can change.
-        // Prevents belt slipping from sudden torque spikes during flywheel acceleration.
-        // Shorten this value once belt mechanics are improved.
-        config.ClosedLoopRamps.VoltageClosedLoopRampPeriod = 3.0;  // TODO seconds from 0 to full voltage
+    //     // Closed-loop ramp rate — limits how fast the PID output voltage can change.
+    //     // Prevents belt slipping from sudden torque spikes during flywheel acceleration.
+    //     // Shorten this value once belt mechanics are improved.
+    //     config.ClosedLoopRamps.VoltageClosedLoopRampPeriod = 3.0;  // TODO seconds from 0 to full voltage
 
-        return config;
-    }
+    //     return config;
+    // }
 
     /**
      * Configuration for indexer motor (TalonFX - feeds pieces to shooter).

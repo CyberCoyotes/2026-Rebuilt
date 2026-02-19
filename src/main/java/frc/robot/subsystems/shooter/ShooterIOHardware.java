@@ -16,6 +16,7 @@ import com.ctre.phoenix6.signals.SensorDirectionValue;
 
 import frc.robot.Constants;
 import frc.robot.util.TalonFXConfigs;
+import frc.robot.util.flywheelConfig_Test;
 
 /**
  * ShooterIOHardware - Real hardware implementation for the shooter subsystem.
@@ -69,9 +70,9 @@ public class ShooterIOHardware implements ShooterIO {
     hoodEncoder.getConfigurator().apply(encoderConfig);
 
     // Apply motor configs
-    flywheelMotorA.getConfigurator().apply(TalonFXConfigs.flywheelConfig());
-    flywheelMotorB.getConfigurator().apply(TalonFXConfigs.flywheelConfig());
-    flywheelMotorC.getConfigurator().apply(TalonFXConfigs.flywheelConfig());
+    flywheelMotorA.getConfigurator().apply(flywheelConfig_Test.flywheelConfig());
+    flywheelMotorB.getConfigurator().apply(flywheelConfig_Test.flywheelConfig());
+    flywheelMotorC.getConfigurator().apply(flywheelConfig_Test.flywheelConfig());
     hoodMotor.getConfigurator().apply(TalonFXConfigs.hoodConfig());
 
     // Cache status signal references
