@@ -21,8 +21,6 @@ import edu.wpi.first.wpilibj2.command.button.RobotModeTriggers;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
 
 import frc.robot.generated.TunerConstants;
-import frc.robot.commands.IndexerCommands;
-// import frc.robot.commands.IntakeCommands;
 import frc.robot.commands.ShooterCommands;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
 // import frc.robot.subsystems.climber.ClimberSubsystem;
@@ -94,6 +92,7 @@ public class RobotContainer {
         // climber = new ClimberSubsystem();
 
         autoFactory = drivetrain.createAutoFactory();
+        
         autoRoutines = new AutoRoutines(autoFactory);
 
         autoChooser.addRoutine("SimplePath", autoRoutines::simplePathAuto);
