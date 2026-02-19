@@ -220,7 +220,8 @@ public class ShooterCommands {
             prepareToShoot(shooter, velocityRPM, hoodAngleDegrees),
 
             // Feed game piece
-            IndexerCommands.feedTimed(indexer, 0.5),
+            // IndexerCommands.feedTimed(indexer, 0.5), // FIXME this is broken, it should reference the subsystem 
+
 
             // Return to idle
             Commands.runOnce(shooter::setIdle, shooter)
