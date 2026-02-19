@@ -73,12 +73,12 @@ public class Robot extends LoggedRobot {
 
         CommandScheduler.getInstance().run();
 
-        if (ENABLE_ADVANTAGEKIT) {
-            // Log system health data for post-match analysis
-            Logger.recordOutput("Robot/BatteryVoltage", RobotController.getBatteryVoltage());
-            Logger.recordOutput("Robot/BrownedOut", RobotController.isBrownedOut());
-            Logger.recordOutput("Robot/CANBusUtilization", RobotController.getCANStatus().percentBusUtilization);
-        }
+        // if (ENABLE_ADVANTAGEKIT) {
+        //     // Log system health data for post-match analysis
+        //     Logger.recordOutput("Robot/BatteryVoltage", RobotController.getBatteryVoltage());
+        //     Logger.recordOutput("Robot/BrownedOut", RobotController.isBrownedOut());
+        //     Logger.recordOutput("Robot/CANBusUtilization", RobotController.getCANStatus().percentBusUtilization);
+        // }
 
         // Update game data telemetry (polls FMS for scoring shift data)
         m_robotContainer.updateGameData();
