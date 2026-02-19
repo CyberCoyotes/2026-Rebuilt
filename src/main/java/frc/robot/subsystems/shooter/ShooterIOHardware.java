@@ -16,7 +16,7 @@ import com.ctre.phoenix6.signals.SensorDirectionValue;
 
 import frc.robot.Constants;
 import frc.robot.util.TalonFXConfigs;
-import frc.robot.util.flywheelConfig_Test;
+import frc.robot.subsystems.shooter.FlywheelConfig;
 
 /**
  * ShooterIOHardware - Real hardware implementation for the shooter subsystem.
@@ -40,7 +40,7 @@ public class ShooterIOHardware implements ShooterIO {
   private final CANcoder hoodEncoder;
 
   // ===== Control Requests (pre-allocated, reused each cycle) =====
-  private final VelocityVoltage flywheelVelocityRequest = new VelocityVoltage(0.0).withEnableFOC(false);
+  private final VelocityVoltage flywheelVelocityRequest = new VelocityVoltage(0.0).withEnableFOC(true);
   private final PositionVoltage hoodPositionRequest = new PositionVoltage(0.0);
   private final VoltageOut hoodVoltageRequest = new VoltageOut(0.0);
 
