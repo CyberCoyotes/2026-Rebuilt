@@ -39,7 +39,7 @@ public class ShooterIOHardware implements ShooterIO {
   private final CANcoder hoodEncoder;
 
   // ===== Control Requests (pre-allocated, reused each cycle) =====
-  private final VelocityVoltage flywheelVelocityRequest = new VelocityVoltage(0.0).withEnableFOC(true);
+  private final VelocityVoltage flywheelVelocityRequest = new VelocityVoltage(0.0).withEnableFOC(false);
   private final PositionVoltage hoodPositionRequest = new PositionVoltage(0.0);
   private final VoltageOut hoodVoltageRequest = new VoltageOut(0.0);
 
