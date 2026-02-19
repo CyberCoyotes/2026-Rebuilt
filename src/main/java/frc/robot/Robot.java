@@ -41,12 +41,12 @@ public class Robot extends LoggedRobot {
      * TODO Toggle on/off for testing 
      * 
      * */
-    public static final boolean ENABLE_ADVANTAGEKIT = false;
+    // public static final boolean ENABLE_ADVANTAGEKIT = false;
 
     public Robot() {
         
     Logger.recordMetadata("ProjectName", "2026 Rebuilt"); // Set a metadata value
-    com.ctre.phoenix6.SignalLogger.stop(); // Stop the hoot disk drain
+    // com.ctre.phoenix6.SignalLogger.stop(); // Stop the hoot disk drain
     // if (ENABLE_ADVANTAGEKIT) {
 
     //     if (isReal()) {
@@ -59,7 +59,7 @@ public class Robot extends LoggedRobot {
     //         Logger.addDataReceiver(new WPILOGWriter(LogFileUtil.addPathSuffix(logPath, "_sim"))); // Save outputs to a new log
     //     }
 
-    //     Logger.start(); // Start logging! No more data receivers, replay sources, or metadata values may be added.
+        Logger.start(); // Start logging! No more data receivers, replay sources, or metadata values may be added.
     // }
 
         m_robotContainer = new RobotContainer();
@@ -67,9 +67,9 @@ public class Robot extends LoggedRobot {
 
     @Override
     public void robotPeriodic() {
-        if (ENABLE_ADVANTAGEKIT) {
-            m_timeAndJoystickReplay.update();
-        }
+        // if (ENABLE_ADVANTAGEKIT) {
+        //     m_timeAndJoystickReplay.update();
+        // }
 
         CommandScheduler.getInstance().run();
 

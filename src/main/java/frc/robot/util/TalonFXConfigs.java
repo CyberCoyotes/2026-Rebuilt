@@ -38,7 +38,7 @@ public class TalonFXConfigs {
         config.MotorOutput.Inverted = InvertedValue.Clockwise_Positive; // TODO : Verify direction on robot
 
         // Current limits - high for flywheels
-        config.CurrentLimits.SupplyCurrentLimit = 60.0; // TODO tune
+        config.CurrentLimits.SupplyCurrentLimit = 20.0; // TODO tune
         config.CurrentLimits.SupplyCurrentLimitEnable = true;
 
         // Stator (output) current limit
@@ -173,10 +173,10 @@ public class TalonFXConfigs {
         config.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
 
         // Current limits - lower for intake
-        config.CurrentLimits.SupplyCurrentLimit = 20.0;
+        config.CurrentLimits.SupplyCurrentLimit = 60.0;
         config.CurrentLimits.SupplyCurrentLimitEnable = true;
 
-        config.CurrentLimits.StatorCurrentLimit = 20.0;
+        config.CurrentLimits.StatorCurrentLimit = 30.0;
         config.CurrentLimits.StatorCurrentLimitEnable = true;
 
         // Soft limits
