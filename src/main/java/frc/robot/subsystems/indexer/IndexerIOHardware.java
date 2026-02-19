@@ -3,7 +3,6 @@ package frc.robot.subsystems.indexer;
 import com.ctre.phoenix6.BaseStatusSignal;
 import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.controls.VoltageOut;
-import com.ctre.phoenix6.hardware.CANrange;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.hardware.TalonFXS;
 import frc.robot.Constants;
@@ -56,8 +55,7 @@ public class IndexerIOHardware implements IndexerIO {
      * Distance threshold in millimeters below which we consider a game piece "detected".
      * Tune this value based on your game piece size and sensor mounting.
      */
-    // private static final double TOF_DETECTION_THRESHOLD_MM = 100.0;  // TODO: Tune on robot
-
+    
     /**
      * Creates a new IndexerIOHardware instance.
      * Configures motors and sensors to known good states.
