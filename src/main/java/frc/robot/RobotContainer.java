@@ -56,7 +56,7 @@ public class RobotContainer {
     private final SwerveRequest.RobotCentric forwardStraight = new SwerveRequest.RobotCentric()
             .withDriveRequestType(DriveRequestType.OpenLoopVoltage);
 
-    private final Telemetry logger = new Telemetry(MaxSpeed);
+   // private final Telemetry logger = new Telemetry(MaxSpeed);
     private final GameDataTelemetry gameDataTelemetry = new GameDataTelemetry();
 
     // ===== Controllers =====
@@ -139,7 +139,7 @@ public class RobotContainer {
         // driver.start().onTrue(drivetrain.runOnce(drivetrain::seedFieldCentric));
 
         
-        drivetrain.registerTelemetry(logger::telemeterize);
+        //drivetrain.registerTelemetry(logger::telemeterize);
 
         // =====================================================================
         // DRIVER CONTROLLER (Port 0) - Mechanisms
