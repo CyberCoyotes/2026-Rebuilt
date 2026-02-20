@@ -21,9 +21,7 @@ import edu.wpi.first.wpilibj2.command.button.RobotModeTriggers;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
 
 import frc.robot.generated.TunerConstants;
-import frc.robot.commands.ShooterCommands;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
-// import frc.robot.subsystems.climber.ClimberSubsystem;
 import frc.robot.subsystems.indexer.IndexerSubsystem;
 import frc.robot.subsystems.intake.IntakeSubsystem;
 import frc.robot.subsystems.indexer.IndexerIOSim;
@@ -145,51 +143,10 @@ public class RobotContainer {
         // DRIVER CONTROLLER (Port 0) - Mechanisms
         // =====================================================================
 
-        // ----- Shooter -----
-        // ----- Full Sequences -----
-        // A: Full shoot sequence - close shot with indexer feed, then idle
-        /*
-        driver.rightTrigger(0.5).whileTrue(
-            ShooterCommands.shootSequence(shooter, indexer,
-                ShooterSubsystem.CLOSE_SHOT_RPM, ShooterSubsystem.CLOSE_SHOT_HOOD)
-        );
-         */
+// driver.rightTrigger(0.5).whileTrue(
 
-        // Right Trigger: Flywheel ramp-up test — hold to ramp to target RPM, release to idle.
-        // Ramp rate governed by ClosedLoopRamps in TalonFXConfigs (currently 4s).
-driver.rightTrigger(0.5).whileTrue(
-    // Write a command sequence that setsTargetVelocity of the flywheel and the indexer motor at the same time but doesn't require a state machine
-        Commands.parallel(
-            () -> {
-                shooter.setTargetVelocity(3600);
-                shooter.prepareToShoot();
-            },
-            () -> {
-                indexer.indexerForward();
-            }
-        ));
+// );
 
-    // Commands.startEnd(
-    //     () -> {
-    //         shooter.setTargetVelocity(3600);
-    //         shooter.prepareToShoot();
-    //         indexer.indexerForward();
-    //         // indexer.conveyorForward();
-    //     },
-    //     () -> {
-    //         // shooter.setIdle();
-    //         indexer.indexerStop();
-    //         // indexer.conveyorStop();
-    //     },
-    //     shooter , indexer//*/
-    
-
-
-        // TODO Test Just run the flywheels
-        // Commands.run(
-            // () -> shooter.setTargetVelocity(ShooterSubsystem.RAMP_TEST_TARGET_RPM)).withTimeout(10.0) // Timeout to prevent indefinite running if something goes wrong;
-        
-        // );
 
         /* TODO Test rampTestShoot first, comment out, and try this one */
         /*
