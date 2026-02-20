@@ -158,21 +158,32 @@ public class RobotContainer {
         // Right Trigger: Flywheel ramp-up test — hold to ramp to target RPM, release to idle.
         // Ramp rate governed by ClosedLoopRamps in TalonFXConfigs (currently 4s).
 driver.rightTrigger(0.5).whileTrue(
-    Commands.startEnd(
-        () -> {
-            shooter.setTargetVelocity(3600);
-            shooter.prepareToShoot();
-            indexer.indexerForward();
-            // indexer.conveyorForward();
-        },
-        () -> {
-            // shooter.setIdle();
-            indexer.indexerStop();
-            // indexer.conveyorStop();
-        },
-        shooter , indexer//*/
-    )
-);
+    // Write a command sequence that setsTargetVelocity of the flywheel and the indexer motor at the same time but doesn't require a state machine
+        Commands.parallel(
+            () -> {
+                shooter.setTargetVelocity(3600);
+                shooter.prepareToShoot();
+            },
+            () -> {
+                indexer.indexerForward();
+            }
+        ));
+
+    // Commands.startEnd(
+    //     () -> {
+    //         shooter.setTargetVelocity(3600);
+    //         shooter.prepareToShoot();
+    //         indexer.indexerForward();
+    //         // indexer.conveyorForward();
+    //     },
+    //     () -> {
+    //         // shooter.setIdle();
+    //         indexer.indexerStop();
+    //         // indexer.conveyorStop();
+    //     },
+    //     shooter , indexer//*/
+    
+
 
         // TODO Test Just run the flywheels
         // Commands.run(
