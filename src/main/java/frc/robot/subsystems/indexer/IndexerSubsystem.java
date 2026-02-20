@@ -51,18 +51,38 @@ public class IndexerSubsystem extends SubsystemBase {
 
   public void setConveyorMotorVolts(double volts) { io.setConveyorMotor(volts); }
 
-  public void conveyorForward()  { io.setConveyorMotor(CONVEYOR_FORWARD_VOLTAGE); }
-  public void conveyorReverse()  { io.setConveyorMotor(CONVEYOR_REVERSE_VOLTAGE); }
-  public void conveyorStop()     { io.setConveyorMotor(0.0); }
+  public void conveyorForward(){
+    io.setConveyorMotor(CONVEYOR_FORWARD_VOLTAGE);
+  }
 
-  public void setIndexerMotorVolts(double volts) { io.setIndexerMotor(volts); }
+  public void conveyorReverse(){
+    io.setConveyorMotor(CONVEYOR_REVERSE_VOLTAGE);
+  }
 
-  public void indexerForward()   { io.setIndexerMotor(INDEXER_FORWARD_VOLTAGE); }
-  public void indexerReverse()   { io.setIndexerMotor(INDEXER_REVERSE_VOLTAGE); }
-  public void indexerStop()      { io.setIndexerMotor(0.0); }
+  public void conveyorStop(){
+    io.setConveyorMotor(0.0);
+  }
+
+  public void setIndexerMotorVolts(double volts){
+    io.setIndexerMotor(volts);
+  }
+
+  public void indexerForward(){
+    io.setIndexerMotor(INDEXER_FORWARD_VOLTAGE);
+  }
+
+  public void indexerReverse(){
+    io.setIndexerMotor(INDEXER_REVERSE_VOLTAGE);
+  }
+
+  public void indexerStop(){
+    io.setIndexerMotor(0.0);
+  }
 
   /** Stops both motors immediately. */
-  public void stop() { io.stop(); }
+  public void stop(){
+    io.stop();
+  }
 
   // ===== Command Factories =====
 

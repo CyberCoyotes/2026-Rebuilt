@@ -68,24 +68,13 @@ public class IndexerIOHardware implements IndexerIO {
         */
 
         // Create motor objects
-        // Note: Constants use "CONVEYOR" and "INDEXER" naming, we use "conveyor" and "indexer"
+        // Note: Constants use "CONVEYOR" and "INDEXER" naming
         conveyorMotor = new TalonFXS(Constants.Indexer.CONVEYOR_MOTOR_ID, Constants.RIO_CANBUS);
         indexerMotor = new TalonFX(Constants.Indexer.INDEXER_MOTOR_ID, Constants.RIO_CANBUS);
 
         // Apply configurations from centralized config class
         conveyorMotor.getConfigurator().apply(TalonFXConfigs.conveyorConfig());
         indexerMotor.getConfigurator().apply(TalonFXConfigs.indexerConfig());
-
-        // Hopper ToF sensors - detect game pieces at different positions
-        /* These are CANrange time-of-flight sensors */
-        // hopperAToF = new CANrange(Constants.Indexer.HOPPER_A_TOF_ID);
-        // hopperAToF.setRangingMode(RangingMode.Short, 24);
-
-        // hopperBToF = new CANrange(Constants.Indexer.HOPPER_B_TOF_ID);
-        // hopperBToF.setRangingMode(RangingMode.Short, 24);
-
-        // hopperCToF = new CANrange(Constants.Indexer.HOPPER_C_TOF_ID);
-        // hopperCToF.setRangingMode(RangingMode.Short, 24);
 
         // Get status signals for efficient reading
         conveyorVelocity = conveyorMotor.getVelocity();
@@ -111,17 +100,15 @@ public class IndexerIOHardware implements IndexerIO {
     @Override
     public void updateInputs(IndexerIOInputs inputs) {
         // Refresh all status signals efficiently
-        // TODO: CAN signals stale on IDs 23/24 — commenting out refresh until
-        // conveyor mechanical issue is resolved and wiring is verified
-        
-        // BaseStatusSignal.refreshAll(
-        //     conveyorVelocity, conveyorAppliedVolts,
-        //     indexerVelocity, indexerAppliedVolts
-        // );
-        // inputs.conveyorVelocityRPS = conveyorVelocity.getValueAsDouble();
-        // inputs.conveyorAppliedVolts = conveyorAppliedVolts.getValueAsDouble();
-        // inputs.indexerVelocityRPS = indexerVelocity.getValueAsDouble();
-        // inputs.indexerAppliedVolts = indexerAppliedVolts.getValueAsDouble();
+
+        BaseStatusSignal.refreshAll(
+            conveyorVelocity, conveyorAppliedVolts,
+            indexerVelocity, indexerAppliedVolts
+        );
+        inputs.conveyorVelocityRPS = conveyorVelocity.getValueAsDouble();
+        inputs.conveyorAppliedVolts = conveyorAppliedVolts.getValueAsDouble();
+        inputs.indexerVelocityRPS = indexerVelocity.getValueAsDouble();
+        inputs.indexerAppliedVolts = indexerAppliedVolts.getValueAsDouble();
 
     }
 

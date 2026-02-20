@@ -52,9 +52,6 @@ public final class Constants {
 
     /** Conveyor motor - Minion with TalonFXS controller, moves pieces along hopper */
     public static final int CONVEYOR_MOTOR_ID = 24; // Set in Tuner
-    
-    /** Time of Flight sensor detects presence of fuel at indexer egress to shooter (optional) */
-    // public static final int INDEXER_SENSOR_ID = 42;
 
     /** Time of Flight sensor A - Detects distance -> "fullness" of hopper */
     // public static final int HOPPER_A_TOF_ID = 43;

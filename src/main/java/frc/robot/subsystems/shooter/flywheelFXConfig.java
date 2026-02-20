@@ -51,10 +51,10 @@ public final class flywheelFXConfig {
     config.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
 
     // ===== Closed Loop Gains (Velocity Slot 0) =====
-    config.Slot0.kP = 0.12;
+    config.Slot0.kP = 0.12; // TODO Tune this proportional gain based on your flywheel's velocity response
     // config.Slot0.kI = 0.0;
     // config.Slot0.kD = 0.0;
-    //config.Slot0.kV = 0.12;
+    config.Slot0.kV = 0.10; // TODO Tune this feedforward gain based on your flywheel's velocity response
 
     // // ===== Voltage Limits =====
     // config.Voltage.PeakForwardVoltage = 12.0;
