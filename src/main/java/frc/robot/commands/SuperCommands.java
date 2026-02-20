@@ -6,103 +6,71 @@ import frc.robot.subsystems.indexer.IndexerSubsystem;
 import frc.robot.subsystems.shooter.ShooterSubsystem;
 
 /**
- * SuperstructureCommands — Cross-subsystem command compositions.
+ * SuperCommands — Cross-subsystem command compositions.
  *
- * Coordinates the shooter and indexer together. Single-subsystem primitives
- * (closeShot, farShot, feed, etc.) live in their own subsystems. This class
- * only handles sequences/groups that span multiple subsystems.
+ * Coordinates shooter + indexer together. Single-subsystem commands live in their
+ * own subsystems. This class only handles sequences that span multiple subsystems.
  *
  * Pattern: Commands.deadline()
- *   - The shooter command is the deadline (never self-terminates — runs until
- *     the button is released via whileTrue()).
- *   - The indexer waits for the flywheel to reach speed, then feeds continuously.
- *   - Button release → whileTrue() cancels the group → shooter stopAndHome() runs,
- *     indexer stops. No manual cleanup needed.
+ *   - Shooter command is the deadline (never self-terminates).
+ *   - Indexer waits for flywheel to reach speed, then feeds continuously.
+ *   - Button release via whileTrue() cancels the group; both subsystems stop cleanly.
  *
  * USAGE (in RobotContainer):
- *   operator.rightTrigger().whileTrue(SuperstructureCommands.closeShot(shooter, indexer));
- *   operator.leftTrigger().whileTrue(SuperstructureCommands.longShot(shooter, indexer));
- *   operator.rightBumper().whileTrue(SuperstructureCommands.trenchShot(shooter, indexer));
+ *   driver.rightTrigger().whileTrue(SuperCommands.closeShot(shooter, indexer));
+ *   driver.leftTrigger().whileTrue(SuperCommands.towerShot(shooter, indexer));
+ *   driver.rightBumper().whileTrue(SuperCommands.trenchShot(shooter, indexer));
  */
 public final class SuperCommands {
 
-    // How long to wait for the flywheel to reach speed before feeding anyway.
-    // Prevents getting stuck forever if the flywheel never hits its target.
-    private static final double READY_TIMEOUT_SECONDS = 3.6; // TODO: Tune timeout per game situation
+    // Max wait before feeding even if the flywheel hasn't hit its target.
+    private static final double READY_TIMEOUT_SECONDS = 3.6; // TODO tune per game situation
 
-    // Private constructor — static utility class, never instantiated.
     private SuperCommands() {}
 
     // =========================================================================
-    // SHOT COMMANDS
+    // SHOT COMMANDS — use with whileTrue()
+    // =========================================================================
+
+    public static Command closeShot(ShooterSubsystem shooter, IndexerSubsystem indexer) {
+        return shotCommand(shooter.closeShot(), shooter, indexer, "CloseShot");
+    }
+
+    public static Command towerShot(ShooterSubsystem shooter, IndexerSubsystem indexer) {
+        return shotCommand(shooter.towerShot(), shooter, indexer, "TowerShot");
+    }
+
+    public static Command trenchShot(ShooterSubsystem shooter, IndexerSubsystem indexer) {
+        return shotCommand(shooter.trenchShot(), shooter, indexer, "TrenchShot");
+    }
+
+    public static Command shoot3603(ShooterSubsystem shooter, IndexerSubsystem indexer) {
+        return shotCommand(shooter.shoot3603(), shooter, indexer, "Shoot3603");
+    }
+
+    // =========================================================================
+    // SHARED HELPER
     // =========================================================================
 
     /**
-     * Close shot: spins up to close preset, waits for flywheel ready, feeds continuously.
+     * Runs shooterCommand as the deadline; feeds once the shooter reports ready.
      *
-     * Use with whileTrue() — flywheel and indexer stop automatically on button release.
-     *
-     * @param shooter ShooterSubsystem
-     * @param indexer IndexerSubsystem
+     * @param shooterCommand The shooter preset command (deadline — never ends on its own)
+     * @param shooter        ShooterSubsystem (for isReady() check)
+     * @param indexer        IndexerSubsystem (for feed())
+     * @param name           Command name suffix for logging
      */
-    public static Command closeShot(ShooterSubsystem shooter, IndexerSubsystem indexer) {
+    private static Command shotCommand(
+            Command shooterCommand,
+            ShooterSubsystem shooter,
+            IndexerSubsystem indexer,
+            String name) {
         return Commands.deadline(
-            shooter.closeShot(),                                          // flywheel + hood (deadline)
+            shooterCommand,
             Commands.sequence(
-                Commands.waitUntil(shooter::isReady)                      // wait for flywheel
-                        .withTimeout(READY_TIMEOUT_SECONDS),
-                indexer.feed()                                            // feed until cancelled
+                Commands.waitUntil(shooter::isReady).withTimeout(READY_TIMEOUT_SECONDS),
+                indexer.feed()
             )
-        ).withName("Superstructure.CloseShot");
-    }
-
-    /**
-     * Long shot: spins up to far preset, waits for flywheel ready, feeds continuously.
-     *
-     * Use with whileTrue() — flywheel and indexer stop automatically on button release.
-     *
-     * @param shooter ShooterSubsystem
-     * @param indexer IndexerSubsystem
-     */
-    public static Command towerShot(ShooterSubsystem shooter, IndexerSubsystem indexer) {
-        return Commands.deadline(
-            shooter.towerShot(),                                            // flywheel + hood (deadline)
-            Commands.sequence(
-                Commands.waitUntil(shooter::isReady)                      // wait for flywheel
-                        .withTimeout(READY_TIMEOUT_SECONDS),
-                indexer.feed()                                            // feed until cancelled
-            )
-        ).withName("Superstructure.LongShot");
-    }
-
-    /**
-     * Trench shot: spins up to trench preset, waits for flywheel ready, feeds continuously.
-     * Tune ShooterSubsystem.TRENCH_SHOT_RPM and TRENCH_SHOT_HOOD for your robot.
-     *
-     * Use with whileTrue() — flywheel and indexer stop automatically on button release.
-     *
-     * @param shooter ShooterSubsystem
-     * @param indexer IndexerSubsystem
-     */
-    public static Command trenchShot(ShooterSubsystem shooter, IndexerSubsystem indexer) {
-        return Commands.deadline(
-            shooter.trenchShot(),                                         // flywheel + hood (deadline)
-            Commands.sequence(
-                Commands.waitUntil(shooter::isReady)                      // wait for flywheel
-                        .withTimeout(READY_TIMEOUT_SECONDS),
-                indexer.feed()                                            // feed until cancelled
-            )
-        ).withName("Superstructure.TrenchShot");
-    }
-
-        public static Command shoot3603(ShooterSubsystem shooter, IndexerSubsystem indexer) {
-        return Commands.deadline(
-            shooter.shoot3603(),                                         // flywheel + hood (deadline)
-            Commands.sequence(
-                Commands.waitUntil(shooter::isReady)                      // wait for flywheel
-                        .withTimeout(READY_TIMEOUT_SECONDS),
-                indexer.feed()                                            // feed until cancelled
-            )
-        ).withName("Superstructure.Shoot3603");
+        ).withName("Superstructure." + name);
     }
 }
