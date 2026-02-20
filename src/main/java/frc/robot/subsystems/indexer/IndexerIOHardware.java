@@ -60,42 +60,35 @@ public class IndexerIOHardware implements IndexerIO {
      * Creates a new IndexerIOHardware instance.
      * Configures motors and sensors to known good states.
      */
-    public IndexerIOHardware() {
-        /*API Breaking Changes [https://v6.docs.ctr-electronics.com/en/stable/docs/yearly-changes/yearly-changelog.html#breaking-changes]
-        The new <Device>(int id, String canbus) constructors are now deprecated and will be removed in 2027.
-        Use the new <Device>(int id, CANBus canbus) constructors instead.
-        This change is intended to prepare users for 2027, where an explicit CAN bus declaration is necessary.
-        */
+public IndexerIOHardware() {
+    conveyorMotor = new TalonFXS(Constants.Indexer.CONVEYOR_MOTOR_ID, Constants.RIO_CANBUS);
+    indexerMotor = new TalonFX(Constants.Indexer.INDEXER_MOTOR_ID, Constants.RIO_CANBUS);
 
-        // Create motor objects
-        // Note: Constants use "CONVEYOR" and "INDEXER" naming
-        conveyorMotor = new TalonFXS(Constants.Indexer.CONVEYOR_MOTOR_ID, Constants.RIO_CANBUS);
-        indexerMotor = new TalonFX(Constants.Indexer.INDEXER_MOTOR_ID, Constants.RIO_CANBUS);
+    conveyorMotor.getConfigurator().apply(TalonFXConfigs.conveyorConfig());
+    indexerMotor.getConfigurator().apply(TalonFXConfigs.indexerConfig());
 
-        // Apply configurations from centralized config class
-        conveyorMotor.getConfigurator().apply(TalonFXConfigs.conveyorConfig());
-        indexerMotor.getConfigurator().apply(TalonFXConfigs.indexerConfig());
+    // Get status signals
+    conveyorVelocity = conveyorMotor.getVelocity();
+    conveyorAppliedVolts = conveyorMotor.getMotorVoltage();
+    conveyorCurrent = conveyorMotor.getSupplyCurrent();
+    indexerVelocity = indexerMotor.getVelocity();
+    indexerAppliedVolts = indexerMotor.getMotorVoltage();
+    indexerCurrent = indexerMotor.getSupplyCurrent();
 
-        // Get status signals for efficient reading
-        conveyorVelocity = conveyorMotor.getVelocity();
-        conveyorAppliedVolts = conveyorMotor.getMotorVoltage();
-        conveyorCurrent = conveyorMotor.getSupplyCurrent();
+    // Fast signals: 50Hz (every 20ms, matches robot loop)
+    BaseStatusSignal.setUpdateFrequencyForAll(
+        50.0,
+        conveyorVelocity, conveyorAppliedVolts,
+        indexerVelocity, indexerAppliedVolts);
 
+    // Slow signals: 10Hz (diagnostics only, no need to refresh faster)
+    BaseStatusSignal.setUpdateFrequencyForAll(
+        10.0,
+        conveyorCurrent, indexerCurrent);
 
-        indexerVelocity = indexerMotor.getVelocity();
-        indexerAppliedVolts = indexerMotor.getMotorVoltage();
-        indexerCurrent = indexerMotor.getSupplyCurrent();
-
-        // Configure update frequencies for better performance
-        BaseStatusSignal.setUpdateFrequencyForAll(
-            0.0,  // 50Hz for current (important but not critical)
-            conveyorVelocity, conveyorAppliedVolts,
-            indexerVelocity, indexerAppliedVolts, conveyorCurrent, indexerCurrent);
-
-        // Optimize bus utilization
-        conveyorMotor.optimizeBusUtilization();
-        indexerMotor.optimizeBusUtilization();
-    }
+    conveyorMotor.optimizeBusUtilization();
+    indexerMotor.optimizeBusUtilization();
+}
 
     @Override
     public void updateInputs(IndexerIOInputs inputs) {
