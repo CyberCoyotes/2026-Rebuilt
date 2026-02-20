@@ -105,9 +105,6 @@ public class IndexerSubsystem extends SubsystemBase {
 
   // ===== Sensors =====
 
-  public boolean isGamePieceInHopper() {
-    return inputs.hopperADetected || inputs.hopperBDetected || inputs.hopperCDetected;
-  }
 
   // ===== Telemetry Getters =====
 
@@ -115,5 +112,4 @@ public class IndexerSubsystem extends SubsystemBase {
   public double getIndexerVelocityRPS()   { return inputs.indexerVelocityRPS; }
   public double getConveyorCurrentAmps()  { return inputs.conveyorCurrentAmps; }
   public double getIndexerCurrentAmps()   { return inputs.indexerCurrentAmps; }
-  public double getIndexerTofDistanceMM() { return inputs.tofDistanceMM; }
 }

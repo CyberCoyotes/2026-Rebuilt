@@ -99,7 +99,7 @@ public class IndexerIOHardware implements IndexerIO {
 
         // Configure update frequencies for better performance
         BaseStatusSignal.setUpdateFrequencyForAll(
-            50.0,  // 50Hz for current (important but not critical)
+            0.0,  // 50Hz for current (important but not critical)
             conveyorVelocity, conveyorAppliedVolts,
             indexerVelocity, indexerAppliedVolts, conveyorCurrent, indexerCurrent);
 
@@ -111,20 +111,17 @@ public class IndexerIOHardware implements IndexerIO {
     @Override
     public void updateInputs(IndexerIOInputs inputs) {
         // Refresh all status signals efficiently
-        BaseStatusSignal.refreshAll(
-            conveyorVelocity, conveyorAppliedVolts, conveyorCurrent,
-            indexerVelocity, indexerAppliedVolts, indexerCurrent
-        );
-
-        // Update conveyor motor inputs
-        inputs.conveyorVelocityRPS = conveyorVelocity.getValueAsDouble();
-        inputs.conveyorAppliedVolts = conveyorAppliedVolts.getValueAsDouble();
-        inputs.conveyorCurrentAmps = conveyorCurrent.getValueAsDouble();
-
-        // Update indexer motor inputs
-        inputs.indexerVelocityRPS = indexerVelocity.getValueAsDouble();
-        inputs.indexerAppliedVolts = indexerAppliedVolts.getValueAsDouble();
-        inputs.indexerCurrentAmps = indexerCurrent.getValueAsDouble();
+        // TODO: CAN signals stale on IDs 23/24 — commenting out refresh until
+        // conveyor mechanical issue is resolved and wiring is verified
+        
+        // BaseStatusSignal.refreshAll(
+        //     conveyorVelocity, conveyorAppliedVolts,
+        //     indexerVelocity, indexerAppliedVolts
+        // );
+        // inputs.conveyorVelocityRPS = conveyorVelocity.getValueAsDouble();
+        // inputs.conveyorAppliedVolts = conveyorAppliedVolts.getValueAsDouble();
+        // inputs.indexerVelocityRPS = indexerVelocity.getValueAsDouble();
+        // inputs.indexerAppliedVolts = indexerAppliedVolts.getValueAsDouble();
 
     }
 

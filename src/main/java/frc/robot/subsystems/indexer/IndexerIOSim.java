@@ -43,41 +43,41 @@ public class IndexerIOSim implements IndexerIO {
         inputs.conveyorVelocityRPS = (conveyorMotorVolts / NOMINAL_VOLTAGE) * 10.0;  // Fake velocity
         inputs.conveyorAppliedVolts = conveyorMotorVolts;
         inputs.conveyorCurrentAmps = Math.abs(conveyorMotorVolts) * MOTOR_CURRENT_PER_VOLT;
-        inputs.conveyorTempCelsius = MOTOR_TEMP;
+        // inputs.conveyorTempCelsius = MOTOR_TEMP;
 
         // Simulate indexer motor
         inputs.indexerVelocityRPS = (indexerMotorVolts / NOMINAL_VOLTAGE) * 10.0;
         inputs.indexerAppliedVolts = indexerMotorVolts;
         inputs.indexerCurrentAmps = Math.abs(indexerMotorVolts) * MOTOR_CURRENT_PER_VOLT;
-        inputs.indexerTempCelsius = MOTOR_TEMP;
+        // inputs.indexerTempCelsius = MOTOR_TEMP;
 
-        // Simulate indexer ToF sensor
-        inputs.tofDistanceMM = indexerGamePiecePresent ?
-            SIMULATED_TOF_DISTANCE_WITH_PIECE :
-            SIMULATED_TOF_DISTANCE_NO_PIECE;
-        inputs.tofValid = true;
-        inputs.gamePieceDetected = indexerGamePiecePresent;
+        // // Simulate indexer ToF sensor
+        // inputs.tofDistanceMM = indexerGamePiecePresent ?
+        //     SIMULATED_TOF_DISTANCE_WITH_PIECE :
+        //     SIMULATED_TOF_DISTANCE_NO_PIECE;
+        // inputs.tofValid = true;
+        // inputs.gamePieceDetected = indexerGamePiecePresent;
 
-        // Simulate hopper A ToF sensor
-        inputs.hopperADistanceMM = hopperAGamePiecePresent ?
-            SIMULATED_TOF_DISTANCE_WITH_PIECE :
-            SIMULATED_TOF_DISTANCE_NO_PIECE;
-        inputs.hopperAValid = true;
-        inputs.hopperADetected = hopperAGamePiecePresent;
+        // // Simulate hopper A ToF sensor
+        // inputs.hopperADistanceMM = hopperAGamePiecePresent ?
+        //     SIMULATED_TOF_DISTANCE_WITH_PIECE :
+        //     SIMULATED_TOF_DISTANCE_NO_PIECE;
+        // inputs.hopperAValid = true;
+        // inputs.hopperADetected = hopperAGamePiecePresent;
 
-        // Simulate hopper B ToF sensor
-        inputs.hopperBDistanceMM = hopperBGamePiecePresent ?
-            SIMULATED_TOF_DISTANCE_WITH_PIECE :
-            SIMULATED_TOF_DISTANCE_NO_PIECE;
-        inputs.hopperBValid = true;
-        inputs.hopperBDetected = hopperBGamePiecePresent;
+        // // Simulate hopper B ToF sensor
+        // inputs.hopperBDistanceMM = hopperBGamePiecePresent ?
+        //     SIMULATED_TOF_DISTANCE_WITH_PIECE :
+        //     SIMULATED_TOF_DISTANCE_NO_PIECE;
+        // inputs.hopperBValid = true;
+        // inputs.hopperBDetected = hopperBGamePiecePresent;
 
-        // Simulate hopper C ToF sensor
-        inputs.hopperCDistanceMM = hopperCGamePiecePresent ?
-            SIMULATED_TOF_DISTANCE_WITH_PIECE :
-            SIMULATED_TOF_DISTANCE_NO_PIECE;
-        inputs.hopperCValid = true;
-        inputs.hopperCDetected = hopperCGamePiecePresent;
+        // // Simulate hopper C ToF sensor
+        // inputs.hopperCDistanceMM = hopperCGamePiecePresent ?
+        //     SIMULATED_TOF_DISTANCE_WITH_PIECE :
+        //     SIMULATED_TOF_DISTANCE_NO_PIECE;
+        // inputs.hopperCValid = true;
+        // inputs.hopperCDetected = hopperCGamePiecePresent;
     }
 
     @Override

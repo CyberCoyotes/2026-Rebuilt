@@ -1,8 +1,6 @@
 package frc.robot.subsystems.indexer;
 
 import org.littletonrobotics.junction.AutoLog;
-import org.littletonrobotics.junction.LogTable;
-import org.littletonrobotics.junction.inputs.LoggableInputs;
 
 /**
  * IndexerIO - Hardware abstraction interface for the indexer subsystem.
@@ -11,8 +9,6 @@ import org.littletonrobotics.junction.inputs.LoggableInputs;
  * It consists of:
  * - Conveyor motor: Moves pieces along the conveyor of the hopper toward the indexer
  * - Indexer motor: Grabs pieces from the hopper and feeds them into the shooter
- * - Indexer ToF sensor: Detects when a game piece is staged and ready to shoot
- * - Hopper ToF sensors (A, B, C): Detect game pieces at different positions in hopper
  *
  * PATTERN: IO Interface
  * - IndexerIO: Interface defining what indexer hardware can do
@@ -20,94 +16,76 @@ import org.littletonrobotics.junction.inputs.LoggableInputs;
  * - IndexerIOSim: Simulation for testing without hardware
  *
  * @see Constants.Indexer for hardware configuration
- * @see IndexerSubsystemBasic for a simpler direct-hardware approach (good for learning)
  */
-
-@SuppressWarnings("unused") // TODO Suppress warnings for unused right now
-
 public interface IndexerIO {
 
     /**
      * IndexerIOInputs - Container for all indexer sensor data.
      *
-     * This class holds all data we read from the indexer hardware each cycle.
-     * Uses @Autolog for automatic AdvantageKit logging and replay.
+     * Fields are split into fast (updated every 20ms) and slow (updated at 10Hz).
+     * Fast fields drive control; slow fields are for diagnostics and dashboard only.
      */
     @AutoLog
     class IndexerIOInputs {
-        // ===== Conveyor Motor Data =====
+
+        // ===== Fast Fields (updated every 20ms cycle) =====
+
         /** Conveyor motor velocity in rotations per second */
         public double conveyorVelocityRPS = 0.0;
 
         /** Conveyor motor applied voltage */
         public double conveyorAppliedVolts = 0.0;
 
-        /** Conveyor motor supply current in amps */
-        public double conveyorCurrentAmps = 0.0;
-
-        /** Conveyor motor temperature in Celsius */
-        public double conveyorTempCelsius = 0.0;
-
-        // ===== Indexer Motor Data =====
         /** Indexer motor velocity in rotations per second */
         public double indexerVelocityRPS = 0.0;
 
         /** Indexer motor applied voltage */
         public double indexerAppliedVolts = 0.0;
 
+        // ===== Slow Fields (updated at 10Hz — diagnostics only) =====
+
+        /** Conveyor motor supply current in amps */
+        public double conveyorCurrentAmps = 0.0;
+
         /** Indexer motor supply current in amps */
         public double indexerCurrentAmps = 0.0;
 
-        /** Indexer motor temperature in Celsius */
-        public double indexerTempCelsius = 0.0;
+        // ===== Hopper Time-of-Flight Sensors (not currently wired) =====
+        // Uncomment when CANrange sensors are installed and configured.
 
-        // ===== Indexer Time-of-Flight Sensor Data =====
-        /** Distance reading from indexer ToF sensor in millimeters */
-        public double tofDistanceMM = 0.0;
+        // public double hopperADistanceMM = 0.0;
+        // public boolean hopperAValid = false;
+        // public boolean hopperADetected = false;
 
-        /** True if indexer ToF sensor has valid measurement */
-        public boolean tofValid = false;
+        // public double hopperBDistanceMM = 0.0;
+        // public boolean hopperBValid = false;
+        // public boolean hopperBDetected = false;
 
-        /** True if a game piece is detected at the indexer (ready to shoot) */
-        public boolean gamePieceDetected = false;
-
-        // ===== Hopper Time-of-Flight Sensor Data =====
-        /** Distance reading from hopper A ToF sensor in millimeters */
-        public double hopperADistanceMM = 0.0;
-
-        /** True if hopper A ToF sensor has valid measurement */
-        public boolean hopperAValid = false;
-
-        /** True if a game piece is detected at hopper position A */
-        public boolean hopperADetected = false;
-
-        /** Distance reading from hopper B ToF sensor in millimeters */
-        public double hopperBDistanceMM = 0.0;
-
-        /** True if hopper B ToF sensor has valid measurement */
-        public boolean hopperBValid = false;
-
-        /** True if a game piece is detected at hopper position B */
-        public boolean hopperBDetected = false;
-
-        /** Distance reading from hopper C ToF sensor in millimeters */
-        public double hopperCDistanceMM = 0.0;
-
-        /** True if hopper C ToF sensor has valid measurement */
-        public boolean hopperCValid = false;
-
-        /** True if a game piece is detected at hopper position C */
-        public boolean hopperCDetected = false;
-
+        // public double hopperCDistanceMM = 0.0;
+        // public boolean hopperCValid = false;
+        // public boolean hopperCDetected = false;
     }
 
     /**
-     * Updates inputs from hardware.
-     * Called periodically (every 20ms) by IndexerSubsystem.
+     * Updates control-critical inputs from hardware.
+     * Called every cycle (every 20ms) by IndexerSubsystem.
+     * Only refreshes fast signals: velocity and applied voltage for both motors.
      *
      * @param inputs The IndexerIOInputs object to populate with current data
      */
     default void updateInputs(IndexerIOInputs inputs) {}
+
+    /**
+     * Updates diagnostic inputs from hardware.
+     * Called at 10Hz (every 5th cycle) by IndexerSubsystem.
+     * Refreshes slow signals: supply current for both motors.
+     *
+     * WHY SEPARATE? Current signals are set to 10Hz on the CAN bus.
+     * Refreshing them every 20ms just reads stale cached data and wastes JNI calls.
+     *
+     * @param inputs The IndexerIOInputs object to populate with diagnostic data
+     */
+    default void updateSlowInputs(IndexerIOInputs inputs) {}
 
     /**
      * Sets the conveyor motor output voltage.
