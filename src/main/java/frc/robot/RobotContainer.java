@@ -162,15 +162,15 @@ driver.rightTrigger(0.5).whileTrue(
         () -> {
             shooter.setTargetVelocity(3600);
             shooter.prepareToShoot();
-            // indexer.indexerForward();
+            indexer.indexerForward();
             // indexer.conveyorForward();
         },
         () -> {
-            shooter.setIdle();
-            // indexer.indexerStop();
+            // shooter.setIdle();
+            indexer.indexerStop();
             // indexer.conveyorStop();
         },
-        shooter/* , indexer*/
+        shooter , indexer//*/
     )
 );
 

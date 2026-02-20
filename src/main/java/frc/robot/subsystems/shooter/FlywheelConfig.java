@@ -52,7 +52,7 @@ public final class FlywheelConfig {
     config.Slot0.kP = 0.12;
     // config.Slot0.kI = 0.0;
     // config.Slot0.kD = 0.0;
-    config.Slot0.kV = 0.12;
+    //config.Slot0.kV = 0.12;
 
     // // ===== Voltage Limits =====
     // config.Voltage.PeakForwardVoltage = 12.0;
