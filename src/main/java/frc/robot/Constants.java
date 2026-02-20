@@ -70,13 +70,13 @@ public final class Constants {
   public static final class Shooter {
     private Shooter() {}
 
-    /** Flywheel A motor - Falcon 500 with TalonFX controller (leader) */
+    /** Flywheel A motor - Kraken X60 with TalonFX controller (leader) */
     public static final int FLYWHEEL_A_MOTOR_ID = 25;
 
-    /** Flywheel B motor - Falcon 500 with TalonFX controller (follower of A) */
+    /** Flywheel B motor - Kraken X60 with TalonFX controller (follower of A) */
     public static final int FLYWHEEL_B_MOTOR_ID = 26;
 
-    /** Flywheel C motor - Falcon 500 with TalonFX controller (follower of A) */
+    /** Flywheel C motor - Kraken X60 with TalonFX controller (follower of A) */
     public static final int FLYWHEEL_C_MOTOR_ID = 27;
 
     /** Hood motor - Minion with TalonFXS controller, adjusts shot angle */
