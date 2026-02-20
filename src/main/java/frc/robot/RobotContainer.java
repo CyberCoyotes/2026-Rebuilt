@@ -159,9 +159,9 @@ public class RobotContainer {
         // Ramp rate governed by ClosedLoopRamps in TalonFXConfigs (currently 4s).
 driver.rightTrigger(0.5).whileTrue(
     Commands.parallel(
-        Commands.run(shooter::shoot3603, shooter),
-        Commands.run(indexer::indexerForward, indexer)
-    )
+        Commands.run(shooter::shoot3603, shooter)
+        // Commands.run(indexer::indexerForward, indexer)
+    ).withTimeout(10.0)
 );  // runs at the same time
     // Commands.startEnd(
     //     () -> {
