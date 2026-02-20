@@ -5,8 +5,7 @@ import com.ctre.phoenix.led.CANdle;
 
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
-import frc.robot.subsystems.shooter.ShooterSubsystem;
-import frc.robot.subsystems.shooter.ShooterSubsystem.ShooterState;
+
 
 /**
  * LED subsystem driven by a CTRE CANdle for WS2811 strip control.

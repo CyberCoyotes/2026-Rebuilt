@@ -193,14 +193,14 @@ public class ShooterSubsystem extends SubsystemBase {
      * Spins flywheel to 3600 RPM, hood at close shot pose.
      * Designed for whileTrue() — stops automatically when button is released.
      *
-     * EXAMPLE: operatorController.a().whileTrue(shooter.shoot3600());
+     * EXAMPLE: operatorController.a().whileTrue(shooter.shoot3603());
      */
-    public Command shoot3600() {
+    public Command shoot3603() {
         return Commands.startEnd(
-            () -> setFlywheelAndHood(3600.0, CLOSE_SHOT_HOOD),
+            () -> setFlywheelAndHood(3603.0, CLOSE_SHOT_HOOD),
             this::stopAndHome,
             this
-        ).withName("Shoot3600");
+        ).withName("Shoot3603");
     }
 
     /**

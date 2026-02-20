@@ -38,9 +38,9 @@ public class ShooterCommands {
         return Commands.sequence(
             // Spin up to the ramp-test target
             Commands.runOnce(() -> {
-                shooter.setTargetHoodPose(4.00); // TODO Test this value
-                shooter.setTargetVelocity(3200); // TODO Test this value
-                shooter.prepareToShoot(); // state machine
+                // shooter.setTargetHoodPose(4.00); // TODO Test this value
+                // shooter.setTargetVelocity(3200); // TODO Test this value
+                // shooter.prepareToShoot(); // state machine
             }, shooter),
 
             // Wait until flywheel is within 15% of the target RPM
@@ -56,7 +56,7 @@ public class ShooterCommands {
         .finallyDo(() -> {
             indexer.indexerStop();
             indexer.conveyorStop();
-            shooter.setIdle();
+            // shooter.setIdle();
         });
     }
 
@@ -67,10 +67,10 @@ public class ShooterCommands {
      * @param shooter The shooter subsystem
      * @return Command that enters SPINUP state
      */
-    public static Command spinUp(ShooterSubsystem shooter) {
-        return Commands.runOnce(shooter::spinup, shooter)
-            .withName("SpinUpShooter");
-    }
+    // public static Command spinUp(ShooterSubsystem shooter) {
+    //     // return Commands.runOnce(shooter::spinup, shooter)
+    //         // .withName("SpinUpShooter");
+    // }
 
     /**
      * Creates a command to prepare shooter for shooting with specific targets.
@@ -84,9 +84,9 @@ public class ShooterCommands {
     public static Command prepareToShoot(ShooterSubsystem shooter, double velocityRPM, double hoodPoseDegrees) {
         return Commands.sequence(
             Commands.runOnce(() -> {
-                shooter.setTargetVelocity(velocityRPM);
-                shooter.setTargetHoodPose(hoodPoseDegrees);
-                shooter.prepareToShoot();
+                // shooter.setTargetVelocity(velocityRPM);
+                // shooter.setTargetHoodPose(hoodPoseDegrees);
+                // shooter.prepareToShoot();
             }, shooter),
             Commands.waitUntil(shooter::isReady)
         ).withTimeout(3.0)  // Safety timeout
@@ -159,8 +159,8 @@ public class ShooterCommands {
      */
     public static Command pass(ShooterSubsystem shooter) {
         return Commands.sequence(
-            Commands.runOnce(shooter::pass, shooter),
-            Commands.waitUntil(shooter::isPassReady)
+            // Commands.runOnce(shooter::pass, shooter),
+            // Commands.waitUntil(shooter::isPassReady)
         ).withTimeout(3.0)
          .withName("Pass");
     }
@@ -178,7 +178,7 @@ public class ShooterCommands {
             Commands.runOnce(() -> {
                 double distance = vision.getDistanceToTargetMeters();
                 shooter.updateFromDistance(distance);
-                shooter.prepareToShoot();
+                // shooter.prepareToShoot();
             }, shooter, vision),
             Commands.waitUntil(shooter::isReady)
         ).withTimeout(3.0)
@@ -217,14 +217,14 @@ public class ShooterCommands {
                                         double velocityRPM, double hoodAngleDegrees) {
         return Commands.sequence(
             // Prepare shooter and wait until at target
-            prepareToShoot(shooter, velocityRPM, hoodAngleDegrees),
+            // prepareToShoot(shooter, velocityRPM, hoodAngleDegrees),
 
             // Feed game piece
             // IndexerCommands.feedTimed(indexer, 0.5), // FIXME this is broken, it should reference the subsystem 
 
 
             // Return to idle
-            Commands.runOnce(shooter::setIdle, shooter)
+            // Commands.runOnce(shooter::setIdle, shooter)
         ).withName("ShootSequence");
     }
 
@@ -240,17 +240,17 @@ public class ShooterCommands {
                                               IndexerSubsystem indexer) {
         return Commands.sequence(
             // Wait for valid target
-            Commands.waitUntil(vision::hasTarget).withTimeout(1.0),
+            // Commands.waitUntil(vision::hasTarget).withTimeout(1.0),
 
             // Spin up based on vision
-            visionShot(shooter, vision),
+            // visionShot(shooter, vision),
 
             // Feed game piece
             // IndexerCommands.feedTimed(indexer, 0.5), // TODO replace with subsystem command factory method
-            indexer.feedTimed(0.5),
+            // indexer.feedTimed(0.5),
 
             // Return to idle
-            Commands.runOnce(shooter::setIdle, shooter)
+            // Commands.runOnce(shooter::setIdle, shooter)
         ).withName("VisionShootSequence");
     }
 
@@ -261,10 +261,10 @@ public class ShooterCommands {
      * @param incrementRPM RPM delta to apply (positive increases)
      * @return Command that adjusts target flywheel velocity
      */
-    public static Command increaseTargetVelocity(ShooterSubsystem shooter, double incrementRPM) {
-        return Commands.runOnce(() -> shooter.adjustTargetVelocity(Math.abs(incrementRPM)), shooter)
-            .withName("IncreaseShooterTargetVelocity");
-    }
+    // public static Command increaseTargetVelocity(ShooterSubsystem shooter, double incrementRPM) {
+    //     // return Commands.runOnce(() -> shooter.adjustTargetVelocity(Math.abs(incrementRPM)), shooter)
+    //     //     .withName("IncreaseShooterTargetVelocity");
+    // }
 
     /**
      * Creates a command to decrease target flywheel RPM by the provided increment.
@@ -273,10 +273,10 @@ public class ShooterCommands {
      * @param decrementRPM RPM delta to apply (positive value expected)
      * @return Command that adjusts target flywheel velocity
      */
-    public static Command decreaseTargetVelocity(ShooterSubsystem shooter, double decrementRPM) {
-        return Commands.runOnce(() -> shooter.adjustTargetVelocity(-Math.abs(decrementRPM)), shooter)
-            .withName("DecreaseShooterTargetVelocity");
-    }
+    // public static Command decreaseTargetVelocity(ShooterSubsystem shooter, double decrementRPM) {
+    //     // return Commands.runOnce(() -> shooter.adjustTargetVelocity(-Math.abs(decrementRPM)), shooter)
+    //         // .withName("DecreaseShooterTargetVelocity");
+    // }
 
     /**
      * Creates a command to return shooter to idle state.
@@ -285,10 +285,12 @@ public class ShooterCommands {
      * @param shooter The shooter subsystem
      * @return Command that sets shooter to idle
      */
-    public static Command idle(ShooterSubsystem shooter) {
-        return Commands.runOnce(shooter::setIdle, shooter)
-            .withName("ShooterIdle");
-    }
+    // public static Command idle(ShooterSubsystem shooter) {
+    //     // return Commands.runOnce(
+    //     //     // shooter::setIdle, shooter)
+    //     //     // .withName("ShooterIdle"
+    //     //     );
+    // }
 
     /**
      * Creates a command to eject jammed game pieces.
@@ -298,13 +300,13 @@ public class ShooterCommands {
      * @param durationSeconds How long to eject
      * @return Command that ejects then idles
      */
-    public static Command eject(ShooterSubsystem shooter, double durationSeconds) {
-        return Commands.sequence(
-            Commands.runOnce(shooter::eject, shooter),
-            Commands.waitSeconds(durationSeconds),
-            Commands.runOnce(shooter::setIdle, shooter)
-        ).withName("EjectShooter");
-    }
+    // public static Command eject(ShooterSubsystem shooter, double durationSeconds) {
+    //     return Commands.sequence(
+    //         Commands.runOnce(shooter::eject, shooter),
+    //         Commands.waitSeconds(durationSeconds),
+    //         Commands.runOnce(shooter::setIdle, shooter)
+    //     ).withName("EjectShooter");
+    // }
 
     /**
      * Creates a command that waits until shooter is ready.
@@ -326,10 +328,10 @@ public class ShooterCommands {
      * @param shooter The shooter subsystem
      * @return Command that enters SPINUP state
      */
-    public static Command warmUp(ShooterSubsystem shooter) {
-        return Commands.runOnce(shooter::spinup, shooter)
-            .withName("WarmUpShooter");
-    }
+    // public static Command warmUp(ShooterSubsystem shooter) {
+    //     return Commands.runOnce(shooter::spinup, shooter)
+    //         .withName("WarmUpShooter");
+    // }
 
     /**
      * Creates a command that ramps the flywheel up to a target RPM for belt-slip testing.
