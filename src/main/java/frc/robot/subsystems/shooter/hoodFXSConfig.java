@@ -28,9 +28,9 @@ public class hoodFXSConfig {
         config.CurrentLimits.SupplyCurrentLimitEnable = true;
 
         // Position PID - Slot 0
-        config.Slot0.kP = 1.0;
-        config.Slot0.kI = 0.75;
-        config.Slot0.kD = 0.0;
+        config.Slot0.kP = 1.0; // TODO Tune hood position P
+        config.Slot0.kI = 0.75; // TODO Tune hood position I
+        config.Slot0.kD = 0.0; // TODO Tune hood position D
 
         // Soft limits
         config.SoftwareLimitSwitch.ForwardSoftLimitEnable = true;  // Enable after tuning
