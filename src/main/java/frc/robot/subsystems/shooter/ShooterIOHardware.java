@@ -15,8 +15,6 @@ import com.ctre.phoenix6.signals.MotorAlignmentValue;
 import com.ctre.phoenix6.signals.SensorDirectionValue;
 
 import frc.robot.Constants;
-import frc.robot.util.TalonFXConfigs;
-import frc.robot.subsystems.shooter.FlywheelConfig;
 
 /**
  * ShooterIOHardware - Real hardware implementation for the shooter subsystem.
@@ -39,7 +37,7 @@ public class ShooterIOHardware implements ShooterIO {
   private final TalonFXS hoodMotor;
   private final CANcoder hoodEncoder;
 
-  // ===== Control Requests (pre-allocated, reused each cycle) =====
+  // ===== Control Requests =====
   private final VelocityVoltage flywheelVelocityRequest = new VelocityVoltage(0.0).withEnableFOC(true);
   private final PositionVoltage hoodPositionRequest = new PositionVoltage(0.0);
   private final VoltageOut hoodVoltageRequest = new VoltageOut(0.0);
@@ -70,11 +68,10 @@ public class ShooterIOHardware implements ShooterIO {
     hoodEncoder.getConfigurator().apply(encoderConfig);
 
     // Apply motor configs
-    flywheelMotorA.getConfigurator().apply(FlywheelConfig.test());
-    flywheelMotorB.getConfigurator().apply(FlywheelConfig.test());
-    flywheelMotorC.getConfigurator().apply(FlywheelConfig.test());
-    
-    hoodMotor.getConfigurator().apply(TalonFXConfigs.hoodConfig());
+    flywheelMotorA.getConfigurator().apply(flywheelFXConfig.test());
+    flywheelMotorB.getConfigurator().apply(flywheelFXConfig.test());
+    flywheelMotorC.getConfigurator().apply(flywheelFXConfig.test());
+    hoodMotor.getConfigurator().apply(hoodFXSConfig.hood());
 
     // Cache status signal references
     flywheelAVelocity = flywheelMotorA.getVelocity();
@@ -110,12 +107,12 @@ public class ShooterIOHardware implements ShooterIO {
     hoodMotor.optimizeBusUtilization();
     hoodEncoder.optimizeBusUtilization();
 
-    // Followers MUST be set AFTER optimizeBusUtilization() —
-    // otherwise the aggressive frame disabling can break the follower control link
+    /* Followers MUST be set AFTER optimizeBusUtilization()
+    * otherwise the aggressive frame disabling can break the follower control link */
     flywheelMotorB.setControl(new Follower(Constants.Shooter.FLYWHEEL_A_MOTOR_ID, MotorAlignmentValue.Aligned));
     flywheelMotorC.setControl(new Follower(Constants.Shooter.FLYWHEEL_A_MOTOR_ID, MotorAlignmentValue.Aligned));
 
-    // If hood is physically at "home" on boot, this seeds the position.
+    // Initialize motors to known state
     hoodMotor.setPosition(0.0);
 
     // Warm up signals ONCE at startup
@@ -172,7 +169,6 @@ public class ShooterIOHardware implements ShooterIO {
     inputs.hoodCurrentAmps = hoodCurrent.getValueAsDouble();
 
     double hoodRot = inputs.hoodPositionRotations;
-    // FIXME if real degrees are needed, measure actual hood gear ratio and convert properly
     inputs.hoodAngleDegrees = hoodRot * 360.0; // only if 1 rot == 1 hood rev (usually not true)
 
     // ThroughBore encoder

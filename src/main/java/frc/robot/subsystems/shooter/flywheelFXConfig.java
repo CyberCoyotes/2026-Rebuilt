@@ -1,11 +1,13 @@
 package frc.robot.subsystems.shooter;
 
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
+import com.ctre.phoenix6.configs.TalonFXSConfiguration;
 import com.ctre.phoenix6.signals.InvertedValue;
+import com.ctre.phoenix6.signals.MotorArrangementValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 
-public final class FlywheelConfig {
-  private FlywheelConfig() {}
+public final class flywheelFXConfig {
+  private flywheelFXConfig() {}
 
   public static TalonFXConfiguration competition() {
     TalonFXConfiguration config = base();
@@ -60,4 +62,5 @@ public final class FlywheelConfig {
 
     return config;
   }
+    
 }
