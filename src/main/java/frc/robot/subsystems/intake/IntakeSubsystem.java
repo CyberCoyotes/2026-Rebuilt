@@ -187,6 +187,10 @@ public class IntakeSubsystem extends SubsystemBase {
         );
     }
 
+    public Command retractSlidesCommand() {
+        return Commands.runOnce(this::retractSlides, this);
+    }
+
     /*
      * Command to move slides from SLIDE_EXTENDED_POSITION to SLIDE_BUMPER_POSITION
      * Use MotionMagicVoltage to do this gradually
