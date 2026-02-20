@@ -40,12 +40,22 @@ public class IndexerSubsystem extends SubsystemBase {
     indexerVelocityPublisher  = indexerTable.getDoubleTopic("IndexerVelocityRPS").publish();
   }
 
-  @Override
-  public void periodic() {
+  private int slowLoopCounter = 0;
+
+@Override
+public void periodic() {
     io.updateInputs(inputs);
+    
+    // Update slow diagnostic signals at 10Hz (every 5th loop)
+    slowLoopCounter++;
+    if (slowLoopCounter >= 5) {
+        io.updateSlowInputs(inputs);
+        slowLoopCounter = 0;
+    }
+
     conveyorVelocityPublisher.set(inputs.conveyorVelocityRPS);
     indexerVelocityPublisher.set(inputs.indexerVelocityRPS);
-  }
+}
 
   // ===== Motor Control =====
 
