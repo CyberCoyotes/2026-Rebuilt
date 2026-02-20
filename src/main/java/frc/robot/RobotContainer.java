@@ -216,7 +216,8 @@ public class RobotContainer {
         // operator.povLeft().onTrue(shooter.decreaseHood());
 
         // Individual motor testing (conveyor / indexer)
-        // operator.a().whileTrue(Commands.startEnd(indexer::conveyorForward, indexer::conveyorStop, indexer));
+        // TODO Test
+        driver.a().whileTrue(Commands.startEnd(indexer::conveyorForward, indexer::conveyorStop, indexer)); 
         // operator.b().whileTrue(Commands.startEnd(indexer::conveyorReverse, indexer::conveyorStop, indexer));
         // operator.x().whileTrue(Commands.startEnd(indexer::indexerForward, indexer::indexerStop, indexer));
         // operator.y().whileTrue(Commands.startEnd(indexer::indexerReverse, indexer::indexerStop, indexer));
