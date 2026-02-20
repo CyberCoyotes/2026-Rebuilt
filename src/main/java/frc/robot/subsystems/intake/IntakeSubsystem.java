@@ -20,9 +20,9 @@ public class IntakeSubsystem extends SubsystemBase {
 
     // ===== Intake Constants =====
     // Sensor thresholds for detecting game pieces, may need to be tuned
-    final static int INTAKE_THRESHOLD = 1000; // mm, around four inches
+    // final static int INTAKE_THRESHOLD = 1000; // mm, around four inches
 
-    final static double JAM_CURRENT_THRESHOLD = 60.0; // current should be under this
+    // final static double JAM_CURRENT_THRESHOLD = 60.0; // current should be under this
     // final static double JAM_VELOCITY_THRESHOLD = 0.5; // velocity should be over this
 
     // Mechanical limits for the slide, may need to be tuned

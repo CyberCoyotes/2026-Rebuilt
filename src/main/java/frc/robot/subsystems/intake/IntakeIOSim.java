@@ -120,13 +120,13 @@ public IntakeIOSim() {
     private void simulateGamePieceMovement() {
         boolean rollerSpinning = Math.abs(m_rollerSim.getAngularVelocityRPM()) > 10.0;
         boolean intakeExtended = m_slideSim.getPositionMeters() > 0.1; // >10cm extended
-        boolean pieceAtIntake = simulatedIntakeDistance <= IntakeSubsystem.INTAKE_THRESHOLD;
+        // boolean pieceAtIntake = simulatedIntakeDistance <= IntakeSubsystem.INTAKE_THRESHOLD;
         
         // If conditions met, move piece from intake → indexer
-        if (rollerSpinning && intakeExtended && pieceAtIntake) {
-            simulatedIndexerDistance = 50.0; // 50mm - piece now in indexer
-            simulatedIntakeDistance = Double.POSITIVE_INFINITY; // no longer at intake
-        }
+        // if (rollerSpinning && intakeExtended && pieceAtIntake) {
+        //     simulatedIndexerDistance = 50.0; // 50mm - piece now in indexer
+        //     simulatedIntakeDistance = Double.POSITIVE_INFINITY; // no longer at intake
+        // }
     }
 
     // ========== Command Methods ==========
