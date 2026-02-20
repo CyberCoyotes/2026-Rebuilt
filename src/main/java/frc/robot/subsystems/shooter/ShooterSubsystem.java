@@ -68,44 +68,47 @@ public class ShooterSubsystem extends SubsystemBase {
     private static final double MAX_HOOD_POSE_ROT = 9.14;
 
     /**
-     * Flywheel velocity tolerance (percentage of target, 0.0 to 1.0)
-     * 10% tolerance — forgiving for initial testing, tighten for competition
+     * Flywheel velocity tolerance (percentage of target, 0.00 to 0.50)
+     * Approximately 5% tolerance — forgiving for initial testing
      */
-    private static final double FLYWHEEL_TOLERANCE_PERCENT = 0.10;
+    private static final double FLYWHEEL_TOLERANCE_PERCENT = 0.05;
 
     /** Hood pose tolerance (rotations) */
-    private static final double HOOD_POSE_TOLERANCE = 0.10; // TODO Tune hood tolerance 
-    
+    private static final double HOOD_POSE_TOLERANCE = 0.05; // TODO Tune hood pose for shot consistency
+
     /** Testing increment for manual hood adjustment (rotations) */
-    public static final double HOOD_TEST_INCREMENT = 0.05; // Approximately 5% of full range
+    public static final double HOOD_TEST_INCREMENT = 0.5;
 
     // ===== Shooting Presets =====
 
     /** Close shot */
-    public static final double CLOSE_SHOT_RPM  = 2800;  // TODO Tune RPM
-    public static final double CLOSE_SHOT_HOOD = 0.00;
+    public static final double CLOSE_SHOT_RPM  = 2800; // TODO Tune RPM
+    public static final double CLOSE_SHOT_HOOD = 0.0;
 
-    /** Tower shot */
-    public static final double FAR_SHOT_RPM  = 3200;    // TODO Tune RPM
-    public static final double FAR_SHOT_HOOD = 4.20;    // TODO Tune hood
-
-    /** Trench shot */
-    public static final double PASS_SHOT_RPM  = 3200;   // TODO Tune RPM
-    public static final double PASS_SHOT_HOOD = 4.70;   // TODO Tune hood
-
-    /** 3603 shot */
-    public static final double TEAM_SHOT_RPM  = 3603;   // TODO Tune RPM
-    public static final double TEAM_SHOT_HOOD = 3.603;  // TODO Tune hood
-
+    /** Far shot */
+    public static final double TOWER_SHOT_RPM  = 3000;  // TODO Tune RPM
+    public static final double TOWER_SHOT_HOOD = 4.20;  // TODO Tune hood pose
+   
     /** Trench shot — low, fast shot from under the trench bar */
-    public static final double TRENCH_SHOT_RPM  = 2500.0;                   // TODO Tune
-    public static final double TRENCH_SHOT_HOOD = MAX_HOOD_POSE_ROT * 0.3;  // TODO Tune
+    public static final double TRENCH_SHOT_RPM  = TOWER_SHOT_RPM * 1.10; // TODO Tune RPM
+    public static final double TRENCH_SHOT_HOOD = 4.00;  // TODO Tune hood pose
+
+    /** Pass shot */
+    public static final double PASS_SHOT_RPM  = TRENCH_SHOT_RPM * 1.10; // TODO Tune RPM
+    public static final double PASS_SHOT_HOOD = MAX_HOOD_POSE_ROT; // TODO Tune hood pose
+
+        /** Trench shot — low, fast shot from under the trench bar */
+    public static final double TEAM_SHOT_RPM  = 3603;   // TODO Tune RPM
+    public static final double TEAM_SHOT_HOOD = 3.603;  // TODO Tune hood pose
 
     /** Eject: reverse flywheel to clear jams */
-    private static final double EJECT_RPM = MAX_FLYWHEEL_MOTOR_RPM * -0.50; // TODO Tune eject velocity
+    private static final double EJECT_VELOCITY_RPM = MAX_FLYWHEEL_MOTOR_RPM * -0.50;
 
     /** Testing increment */
-    public static final double FLYWHEEL_INCREMENT_RPM = 100.0;
+    public static final double FLYWHEEL_TEST_INCREMENT_RPM = 100.0;
+
+    /** Default target for ramp-up testing */
+    public static final double RAMP_TEST_TARGET_RPM = 2800.0; // TODO Test
 
     // =========================================================================
     // CONSTRUCTOR
@@ -200,13 +203,7 @@ public class ShooterSubsystem extends SubsystemBase {
      *
      * EXAMPLE: operatorController.a().whileTrue(shooter.shoot3600());
      */
-    public Command shoot3603() {
-        return Commands.startEnd(
-            () -> setFlywheelAndHood(3603.0, CLOSE_SHOT_HOOD),
-            this::stopAndHome,
-            this
-        ).withName("Shoot3600");
-    }
+
 
     /**
      * Close shot preset (CLOSE_SHOT_RPM + CLOSE_SHOT_HOOD).
@@ -224,12 +221,12 @@ public class ShooterSubsystem extends SubsystemBase {
      * Far shot preset (FAR_SHOT_RPM + FAR_SHOT_HOOD).
      * Designed for whileTrue() — stops automatically when button is released.
      */
-    public Command farShot() {
+    public Command towerShot() {
         return Commands.startEnd(
-            () -> setFlywheelAndHood(FAR_SHOT_RPM, FAR_SHOT_HOOD),
+            () -> setFlywheelAndHood(TOWER_SHOT_RPM, TOWER_SHOT_HOOD),
             this::stopAndHome,
             this
-        ).withName("FarShot");
+        ).withName("TowerShot");
     }
 
     /**
@@ -256,6 +253,14 @@ public class ShooterSubsystem extends SubsystemBase {
         ).withName("TrenchShot");
     }
 
+        public Command shoot3603() {
+        return Commands.startEnd(
+            () -> setFlywheelAndHood(TEAM_SHOT_RPM, TEAM_SHOT_HOOD),
+            this::stopAndHome,
+            this
+        ).withName("Shoot3603");
+    }
+
     /**
      * Eject — reverses flywheel to clear jams, hood at home.
      * Designed for whileTrue() — stops automatically when button is released.
@@ -263,9 +268,9 @@ public class ShooterSubsystem extends SubsystemBase {
     public Command eject() {
         return Commands.startEnd(
             () -> {
-                targetFlywheelMotorRPM = EJECT_RPM;
+                targetFlywheelMotorRPM = EJECT_VELOCITY_RPM;
                 targetHoodPoseRot = MIN_HOOD_POSE_ROT;
-                io.setFlywheelVelocity(EJECT_RPM);
+                io.setFlywheelVelocity(EJECT_VELOCITY_RPM);
                 io.setHoodPose(MIN_HOOD_POSE_ROT);
             },
             this::stopAndHome,
@@ -328,7 +333,7 @@ public class ShooterSubsystem extends SubsystemBase {
     /** Increases target flywheel velocity by FLYWHEEL_TEST_INCREMENT_RPM and re-commands. */
     public Command increaseVelocity() {
         return Commands.runOnce(() -> {
-            targetFlywheelMotorRPM = Math.min(targetFlywheelMotorRPM + FLYWHEEL_INCREMENT_RPM, MAX_FLYWHEEL_MOTOR_RPM);
+            targetFlywheelMotorRPM = Math.min(targetFlywheelMotorRPM + FLYWHEEL_TEST_INCREMENT_RPM, MAX_FLYWHEEL_MOTOR_RPM);
             io.setFlywheelVelocity(targetFlywheelMotorRPM);
         }, this).withName("IncreaseVelocity");
     }
@@ -336,7 +341,7 @@ public class ShooterSubsystem extends SubsystemBase {
     /** Decreases target flywheel velocity by FLYWHEEL_TEST_INCREMENT_RPM and re-commands. */
     public Command decreaseVelocity() {
         return Commands.runOnce(() -> {
-            targetFlywheelMotorRPM = Math.max(targetFlywheelMotorRPM - FLYWHEEL_INCREMENT_RPM, 0.0);
+            targetFlywheelMotorRPM = Math.max(targetFlywheelMotorRPM - FLYWHEEL_TEST_INCREMENT_RPM, 0.0);
             io.setFlywheelVelocity(targetFlywheelMotorRPM);
         }, this).withName("DecreaseVelocity");
     }
@@ -370,8 +375,8 @@ public class ShooterSubsystem extends SubsystemBase {
     public void updateFromDistance(double distanceMeters) {
         double distance = Math.max(1.0, Math.min(5.0, distanceMeters));
         double t = (distance - 1.0) / (5.0 - 1.0);
-        double velocity = CLOSE_SHOT_RPM + t * (FAR_SHOT_RPM - CLOSE_SHOT_RPM);
-        double pose = CLOSE_SHOT_HOOD + t * (FAR_SHOT_HOOD - CLOSE_SHOT_HOOD);
+        double velocity = CLOSE_SHOT_RPM + t * (TRENCH_SHOT_RPM - CLOSE_SHOT_RPM);
+        double pose = CLOSE_SHOT_HOOD + t * (TRENCH_SHOT_HOOD - CLOSE_SHOT_HOOD);
         setFlywheelAndHood(velocity, pose);
     }
 
