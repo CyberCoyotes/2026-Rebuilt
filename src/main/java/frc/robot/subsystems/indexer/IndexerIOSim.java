@@ -192,22 +192,4 @@ public class IndexerIOSim implements IndexerIO {
         setFeederGamePiecePresent(false);
     }
 
-    // ===== Backwards Compatibility =====
-    // These methods maintain compatibility with old code that used the single-sensor API
-
-    /**
-     * @deprecated Use setFeederGamePiecePresent instead
-     */
-    @Deprecated
-    public void setGamePiecePresent(boolean present) {
-        setFeederGamePiecePresent(present);
-    }
-
-    /**
-     * @deprecated Use isFeederGamePiecePresent instead
-     */
-    @Deprecated
-    public boolean isGamePiecePresent() {
-        return isFeederGamePiecePresent();
-    }
 }
