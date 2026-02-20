@@ -20,7 +20,6 @@ package frc.robot.subsystems.vision;
  * }
  * ```
  *
- * TODO: Implement realistic simulation data based on robot pose when needed
  */
 
 @SuppressWarnings("unused") // Remove when we approach comp ready code
