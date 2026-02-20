@@ -7,44 +7,40 @@ import edu.wpi.first.networktables.IntegerPublisher;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.networktables.StringPublisher;
-import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
+import frc.robot.generated.TunerConstants;
+
 import org.littletonrobotics.junction.Logger;
 
 /**
- * VisionSubsystem - Manages vision processing for robot alignment and shooting.
+ * VisionSubsystem - Manages vision processing for field localization and target alignment.
  *
- * PRIMARY PURPOSE (GOAL 1): Stationary shooting with vision alignment
- * - Provides distance and angle data to shooter for flywheel/hood adjustments
- * - Provides horizontal angle data to drivetrain for rotational alignment
- * - Tracks alignment state for command coordination
+ * WHAT THIS DOES:
+ * 1. ODOMETRY CORRECTION (most important):
+ *    The robot tracks its position on the field using wheel encoders + gyro.
+ *    But wheels slip, so position drifts over time.
+ *    Vision uses AprilTags to periodically correct that drift.
+ *    This is critical for accurate autonomous paths.
  *
- * ARCHITECTURE:
- * - Uses VisionIO interface for hardware abstraction
- * - Tracks AlignmentState for coordination with other subsystems
- * - Provides calculated values (distance, angles) derived from raw camera data
- * - Integrates with AdvantageKit for logging and replay
+ * 2. TARGET ALIGNMENT:
+ *    Provides horizontal angle (tx) data so the drivetrain can rotate
+ *    to face a target precisely before shooting.
  *
- * STATE MACHINE:
- * - NO_TARGET: No valid AprilTag visible
- * - TARGET_ACQUIRED: Tag visible, not yet aligned
- * - ALIGNED: Robot aligned within tolerance, ready to shoot
- * - LOST_TARGET: Had target but lost it (uses last known values briefly)
+ * 3. DISTANCE CALCULATION:
+ *    Uses camera geometry to estimate distance to target from the
+ *    vertical angle (ty). Used by shooter to set hood angle and RPM.
  *
- * USAGE EXAMPLE:
- * // In ShooterSubsystem:
- * double distance = vision.getDistanceToTargetMeters();
- * double velocity = calculateVelocityFromDistance(distance);
+ * HOW TO USE:
+ *   // In Robot.java robotPeriodic() — replaces the old LimelightHelpers block:
+ *   m_robotContainer.vision.updateOdometry(m_robotContainer.drivetrain);
  *
- * // In AlignToTargetCommand:
- * double angleError = vision.getHorizontalAngleDegrees();
- * drivetrain.rotate(angleError * kP);
+ *   // In commands — check alignment:
+ *   if (vision.hasTarget() && vision.getHorizontalAngleDegrees() < 2.0) { ... }
  *
- * // In ShootCommand:
- * if (vision.isAligned() && shooter.isReady()) {
- *     indexer.feed();
- * }
+ *   // For shooter distance:
+ *   double distance = vision.getDistanceToTargetMeters();
+ *   shooter.updateFromDistance(distance);
  */
 public class VisionSubsystem extends SubsystemBase {
 
@@ -52,348 +48,243 @@ public class VisionSubsystem extends SubsystemBase {
     private final VisionIO io;
     private final VisionIO.VisionIOInputs inputs = new VisionIO.VisionIOInputs();
 
+    // ===== Alignment State Machine =====
+    public enum AlignmentState {
+        NO_TARGET,        // Camera sees nothing
+        TARGET_ACQUIRED,  // Sees a tag but not aligned yet
+        ALIGNED           // Horizontal angle is within tolerance
+    }
+
+    private AlignmentState currentState = AlignmentState.NO_TARGET;
+
+    // ===== Periodic Counter (for throttling dashboard updates) =====
+    private int periodicCounter = 0;
+
     // ===== NetworkTables Publishers for Elastic Dashboard =====
     private final NetworkTable visionTable;
     private final StringPublisher statePublisher;
     private final BooleanPublisher hasTargetPublisher;
     private final BooleanPublisher isAlignedPublisher;
+    private final BooleanPublisher hasValidPosePublisher;
     private final IntegerPublisher tagIdPublisher;
-    private final DoublePublisher targetAreaPublisher;
-    private final DoublePublisher distanceMetersPublisher;
-    private final DoublePublisher distanceCmPublisher;
     private final DoublePublisher horizontalAnglePublisher;
     private final DoublePublisher verticalAnglePublisher;
+    private final DoublePublisher distanceMetersPublisher;
     private final DoublePublisher latencyPublisher;
-
-    // ===== State Tracking =====
-    /**
-     * Alignment state for the vision system.
-     * Tracks whether we have a target and if we're aligned to it.
-     */
-    public enum AlignmentState {
-        /** No valid target visible */
-        NO_TARGET,
-
-        /** Target visible, robot not yet aligned */
-        TARGET_ACQUIRED,
-
-        /** Robot aligned to target within tolerance, ready to shoot */
-        ALIGNED,
-
-        /** Had a target but lost it (grace period using last known values) */
-        LOST_TARGET
-    }
-
-    private AlignmentState currentState = AlignmentState.NO_TARGET;
-    private AlignmentState previousState = AlignmentState.NO_TARGET;
-
-    // ===== Last Known Good Data =====
-    // When we lose a target, we briefly hold onto the last known values
-    // This prevents sudden jumps and allows smooth recovery
-    private double lastKnownDistance = 0.0;
-    private double lastKnownHorizontalAngle = 0.0;
-    private double lastTargetSeenTime = 0.0;
 
     /**
      * Creates a new VisionSubsystem.
      *
-     * @param io The VisionIO hardware interface implementation
+     * @param io Hardware implementation (VisionIOLimelight for real robot,
+     *           VisionIOSim for testing without hardware)
      */
     public VisionSubsystem(VisionIO io) {
         this.io = io;
 
-        // Initialize NetworkTables publishers for Elastic dashboard
         NetworkTableInstance inst = NetworkTableInstance.getDefault();
         visionTable = inst.getTable("Vision");
 
         statePublisher = visionTable.getStringTopic("State").publish();
         hasTargetPublisher = visionTable.getBooleanTopic("HasTarget").publish();
         isAlignedPublisher = visionTable.getBooleanTopic("IsAligned").publish();
+        hasValidPosePublisher = visionTable.getBooleanTopic("HasValidPose").publish();
         tagIdPublisher = visionTable.getIntegerTopic("TagID").publish();
-        targetAreaPublisher = visionTable.getDoubleTopic("TargetArea").publish();
-        distanceMetersPublisher = visionTable.getDoubleTopic("Distance_m").publish();
-        distanceCmPublisher = visionTable.getDoubleTopic("Distance_cm").publish();
         horizontalAnglePublisher = visionTable.getDoubleTopic("HorizontalAngle_deg").publish();
         verticalAnglePublisher = visionTable.getDoubleTopic("VerticalAngle_deg").publish();
+        distanceMetersPublisher = visionTable.getDoubleTopic("Distance_m").publish();
         latencyPublisher = visionTable.getDoubleTopic("TotalLatency_ms").publish();
-
-        // Initialize Limelight to known state
-        io.setLEDMode(VisionIO.LEDMode.PIPELINE_DEFAULT);
-        io.setPipeline(Constants.Vision.APRILTAG_PIPELINE);
     }
+
+    // =========================================================================
+    // PERIODIC
+    // =========================================================================
 
     @Override
     public void periodic() {
-        // Update inputs from hardware
-        io.updateInputs(inputs);
-        Logger.processInputs("Vision", inputs);
+        // NOTE: setRobotOrientation is NOT called here.
+        // It's called inside updateOdometry() in Robot.java robotPeriodic(),
+        // which runs BEFORE the CommandScheduler (and therefore before this periodic).
+        // That ordering ensures orientation is always fresh before we read pose data.
 
-        // Update state machine
+        // Read all camera data
+        io.updateInputs(inputs);
+
+        // Update our state machine
         updateAlignmentState();
 
-        // Log telemetry
-        logTelemetry();
+        // Publish to dashboard at 10Hz (every 5th cycle)
+        // Vision data doesn't change fast enough to need 50Hz updates
+        if (++periodicCounter % 5 == 0) {
+            publishTelemetry();
+        }
+
+        // AdvantageKit logging (always runs, independent of dashboard throttle)
+        Logger.recordOutput("Vision/State", currentState.name());
+        Logger.recordOutput("Vision/HasTarget", inputs.hasTargets);
+        Logger.recordOutput("Vision/HasValidPose", inputs.hasValidPoseEstimate);
+        Logger.recordOutput("Vision/HorizontalAngle_deg", inputs.horizontalAngleDegrees);
+        Logger.recordOutput("Vision/Distance_m", getDistanceToTargetMeters());
+    }
+
+    // =========================================================================
+    // ODOMETRY UPDATE — called from Robot.java robotPeriodic()
+    // =========================================================================
+
+    /**
+     * Sends robot heading to the Limelight and feeds any valid pose estimate
+     * into the drivetrain's pose estimator.
+     *
+     * CALL THIS FROM Robot.java robotPeriodic() BEFORE CommandScheduler.run().
+     * That ensures orientation is sent to the Limelight before this subsystem's
+     * periodic() reads the resulting pose estimate.
+     *
+     * WHY HERE INSTEAD OF periodic()?
+     * We need the current drivetrain state (heading, rotation rate) to send to
+     * the Limelight. Passing the drivetrain as a parameter here is cleaner than
+     * storing a reference to it in VisionSubsystem permanently, since vision
+     * doesn't "own" the drivetrain — it just reads from it occasionally.
+     *
+     * @param drivetrain The swerve drivetrain (used to get heading and add measurement)
+     */
+    public void updateOdometry(TunerConstants.CommandSwerveDrivetrain drivetrain) {
+        // Step 1: Get current robot heading from drivetrain
+        var driveState = drivetrain.getState();
+        double headingDeg = driveState.Pose.getRotation().getDegrees();
+        double omegaRps = Units.radiansToRotations(driveState.Speeds.omegaRadiansPerSecond);
+
+        // Step 2: Send heading to Limelight (required for MegaTag2)
+        // The Limelight uses our gyro heading to calculate where we are on the field.
+        // _NoFlush avoids a costly synchronous NT write every loop.
+        io.setRobotOrientation(headingDeg, omegaRps * 360.0); // convert RPS → deg/s
+
+        // Step 3: If we have a valid pose estimate, feed it to odometry
+        // The spinning check filters out poses captured while the robot was rotating fast,
+        // because motion blur reduces accuracy.
+        if (inputs.hasValidPoseEstimate && Math.abs(omegaRps) < 2.0) {
+            drivetrain.addVisionMeasurement(
+                    inputs.megaTag2Estimate.pose,
+                    inputs.megaTag2Estimate.timestampSeconds
+            );
+        }
     }
 
     // =========================================================================
     // STATE MACHINE
     // =========================================================================
 
-    /**
-     * Updates the alignment state based on current vision data.
-     * Called automatically in periodic().
-     */
     private void updateAlignmentState() {
-        previousState = currentState;
+        if (!inputs.hasTargets) {
+            currentState = AlignmentState.NO_TARGET;
+            return;
+        }
 
-        if (inputs.hasTargets && isTargetValid()) {
-            // We have a valid target
-            lastTargetSeenTime = Timer.getFPGATimestamp();
-
-            // Update last known good values
-            lastKnownDistance = calculateDistance();
-            lastKnownHorizontalAngle = getHorizontalAngleDegrees();
-
-            // Check if we're aligned
-            if (isWithinAlignmentTolerance()) {
-                currentState = AlignmentState.ALIGNED;
-            } else {
-                currentState = AlignmentState.TARGET_ACQUIRED;
-            }
+        if (isWithinAlignmentTolerance()) {
+            currentState = AlignmentState.ALIGNED;
         } else {
-            // No valid target
-            double timeSinceLastTarget = Timer.getFPGATimestamp() - lastTargetSeenTime;
-
-            if (timeSinceLastTarget < Constants.Vision.TARGET_TIMEOUT_SECONDS &&
-                previousState != AlignmentState.NO_TARGET) {
-                // Grace period: use last known values
-                currentState = AlignmentState.LOST_TARGET;
-            } else {
-                // Definitely lost target
-                currentState = AlignmentState.NO_TARGET;
-                lastKnownDistance = 0.0;
-                lastKnownHorizontalAngle = 0.0;
-            }
-        }
-
-        // Log state transitions
-        if (currentState != previousState) {
-            Logger.recordOutput("Vision/StateTransition",
-                previousState.name() + " -> " + currentState.name());
+            currentState = AlignmentState.TARGET_ACQUIRED;
         }
     }
 
-    /**
-     * Checks if the current target is valid (correct tag ID, reasonable distance, etc.)
-     */
-    private boolean isTargetValid() {
-        // Check tag ID is in valid range
-        if (inputs.tagId < Constants.Vision.MIN_VALID_TAG_ID ||
-            inputs.tagId > Constants.Vision.MAX_VALID_TAG_ID) {
-            return false;
-        }
-
-        // Check target area is reasonable (not too small = too far)
-        if (inputs.targetArea < Constants.Vision.MIN_TARGET_AREA_PERCENT) {
-            return false;
-        }
-
-        // Check calculated distance is reasonable
-        double distance = calculateDistance();
-        if (distance > Constants.Vision.MAX_DISTANCE_METERS || distance < 0.1) {
-            return false;
-        }
-
-        return true;
-    }
-
-    /**
-     * Checks if robot is aligned within tolerance for shooting.
-     */
     private boolean isWithinAlignmentTolerance() {
-        double horizontalError = Math.abs(getHorizontalAngleDegrees());
-        return horizontalError <= Constants.Vision.ALIGNMENT_TOLERANCE_DEGREES;
+        return Math.abs(inputs.horizontalAngleDegrees) <= Constants.Vision.ALIGNMENT_TOLERANCE_DEGREES;
     }
 
     // =========================================================================
-    // PUBLIC API - State Queries
+    // PUBLIC API — Use these in commands and other subsystems
     // =========================================================================
 
-    /**
-     * Gets the current alignment state.
-     *
-     * @return Current alignment state
-     */
+    /** True if camera currently sees a valid AprilTag. */
+    public boolean hasTarget() {
+        return currentState == AlignmentState.TARGET_ACQUIRED
+                || currentState == AlignmentState.ALIGNED;
+    }
+
+    /** True if robot is rotated within alignment tolerance of the target. */
+    public boolean isAligned() {
+        return currentState == AlignmentState.ALIGNED;
+    }
+
+    /** True if we have a fresh, valid pose estimate to feed to odometry. */
+    public boolean hasValidPoseEstimate() {
+        return inputs.hasValidPoseEstimate;
+    }
+
+    /** Current alignment state. */
     public AlignmentState getAlignmentState() {
         return currentState;
     }
 
     /**
-     * Checks if a valid target is currently visible.
-     *
-     * @return true if valid target is visible
+     * Horizontal angle to the primary target in degrees.
+     * Positive = target is to the RIGHT, negative = to the LEFT.
+     * Use this to drive rotational alignment: rotate until this is near zero.
      */
-    public boolean hasTarget() {
-        return currentState == AlignmentState.TARGET_ACQUIRED ||
-               currentState == AlignmentState.ALIGNED;
+    public double getHorizontalAngleDegrees() {
+        return inputs.horizontalAngleDegrees;
     }
 
     /**
-     * Checks if robot is aligned to target and ready to shoot.
-     *
-     * @return true if aligned within tolerance
+     * Vertical angle to the primary target in degrees.
+     * Used internally for distance calculation.
      */
-    public boolean isAligned() {
-        return currentState == AlignmentState.ALIGNED;
+    public double getVerticalAngleDegrees() {
+        return inputs.verticalAngleDegrees;
     }
 
-    /**
-     * Gets the AprilTag ID currently being tracked.
-     *
-     * @return Tag ID, or -1 if no valid target
-     */
+    /** Which AprilTag is currently being tracked (-1 if none). */
     public int getTagId() {
         return inputs.tagId;
     }
 
-    // =========================================================================
-    // PUBLIC API - Calculated Values for Shooter
-    // =========================================================================
-
     /**
-     * Calculates distance to target in meters using camera geometry.
+     * Estimated distance to the target in meters, using camera geometry.
      *
-     * Uses the formula: distance = (targetHeight - cameraHeight) / tan(cameraAngle + ty)
+     * HOW THIS WORKS:
+     * If you know:
+     *   - How high the camera is mounted (CAMERA_HEIGHT_METERS)
+     *   - How high the target is on the field (APRILTAG_HEIGHT_METERS)
+     *   - The camera's tilt angle (CAMERA_ANGLE_DEGREES)
+     *   - The vertical angle from camera to target (ty from Limelight)
      *
-     * For LOST_TARGET state, returns last known distance for smooth transitions.
+     * Then: distance = heightDifference / tan(cameraAngle + ty)
      *
-     * @return Distance to target in meters, or 0 if no target
+     * This is basic trigonometry — the same math you'd use to find the
+     * horizontal distance to something if you know its height and angle.
+     *
+     * @return Distance in meters, or 0.0 if no target visible
      */
     public double getDistanceToTargetMeters() {
-        if (currentState == AlignmentState.NO_TARGET) {
+        if (!inputs.hasTargets) {
             return 0.0;
         }
 
-        if (currentState == AlignmentState.LOST_TARGET) {
-            return lastKnownDistance; // Use last known value during grace period
-        }
+        double heightDiff = Constants.Vision.APRILTAG_HEIGHT_METERS
+                - Constants.Vision.CAMERA_HEIGHT_METERS;
 
-        return calculateDistance();
-    }
+        double totalAngleDeg = Constants.Vision.CAMERA_ANGLE_DEGREES
+                + inputs.verticalAngleDegrees;
 
-    /**
-     * Internal distance calculation from camera geometry.
-     */
-    private double calculateDistance() {
-        double heightDiff = Constants.Vision.APRILTAG_HEIGHT_METERS -
-                          Constants.Vision.CAMERA_HEIGHT_METERS;
-
-        double verticalAngleDegrees = Units.radiansToDegrees(inputs.verticalAngleRadians);
-        double angleToTarget = Constants.Vision.CAMERA_ANGLE_DEGREES + verticalAngleDegrees;
-
-        return Math.abs(heightDiff / Math.tan(Math.toRadians(angleToTarget)));
-    }
-
-    /**
-     * Gets distance to target in centimeters (for compatibility with older code).
-     *
-     * @return Distance in centimeters
-     */
-    public double getDistanceToTargetCM() {
-        return getDistanceToTargetMeters() * 100.0;
-    }
-
-    // =========================================================================
-    // PUBLIC API - Angle Values for Drivetrain Alignment
-    // =========================================================================
-
-    /**
-     * Gets horizontal angle to target in degrees.
-     *
-     * Positive = target is to the right
-     * Negative = target is to the left
-     *
-     * For LOST_TARGET state, returns last known angle for smooth transitions.
-     *
-     * @return Horizontal angle in degrees, or 0 if no target
-     */
-    public double getHorizontalAngleDegrees() {
-        if (currentState == AlignmentState.NO_TARGET) {
+        // Avoid division by zero if angle is flat (shouldn't happen in practice)
+        if (Math.abs(totalAngleDeg) < 0.1) {
             return 0.0;
         }
 
-        if (currentState == AlignmentState.LOST_TARGET) {
-            return lastKnownHorizontalAngle; // Use last known value
-        }
-
-        return Units.radiansToDegrees(inputs.horizontalAngleRadians);
-    }
-
-    /**
-     * Gets horizontal angle to target in radians.
-     *
-     * @return Horizontal angle in radians
-     */
-    public double getHorizontalAngleRadians() {
-        return Units.degreesToRadians(getHorizontalAngleDegrees());
-    }
-
-    /**
-     * Gets vertical angle to target in degrees.
-     *
-     * @return Vertical angle in degrees
-     */
-    public double getVerticalAngleDegrees() {
-        return Units.radiansToDegrees(inputs.verticalAngleRadians);
+        return Math.abs(heightDiff / Math.tan(Math.toRadians(totalAngleDeg)));
     }
 
     // =========================================================================
-    // PUBLIC API - Camera Control
+    // TELEMETRY (10Hz)
     // =========================================================================
 
-    /**
-     * Sets the active vision pipeline.
-     *
-     * @param pipelineIndex Pipeline index (0-9)
-     */
-    public void setPipeline(int pipelineIndex) {
-        io.setPipeline(pipelineIndex);
-    }
-
-    /**
-     * Sets the LED mode.
-     *
-     * @param mode LED mode to set
-     */
-    public void setLEDMode(VisionIO.LEDMode mode) {
-        io.setLEDMode(mode);
-    }
-
-    // =========================================================================
-    // TELEMETRY
-    // =========================================================================
-
-    /**
-     * Logs comprehensive telemetry to NetworkTables (for Elastic) and AdvantageKit.
-     */
-    private void logTelemetry() {
-        // Publish to NetworkTables for Elastic dashboard
+    private void publishTelemetry() {
         statePublisher.set(currentState.name());
         hasTargetPublisher.set(hasTarget());
         isAlignedPublisher.set(isAligned());
-        tagIdPublisher.set(getTagId());
-        targetAreaPublisher.set(inputs.targetArea);
+        hasValidPosePublisher.set(inputs.hasValidPoseEstimate);
+        tagIdPublisher.set(inputs.tagId);
+        horizontalAnglePublisher.set(inputs.horizontalAngleDegrees);
+        verticalAnglePublisher.set(inputs.verticalAngleDegrees);
         distanceMetersPublisher.set(getDistanceToTargetMeters());
-        distanceCmPublisher.set(getDistanceToTargetCM());
-        horizontalAnglePublisher.set(getHorizontalAngleDegrees());
-        verticalAnglePublisher.set(getVerticalAngleDegrees());
         latencyPublisher.set(inputs.totalLatencyMs);
-
-        // AdvantageKit logging (unchanged)
-        // Logger.recordOutput("Vision/State", currentState.name());
-        // Logger.recordOutput("Vision/HasTarget", hasTarget());
-        // Logger.recordOutput("Vision/IsAligned", isAligned());
-        // Logger.recordOutput("Vision/Distance_m", getDistanceToTargetMeters());
-        // Logger.recordOutput("Vision/HorizontalAngle_deg", getHorizontalAngleDegrees());
     }
 }

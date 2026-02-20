@@ -73,7 +73,7 @@ public class RobotContainer {
     private final IntakeSubsystem intake;
     private final IndexerSubsystem indexer;
     private final ShooterSubsystem shooter;
-    private final VisionSubsystem vision;
+    public final VisionSubsystem .vision;
     private final LedSubsystem ledSubsystem;
     // private final ClimberSubsystem climber;
     // private final IntakeCommands intakeCommands; // Not needed since we can just use intake subsystem methods directly in bindings

@@ -1,147 +1,114 @@
 package frc.robot.subsystems.vision;
 
-import org.littletonrobotics.junction.LogTable;
-import org.littletonrobotics.junction.inputs.LoggableInputs;
+import edu.wpi.first.math.geometry.Pose2d;
+import frc.robot.LimelightHelpers.PoseEstimate;
 
 /**
- * VisionIO - Hardware abstraction interface for vision systems (Limelight, PhotonVision, etc.)
+ * VisionIO - Hardware abstraction interface for the vision subsystem.
  *
- * This interface defines the contract for vision hardware implementations, allowing the
- * VisionSubsystem to work with different camera systems without code changes.
+ * WHY AN INTERFACE?
+ * This lets us swap between real hardware (Limelight) and simulation
+ * without changing any code in VisionSubsystem. During practice at home
+ * without the robot, VisionIOSim can pretend to see targets.
  *
- * Pattern: IO Interface (inspired by FRC 2910, 254, 1678)
- * - VisionIO: Interface defining what vision hardware can do
- * - VisionIOLimelight: Implementation for Limelight cameras
- * - VisionIOSim: Implementation for simulation/testing
+ * WHAT THIS DOES:
+ * The Limelight camera sees AprilTags on the field and tells us:
+ *   1. WHERE the robot is on the field (pose estimation via MegaTag2)
+ *   2. WHICH DIRECTION a target is (tx = horizontal angle)
+ *   3. HOW FAR a target is (calculated from ty = vertical angle)
  *
- * Benefits:
- * - Hardware independence: Swap cameras without changing subsystem code
- * - Testability: Mock vision data for testing without hardware
- * - AdvantageKit integration: Clean logging and replay
+ * HOW MEGATAG2 WORKS (simple explanation):
+ * - The Limelight sees AprilTag(s) on the field
+ * - It knows exactly where every AprilTag is on the field (from a map)
+ * - Using the robot's current heading from the gyro + the tag positions,
+ *   it calculates where the robot must be on the field
+ * - We feed this into WPILib's pose estimator to keep odometry accurate
+ * - This corrects for wheel slip and drift that builds up over time
  */
 public interface VisionIO {
 
     /**
-     * Updates the vision inputs with the latest data from the camera.
-     * Called periodically (typically every 20ms) by VisionSubsystem.
+     * VisionIOInputs - All data we read from the camera each cycle.
      *
-     * @param inputs The VisionIOInputs object to populate with current data
+     * NOTE: No @AutoLog here because PoseEstimate is not a loggable type.
+     * We log individual fields manually in VisionSubsystem instead.
+     */
+    class VisionIOInputs {
+
+        // ===== Basic Target Detection =====
+        // These tell us if the camera sees anything and where it is
+
+        /** True if the camera sees at least one valid AprilTag */
+        public boolean hasTargets = false;
+
+        /**
+         * Horizontal angle to the primary target in degrees.
+         * Positive = target is to the RIGHT of center
+         * Negative = target is to the LEFT of center
+         * Used to align the robot rotationally to the target.
+         */
+        public double horizontalAngleDegrees = 0.0;
+
+        /**
+         * Vertical angle to the primary target in degrees.
+         * Positive = target is ABOVE center
+         * Negative = target is BELOW center
+         * Used to calculate distance using camera geometry.
+         */
+        public double verticalAngleDegrees = 0.0;
+
+        /** Target area as a percentage of the camera image (0.0 to 100.0).
+         *  Larger area = closer target. Useful for distance sanity checks. */
+        public double targetArea = 0.0;
+
+        /** AprilTag ID of the primary detected tag (-1 if none) */
+        public int tagId = -1;
+
+        // ===== MegaTag2 Pose Estimate =====
+        // This is the main reason we have vision — accurate field position
+
+        /**
+         * Full MegaTag2 pose estimate from the Limelight.
+         * Contains: robot Pose2d, timestamp, tag count, average distance, etc.
+         * Will be null if no tags are visible or camera is disconnected.
+         *
+         * MegaTag2 is Limelight's most accurate pose estimation mode.
+         * It uses the robot's gyro heading (which we send TO the Limelight)
+         * combined with AprilTag positions to calculate field position.
+         */
+        public PoseEstimate megaTag2Estimate = null;
+
+        /**
+         * True if megaTag2Estimate is valid and safe to use for odometry.
+         * Checks: not null, has at least one tag, robot isn't spinning too fast.
+         */
+        public boolean hasValidPoseEstimate = false;
+
+        // ===== Latency =====
+        /** Total camera latency in milliseconds (pipeline + capture).
+         *  Already accounted for in megaTag2Estimate.timestampSeconds. */
+        public double totalLatencyMs = 0.0;
+    }
+
+    /**
+     * Updates inputs with latest camera data.
+     * Called every periodic cycle by VisionSubsystem.
      */
     default void updateInputs(VisionIOInputs inputs) {}
 
     /**
-     * Sets the active vision pipeline on the camera.
-     * Different pipelines can be configured for different targets (AprilTags, game pieces, etc.)
+     * Sends the robot's current heading to the Limelight.
+     * REQUIRED for MegaTag2 to work correctly.
+     * Must be called before reading pose estimates.
      *
-     * @param pipelineIndex The pipeline index to activate (0-9 for Limelight)
+     * @param yawDegrees Robot heading in degrees (from gyro)
+     * @param yawRateDps How fast the robot is rotating (degrees per second)
+     */
+    default void setRobotOrientation(double yawDegrees, double yawRateDps) {}
+
+    /**
+     * Sets the active pipeline on the Limelight.
+     * Pipeline 0 is typically configured for AprilTag detection.
      */
     default void setPipeline(int pipelineIndex) {}
-
-    /**
-     * Controls the camera's LED mode.
-     *
-     * @param mode The LED mode to set
-     */
-    default void setLEDMode(LEDMode mode) {}
-
-    /**
-     * LED control modes for vision cameras.
-     */
-    enum LEDMode {
-        /** Use the LED mode specified by the current pipeline */
-        PIPELINE_DEFAULT(0),
-
-        /** Force LEDs off */
-        FORCE_OFF(1),
-
-        /** Force LEDs to blink */
-        FORCE_BLINK(2),
-
-        /** Force LEDs on */
-        FORCE_ON(3);
-
-        public final int value;
-
-        LEDMode(int value) {
-            this.value = value;
-        }
-    }
-
-    /**
-     * VisionIOInputs - Container for all vision data read from hardware.
-     *
-     * This class holds all the data we read from the camera each cycle.
-     * It implements LoggableInputs for automatic AdvantageKit logging.
-     *
-     * All fields are public for easy access by VisionSubsystem.
-     */
-    class VisionIOInputs implements LoggableInputs {
-        // ===== Timestamp Data =====
-        /**
-         * Timestamp when this vision data was captured (FPGA time in seconds).
-         * Accounts for pipeline and capture latency for accurate pose estimation.
-         */
-        public double timestamp = 0.0;
-
-        // ===== Target Detection =====
-        /** True if the camera sees a valid target (tv = 1) */
-        public boolean hasTargets = false;
-
-        /** Horizontal angle to target in radians (tx converted from degrees) */
-        public double horizontalAngleRadians = 0.0;
-
-        /** Vertical angle to target in radians (ty converted from degrees) */
-        public double verticalAngleRadians = 0.0;
-
-        /** Target area as percentage of image (0.0 to 100.0) */
-        public double targetArea = 0.0;
-
-        // ===== AprilTag Specific Data =====
-        /** AprilTag fiducial ID (-1 if no tag detected) */
-        public int tagId = -1;
-
-        /**
-         * Robot pose in field coordinates from AprilTag (botpose).
-         * Array: [x, y, z, roll, pitch, yaw] in meters and degrees.
-         */
-        public double[] botpose = new double[6];
-
-        // ===== Latency Data =====
-        /** Pipeline processing latency in milliseconds */
-        public double pipelineLatencyMs = 0.0;
-
-        /** Image capture latency in milliseconds */
-        public double captureLatencyMs = 0.0;
-
-        /** Total latency (pipeline + capture) in milliseconds */
-        public double totalLatencyMs = 0.0;
-
-        @Override
-        public void toLog(LogTable table) {
-            table.put("Timestamp", timestamp);
-            table.put("HasTargets", hasTargets);
-            table.put("HorizontalAngleRad", horizontalAngleRadians);
-            table.put("VerticalAngleRad", verticalAngleRadians);
-            table.put("TargetArea", targetArea);
-            table.put("TagId", tagId);
-            table.put("Botpose", botpose);
-            table.put("PipelineLatencyMs", pipelineLatencyMs);
-            table.put("CaptureLatencyMs", captureLatencyMs);
-            table.put("TotalLatencyMs", totalLatencyMs);
-        }
-
-        @Override
-        public void fromLog(LogTable table) {
-            timestamp = table.get("Timestamp", timestamp);
-            hasTargets = table.get("HasTargets", hasTargets);
-            horizontalAngleRadians = table.get("HorizontalAngleRad", horizontalAngleRadians);
-            verticalAngleRadians = table.get("VerticalAngleRad", verticalAngleRadians);
-            targetArea = table.get("TargetArea", targetArea);
-            tagId = table.get("TagId", tagId);
-            botpose = table.get("Botpose", botpose);
-            pipelineLatencyMs = table.get("PipelineLatencyMs", pipelineLatencyMs);
-            captureLatencyMs = table.get("CaptureLatencyMs", captureLatencyMs);
-            totalLatencyMs = table.get("TotalLatencyMs", totalLatencyMs);
-        }
-    }
 }

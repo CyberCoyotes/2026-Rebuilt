@@ -1,123 +1,117 @@
 package frc.robot.subsystems.vision;
 
-import edu.wpi.first.networktables.NetworkTable;
-import edu.wpi.first.networktables.NetworkTableEntry;
-import edu.wpi.first.networktables.NetworkTableInstance;
-import edu.wpi.first.wpilibj.Timer;
-import edu.wpi.first.math.util.Units;
+import frc.robot.LimelightHelpers;
 
 /**
- * VisionIOLimelight - Limelight hardware implementation of VisionIO interface.
+ * VisionIOLimelight - Real hardware implementation for Limelight 4.
  *
- * This class handles all communication with the Limelight camera via NetworkTables.
- * It reads vision data and provides it to the VisionSubsystem in a hardware-independent format.
+ * This class is intentionally simple. It does three things:
+ *   1. Tells the Limelight the robot's current heading (needed for MegaTag2)
+ *   2. Reads the MegaTag2 pose estimate (where is the robot on the field?)
+ *   3. Reads basic targeting data (tx, ty, ta) for alignment
  *
- * Key Features:
- * - Caches NetworkTable entries for performance
- * - Accurately calculates timestamps accounting for latency
- * - Converts angles to radians for consistency
- * - Thread-safe synchronized methods
- * - Defensive copying of arrays
+ * All the complex Limelight communication is handled by LimelightHelpers.
+ * This class just calls the right methods and puts data into VisionIOInputs.
  *
- * NetworkTables Reference (Limelight):
- * - tv: Valid target (0 or 1)
- * - tx: Horizontal offset to target in degrees
- * - ty: Vertical offset to target in degrees
- * - ta: Target area (0-100% of image)
- * - tid: AprilTag ID
- * - botpose: Robot pose from AprilTag [x, y, z, roll, pitch, yaw]
- * - tl: Pipeline latency (ms)
- * - cl: Capture latency (ms)
+ * MEGATAG2 EXPLAINED FOR STUDENTS:
+ * Normal odometry drifts over time because of wheel slip.
+ * Vision correction works like this:
+ *   - We tell Limelight our heading from the gyro (setRobotOrientation)
+ *   - Limelight sees AprilTags and calculates where the robot must be
+ *   - We feed that position into WPILib's pose estimator
+ *   - WPILib blends vision + odometry together for best accuracy
+ *
+ * The key insight: gyros are accurate for heading but drift for position.
+ * AprilTags are accurate for position. Together they're better than either alone.
  */
 public class VisionIOLimelight implements VisionIO {
 
-    // ===== NetworkTable Entries =====
-    private final NetworkTable limelightTable;
-    private final NetworkTableEntry validEntry;
-    private final NetworkTableEntry txEntry;
-    private final NetworkTableEntry tyEntry;
-    private final NetworkTableEntry taEntry;
-    private final NetworkTableEntry tagIdEntry;
-    private final NetworkTableEntry botposeEntry;
-    private final NetworkTableEntry pipelineLatencyEntry;
-    private final NetworkTableEntry captureLatencyEntry;
-    private final NetworkTableEntry ledModeEntry;
-    private final NetworkTableEntry pipelineEntry;
+    private final String cameraName;
 
     /**
-     * Creates a new VisionIOLimelight instance.
-     *
-     * @param limelightName The NetworkTable name of the Limelight (e.g., "limelight", "limelight-front")
+     * Maximum rotation speed at which we trust vision pose estimates.
+     * When spinning fast, the camera blur makes pose estimates unreliable.
+     * 2.0 rotations/second is about 720 degrees/second — pretty fast.
      */
-    public VisionIOLimelight(String limelightName) {
-        // Get the Limelight's NetworkTable
-        limelightTable = NetworkTableInstance.getDefault().getTable(limelightName);
+    private static final double MAX_ANGULAR_VELOCITY_RPS = 2.0;
 
-        // Cache NetworkTable entries for performance (avoid repeated lookups)
-        validEntry = limelightTable.getEntry("tv");
-        txEntry = limelightTable.getEntry("tx");
-        tyEntry = limelightTable.getEntry("ty");
-        taEntry = limelightTable.getEntry("ta");
-        tagIdEntry = limelightTable.getEntry("tid");
-        botposeEntry = limelightTable.getEntry("botpose");
-        pipelineLatencyEntry = limelightTable.getEntry("tl");
-        captureLatencyEntry = limelightTable.getEntry("cl");
-        ledModeEntry = limelightTable.getEntry("ledMode");
-        pipelineEntry = limelightTable.getEntry("pipeline");
+    /**
+     * Creates a new VisionIOLimelight.
+     *
+     * @param cameraName Must match exactly the hostname set in Limelight settings
+     *                   (e.g., "limelight-four" not "four" or "limelight")
+     */
+    public VisionIOLimelight(String cameraName) {
+        this.cameraName = cameraName;
 
-        // Initialize Limelight to known state
-        setLEDMode(LEDMode.PIPELINE_DEFAULT);
-        setPipeline(0); // Default to pipeline 0 (AprilTags)
+        // Warm up the LimelightHelpers NT entry cache.
+        // LimelightHelpers creates NetworkTable entries lazily (on first use).
+        // Calling this now pays that cost during startup instead of
+        // mid-match on the first periodic() call.
+        LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2(cameraName);
+
+        // Start on pipeline 0 (AprilTag pipeline)
+        setPipeline(0);
     }
 
+    /**
+     * Sends the robot's heading to the Limelight and reads all vision data.
+     * Called every 20ms by VisionSubsystem.
+     *
+     * ORDER MATTERS:
+     * setRobotOrientation must be called BEFORE getBotPoseEstimate_wpiBlue_MegaTag2.
+     * The Limelight uses the heading we send to calculate the pose estimate.
+     * If we read the estimate first, we'd be using the heading from last cycle.
+     */
     @Override
-    public synchronized void updateInputs(VisionIOInputs inputs) {
-        // Read latency values first
-        double pipelineLatency = pipelineLatencyEntry.getDouble(0.0);
-        double captureLatency = captureLatencyEntry.getDouble(0.0);
-        double totalLatency = pipelineLatency + captureLatency;
+    public void updateInputs(VisionIOInputs inputs) {
+        // Step 1: Read the MegaTag2 pose estimate
+        // (orientation was already sent this cycle via setRobotOrientation,
+        //  which VisionSubsystem calls before updateInputs)
+        var estimate = LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2(cameraName);
 
-        // Calculate accurate timestamp by subtracting total latency
-        // This gives us when the image was actually captured, not when we read it
-        inputs.timestamp = Timer.getFPGATimestamp() - (totalLatency / 1000.0);
+        inputs.megaTag2Estimate = estimate;
 
-        // Store latency values
-        inputs.pipelineLatencyMs = pipelineLatency;
-        inputs.captureLatencyMs = captureLatency;
-        inputs.totalLatencyMs = totalLatency;
+        // Validate the estimate before marking it usable
+        // tagCount > 0 means we actually saw a tag (not just a stale estimate)
+        inputs.hasValidPoseEstimate = estimate != null
+                && estimate.tagCount > 0;
 
-        // Check if we have a valid target
-        inputs.hasTargets = validEntry.getDouble(0.0) > 0.5; // Use 0.5 threshold for robustness
+        inputs.totalLatencyMs = (estimate != null) ? estimate.latency : 0.0;
+
+        // Step 2: Read basic targeting data (used for alignment commands)
+        inputs.hasTargets = LimelightHelpers.getTV(cameraName);
 
         if (inputs.hasTargets) {
-            // Read target data and convert to standard units (radians)
-            inputs.horizontalAngleRadians = Units.degreesToRadians(txEntry.getDouble(0.0));
-            inputs.verticalAngleRadians = Units.degreesToRadians(tyEntry.getDouble(0.0));
-            inputs.targetArea = taEntry.getDouble(0.0);
-
-            // Read AprilTag specific data
-            inputs.tagId = (int) tagIdEntry.getDouble(-1.0);
-
-            // Clone botpose array for defensive copy (prevents external modification)
-            double[] rawBotpose = botposeEntry.getDoubleArray(new double[6]);
-            inputs.botpose = rawBotpose.clone();
+            inputs.horizontalAngleDegrees = LimelightHelpers.getTX(cameraName);
+            inputs.verticalAngleDegrees = LimelightHelpers.getTY(cameraName);
+            inputs.targetArea = LimelightHelpers.getTA(cameraName);
+            inputs.tagId = (int) LimelightHelpers.getFiducialID(cameraName);
         } else {
-            // No target detected - reset all values to zero/invalid
-            inputs.horizontalAngleRadians = 0.0;
-            inputs.verticalAngleRadians = 0.0;
+            inputs.horizontalAngleDegrees = 0.0;
+            inputs.verticalAngleDegrees = 0.0;
             inputs.targetArea = 0.0;
             inputs.tagId = -1;
-            inputs.botpose = new double[6]; // All zeros
         }
+    }
+
+    /**
+     * Sends robot heading to Limelight for MegaTag2.
+     * Use the _NoFlush variant — regular SetRobotOrientation forces a
+     * synchronous NT flush every loop which wastes ~5ms.
+     */
+    @Override
+    public void setRobotOrientation(double yawDegrees, double yawRateDps) {
+        LimelightHelpers.SetRobotOrientation_NoFlush(
+                cameraName,
+                yawDegrees,
+                yawRateDps,
+                0, 0, 0, 0   // pitch/roll not needed for ground robots
+        );
     }
 
     @Override
     public void setPipeline(int pipelineIndex) {
-        pipelineEntry.setNumber(pipelineIndex);
-    }
-
-    @Override
-    public void setLEDMode(LEDMode mode) {
-        ledModeEntry.setNumber(mode.value);
+        LimelightHelpers.setPipelineIndex(cameraName, pipelineIndex);
     }
 }
