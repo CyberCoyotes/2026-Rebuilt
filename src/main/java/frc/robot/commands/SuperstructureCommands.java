@@ -64,9 +64,9 @@ public final class SuperstructureCommands {
      * @param shooter ShooterSubsystem
      * @param indexer IndexerSubsystem
      */
-    public static Command longShot(ShooterSubsystem shooter, IndexerSubsystem indexer) {
+    public static Command towerShot(ShooterSubsystem shooter, IndexerSubsystem indexer) {
         return Commands.deadline(
-            shooter.farShot(),                                            // flywheel + hood (deadline)
+            shooter.towerShot(),                                            // flywheel + hood (deadline)
             Commands.sequence(
                 Commands.waitUntil(shooter::isReady)                      // wait for flywheel
                         .withTimeout(READY_TIMEOUT_SECONDS),
