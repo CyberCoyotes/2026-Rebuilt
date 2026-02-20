@@ -196,10 +196,9 @@ public class ShooterSubsystem extends SubsystemBase {
      * EXAMPLE: operatorController.a().whileTrue(shooter.shoot3603());
      */
     public Command shoot3603() {
-        return Commands.startEnd(
-            () -> setFlywheelAndHood(3603.0, CLOSE_SHOT_HOOD),
-            this::stopAndHome,
-            this
+        return Commands.run(
+            // run the flywheels at 3600 RPM
+            () -> setFlywheelAndHood(3600.0, CLOSE_SHOT_HOOD), this 
         ).withName("Shoot3603");
     }
 
