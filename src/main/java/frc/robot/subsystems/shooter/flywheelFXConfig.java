@@ -30,15 +30,15 @@ public final class flywheelFXConfig {
     TalonFXConfiguration config = base();
 
     // // ===== Current Limits (Aggressive for Testing) =====
-    // config.CurrentLimits.SupplyCurrentLimit = 60.0;
-    // config.CurrentLimits.SupplyCurrentLimitEnable = true;
+    config.CurrentLimits.SupplyCurrentLimit = 60.0;
+    config.CurrentLimits.SupplyCurrentLimitEnable = true;
 
-    // config.CurrentLimits.StatorCurrentLimit = 120.0;
-    // config.CurrentLimits.StatorCurrentLimitEnable = true;
+    config.CurrentLimits.StatorCurrentLimit = 120.0;
+    config.CurrentLimits.StatorCurrentLimitEnable = true;
 
     // // ===== Ramps =====
     // config.OpenLoopRamps.VoltageOpenLoopRampPeriod = 0.5;
-    // config.ClosedLoopRamps.VoltageClosedLoopRampPeriod = 0.5;
+    config.ClosedLoopRamps.VoltageClosedLoopRampPeriod = 0.5;
 
     return config;
   }

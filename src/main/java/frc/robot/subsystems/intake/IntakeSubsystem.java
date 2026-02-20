@@ -26,11 +26,9 @@ public class IntakeSubsystem extends SubsystemBase {
     // final static double JAM_VELOCITY_THRESHOLD = 0.5; // velocity should be over this
 
     // Mechanical limits for the slide, may need to be tuned
-    final static double SLIDE_MIN_POSITION = 0;
-    final static double SLIDE_MAX_POSITION = 1.91;
 
     final static double SLIDE_RETRACTED_POSITION = 0.0;
-    final static double SLIDE_EXTENDED_POSITION = 1.85;
+    final static double SLIDE_EXTENDED_POSITION = 44.4;
 
     final static double ROLLER_VOLTS = 6; // Voltage to run the roller at for intaking fuel, may need to be tuned
     // 4 is not enough

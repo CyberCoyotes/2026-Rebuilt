@@ -29,7 +29,7 @@ public class IndexerSubsystem extends SubsystemBase {
   // ===== Voltage Presets =====
   public static final double CONVEYOR_FORWARD_VOLTAGE = 4.0;   // TODO tune
   public static final double CONVEYOR_REVERSE_VOLTAGE = -4.0;
-  public static final double INDEXER_FORWARD_VOLTAGE = 5.0;    // TODO tune
+  public static final double INDEXER_FORWARD_VOLTAGE = 4.0;    // TODO tune
   public static final double INDEXER_REVERSE_VOLTAGE = -5.0;
 
   public IndexerSubsystem(IndexerIO io) {
