@@ -20,6 +20,7 @@ import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.RobotModeTriggers;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
 
+import frc.robot.commands.SuperstructureCommands;
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
 import frc.robot.subsystems.indexer.IndexerSubsystem;
@@ -148,48 +149,23 @@ public class RobotContainer {
 // );
 
 
-        /* TODO Test rampTestShoot first, comment out, and try this one */
-        /*
-        driver.rightTrigger(0.5).whileTrue(
-            Commands.parallel(
-                ShooterCommands.rampUpFlywheel(shooter, ShooterSubsystem.RAMP_TEST_TARGET_RPM),
-                Commands.waitUntil(shooter::isReady).withTimeout(5.0), // Timeout to prevent indefinite waiting if something goes wrong
-                Commands.run(indexer::indexerForward).withTimeout(10.0) // Run indexer forward for 10 seconds or until interrupted (e.g., by releasing trigger)
-            )
-        );
-        */
+        // =====================================================================
+        // DRIVER CONTROLLER (Port 0) - Shooting
+        // Flywheel spins up immediately on press, indexer feeds once ready.
+        // Everything stops automatically on button release.
+        // =====================================================================
 
-        // Y: Close shot (prepare and wait for ready)
-        // driver.a().onTrue(ShooterCommands.closeShot(shooter)); // TODO Comment out for testing without flywheel
-        // Close shot hood preset — sets target AND transitions to READY so motor actually moves
-        // driver.a().onTrue(Commands.runOnce(() -> {
-        //     shooter.setTargetHoodPose(ShooterSubsystem.CLOSE_SHOT_HOOD);
-        //     shooter.prepareToShoot();
-        // }));
+        // Right Trigger: Close shot (subwoofer / near target)
+        // driver.rightTrigger(0.5).whileTrue(SuperstructureCommands.closeShot(shooter, indexer));
 
-        // X: Far shot (prepare and wait for ready)
-        // driver.x().onTrue(Commands.runOnce(() -> {
-        //     shooter.setTargetHoodPose(ShooterSubsystem.FAR_SHOT_HOOD);
-        //     shooter.prepareToShoot();
-        // }));
+        // Left Trigger: Long shot (far from target)
+        // driver.leftTrigger(0.5).whileTrue(SuperstructureCommands.longShot(shooter, indexer));
 
-        // B: Pass shot (prepare and wait for ready)
-        // driver.b().onTrue(Commands.runOnce(() -> {
-        //     shooter.setTargetHoodPose(ShooterSubsystem.PASS_SHOT_HOOD);
-        //     shooter.prepareToShoot();
-        // }));
-        // driver.y().whileTrue(
-        //     Commands.startEnd(indexer::indexerForward, indexer::indexerStop));
-        // // POV Up: Eject from shooter (clear jams, 1 second reverse)
-        
-        // driver.povLeft().onTrue(ShooterCommands.eject(shooter, 1.0));
+        // Right Bumper: Trench shot (tune TRENCH_SHOT_RPM / TRENCH_SHOT_HOOD in ShooterSubsystem)
+        // driver.rightBumper().whileTrue(SuperstructureCommands.trenchShot(shooter, indexer));
 
-        // ----- Indexer -----
-        // Right Bumper: Feed game piece to shooter (while held)
-        //driver.rightBumper().whileTrue(IndexerCommands.feed(indexer));
-
-        // POV Down: Eject from indexer (clear jams, 1 second reverse)
-       // driver.povDown().onTrue(IndexerCommands.eject(indexer, 1.0));
+        // POV Left: Eject from shooter (clear jams)
+        // driver.povLeft().whileTrue(shooter.eject());
 
         // ----- Intake -----
         // Left Trigger: Run intake rotator and slides(while held)
@@ -213,55 +189,23 @@ public class RobotContainer {
         // Start: Stop climber
        // operator.start().onTrue(climber.stopClimber());
 
-        // ----- Operator Controller (Port 1) - Shooter Hood Testing -----
-        // operator.povDown().onTrue(shooter.runOnce(shooter::decreaseHoodForTesting));
-        // operator.povUp().onTrue(shooter.runOnce(shooter::increaseHoodForTesting));
-
-        // Hood position testing (closed-loop position control)
-        // operator.rightBumper().onTrue(shooter.runHoodToMax());   // Move hood to MAX_HOOD_POSE
-        // operator.leftBumper().onTrue(shooter.runHoodToMin());    // Move hood to MIN_HOOD_POSE
-        // operator.rightBumper().whileTrue(
-        //     Commands.startEnd(
-        //         () -> indexer.conveyorForward(), 
-        //         () -> indexer.conveyorStop(), 
-        //         indexer)
-        // );
-
-
-        // //
-        // operator.rightTrigger(0.5).whileTrue(
-        //     ShooterCommands.visionShot(shooter, vision)
-        // );
-        
-
-        // /* */
-        // operator.rightTrigger(0.5).whileTrue(
-        //     Commands.parallel(
-        //         ShooterCommands.rampUpFlywheel(shooter, ShooterSubsystem.RAMP_TEST_TARGET_RPM),
-        //         Commands.waitUntil(shooter::isReady).withTimeout(10.0), // Timeout to prevent indefinite waiting if something goes wrong
-        //         Commands.run(indexer::indexerForward).withTimeout(10.0) // Run indexer forward for 10 seconds or until interrupted (e.g., by releasing trigger)
-        //     )
-        // );
-    
-
         // =====================================================================
-        // OPERATOR CONTROLLER (Port 1) - Flywheel Velocity Adjustment
+        // OPERATOR CONTROLLER (Port 1) - Tuning / Testing
         // =====================================================================
-        // TODO: Uncomment these bindings when ready for on-robot testing
-        // POV Up: Increase flywheel velocity by 100 RPM
-        // operator.povUp().onTrue(ShooterCommands.increaseTargetVelocity(shooter, ShooterSubsystem.FLYWHEEL_TEST_INCREMENT_RPM));
-        // POV Down: Decrease flywheel velocity by 100 RPM
-        // operator.povDown().onTrue(ShooterCommands.decreaseTargetVelocity(shooter, ShooterSubsystem.FLYWHEEL_TEST_INCREMENT_RPM));
 
-        // TODO Add testing bindings for conveyor and indexer
-        // operator.a().whileTrue(
-        //     Commands.startEnd(indexer::conveyorForward, indexer::conveyorStop));
-        // operator.b().whileTrue(
-        //     Commands.startEnd(indexer::conveyorReverse, indexer::conveyorStop));
-        // operator.x().whileTrue(
-        //     Commands.startEnd(indexer::indexerForward, indexer::indexerStop));
-        // operator.y().whileTrue(
-        //     Commands.startEnd(indexer::indexerReverse, indexer::indexerStop));       
+        // POV Up/Down: Bump flywheel RPM +/- 100 for live tuning
+        // operator.povUp().onTrue(shooter.increaseVelocity());
+        // operator.povDown().onTrue(shooter.decreaseVelocity());
+
+        // POV Right/Left: Bump hood position for live tuning
+        // operator.povRight().onTrue(shooter.increaseHood());
+        // operator.povLeft().onTrue(shooter.decreaseHood());
+
+        // Individual motor testing (conveyor / indexer)
+        // operator.a().whileTrue(Commands.startEnd(indexer::conveyorForward, indexer::conveyorStop, indexer));
+        // operator.b().whileTrue(Commands.startEnd(indexer::conveyorReverse, indexer::conveyorStop, indexer));
+        // operator.x().whileTrue(Commands.startEnd(indexer::indexerForward, indexer::indexerStop, indexer));
+        // operator.y().whileTrue(Commands.startEnd(indexer::indexerReverse, indexer::indexerStop, indexer));
 
     }
 

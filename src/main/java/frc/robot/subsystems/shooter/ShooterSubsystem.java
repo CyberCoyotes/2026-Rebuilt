@@ -97,7 +97,10 @@ public class ShooterSubsystem extends SubsystemBase {
     public static final double TEAM_SHOT_RPM  = 3603;   // TODO Tune RPM
     public static final double TEAM_SHOT_HOOD = 3.603;  // TODO Tune hood
 
-    
+    /** Trench shot — low, fast shot from under the trench bar */
+    public static final double TRENCH_SHOT_RPM  = 2500.0;                   // TODO Tune
+    public static final double TRENCH_SHOT_HOOD = MAX_HOOD_POSE_ROT * 0.3;  // TODO Tune
+
     /** Eject: reverse flywheel to clear jams */
     private static final double EJECT_RPM = MAX_FLYWHEEL_MOTOR_RPM * -0.50; // TODO Tune eject velocity
 
@@ -239,6 +242,18 @@ public class ShooterSubsystem extends SubsystemBase {
             this::stopAndHome,
             this
         ).withName("PassShot");
+    }
+
+    /**
+     * Trench shot (TRENCH_SHOT_RPM + TRENCH_SHOT_HOOD).
+     * Designed for whileTrue() — stops automatically when button is released.
+     */
+    public Command trenchShot() {
+        return Commands.startEnd(
+            () -> setFlywheelAndHood(TRENCH_SHOT_RPM, TRENCH_SHOT_HOOD),
+            this::stopAndHome,
+            this
+        ).withName("TrenchShot");
     }
 
     /**
