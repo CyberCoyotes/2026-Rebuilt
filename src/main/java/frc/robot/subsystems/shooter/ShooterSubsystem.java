@@ -253,7 +253,10 @@ public class ShooterSubsystem extends SubsystemBase {
         ).withName("TrenchShot");
     }
 
-        public Command shoot3603() {
+    /*
+    * Test shot
+    */
+    public Command shoot3603() {
         return Commands.startEnd(
             () -> setFlywheelAndHood(TEAM_SHOT_RPM, TEAM_SHOT_HOOD),
             this::stopAndHome,
@@ -319,13 +322,13 @@ public class ShooterSubsystem extends SubsystemBase {
      *
      * @param targetRPM Target flywheel velocity
      */
-    public Command flywheelRampTest(double targetRPM) {
-        return Commands.startEnd(
-            () -> setFlywheelAndHood(targetRPM, CLOSE_SHOT_HOOD),
-            this::stopAndHome,
-            this
-        ).withName("FlywheelRampTest");
-    }
+    // public Command flywheelRampTest(double targetRPM) {
+    //     return Commands.startEnd(
+    //         () -> setFlywheelAndHood(targetRPM, CLOSE_SHOT_HOOD),
+    //         this::stopAndHome,
+    //         this
+    //     ).withName("FlywheelRampTest");
+    // }
 
     // ===== Manual Bump Adjustments =====
     // Useful for tuning sessions via controller buttons
@@ -372,19 +375,21 @@ public class ShooterSubsystem extends SubsystemBase {
      *
      * @param distanceMeters Distance to target in meters
      */
-    public void updateFromDistance(double distanceMeters) {
-        double distance = Math.max(1.0, Math.min(5.0, distanceMeters));
-        double t = (distance - 1.0) / (5.0 - 1.0);
-        double velocity = CLOSE_SHOT_RPM + t * (TRENCH_SHOT_RPM - CLOSE_SHOT_RPM);
-        double pose = CLOSE_SHOT_HOOD + t * (TRENCH_SHOT_HOOD - CLOSE_SHOT_HOOD);
-        setFlywheelAndHood(velocity, pose);
-    }
+
+    // Comment out for now — we don't have vision set up yet, and this can be added later once we have real distance measurements to work with.
+    // public void updateFromDistance(double distanceMeters) {
+    //     double distance = Math.max(1.0, Math.min(5.0, distanceMeters));
+    //     double t = (distance - 1.0) / (5.0 - 1.0);
+    //     double velocity = CLOSE_SHOT_RPM + t * (TRENCH_SHOT_RPM - CLOSE_SHOT_RPM);
+    //     double pose = CLOSE_SHOT_HOOD + t * (TRENCH_SHOT_HOOD - CLOSE_SHOT_HOOD);
+    //     setFlywheelAndHood(velocity, pose);
+    // }
 
     // =========================================================================
     // STATUS QUERIES
     // =========================================================================
 
-    /** Returns true if flywheel and hood are both at their targets. */
+    /** Returns true if flywheel AND hood are both at their targets. */
     public boolean isReady() {
         return isFlywheelAtVelocity() && isHoodAtPose();
     }
@@ -402,6 +407,8 @@ public class ShooterSubsystem extends SubsystemBase {
     public boolean isHoodAtPose() {
         return Math.abs(inputs.hoodPositionRotations - targetHoodPoseRot) < HOOD_POSE_TOLERANCE;
     }
+
+    // 
 
     /** Gets current flywheel velocity error (target - actual). */
     public double getFlywheelError() {

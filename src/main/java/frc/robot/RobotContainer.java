@@ -20,7 +20,7 @@ import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.RobotModeTriggers;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
 
-import frc.robot.commands.SuperstructureCommands;
+import frc.robot.commands.SuperCommands;
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
 import frc.robot.subsystems.indexer.IndexerSubsystem;
@@ -40,8 +40,8 @@ import frc.robot.subsystems.vision.VisionSubsystem;
 @SuppressWarnings("unused") // Suppress warnings for unused right now
 
 public class RobotContainer {
-    /* TODO Lower max speed and angular rate for testing, 
-    * then increase to actual desired values once we have tested the robot's responsiveness and handling at lower speeds.
+    /* TODO Clamp max speed and angular rate for testing 
+    * Increase to actual desired values once we have tested the robot's responsiveness and handling at lower speeds.
     * This will help prevent runaway situations while tuning.*/
     private double MaxSpeed = 0.5 * TunerConstants.kSpeedAt12Volts.in(MetersPerSecond); // kSpeedAt12Volts desired top speed
     private double MaxAngularRate = RotationsPerSecond.of(0.5).in(RadiansPerSecond); // 3/4 0.75 of a rotation per second max angular velocity
@@ -73,7 +73,6 @@ public class RobotContainer {
     private final VisionSubsystem vision;
     private final LedSubsystem ledSubsystem;
     // private final ClimberSubsystem climber;
-    // private final IntakeCommands intakeCommands; // Not needed since we can just use intake subsystem methods directly in bindings
 
     /* Path follower */
     private final AutoFactory autoFactory;
@@ -123,7 +122,8 @@ public class RobotContainer {
         );
        
         // B: Point wheels at joystick direction (for testing)
-       /*  driver.b().whileTrue(drivetrain.applyRequest(() ->
+       /*  
+       driver.b().whileTrue(drivetrain.applyRequest(() ->
             point.withModuleDirection(new Rotation2d(-driver.getLeftY(), -driver.getLeftX()))
         ));
 
@@ -133,7 +133,9 @@ public class RobotContainer {
         );
         driver.povDown().whileTrue(drivetrain.applyRequest(() ->
             forwardStraight.withVelocityX(-0.5).withVelocityY(0))
-        );*/
+        );
+        */
+
         // start: Reset field-centric heading
         // driver.start().onTrue(drivetrain.runOnce(drivetrain::seedFieldCentric));
 
@@ -144,9 +146,21 @@ public class RobotContainer {
         // DRIVER CONTROLLER (Port 0) - Mechanisms
         // =====================================================================
 
-// driver.rightTrigger(0.5).whileTrue(
+        // Testing shooter and indexer together with SuperCommands. Use whileTrue() to automatically stop on release.
 
-// );
+        // TODO Test these commands and tune shooter RPMs and hood positions for each shot type. The current values are placeholders.
+
+        // Right Trigger: Close shot
+        // driver.rightTrigger(0.5).whileTrue(SuperCommands.closeShot(shooter, indexer));
+        
+        // Long shot
+        // driver.rightTrigger(0.5).whileTrue(SuperCommands.towerShot(shooter, indexer));
+        
+        // Trench shot
+        // driver.rightTrigger().whileTrue(SuperCommands.trenchShot(shooter, indexer));
+
+        // Team Shot
+        driver.rightTrigger().whileTrue(SuperCommands.shoot3603(shooter, indexer));
 
 
         // =====================================================================

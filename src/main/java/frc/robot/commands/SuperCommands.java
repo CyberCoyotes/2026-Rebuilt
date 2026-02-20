@@ -24,14 +24,14 @@ import frc.robot.subsystems.shooter.ShooterSubsystem;
  *   operator.leftTrigger().whileTrue(SuperstructureCommands.longShot(shooter, indexer));
  *   operator.rightBumper().whileTrue(SuperstructureCommands.trenchShot(shooter, indexer));
  */
-public final class SuperstructureCommands {
+public final class SuperCommands {
 
     // How long to wait for the flywheel to reach speed before feeding anyway.
     // Prevents getting stuck forever if the flywheel never hits its target.
-    private static final double READY_TIMEOUT_SECONDS = 3.0; // TODO: Tune per game situation
+    private static final double READY_TIMEOUT_SECONDS = 3.6; // TODO: Tune timeout per game situation
 
     // Private constructor — static utility class, never instantiated.
-    private SuperstructureCommands() {}
+    private SuperCommands() {}
 
     // =========================================================================
     // SHOT COMMANDS
@@ -93,5 +93,16 @@ public final class SuperstructureCommands {
                 indexer.feed()                                            // feed until cancelled
             )
         ).withName("Superstructure.TrenchShot");
+    }
+
+        public static Command shoot3603(ShooterSubsystem shooter, IndexerSubsystem indexer) {
+        return Commands.deadline(
+            shooter.shoot3603(),                                         // flywheel + hood (deadline)
+            Commands.sequence(
+                Commands.waitUntil(shooter::isReady)                      // wait for flywheel
+                        .withTimeout(READY_TIMEOUT_SECONDS),
+                indexer.feed()                                            // feed until cancelled
+            )
+        ).withName("Superstructure.Shoot3603");
     }
 }

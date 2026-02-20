@@ -71,6 +71,8 @@ public class ShooterIOHardware implements ShooterIO {
     flywheelMotorA.getConfigurator().apply(flywheelFXConfig.test());
     flywheelMotorB.getConfigurator().apply(flywheelFXConfig.test());
     flywheelMotorC.getConfigurator().apply(flywheelFXConfig.test());
+    
+    // Hood motor config 
     hoodMotor.getConfigurator().apply(hoodFXSConfig.hood());
 
     // Cache status signal references

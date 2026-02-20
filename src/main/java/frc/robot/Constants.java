@@ -122,7 +122,7 @@ public final class Constants {
     // Target heights (from 2024 game manual - update for 2025/2026)
     /** Height of AprilTag center from floor in meters */
     // EXAMPLE
-    public static final double APRILTAG_HEIGHT_METERS = 1.45;  // TODO: Update for 2026 game
+    public static final double APRILTAG_HEIGHT_METERS = 1.45;  // TODO: Update
 
     // Alignment tolerances
     /** Tolerance for horizontal alignment in degrees */
