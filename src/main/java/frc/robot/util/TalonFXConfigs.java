@@ -170,7 +170,7 @@ public class TalonFXConfigs {
 
         // Motor output configuration
         config.MotorOutput.NeutralMode = NeutralModeValue.Brake;
-        config.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
+        config.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
 
         // Current limits - lower for intake
         config.CurrentLimits.SupplyCurrentLimit = 60.0;
@@ -180,9 +180,9 @@ public class TalonFXConfigs {
         config.CurrentLimits.StatorCurrentLimitEnable = true;
 
         // Soft limits
-        config.SoftwareLimitSwitch.ForwardSoftLimitEnable = true;
-        config.SoftwareLimitSwitch.ForwardSoftLimitThreshold = 1.90;
-        config.SoftwareLimitSwitch.ReverseSoftLimitEnable = true;
+        config.SoftwareLimitSwitch.ForwardSoftLimitEnable = false; //TODO: Enable after tuning
+        config.SoftwareLimitSwitch.ForwardSoftLimitThreshold = 0.00; // Set based on physical slide range
+        config.SoftwareLimitSwitch.ReverseSoftLimitEnable = false;
         config.SoftwareLimitSwitch.ReverseSoftLimitThreshold = 0.00;
 
         config.Slot0.kP = 2.0;   // TODO: Tune — increase if response is too sluggish

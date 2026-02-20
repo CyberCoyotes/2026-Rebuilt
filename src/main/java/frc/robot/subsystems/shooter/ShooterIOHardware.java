@@ -62,7 +62,7 @@ public class ShooterIOHardware implements ShooterIO {
     hoodMotor = new TalonFXS(Constants.Shooter.HOOD_MOTOR_ID, Constants.RIO_CANBUS);
     hoodEncoder = new CANcoder(Constants.Shooter.HOOD_POSE_ENCODER_ID, Constants.RIO_CANBUS);
 
-    // CANcoder config
+    // Through Bore CANcoder config
     var encoderConfig = new CANcoderConfiguration();
     encoderConfig.MagnetSensor.AbsoluteSensorDiscontinuityPoint = 1.0;
     encoderConfig.MagnetSensor.SensorDirection = SensorDirectionValue.CounterClockwise_Positive;
@@ -73,6 +73,7 @@ public class ShooterIOHardware implements ShooterIO {
     flywheelMotorA.getConfigurator().apply(FlywheelConfig.test());
     flywheelMotorB.getConfigurator().apply(FlywheelConfig.test());
     flywheelMotorC.getConfigurator().apply(FlywheelConfig.test());
+    
     hoodMotor.getConfigurator().apply(TalonFXConfigs.hoodConfig());
 
     // Cache status signal references
