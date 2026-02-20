@@ -82,17 +82,17 @@ public class ShooterSubsystem extends SubsystemBase {
     // ===== Shooting Presets =====
 
     /** Close shot */
-    public static final double CLOSE_SHOT_RPM  = 1800.0; // TODO Tune
-    public static final double CLOSE_SHOT_HOOD = 0.0;    // TODO Tune
+    public static final double CLOSE_SHOT_RPM  = 1800.0; // TODO Tune RPM
+    public static final double CLOSE_SHOT_HOOD = 0.0;
 
     /** Far shot */
-    public static final double FAR_SHOT_RPM  = 2000.0;                   // TODO Tune
-    public static final double FAR_SHOT_HOOD = MAX_HOOD_POSE_ROT * 0.5;  // TODO Tune
+    public static final double FAR_SHOT_RPM  = 3000.0;                   // TODO Tune RPM
+    public static final double FAR_SHOT_HOOD = MAX_HOOD_POSE_ROT * 0.5;  // TODO Tune hood
 
     /** Pass shot */
-    public static final double PASS_SHOT_RPM  = 3000.0;                                      // TODO Tune
-    public static final double PASS_SHOT_HOOD = MAX_HOOD_POSE_ROT - (0.10 * MAX_HOOD_POSE_ROT); // TODO Tune
-
+    public static final double PASS_SHOT_RPM  = 3000.0;                                      // TODO Tune RPM
+    public static final double PASS_SHOT_HOOD = MAX_HOOD_POSE_ROT - (0.10 * MAX_HOOD_POSE_ROT); // TODO Tune hood
+    
     /** Eject: reverse flywheel to clear jams */
     private static final double EJECT_VELOCITY_RPM = MAX_FLYWHEEL_MOTOR_RPM * -0.50;
 
@@ -195,9 +195,9 @@ public class ShooterSubsystem extends SubsystemBase {
      *
      * EXAMPLE: operatorController.a().whileTrue(shooter.shoot3600());
      */
-    public Command shoot3600() {
+    public Command shoot3603() {
         return Commands.startEnd(
-            () -> setFlywheelAndHood(3600.0, CLOSE_SHOT_HOOD),
+            () -> setFlywheelAndHood(3603.0, CLOSE_SHOT_HOOD),
             this::stopAndHome,
             this
         ).withName("Shoot3600");
