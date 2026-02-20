@@ -119,6 +119,26 @@ public class IndexerSubsystem extends SubsystemBase {
 
   // ===== Simple Command Factories (moved from IndexerCommands) =====
 
+  /**
+   * Runs conveyor + indexer forward continuously until interrupted.
+   * Designed for use inside SuperstructureCommands with whileTrue() —
+   * stops automatically when the parent command is cancelled.
+   */
+  public Command feed() {
+    return Commands.startEnd(
+        () -> {
+          setState("FEEDING");
+          conveyorForward();
+          indexerForward();
+        },
+        () -> {
+          stop();
+          setState("IDLE");
+        },
+        this
+    ).withName("Indexer.feed");
+  }
+
   /** Runs conveyor+indexer forward for a duration, then stops and returns to IDLE. */
   public Command feedTimed(double durationSeconds) {
     return Commands.sequence(
