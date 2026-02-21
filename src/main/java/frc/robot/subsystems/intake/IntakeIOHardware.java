@@ -12,6 +12,25 @@ import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
 
 import frc.robot.Constants;
+import frc.robot.Constants.Intake;
+
+/**
+ * IntakeIOHardware - Real hardware implementation using CTRE TalonFX motors.
+ *
+ * This class interfaces with:
+ * - 1x TalonFX (roller) for spinning intake wheels
+ * - 1x TalonFX (slide) for extending/retracting intake
+ *
+ * Key features:
+ * - Uses centralized TalonFXConfigs for motor configuration
+ * - Voltage control for roller
+ * - Voltage control for slide (MotionMagic commented out pending tuning)
+ * - Optimized status signal updates for performance
+ * - All telemetry logged via AdvantageKit
+ *
+ * @author @Isaak3
+ */
+
 
 public class IntakeIOHardware implements IntakeIO {
 
@@ -33,7 +52,7 @@ public class IntakeIOHardware implements IntakeIO {
         }
     }
 
-    // ── Slide Configuration ────────────────────────────────────────────────────
+    // ==== Slide Configuration ====
     private static class SlideConfig {
 
         static TalonFXConfiguration slide() {
@@ -65,15 +84,15 @@ public class IntakeIOHardware implements IntakeIO {
         }
     }
 
-    // ── Hardware ───────────────────────────────────────────────────────────────
+    // ==== Hardware ====
     private final TalonFX roller;
     private final TalonFX slide;
 
-    // ── Control Requests ───────────────────────────────────────────────────────
+    // ==== Control Requests ====
     private final VoltageOut rollerRequest = new VoltageOut(0);
     private final MotionMagicVoltage slideRequest = new MotionMagicVoltage(0);
 
-    // ── Status Signals — 50Hz (control-critical) ───────────────────────────────
+    // ==== Status Signals — 50Hz (control-critical) ====
     // Current, voltage, and temp are captured by CTRE Hoot for diagnostics.
     private final StatusSignal<Angle> slidePosition;
     private final StatusSignal<AngularVelocity> slideVelocity;
@@ -114,10 +133,15 @@ public class IntakeIOHardware implements IntakeIO {
         // inputs.hasGamePiece = intakeTargetClose();
     }
 
-    // ── Roller Methods ─────────────────────────────────────────────────────────
+    // ==== Roller Methods ====
     @Override
     public void setRollerVoltage(double volts) {
         roller.setControl(rollerRequest.withOutput(volts));
+    }
+
+    @Override
+    public double getRollerVoltage() {
+        return rollerRequest.Output;
     }
 
     @Override
@@ -125,13 +149,22 @@ public class IntakeIOHardware implements IntakeIO {
         roller.stopMotor();
     }
 
-    // ── Slide Methods ──────────────────────────────────────────────────────────
+    // ==== Slide Methods ====
     @Override
     public void setSlidePosition(double position) {
         slide.setControl(slideRequest.withPosition(position));
     }
 
     @Override
+    public void setSlideVoltage(double volts) {
+        slide.setControl(new VoltageOut(volts));
+    }
+
+    @Override
+    public double getSlidePosition() {
+        return slidePosition.getValueAsDouble();
+    }
+
     public void stopSlide() {
         slide.stopMotor();
     }
