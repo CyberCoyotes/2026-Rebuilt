@@ -4,6 +4,8 @@ import com.ctre.phoenix6.BaseStatusSignal;
 import com.ctre.phoenix6.StatusCode;
 import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.configs.CANcoderConfiguration;
+import com.ctre.phoenix6.configs.TalonFXConfiguration;
+import com.ctre.phoenix6.configs.TalonFXSConfiguration;
 import com.ctre.phoenix6.controls.Follower;
 import com.ctre.phoenix6.controls.PositionVoltage;
 import com.ctre.phoenix6.controls.VelocityVoltage;
@@ -11,11 +13,13 @@ import com.ctre.phoenix6.controls.VoltageOut;
 import com.ctre.phoenix6.hardware.CANcoder;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.hardware.TalonFXS;
+import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.MotorAlignmentValue;
+import com.ctre.phoenix6.signals.MotorArrangementValue;
+import com.ctre.phoenix6.signals.NeutralModeValue;
 import com.ctre.phoenix6.signals.SensorDirectionValue;
 
 import frc.robot.Constants;
-import frc.robot.util.TalonFXConfigs;
 
 /**
  * ShooterIOHardware - Real hardware implementation for the shooter subsystem.
@@ -31,24 +35,103 @@ import frc.robot.util.TalonFXConfigs;
  */
 public class ShooterIOHardware implements ShooterIO {
 
-  // ===== Hardware =====
+  // ── Flywheel Configuration ─────────────────────────────────────────────────
+  private static class FlywheelConfig {
+
+    static TalonFXConfiguration competition() {
+      TalonFXConfiguration config = base();
+
+      // config.CurrentLimits.SupplyCurrentLimit = 45.0;
+      // config.CurrentLimits.SupplyCurrentLimitEnable = true;
+      // config.CurrentLimits.StatorCurrentLimit = 90.0;
+      // config.CurrentLimits.StatorCurrentLimitEnable = true;
+      // config.OpenLoopRamps.VoltageOpenLoopRampPeriod = 1.0;
+      // config.ClosedLoopRamps.VoltageClosedLoopRampPeriod = 1.0;
+
+      return config;
+    }
+
+    static TalonFXConfiguration test() {
+      TalonFXConfiguration config = base();
+
+      config.CurrentLimits.SupplyCurrentLimit = 60.0;
+      config.CurrentLimits.SupplyCurrentLimitEnable = true;
+      config.CurrentLimits.StatorCurrentLimit = 120.0;
+      config.CurrentLimits.StatorCurrentLimitEnable = true;
+      config.ClosedLoopRamps.VoltageClosedLoopRampPeriod = 0.5;
+
+      return config;
+    }
+
+    private static TalonFXConfiguration base() {
+      TalonFXConfiguration config = new TalonFXConfiguration();
+
+      config.MotorOutput.NeutralMode = NeutralModeValue.Coast;
+      config.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
+
+      // Velocity closed loop — Slot 0
+      config.Slot0.kP = 0.12; // TODO: Tune proportional gain based on flywheel velocity response
+      config.Slot0.kV = 0.10; // TODO: Tune feedforward gain based on flywheel velocity response
+
+      return config;
+    }
+  }
+
+  // ── Hood Configuration ─────────────────────────────────────────────────────
+  private static class HoodConfig {
+
+    static TalonFXSConfiguration hood() {
+      TalonFXSConfiguration config = new TalonFXSConfiguration();
+
+      // Minion motor connected via JST connector
+      config.Commutation.MotorArrangement = MotorArrangementValue.Minion_JST;
+
+      config.MotorOutput.NeutralMode = NeutralModeValue.Brake;
+      config.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
+
+      /*
+       * Voltage limits — capped for safe hood movement during testing.
+       * TODO: Increase after hood travel range is verified. 4V has been safe.
+       */
+      config.Voltage.PeakForwardVoltage = 4.0;
+      config.Voltage.PeakReverseVoltage = -4.0;
+
+      config.CurrentLimits.SupplyCurrentLimit = 30.0;
+      config.CurrentLimits.SupplyCurrentLimitEnable = true;
+
+      // Position PID — Slot 0
+      config.Slot0.kP = 1.0; // TODO: Tune hood position P
+      config.Slot0.kI = 0.75; // TODO: Tune hood position I
+      config.Slot0.kD = 0.0; // TODO: Tune hood position D
+
+      // Soft limits — enable after travel range is confirmed
+      config.SoftwareLimitSwitch.ForwardSoftLimitEnable = true;
+      config.SoftwareLimitSwitch.ForwardSoftLimitThreshold = 9.15; // raw units
+      config.SoftwareLimitSwitch.ReverseSoftLimitEnable = true;
+      config.SoftwareLimitSwitch.ReverseSoftLimitThreshold = 0.0;
+
+      return config;
+    }
+  }
+
+  // ── Hardware ───────────────────────────────────────────────────────────────
   private final TalonFX flywheelMotorA;
   private final TalonFX flywheelMotorB;
   private final TalonFX flywheelMotorC;
   private final TalonFXS hoodMotor;
   private final CANcoder hoodEncoder;
 
-  // ===== Control Requests (pre-allocated, reused each cycle) =====
+  // ── Control Requests ───────────────────────────────────────────────────────
   private final VelocityVoltage flywheelVelocityRequest = new VelocityVoltage(0.0).withEnableFOC(true);
   private final PositionVoltage hoodPositionRequest = new PositionVoltage(0.0);
   private final VoltageOut hoodVoltageRequest = new VoltageOut(0.0);
 
-  // ===== Status Signals — Fast (50Hz, control-critical) =====
+  // ── Status Signals — Fast (50Hz, control-critical) ─────────────────────────
   private final StatusSignal<?> flywheelAVelocity;
   private final StatusSignal<?> flywheelAVoltage;
   private final StatusSignal<?> hoodPosition;
 
-  // ===== Status Signals — Slow (10Hz, diagnostics) =====
+  // ── Status Signals — Slow (10Hz, diagnostics) ──────────────────────────────
   private final StatusSignal<?> flywheelACurrent;
   private final StatusSignal<?> hoodVoltage;
   private final StatusSignal<?> hoodCurrent;
@@ -61,7 +144,7 @@ public class ShooterIOHardware implements ShooterIO {
     hoodMotor = new TalonFXS(Constants.Shooter.HOOD_MOTOR_ID, Constants.RIO_CANBUS);
     hoodEncoder = new CANcoder(Constants.Shooter.HOOD_POSE_ENCODER_ID, Constants.RIO_CANBUS);
 
-    // CANcoder config
+    // Through Bore CANcoder config
     var encoderConfig = new CANcoderConfiguration();
     encoderConfig.MagnetSensor.AbsoluteSensorDiscontinuityPoint = 1.0;
     encoderConfig.MagnetSensor.SensorDirection = SensorDirectionValue.CounterClockwise_Positive;
@@ -69,10 +152,10 @@ public class ShooterIOHardware implements ShooterIO {
     hoodEncoder.getConfigurator().apply(encoderConfig);
 
     // Apply motor configs
-    flywheelMotorA.getConfigurator().apply(TalonFXConfigs.flywheelConfig());
-    flywheelMotorB.getConfigurator().apply(TalonFXConfigs.flywheelConfig());
-    flywheelMotorC.getConfigurator().apply(TalonFXConfigs.flywheelConfig());
-    hoodMotor.getConfigurator().apply(TalonFXConfigs.hoodConfig());
+    flywheelMotorA.getConfigurator().apply(FlywheelConfig.test());
+    flywheelMotorB.getConfigurator().apply(FlywheelConfig.test());
+    flywheelMotorC.getConfigurator().apply(FlywheelConfig.test());
+    hoodMotor.getConfigurator().apply(HoodConfig.hood());
 
     // Cache status signal references
     flywheelAVelocity = flywheelMotorA.getVelocity();
@@ -83,50 +166,37 @@ public class ShooterIOHardware implements ShooterIO {
     hoodCurrent = hoodMotor.getSupplyCurrent();
     hoodEncoderAbsPosition = hoodEncoder.getAbsolutePosition();
 
-    // ===== CAN Update Rates =====
-    // 50Hz (every 20ms) — control-critical signals
+    // 50Hz — control-critical signals
     BaseStatusSignal.setUpdateFrequencyForAll(
         50.0,
         flywheelAVelocity,
         flywheelAVoltage,
-        hoodPosition
-    );
+        hoodPosition);
 
-    // 10Hz (every 100ms) — diagnostic signals
+    // 10Hz — diagnostic signals
     BaseStatusSignal.setUpdateFrequencyForAll(
         10.0,
         flywheelACurrent,
         hoodVoltage,
         hoodCurrent,
-        hoodEncoderAbsPosition
-    );
+        hoodEncoderAbsPosition);
 
-    // Disable all status frames we didn't explicitly set above
+    // Disable all status frames not explicitly set above
     flywheelMotorA.optimizeBusUtilization();
     flywheelMotorB.optimizeBusUtilization();
     flywheelMotorC.optimizeBusUtilization();
     hoodMotor.optimizeBusUtilization();
     hoodEncoder.optimizeBusUtilization();
 
-    // Followers MUST be set AFTER optimizeBusUtilization() —
-    // otherwise the aggressive frame disabling can break the follower control link
+    /*
+     * Followers MUST be set AFTER optimizeBusUtilization()
+     * otherwise aggressive frame disabling can break the follower control link
+     */
     flywheelMotorB.setControl(new Follower(Constants.Shooter.FLYWHEEL_A_MOTOR_ID, MotorAlignmentValue.Aligned));
     flywheelMotorC.setControl(new Follower(Constants.Shooter.FLYWHEEL_A_MOTOR_ID, MotorAlignmentValue.Aligned));
 
-    // If hood is physically at "home" on boot, this seeds the position.
+    // Initialize hood to known zero position
     hoodMotor.setPosition(0.0);
-
-    // ✅ HERE — warm up signals ONCE at startup // TODO See if this fixes overruns
-    BaseStatusSignal.refreshAll(
-        flywheelAVelocity,
-        flywheelAVoltage,
-        hoodPosition,
-        flywheelACurrent,
-        hoodVoltage,
-        hoodCurrent,
-        hoodEncoderAbsPosition
-    );
-
   }
 
   /**
@@ -135,20 +205,19 @@ public class ShooterIOHardware implements ShooterIO {
    */
   @Override
   public void updateInputs(ShooterIOInputs inputs) {
-    // Batch-read the 3 fast signals in one CAN transaction
-    BaseStatusSignal.refreshAll(
-        flywheelAVelocity,
-        flywheelAVoltage,
-        hoodPosition
-    );
+    // BaseStatusSignal.refreshAll(
+    // flywheelAVelocity,
+    // flywheelAVoltage,
+    // hoodPosition
+    // );
 
-    // Flywheel (A is leader; B/C follow, so reading A is enough)
+    // Flywheel — A is leader, B/C follow, so reading A is sufficient
     double motorRPS = flywheelAVelocity.getValueAsDouble();
     inputs.flywheelLeaderMotorRPS = motorRPS;
     inputs.flywheelLeaderMotorRPM = rpsToRPM(motorRPS);
     inputs.flywheelAppliedVolts = flywheelAVoltage.getValueAsDouble();
 
-    // Hood position (always fresh for closed-loop)
+    // Hood position — always fresh for closed-loop control
     inputs.hoodPositionRotations = hoodPosition.getValueAsDouble();
   }
 
@@ -162,18 +231,16 @@ public class ShooterIOHardware implements ShooterIO {
         flywheelACurrent,
         hoodVoltage,
         hoodCurrent,
-        hoodEncoderAbsPosition
-    );
+        hoodEncoderAbsPosition);
 
     inputs.flywheelCurrentAmps = flywheelACurrent.getValueAsDouble();
     inputs.hoodAppliedVolts = hoodVoltage.getValueAsDouble();
     inputs.hoodCurrentAmps = hoodCurrent.getValueAsDouble();
 
-    double hoodRot = inputs.hoodPositionRotations;
-    // FIXME if real degrees are needed, measure actual hood gear ratio and convert properly
-    inputs.hoodAngleDegrees = hoodRot * 360.0; // only if 1 rot == 1 hood rev (usually not true)
+    inputs.hoodAngleDegrees = inputs.hoodPositionRotations * 360.0; // only valid if 1 rot == 1 hood rev (verify with
+                                                                    // your mechanism ratio)
 
-    // ThroughBore encoder
+    // Through Bore encoder
     inputs.hoodThroughBorePositionRotations = hoodEncoderAbsPosition.getValueAsDouble();
     inputs.hoodThroughBorePositionDegrees = inputs.hoodThroughBorePositionRotations * 360.0;
     inputs.hoodThroughBoreConnected = hoodEncoderAbsPosition.getStatus() == StatusCode.OK;
@@ -206,7 +273,8 @@ public class ShooterIOHardware implements ShooterIO {
     hoodMotor.stopMotor();
   }
 
-  // ===== Unit Conversions =====
+  // === Unit Conversions
+  // ===============================================================
   private double rpsToRPM(double rps) {
     return rps * 60.0;
   }
