@@ -220,7 +220,7 @@ public class ShooterCommands {
             prepareToShoot(shooter, velocityRPM, hoodAngleDegrees),
 
             // Feed game piece
-            IndexerCommands.feedTimed(indexer, 0.5),
+            // IndexerCommands.feedTimed(indexer, 0.5),
 
             // Return to idle
             Commands.runOnce(shooter::setIdle, shooter)
@@ -245,7 +245,7 @@ public class ShooterCommands {
             visionShot(shooter, vision),
 
             // Feed game piece
-            IndexerCommands.feedTimed(indexer, 0.5),
+            // IndexerCommands.feedTimed(indexer, 0.5),
 
             // Return to idle
             Commands.runOnce(shooter::setIdle, shooter)
