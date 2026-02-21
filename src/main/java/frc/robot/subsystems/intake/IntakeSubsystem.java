@@ -2,11 +2,13 @@ package frc.robot.subsystems.intake;
 
 import org.littletonrobotics.junction.Logger;
 
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.Intake;
 import frc.robot.subsystems.intake.IntakeIO.IntakeIOInputs;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 @SuppressWarnings("unused") // Suppress warnings for unused right now
 
@@ -20,20 +22,20 @@ public class IntakeSubsystem extends SubsystemBase {
 
     // ===== Intake Constants =====
     final static int INTAKE_THRESHOLD = 1000; // mm, around four inches
-    final static double JAM_CURRENT_THRESHOLD = 60.0;
+    final static double JAM_CURRENT_THRESHOLD = 80.0;
 
     // Mechanical limits for the slide
     final static double SLIDE_MIN_POSITION = 0;
-    final static double SLIDE_MAX_POSITION = 1.91;
+    final static double SLIDE_MAX_POSITION = 1.85;
     final static double SLIDE_RETRACTED_POSITION = 0.0;
-    final static double SLIDE_EXTENDED_POSITION = 1.85;
+    final static double SLIDE_EXTENDED_POSITION = 1.91;
 
     final static double ROLLER_VOLTS = 6.0; // Voltage for intaking fuel
 
     // Slide voltage constants — used while MotionMagic is disabled
     // Positive extends, negative retracts. Adjust if slide moves too fast/slow.
-    final static double SLIDE_EXTEND_VOLTS = -10.0;   // TODO: Tune if needed
-    final static double SLIDE_RETRACT_VOLTS = 3.0; // TODO: Tune if needed
+    final static double SLIDE_EXTEND_VOLTS = 10.0;   // TODO: Tune if needed
+    final static double SLIDE_RETRACT_VOLTS = -3.0; // TODO: Tune if needed
 
     public IntakeSubsystem(IntakeIO intakeIO) {
         this.io = intakeIO;
@@ -42,6 +44,7 @@ public class IntakeSubsystem extends SubsystemBase {
     @Override
     public void periodic() {
         io.updateInputs(inputs);
+         SmartDashboard.putNumber("Intake/SlidePosition", io.getSlidePosition());
         // Logger.processInputs("Intake", inputs); // FIXME
     }
 

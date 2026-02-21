@@ -28,10 +28,11 @@ import frc.robot.subsystems.shooter.ShooterIO.ShooterIOInputs;
  * 3. Driver holds shoot trigger — transitions to READY, hood moves, waits until up to speed, feeds
  * 4. Driver releases trigger — returns to SPINUP at IDLE_RPM
  *
- * PERFORMANCE:
- * - CAN reads split: control-critical every cycle, diagnostics at 10Hz
- * - NT publishing throttled to 10Hz
- * - State string cached on transitions to avoid per-cycle allocation
+ * FAR SHOT FLOW (X + RT):
+ * - X silently arms far shot and sets isFarShotArmed = true
+ * - RT routes to FarShotCommand instead of shootAtCurrentTarget
+ * - FarShotCommand continuously updates hood via updateHoodForDistance()
+ * - On release, isFarShotArmed is cleared and shooter returns to SPINUP
  *
  * @see Constants.Shooter for hardware configuration
  * @author @Isaak3
@@ -63,12 +64,16 @@ public class ShooterSubsystem extends SubsystemBase {
     private final DoublePublisher flywheelVoltsPublisher;
     private final DoublePublisher throughBorePositionPublisher;
     private final BooleanPublisher throughBoreConnectedPublisher;
+    private final BooleanPublisher farShotArmedPublisher;
 
     // ===== State =====
     private ShooterState currentState = ShooterState.IDLE;
     private String currentStateString = ShooterState.IDLE.toString();
     private double targetFlywheelMotorRPM = 0.0;
     private double targetHoodPoseRot = MIN_HOOD_POSE_ROT;
+
+    /** True when X (far shot) was the last preset armed. Routes RT to FarShotCommand. */
+    private boolean isFarShotArmed = false;
 
     // ===== Periodic Cycle Counter =====
     private int periodicCounter = 0;
@@ -82,16 +87,16 @@ public class ShooterSubsystem extends SubsystemBase {
     public static final double IDLE_RPM = 2000.0;
 
     /** Minimum hood pose (rotations) */
-    private static final double MIN_HOOD_POSE_ROT = 0.0;
+    public static final double MIN_HOOD_POSE_ROT = 0.0;
 
     /** Maximum hood pose (rotations) */
-    private static final double MAX_HOOD_POSE_ROT = 9.14;
+    public static final double MAX_HOOD_POSE_ROT = 9.14;
 
     /** Flywheel velocity tolerance (10%) */
     private static final double FLYWHEEL_TOLERANCE_PERCENT = 0.10;
 
     /** Hood pose tolerance (rotations) */
-    private static final double HOOD_POSE_TOLERANCE = 0.25; // TODO: Tune for shot consistency
+    public static final double HOOD_POSE_TOLERANCE = 0.25;
 
     /** Increment for manual hood adjustment via bumper buttons (rotations) */
     public static final double HOOD_TEST_INCREMENT = 0.5;
@@ -107,22 +112,22 @@ public class ShooterSubsystem extends SubsystemBase {
     // ===== Shooting Presets =====
 
     /** Close shot */
-    public static final double CLOSE_SHOT_RPM = 2500.0;  // TODO: Tune
+    public static final double CLOSE_SHOT_RPM = 1800.0;  // TODO: Tune
     public static final double CLOSE_SHOT_HOOD = 0.0;     // TODO: Tune
 
-    /** Far shot */
-    public static final double FAR_SHOT_RPM = 3100.0;                   // TODO: Tune
-    public static final double FAR_SHOT_HOOD = MAX_HOOD_POSE_ROT * 0.5; // TODO: Tune
+    /** Far shot — used as interpolation endpoint in FarShotCommand */
+    public static final double FAR_SHOT_RPM = 2000.0;                    // TODO: Tune
+    public static final double FAR_SHOT_HOOD = MAX_HOOD_POSE_ROT * 0.5;  // TODO: Tune
 
     /** Pass shot */
-    public static final double PASS_SHOT_RPM = 3750.0;                                          // TODO: Tune
+    public static final double PASS_SHOT_RPM = 3000.0;                                          // TODO: Tune
     public static final double PASS_SHOT_HOOD = MAX_HOOD_POSE_ROT - (0.10 * MAX_HOOD_POSE_ROT); // TODO: Tune
 
     /** Default flywheel velocity testing increment (RPM) */
     public static final double FLYWHEEL_TEST_INCREMENT_RPM = 100.0;
 
     /** Default target RPM for flywheel ramp-up testing */
-    public static final double RAMP_TEST_TARGET_RPM = 4000.0; // TODO: Test this value
+    public static final double RAMP_TEST_TARGET_RPM = 4000.0;
 
     // =========================================================================
     // CONSTRUCTOR
@@ -144,6 +149,7 @@ public class ShooterSubsystem extends SubsystemBase {
         flywheelVoltsPublisher = shooterTable.getDoubleTopic("FlywheelAppliedVolts").publish();
         throughBorePositionPublisher = shooterTable.getDoubleTopic("ThroughBorePosition").publish();
         throughBoreConnectedPublisher = shooterTable.getBooleanTopic("ThroughBoreConnected").publish();
+        farShotArmedPublisher = shooterTable.getBooleanTopic("FarShotArmed").publish();
 
         // Boot into SPINUP at idle RPM — flywheel is always warm during match
         // Default targets to close shot until driver selects a preset
@@ -178,6 +184,7 @@ public class ShooterSubsystem extends SubsystemBase {
         flywheelVoltsPublisher.set(inputs.flywheelAppliedVolts);
         throughBorePositionPublisher.set(inputs.hoodThroughBorePositionRotations);
         throughBoreConnectedPublisher.set(inputs.hoodThroughBoreConnected);
+        farShotArmedPublisher.set(isFarShotArmed);
     }
 
     // =========================================================================
@@ -186,42 +193,32 @@ public class ShooterSubsystem extends SubsystemBase {
 
     private void updateStateMachine() {
         switch (currentState) {
-            case IDLE:
-                break;
-            case SPINUP:
-                break;
-            case READY:
-                break;
-            case PASS:
-                break;
-            case EJECT:
-                break;
+            case IDLE:   break;
+            case SPINUP: break;
+            case READY:  break;
+            case PASS:   break;
+            case EJECT:  break;
         }
     }
 
     private void setState(ShooterState newState) {
-        if (currentState == newState) {
-            return;
-        }
+        if (currentState == newState) return;
 
         currentState = newState;
         currentStateString = newState.toString();
 
         switch (newState) {
             case IDLE:
-                // Full stop — not used during normal match play
                 io.stopFlywheels();
                 io.setHoodPose(MIN_HOOD_POSE_ROT);
                 break;
 
             case SPINUP:
-                // Return to idle RPM — flywheel stays warm, hood returns to min
                 io.setFlywheelVelocity(IDLE_RPM);
                 io.setHoodPose(MIN_HOOD_POSE_ROT);
                 break;
 
             case READY:
-                // Ramp to preset targets — hood moves to target angle now
                 io.setFlywheelVelocity(targetFlywheelMotorRPM);
                 io.setHoodPose(targetHoodPoseRot);
                 break;
@@ -252,8 +249,10 @@ public class ShooterSubsystem extends SubsystemBase {
     /**
      * Returns shooter to SPINUP at IDLE_RPM.
      * Call this after a shot is complete to keep the flywheel warm.
+     * Also clears the far shot armed flag.
      */
     public void returnToIdle() {
+        isFarShotArmed = false;
         setState(ShooterState.SPINUP);
     }
 
@@ -273,32 +272,33 @@ public class ShooterSubsystem extends SubsystemBase {
     }
 
     // ===== Silent Preset Setters =====
-    // These only update the target values — no state change, no motor movement.
-    // Hood and flywheel only move when prepareToShoot() is called (i.e. on trigger press).
 
     /**
-     * Silently sets close shot targets.
-     * No motor movement until shoot trigger is pressed.
+     * Silently sets close shot targets. No motor movement until shoot trigger is pressed.
+     * Clears the far shot armed flag.
      */
     public void setCloseShotPreset() {
+        isFarShotArmed = false;
         targetFlywheelMotorRPM = CLOSE_SHOT_RPM;
         targetHoodPoseRot = CLOSE_SHOT_HOOD;
     }
 
     /**
-     * Silently sets far shot targets.
-     * No motor movement until shoot trigger is pressed.
+     * Silently sets far shot targets. No motor movement until shoot trigger is pressed.
+     * Sets isFarShotArmed = true so RT routes to FarShotCommand.
      */
     public void setFarShotPreset() {
+        isFarShotArmed = true;
         targetFlywheelMotorRPM = FAR_SHOT_RPM;
         targetHoodPoseRot = FAR_SHOT_HOOD;
     }
 
     /**
-     * Silently sets pass shot targets.
-     * No motor movement until shoot trigger is pressed.
+     * Silently sets pass shot targets. No motor movement until shoot trigger is pressed.
+     * Clears the far shot armed flag.
      */
     public void setPassShotPreset() {
+        isFarShotArmed = false;
         targetFlywheelMotorRPM = PASS_SHOT_RPM;
         targetHoodPoseRot = PASS_SHOT_HOOD;
     }
@@ -323,7 +323,6 @@ public class ShooterSubsystem extends SubsystemBase {
     /**
      * Adjusts target hood pose by a delta in rotations.
      * If already in READY state, commands hood to move immediately.
-     * Otherwise, target is stored for next prepareToShoot() call.
      */
     public void adjustTargetHoodPose(double deltaRotations) {
         setTargetHoodPose(targetHoodPoseRot + deltaRotations);
@@ -332,45 +331,28 @@ public class ShooterSubsystem extends SubsystemBase {
         }
     }
 
-    // =========================================================================
-    // FLYWHEEL RAMP TESTING
-    // =========================================================================
-
     /**
-     * Ramps flywheel to a target RPM, then returns to SPINUP at IDLE_RPM on release.
+     * Updates hood position directly while in READY state.
+     * Used by FarShotCommand to continuously adjust hood based on live distance.
+     * Only takes effect if currently in READY state — otherwise silently updates target.
+     *
+     * @param rotations Target hood position in rotations
      */
-    public Command flywheelRampTest(double targetRPM) {
-        return Commands.startEnd(
-                () -> {
-                    setTargetVelocity(targetRPM);
-                    prepareToShoot();
-                },
-                this::returnToIdle,
-                this).withName("FlywheelRampTest");
-    }
-
-    // =========================================================================
-    // VISION INTEGRATION
-    // =========================================================================
-
-    /**
-     * Updates shooter targets based on distance to target.
-     * Linear interpolation between close and far shots.
-     * Does NOT change state — call prepareToShoot() after.
-     */
-    public void updateFromDistance(double distanceMeters) {
-        // TODO: Replace with proper ballistic calculations
-        double distance = Math.max(1.0, Math.min(5.0, distanceMeters));
-        double t = (distance - 1.0) / (5.0 - 1.0);
-        double velocity = CLOSE_SHOT_RPM + t * (FAR_SHOT_RPM - CLOSE_SHOT_RPM);
-        double pose = CLOSE_SHOT_HOOD + t * (FAR_SHOT_HOOD - CLOSE_SHOT_HOOD);
-        setTargetVelocity(velocity);
-        setTargetHoodPose(pose);
+    public void updateHoodForDistance(double rotations) {
+        setTargetHoodPose(rotations);
+        if (currentState == ShooterState.READY) {
+            io.setHoodPose(targetHoodPoseRot);
+        }
     }
 
     // =========================================================================
     // STATUS QUERIES
     // =========================================================================
+
+    /** Returns true if the far shot preset is currently armed (X was last pressed). */
+    public boolean isFarShotArmed() {
+        return isFarShotArmed;
+    }
 
     /** Returns true if in READY state with flywheel and hood at targets. */
     public boolean isReady() {
@@ -417,10 +399,43 @@ public class ShooterSubsystem extends SubsystemBase {
         return inputs.flywheelCurrentAmps > 150.0; // TODO: Tune threshold
     }
 
-    // Kept for backward compatibility with any commands that call spinup()
-    public void spinup() { setState(ShooterState.SPINUP); }
+    // =========================================================================
+    // VISION INTEGRATION
+    // =========================================================================
 
-    // Kept for backward compatibility
+    /**
+     * Updates shooter targets based on distance to target.
+     * Linear interpolation between close and far shots.
+     * Does NOT change state — call prepareToShoot() after.
+     */
+    public void updateFromDistance(double distanceMeters) {
+        double distance = Math.max(1.0, Math.min(5.0, distanceMeters));
+        double t = (distance - 1.0) / (5.0 - 1.0);
+        double velocity = CLOSE_SHOT_RPM + t * (FAR_SHOT_RPM - CLOSE_SHOT_RPM);
+        double pose = CLOSE_SHOT_HOOD + t * (FAR_SHOT_HOOD - CLOSE_SHOT_HOOD);
+        setTargetVelocity(velocity);
+        setTargetHoodPose(pose);
+    }
+
+    // =========================================================================
+    // FLYWHEEL RAMP TESTING
+    // =========================================================================
+
+    public Command flywheelRampTest(double targetRPM) {
+        return Commands.startEnd(
+                () -> {
+                    setTargetVelocity(targetRPM);
+                    prepareToShoot();
+                },
+                this::returnToIdle,
+                this).withName("FlywheelRampTest");
+    }
+
+    // =========================================================================
+    // BACKWARD COMPATIBILITY
+    // =========================================================================
+
+    public void spinup() { setState(ShooterState.SPINUP); }
     public void closeShot() { setCloseShotPreset(); prepareToShoot(); }
     public void farShot() { setFarShotPreset(); prepareToShoot(); }
 }

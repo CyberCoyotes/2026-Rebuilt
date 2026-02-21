@@ -136,20 +136,20 @@ public class TalonFXConfigs {
         var config = new TalonFXConfiguration();
 
         config.MotorOutput.NeutralMode = NeutralModeValue.Brake;
-        config.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
+        config.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
 
-        config.CurrentLimits.SupplyCurrentLimit = 20.0;
+        config.CurrentLimits.SupplyCurrentLimit = 80.0;
         config.CurrentLimits.SupplyCurrentLimitEnable = true;
 
-        config.CurrentLimits.StatorCurrentLimit = 20.0;
+        config.CurrentLimits.StatorCurrentLimit = 80.0;
         config.CurrentLimits.StatorCurrentLimitEnable = true;
 
-        config.SoftwareLimitSwitch.ForwardSoftLimitEnable = false;
-        config.SoftwareLimitSwitch.ForwardSoftLimitThreshold = 1.90;
-        config.SoftwareLimitSwitch.ReverseSoftLimitEnable = false;
-        config.SoftwareLimitSwitch.ReverseSoftLimitThreshold = 0.00;
+        config.SoftwareLimitSwitch.ForwardSoftLimitEnable = true;
+        config.SoftwareLimitSwitch.ForwardSoftLimitThreshold = 40.0;
+        config.SoftwareLimitSwitch.ReverseSoftLimitEnable = true;
+        config.SoftwareLimitSwitch.ReverseSoftLimitThreshold = -0.-.1;
 
-        config.Slot0.kP = 2.0;   // TODO: Tune
+        config.Slot0.kP = 3.0;   // TODO: Tune
         config.Slot0.kI = 0.0;
         config.Slot0.kD = 0.0;
 

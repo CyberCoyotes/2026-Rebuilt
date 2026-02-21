@@ -18,26 +18,23 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.RobotModeTriggers;
-import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
+import edu.wpi.first.wpilibj2.command.button.Trigger;
 
 import frc.robot.generated.TunerConstants;
+import frc.robot.commands.AlignToHubCommand;
+import frc.robot.commands.FarShotCommand;
 import frc.robot.commands.IndexerCommands;
-// import frc.robot.commands.IntakeCommands;
 import frc.robot.commands.ShooterCommands;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
 // import frc.robot.subsystems.climber.ClimberSubsystem;
 import frc.robot.subsystems.indexer.IndexerSubsystem;
 import frc.robot.subsystems.intake.IntakeSubsystem;
-import frc.robot.subsystems.indexer.IndexerIOSim;
 import frc.robot.subsystems.indexer.IndexerIOHardware;
-import frc.robot.subsystems.intake.IntakeIOSim;
 import frc.robot.subsystems.intake.IntakeIOHardware;
-import frc.robot.subsystems.shooter.ShooterIOSim;
 import frc.robot.subsystems.shooter.ShooterIOHardware;
 import frc.robot.subsystems.shooter.ShooterSubsystem;
 import frc.robot.subsystems.led.LedSubsystem;
 import frc.robot.subsystems.vision.VisionIOLimelight;
-import frc.robot.subsystems.vision.VisionIOSim;
 import frc.robot.subsystems.vision.VisionSubsystem;
 
 @SuppressWarnings("unused") // Suppress warnings for unused right now
@@ -115,18 +112,33 @@ public class RobotContainer {
         drivetrain.registerTelemetry(logger::telemeterize);
 
         // =====================================================================
+        // DRIVER CONTROLLER (Port 0) - Vision Alignment
+        // =====================================================================
+
+        // POV Left: Align to blue hub (tags 18-27).
+        // Robot rotates to face the nearest hub AprilTag while driver controls translation.
+        driver.povLeft().whileTrue(
+            new AlignToHubCommand(
+                drivetrain,
+                vision,
+                () -> -driver.getLeftY() * MaxSpeed,
+                () -> -driver.getLeftX() * MaxSpeed
+            )
+        );
+
+        // =====================================================================
         // DRIVER CONTROLLER (Port 0) - Shooter Presets
         // Silently update target RPM and hood angle.
         // No motors move until the shoot trigger is pressed.
         // =====================================================================
 
-        // A: Arm close shot
+        // A: Arm close shot — clears far shot flag, routes RT to shootAtCurrentTarget
         driver.a().onTrue(ShooterCommands.armCloseShot(shooter));
 
-        // X: Arm far shot
+        // X: Arm far shot — sets far shot flag, routes RT to FarShotCommand
         driver.x().onTrue(ShooterCommands.armFarShot(shooter));
 
-        // B: Arm pass shot
+        // B: Arm pass shot — clears far shot flag, routes RT to shootAtCurrentTarget
         driver.b().onTrue(ShooterCommands.armPassShot(shooter));
 
         // =====================================================================
@@ -134,9 +146,33 @@ public class RobotContainer {
         // =====================================================================
 
         // Right Trigger: Shoot at currently armed preset.
-        // Flywheel ramps to target, hood moves to target angle,
-        // waits until ready, then feeds. Release to return to SPINUP at IDLE_RPM.
-        driver.rightTrigger(0.5).whileTrue(
+        //
+        // If FAR SHOT is armed (X was pressed):
+        //   → FarShotCommand — auto-rotates to hub, continuously adjusts hood by distance,
+        //     RPM at FAR_SHOT_RPM + 350, driver controls translation
+        //
+        // Otherwise (close shot or pass shot):
+        //   → shootAtCurrentTarget — ramps to preset targets, waits until ready, feeds
+        //
+        // Both commands return to SPINUP at IDLE_RPM on release.
+
+        Trigger rtTrigger = driver.rightTrigger(0.5);
+        Trigger farShotArmed = new Trigger(shooter::isFarShotArmed);
+
+        // Far shot path — only when X was last pressed
+        rtTrigger.and(farShotArmed).whileTrue(
+            new FarShotCommand(
+                drivetrain,
+                shooter,
+                vision,
+                indexer,
+                () -> -driver.getLeftY() * MaxSpeed,
+                () -> -driver.getLeftX() * MaxSpeed
+            )
+        );
+
+        // Standard shot path — when A or B was last pressed
+        rtTrigger.and(farShotArmed.negate()).whileTrue(
             ShooterCommands.shootAtCurrentTarget(shooter, indexer)
         );
 
@@ -149,48 +185,23 @@ public class RobotContainer {
         driver.leftTrigger(0.5).whileTrue(intake.intakeFuel());
 
         // Left Bumper: Retract intake slides while held.
-        // Hold until slides are fully retracted, then release.
-        // TODO: Replace with position-based retract once MotionMagic is tuned.
         driver.leftBumper().whileTrue(intake.retractSlidesCommand());
 
         // =====================================================================
         // DRIVER CONTROLLER (Port 0) - Commented out (TODO: enable as needed)
         // =====================================================================
 
-        // Right Bumper: Hood angle down
-        // driver.rightBumper().onTrue(
-        //     ShooterCommands.decreaseTargetHoodPose(shooter, ShooterSubsystem.HOOD_TEST_INCREMENT)
-        // );
+        // Right Bumper: (free)
+        // driver.rightBumper()...
 
         // Y: Indexer forward while held
         // driver.y().whileTrue(Commands.startEnd(indexer::indexerForward, indexer::indexerStop));
 
-        // POV Left: Eject from shooter (1 second reverse)
-        // driver.povLeft().onTrue(ShooterCommands.eject(shooter, 1.0));
-
-        // POV Down: Eject from indexer (1 second reverse)
-        // driver.povDown().onTrue(IndexerCommands.eject(indexer, 1.0));
+        // POV Right/Up/Down: (free)
 
         // POV Up/Down: Incremental hood angle adjustment
         // driver.povUp().onTrue(ShooterCommands.increaseTargetHoodPose(shooter, ShooterSubsystem.HOOD_TEST_INCREMENT));
         // driver.povDown().onTrue(ShooterCommands.decreaseTargetHoodPose(shooter, ShooterSubsystem.HOOD_TEST_INCREMENT));
-
-        // POV Up/Down: Slow manual drive for alignment
-        // NOTE: Conflicts with POV hood adjustment above if both are enabled
-        // driver.povUp().whileTrue(drivetrain.applyRequest(() ->
-        //     forwardStraight.withVelocityX(0.5).withVelocityY(0)));
-        // driver.povDown().whileTrue(drivetrain.applyRequest(() ->
-        //     forwardStraight.withVelocityX(-0.5).withVelocityY(0)));
-
-        // B: Point wheels at joystick direction (conflicts with active B binding)
-        // driver.b().whileTrue(drivetrain.applyRequest(() ->
-        //     point.withModuleDirection(new Rotation2d(-driver.getLeftY(), -driver.getLeftX()))));
-
-        // Climber controls
-        // driver.povUp().onTrue(climber.extendArm());
-        // driver.povDown().onTrue(climber.retractArm());
-        // driver.povRight().whileTrue(climber.extendArm());
-        // driver.povLeft().whileTrue(climber.retractArm());
 
         // Eject fuel from intake
         // driver.y().whileTrue(intake.ejectFuel());
@@ -209,10 +220,6 @@ public class RobotContainer {
         // POV Up/Down: Incremental hood angle adjustment
         // operator.povUp().onTrue(ShooterCommands.increaseTargetHoodPose(shooter, ShooterSubsystem.HOOD_TEST_INCREMENT));
         // operator.povDown().onTrue(ShooterCommands.decreaseTargetHoodPose(shooter, ShooterSubsystem.HOOD_TEST_INCREMENT));
-
-        // POV Up/Down: Flywheel velocity adjustment
-        // operator.povUp().onTrue(ShooterCommands.increaseTargetVelocity(shooter, ShooterSubsystem.FLYWHEEL_TEST_INCREMENT_RPM));
-        // operator.povDown().onTrue(ShooterCommands.decreaseTargetVelocity(shooter, ShooterSubsystem.FLYWHEEL_TEST_INCREMENT_RPM));
 
         // Indexer testing
         // operator.a().whileTrue(Commands.startEnd(indexer::conveyorForward, indexer::conveyorStop));

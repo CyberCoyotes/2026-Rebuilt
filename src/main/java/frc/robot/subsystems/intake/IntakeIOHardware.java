@@ -103,7 +103,7 @@ public class IntakeIOHardware implements IntakeIO {
         m_slide.optimizeBusUtilization();
 
         // Zero slide encoder at startup (assumes slide is retracted at startup)
-        m_slide.setPosition(0.0);
+        m_slide.setPosition(0.00);
     }
 
     @Override
