@@ -8,6 +8,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
 import frc.robot.subsystems.vision.VisionSubsystem;
 
+import java.util.Set;
 import java.util.function.DoubleSupplier;
 
 /**
@@ -29,17 +30,16 @@ import java.util.function.DoubleSupplier;
  * - MAX_ROTATION_RATE: Caps top speed — reduce if alignment is too aggressive
  * - ALIGN_TOLERANCE_DEGREES: Deadband — no correction applied within this range
  *
- * VALID TAG IDS: 18-27 (blue hub), excluding 17, 22, 23, 28
+ * VALID TAG IDS: 18, 19, 20, 21, 24, 25, 26, 27
  *
  * @author @Isaak3
  */
 public class AlignToHubCommand extends Command {
 
-    // ===== Constants =====
+    // ===== Hub Tags =====
+    private static final Set<Integer> HUB_TAG_IDS = Set.of(18, 19, 20, 21, 24, 25, 26, 27);
 
-    /** Valid AprilTag ID range for the blue hub */
-    private static final int MIN_HUB_TAG_ID = 18;
-    private static final int MAX_HUB_TAG_ID = 27;
+    // ===== Constants =====
 
     /** PID gains for rotation alignment */
     private static final double kP = 0.05; // TODO: Tune
@@ -139,14 +139,8 @@ public class AlignToHubCommand extends Command {
 
     /**
      * Returns true if the tag ID is a valid hub target.
-     * Must be within the hub range (18-27) and not in the exclusion list.
-     *
-     * Excluded tags: 17, 22, 23, 28
      */
     private boolean isHubTag(int tagId) {
-        if (tagId == 17 || tagId == 22 || tagId == 23 || tagId == 28) {
-            return false;
-        }
-        return tagId >= MIN_HUB_TAG_ID && tagId <= MAX_HUB_TAG_ID;
+        return HUB_TAG_IDS.contains(tagId);
     }
 }
