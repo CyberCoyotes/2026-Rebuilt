@@ -1,196 +1,110 @@
 package frc.robot.subsystems.intake;
 
-import org.littletonrobotics.junction.Logger;
-
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.Constants.Intake;
 import frc.robot.subsystems.intake.IntakeIO.IntakeIOInputs;
-
-@SuppressWarnings("unused") // Suppress warnings for unused right now
 
 public class IntakeSubsystem extends SubsystemBase {
 
+    // ── IO Layer ───────────────────────────────────────────────────────────────
     private final IntakeIO io;
     private final IntakeIOInputs inputs = new IntakeIOInputs();
 
-    // ===== State Tracking =====
-    private String currentState = "IDLE";
+    // ── Constants ──────────────────────────────────────────────────────────────
+    static final double SLIDE_RETRACTED_POSITION = 0.0;
+    static final double SLIDE_EXTENDED_POSITION  = 1.85;
 
-    // ===== Intake Constants =====
-    // Sensor thresholds for detecting game pieces, may need to be tuned
-    final static int INTAKE_THRESHOLD = 1000; // mm, around four inches
+    // Voltage to run roller during intake — 4V was not enough
+    static final double ROLLER_INTAKE_VOLTS = 6.0;
 
-    final static double JAM_CURRENT_THRESHOLD = 60.0; // current should be under this
-    // final static double JAM_VELOCITY_THRESHOLD = 0.5; // velocity should be over this
+    // Current threshold for jam detection — used when sensor is re-enabled
+    static final double JAM_CURRENT_THRESHOLD = 60.0;
 
-    // Mechanical limits for the slide, may need to be tuned
-    final static double SLIDE_MIN_POSITION = 0;
-    final static double SLIDE_MAX_POSITION = 1.91;
-
-    final static double SLIDE_RETRACTED_POSITION = 0.0;
-    final static double SLIDE_EXTENDED_POSITION = 1.85;
-
-    final static double ROLLER_VOLTS = 6; // Voltage to run the roller at for intaking fuel, may need to be tuned
-    // 4 is not enough
-
-    // final static double SLIDE_VOLTS = -6; // Voltage to run the roller at for outtaking fuel, may need to be tuned
+    // Distance threshold for game piece detection (mm, ~4 inches)
+    static final int INTAKE_THRESHOLD = 1000;
 
     public IntakeSubsystem(IntakeIO intakeIO) {
         this.io = intakeIO;
-        // this.inputs = new IntakeIOInputsAutoLogged(); // FIXME
     }
 
     @Override
     public void periodic() {
         io.updateInputs(inputs);
-        // Logger.processInputs("Intake", inputs); // FIXME
+        // Logger.processInputs("Intake", inputs); // FIXME: enable when AdvantageKit wired up
     }
 
-    /**
-     * Sets the current state for dashboard display.
-     *
-     * @param state State string (e.g., "IDLE", "INTAKING", "EXTENDED")
-     */
-    public void setState(String state) {
-        this.currentState = state;
-    }
-
-    //=== Low Level methods ===
-    public void setRollerSpeed(double volts) {
-        io.setRollerVoltage(volts);
-    }
+    // ── Low-Level Hardware Methods ─────────────────────────────────────────────
+    // These wrap io calls so commands and higher-level methods stay readable.
 
     public void runRoller() {
-        io.setRollerVoltage(ROLLER_VOLTS);
-    }
-
-    public void stopRoller() {
-        io.setRollerVoltage(0);
+        io.setRollerVoltage(ROLLER_INTAKE_VOLTS);
     }
 
     public void reverseRoller() {
-        // Reverse the roller to eject fuel
-        io.setRollerVoltage(-ROLLER_VOLTS);
+        io.setRollerVoltage(-ROLLER_INTAKE_VOLTS);
     }
 
-    public void setSlidePosition(double position) {
-        io.setSlidePosition(position);
+    public void stopRoller() {
+        io.stopRoller();
     }
 
-    // Method wrapper to set the slide to the resting position
-    public void retractSlides() {
-        io.setSlidePosition(SLIDE_RETRACTED_POSITION);
-    }
-
-    // Method wrapper to set the slide to the extended position
     public void extendSlides() {
         io.setSlidePosition(SLIDE_EXTENDED_POSITION);
     }
 
-    // intake sensor methods
-    // public double getIntakeDistance() {
-    //     return inputs.intakeDistance;
-    // }
-
-    // public boolean intakeTargetClose() {
-    //     return inputs.intakeTarget;
-    // }
-
-    // public boolean isJammed() {
-    //     return false; //io.isJammed();
-    // }
-
-    // ===== Commands =====
-
-    /*
-     * Probably don't need these command wrappers, but they make the button bindings
-     * code cleaner and more readable, and they also allow us to easily add extra
-     * logic to the commands if we want to in the future (e.g., adding a condition
-     * to only extend the slides if the intake sensor detects a target)
-     */
-    // public Command extendSlidesCommand(){
-    // return Commands.runOnce(this::extendSlides, this);
-
-    // }
-
-    /*
-     * Probably don't need these command wrappers either, but they make the button
-     * bindings code cleaner and more readable, and they also allow us to easily add
-     * extra logic to the commands if we want to in the future (e.g., adding a
-     * condition to only retract the slides if the intake sensor detects no target)
-     */
-    // public Command returnSlidesCommand(){
-    // return Commands.runOnce(this::restSlides, this);
-    // }
-
-    // public Command outakeFuelCommand() {
-    //     return Commands.startEnd(
-    //             this::outakeFuel,
-    //             this::stopRoller, this);
-    // }
-
-    public Command runRollerCommand() {
-        return Commands.startEnd(
-                this::runRoller,
-                this::stopRoller, this);
+    public void retractSlides() {
+        io.setSlidePosition(SLIDE_RETRACTED_POSITION);
     }
 
-    public Command stopRollerCommand() {
-        return Commands.run(this::stopRoller, this);
+    // ── Slide State Queries ────────────────────────────────────────────────────
+    public double getSlidePosition() {
+        return inputs.slidePositionRotations;
     }
 
-    // ===== Command Combinations =====
-    /*
-     * Make a parallel command sequence that
-     * (1) extends the slides and stops
-     * (2) runs the roller while button pressed and stops it when released
-     */
-    // This is the main command for intaking fuel, and will be bound to the intake
-    // button on the controller
-    // FIXME there were code crashes that mentioned this command
+    public boolean isSlideExtended() {
+        return Math.abs(inputs.slidePositionRotations - SLIDE_EXTENDED_POSITION) < 0.05;
+    }
+
+    public boolean isSlideRetracted() {
+        return Math.abs(inputs.slidePositionRotations - SLIDE_RETRACTED_POSITION) < 0.05;
+    }
+
+    // ── Sensor Queries (re-enable when hardware is connected) ──────────────────
+    // public boolean hasGamePiece() { return inputs.hasGamePiece; }
+    // public boolean isJammed()     { return inputs.rollerCurrentAmps > JAM_CURRENT_THRESHOLD; }
+
+    // ── Commands ───────────────────────────────────────────────────────────────
+
+    /** Extends slides and runs roller while held, stops roller on release. Slides stay extended. */
     public Command intakeFuel() {
         return Commands.startEnd(
-                () -> {
-                    extendSlides();
-                    runRoller();
-                },
-                this::stopRoller,
-                this);
-    }
-
-    public Command ejectFuel(){
-        return Commands.startEnd(
-            this::ejectFuel,
-            this::stopRoller, 
-            this);
-    }
-
-    public Command stopFuel() {
-        return Commands.runOnce(
-                // Wrap actions as a single Runnable command
-                () -> {
-                    this.stopRoller();
-                    this.retractSlides();
-                },
-                this
+            () -> {
+                extendSlides();
+                runRoller();
+            },
+            this::stopRoller,
+            this
         );
     }
 
-    /*
-     * Command to move slides from SLIDE_EXTENDED_POSITION to SLIDE_BUMPER_POSITION
-     * Use MotionMagicVoltage to do this gradually
-     * Intake Roller should be off
-     * Effectively decrease the hopper volume to help feed fuel into the indexer and shooter
-     */
-    // FIXME This incomplete
-    // public Command collapseHopperCommand(double duration) {
-    //     return Commands.sequence(
-    //             Commands.runOnce(
-    //                 this::stopRoller, this), // Ensure roller is off
-    //              // Retract the slides to the resting position
-    //     );
-    // }
+    /** Reverses roller while held, stops on release. */
+    public Command ejectFuel() {
+        return Commands.startEnd(
+            this::reverseRoller,
+            this::stopRoller,
+            this
+        );
+    }
 
+    /** Stops roller and retracts slides. Instant command. */
+    public Command stowIntake() {
+        return Commands.runOnce(
+            () -> {
+                stopRoller();
+                retractSlides();
+            },
+            this
+        );
+    }
 }
