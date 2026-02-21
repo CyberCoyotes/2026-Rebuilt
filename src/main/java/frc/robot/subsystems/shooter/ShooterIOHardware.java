@@ -25,9 +25,9 @@ import frc.robot.Constants;
  * ShooterIOHardware - Real hardware implementation for the shooter subsystem.
  *
  * CAN OPTIMIZATION NOTES:
- * - Status signals are split into fast (50Hz) and slow (10Hz) groups
- * - updateInputs() only refreshes the 3 control-critical signals every cycle
- * - updateSlowInputs() refreshes the 4 diagnostic signals at 10Hz
+ * - Only control-critical signals are read every cycle (50Hz)
+ * - Current, voltage, and other diagnostics are captured by CTRE Hoot logs
+ * - Through Bore encoder health is checked at 10Hz for runtime safety
  * - optimizeBusUtilization() disables all unneeded status frames
  * - Followers are set AFTER optimizeBusUtilization() to preserve control link
  *
@@ -40,14 +40,7 @@ public class ShooterIOHardware implements ShooterIO {
 
     static TalonFXConfiguration competition() {
       TalonFXConfiguration config = base();
-
-      // config.CurrentLimits.SupplyCurrentLimit = 45.0;
-      // config.CurrentLimits.SupplyCurrentLimitEnable = true;
-      // config.CurrentLimits.StatorCurrentLimit = 90.0;
-      // config.CurrentLimits.StatorCurrentLimitEnable = true;
-      // config.OpenLoopRamps.VoltageOpenLoopRampPeriod = 1.0;
-      // config.ClosedLoopRamps.VoltageClosedLoopRampPeriod = 1.0;
-
+      // TODO: Dial in competition current limits and ramps
       return config;
     }
 
@@ -70,8 +63,8 @@ public class ShooterIOHardware implements ShooterIO {
       config.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
 
       // Velocity closed loop — Slot 0
-      config.Slot0.kP = 0.12; // TODO: Tune proportional gain based on flywheel velocity response
-      config.Slot0.kV = 0.10; // TODO: Tune feedforward gain based on flywheel velocity response
+      config.Slot0.kP = 0.12; // TODO: Tune
+      config.Slot0.kV = 0.10; // TODO: Tune
 
       return config;
     }
@@ -83,16 +76,12 @@ public class ShooterIOHardware implements ShooterIO {
     static TalonFXSConfiguration hood() {
       TalonFXSConfiguration config = new TalonFXSConfiguration();
 
-      // Minion motor connected via JST connector
       config.Commutation.MotorArrangement = MotorArrangementValue.Minion_JST;
-
       config.MotorOutput.NeutralMode = NeutralModeValue.Brake;
       config.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
 
-      /*
-       * Voltage limits — capped for safe hood movement during testing.
-       * TODO: Increase after hood travel range is verified. 4V has been safe.
-       */
+      /* Voltage limits — capped for safe hood movement during testing.
+       * TODO: Increase after hood travel range is verified. 4V has been safe. */
       config.Voltage.PeakForwardVoltage = 4.0;
       config.Voltage.PeakReverseVoltage = -4.0;
 
@@ -100,9 +89,9 @@ public class ShooterIOHardware implements ShooterIO {
       config.CurrentLimits.SupplyCurrentLimitEnable = true;
 
       // Position PID — Slot 0
-      config.Slot0.kP = 1.0; // TODO: Tune hood position P
-      config.Slot0.kI = 0.75; // TODO: Tune hood position I
-      config.Slot0.kD = 0.0; // TODO: Tune hood position D
+      config.Slot0.kP = 1.0;  // TODO: Tune
+      config.Slot0.kI = 0.75; // TODO: Tune
+      config.Slot0.kD = 0.0;
 
       // Soft limits — enable after travel range is confirmed
       config.SoftwareLimitSwitch.ForwardSoftLimitEnable = true;
@@ -126,23 +115,20 @@ public class ShooterIOHardware implements ShooterIO {
   private final PositionVoltage hoodPositionRequest = new PositionVoltage(0.0);
   private final VoltageOut hoodVoltageRequest = new VoltageOut(0.0);
 
-  // ── Status Signals — Fast (50Hz, control-critical) ─────────────────────────
+  // ── Status Signals — 50Hz (control-critical) ───────────────────────────────
   private final StatusSignal<?> flywheelAVelocity;
-  private final StatusSignal<?> flywheelAVoltage;
   private final StatusSignal<?> hoodPosition;
 
-  // ── Status Signals — Slow (10Hz, diagnostics) ──────────────────────────────
-  private final StatusSignal<?> flywheelACurrent;
-  private final StatusSignal<?> hoodVoltage;
-  private final StatusSignal<?> hoodCurrent;
+  // ── Status Signals — 10Hz (runtime safety only) ────────────────────────────
+  // Current/voltage diagnostics are handled by CTRE Hoot logs, not read here.
   private final StatusSignal<?> hoodEncoderAbsPosition;
 
   public ShooterIOHardware() {
     flywheelMotorA = new TalonFX(Constants.Shooter.FLYWHEEL_A_MOTOR_ID, Constants.RIO_CANBUS);
     flywheelMotorB = new TalonFX(Constants.Shooter.FLYWHEEL_B_MOTOR_ID, Constants.RIO_CANBUS);
     flywheelMotorC = new TalonFX(Constants.Shooter.FLYWHEEL_C_MOTOR_ID, Constants.RIO_CANBUS);
-    hoodMotor = new TalonFXS(Constants.Shooter.HOOD_MOTOR_ID, Constants.RIO_CANBUS);
-    hoodEncoder = new CANcoder(Constants.Shooter.HOOD_POSE_ENCODER_ID, Constants.RIO_CANBUS);
+    hoodMotor      = new TalonFXS(Constants.Shooter.HOOD_MOTOR_ID, Constants.RIO_CANBUS);
+    hoodEncoder    = new CANcoder(Constants.Shooter.HOOD_POSE_ENCODER_ID, Constants.RIO_CANBUS);
 
     // Through Bore CANcoder config
     var encoderConfig = new CANcoderConfiguration();
@@ -158,40 +144,32 @@ public class ShooterIOHardware implements ShooterIO {
     hoodMotor.getConfigurator().apply(HoodConfig.hood());
 
     // Cache status signal references
-    flywheelAVelocity = flywheelMotorA.getVelocity();
-    flywheelAVoltage = flywheelMotorA.getMotorVoltage();
-    flywheelACurrent = flywheelMotorA.getSupplyCurrent();
-    hoodPosition = hoodMotor.getPosition();
-    hoodVoltage = hoodMotor.getMotorVoltage();
-    hoodCurrent = hoodMotor.getSupplyCurrent();
+    flywheelAVelocity     = flywheelMotorA.getVelocity();
+    hoodPosition          = hoodMotor.getPosition();
     hoodEncoderAbsPosition = hoodEncoder.getAbsolutePosition();
 
-    // 50Hz — control-critical signals
+    // 50Hz — control loop needs fresh velocity and position every cycle
     BaseStatusSignal.setUpdateFrequencyForAll(
         50.0,
         flywheelAVelocity,
-        flywheelAVoltage,
-        hoodPosition);
+        hoodPosition
+    );
 
-    // 10Hz — diagnostic signals
+    // 10Hz — encoder health check; fast enough to catch a disconnect safely
     BaseStatusSignal.setUpdateFrequencyForAll(
         10.0,
-        flywheelACurrent,
-        hoodVoltage,
-        hoodCurrent,
-        hoodEncoderAbsPosition);
+        hoodEncoderAbsPosition
+    );
 
-    // Disable all status frames not explicitly set above
+    // Disable all status frames not explicitly configured above
     flywheelMotorA.optimizeBusUtilization();
     flywheelMotorB.optimizeBusUtilization();
     flywheelMotorC.optimizeBusUtilization();
     hoodMotor.optimizeBusUtilization();
     hoodEncoder.optimizeBusUtilization();
 
-    /*
-     * Followers MUST be set AFTER optimizeBusUtilization()
-     * otherwise aggressive frame disabling can break the follower control link
-     */
+    /* Followers MUST be set AFTER optimizeBusUtilization()
+     * otherwise aggressive frame disabling can break the follower control link */
     flywheelMotorB.setControl(new Follower(Constants.Shooter.FLYWHEEL_A_MOTOR_ID, MotorAlignmentValue.Aligned));
     flywheelMotorC.setControl(new Follower(Constants.Shooter.FLYWHEEL_A_MOTOR_ID, MotorAlignmentValue.Aligned));
 
@@ -200,49 +178,20 @@ public class ShooterIOHardware implements ShooterIO {
   }
 
   /**
-   * Refreshes control-critical signals only (3 signals at 50Hz).
-   * Called every cycle (20ms) by ShooterSubsystem.periodic().
+   * Refreshes all runtime-necessary signals every cycle.
+   * Diagnostics (current, voltage) are captured automatically by CTRE Hoot.
    */
   @Override
   public void updateInputs(ShooterIOInputs inputs) {
-    // BaseStatusSignal.refreshAll(
-    // flywheelAVelocity,
-    // flywheelAVoltage,
-    // hoodPosition
-    // );
-
     // Flywheel — A is leader, B/C follow, so reading A is sufficient
     double motorRPS = flywheelAVelocity.getValueAsDouble();
     inputs.flywheelLeaderMotorRPS = motorRPS;
     inputs.flywheelLeaderMotorRPM = rpsToRPM(motorRPS);
-    inputs.flywheelAppliedVolts = flywheelAVoltage.getValueAsDouble();
 
-    // Hood position — always fresh for closed-loop control
+    // Hood position — needed every cycle for closed-loop control
     inputs.hoodPositionRotations = hoodPosition.getValueAsDouble();
-  }
 
-  /**
-   * Refreshes diagnostic signals (4 signals at 10Hz).
-   * Called every 5th cycle (100ms) by ShooterSubsystem.periodic().
-   */
-  @Override
-  public void updateSlowInputs(ShooterIOInputs inputs) {
-    BaseStatusSignal.refreshAll(
-        flywheelACurrent,
-        hoodVoltage,
-        hoodCurrent,
-        hoodEncoderAbsPosition);
-
-    inputs.flywheelCurrentAmps = flywheelACurrent.getValueAsDouble();
-    inputs.hoodAppliedVolts = hoodVoltage.getValueAsDouble();
-    inputs.hoodCurrentAmps = hoodCurrent.getValueAsDouble();
-
-    inputs.hoodAngleDegrees = inputs.hoodPositionRotations * 360.0; // only valid if 1 rot == 1 hood rev (verify with
-                                                                    // your mechanism ratio)
-
-    // Through Bore encoder
-    inputs.hoodThroughBorePositionRotations = hoodEncoderAbsPosition.getValueAsDouble();
-    inputs.hoodThroughBorePositionDegrees = inputs.hoodThroughBorePositionRotations * 360.0;
+    // Encoder health — if this goes false mid-match, subsystem can fault safely
     inputs.hoodThroughBoreConnected = hoodEncoderAbsPosition.getStatus() == StatusCode.OK;
   }
 
@@ -273,8 +222,7 @@ public class ShooterIOHardware implements ShooterIO {
     hoodMotor.stopMotor();
   }
 
-  // === Unit Conversions
-  // ===============================================================
+  // ── Unit Conversions ───────────────────────────────────────────────────────
   private double rpsToRPM(double rps) {
     return rps * 60.0;
   }
