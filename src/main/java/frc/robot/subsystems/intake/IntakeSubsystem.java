@@ -59,20 +59,20 @@ public class IntakeSubsystem extends SubsystemBase {
 
     //=== Low Level methods ===
     public void setRollerSpeed(double volts) {
-        io.setRollerSpeed(volts);
+        io.setRollerVoltage(volts);
     }
 
     public void runRoller() {
-        io.setRollerSpeed(ROLLER_VOLTS);
+        io.setRollerVoltage(ROLLER_VOLTS);
     }
 
     public void stopRoller() {
-        io.setRollerSpeed(0);
+        io.setRollerVoltage(0);
     }
 
     public void reverseRoller() {
         // Reverse the roller to eject fuel
-        io.setRollerSpeed(-ROLLER_VOLTS);
+        io.setRollerVoltage(-ROLLER_VOLTS);
     }
 
     public void setSlidePosition(double position) {
@@ -87,15 +87,6 @@ public class IntakeSubsystem extends SubsystemBase {
     // Method wrapper to set the slide to the extended position
     public void extendSlides() {
         io.setSlidePosition(SLIDE_EXTENDED_POSITION);
-    }
-
-    //=== Getters ===
-    public double getRollerVolts() {
-        return io.getRollerVolts();
-    }
-
-    public double getSlidePosition() {
-        return io.getSlidePosition();
     }
 
     // intake sensor methods

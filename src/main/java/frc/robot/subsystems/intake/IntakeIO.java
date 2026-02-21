@@ -75,16 +75,13 @@ public interface IntakeIO {
     void updateInputs(IntakeIOInputs inputs); //took out default because these methods are fine abstract
 
     //roller methods
-    void setRollerSpeed(double volts);
-    double getRollerVolts(); // made doubles because sim can't handle motor-specific StatusSignals
+    void setRollerVoltage(double volts);
     void stopRoller();
 
     //slide methods
     void setSlidePosition(double position);
-    double getSlidePosition();
+    void stopSlide();
 
     //intake sensor methods
-    // double getIntakeDistance();
-    // boolean intakeTargetClose();
 
 }
