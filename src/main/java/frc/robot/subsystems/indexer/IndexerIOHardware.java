@@ -149,8 +149,8 @@ public IndexerIOHardware() {
     BaseStatusSignal.setUpdateFrequencyForAll(
         10.0,
         conveyorVelocity, conveyorAppliedVolts,
-        indexerVelocity, indexerAppliedVolts,
-        hopperASignalStrength, hopperBSignalStrength
+        indexerVelocity, indexerAppliedVolts
+        // hopperASignalStrength, hopperBSignalStrength
         // conveyorCurrent, indexerCurrent,
         // hopperASignalStrength, hopperBSignalStrength
 );
@@ -171,10 +171,12 @@ public IndexerIOHardware() {
             hopperADistance, hopperAIsDetected,
             hopperBDistance, hopperBIsDetected
         );
-        inputs.conveyorVelocityRPS = conveyorVelocity.getValueAsDouble();
-        inputs.conveyorAppliedVolts = conveyorAppliedVolts.getValueAsDouble();
-        inputs.indexerVelocityRPS = indexerVelocity.getValueAsDouble();
-        inputs.indexerAppliedVolts = indexerAppliedVolts.getValueAsDouble();
+        // Removing for diagnostics, can re-enable if needed
+        // inputs.conveyorVelocityRPS = conveyorVelocity.getValueAsDouble();
+        // inputs.conveyorAppliedVolts = conveyorAppliedVolts.getValueAsDouble();
+        // inputs.indexerVelocityRPS = indexerVelocity.getValueAsDouble();
+        // inputs.indexerAppliedVolts = indexerAppliedVolts.getValueAsDouble();
+
         // inputs.hopperADistanceMm = hopperADistance.getValueAsDouble() * 1000.0; // m -> mm :contentReference[oaicite:14]{index=14}
         // inputs.hopperAHasPiece = (boolean) hopperAIsDetected.getValue();        // uses proximity config :contentReference[oaicite:15]{index=15}
 
