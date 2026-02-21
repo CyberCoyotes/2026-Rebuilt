@@ -7,6 +7,7 @@ import frc.robot.subsystems.indexer.IndexerSubsystem;
 import frc.robot.subsystems.shooter.ShooterSubsystem;
 
 /**
+ * **UPDATE Move towards retiring?***
  * ShooterCommands - Factory for shooter-related commands.
  *
  * This class provides static factory methods to create common shooter commands.
@@ -17,48 +18,6 @@ import frc.robot.subsystems.shooter.ShooterSubsystem;
  * @author @Isaak3
  */
 public class ShooterCommands {
-
-    /** Percent tolerance for starting feed during ramp test (10%). */
-    private static final double RAMP_TEST_FEED_TOLERANCE = 0.10;
-
-
-    /**
-     * Basic ramp-test shooter command.
-     *
-     * Behavior:
-     *  - Commands the flywheel to ShooterSubsystem.RAMP_TEST_TARGET_RPM
-     *  - Once flywheel is within target RPM tolerance, starts feeding (conveyor + indexer)
-     *  - On end/cancel, stops feeding and returns shooter to IDLE
-     *
-     * Intended for use with a whileTrue() button binding.
-     */
-    public static Command rampTestShoot(ShooterSubsystem shooter, IndexerSubsystem indexer) {
-        final double targetRPM = ShooterSubsystem.RAMP_TEST_TARGET_RPM;
-
-        return Commands.sequence(
-            // Spin up to the ramp-test target
-            Commands.runOnce(() -> {
-                shooter.setTargetHoodPose(0);
-                shooter.setTargetVelocity(targetRPM);
-                shooter.prepareToShoot();
-            }, shooter),
-
-            // Wait until flywheel is within 15% of the target RPM
-            Commands.waitUntil(() ->
-                Math.abs(shooter.getCurrentVelocityRPM() - targetRPM)
-                    <= Math.abs(targetRPM) * RAMP_TEST_FEED_TOLERANCE
-            ),
-            Commands.run(() -> {
-                indexer.indexerForward();
-                indexer.conveyorForward();
-            }, indexer)
-        )
-        .finallyDo(() -> {
-            indexer.indexerStop();
-            indexer.conveyorStop();
-            shooter.setIdle();
-        });
-    }
 
     /**
      * Creates a command to pre-rev the shooter flywheel (SPINUP state).
@@ -342,8 +301,4 @@ public class ShooterCommands {
         return shooter.flywheelRampTest(targetRPM);
     }
 
-    // Private constructor to prevent instantiation
-    private ShooterCommands() {
-        throw new UnsupportedOperationException("This is a utility class!");
-    }
 }

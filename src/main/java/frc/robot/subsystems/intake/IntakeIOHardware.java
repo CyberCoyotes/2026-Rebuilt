@@ -48,7 +48,7 @@ public class IntakeIOHardware implements IntakeIO {
             config.CurrentLimits.StatorCurrentLimitEnable = true;
 
             config.SoftwareLimitSwitch.ForwardSoftLimitEnable = true;
-            config.SoftwareLimitSwitch.ForwardSoftLimitThreshold = 44.45;
+            config.SoftwareLimitSwitch.ForwardSoftLimitThreshold = 44.454;
             config.SoftwareLimitSwitch.ReverseSoftLimitEnable = true;
             config.SoftwareLimitSwitch.ReverseSoftLimitThreshold = 0.0;
 
@@ -66,12 +66,12 @@ public class IntakeIOHardware implements IntakeIO {
     }
 
     // ── Hardware ───────────────────────────────────────────────────────────────
-    private final TalonFX m_roller;
-    private final TalonFX m_slide;
+    private final TalonFX roller;
+    private final TalonFX slide;
 
     // ── Control Requests ───────────────────────────────────────────────────────
-    private final VoltageOut m_rollerRequest = new VoltageOut(0);
-    private final MotionMagicVoltage m_slideRequest = new MotionMagicVoltage(0);
+    private final VoltageOut rollerRequest = new VoltageOut(0);
+    private final MotionMagicVoltage slideRequest = new MotionMagicVoltage(0);
 
     // ── Status Signals — 50Hz (control-critical) ───────────────────────────────
     // Current, voltage, and temp are captured by CTRE Hoot for diagnostics.
@@ -79,16 +79,16 @@ public class IntakeIOHardware implements IntakeIO {
     private final StatusSignal<AngularVelocity> slideVelocity;
 
     public IntakeIOHardware() {
-        m_roller = new TalonFX(Constants.Intake.INTAKE_ROLLER_MOTOR_ID, Constants.RIO_CANBUS);
-        m_slide  = new TalonFX(Constants.Intake.INTAKE_SLIDE_MOTOR_ID, Constants.RIO_CANBUS);
+        roller = new TalonFX(Constants.Intake.INTAKE_ROLLER_MOTOR_ID, Constants.RIO_CANBUS);
+        slide  = new TalonFX(Constants.Intake.INTAKE_SLIDE_MOTOR_ID, Constants.RIO_CANBUS);
 
-        m_roller.getConfigurator().apply(RollerConfig.roller());
-        m_slide.getConfigurator().apply(SlideConfig.slide());
+        roller.getConfigurator().apply(RollerConfig.roller());
+        slide.getConfigurator().apply(SlideConfig.slide());
 
         // Cache signal references — slide needs position and velocity for MotionMagic
         // and at-target checks. Roller has no control-critical signals to read.
-        slidePosition = m_slide.getPosition();
-        slideVelocity = m_slide.getVelocity();
+        slidePosition = slide.getPosition();
+        slideVelocity = slide.getVelocity();
 
         BaseStatusSignal.setUpdateFrequencyForAll(
             50.0,
@@ -96,11 +96,11 @@ public class IntakeIOHardware implements IntakeIO {
             slideVelocity
         );
 
-        m_roller.optimizeBusUtilization();
-        m_slide.optimizeBusUtilization();
+        roller.optimizeBusUtilization();
+        slide.optimizeBusUtilization();
 
         // Zero slide encoder at startup — assumes slide is fully retracted
-        m_slide.setPosition(0.0);
+        slide.setPosition(0.0);
     }
 
     @Override
@@ -117,22 +117,22 @@ public class IntakeIOHardware implements IntakeIO {
     // ── Roller Methods ─────────────────────────────────────────────────────────
     @Override
     public void setRollerVoltage(double volts) {
-        m_roller.setControl(m_rollerRequest.withOutput(volts));
+        roller.setControl(rollerRequest.withOutput(volts));
     }
 
     @Override
     public void stopRoller() {
-        m_roller.stopMotor();
+        roller.stopMotor();
     }
 
     // ── Slide Methods ──────────────────────────────────────────────────────────
     @Override
     public void setSlidePosition(double position) {
-        m_slide.setControl(m_slideRequest.withPosition(position));
+        slide.setControl(slideRequest.withPosition(position));
     }
 
     @Override
     public void stopSlide() {
-        m_slide.stopMotor();
+        slide.stopMotor();
     }
 }

@@ -150,7 +150,13 @@ public class RobotContainer {
         // Right Trigger: Flywheel ramp-up test — hold to ramp to target RPM, release to idle.
         // Ramp rate governed by ClosedLoopRamps in TalonFXConfigs (currently 4s).
         driver.rightTrigger(0.5).whileTrue(
-        //   ShooterCommands.rampTestShoot(shooter, indexer)        
+            Commands.sequence(
+                shooter.closeShotCommand(),
+                indexer.feed()
+        ).finallyDo(() -> {
+            shooter.setIdle();
+            indexer.stop();
+        })
         );
 
         /* TODO Test rampTestShoot first, comment out, and try this one */
@@ -187,7 +193,7 @@ public class RobotContainer {
             Commands.startEnd(indexer::indexerForward, indexer::indexerStop));
         // POV Up: Eject from shooter (clear jams, 1 second reverse)
         
-        driver.povLeft().onTrue(ShooterCommands.eject(shooter, 1.0));
+        // driver.povLeft().onTrue(ShooterCommands.eject(shooter, 1.0));
 
         // ----- Indexer -----
         // Right Bumper: Feed game piece to shooter (while held)
@@ -234,9 +240,9 @@ public class RobotContainer {
 
 
         //
-        operator.rightTrigger(0.5).whileTrue(
-            ShooterCommands.visionShot(shooter, vision)
-        );
+        // operator.rightTrigger(0.5).whileTrue(
+        //     ShooterCommands.visionShot(shooter, vision)
+        // );
         
 
         // /* */

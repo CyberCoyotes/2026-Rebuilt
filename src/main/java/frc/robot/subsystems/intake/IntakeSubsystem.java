@@ -13,16 +13,20 @@ public class IntakeSubsystem extends SubsystemBase {
 
     // ── Constants ──────────────────────────────────────────────────────────────
     static final double SLIDE_RETRACTED_POSITION = 0.0;
-    static final double SLIDE_EXTENDED_POSITION  = 1.85;
+    
+    // See the config for software limit
+    static final double SLIDE_EXTENDED_POSITION  = 44.44; // TODO Verify slide position
 
     // Voltage to run roller during intake — 4V was not enough
     static final double ROLLER_INTAKE_VOLTS = 6.0;
 
     // Current threshold for jam detection — used when sensor is re-enabled
-    static final double JAM_CURRENT_THRESHOLD = 60.0;
+    // Add backif needed
+    // static final double JAM_CURRENT_THRESHOLD = 60.0;
 
     // Distance threshold for game piece detection (mm, ~4 inches)
-    static final int INTAKE_THRESHOLD = 1000;
+    // Add back when sensor if re-enabled
+    // static final int INTAKE_THRESHOLD = 1000;
 
     public IntakeSubsystem(IntakeIO intakeIO) {
         this.io = intakeIO;
