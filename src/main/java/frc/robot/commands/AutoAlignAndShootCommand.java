@@ -11,72 +11,34 @@ import frc.robot.subsystems.shooter.ShooterSubsystem;
 import frc.robot.subsystems.vision.VisionSubsystem;
 
 import java.util.Set;
-import java.util.function.DoubleSupplier;
 
 /**
- * FarShotCommand - Auto-aligns to hub, adjusts hood and RPM based on distance.
- *
- * BEHAVIOR (while RT is held):
- * - Auto-rotates to face the nearest hub AprilTag (tags 18, 19, 20, 21, 24, 25, 26, 27)
- * - tx is smoothed with an EMA filter to reject tag-switching noise and vibration
- * - Continuously interpolates both hood angle AND flywheel RPM from live distance:
- *     At CLOSE_DISTANCE_METERS (0.85m): CLOSE_SHOT_HOOD + MIN_RPM (2250)
- *     At FAR_DISTANCE_METERS  (3.5m):  FAR_SHOT_HOOD  + MAX_RPM (3250)
- * - Driver retains full translational control throughout
- * - If tag is lost mid-hold, hood/RPM/rotation freeze at last known values for THIS hold only
- * - Feeding and alignment run simultaneously — feeds as soon as shooter is ready
- * - On release: stops indexer, returns shooter to SPINUP at IDLE_RPM
- *
- * TUNING:
- * - TX_FILTER_ALPHA: EMA smoothing (0.0 = frozen, 1.0 = raw). Decrease to reduce jitter.
- * - kP / MIN_ROTATION_OUTPUT / MAX_ROTATION_RATE: Rotation PID tuning
- * - CLOSE_DISTANCE_METERS / FAR_DISTANCE_METERS: Distance endpoints for interpolation
- * - MIN_RPM / MAX_RPM: RPM endpoints — MIN at close range, MAX at far range
- *
- * @author @Isaak3
+ * AutoAlignAndShootCommand - Used in autonomous to align to hub and shoot.
+ * Reuses the same alignment, hood, and RPM interpolation logic as FarShotCommand,
+ * but with no driver input and a configurable shot duration finish condition.
  */
-public class FarShotCommand extends Command {
+public class AutoAlignAndShootCommand extends Command {
 
     // ===== Hub Tags =====
     private static final Set<Integer> HUB_TAG_IDS = Set.of(18, 19, 20, 21, 24, 25, 26, 27);
 
     // ===== Distance Interpolation Range =====
-    /** Closest distance (meters) — maps to CLOSE_SHOT_HOOD and MIN_RPM */
     private static final double CLOSE_DISTANCE_METERS = 0.85;
-
-    /** Farthest distance (meters) — maps to FAR_SHOT_HOOD and MAX_RPM */
     private static final double FAR_DISTANCE_METERS = 3.5;
 
     // ===== RPM Interpolation =====
-    /** Flywheel RPM at closest distance */
-    private static final double MIN_RPM = 2875; // TODO: Tune
-
-    /** Flywheel RPM at farthest distance */
-    private static final double MAX_RPM = 3875; // TODO: Tune
+    private static final double MIN_RPM = 2875;
+    private static final double MAX_RPM = 3875;
 
     // ===== tx EMA Filter =====
-    /**
-     * Exponential moving average smoothing factor for tx.
-     * Filters noise from tag switching and mechanical vibration during shooting.
-     * Range: 0.0 (fully frozen) to 1.0 (no filtering, raw tx).
-     */
-    private static final double TX_FILTER_ALPHA = 0.2; // TODO: Tune
+    private static final double TX_FILTER_ALPHA = 0.2;
 
     // ===== Rotation PID =====
-    private static final double kP = 0.05; // TODO: Tune
+    private static final double kP = 0.05;
     private static final double kI = 0.0;
     private static final double kD = 0.001;
-
-    /**
-     * Minimum rotation output (rad/s) applied whenever error exceeds the deadband.
-     * Ensures robot always commits to rotating even when PID output is weak at large errors.
-     */
-    private static final double MIN_ROTATION_OUTPUT = 1.25; // TODO: Tune
-
-    /** Maximum rotation rate (rad/s) */
-    private static final double MAX_ROTATION_RATE = 4.0; // TODO: Tune
-
-    /** Deadband — within this many degrees of smoothed tx, no correction applied */
+    private static final double MIN_ROTATION_OUTPUT = 1.25;
+    private static final double MAX_ROTATION_RATE = 4.0;
     private static final double ALIGN_TOLERANCE_DEGREES = 1.5;
 
     // ===== Hardware =====
@@ -84,31 +46,38 @@ public class FarShotCommand extends Command {
     private final ShooterSubsystem shooter;
     private final VisionSubsystem vision;
     private final IndexerSubsystem indexer;
-    private final DoubleSupplier translationX;
-    private final DoubleSupplier translationY;
+
+    // ===== Config =====
+    private final double shootDurationSeconds;
 
     // ===== Control =====
     private final PIDController rotationPID;
     private final SwerveRequest.FieldCentric driveRequest;
 
-    // ===== Per-hold State =====
-    private boolean isFeeding = false;
+    // ===== Per-run State =====
     private double smoothedTx = 0.0;
+    private boolean isFeeding = false;
+    private double feedingElapsedSeconds = 0.0;
 
-    public FarShotCommand(
+    /**
+     * @param drivetrain           The swerve drivetrain
+     * @param shooter              The shooter subsystem
+     * @param vision               The vision subsystem
+     * @param indexer              The indexer subsystem
+     * @param shootDurationSeconds How long to feed once the shooter is ready (seconds)
+     */
+    public AutoAlignAndShootCommand(
             CommandSwerveDrivetrain drivetrain,
             ShooterSubsystem shooter,
             VisionSubsystem vision,
             IndexerSubsystem indexer,
-            DoubleSupplier translationX,
-            DoubleSupplier translationY) {
+            double shootDurationSeconds) {
 
         this.drivetrain = drivetrain;
         this.shooter = shooter;
         this.vision = vision;
         this.indexer = indexer;
-        this.translationX = translationX;
-        this.translationY = translationY;
+        this.shootDurationSeconds = shootDurationSeconds;
 
         rotationPID = new PIDController(kP, kI, kD);
         rotationPID.setSetpoint(0.0);
@@ -126,8 +95,8 @@ public class FarShotCommand extends Command {
     public void initialize() {
         rotationPID.reset();
         isFeeding = false;
+        feedingElapsedSeconds = 0.0;
 
-        // Seed smoothedTx from raw tx so the filter starts from a meaningful value
         if (vision.hasTarget() && isHubTag(vision.getTagId())) {
             smoothedTx = vision.getHorizontalAngleDegrees();
             double distance = vision.getDistanceToTargetMeters();
@@ -139,67 +108,56 @@ public class FarShotCommand extends Command {
             shooter.setTargetHoodPose(ShooterSubsystem.CLOSE_SHOT_HOOD);
         }
 
-        // Enter READY state — flywheel ramps up, hood moves to target
         shooter.prepareToShoot();
     }
 
     @Override
     public void execute() {
-        // =====================================================================
-        // 1. Update smoothed tx via EMA filter
-        // =====================================================================
+        // 1. Update smoothed tx
         if (vision.hasTarget() && isHubTag(vision.getTagId())) {
             double rawTx = vision.getHorizontalAngleDegrees();
             smoothedTx = (TX_FILTER_ALPHA * rawTx) + ((1.0 - TX_FILTER_ALPHA) * smoothedTx);
         }
 
-        // =====================================================================
-        // 2. Update hood and RPM continuously from live distance
-        // =====================================================================
+        // 2. Update hood and RPM from live distance
         if (vision.hasTarget() && isHubTag(vision.getTagId())) {
             double distance = vision.getDistanceToTargetMeters();
             shooter.updateHoodForDistance(interpolateHoodAngle(distance));
             shooter.setTargetVelocity(interpolateRPM(distance));
         }
-        // If no valid tag — hood and RPM hold their last commanded values
 
-        // =====================================================================
-        // 3. Rotation PID on smoothed tx with minimum output floor
-        // =====================================================================
+        // 3. Rotation PID — robot rotates to face hub, no driver translation
         double rotationOutput = 0.0;
-
         if (vision.hasTarget() && isHubTag(vision.getTagId())) {
             if (Math.abs(smoothedTx) > ALIGN_TOLERANCE_DEGREES) {
                 double pidOutput = rotationPID.calculate(smoothedTx);
-
                 if (Math.abs(pidOutput) < MIN_ROTATION_OUTPUT) {
                     pidOutput = Math.copySign(MIN_ROTATION_OUTPUT, pidOutput);
                 }
-
                 rotationOutput = Math.max(-MAX_ROTATION_RATE,
                                  Math.min(MAX_ROTATION_RATE, pidOutput));
             }
         }
 
-        // =====================================================================
-        // 4. Drive — driver translation + PID rotation
-        // =====================================================================
+        // 4. Apply rotation only — robot stays stationary while aligning
         final double finalRotation = rotationOutput;
         drivetrain.applyRequest(() ->
             driveRequest
-                .withVelocityX(translationX.getAsDouble())
-                .withVelocityY(translationY.getAsDouble())
+                .withVelocityX(0.0)
+                .withVelocityY(0.0)
                 .withRotationalRate(finalRotation)
         ).execute();
 
-        // =====================================================================
-        // 5. Feed once shooter is ready
-        // =====================================================================
-        if (shooter.isReady()) {
+        // 5. Feed once shooter is ready, then count down shoot duration
+        if (!isFeeding && shooter.isReady()) {
             isFeeding = true;
+        }
+
+        if (isFeeding) {
+            feedingElapsedSeconds += 0.02; // 20ms robot loop period
             indexer.indexerForward();
             indexer.conveyorForward();
-        } else if (!isFeeding) {
+        } else {
             indexer.indexerStop();
             indexer.conveyorStop();
         }
@@ -215,15 +173,13 @@ public class FarShotCommand extends Command {
 
     @Override
     public boolean isFinished() {
-        return false;
+        // Finish once we've been feeding for the configured duration
+        return isFeeding && feedingElapsedSeconds >= shootDurationSeconds;
     }
 
     /**
      * Linearly interpolates flywheel RPM between MIN_RPM and MAX_RPM based on distance.
      * Clamped so distances outside the range pin to the nearest endpoint.
-     *
-     * At CLOSE_DISTANCE_METERS → MIN_RPM (2875)
-     * At FAR_DISTANCE_METERS  → MAX_RPM (3875)
      */
     private double interpolateRPM(double distanceMeters) {
         double clamped = Math.max(CLOSE_DISTANCE_METERS,
@@ -236,9 +192,6 @@ public class FarShotCommand extends Command {
     /**
      * Linearly interpolates hood angle between CLOSE_SHOT_HOOD and FAR_SHOT_HOOD.
      * Clamped so distances outside the range pin to the nearest endpoint.
-     *
-     * At CLOSE_DISTANCE_METERS → CLOSE_SHOT_HOOD
-     * At FAR_DISTANCE_METERS  → FAR_SHOT_HOOD
      */
     private double interpolateHoodAngle(double distanceMeters) {
         double clamped = Math.max(CLOSE_DISTANCE_METERS,
