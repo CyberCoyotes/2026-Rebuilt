@@ -288,7 +288,15 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
     public Command sysIdDynamic(SysIdRoutine.Direction direction) {
         return m_sysIdRoutineToApply.dynamic(direction);
     }
-
+    public Command stop() {
+        // Cannot use a runOnce()
+        return run(() -> {
+            this.setControl(new SwerveRequest.RobotCentric()
+                .withVelocityX(0)
+                .withVelocityY(0) 
+                .withRotationalRate(0));
+        });
+    }
     @Override
     public void periodic() {
         /*

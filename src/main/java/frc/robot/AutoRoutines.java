@@ -87,8 +87,8 @@ public class AutoRoutines {
                 routine.active().onTrue(
                         Commands.sequence(
                                 Lob.resetOdometry(), // Always reset odometry first
-                                Lob.cmd()//, // Follow the path
-                                //m_drivetrain.stop().withTimeout(DRIVE_WAIT),
+                                Lob.cmd(),//, // Follow the path
+                                m_drivetrain.stop().withTimeout(DRIVE_WAIT)
                                // Lob2.cmd()
 
                         ));
@@ -96,6 +96,26 @@ public class AutoRoutines {
 
                 // Consider using m_commandGroups.autoIntakeCoral(m_indexerCommands, m_shooterCommands,/*m_wrist*/);
                 //   Lob2.atTime("Load").onTrue(m_intakeCommands.intake());
+                return routine;
+        }
+
+        public AutoRoutine Default() {
+                 final AutoRoutine routine = m_factory.newRoutine("DefaultRightV2");
+                final AutoTrajectory DefaultRightV2 = routine.trajectory("DefaultRightV2", 0);
+               // final AutoTrajectory DefaultRightV2 = routine.trajectory("DefaultRightV2", 1);
+
+                routine.active().onTrue(
+                        Commands.sequence(
+                                DefaultRightV2.resetOdometry(), // Always reset odometry first
+                                DefaultRightV2.cmd()//, // Follow the path
+                                ,m_drivetrain.stop().withTimeout(DRIVE_WAIT)
+                               // DefaultRightV2.cmd()
+
+                        ));
+                DefaultRightV2.atTime("Score").onTrue(ShooterCommands.rampTestShoot(m_shooter, m_indexer)); //score
+
+                // Consider using m_commandGroups.autoIntakeCoral(m_indexerCommands, m_shooterCommands,/*m_wrist*/);
+                //DefaultRightV2.atTime("Load").onTrue(m_intakeCommands.intake());
                 return routine;
         }
 }
