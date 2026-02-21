@@ -35,7 +35,7 @@ public class TalonFXConfigs {
 
         // Motor output configuration
         config.MotorOutput.NeutralMode = NeutralModeValue.Coast;  // Coast to keep spinning
-        config.MotorOutput.Inverted = InvertedValue.Clockwise_Positive; // TODO : Verify direction on robot
+        config.MotorOutput.Inverted = InvertedValue.Clockwise_Positive; // TODO: Verify direction on robot
 
         // Current limits - high for flywheels
         config.CurrentLimits.SupplyCurrentLimit = 80.0;
@@ -55,7 +55,7 @@ public class TalonFXConfigs {
         // Closed-loop ramp rate — limits how fast the PID output voltage can change.
         // Prevents belt slipping from sudden torque spikes during flywheel acceleration.
         // Shorten this value once belt mechanics are improved.
-        config.ClosedLoopRamps.VoltageClosedLoopRampPeriod = 3.0;  // TODO seconds from 0 to full voltage
+        config.ClosedLoopRamps.VoltageClosedLoopRampPeriod = 3.0;  // TODO: seconds from 0 to full voltage
 
         return config;
     }
@@ -155,13 +155,13 @@ public class TalonFXConfigs {
         return config;
     }
 
-      /**
+    /**
      * Configuration for intake slide motors.
      *
      * Features:
-     * - Percent output control
+     * - Position control with MotionMagic
      * - Brake mode
-     * - Lower current limits (intake slide doesn't need high power)
+     * - Lower current limits
      *
      * @return Configured TalonFXConfiguration for intake slide use
      */
@@ -172,7 +172,7 @@ public class TalonFXConfigs {
         config.MotorOutput.NeutralMode = NeutralModeValue.Brake;
         config.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
 
-        // Current limits - lower for intake
+        // Current limits - lower for intake slide
         config.CurrentLimits.SupplyCurrentLimit = 20.0;
         config.CurrentLimits.SupplyCurrentLimitEnable = true;
 
@@ -186,13 +186,12 @@ public class TalonFXConfigs {
         config.SoftwareLimitSwitch.ReverseSoftLimitThreshold = 0.00;
 
         config.Slot0.kP = 2.0;   // TODO: Tune — increase if response is too sluggish
-        config.Slot0.kI = 0.0;   // TODO: Tune — helps eliminate steady-state error from friction/gravity
+        config.Slot0.kI = 0.0;
         config.Slot0.kD = 0.0;
 
-        
-        // Set MotionMagicVoltage settings
-        config.MotionMagic.MotionMagicCruiseVelocity = 16; // TODO tune the slide speed - 8 is a good starting point for smooth movement without slipping
-        config.MotionMagic.MotionMagicAcceleration = 16; // TODO tune the slide acceleration - 4 is a good starting point for smooth movement without slipping
+        // MotionMagic settings
+        config.MotionMagic.MotionMagicCruiseVelocity = 16; // TODO: Tune slide speed
+        config.MotionMagic.MotionMagicAcceleration = 16;   // TODO: Tune slide acceleration
         config.MotionMagic.MotionMagicJerk = 0;
 
         return config;
@@ -208,6 +207,19 @@ public class TalonFXConfigs {
      * - Lower current limits
      * - Slot 0 PID for position control
      *
+     * NOTE: Soft limits are currently DISABLED for initial testing.
+     * Once hood travel is verified and zeroing is confirmed correct,
+     * re-enable soft limits and set thresholds appropriately:
+     *   config.SoftwareLimitSwitch.ForwardSoftLimitEnable = true;
+     *   config.SoftwareLimitSwitch.ForwardSoftLimitThreshold = 9.15;
+     *   config.SoftwareLimitSwitch.ReverseSoftLimitEnable = true;
+     *   config.SoftwareLimitSwitch.ReverseSoftLimitThreshold = 0.0;
+     *
+     * NOTE: kI is set to 0.0 for initial testing. The previous value of 0.75
+     * was causing the integrator to wind up rapidly and slam the hood to its
+     * limit. Re-introduce kI cautiously (start at 0.01 or lower) only if
+     * there is steady-state error that kP alone cannot correct.
+     *
      * @return Configured TalonFXSConfiguration for hood use
      */
     public static TalonFXSConfiguration hoodConfig() {
@@ -221,7 +233,7 @@ public class TalonFXConfigs {
         config.MotorOutput.Inverted = InvertedValue.Clockwise_Positive; // TODO: Verify direction on robot
 
         // Voltage limits - cap output for safe hood movement during testing
-        config.Voltage.PeakForwardVoltage = 4.0;   // TODO: Increase after hood travel is verified. 4 has been safe for testing.
+        config.Voltage.PeakForwardVoltage = 4.0;   // TODO: Increase after hood travel is verified
         config.Voltage.PeakReverseVoltage = -4.0;
 
         // Current limits - lower for hood
@@ -230,14 +242,12 @@ public class TalonFXConfigs {
 
         // Position PID - Slot 0
         config.Slot0.kP = 1.0;   // TODO: Tune — increase if response is too sluggish
-        config.Slot0.kI = 0.75;   // TODO: Tune — helps eliminate steady-state error from friction/gravity
+        config.Slot0.kI = 0.0;   // WARNING: Do not increase without caution — high kI winds up fast
         config.Slot0.kD = 0.0;
 
-        // Soft limits (TODO: set based on physical hood range)
-        config.SoftwareLimitSwitch.ForwardSoftLimitEnable = true;  // Enable after tuning
-        config.SoftwareLimitSwitch.ForwardSoftLimitThreshold = 9.15;  // Raw units
-        config.SoftwareLimitSwitch.ReverseSoftLimitEnable = true;  // Enable after tuning
-        config.SoftwareLimitSwitch.ReverseSoftLimitThreshold = 0.0;
+        // Soft limits — DISABLED for initial testing (see notes above)
+        config.SoftwareLimitSwitch.ForwardSoftLimitEnable = false;
+        config.SoftwareLimitSwitch.ReverseSoftLimitEnable = false;
 
         return config;
     }

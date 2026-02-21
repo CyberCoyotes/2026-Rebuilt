@@ -43,11 +43,11 @@ import frc.robot.subsystems.vision.VisionSubsystem;
 @SuppressWarnings("unused") // Suppress warnings for unused right now
 
 public class RobotContainer {
-    /* TODO Lower max speed and angular rate for testing, 
+    /* TODO Lower max speed and angular rate for testing,
     * then increase to actual desired values once we have tested the robot's responsiveness and handling at lower speeds.
     * This will help prevent runaway situations while tuning.*/
     private double MaxSpeed = 0.5 * TunerConstants.kSpeedAt12Volts.in(MetersPerSecond); // kSpeedAt12Volts desired top speed
-    private double MaxAngularRate = RotationsPerSecond.of(0.5).in(RadiansPerSecond); // 3/4 0.75 of a rotation per second max angular velocity
+    private double MaxAngularRate = RotationsPerSecond.of(0.5).in(RadiansPerSecond); // 0.5 of a rotation per second max angular velocity
 
     /* Setting up bindings for necessary control of the swerve drive platform */
     private final SwerveRequest.FieldCentric drive = new SwerveRequest.FieldCentric()
@@ -64,7 +64,7 @@ public class RobotContainer {
     // ===== Controllers =====
     // Port 0: Driver controller
     private final CommandXboxController driver = new CommandXboxController(0);
-    
+
     // Port 1: Operator controller
     private final CommandXboxController operator = new CommandXboxController(1);
 
@@ -76,7 +76,6 @@ public class RobotContainer {
     private final VisionSubsystem vision;
     private final LedSubsystem ledSubsystem;
     // private final ClimberSubsystem climber;
-    // private final IntakeCommands intakeCommands; // Not needed since we can just use intake subsystem methods directly in bindings
 
     /* Path follower */
     private final AutoFactory autoFactory;
@@ -84,11 +83,10 @@ public class RobotContainer {
     private final AutoChooser autoChooser = new AutoChooser();
 
     public RobotContainer() {
-            intake = new IntakeSubsystem(new IntakeIOHardware());
-            indexer = new IndexerSubsystem(new IndexerIOHardware());
-            shooter = new ShooterSubsystem(new ShooterIOHardware());
-            vision = new VisionSubsystem(new VisionIOLimelight(Constants.Vision.LIMELIGHT4_NAME));
-
+        intake = new IntakeSubsystem(new IntakeIOHardware());
+        indexer = new IndexerSubsystem(new IndexerIOHardware());
+        shooter = new ShooterSubsystem(new ShooterIOHardware());
+        vision = new VisionSubsystem(new VisionIOLimelight(Constants.Vision.LIMELIGHT4_NAME));
 
         ledSubsystem = new LedSubsystem();
         // climber = new ClimberSubsystem();
@@ -97,8 +95,6 @@ public class RobotContainer {
         autoRoutines = new AutoRoutines(autoFactory);
 
         autoChooser.addRoutine("SimplePath", autoRoutines::simplePathAuto);
-        // AutoChooser automatically publishes to NetworkTables at "AutoChooser"
-        // Elastic dashboard can read this directly without SmartDashboard
 
         configureBindings();
     }
@@ -111,177 +107,133 @@ public class RobotContainer {
         // Default: Field-centric drive with left stick (translate) and right stick (rotate)
         drivetrain.setDefaultCommand(
             drivetrain.applyRequest(() ->
-                drive.withVelocityX(-driver.getLeftY() * MaxSpeed) // Drive forward with negative Y (forward)
-                    .withVelocityY(-driver.getLeftX() * MaxSpeed) // Drive left with negative X (left)
-                    .withRotationalRate(-driver.getRightX() * MaxAngularRate) // Drive counterclockwise with negative X (left)
+                drive.withVelocityX(-driver.getLeftY() * MaxSpeed)
+                    .withVelocityY(-driver.getLeftX() * MaxSpeed)
+                    .withRotationalRate(-driver.getRightX() * MaxAngularRate)
             )
         );
 
-        // Idle while the robot is disabled. This ensures the configured
-        // neutral mode is applied to the drive motors while disabled.
+        // Idle drive motors while disabled
         final var idle = new SwerveRequest.Idle();
         RobotModeTriggers.disabled().whileTrue(
             drivetrain.applyRequest(() -> idle).ignoringDisable(true)
         );
-       
-        // B: Point wheels at joystick direction (for testing)
-       /*  driver.b().whileTrue(drivetrain.applyRequest(() ->
-            point.withModuleDirection(new Rotation2d(-driver.getLeftY(), -driver.getLeftX()))
-        ));
 
-        // POV Up/Down: Slow manual drive (for alignment/testing)
-        driver.povUp().whileTrue(drivetrain.applyRequest(() ->
-            forwardStraight.withVelocityX(0.5).withVelocityY(0))
-        );
-        driver.povDown().whileTrue(drivetrain.applyRequest(() ->
-            forwardStraight.withVelocityX(-0.5).withVelocityY(0))
-        );*/
-        // start: Reset field-centric heading
+        //Start: Reset field-centric heading
         driver.start().onTrue(drivetrain.runOnce(drivetrain::seedFieldCentric));
 
-        
         drivetrain.registerTelemetry(logger::telemeterize);
 
         // =====================================================================
         // DRIVER CONTROLLER (Port 0) - Mechanisms
         // =====================================================================
 
-        // ----- Shooter -----
-        // ----- Full Sequences -----
-        // A: Full shoot sequence - close shot with indexer feed, then idle
-        /*
+        // Right Trigger: Shoot — ramp flywheel to target RPM and feed indexer while held
         driver.rightTrigger(0.5).whileTrue(
-            ShooterCommands.shootSequence(shooter, indexer,
-                ShooterSubsystem.CLOSE_SHOT_RPM, ShooterSubsystem.CLOSE_SHOT_HOOD)
-        );
-         */
-
-        // Right Trigger: Flywheel ramp-up test — hold to ramp to target RPM, release to idle.
-        // Ramp rate governed by ClosedLoopRamps in TalonFXConfigs (currently 4s).
-        driver.rightTrigger(0.5).whileTrue(
-          ShooterCommands.rampTestShoot(shooter, indexer)
-
-        // TODO Test Just run the flywheels
-        // Commands.run(
-            // () -> shooter.setTargetVelocity(ShooterSubsystem.RAMP_TEST_TARGET_RPM)).withTimeout(10.0) // Timeout to prevent indefinite running if something goes wrong;
-        
+            ShooterCommands.rampTestShoot(shooter, indexer)
         );
 
-        /* TODO Test rampTestShoot first, comment out, and try this one */
-        /*
-        driver.rightTrigger(0.5).whileTrue(
-            Commands.parallel(
-                ShooterCommands.rampUpFlywheel(shooter, ShooterSubsystem.RAMP_TEST_TARGET_RPM),
-                Commands.waitUntil(shooter::isReady).withTimeout(5.0), // Timeout to prevent indefinite waiting if something goes wrong
-                Commands.run(indexer::indexerForward).withTimeout(10.0) // Run indexer forward for 10 seconds or until interrupted (e.g., by releasing trigger)
-            )
-        );
-        */
+        // Left Trigger: Intake — deploy and run intake rollers while held
+        driver.leftTrigger(0.5).whileTrue(intake.intakeFuel());
 
-        // Y: Close shot (prepare and wait for ready)
-        // driver.a().onTrue(ShooterCommands.closeShot(shooter)); // TODO Comment out for testing without flywheel
-        // Close shot hood preset — sets target AND transitions to READY so motor actually moves
+        // Left Bumper: Hood angle up — increases hood pose by HOOD_TEST_INCREMENT rotations.
+        // If shooter is in READY state the hood moves immediately; otherwise the new
+        // target takes effect on the next prepareToShoot() call.
+        driver.leftBumper().onTrue(
+            ShooterCommands.increaseTargetHoodPose(shooter, ShooterSubsystem.HOOD_TEST_INCREMENT)
+        );
+
+        // Right Bumper: Hood angle down — decreases hood pose by HOOD_TEST_INCREMENT rotations.
+        driver.rightBumper().onTrue(
+            ShooterCommands.decreaseTargetHoodPose(shooter, ShooterSubsystem.HOOD_TEST_INCREMENT)
+        );
+
+        // =====================================================================
+        // DRIVER CONTROLLER (Port 0) - Commented out (TODO: enable as needed)
+        // =====================================================================
+
+        // A: Close shot hood preset
         driver.a().onTrue(Commands.runOnce(() -> {
             shooter.setTargetHoodPose(ShooterSubsystem.CLOSE_SHOT_HOOD);
             shooter.prepareToShoot();
         }));
 
-        // X: Far shot (prepare and wait for ready)
+        // X: Far shot hood preset
         driver.x().onTrue(Commands.runOnce(() -> {
             shooter.setTargetHoodPose(ShooterSubsystem.FAR_SHOT_HOOD);
             shooter.prepareToShoot();
         }));
 
-        // B: Pass shot (prepare and wait for ready)
+        // B: Pass shot hood preset
         driver.b().onTrue(Commands.runOnce(() -> {
             shooter.setTargetHoodPose(ShooterSubsystem.PASS_SHOT_HOOD);
             shooter.prepareToShoot();
         }));
-        driver.y().whileTrue(
-            Commands.startEnd(indexer::indexerForward, indexer::indexerStop));
-        // POV Up: Eject from shooter (clear jams, 1 second reverse)
-        
-        driver.povLeft().onTrue(ShooterCommands.eject(shooter, 1.0));
 
-        // ----- Indexer -----
-        // Right Bumper: Feed game piece to shooter (while held)
-        //driver.rightBumper().whileTrue(IndexerCommands.feed(indexer));
+        // Y: Indexer forward while held
+        // driver.y().whileTrue(Commands.startEnd(indexer::indexerForward, indexer::indexerStop));
 
-        // POV Down: Eject from indexer (clear jams, 1 second reverse)
-       // driver.povDown().onTrue(IndexerCommands.eject(indexer, 1.0));
+        // POV Left: Eject from shooter (1 second reverse)
+        // driver.povLeft().onTrue(ShooterCommands.eject(shooter, 1.0));
 
-        // ----- Intake -----
-        // Left Trigger: Run intake rotator and slides(while held)
-        driver.leftTrigger(0.5).whileTrue(intake.intakeFuel());
+        // POV Down: Eject from indexer (1 second reverse)
+        // driver.povDown().onTrue(IndexerCommands.eject(indexer, 1.0));
 
-        // Left Bumper: Stop intake jam (quick reverse)
-        // driver.leftBumper().whileTrue(intake.ejectFuel());
-        driver.leftBumper().onTrue(Commands.runOnce(intake::retractSlides, intake));
+        // Full shoot sequence
+        // driver.rightTrigger(0.5).whileTrue(
+        //     ShooterCommands.shootSequence(shooter, indexer,
+        //         ShooterSubsystem.CLOSE_SHOT_RPM, ShooterSubsystem.CLOSE_SHOT_HOOD)
+        // );
 
-        // ----- Climber (POV) -----
-        // POV Up: Extend climber arm (preset})
-        //  driver.povUp().onTrue(climber.extendArm());
-        // POV Down: Retract climber arm (Preset)
+        // Climber controls
+        // driver.povUp().onTrue(climber.extendArm());
         // driver.povDown().onTrue(climber.retractArm());
-        
-        // POV Right: Extend climber arm (while held)
         // driver.povRight().whileTrue(climber.extendArm());
-        // POV Left: Retract climber arm (while held)
         // driver.povLeft().whileTrue(climber.retractArm());
 
-        // Start: Stop climber
-       // operator.start().onTrue(climber.stopClimber());
-
-        // ----- Operator Controller (Port 1) - Shooter Hood Testing -----
-        // operator.povDown().onTrue(shooter.runOnce(shooter::decreaseHoodForTesting));
-        // operator.povUp().onTrue(shooter.runOnce(shooter::increaseHoodForTesting));
-
-        // Hood position testing (closed-loop position control)
-        // operator.rightBumper().onTrue(shooter.runHoodToMax());   // Move hood to MAX_HOOD_POSE
-        // operator.leftBumper().onTrue(shooter.runHoodToMin());    // Move hood to MIN_HOOD_POSE
-        operator.rightBumper().whileTrue(
-            Commands.startEnd(
-                () -> indexer.conveyorForward(), 
-                () -> indexer.conveyorStop(), 
-                indexer)
-        );
+ // POV Up/Down: Incremental hood angle adjustment
+        // driver.povUp().onTrue(ShooterCommands.increaseTargetHoodPose(shooter, ShooterSubsystem.HOOD_TEST_INCREMENT));
+        // driver.povDown().onTrue(ShooterCommands.decreaseTargetHoodPose(shooter, ShooterSubsystem.HOOD_TEST_INCREMENT));
 
 
-        //
-        operator.rightTrigger(0.5).whileTrue(
-            ShooterCommands.visionShot(shooter, vision)
-        );
-        
 
-        // /* */
-        // operator.rightTrigger(0.5).whileTrue(
-        //     Commands.parallel(
-        //         ShooterCommands.rampUpFlywheel(shooter, ShooterSubsystem.RAMP_TEST_TARGET_RPM),
-        //         Commands.waitUntil(shooter::isReady).withTimeout(10.0), // Timeout to prevent indefinite waiting if something goes wrong
-        //         Commands.run(indexer::indexerForward).withTimeout(10.0) // Run indexer forward for 10 seconds or until interrupted (e.g., by releasing trigger)
-        //     )
-        // );
-    
+        // POV Up/Down: Slow manual drive for alignment
+        // driver.povUp().whileTrue(drivetrain.applyRequest(() ->
+        //     forwardStraight.withVelocityX(0.5).withVelocityY(0)));
+        // driver.povDown().whileTrue(drivetrain.applyRequest(() ->
+        //     forwardStraight.withVelocityX(-0.5).withVelocityY(0)));
+
+        // B: Point wheels at joystick direction
+        // driver.b().whileTrue(drivetrain.applyRequest(() ->
+        //     point.withModuleDirection(new Rotation2d(-driver.getLeftY(), -driver.getLeftX()))));
 
         // =====================================================================
-        // OPERATOR CONTROLLER (Port 1) - Flywheel Velocity Adjustment
+        // OPERATOR CONTROLLER (Port 1) - Commented out (TODO: enable as needed)
         // =====================================================================
-        // TODO: Uncomment these bindings when ready for on-robot testing
-        // POV Up: Increase flywheel velocity by 100 RPM
+
+        // Right Trigger: Vision-based shot
+        // operator.rightTrigger(0.5).whileTrue(ShooterCommands.visionShot(shooter, vision));
+
+        // Right Bumper: Conveyor forward
+        // operator.rightBumper().whileTrue(
+        //     Commands.startEnd(() -> indexer.conveyorForward(), () -> indexer.conveyorStop(), indexer));
+
+        // POV Up/Down: Incremental hood angle adjustment
+        // operator.povUp().onTrue(ShooterCommands.increaseTargetHoodPose(shooter, ShooterSubsystem.HOOD_TEST_INCREMENT));
+        // operator.povDown().onTrue(ShooterCommands.decreaseTargetHoodPose(shooter, ShooterSubsystem.HOOD_TEST_INCREMENT));
+
+        // POV Up/Down: Flywheel velocity adjustment
         // operator.povUp().onTrue(ShooterCommands.increaseTargetVelocity(shooter, ShooterSubsystem.FLYWHEEL_TEST_INCREMENT_RPM));
-        // POV Down: Decrease flywheel velocity by 100 RPM
         // operator.povDown().onTrue(ShooterCommands.decreaseTargetVelocity(shooter, ShooterSubsystem.FLYWHEEL_TEST_INCREMENT_RPM));
 
-        // TODO Add testing bindings for conveyor and indexer
-        operator.a().whileTrue(
-            Commands.startEnd(indexer::conveyorForward, indexer::conveyorStop));
-        operator.b().whileTrue(
-            Commands.startEnd(indexer::conveyorReverse, indexer::conveyorStop));
-        operator.x().whileTrue(
-            Commands.startEnd(indexer::indexerForward, indexer::indexerStop));
-        operator.y().whileTrue(
-            Commands.startEnd(indexer::indexerReverse, indexer::indexerStop));       
+        // Indexer testing
+        // operator.a().whileTrue(Commands.startEnd(indexer::conveyorForward, indexer::conveyorStop));
+        // operator.b().whileTrue(Commands.startEnd(indexer::conveyorReverse, indexer::conveyorStop));
+        // operator.x().whileTrue(Commands.startEnd(indexer::indexerForward, indexer::indexerStop));
+        // operator.y().whileTrue(Commands.startEnd(indexer::indexerReverse, indexer::indexerStop));
 
+        // Stop climber
+        // operator.start().onTrue(climber.stopClimber());
     }
 
     public Command getAutonomousCommand() {

@@ -136,7 +136,6 @@ public class ShooterCommands {
          .withName("FarShot");
     }
 
-    
     /**
      * Creates a command to using preset far shot.
      * Finishes when shooter is ready.
@@ -274,6 +273,32 @@ public class ShooterCommands {
     public static Command decreaseTargetVelocity(ShooterSubsystem shooter, double decrementRPM) {
         return Commands.runOnce(() -> shooter.adjustTargetVelocity(-Math.abs(decrementRPM)), shooter)
             .withName("DecreaseShooterTargetVelocity");
+    }
+
+    /**
+     * Creates a command to increase the target hood pose by the provided increment.
+     * If the shooter is already in READY state, the hood moves immediately.
+     *
+     * @param shooter The shooter subsystem
+     * @param increment Rotations to increase hood pose by (positive value expected)
+     * @return Command that adjusts target hood pose upward
+     */
+    public static Command increaseTargetHoodPose(ShooterSubsystem shooter, double increment) {
+        return Commands.runOnce(() -> shooter.adjustTargetHoodPose(Math.abs(increment)), shooter)
+            .withName("IncreaseHoodPose");
+    }
+
+    /**
+     * Creates a command to decrease the target hood pose by the provided increment.
+     * If the shooter is already in READY state, the hood moves immediately.
+     *
+     * @param shooter The shooter subsystem
+     * @param increment Rotations to decrease hood pose by (positive value expected)
+     * @return Command that adjusts target hood pose downward
+     */
+    public static Command decreaseTargetHoodPose(ShooterSubsystem shooter, double increment) {
+        return Commands.runOnce(() -> shooter.adjustTargetHoodPose(-Math.abs(increment)), shooter)
+            .withName("DecreaseHoodPose");
     }
 
     /**
