@@ -43,16 +43,12 @@ import frc.robot.subsystems.vision.VisionSubsystem;
 @SuppressWarnings("unused") // Suppress warnings for unused right now
 
 public class RobotContainer {
-    /* TODO Lower max speed and angular rate for testing,
-    * then increase to actual desired values once we have tested the robot's responsiveness and handling at lower speeds.
-    * This will help prevent runaway situations while tuning.*/
-    private double MaxSpeed = 0.5 * TunerConstants.kSpeedAt12Volts.in(MetersPerSecond); // kSpeedAt12Volts desired top speed
-    private double MaxAngularRate = RotationsPerSecond.of(0.5).in(RadiansPerSecond); // 0.5 of a rotation per second max angular velocity
+    private double MaxSpeed = 0.5 * TunerConstants.kSpeedAt12Volts.in(MetersPerSecond);
+    private double MaxAngularRate = RotationsPerSecond.of(0.5).in(RadiansPerSecond);
 
-    /* Setting up bindings for necessary control of the swerve drive platform */
     private final SwerveRequest.FieldCentric drive = new SwerveRequest.FieldCentric()
-            .withDeadband(MaxSpeed * 0.15).withRotationalDeadband(MaxAngularRate * 0.15) // Add a 15% deadband
-            .withDriveRequestType(DriveRequestType.OpenLoopVoltage); // Use open-loop control for drive motors
+            .withDeadband(MaxSpeed * 0.15).withRotationalDeadband(MaxAngularRate * 0.15)
+            .withDriveRequestType(DriveRequestType.OpenLoopVoltage);
     private final SwerveRequest.SwerveDriveBrake brake = new SwerveRequest.SwerveDriveBrake();
     private final SwerveRequest.PointWheelsAt point = new SwerveRequest.PointWheelsAt();
     private final SwerveRequest.RobotCentric forwardStraight = new SwerveRequest.RobotCentric()
@@ -62,10 +58,7 @@ public class RobotContainer {
     private final GameDataTelemetry gameDataTelemetry = new GameDataTelemetry();
 
     // ===== Controllers =====
-    // Port 0: Driver controller
     private final CommandXboxController driver = new CommandXboxController(0);
-
-    // Port 1: Operator controller
     private final CommandXboxController operator = new CommandXboxController(1);
 
     // ===== Subsystems =====
@@ -77,7 +70,6 @@ public class RobotContainer {
     private final LedSubsystem ledSubsystem;
     // private final ClimberSubsystem climber;
 
-    /* Path follower */
     private final AutoFactory autoFactory;
     private final AutoRoutines autoRoutines;
     private final AutoChooser autoChooser = new AutoChooser();
@@ -104,7 +96,6 @@ public class RobotContainer {
         // DRIVER CONTROLLER (Port 0) - Drivetrain
         // =====================================================================
 
-        // Default: Field-centric drive with left stick (translate) and right stick (rotate)
         drivetrain.setDefaultCommand(
             drivetrain.applyRequest(() ->
                 drive.withVelocityX(-driver.getLeftY() * MaxSpeed)
@@ -113,62 +104,63 @@ public class RobotContainer {
             )
         );
 
-        // Idle drive motors while disabled
         final var idle = new SwerveRequest.Idle();
         RobotModeTriggers.disabled().whileTrue(
             drivetrain.applyRequest(() -> idle).ignoringDisable(true)
         );
 
-        //Start: Reset field-centric heading
+        // Start: Reset field-centric heading
         driver.start().onTrue(drivetrain.runOnce(drivetrain::seedFieldCentric));
 
         drivetrain.registerTelemetry(logger::telemeterize);
 
         // =====================================================================
-        // DRIVER CONTROLLER (Port 0) - Mechanisms
+        // DRIVER CONTROLLER (Port 0) - Shooter Presets
+        // Silently update target RPM and hood angle.
+        // No motors move until the shoot trigger is pressed.
         // =====================================================================
 
-        // Right Trigger: Shoot — ramp flywheel to target RPM and feed indexer while held
+        // A: Arm close shot
+        driver.a().onTrue(ShooterCommands.armCloseShot(shooter));
+
+        // X: Arm far shot
+        driver.x().onTrue(ShooterCommands.armFarShot(shooter));
+
+        // B: Arm pass shot
+        driver.b().onTrue(ShooterCommands.armPassShot(shooter));
+
+        // =====================================================================
+        // DRIVER CONTROLLER (Port 0) - Shoot
+        // =====================================================================
+
+        // Right Trigger: Shoot at currently armed preset.
+        // Flywheel ramps to target, hood moves to target angle,
+        // waits until ready, then feeds. Release to return to SPINUP at IDLE_RPM.
         driver.rightTrigger(0.5).whileTrue(
-            ShooterCommands.rampTestShoot(shooter, indexer)
+            ShooterCommands.shootAtCurrentTarget(shooter, indexer)
         );
 
-        // Left Trigger: Intake — deploy and run intake rollers while held
+        // =====================================================================
+        // DRIVER CONTROLLER (Port 0) - Intake
+        // =====================================================================
+
+        // Left Trigger: Extend slides and run roller while held.
+        // Slides remain extended on release (intentional).
         driver.leftTrigger(0.5).whileTrue(intake.intakeFuel());
 
-        // Left Bumper: Hood angle up — increases hood pose by HOOD_TEST_INCREMENT rotations.
-        // If shooter is in READY state the hood moves immediately; otherwise the new
-        // target takes effect on the next prepareToShoot() call.
-        driver.leftBumper().onTrue(
-            ShooterCommands.increaseTargetHoodPose(shooter, ShooterSubsystem.HOOD_TEST_INCREMENT)
-        );
-
-        // Right Bumper: Hood angle down — decreases hood pose by HOOD_TEST_INCREMENT rotations.
-        driver.rightBumper().onTrue(
-            ShooterCommands.decreaseTargetHoodPose(shooter, ShooterSubsystem.HOOD_TEST_INCREMENT)
-        );
+        // Left Bumper: Retract intake slides while held.
+        // Hold until slides are fully retracted, then release.
+        // TODO: Replace with position-based retract once MotionMagic is tuned.
+        driver.leftBumper().whileTrue(intake.retractSlidesCommand());
 
         // =====================================================================
         // DRIVER CONTROLLER (Port 0) - Commented out (TODO: enable as needed)
         // =====================================================================
 
-        // A: Close shot hood preset
-        driver.a().onTrue(Commands.runOnce(() -> {
-            shooter.setTargetHoodPose(ShooterSubsystem.CLOSE_SHOT_HOOD);
-            shooter.prepareToShoot();
-        }));
-
-        // X: Far shot hood preset
-        driver.x().onTrue(Commands.runOnce(() -> {
-            shooter.setTargetHoodPose(ShooterSubsystem.FAR_SHOT_HOOD);
-            shooter.prepareToShoot();
-        }));
-
-        // B: Pass shot hood preset
-        driver.b().onTrue(Commands.runOnce(() -> {
-            shooter.setTargetHoodPose(ShooterSubsystem.PASS_SHOT_HOOD);
-            shooter.prepareToShoot();
-        }));
+        // Right Bumper: Hood angle down
+        // driver.rightBumper().onTrue(
+        //     ShooterCommands.decreaseTargetHoodPose(shooter, ShooterSubsystem.HOOD_TEST_INCREMENT)
+        // );
 
         // Y: Indexer forward while held
         // driver.y().whileTrue(Commands.startEnd(indexer::indexerForward, indexer::indexerStop));
@@ -179,11 +171,20 @@ public class RobotContainer {
         // POV Down: Eject from indexer (1 second reverse)
         // driver.povDown().onTrue(IndexerCommands.eject(indexer, 1.0));
 
-        // Full shoot sequence
-        // driver.rightTrigger(0.5).whileTrue(
-        //     ShooterCommands.shootSequence(shooter, indexer,
-        //         ShooterSubsystem.CLOSE_SHOT_RPM, ShooterSubsystem.CLOSE_SHOT_HOOD)
-        // );
+        // POV Up/Down: Incremental hood angle adjustment
+        // driver.povUp().onTrue(ShooterCommands.increaseTargetHoodPose(shooter, ShooterSubsystem.HOOD_TEST_INCREMENT));
+        // driver.povDown().onTrue(ShooterCommands.decreaseTargetHoodPose(shooter, ShooterSubsystem.HOOD_TEST_INCREMENT));
+
+        // POV Up/Down: Slow manual drive for alignment
+        // NOTE: Conflicts with POV hood adjustment above if both are enabled
+        // driver.povUp().whileTrue(drivetrain.applyRequest(() ->
+        //     forwardStraight.withVelocityX(0.5).withVelocityY(0)));
+        // driver.povDown().whileTrue(drivetrain.applyRequest(() ->
+        //     forwardStraight.withVelocityX(-0.5).withVelocityY(0)));
+
+        // B: Point wheels at joystick direction (conflicts with active B binding)
+        // driver.b().whileTrue(drivetrain.applyRequest(() ->
+        //     point.withModuleDirection(new Rotation2d(-driver.getLeftY(), -driver.getLeftX()))));
 
         // Climber controls
         // driver.povUp().onTrue(climber.extendArm());
@@ -191,21 +192,8 @@ public class RobotContainer {
         // driver.povRight().whileTrue(climber.extendArm());
         // driver.povLeft().whileTrue(climber.retractArm());
 
- // POV Up/Down: Incremental hood angle adjustment
-        // driver.povUp().onTrue(ShooterCommands.increaseTargetHoodPose(shooter, ShooterSubsystem.HOOD_TEST_INCREMENT));
-        // driver.povDown().onTrue(ShooterCommands.decreaseTargetHoodPose(shooter, ShooterSubsystem.HOOD_TEST_INCREMENT));
-
-
-
-        // POV Up/Down: Slow manual drive for alignment
-        // driver.povUp().whileTrue(drivetrain.applyRequest(() ->
-        //     forwardStraight.withVelocityX(0.5).withVelocityY(0)));
-        // driver.povDown().whileTrue(drivetrain.applyRequest(() ->
-        //     forwardStraight.withVelocityX(-0.5).withVelocityY(0)));
-
-        // B: Point wheels at joystick direction
-        // driver.b().whileTrue(drivetrain.applyRequest(() ->
-        //     point.withModuleDirection(new Rotation2d(-driver.getLeftY(), -driver.getLeftX()))));
+        // Eject fuel from intake
+        // driver.y().whileTrue(intake.ejectFuel());
 
         // =====================================================================
         // OPERATOR CONTROLLER (Port 1) - Commented out (TODO: enable as needed)
@@ -237,21 +225,13 @@ public class RobotContainer {
     }
 
     public Command getAutonomousCommand() {
-        /* Run the routine selected from the auto chooser */
         return autoChooser.selectedCommand();
     }
 
-    /**
-     * Updates game data telemetry. Call this in robotPeriodic().
-     * Polls for FMS game-specific message and publishes to NetworkTables.
-     */
     public void updateGameData() {
         gameDataTelemetry.update();
     }
 
-    /**
-     * Returns the game data telemetry instance for programmatic access.
-     */
     public GameDataTelemetry getGameDataTelemetry() {
         return gameDataTelemetry;
     }

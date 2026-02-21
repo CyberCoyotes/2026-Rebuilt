@@ -22,7 +22,7 @@ import frc.robot.Constants.Intake;
 import frc.robot.util.TalonFXConfigs;
 
 /**
- * IntakeIOTalonFX - Real hardware implementation using CTRE TalonFX motors.
+ * IntakeIOHardware - Real hardware implementation using CTRE TalonFX motors.
  *
  * This class interfaces with:
  * - 1x TalonFX (roller) for spinning intake wheels
@@ -30,8 +30,8 @@ import frc.robot.util.TalonFXConfigs;
  *
  * Key features:
  * - Uses centralized TalonFXConfigs for motor configuration
- * - Percent output control for roller (simple and responsive)
- * - Position control for slide (precise positioning)
+ * - Voltage control for roller
+ * - Voltage control for slide (MotionMagic commented out pending tuning)
  * - Optimized status signal updates for performance
  * - All telemetry logged via AdvantageKit
  *
@@ -48,9 +48,10 @@ public class IntakeIOHardware implements IntakeIO {
 
     // ===== Control Requests =====
     private final VoltageOut m_rollerRequest = new VoltageOut(0);
-    private final MotionMagicVoltage m_slideRequest = new MotionMagicVoltage(0);
+    private final VoltageOut m_slideVoltageRequest = new VoltageOut(0); // Voltage control — active
+    private final MotionMagicVoltage m_slideRequest = new MotionMagicVoltage(0); // Reserved for when MotionMagic is re-enabled
 
-   // ===== Status Signals (for efficient reading) =====
+    // ===== Status Signals =====
     // Roller
     private final StatusSignal<AngularVelocity> rollerVelocity;
     private final StatusSignal<Voltage> rollerVoltage;
@@ -65,32 +66,20 @@ public class IntakeIOHardware implements IntakeIO {
     private final StatusSignal<Temperature> slideTemp;
 
     // ===== Conversion Constants =====
-    /** Gear ratio from slide motor to slide mechanism (motor rotations per slide extension) */
-    private static final double SLIDE_GEAR_RATIO = 1.0;  // TODO: Measure actual slide ratio
+    private static final double SLIDE_GEAR_RATIO = 1.0; // TODO: Measure actual slide ratio
 
-    /**
-     * Creates a new IntakeIOTalonFX instance.
-     * Configures motors to known good states.
-     */
     public IntakeIOHardware() {
-        // Create motor objects
         m_roller = new TalonFX(Constants.Intake.INTAKE_ROLLER_MOTOR_ID, Constants.RIO_CANBUS);
         m_slide = new TalonFX(Constants.Intake.INTAKE_SLIDE_MOTOR_ID, Constants.RIO_CANBUS);
 
-        //create sensor objects
-
-        // Apply configurations from centralized config class
         m_roller.getConfigurator().apply(TalonFXConfigs.rollerConfig());
         m_slide.getConfigurator().apply(TalonFXConfigs.slideConfig());
 
-        // Get status signals for efficient reading
-        // Roller
         rollerVelocity = m_roller.getVelocity();
         rollerVoltage = m_roller.getMotorVoltage();
         rollerCurrent = m_roller.getSupplyCurrent();
         rollerTemp = m_roller.getDeviceTemp();
 
-        // Slide
         slidePosition = m_slide.getPosition();
         slideVelocity = m_slide.getVelocity();
         slideVoltage = m_slide.getMotorVoltage();
@@ -98,19 +87,18 @@ public class IntakeIOHardware implements IntakeIO {
         slideTemp = m_slide.getDeviceTemp();
 
         BaseStatusSignal.setUpdateFrequencyForAll(
-            50.0,  // 50Hz for current
+            50.0,
             rollerVelocity, rollerVoltage,
-            slidePosition, slideVelocity, 
+            slidePosition, slideVelocity,
             slideVoltage,
             rollerCurrent, slideCurrent
         );
 
         BaseStatusSignal.setUpdateFrequencyForAll(
-            4.0,  // 4Hz for temperature
+            4.0,
             rollerTemp, slideTemp
         );
 
-        // Optimize bus utilization
         m_roller.optimizeBusUtilization();
         m_slide.optimizeBusUtilization();
 
@@ -120,64 +108,80 @@ public class IntakeIOHardware implements IntakeIO {
 
     @Override
     public void updateInputs(IntakeIO.IntakeIOInputs inputs) {
-        // Refresh all status signals efficiently
-        BaseStatusSignal.refreshAll(
-            rollerVelocity, rollerVoltage, rollerCurrent, rollerTemp,
-            slidePosition, slideVelocity, slideVoltage, slideCurrent, slideTemp
-        );
+        // refreshAll commented out — all input reads are disabled.
+        // Re-enable alongside the reads below when telemetry is needed.
+        // BaseStatusSignal.refreshAll(
+        //     rollerVelocity, rollerVoltage, rollerCurrent, rollerTemp,
+        //     slidePosition, slideVelocity, slideVoltage, slideCurrent, slideTemp
+        // );
 
-        // Roller motor data
-
-        //
         // inputs.rollerVelocityRPS = rollerVelocity.getValueAsDouble();
         // inputs.rollerAppliedVolts = rollerVoltage.getValueAsDouble();
         // inputs.rollerCurrentAmps = rollerCurrent.getValueAsDouble();
         // inputs.rollerTempCelsius = rollerTemp.getValueAsDouble();
 
-        // // Slide motor data
         // inputs.slidePositionRotations = slidePosition.getValueAsDouble();
         // inputs.slideVelocityRPS = slideVelocity.getValueAsDouble();
         // inputs.slideAppliedVolts = slideVoltage.getValueAsDouble();
         // inputs.slideCurrentAmps = slideCurrent.getValueAsDouble();
         // inputs.slideTempCelsius = slideTemp.getValueAsDouble();
 
-        //sensor data
         // inputs.intakeDistance = getIntakeDistance();
         // inputs.intakeTarget = intakeTargetClose();
     }
 
+    // ===== Roller methods =====
 
-    
-    //roller methods
-    public void setRollerSpeed(double speed){
+    @Override
+    public void setRollerSpeed(double speed) {
         m_roller.setControl(m_rollerRequest.withOutput(speed));
     }
 
-    public double getRollerVolts(){
+    @Override
+    public double getRollerVolts() {
         return m_roller.getMotorVoltage().getValueAsDouble();
     }
 
-    public void stopRoller(){
+    @Override
+    public void stopRoller() {
         m_roller.setControl(new VoltageOut(0));
     }
 
-    //slide methods
-    public void setSlidePosition(double position){
-        m_slide.setControl(m_slideRequest.withPosition(position));
+    // ===== Slide methods =====
+
+    /**
+     * Position control via MotionMagic — currently disabled pending tuning.
+     * Use setSlideVoltage() instead.
+     */
+    @Override
+    public void setSlidePosition(double position) {
+        // m_slide.setControl(m_slideRequest.withPosition(position)); // Re-enable once MotionMagic is tuned
     }
 
-    public double getSlidePosition(){
+    /**
+     * Voltage control for slide motor.
+     * Positive volts extends, negative volts retracts.
+     * Always follow up with setSlideVoltage(0) when done.
+     *
+     * @param volts Output voltage (-12.0 to 12.0)
+     */
+    @Override
+    public void setSlideVoltage(double volts) {
+        m_slide.setControl(m_slideVoltageRequest.withOutput(volts));
+    }
+
+    @Override
+    public double getSlidePosition() {
         return m_slide.getPosition().getValueAsDouble();
     }
-    
-    //intake sensor methods
-    // public double getIntakeDistance(){
-    //     return s_intakeTOF.isRangeValid() ? s_intakeTOF.getRange(): Double.NaN; //only gets the range if the range is valid, if not 
+
+    // ===== Intake sensor methods =====
+    // public double getIntakeDistance() {
+    //     return s_intakeTOF.isRangeValid() ? s_intakeTOF.getRange() : Double.NaN;
     // }
 
-    //  public boolean intakeTargetClose(){
+    // public boolean intakeTargetClose() {
     //     return (s_intakeTOF.getRange() <= IntakeSubsystem.INTAKE_THRESHOLD) && s_intakeTOF.isRangeValid();
     // }
 
-    
-    } // end of class
+} // end of class
