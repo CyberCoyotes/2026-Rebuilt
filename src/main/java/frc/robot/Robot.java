@@ -115,11 +115,13 @@ public class Robot extends LoggedRobot {
 
     @Override
     public void autonomousInit() {
-        m_autonomousCommand = m_robotContainer.getAutonomousCommand();
+        // m_autonomousCommand = m_robotContainer.getAutonomousCommand();
 
-        if (m_autonomousCommand != null) {
-            CommandScheduler.getInstance().schedule(m_autonomousCommand);
-        }
+        // if (m_autonomousCommand != null) {
+        //     CommandScheduler.getInstance().schedule(m_autonomousCommand);
+        // }
+                CommandScheduler.getInstance().cancelAll();
+
     }
 
     @Override
@@ -130,9 +132,10 @@ public class Robot extends LoggedRobot {
 
     @Override
     public void teleopInit() {
-        if (m_autonomousCommand != null) {
-            CommandScheduler.getInstance().cancel(m_autonomousCommand);
-        }
+        // if (m_autonomousCommand != null) {
+        //     CommandScheduler.getInstance().cancel(m_autonomousCommand);
+        // }
+        CommandScheduler.getInstance().cancelAll();
     }
 
     @Override

@@ -15,6 +15,7 @@ import choreo.auto.AutoFactory;
 import frc.robot.AutoRoutines;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.RobotBase;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
@@ -91,7 +92,11 @@ public class RobotContainer {
         autoRoutines = new AutoRoutines(autoFactory, drivetrain/* , ClimberSubsystem climber */,
                 indexer, intake, shooter, shooterCommands);
 
-        autoChooser.addRoutine("FourMeters", autoRoutines::FM);
+        // SmartDashboard.putData("Autonomous", autoChooser);
+        // autoChooser.addRoutine("FourMeters", autoRoutines::FM);
+        // autoChooser.addRoutine("The Big-D", autoRoutines::Dummy);
+
+        // SmartDashboard.putData(autoChooser);
         // AutoChooser automatically publishes to NetworkTables at "AutoChooser"
         // Elastic dashboard can read this directly without SmartDashboard
 
@@ -242,7 +247,8 @@ public class RobotContainer {
     }
 
     public Command getAutonomousCommand() {
-        return autoChooser.selectedCommand();
+        // return autoChooser.selectedCommand();
+        return null;
     }
 
     public void updateGameData() {
