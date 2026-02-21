@@ -47,20 +47,27 @@ public class IntakeSubsystem extends SubsystemBase {
      /**
      * Sets the current state for dashboard display.
      */
-    public void setState(String state) {
-        this.currentState = state;
-    }
+    // public void setState(String state) {
+    //     this.currentState = state;
+    // }
 
     // =========================================================================
     // LOW LEVEL METHODS
     // =========================================================================
 
     public void runRoller() {
-        io.setRollerVoltage(ROLLER_INTAKE_VOLTS);
+        io.setRollerVoltage(ROLLER_VOLTS);
     }
 
     public void reverseRoller() {
-        io.setRollerSpeed(-ROLLER_VOLTS);
+        io.setRollerVoltage(-ROLLER_VOLTS);
+    }
+
+    /**
+     * Stops the roller motor.
+     */
+    public void stopRoller() {
+        io.setRollerVoltage(0);
     }
 
     /**
@@ -101,8 +108,8 @@ public class IntakeSubsystem extends SubsystemBase {
     // GETTERS
     // =========================================================================
 
-    public double getRollerVolts() {
-        return io.getRollerVolts();
+    public double getRollerVoltage() {
+        return io.getRollerVoltage();
     }
 
     // ── Slide State Queries ────────────────────────────────────────────────────

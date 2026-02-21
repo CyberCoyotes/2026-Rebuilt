@@ -228,7 +228,7 @@ public class ShooterCommands {
                 shooter.prepareToShoot();
             }, shooter),
             Commands.waitUntil(shooter::isReady).withTimeout(3.0),
-            IndexerCommands.feedTimed(indexer, 0.5), // FIXME to use the IndexerSubsystem's feed method instead of a command from IndexerCommands
+            // IndexerCommands.feedTimed(indexer, 0.5), // FIXME to use the IndexerSubsystem's feed method instead of a command from IndexerCommands
             Commands.runOnce(shooter::returnToIdle, shooter)
         ).withName("ShootSequence");
     }
@@ -246,7 +246,7 @@ public class ShooterCommands {
         return Commands.sequence(
             Commands.waitUntil(vision::hasTarget).withTimeout(1.0),
             visionShot(shooter, vision),
-            IndexerCommands.feedTimed(indexer, 0.5), // FIXME to use the IndexerSubsystem's feed method instead of a command from IndexerCommands
+            // IndexerCommands.feedTimed(indexer, 0.5), // FIXME to use the IndexerSubsystem's feed method instead of a command from IndexerCommands
             Commands.runOnce(shooter::returnToIdle, shooter)
         ).withName("VisionShootSequence");
     }
