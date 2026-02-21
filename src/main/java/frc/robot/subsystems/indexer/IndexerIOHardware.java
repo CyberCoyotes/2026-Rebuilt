@@ -147,7 +147,7 @@ public IndexerIOHardware() {
 
     // Slow signals: 10Hz (diagnostics only, no need to refresh faster)
     BaseStatusSignal.setUpdateFrequencyForAll(
-        10.0,
+        00.0,
         conveyorVelocity, conveyorAppliedVolts,
         indexerVelocity, indexerAppliedVolts
         // hopperASignalStrength, hopperBSignalStrength
@@ -165,12 +165,12 @@ public IndexerIOHardware() {
     public void updateInputs(IndexerIOInputs inputs) {
         // Refresh all status signals efficiently
 
-        BaseStatusSignal.refreshAll(
-            conveyorVelocity, conveyorAppliedVolts,
-            indexerVelocity, indexerAppliedVolts,
-            hopperADistance, hopperAIsDetected,
-            hopperBDistance, hopperBIsDetected
-        );
+        // BaseStatusSignal.refreshAll(
+        //     conveyorVelocity, conveyorAppliedVolts,
+        //     indexerVelocity, indexerAppliedVolts,
+        //     hopperADistance, hopperAIsDetected,
+        //     hopperBDistance, hopperBIsDetected
+        // );
         // Removing for diagnostics, can re-enable if needed
         // inputs.conveyorVelocityRPS = conveyorVelocity.getValueAsDouble();
         // inputs.conveyorAppliedVolts = conveyorAppliedVolts.getValueAsDouble();

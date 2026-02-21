@@ -87,7 +87,7 @@ public class ShooterIOHardware implements ShooterIO {
     // ===== CAN Update Rates =====
     // 50Hz (every 20ms) — control-critical signals
     BaseStatusSignal.setUpdateFrequencyForAll(
-        50.0,
+        00.0,
         flywheelAVelocity,
         flywheelAVoltage,
         hoodPosition
@@ -95,7 +95,7 @@ public class ShooterIOHardware implements ShooterIO {
 
     // 10Hz (every 100ms) — diagnostic signals
     BaseStatusSignal.setUpdateFrequencyForAll(
-        10.0,
+        0.0,
         flywheelACurrent,
         hoodVoltage,
         hoodCurrent,
@@ -118,15 +118,15 @@ public class ShooterIOHardware implements ShooterIO {
     hoodMotor.setPosition(0.0);
 
     // Warm up signals ONCE at startup
-    BaseStatusSignal.refreshAll(
-        flywheelAVelocity,
-        flywheelAVoltage,
-        hoodPosition,
-        flywheelACurrent,
-        hoodVoltage,
-        hoodCurrent,
-        hoodEncoderAbsPosition
-    );
+    // BaseStatusSignal.refreshAll(
+    //     flywheelAVelocity,
+    //     flywheelAVoltage,
+    //     hoodPosition,
+    //     flywheelACurrent,
+    //     hoodVoltage,
+    //     hoodCurrent,
+    //     hoodEncoderAbsPosition
+    // );
 
   }
 
@@ -137,11 +137,11 @@ public class ShooterIOHardware implements ShooterIO {
   @Override
   public void updateInputs(ShooterIOInputs inputs) {
     // Batch-read the 3 fast signals in one CAN transaction
-    BaseStatusSignal.refreshAll(
-        flywheelAVelocity,
-        flywheelAVoltage,
-        hoodPosition
-    );
+    // BaseStatusSignal.refreshAll(
+    //     flywheelAVelocity,
+    //     flywheelAVoltage,
+    //     hoodPosition
+    // );
 
     // Flywheel (A is leader; B/C follow, so reading A is enough)
     double motorRPS = flywheelAVelocity.getValueAsDouble();
