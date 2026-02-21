@@ -68,12 +68,12 @@ public class ShooterIOHardware implements ShooterIO {
     hoodEncoder.getConfigurator().apply(encoderConfig);
 
     // Apply motor configs
-    flywheelMotorA.getConfigurator().apply(flywheelFXConfig.test());
-    flywheelMotorB.getConfigurator().apply(flywheelFXConfig.test());
-    flywheelMotorC.getConfigurator().apply(flywheelFXConfig.test());
+    flywheelMotorA.getConfigurator().apply(talonFXConfig.test());
+    flywheelMotorB.getConfigurator().apply(talonFXConfig.test());
+    flywheelMotorC.getConfigurator().apply(talonFXConfig.test());
     
     // Hood motor config 
-    hoodMotor.getConfigurator().apply(hoodFXSConfig.hood());
+    hoodMotor.getConfigurator().apply(talongFXSConfig.hood());
 
     // Cache status signal references
     flywheelAVelocity = flywheelMotorA.getVelocity();

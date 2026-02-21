@@ -5,7 +5,7 @@ import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.MotorArrangementValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 
-public class hoodFXSConfig {
+public class talongFXSConfig {
 
      public static TalonFXSConfiguration hood() {
         var config = new TalonFXSConfiguration();

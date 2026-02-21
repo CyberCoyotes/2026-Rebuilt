@@ -6,8 +6,8 @@ import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.MotorArrangementValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 
-public final class flywheelFXConfig {
-  private flywheelFXConfig() {}
+public final class talonFXConfig {
+  private talonFXConfig() {}
 
   public static TalonFXConfiguration competition() {
     TalonFXConfiguration config = base();
