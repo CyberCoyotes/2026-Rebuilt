@@ -42,13 +42,13 @@ public class IntakeIOHardware implements IntakeIO {
             config.MotorOutput.NeutralMode = NeutralModeValue.Brake;
             config.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
 
-            config.CurrentLimits.SupplyCurrentLimit = 20.0;
+            config.CurrentLimits.SupplyCurrentLimit = 40.0;
             config.CurrentLimits.SupplyCurrentLimitEnable = true;
-            config.CurrentLimits.StatorCurrentLimit = 20.0;
+            config.CurrentLimits.StatorCurrentLimit = 40.0;
             config.CurrentLimits.StatorCurrentLimitEnable = true;
 
             config.SoftwareLimitSwitch.ForwardSoftLimitEnable = true;
-            config.SoftwareLimitSwitch.ForwardSoftLimitThreshold = 1.90;
+            config.SoftwareLimitSwitch.ForwardSoftLimitThreshold = 44.45;
             config.SoftwareLimitSwitch.ReverseSoftLimitEnable = true;
             config.SoftwareLimitSwitch.ReverseSoftLimitThreshold = 0.0;
 
