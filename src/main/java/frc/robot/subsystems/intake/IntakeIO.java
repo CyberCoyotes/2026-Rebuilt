@@ -23,8 +23,7 @@ public interface IntakeIO {
      * IntakeIOInputs - Container for all intake sensor data.
      *
      * This class holds all data we read from the intake hardware each cycle.
-     * Uses the Autolog feature for automatic logging and replay
-     * Autolog generates 
+     * Uses the Autolog feature for automatic logging and replay.
      */
     @AutoLog
     public static class IntakeIOInputs {
@@ -61,9 +60,8 @@ public interface IntakeIO {
         // // distance from nearest thing to intake sensor in mm
         // public double intakeDistance = 0.0;
 
-        // //is a target detected 
+        // // is a target detected
         // public boolean intakeTarget = false;
-
     }
 
     /**
@@ -72,19 +70,29 @@ public interface IntakeIO {
      *
      * @param inputs Object to populate with current sensor values
      */
-    void updateInputs(IntakeIOInputs inputs); //took out default because these methods are fine abstract
+    void updateInputs(IntakeIOInputs inputs);
 
-    //roller methods
+    // ===== Roller methods =====
     void setRollerSpeed(double volts);
-    double getRollerVolts(); // made doubles because sim can't handle motor-specific StatusSignals
+    double getRollerVolts();
     void stopRoller();
 
-    //slide methods
+    // ===== Slide methods =====
+    /** Position control via MotionMagic — currently commented out in subsystem */
     void setSlidePosition(double position);
+
+    /**
+     * Voltage control for slide — use this for extend/retract while MotionMagic is disabled.
+     * Positive volts extends, negative volts retracts.
+     * Always call stopSlide() when done to prevent the motor running continuously.
+     *
+     * @param volts Output voltage (-12.0 to 12.0)
+     */
+    void setSlideVoltage(double volts);
+
     double getSlidePosition();
 
-    //intake sensor methods
+    // ===== Intake sensor methods =====
     // double getIntakeDistance();
     // boolean intakeTargetClose();
-
 }
