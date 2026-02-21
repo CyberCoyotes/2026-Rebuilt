@@ -12,162 +12,169 @@ import frc.robot.subsystems.shooter.ShooterSubsystem;
  * This class provides static factory methods to create common shooter commands.
  * Using a factory pattern keeps command creation centralized and reusable.
  *
+ * SHOT FLOW:
+ * 1. Driver presses preset (A/X/B) — silently arms target RPM and hood angle
+ * 2. Driver holds shoot trigger — flywheel ramps to target, hood moves, waits until ready, feeds
+ * 3. Driver releases trigger — returns to SPINUP at IDLE_RPM
+ *
  * Pattern used by: FRC 254, 1678, 6328, and other top teams
  *
  * @author @Isaak3
  */
 public class ShooterCommands {
 
-    /** Percent tolerance for starting feed during ramp test (10%). */
-    private static final double RAMP_TEST_FEED_TOLERANCE = 0.10;
-
+    // =========================================================================
+    // PRIMARY SHOOT COMMAND
+    // =========================================================================
 
     /**
-     * Basic ramp-test shooter command.
+     * Shoots at whatever preset is currently armed (set by A/X/B).
      *
      * Behavior:
-     *  - Commands the flywheel to ShooterSubsystem.RAMP_TEST_TARGET_RPM
-     *  - Once flywheel is within target RPM tolerance, starts feeding (conveyor + indexer)
-     *  - On end/cancel, stops feeding and returns shooter to IDLE
+     * - Transitions shooter to READY — flywheel ramps to target RPM, hood moves to target angle
+     * - Waits until both flywheel and hood are at target (isReady())
+     * - Runs indexer and conveyor to feed the game piece
+     * - On button release, stops indexer and returns shooter to SPINUP at IDLE_RPM
      *
-     * Intended for use with a whileTrue() button binding.
+     * Use with whileTrue() on the shoot trigger.
+     *
+     * @param shooter The shooter subsystem
+     * @param indexer The indexer subsystem
+     * @return Command that shoots at current targets and returns to idle on release
      */
-    public static Command rampTestShoot(ShooterSubsystem shooter, IndexerSubsystem indexer) {
-        final double targetRPM = ShooterSubsystem.RAMP_TEST_TARGET_RPM;
-
+    public static Command shootAtCurrentTarget(ShooterSubsystem shooter, IndexerSubsystem indexer) {
         return Commands.sequence(
-            // Spin up to the ramp-test target
-            Commands.runOnce(() -> {
-                shooter.setTargetHoodPose(0);
-                shooter.setTargetVelocity(targetRPM);
-                shooter.prepareToShoot();
-            }, shooter),
-
-            // Wait until flywheel is within 15% of the target RPM
-            Commands.waitUntil(() ->
-                Math.abs(shooter.getCurrentVelocityRPM() - targetRPM)
-                    <= Math.abs(targetRPM) * RAMP_TEST_FEED_TOLERANCE
-            ),
+            Commands.runOnce(shooter::prepareToShoot, shooter),
+            Commands.waitUntil(shooter::isReady).withTimeout(1.0),
             Commands.run(() -> {
                 indexer.indexerForward();
                 indexer.conveyorForward();
             }, indexer)
-        )
-        .finallyDo(() -> {
+        ).finallyDo(() -> {
             indexer.indexerStop();
             indexer.conveyorStop();
-            shooter.setIdle();
-        });
+            shooter.returnToIdle();
+        }).withName("ShootAtCurrentTarget");
+    }
+
+    // =========================================================================
+    // SILENT PRESET COMMANDS (A / X / B)
+    // =========================================================================
+    // These only update the target RPM and hood angle.
+    // No motors move until the shoot trigger is pressed.
+
+    /**
+     * Silently arms close shot targets (CLOSE_SHOT_RPM + CLOSE_SHOT_HOOD).
+     * No motor movement. Use with onTrue().
+     *
+     * @param shooter The shooter subsystem
+     * @return Command that silently sets close shot targets
+     */
+    public static Command armCloseShot(ShooterSubsystem shooter) {
+        return Commands.runOnce(shooter::setCloseShotPreset, shooter)
+            .withName("ArmCloseShot");
     }
 
     /**
-     * Creates a command to pre-rev the shooter flywheel (SPINUP state).
-     * This gets the flywheel spinning at 20% max velocity to reduce spin-up time.
+     * Silently arms far shot targets (FAR_SHOT_RPM + FAR_SHOT_HOOD).
+     * No motor movement. Use with onTrue().
      *
      * @param shooter The shooter subsystem
-     * @return Command that enters SPINUP state
+     * @return Command that silently sets far shot targets
      */
-    public static Command spinUp(ShooterSubsystem shooter) {
-        return Commands.runOnce(shooter::spinup, shooter)
-            .withName("SpinUpShooter");
+    public static Command armFarShot(ShooterSubsystem shooter) {
+        return Commands.runOnce(shooter::setFarShotPreset, shooter)
+            .withName("ArmFarShot");
     }
 
     /**
-     * Creates a command to prepare shooter for shooting with specific targets.
-     * Sets targets and transitions to READY state.
+     * Silently arms pass shot targets (PASS_SHOT_RPM + PASS_SHOT_HOOD).
+     * No motor movement. Use with onTrue().
      *
      * @param shooter The shooter subsystem
-     * @param velocityRPM Target flywheel velocity
-     * @param hoodPoseDegrees Target hood pose
-     * @return Command that prepares shooter and waits until ready
+     * @return Command that silently sets pass shot targets
      */
-    public static Command prepareToShoot(ShooterSubsystem shooter, double velocityRPM, double hoodPoseDegrees) {
+    public static Command armPassShot(ShooterSubsystem shooter) {
+        return Commands.runOnce(shooter::setPassShotPreset, shooter)
+            .withName("ArmPassShot");
+    }
+
+    // =========================================================================
+    // HOOD ADJUSTMENT
+    // =========================================================================
+
+    /**
+     * Increases the target hood pose by the provided increment.
+     * If shooter is already in READY state, hood moves immediately.
+     *
+     * @param shooter The shooter subsystem
+     * @param increment Rotations to increase (positive value expected)
+     * @return Command that adjusts target hood pose upward
+     */
+    public static Command increaseTargetHoodPose(ShooterSubsystem shooter, double increment) {
+        return Commands.runOnce(() -> shooter.adjustTargetHoodPose(Math.abs(increment)), shooter)
+            .withName("IncreaseHoodPose");
+    }
+
+    /**
+     * Decreases the target hood pose by the provided increment.
+     * If shooter is already in READY state, hood moves immediately.
+     *
+     * @param shooter The shooter subsystem
+     * @param increment Rotations to decrease (positive value expected)
+     * @return Command that adjusts target hood pose downward
+     */
+    public static Command decreaseTargetHoodPose(ShooterSubsystem shooter, double increment) {
+        return Commands.runOnce(() -> shooter.adjustTargetHoodPose(-Math.abs(increment)), shooter)
+            .withName("DecreaseHoodPose");
+    }
+
+    // =========================================================================
+    // UTILITY COMMANDS
+    // =========================================================================
+
+    /**
+     * Creates a command to increase target flywheel RPM by the provided increment.
+     *
+     * @param shooter The shooter subsystem
+     * @param incrementRPM RPM delta to apply
+     * @return Command that adjusts target flywheel velocity
+     */
+    public static Command increaseTargetVelocity(ShooterSubsystem shooter, double incrementRPM) {
+        return Commands.runOnce(() -> shooter.adjustTargetVelocity(Math.abs(incrementRPM)), shooter)
+            .withName("IncreaseShooterTargetVelocity");
+    }
+
+    /**
+     * Creates a command to decrease target flywheel RPM by the provided increment.
+     *
+     * @param shooter The shooter subsystem
+     * @param decrementRPM RPM delta to apply
+     * @return Command that adjusts target flywheel velocity
+     */
+    public static Command decreaseTargetVelocity(ShooterSubsystem shooter, double decrementRPM) {
+        return Commands.runOnce(() -> shooter.adjustTargetVelocity(-Math.abs(decrementRPM)), shooter)
+            .withName("DecreaseShooterTargetVelocity");
+    }
+
+    /**
+     * Creates a command to eject jammed game pieces.
+     * Reverses flywheel for a duration then returns to SPINUP.
+     *
+     * @param shooter The shooter subsystem
+     * @param durationSeconds How long to eject
+     * @return Command that ejects then returns to idle
+     */
+    public static Command eject(ShooterSubsystem shooter, double durationSeconds) {
         return Commands.sequence(
-            Commands.runOnce(() -> {
-                shooter.setTargetVelocity(velocityRPM);
-                shooter.setTargetHoodPose(hoodPoseDegrees);
-                shooter.prepareToShoot();
-            }, shooter),
-            Commands.waitUntil(shooter::isReady)
-        ).withTimeout(3.0)  // Safety timeout
-         .withName("PrepareToShoot");
-    }
-
-    /**
-     * Creates a command to shoot using preset close shot.
-     * Finishes when shooter is ready.
-     *
-     * @param shooter The shooter subsystem
-     * @return Command that configures for close shot
-     */
-    public static Command closeShot(ShooterSubsystem shooter) {
-        return Commands.sequence(
-            Commands.runOnce(shooter::closeShot, shooter),
-            Commands.waitUntil(shooter::isReady)
-        ).withTimeout(3.0)
-         .withName("CloseShot");
-    }
-
-    /**
-     * Creates a command to using preset close shot.
-     * Finishes when shooter is ready.
-     *
-     * @param shooter The shooter subsystem
-     * @return Command that configures for close shot
-     */
-    public static Command closeShotPreset(ShooterSubsystem shooter) {
-        return Commands.runOnce(shooter::closeShot, shooter)
-                .withName("CloseShotPreset");
-    }
-
-
-    /**
-     * Creates a command to shoot using preset far shot.
-     * Finishes when shooter is ready.
-     *
-     * @param shooter The shooter subsystem
-     * @return Command that configures for far shot
-     */
-    public static Command farShot(ShooterSubsystem shooter) {
-        return Commands.sequence(
-            Commands.runOnce(shooter::farShot, shooter),
-            Commands.waitUntil(shooter::isReady)
-        ).withTimeout(3.0)
-         .withName("FarShot");
-    }
-
-    
-    /**
-     * Creates a command to using preset far shot.
-     * Finishes when shooter is ready.
-     *
-     * @param shooter The shooter subsystem
-     * @return Command that configures for far shot
-     */
-    public static Command farShotPreset(ShooterSubsystem shooter) {
-        return Commands.runOnce(shooter::farShot, shooter)
-         .withName("FarShotPreset");
-    }
-
-    /**
-     * Creates a command to pass to another robot (PASS state).
-     * Sets 50% max velocity and MAX_POSE.
-     * Finishes when shooter is ready.
-     *
-     * @param shooter The shooter subsystem
-     * @return Command that configures for passing
-     */
-    public static Command pass(ShooterSubsystem shooter) {
-        return Commands.sequence(
-            Commands.runOnce(shooter::pass, shooter),
-            Commands.waitUntil(shooter::isPassReady)
-        ).withTimeout(3.0)
-         .withName("Pass");
+            Commands.runOnce(shooter::eject, shooter),
+            Commands.waitSeconds(durationSeconds),
+            Commands.runOnce(shooter::returnToIdle, shooter)
+        ).withName("EjectShooter");
     }
 
     /**
      * Creates a command to shoot using vision-based distance calculation.
-     * Updates shooter parameters based on current distance to target.
      *
      * @param shooter The shooter subsystem
      * @param vision The vision subsystem
@@ -187,7 +194,6 @@ public class ShooterCommands {
 
     /**
      * Creates a command to continuously update shooter based on vision.
-     * Runs until interrupted - useful while moving.
      *
      * @param shooter The shooter subsystem
      * @param vision The vision subsystem
@@ -205,7 +211,6 @@ public class ShooterCommands {
 
     /**
      * Creates a complete shoot sequence with indexer coordination.
-     * Prepares shooter to target velocity/angle, waits until ready, feeds game piece, then idles.
      *
      * @param shooter The shooter subsystem
      * @param indexer The indexer subsystem
@@ -216,14 +221,14 @@ public class ShooterCommands {
     public static Command shootSequence(ShooterSubsystem shooter, IndexerSubsystem indexer,
                                         double velocityRPM, double hoodAngleDegrees) {
         return Commands.sequence(
-            // Prepare shooter and wait until at target
-            prepareToShoot(shooter, velocityRPM, hoodAngleDegrees),
-
-            // Feed game piece
+            Commands.runOnce(() -> {
+                shooter.setTargetVelocity(velocityRPM);
+                shooter.setTargetHoodPose(hoodAngleDegrees);
+                shooter.prepareToShoot();
+            }, shooter),
+            Commands.waitUntil(shooter::isReady).withTimeout(3.0),
             IndexerCommands.feedTimed(indexer, 0.5),
-
-            // Return to idle
-            Commands.runOnce(shooter::setIdle, shooter)
+            Commands.runOnce(shooter::returnToIdle, shooter)
         ).withName("ShootSequence");
     }
 
@@ -238,75 +243,15 @@ public class ShooterCommands {
     public static Command visionShootSequence(ShooterSubsystem shooter, VisionSubsystem vision,
                                               IndexerSubsystem indexer) {
         return Commands.sequence(
-            // Wait for valid target
             Commands.waitUntil(vision::hasTarget).withTimeout(1.0),
-
-            // Spin up based on vision
             visionShot(shooter, vision),
-
-            // Feed game piece
             IndexerCommands.feedTimed(indexer, 0.5),
-
-            // Return to idle
-            Commands.runOnce(shooter::setIdle, shooter)
+            Commands.runOnce(shooter::returnToIdle, shooter)
         ).withName("VisionShootSequence");
     }
 
     /**
-     * Creates a command to increase target flywheel RPM by the provided increment.
-     *
-     * @param shooter The shooter subsystem
-     * @param incrementRPM RPM delta to apply (positive increases)
-     * @return Command that adjusts target flywheel velocity
-     */
-    public static Command increaseTargetVelocity(ShooterSubsystem shooter, double incrementRPM) {
-        return Commands.runOnce(() -> shooter.adjustTargetVelocity(Math.abs(incrementRPM)), shooter)
-            .withName("IncreaseShooterTargetVelocity");
-    }
-
-    /**
-     * Creates a command to decrease target flywheel RPM by the provided increment.
-     *
-     * @param shooter The shooter subsystem
-     * @param decrementRPM RPM delta to apply (positive value expected)
-     * @return Command that adjusts target flywheel velocity
-     */
-    public static Command decreaseTargetVelocity(ShooterSubsystem shooter, double decrementRPM) {
-        return Commands.runOnce(() -> shooter.adjustTargetVelocity(-Math.abs(decrementRPM)), shooter)
-            .withName("DecreaseShooterTargetVelocity");
-    }
-
-    /**
-     * Creates a command to return shooter to idle state.
-     * Stops motors and returns hood to home position.
-     *
-     * @param shooter The shooter subsystem
-     * @return Command that sets shooter to idle
-     */
-    public static Command idle(ShooterSubsystem shooter) {
-        return Commands.runOnce(shooter::setIdle, shooter)
-            .withName("ShooterIdle");
-    }
-
-    /**
-     * Creates a command to eject jammed game pieces.
-     * Reverses flywheel for a duration then returns to idle.
-     *
-     * @param shooter The shooter subsystem
-     * @param durationSeconds How long to eject
-     * @return Command that ejects then idles
-     */
-    public static Command eject(ShooterSubsystem shooter, double durationSeconds) {
-        return Commands.sequence(
-            Commands.runOnce(shooter::eject, shooter),
-            Commands.waitSeconds(durationSeconds),
-            Commands.runOnce(shooter::setIdle, shooter)
-        ).withName("EjectShooter");
-    }
-
-    /**
      * Creates a command that waits until shooter is ready.
-     * Useful for parallel command groups.
      *
      * @param shooter The shooter subsystem
      * @return Command that waits for shooter ready state
@@ -318,25 +263,22 @@ public class ShooterCommands {
     }
 
     /**
-     * Creates a command to warm up shooter (SPINUP state).
-     * Pre-revs flywheel at 20% max for quick response when needed.
+     * Creates a command to return shooter to SPINUP at IDLE_RPM.
      *
      * @param shooter The shooter subsystem
-     * @return Command that enters SPINUP state
+     * @return Command that returns shooter to idle spinning state
      */
-    public static Command warmUp(ShooterSubsystem shooter) {
-        return Commands.runOnce(shooter::spinup, shooter)
-            .withName("WarmUpShooter");
+    public static Command returnToIdle(ShooterSubsystem shooter) {
+        return Commands.runOnce(shooter::returnToIdle, shooter)
+            .withName("ReturnToIdle");
     }
 
     /**
-     * Creates a command that ramps the flywheel up to a target RPM for belt-slip testing.
-     * The ramp rate is controlled by ClosedLoopRamps in TalonFXConfigs (currently 4 seconds).
-     * Hold the button to keep the flywheel spinning; release to idle.
+     * Creates a command that ramps the flywheel up to a target RPM for testing.
      *
      * @param shooter The shooter subsystem
      * @param targetRPM Target flywheel velocity
-     * @return Command that ramps flywheel and idles on release
+     * @return Command that ramps flywheel and returns to idle on release
      */
     public static Command rampUpFlywheel(ShooterSubsystem shooter, double targetRPM) {
         return shooter.flywheelRampTest(targetRPM);
