@@ -17,7 +17,8 @@ import java.util.function.DoubleSupplier;
  *
  * BEHAVIOR (while RT is held):
  * - Flywheel spins at a fixed 3000 RPM
- * - Auto-rotates to face the nearest hub AprilTag (tags 18-27) using PID on tx
+ * - Auto-rotates to face the nearest hub AprilTag (tags 18-27, excluding 17, 22, 23, 28)
+ * - Applies a minimum output floor so the robot always commits to rotating
  * - Continuously updates hood angle based on live distance, interpolating between
  *   CLOSE_SHOT_HOOD at CLOSE_DISTANCE_METERS and FAR_SHOT_HOOD at FAR_DISTANCE_METERS
  * - Driver retains full translational control throughout
@@ -26,9 +27,10 @@ import java.util.function.DoubleSupplier;
  * - On release: stops indexer, returns shooter to SPINUP at IDLE_RPM
  *
  * TUNING:
- * - kP / kD: Rotation PID — increase kP if slow to snap, add kD to dampen oscillation
+ * - kP: Main rotation gain — increase if still slow, decrease if oscillating near target
+ * - MIN_ROTATION_OUTPUT: Floor output — increase if robot stalls far from target
+ * - MAX_ROTATION_RATE: Top rotation speed — reduce if too aggressive
  * - CLOSE_DISTANCE_METERS / FAR_DISTANCE_METERS: Distance range for hood interpolation
- * - FIXED_RPM: Flywheel target during this command
  *
  * @author @Isaak3
  */
@@ -39,15 +41,25 @@ public class FarShotCommand extends Command {
     private static final int MAX_HUB_TAG_ID = 27;
 
     // ===== Flywheel =====
-    /** Fixed RPM for this command */
-    private static final double FIXED_RPM = 3000.0; // TODO: Tune
+    /** Fixed RPM for all far shots */
+    private static final double FIXED_RPM = 3000.0;
 
     // ===== Rotation PID =====
-    private static final double kP = 0.05;  // TODO: Tune
+    private static final double kP = 0.03; // TODO: Tune
     private static final double kI = 0.0;
-    private static final double kD = 0.001; // TODO: Tune
-    private static final double ALIGN_TOLERANCE_DEGREES = 3.0;
-    private static final double MAX_ROTATION_RATE = 4.0; // rad/s
+    private static final double kD = 0.001;
+
+    /**
+     * Minimum rotation output (rad/s) applied whenever error exceeds the deadband.
+     * Ensures robot always commits to rotating even when PID output is weak at large errors.
+     */
+    private static final double MIN_ROTATION_OUTPUT = 0.8; // TODO: Tune
+
+    /** Maximum rotation rate (rad/s) */
+    private static final double MAX_ROTATION_RATE = 3.0; // TODO: Tune
+
+    /** Deadband — within this many degrees of tx, no correction applied */
+    private static final double ALIGN_TOLERANCE_DEGREES = 2.0;
 
     // ===== Hood Distance Interpolation =====
     /** Distance in meters that maps to CLOSE_SHOT_HOOD (minimum angle) */
@@ -106,15 +118,14 @@ public class FarShotCommand extends Command {
         // Fixed RPM — never changes during this command
         shooter.setTargetVelocity(FIXED_RPM);
 
-        // Set initial hood angle from current distance if a tag is already visible,
-        // otherwise fall back to CLOSE_SHOT_HOOD — execute() will update it immediately
+        // Set initial hood angle from current distance if a valid tag is already visible
         if (vision.hasTarget() && isHubTag(vision.getTagId())) {
             shooter.setTargetHoodPose(interpolateHoodAngle(vision.getDistanceToTargetMeters()));
         } else {
             shooter.setTargetHoodPose(ShooterSubsystem.CLOSE_SHOT_HOOD);
         }
 
-        // Enter READY state — flywheel ramps up, hood moves to the target set above
+        // Enter READY state — flywheel ramps up, hood moves to target
         shooter.prepareToShoot();
     }
 
@@ -125,21 +136,29 @@ public class FarShotCommand extends Command {
         // =====================================================================
         if (vision.hasTarget() && isHubTag(vision.getTagId())) {
             double hoodAngle = interpolateHoodAngle(vision.getDistanceToTargetMeters());
-            // Pushes new target to shooter and immediately commands hood motor
             shooter.updateHoodForDistance(hoodAngle);
         }
-        // If no tag visible — hood stays at last commanded position
+        // If no valid tag visible — hood stays at last commanded position
 
         // =====================================================================
-        // 2. Rotation PID toward tx = 0
+        // 2. Rotation PID toward tx = 0 with minimum output floor
         // =====================================================================
         double rotationOutput = 0.0;
+
         if (vision.hasTarget() && isHubTag(vision.getTagId())) {
             double txDegrees = vision.getHorizontalAngleDegrees();
+
             if (Math.abs(txDegrees) > ALIGN_TOLERANCE_DEGREES) {
-                rotationOutput = rotationPID.calculate(txDegrees);
+                double pidOutput = rotationPID.calculate(txDegrees);
+
+                // Apply minimum output floor — robot always commits to rotating
+                // when above the deadband, even if PID math is weak at large errors
+                if (Math.abs(pidOutput) < MIN_ROTATION_OUTPUT) {
+                    pidOutput = Math.copySign(MIN_ROTATION_OUTPUT, pidOutput);
+                }
+
                 rotationOutput = Math.max(-MAX_ROTATION_RATE,
-                                 Math.min(MAX_ROTATION_RATE, rotationOutput));
+                                 Math.min(MAX_ROTATION_RATE, pidOutput));
             }
         }
 
@@ -183,9 +202,6 @@ public class FarShotCommand extends Command {
     /**
      * Linearly interpolates hood angle between CLOSE_SHOT_HOOD and FAR_SHOT_HOOD.
      * Clamped so distances outside the range pin to the nearest endpoint.
-     *
-     * At CLOSE_DISTANCE_METERS → CLOSE_SHOT_HOOD
-     * At FAR_DISTANCE_METERS  → FAR_SHOT_HOOD
      */
     private double interpolateHoodAngle(double distanceMeters) {
         double clamped = Math.max(CLOSE_DISTANCE_METERS,
@@ -196,7 +212,16 @@ public class FarShotCommand extends Command {
              + t * (ShooterSubsystem.FAR_SHOT_HOOD - ShooterSubsystem.CLOSE_SHOT_HOOD);
     }
 
+    /**
+     * Returns true if the tag ID is a valid hub target.
+     * Must be within the hub range (18-27) and not in the exclusion list.
+     *
+     * Excluded tags: 17, 22, 23, 28
+     */
     private boolean isHubTag(int tagId) {
+        if (tagId == 17 || tagId == 22 || tagId == 23 || tagId == 28) {
+            return false;
+        }
         return tagId >= MIN_HUB_TAG_ID && tagId <= MAX_HUB_TAG_ID;
     }
 }
