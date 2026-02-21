@@ -13,24 +13,24 @@ import frc.robot.subsystems.vision.VisionSubsystem;
 import java.util.function.DoubleSupplier;
 
 /**
- * FarShotCommand - Auto-aligns to hub and adjusts hood angle based on distance.
+ * FarShotCommand - Auto-aligns to hub, adjusts hood and RPM based on distance.
  *
  * BEHAVIOR (while RT is held):
- * - Flywheel spins at a fixed 3000 RPM
  * - Auto-rotates to face the nearest hub AprilTag (tags 18-27, excluding 17, 22, 23, 28)
- * - Applies a minimum output floor so the robot always commits to rotating
- * - Continuously updates hood angle based on live distance, interpolating between
- *   CLOSE_SHOT_HOOD at CLOSE_DISTANCE_METERS and FAR_SHOT_HOOD at FAR_DISTANCE_METERS
+ * - tx is smoothed with an EMA filter to reject tag-switching noise and vibration
+ * - Continuously interpolates both hood angle AND flywheel RPM from live distance:
+ *     At CLOSE_DISTANCE_METERS (0.85m): CLOSE_SHOT_HOOD + MIN_RPM (2250)
+ *     At FAR_DISTANCE_METERS  (3.5m):  FAR_SHOT_HOOD  + MAX_RPM (3250)
  * - Driver retains full translational control throughout
- * - If tag is lost mid-hold, hood and rotation freeze at last known values for THIS hold only
- * - Once flywheel and hood are ready, feeds the game piece automatically
+ * - If tag is lost mid-hold, hood/RPM/rotation freeze at last known values for THIS hold only
+ * - Feeding and alignment run simultaneously — feeds as soon as shooter is ready
  * - On release: stops indexer, returns shooter to SPINUP at IDLE_RPM
  *
  * TUNING:
- * - kP: Main rotation gain — increase if still slow, decrease if oscillating near target
- * - MIN_ROTATION_OUTPUT: Floor output — increase if robot stalls far from target
- * - MAX_ROTATION_RATE: Top rotation speed — reduce if too aggressive
- * - CLOSE_DISTANCE_METERS / FAR_DISTANCE_METERS: Distance range for hood interpolation
+ * - TX_FILTER_ALPHA: EMA smoothing (0.0 = frozen, 1.0 = raw). Decrease to reduce jitter.
+ * - kP / MIN_ROTATION_OUTPUT / MAX_ROTATION_RATE: Rotation PID tuning
+ * - CLOSE_DISTANCE_METERS / FAR_DISTANCE_METERS: Distance endpoints for interpolation
+ * - MIN_RPM / MAX_RPM: RPM endpoints — MIN at close range, MAX at far range
  *
  * @author @Isaak3
  */
@@ -40,9 +40,27 @@ public class FarShotCommand extends Command {
     private static final int MIN_HUB_TAG_ID = 18;
     private static final int MAX_HUB_TAG_ID = 27;
 
-    // ===== Flywheel =====
-    /** Fixed RPM for all far shots */
-    private static final double FIXED_RPM = 3000.0;
+    // ===== Distance Interpolation Range =====
+    /** Closest distance (meters) — maps to CLOSE_SHOT_HOOD and MIN_RPM */
+    private static final double CLOSE_DISTANCE_METERS = 0.85;
+
+    /** Farthest distance (meters) — maps to FAR_SHOT_HOOD and MAX_RPM */
+    private static final double FAR_DISTANCE_METERS = 3.5;
+
+    // ===== RPM Interpolation =====
+    /** Flywheel RPM at closest distance */
+    private static final double MIN_RPM = 2250.0; // TODO: Tune
+
+    /** Flywheel RPM at farthest distance */
+    private static final double MAX_RPM = 3250.0; // TODO: Tune
+
+    // ===== tx EMA Filter =====
+    /**
+     * Exponential moving average smoothing factor for tx.
+     * Filters noise from tag switching and mechanical vibration during shooting.
+     * Range: 0.0 (fully frozen) to 1.0 (no filtering, raw tx).
+     */
+    private static final double TX_FILTER_ALPHA = 0.2; // TODO: Tune
 
     // ===== Rotation PID =====
     private static final double kP = 0.03; // TODO: Tune
@@ -58,15 +76,8 @@ public class FarShotCommand extends Command {
     /** Maximum rotation rate (rad/s) */
     private static final double MAX_ROTATION_RATE = 3.0; // TODO: Tune
 
-    /** Deadband — within this many degrees of tx, no correction applied */
+    /** Deadband — within this many degrees of smoothed tx, no correction applied */
     private static final double ALIGN_TOLERANCE_DEGREES = 2.0;
-
-    // ===== Hood Distance Interpolation =====
-    /** Distance in meters that maps to CLOSE_SHOT_HOOD (minimum angle) */
-    private static final double CLOSE_DISTANCE_METERS = 1.0;
-
-    /** Distance in meters that maps to FAR_SHOT_HOOD (maximum angle) */
-    private static final double FAR_DISTANCE_METERS = 2.6;
 
     // ===== Hardware =====
     private final CommandSwerveDrivetrain drivetrain;
@@ -82,6 +93,7 @@ public class FarShotCommand extends Command {
 
     // ===== Per-hold State =====
     private boolean isFeeding = false;
+    private double smoothedTx = 0.0;
 
     public FarShotCommand(
             CommandSwerveDrivetrain drivetrain,
@@ -115,13 +127,15 @@ public class FarShotCommand extends Command {
         rotationPID.reset();
         isFeeding = false;
 
-        // Fixed RPM — never changes during this command
-        shooter.setTargetVelocity(FIXED_RPM);
-
-        // Set initial hood angle from current distance if a valid tag is already visible
+        // Seed smoothedTx from raw tx so the filter starts from a meaningful value
         if (vision.hasTarget() && isHubTag(vision.getTagId())) {
-            shooter.setTargetHoodPose(interpolateHoodAngle(vision.getDistanceToTargetMeters()));
+            smoothedTx = vision.getHorizontalAngleDegrees();
+            double distance = vision.getDistanceToTargetMeters();
+            shooter.setTargetVelocity(interpolateRPM(distance));
+            shooter.setTargetHoodPose(interpolateHoodAngle(distance));
         } else {
+            smoothedTx = 0.0;
+            shooter.setTargetVelocity(MIN_RPM);
             shooter.setTargetHoodPose(ShooterSubsystem.CLOSE_SHOT_HOOD);
         }
 
@@ -132,27 +146,32 @@ public class FarShotCommand extends Command {
     @Override
     public void execute() {
         // =====================================================================
-        // 1. Update hood angle continuously from live distance
+        // 1. Update smoothed tx via EMA filter
         // =====================================================================
         if (vision.hasTarget() && isHubTag(vision.getTagId())) {
-            double hoodAngle = interpolateHoodAngle(vision.getDistanceToTargetMeters());
-            shooter.updateHoodForDistance(hoodAngle);
+            double rawTx = vision.getHorizontalAngleDegrees();
+            smoothedTx = (TX_FILTER_ALPHA * rawTx) + ((1.0 - TX_FILTER_ALPHA) * smoothedTx);
         }
-        // If no valid tag visible — hood stays at last commanded position
 
         // =====================================================================
-        // 2. Rotation PID toward tx = 0 with minimum output floor
+        // 2. Update hood and RPM continuously from live distance
+        // =====================================================================
+        if (vision.hasTarget() && isHubTag(vision.getTagId())) {
+            double distance = vision.getDistanceToTargetMeters();
+            shooter.updateHoodForDistance(interpolateHoodAngle(distance));
+            shooter.setTargetVelocity(interpolateRPM(distance));
+        }
+        // If no valid tag — hood and RPM hold their last commanded values
+
+        // =====================================================================
+        // 3. Rotation PID on smoothed tx with minimum output floor
         // =====================================================================
         double rotationOutput = 0.0;
 
         if (vision.hasTarget() && isHubTag(vision.getTagId())) {
-            double txDegrees = vision.getHorizontalAngleDegrees();
+            if (Math.abs(smoothedTx) > ALIGN_TOLERANCE_DEGREES) {
+                double pidOutput = rotationPID.calculate(smoothedTx);
 
-            if (Math.abs(txDegrees) > ALIGN_TOLERANCE_DEGREES) {
-                double pidOutput = rotationPID.calculate(txDegrees);
-
-                // Apply minimum output floor — robot always commits to rotating
-                // when above the deadband, even if PID math is weak at large errors
                 if (Math.abs(pidOutput) < MIN_ROTATION_OUTPUT) {
                     pidOutput = Math.copySign(MIN_ROTATION_OUTPUT, pidOutput);
                 }
@@ -163,7 +182,7 @@ public class FarShotCommand extends Command {
         }
 
         // =====================================================================
-        // 3. Drive — driver translation + PID rotation
+        // 4. Drive — driver translation + PID rotation
         // =====================================================================
         final double finalRotation = rotationOutput;
         drivetrain.applyRequest(() ->
@@ -174,7 +193,7 @@ public class FarShotCommand extends Command {
         ).execute();
 
         // =====================================================================
-        // 4. Feed once shooter is ready
+        // 5. Feed once shooter is ready
         // =====================================================================
         if (shooter.isReady()) {
             isFeeding = true;
@@ -200,8 +219,26 @@ public class FarShotCommand extends Command {
     }
 
     /**
+     * Linearly interpolates flywheel RPM between MIN_RPM and MAX_RPM based on distance.
+     * Clamped so distances outside the range pin to the nearest endpoint.
+     *
+     * At CLOSE_DISTANCE_METERS → MIN_RPM (2250)
+     * At FAR_DISTANCE_METERS  → MAX_RPM (3250)
+     */
+    private double interpolateRPM(double distanceMeters) {
+        double clamped = Math.max(CLOSE_DISTANCE_METERS,
+                         Math.min(FAR_DISTANCE_METERS, distanceMeters));
+        double t = (clamped - CLOSE_DISTANCE_METERS)
+                 / (FAR_DISTANCE_METERS - CLOSE_DISTANCE_METERS);
+        return MIN_RPM + t * (MAX_RPM - MIN_RPM);
+    }
+
+    /**
      * Linearly interpolates hood angle between CLOSE_SHOT_HOOD and FAR_SHOT_HOOD.
      * Clamped so distances outside the range pin to the nearest endpoint.
+     *
+     * At CLOSE_DISTANCE_METERS → CLOSE_SHOT_HOOD
+     * At FAR_DISTANCE_METERS  → FAR_SHOT_HOOD
      */
     private double interpolateHoodAngle(double distanceMeters) {
         double clamped = Math.max(CLOSE_DISTANCE_METERS,

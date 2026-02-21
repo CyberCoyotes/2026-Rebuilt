@@ -81,7 +81,7 @@ public class ShooterSubsystem extends SubsystemBase {
     // ===== Constants =====
 
     /** Maximum flywheel velocity (RPM) */
-    private static final double MAX_FLYWHEEL_MOTOR_RPM = 6380.0;
+    private static final double MAX_FLYWHEEL_MOTOR_RPM = 6000.0;
 
     /** Idle flywheel velocity (RPM) — always spinning during match for quick response */
     public static final double IDLE_RPM = 2000.0;
@@ -112,15 +112,15 @@ public class ShooterSubsystem extends SubsystemBase {
     // ===== Shooting Presets =====
 
     /** Close shot */
-    public static final double CLOSE_SHOT_RPM = 1800.0;  // TODO: Tune
+    public static final double CLOSE_SHOT_RPM = 2750.0;  // TODO: Tune
     public static final double CLOSE_SHOT_HOOD = 0.0;     // TODO: Tune
 
     /** Far shot — used as interpolation endpoint in FarShotCommand */
-    public static final double FAR_SHOT_RPM = 2000.0;                    // TODO: Tune
+    public static final double FAR_SHOT_RPM = 3000.0;                    // TODO: Tune
     public static final double FAR_SHOT_HOOD = MAX_HOOD_POSE_ROT * 0.5;  // TODO: Tune
 
     /** Pass shot */
-    public static final double PASS_SHOT_RPM = 3000.0;                                          // TODO: Tune
+    public static final double PASS_SHOT_RPM = 4000.0;                                          // TODO: Tune
     public static final double PASS_SHOT_HOOD = MAX_HOOD_POSE_ROT - (0.10 * MAX_HOOD_POSE_ROT); // TODO: Tune
 
     /** Default flywheel velocity testing increment (RPM) */
