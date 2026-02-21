@@ -1,34 +1,31 @@
 package frc.robot.subsystems.intake;
 
-import org.littletonrobotics.junction.Logger;
-
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.Constants.Intake;
 import frc.robot.subsystems.intake.IntakeIO.IntakeIOInputs;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
-@SuppressWarnings("unused") // Suppress warnings for unused right now
-
 public class IntakeSubsystem extends SubsystemBase {
 
+    // ===== IO Layer =====
     private final IntakeIO io;
     private final IntakeIOInputs inputs = new IntakeIOInputs();
 
-    // ===== State Tracking =====
-    private String currentState = "IDLE";
-
     // ===== Intake Constants =====
+    // Mechanical limits for the slide
+    final static double SLIDE_MIN_POSITION = 0;
+    final static double SLIDE_MAX_POSITION = 44.455;
+    static final double SLIDE_RETRACTED_POSITION = 0.0;
+    
+    // See the config for software limit
+    static final double SLIDE_EXTENDED_POSITION  = 44.44; // TODO Verify slide position
+
     final static int INTAKE_THRESHOLD = 1000; // mm, around four inches
     final static double JAM_CURRENT_THRESHOLD = 80.0;
 
-    // Mechanical limits for the slide
-    final static double SLIDE_MIN_POSITION = 0;
-    final static double SLIDE_MAX_POSITION = 1.85;
-    final static double SLIDE_RETRACTED_POSITION = 0.0;
-    final static double SLIDE_EXTENDED_POSITION = 1.91;
+ 
+
 
     final static double ROLLER_VOLTS = 6.0; // Voltage for intaking fuel
 
@@ -44,35 +41,33 @@ public class IntakeSubsystem extends SubsystemBase {
     @Override
     public void periodic() {
         io.updateInputs(inputs);
-         SmartDashboard.putNumber("Intake/SlidePosition", io.getSlidePosition());
-        // Logger.processInputs("Intake", inputs); // FIXME
+        // Logger.processInputs("Intake", inputs); // FIXME: enable when AdvantageKit wired up
     }
 
-    /**
+     /**
      * Sets the current state for dashboard display.
      */
-    public void setState(String state) {
-        this.currentState = state;
-    }
+    // public void setState(String state) {
+    //     this.currentState = state;
+    // }
 
     // =========================================================================
     // LOW LEVEL METHODS
     // =========================================================================
 
-    public void setRollerSpeed(double volts) {
-        io.setRollerSpeed(volts);
-    }
-
     public void runRoller() {
-        io.setRollerSpeed(ROLLER_VOLTS);
-    }
-
-    public void stopRoller() {
-        io.setRollerSpeed(0);
+        io.setRollerVoltage(ROLLER_VOLTS);
     }
 
     public void reverseRoller() {
-        io.setRollerSpeed(-ROLLER_VOLTS);
+        io.setRollerVoltage(-ROLLER_VOLTS);
+    }
+
+    /**
+     * Stops the roller motor.
+     */
+    public void stopRoller() {
+        io.setRollerVoltage(0);
     }
 
     /**
@@ -113,14 +108,17 @@ public class IntakeSubsystem extends SubsystemBase {
     // GETTERS
     // =========================================================================
 
-    public double getRollerVolts() {
-        return io.getRollerVolts();
+    public double getRollerVoltage() {
+        return io.getRollerVoltage();
     }
 
+    // ── Slide State Queries ────────────────────────────────────────────────────
     public double getSlidePosition() {
-        return io.getSlidePosition();
+        return inputs.slidePositionRotations;
     }
 
+    public boolean isSlideExtended() {
+        return Math.abs(inputs.slidePositionRotations - SLIDE_EXTENDED_POSITION) < 0.05;
     // =========================================================================
     // COMMANDS
     // =========================================================================
@@ -131,8 +129,8 @@ public class IntakeSubsystem extends SubsystemBase {
                 this::stopRoller, this);
     }
 
-    public Command stopRollerCommand() {
-        return Commands.run(this::stopRoller, this);
+    public boolean isSlideRetracted() {
+        return Math.abs(inputs.slidePositionRotations - SLIDE_RETRACTED_POSITION) < 0.05;
     }
 
     /**

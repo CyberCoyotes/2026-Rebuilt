@@ -7,6 +7,7 @@ import frc.robot.subsystems.indexer.IndexerSubsystem;
 import frc.robot.subsystems.shooter.ShooterSubsystem;
 
 /**
+ * **UPDATE Move towards retiring?***
  * ShooterCommands - Factory for shooter-related commands.
  *
  * This class provides static factory methods to create common shooter commands.
@@ -227,7 +228,7 @@ public class ShooterCommands {
                 shooter.prepareToShoot();
             }, shooter),
             Commands.waitUntil(shooter::isReady).withTimeout(3.0),
-            IndexerCommands.feedTimed(indexer, 0.5),
+            // IndexerCommands.feedTimed(indexer, 0.5), // FIXME to use the IndexerSubsystem's feed method instead of a command from IndexerCommands
             Commands.runOnce(shooter::returnToIdle, shooter)
         ).withName("ShootSequence");
     }
@@ -245,7 +246,7 @@ public class ShooterCommands {
         return Commands.sequence(
             Commands.waitUntil(vision::hasTarget).withTimeout(1.0),
             visionShot(shooter, vision),
-            IndexerCommands.feedTimed(indexer, 0.5),
+            // IndexerCommands.feedTimed(indexer, 0.5), // FIXME to use the IndexerSubsystem's feed method instead of a command from IndexerCommands
             Commands.runOnce(shooter::returnToIdle, shooter)
         ).withName("VisionShootSequence");
     }
@@ -284,8 +285,9 @@ public class ShooterCommands {
         return shooter.flywheelRampTest(targetRPM);
     }
 
-    // Private constructor to prevent instantiation
-    private ShooterCommands() {
-        throw new UnsupportedOperationException("This is a utility class!");
-    }
+//     // Private constructor to prevent instantiation
+//     private ShooterCommands() {
+//         throw new UnsupportedOperationException("This is a utility class!");
+//     }
+
 }

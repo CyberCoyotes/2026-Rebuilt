@@ -18,15 +18,14 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.RobotModeTriggers;
+import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
+import frc.robot.generated.TunerConstants;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
-
 import frc.robot.generated.TunerConstants;
 import frc.robot.commands.AlignToHubCommand;
 import frc.robot.commands.FarShotCommand;
-import frc.robot.commands.IndexerCommands;
 import frc.robot.commands.ShooterCommands;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
-// import frc.robot.subsystems.climber.ClimberSubsystem;
 import frc.robot.subsystems.indexer.IndexerSubsystem;
 import frc.robot.subsystems.intake.IntakeSubsystem;
 import frc.robot.subsystems.indexer.IndexerIOHardware;
@@ -115,6 +114,35 @@ public class RobotContainer {
         // DRIVER CONTROLLER (Port 0) - Vision Alignment
         // =====================================================================
 
+        // ----- Shooter -----
+        // ----- Full Sequences -----
+        // A: Full shoot sequence - close shot with indexer feed, then idle
+        /*
+        driver.rightTrigger(0.5).whileTrue(
+            ShooterCommands.shootSequence(shooter, indexer,
+                ShooterSubsystem.CLOSE_SHOT_RPM, ShooterSubsystem.CLOSE_SHOT_HOOD)
+        );
+         */
+
+        // Right Trigger: Flywheel ramp-up test — hold to ramp to target RPM, release to idle.
+        // Ramp rate governed by ClosedLoopRamps in TalonFXConfigs (currently 4s).
+        // driver.rightTrigger(0.5).whileTrue(
+        //     Commands.sequence(
+        //         shooter.closeShotCommand(),
+        //         indexer.feed()
+        // ).finallyDo(() -> {
+        //     shooter.setIdle();
+        //     indexer.stop();
+        // })
+        // );
+
+        /* TODO Test rampTestShoot first, comment out, and try this one */
+        /*
+        driver.rightTrigger(0.5).whileTrue(
+            Commands.parallel(
+                ShooterCommands.rampUpFlywheel(shooter, ShooterSubsystem.RAMP_TEST_TARGET_RPM),
+                Commands.waitUntil(shooter::isReady).withTimeout(5.0), // Timeout to prevent indefinite waiting if something goes wrong
+                Commands.run(indexer::indexerForward).withTimeout(10.0) // Run indexer forward for 10 seconds or until interrupted (e.g., by releasing trigger)
         // POV Left: Align to blue hub (tags 18-27).
         // Robot rotates to face the nearest hub AprilTag while driver controls translation.
         driver.povLeft().whileTrue(
@@ -135,6 +163,16 @@ public class RobotContainer {
         // A: Arm close shot — clears far shot flag, routes RT to shootAtCurrentTarget
         driver.a().onTrue(ShooterCommands.armCloseShot(shooter));
 
+        // B: Pass shot (prepare and wait for ready)
+        driver.b().onTrue(Commands.runOnce(() -> {
+            shooter.setTargetHoodPose(ShooterSubsystem.PASS_SHOT_HOOD);
+            shooter.prepareToShoot();
+        }));
+        driver.y().whileTrue(
+            Commands.startEnd(indexer::indexerForward, indexer::indexerStop));
+        // POV Up: Eject from shooter (clear jams, 1 second reverse)
+        
+        // driver.povLeft().onTrue(ShooterCommands.eject(shooter, 1.0));
         // X: Arm far shot — sets far shot flag, routes RT to FarShotCommand
         driver.x().onTrue(ShooterCommands.armFarShot(shooter));
 
@@ -184,6 +222,54 @@ public class RobotContainer {
         // Slides remain extended on release (intentional).
         driver.leftTrigger(0.5).whileTrue(intake.intakeFuel());
 
+        // Left Bumper: Stop intake jam (quick reverse)
+        // driver.leftBumper().whileTrue(intake.ejectFuel());
+        driver.leftBumper().onTrue(Commands.runOnce(intake::retractSlides, intake));
+
+        // ----- Climber (POV) -----
+        // POV Up: Extend climber arm (preset})
+        //  driver.povUp().onTrue(climber.extendArm());
+        // POV Down: Retract climber arm (Preset)
+        // driver.povDown().onTrue(climber.retractArm());
+        
+        // POV Right: Extend climber arm (while held)
+        // driver.povRight().whileTrue(climber.extendArm());
+        // POV Left: Retract climber arm (while held)
+        // driver.povLeft().whileTrue(climber.retractArm());
+
+        // Start: Stop climber
+       // operator.start().onTrue(climber.stopClimber());
+
+        // ----- Operator Controller (Port 1) - Shooter Hood Testing -----
+        // operator.povDown().onTrue(shooter.runOnce(shooter::decreaseHoodForTesting));
+        // operator.povUp().onTrue(shooter.runOnce(shooter::increaseHoodForTesting));
+
+        // Hood position testing (closed-loop position control)
+        // operator.rightBumper().onTrue(shooter.runHoodToMax());   // Move hood to MAX_HOOD_POSE
+        // operator.leftBumper().onTrue(shooter.runHoodToMin());    // Move hood to MIN_HOOD_POSE
+        operator.rightBumper().whileTrue(
+            Commands.startEnd(
+                () -> indexer.conveyorForward(), 
+                () -> indexer.conveyorStop(), 
+                indexer)
+        );
+
+
+        //
+        // operator.rightTrigger(0.5).whileTrue(
+        //     ShooterCommands.visionShot(shooter, vision)
+        // );
+        
+
+        // /* */
+        // operator.rightTrigger(0.5).whileTrue(
+        //     Commands.parallel(
+        //         ShooterCommands.rampUpFlywheel(shooter, ShooterSubsystem.RAMP_TEST_TARGET_RPM),
+        //         Commands.waitUntil(shooter::isReady).withTimeout(10.0), // Timeout to prevent indefinite waiting if something goes wrong
+        //         Commands.run(indexer::indexerForward).withTimeout(10.0) // Run indexer forward for 10 seconds or until interrupted (e.g., by releasing trigger)
+        //     )
+        // );
+    
         // Left Bumper: Retract intake slides while held.
         driver.leftBumper().whileTrue(intake.retractSlidesCommand());
 

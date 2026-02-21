@@ -39,7 +39,7 @@ import frc.robot.subsystems.shooter.ShooterIO.ShooterIOInputs;
  */
 public class ShooterSubsystem extends SubsystemBase {
 
-    // ===== State Machine =====
+    // ── State Machine ──────────────────────────────────────────────────────────
     public enum ShooterState {
         IDLE,    // Motors off — only used on explicit stop, not during normal match play
         SPINUP,  // Flywheel spinning at IDLE_RPM, ready to ramp to target on demand
@@ -48,11 +48,11 @@ public class ShooterSubsystem extends SubsystemBase {
         EJECT    // Clearing jams: -50% max velocity, hood at MIN_POSE
     }
 
-    // ===== Hardware Interface =====
+    // ── Hardware Interface ─────────────────────────────────────────────────────
     private final ShooterIO io;
     private final ShooterIOInputs inputs = new ShooterIOInputs();
 
-    // ===== NetworkTables Publishers for Elastic Dashboard =====
+    // ── Dashboard Publishers ───────────────────────────────────────────────────
     private final NetworkTable shooterTable;
     private final StringPublisher statePublisher;
     private final BooleanPublisher readyPublisher;
@@ -66,7 +66,7 @@ public class ShooterSubsystem extends SubsystemBase {
     private final BooleanPublisher throughBoreConnectedPublisher;
     private final BooleanPublisher farShotArmedPublisher;
 
-    // ===== State =====
+    // ── State ──────────────────────────────────────────────────────────────────
     private ShooterState currentState = ShooterState.IDLE;
     private String currentStateString = ShooterState.IDLE.toString();
     private double targetFlywheelMotorRPM = 0.0;
@@ -81,7 +81,7 @@ public class ShooterSubsystem extends SubsystemBase {
     // ===== Constants =====
 
     /** Maximum flywheel velocity (RPM) */
-    private static final double MAX_FLYWHEEL_MOTOR_RPM = 6000.0;
+    private static final double MAX_FLYWHEEL_MOTOR_RPM = 6380.0;
 
     /** Idle flywheel velocity (RPM) — always spinning during match for quick response */
     public static final double IDLE_RPM = 2000.0;
@@ -139,14 +139,14 @@ public class ShooterSubsystem extends SubsystemBase {
         NetworkTableInstance inst = NetworkTableInstance.getDefault();
         shooterTable = inst.getTable("Shooter");
 
-        statePublisher = shooterTable.getStringTopic("State").publish();
-        readyPublisher = shooterTable.getBooleanTopic("IsReady").publish();
-        flywheelRpmPublisher = shooterTable.getDoubleTopic("FlywheelLeaderMotorRPM").publish();
-        targetRpmPublisher = shooterTable.getDoubleTopic("TargetFlywheelLeaderMotorRPM").publish();
-        flywheelErrorPublisher = shooterTable.getDoubleTopic("FlywheelError").publish();
-        hoodErrorPublisher = shooterTable.getDoubleTopic("HoodError").publish();
-        hoodAtPosePublisher = shooterTable.getBooleanTopic("HoodAtPose").publish();
-        flywheelVoltsPublisher = shooterTable.getDoubleTopic("FlywheelAppliedVolts").publish();
+        statePublisher               = shooterTable.getStringTopic("State").publish();
+        readyPublisher               = shooterTable.getBooleanTopic("IsReady").publish();
+        flywheelRpmPublisher         = shooterTable.getDoubleTopic("FlywheelLeaderMotorRPM").publish();
+        targetRpmPublisher           = shooterTable.getDoubleTopic("TargetFlywheelLeaderMotorRPM").publish();
+        flywheelErrorPublisher       = shooterTable.getDoubleTopic("FlywheelError").publish();
+        hoodErrorPublisher           = shooterTable.getDoubleTopic("HoodError").publish();
+        hoodAtPosePublisher          = shooterTable.getBooleanTopic("HoodAtPose").publish();
+        flywheelVoltsPublisher       = shooterTable.getDoubleTopic("FlywheelAppliedVolts").publish();
         throughBorePositionPublisher = shooterTable.getDoubleTopic("ThroughBorePosition").publish();
         throughBoreConnectedPublisher = shooterTable.getBooleanTopic("ThroughBoreConnected").publish();
         farShotArmedPublisher = shooterTable.getBooleanTopic("FarShotArmed").publish();
@@ -158,10 +158,7 @@ public class ShooterSubsystem extends SubsystemBase {
         setState(ShooterState.SPINUP);
     }
 
-    // =========================================================================
-    // PERIODIC
-    // =========================================================================
-
+    // ── Periodic ───────────────────────────────────────────────────────────────
     @Override
     public void periodic() {
         io.updateInputs(inputs);
@@ -178,8 +175,8 @@ public class ShooterSubsystem extends SubsystemBase {
         readyPublisher.set(isReady());
         flywheelRpmPublisher.set(inputs.flywheelLeaderMotorRPM);
         targetRpmPublisher.set(targetFlywheelMotorRPM);
-        flywheelErrorPublisher.set(getFlywheelError());
-        hoodErrorPublisher.set(getHoodError());
+        // flywheelErrorPublisher.set(getFlywheelError());
+        // hoodErrorPublisher.set(getHoodError());
         hoodAtPosePublisher.set(isHoodAtPose());
         flywheelVoltsPublisher.set(inputs.flywheelAppliedVolts);
         throughBorePositionPublisher.set(inputs.hoodThroughBorePositionRotations);
@@ -378,14 +375,26 @@ public class ShooterSubsystem extends SubsystemBase {
         return Math.abs(inputs.hoodPositionRotations - targetHoodPoseRot) < HOOD_POSE_TOLERANCE;
     }
 
-    /** Gets current flywheel velocity error (target - actual). */
-    public double getFlywheelError() {
-        return targetFlywheelMotorRPM - inputs.flywheelLeaderMotorRPM;
+    // public boolean isOverCurrent()         { return inputs.flywheelCurrentAmps > 150.0; } // TODO: Tune
+
+    // public double getFlywheelError()        { return targetFlywheelMotorRPM - inputs.flywheelLeaderMotorRPM; }
+    // public double getHoodError()            { return targetHoodPoseRot - inputs.hoodPositionRotations; }
+    // public ShooterState getState()          { return currentState; }
+    // public double getCurrentVelocityRPM()   { return inputs.flywheelLeaderMotorRPM; }
+    // public double getCurrentHoodPose()      { return inputs.hoodPositionRotations; }
+    // public double getTargetVelocityRPM()    { return targetFlywheelMotorRPM; }
+    // public double getTargetHoodPose()       { return targetHoodPoseRot; }
+
+    // ── Commands ───────────────────────────────────────────────────────────────
+
+    /** Spins up flywheel to pre-rev speed. */
+    public Command spinUpCommand() {
+        return Commands.runOnce(this::spinup, this).withName("SpinUp");
     }
 
-    /** Gets current hood pose error (target - actual). */
-    public double getHoodError() {
-        return targetHoodPoseRot - inputs.hoodPositionRotations;
+    /** Returns shooter to idle. */
+    public Command idleCommand() {
+        return Commands.runOnce(this::setIdle, this).withName("ShooterIdle");
     }
 
     public ShooterState getState() { return currentState; }

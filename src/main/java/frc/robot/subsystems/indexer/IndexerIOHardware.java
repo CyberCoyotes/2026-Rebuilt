@@ -2,142 +2,136 @@ package frc.robot.subsystems.indexer;
 
 import com.ctre.phoenix6.BaseStatusSignal;
 import com.ctre.phoenix6.StatusSignal;
+import com.ctre.phoenix6.configs.TalonFXConfiguration;
+import com.ctre.phoenix6.configs.TalonFXSConfiguration;
 import com.ctre.phoenix6.controls.VoltageOut;
 import com.ctre.phoenix6.hardware.CANrange;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.hardware.TalonFXS;
-import frc.robot.Constants;
-import frc.robot.util.TalonFXConfigs;
+import com.ctre.phoenix6.signals.InvertedValue;
+import com.ctre.phoenix6.signals.MotorArrangementValue;
+import com.ctre.phoenix6.signals.NeutralModeValue;
 
-/**
- * IndexerIOHardware - Real hardware implementation for the indexer subsystem.
- *
- * Key features:
- * - Uses centralized TalonFXConfigs for motor configuration
- * - Optimized status signal updates for performance
- * - ToF sensors configured for short-range detection
- *
- * Motor naming convention:
- * - "conveyor" motor moves pieces along hopper conveyor
- * - "indexer" motor feeds pieces to shooter
- *
- * @see Constants.Indexer for hardware configuration
- * @see IndexerSubsystemBasic for a simpler direct-hardware approach (good for learning)
- */
+import frc.robot.Constants;
 
 public class IndexerIOHardware implements IndexerIO {
 
-    // ===== Hardware =====
-    private final TalonFXS conveyorMotor;   // TalonFXS with Minion motor
-    private final TalonFX indexerMotor;  // Also called "indexer" in Constants
+    // ── Conveyor Configuration ─────────────────────────────────────────────────
+    private static class ConveyorConfig {
 
-    // Time-of-Flight sensors
-    // private final CANrange indexerToF;   // Detects game piece ready to shoot
-    private final CANrange hopperAToF; 
+        static TalonFXSConfiguration conveyor() {
+            TalonFXSConfiguration config = new TalonFXSConfiguration();
+
+            // Minion motor connected via JST connector
+            config.Commutation.MotorArrangement = MotorArrangementValue.Minion_JST;
+
+            config.MotorOutput.NeutralMode = NeutralModeValue.Brake;
+            config.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
+
+            config.CurrentLimits.SupplyCurrentLimit = 40.0;
+            config.CurrentLimits.SupplyCurrentLimitEnable = true;
+            config.CurrentLimits.StatorCurrentLimit = 40.0;
+            config.CurrentLimits.StatorCurrentLimitEnable = true;
+
+            config.Voltage.PeakForwardVoltage = 12.0;
+            config.Voltage.PeakReverseVoltage = -12.0;
+
+            return config;
+        }
+    }
+
+    // ── Indexer Configuration ──────────────────────────────────────────────────
+    private static class IndexerConfig {
+
+        static TalonFXConfiguration indexer() {
+            TalonFXConfiguration config = new TalonFXConfiguration();
+
+            config.MotorOutput.NeutralMode = NeutralModeValue.Brake;
+            config.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
+
+            config.CurrentLimits.SupplyCurrentLimit = 40.0;
+            config.CurrentLimits.SupplyCurrentLimitEnable = true;
+            config.CurrentLimits.StatorCurrentLimit = 50.0;
+            config.CurrentLimits.StatorCurrentLimitEnable = true;
+
+            config.Voltage.PeakForwardVoltage = 12.0;
+            config.Voltage.PeakReverseVoltage = -12.0;
+
+            return config;
+        }
+    }
+
+    // ── Hardware ───────────────────────────────────────────────────────────────
+    private final TalonFXS conveyorMotor;
+    private final TalonFX indexerMotor;
+
+    private final CANrange hopperAToF;
     private final CANrange hopperBToF;
     // private final CANrange hopperCToF;
+    // private final CANrange indexerToF;
 
-    // ===== Control Requests =====
+    // ── Control Requests ───────────────────────────────────────────────────────
     private final VoltageOut conveyorVoltageRequest = new VoltageOut(0.0);
-    private final VoltageOut indexerVoltageRequest = new VoltageOut(0.0);
+    private final VoltageOut indexerVoltageRequest  = new VoltageOut(0.0);
 
-    // ===== Status Signals (for efficient reading) =====
-    // Note: Phoenix 6 uses typed StatusSignals, we just read the value
+    // ── Status Signals — 50Hz (runtime-critical) ───────────────────────────────
+    // Velocity and current are kept because jam detection uses them for live logic.
+    // Applied volts are captured by Hoot and not needed at runtime.
     private final StatusSignal<?> conveyorVelocity;
-    private final StatusSignal<?> conveyorAppliedVolts;
     private final StatusSignal<?> conveyorCurrent;
     private final StatusSignal<?> indexerVelocity;
-    private final StatusSignal<?> indexerAppliedVolts;
     private final StatusSignal<?> indexerCurrent;
 
-
-    // ===== Constants =====
-    /**
-     * Distance threshold in millimeters below which we consider a game piece "detected".
-     * Tune this value based on your game piece size and sensor mounting.
-     */
-    // private static final double TOF_DETECTION_THRESHOLD_MM = 100.0;  // TODO: Tune on robot
-
-    /**
-     * Creates a new IndexerIOHardware instance.
-     * Configures motors and sensors to known good states.
-     */
     public IndexerIOHardware() {
-        /*API Breaking Changes [https://v6.docs.ctr-electronics.com/en/stable/docs/yearly-changes/yearly-changelog.html#breaking-changes]
-        The new <Device>(int id, String canbus) constructors are now deprecated and will be removed in 2027.
-        Use the new <Device>(int id, CANBus canbus) constructors instead.
-        This change is intended to prepare users for 2027, where an explicit CAN bus declaration is necessary.
-        */
-
-        // Create motor objects
-        // Note: Constants use "CONVEYOR" and "INDEXER" naming, we use "conveyor" and "indexer"
         conveyorMotor = new TalonFXS(Constants.Indexer.CONVEYOR_MOTOR_ID, Constants.RIO_CANBUS);
-        indexerMotor = new TalonFX(Constants.Indexer.INDEXER_MOTOR_ID, Constants.RIO_CANBUS);
+        indexerMotor  = new TalonFX(Constants.Indexer.INDEXER_MOTOR_ID, Constants.RIO_CANBUS);
 
-        // Apply configurations from centralized config class
-        conveyorMotor.getConfigurator().apply(TalonFXConfigs.conveyorConfig());
-        indexerMotor.getConfigurator().apply(TalonFXConfigs.indexerConfig());
+        conveyorMotor.getConfigurator().apply(ConveyorConfig.conveyor());
+        indexerMotor.getConfigurator().apply(IndexerConfig.indexer());
 
-        // Hopper ToF sensors - detect game pieces at different positions
-        /* These are CANrange time-of-flight sensors */
         hopperAToF = new CANrange(Constants.Indexer.HOPPER_A_TOF_ID);
-        // hopperAToF.setRangingMode(RangingMode.Short, 24);
-
         hopperBToF = new CANrange(Constants.Indexer.HOPPER_B_TOF_ID);
-        // hopperBToF.setRangingMode(RangingMode.Short, 24);
-
         // hopperCToF = new CANrange(Constants.Indexer.HOPPER_C_TOF_ID);
-        // hopperCToF.setRangingMode(RangingMode.Short, 24);
 
-        // Get status signals for efficient reading
+        // Cache signal references
         conveyorVelocity = conveyorMotor.getVelocity();
-        conveyorAppliedVolts = conveyorMotor.getMotorVoltage();
-        conveyorCurrent = conveyorMotor.getSupplyCurrent();
+        conveyorCurrent  = conveyorMotor.getSupplyCurrent();
+        indexerVelocity  = indexerMotor.getVelocity();
+        indexerCurrent   = indexerMotor.getSupplyCurrent();
 
-
-        indexerVelocity = indexerMotor.getVelocity();
-        indexerAppliedVolts = indexerMotor.getMotorVoltage();
-        indexerCurrent = indexerMotor.getSupplyCurrent();
-
-        // Configure update frequencies for better performance
         BaseStatusSignal.setUpdateFrequencyForAll(
-            50.0,  // 50Hz for current (important but not critical)
-            conveyorVelocity, conveyorAppliedVolts,
-            indexerVelocity, indexerAppliedVolts, conveyorCurrent, indexerCurrent);
+            50.0,
+            conveyorVelocity, conveyorCurrent,
+            indexerVelocity, indexerCurrent
+        );
 
-        // Optimize bus utilization
         conveyorMotor.optimizeBusUtilization();
         indexerMotor.optimizeBusUtilization();
     }
 
     @Override
     public void updateInputs(IndexerIOInputs inputs) {
-        // Refresh all status signals efficiently
-        BaseStatusSignal.refreshAll(
-            conveyorVelocity, conveyorAppliedVolts, conveyorCurrent,
-            indexerVelocity, indexerAppliedVolts, indexerCurrent
-        );
+        // Velocity and current — needed for jam detection logic at runtime
+        inputs.conveyorVelocityRPS  = conveyorVelocity.getValueAsDouble();
+        inputs.conveyorCurrentAmps  = conveyorCurrent.getValueAsDouble();
+        inputs.indexerVelocityRPS   = indexerVelocity.getValueAsDouble();
+        inputs.indexerCurrentAmps   = indexerCurrent.getValueAsDouble();
 
-        // Update conveyor motor inputs
-        inputs.conveyorVelocityRPS = conveyorVelocity.getValueAsDouble();
-        inputs.conveyorAppliedVolts = conveyorAppliedVolts.getValueAsDouble();
-        inputs.conveyorCurrentAmps = conveyorCurrent.getValueAsDouble();
-
-        // Update indexer motor inputs
-        inputs.indexerVelocityRPS = indexerVelocity.getValueAsDouble();
-        inputs.indexerAppliedVolts = indexerAppliedVolts.getValueAsDouble();
-        inputs.indexerCurrentAmps = indexerCurrent.getValueAsDouble();
-
+        // ToF sensor inputs — uncomment as sensors are added
+        // inputs.hopperADetected = hopperAToF.getDistance().getValueAsDouble() < TOF_DETECTION_THRESHOLD_MM;
+        // inputs.hopperBDetected = hopperBToF.getDistance().getValueAsDouble() < TOF_DETECTION_THRESHOLD_MM;
+        // inputs.hopperCDetected = hopperCToF.getDistance().getValueAsDouble() < TOF_DETECTION_THRESHOLD_MM;
+        // inputs.gamePieceDetected = indexerToF.getDistance().getValueAsDouble() < TOF_DETECTION_THRESHOLD_MM;
     }
 
     @Override
-    public void setConveyorMotor(double percent) {
-        conveyorMotor.setControl(conveyorVoltageRequest .withOutput(percent));
+    public void setConveyorMotor(double volts) {
+        conveyorMotor.setControl(conveyorVoltageRequest.withOutput(volts));
     }
 
     @Override
-    public void setIndexerMotor(double percent) {
-        indexerMotor.setControl(indexerVoltageRequest.withOutput(percent));
+    public void setIndexerMotor(double volts) {
+        indexerMotor.setControl(indexerVoltageRequest.withOutput(volts));
     }
 
     @Override
@@ -145,4 +139,4 @@ public class IndexerIOHardware implements IndexerIO {
         conveyorMotor.stopMotor();
         indexerMotor.stopMotor();
     }
-} // End of class
+}
