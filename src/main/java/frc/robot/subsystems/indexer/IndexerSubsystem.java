@@ -18,8 +18,8 @@ public class IndexerSubsystem extends SubsystemBase {
      *
      * Using an enum instead of Strings means a typo is a compile error,
      * not a silent bug. Compare:
-     *   "FEEDNG" (compiles, breaks logic silently)
-     *   IndexerState.FEEDNG (won't compile — caught immediately)
+     * "FEEDNG" (compiles, breaks logic silently)
+     * IndexerState.FEEDNG (won't compile — caught immediately)
      */
     public enum IndexerState {
         IDLE,
@@ -45,27 +45,22 @@ public class IndexerSubsystem extends SubsystemBase {
     //
     // Historical note: a previous IndexerCommands class used FEED_VOLTS=9.6 and
     // CONVEYOR_VOLTS=7.2. Reconcile those values against these on the actual robot.
-    public static final double CONVEYOR_FORWARD_VOLTAGE = 4.0;  // TODO: Tune
+    public static final double CONVEYOR_FORWARD_VOLTAGE = 4.0; // TODO: Tune
     public static final double CONVEYOR_REVERSE_VOLTAGE = -4.0;
-    public static final double INDEXER_FORWARD_VOLTAGE  = 4.0;  // TODO: Tune
-    public static final double INDEXER_REVERSE_VOLTAGE  = -4.0;
+    public static final double INDEXER_FORWARD_VOLTAGE = 4.0; // TODO: Tune
+    public static final double INDEXER_REVERSE_VOLTAGE = -4.0;
 
-    // Jam detection thresholds — uncomment when jam detection logic is enabled below
-    // public static final double CONVEYOR_JAM_CURRENT_THRESHOLD  = 20.0; // amps — TODO: Tune
-    // public static final double CONVEYOR_JAM_VELOCITY_THRESHOLD = 0.5;  // RPS  — TODO: Tune
-    // public static final double INDEXER_JAM_CURRENT_THRESHOLD   = 20.0; // amps — TODO: Tune
-    // public static final double INDEXER_JAM_VELOCITY_THRESHOLD  = 0.5;  // RPS  — TODO: Tune
 
     // ==== Elastic Dashboard Publishers ========================================
-    // Only live-match booleans belong here — everything else is covered by AK or Hoot.
-    // Velocity, current, and distance signals are logged by processInputs() and Hoot;
+    // Only live-match booleans belong here — everything else is covered by AK or
+    // Hoot.
+    // Velocity, current, and distance signals are logged by processInputs() and
+    // Hoot;
     // publishing them to NT again would be redundant.
-    private final NetworkTable    indexerTable;
+    private final NetworkTable indexerTable;
     private final BooleanPublisher hopperAPublisher;
     private final BooleanPublisher hopperBPublisher;
     private final IntegerPublisher hopperCountPublisher;
-    // private final BooleanPublisher hopperJammedPublisher;
-    // private final BooleanPublisher indexerJammedPublisher;
 
     // ==== Constructor =========================================================
     public IndexerSubsystem(IndexerIO io) {
@@ -74,11 +69,13 @@ public class IndexerSubsystem extends SubsystemBase {
         NetworkTableInstance inst = NetworkTableInstance.getDefault();
         indexerTable = inst.getTable("Indexer");
 
-        hopperAPublisher     = indexerTable.getBooleanTopic("HopperA").publish();
-        hopperBPublisher     = indexerTable.getBooleanTopic("HopperB").publish();
+        hopperAPublisher = indexerTable.getBooleanTopic("HopperA").publish();
+        hopperBPublisher = indexerTable.getBooleanTopic("HopperB").publish();
         hopperCountPublisher = indexerTable.getIntegerTopic("HopperCount").publish();
-        // hopperJammedPublisher  = indexerTable.getBooleanTopic("HopperJammed").publish();
-        // indexerJammedPublisher = indexerTable.getBooleanTopic("IndexerJammed").publish();
+        // hopperJammedPublisher =
+        // indexerTable.getBooleanTopic("HopperJammed").publish();
+        // indexerJammedPublisher =
+        // indexerTable.getBooleanTopic("IndexerJammed").publish();
     }
 
     // ==== Periodic ============================================================
@@ -111,7 +108,8 @@ public class IndexerSubsystem extends SubsystemBase {
 
     // ==== State ===============================================================
     // Private — state only changes through command factories in this class.
-    // This prevents outside code from putting the subsystem into an inconsistent state.
+    // This prevents outside code from putting the subsystem into an inconsistent
+    // state.
     private void setState(IndexerState state) {
         this.currentState = state;
     }
@@ -123,16 +121,41 @@ public class IndexerSubsystem extends SubsystemBase {
     // ==== Motor Control =======================================================
     // Package-private — used only by command factories in this file.
     // setConveyorVolts / setIndexerVolts are public for superstructure overrides.
-    void conveyorForward() { io.setConveyorMotor(CONVEYOR_FORWARD_VOLTAGE); }
-    void conveyorReverse() { io.setConveyorMotor(CONVEYOR_REVERSE_VOLTAGE); }
-    void conveyorStop()    { io.setConveyorMotor(0.0); }
-    void indexerForward()  { io.setIndexerMotor(INDEXER_FORWARD_VOLTAGE); }
-    void indexerReverse()  { io.setIndexerMotor(INDEXER_REVERSE_VOLTAGE); }
-    void indexerStop()     { io.setIndexerMotor(0.0); }
-    void stop()            { io.stop(); }
+    void conveyorForward() {
+        io.setConveyorMotor(CONVEYOR_FORWARD_VOLTAGE);
+    }
 
-    public void setConveyorVolts(double volts) { io.setConveyorMotor(volts); }
-    public void setIndexerVolts(double volts)  { io.setIndexerMotor(volts); }
+    void conveyorReverse() {
+        io.setConveyorMotor(CONVEYOR_REVERSE_VOLTAGE);
+    }
+
+    void conveyorStop() {
+        io.setConveyorMotor(0.0);
+    }
+
+    void indexerForward() {
+        io.setIndexerMotor(INDEXER_FORWARD_VOLTAGE);
+    }
+
+    void indexerReverse() {
+        io.setIndexerMotor(INDEXER_REVERSE_VOLTAGE);
+    }
+
+    void indexerStop() {
+        io.setIndexerMotor(0.0);
+    }
+
+    void stop() {
+        io.stop();
+    }
+
+    public void setConveyorVolts(double volts) {
+        io.setConveyorMotor(volts);
+    }
+
+    public void setIndexerVolts(double volts) {
+        io.setIndexerMotor(volts);
+    }
 
     // ==== Sensor Queries ======================================================
 
@@ -159,8 +182,10 @@ public class IndexerSubsystem extends SubsystemBase {
     /** Returns the number of game pieces detected in the hopper (0, 1, or 2). */
     public int getHopperGamePieceCount() {
         int count = 0;
-        if (inputs.hopperADetected) count++;
-        if (inputs.hopperBDetected) count++;
+        if (inputs.hopperADetected)
+            count++;
+        if (inputs.hopperBDetected)
+            count++;
         return count;
     }
 
@@ -169,18 +194,22 @@ public class IndexerSubsystem extends SubsystemBase {
     // above once you have real current/velocity data to tune the thresholds with.
     //
     // public boolean isHopperJammed() {
-    //     boolean highCurrent = inputs.conveyorCurrentAmps >= CONVEYOR_JAM_CURRENT_THRESHOLD;
-    //     boolean lowVelocity = Math.abs(inputs.conveyorVelocityRPS) <= CONVEYOR_JAM_VELOCITY_THRESHOLD;
-    //     return highCurrent && lowVelocity;
+    // boolean highCurrent = inputs.conveyorCurrentAmps >=
+    // CONVEYOR_JAM_CURRENT_THRESHOLD;
+    // boolean lowVelocity = Math.abs(inputs.conveyorVelocityRPS) <=
+    // CONVEYOR_JAM_VELOCITY_THRESHOLD;
+    // return highCurrent && lowVelocity;
     // }
     //
     // public boolean isIndexerJammed() {
-    //     boolean highCurrent = inputs.indexerCurrentAmps >= INDEXER_JAM_CURRENT_THRESHOLD;
-    //     boolean lowVelocity = Math.abs(inputs.indexerVelocityRPS) <= INDEXER_JAM_VELOCITY_THRESHOLD;
-    //     return highCurrent && lowVelocity;
+    // boolean highCurrent = inputs.indexerCurrentAmps >=
+    // INDEXER_JAM_CURRENT_THRESHOLD;
+    // boolean lowVelocity = Math.abs(inputs.indexerVelocityRPS) <=
+    // INDEXER_JAM_VELOCITY_THRESHOLD;
+    // return highCurrent && lowVelocity;
     // }
 
-    // ==== Command Factories ===================================================
+    // ==== Command Factories ====
     // Single-subsystem commands live here because they are tightly coupled to
     // this subsystem's motors and state. Commands that coordinate multiple
     // subsystems belong in RobotContainer or a superstructure class.
@@ -191,17 +220,16 @@ public class IndexerSubsystem extends SubsystemBase {
      */
     public Command feed() {
         return Commands.startEnd(
-            () -> {
-                setState(IndexerState.FEEDING);
-                conveyorForward();
-                indexerForward();
-            },
-            () -> {
-                stop();
-                setState(IndexerState.IDLE);
-            },
-            this
-        ).withName("Feed");
+                () -> {
+                    setState(IndexerState.FEEDING);
+                    conveyorForward();
+                    indexerForward();
+                },
+                () -> {
+                    stop();
+                    setState(IndexerState.IDLE);
+                },
+                this).withName("Feed");
     }
 
     /**
@@ -212,17 +240,16 @@ public class IndexerSubsystem extends SubsystemBase {
      */
     public Command feedTimed(double durationSeconds) {
         return Commands.sequence(
-            Commands.runOnce(() -> {
-                setState(IndexerState.FEEDING);
-                conveyorForward();
-                indexerForward();
-            }, this),
-            Commands.waitSeconds(durationSeconds),
-            Commands.runOnce(() -> {
-                stop();
-                setState(IndexerState.IDLE);
-            }, this)
-        ).withName("FeedTimed(" + durationSeconds + "s)");
+                Commands.runOnce(() -> {
+                    setState(IndexerState.FEEDING);
+                    conveyorForward();
+                    indexerForward();
+                }, this),
+                Commands.waitSeconds(durationSeconds),
+                Commands.runOnce(() -> {
+                    stop();
+                    setState(IndexerState.IDLE);
+                }, this)).withName("FeedTimed(" + durationSeconds + "s)");
     }
 
     /**
@@ -232,17 +259,16 @@ public class IndexerSubsystem extends SubsystemBase {
      */
     public Command eject(double durationSeconds) {
         return Commands.sequence(
-            Commands.runOnce(() -> {
-                setState(IndexerState.EJECTING);
-                conveyorReverse();
-                indexerReverse();
-            }, this),
-            Commands.waitSeconds(durationSeconds),
-            Commands.runOnce(() -> {
-                stop();
-                setState(IndexerState.IDLE);
-            }, this)
-        ).withName("Eject(" + durationSeconds + "s)");
+                Commands.runOnce(() -> {
+                    setState(IndexerState.EJECTING);
+                    conveyorReverse();
+                    indexerReverse();
+                }, this),
+                Commands.waitSeconds(durationSeconds),
+                Commands.runOnce(() -> {
+                    stop();
+                    setState(IndexerState.IDLE);
+                }, this)).withName("Eject(" + durationSeconds + "s)");
     }
 
     /** Stops all motors immediately and returns to IDLE. */

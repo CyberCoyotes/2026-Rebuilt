@@ -47,7 +47,7 @@ public class IndexerIOHardware implements IndexerIO {
     // Config builders are private static methods so students can find and tune
     // all motor settings in this file without hunting through Constants.java.
 
-    private static TalonFXSConfiguration buildConveyorConfig() {
+    private static TalonFXSConfiguration conveyorConfig() {
         TalonFXSConfiguration config = new TalonFXSConfiguration();
 
         // Minion motor connected via JST connector
@@ -67,7 +67,7 @@ public class IndexerIOHardware implements IndexerIO {
         return config;
     }
 
-    private static TalonFXConfiguration buildIndexerConfig() {
+    private static TalonFXConfiguration indexerConfig() {
         TalonFXConfiguration config = new TalonFXConfiguration();
 
         config.MotorOutput.NeutralMode = NeutralModeValue.Brake;
@@ -84,15 +84,23 @@ public class IndexerIOHardware implements IndexerIO {
         return config;
     }
 
-    private static CANrangeConfiguration buildCANrangeConfig() {
-        CANrangeConfiguration config = new CANrangeConfiguration();
+private static CANrangeConfiguration CANrangeConfig() {
+    CANrangeConfiguration config = new CANrangeConfiguration();
 
-        // The sensor compares measured distance to this threshold internally.
-        // getIsDetected() returns true when distance < ProximityThreshold.
-        config.ProximityParams.ProximityThreshold = TOF_DETECTION_THRESHOLD_METERS;
+    // Sensor trips "detected" when distance drops below this value
+    config.ProximityParams.ProximityThreshold = TOF_DETECTION_THRESHOLD_METERS;
 
-        return config;
-    }
+    // Prevents chattering when a piece sits right at the threshold.
+    // Sensor won't un-detect until distance rises ~2.5cm above the threshold.
+    config.ProximityParams.ProximityHysteresis = 0.025; // meters — TODO: Tune
+
+    // Narrow the FOV to reduce false positives from hopper walls.
+    // Full range is ±6.75° each axis. Reduce if you see spurious detections.
+    config.FovParams.FOVRangeX = 6.75; // degrees — TODO: Tune down if needed
+    config.FovParams.FOVRangeY = 6.75; // degrees — TODO: Tune down if needed
+
+    return config;
+}
 
     // ── Hardware ───────────────────────────────────────────────────────────────
     private final TalonFXS conveyorMotor;
@@ -123,17 +131,17 @@ public class IndexerIOHardware implements IndexerIO {
     public IndexerIOHardware() {
         conveyorMotor = new TalonFXS(Constants.Indexer.CONVEYOR_MOTOR_ID, Constants.RIO_CANBUS);
         indexerMotor  = new TalonFX(Constants.Indexer.INDEXER_MOTOR_ID, Constants.RIO_CANBUS);
-        hopperAToF    = new CANrange(Constants.Indexer.HOPPER_A_TOF_ID);
-        hopperBToF    = new CANrange(Constants.Indexer.HOPPER_B_TOF_ID);
+        hopperAToF    = new CANrange(Constants.Indexer.HOPPER_A_TOF_ID, Constants.RIO_CANBUS);
+        hopperBToF    = new CANrange(Constants.Indexer.HOPPER_B_TOF_ID, Constants.RIO_CANBUS);
 
         // Apply configurations with error checking.
         // IMPORTANT: apply() can fail silently if the device is unreachable on CAN.
         // When that happens the device keeps its previous config, which may have wrong
         // current limits or direction. The warning below makes that visible.
-        applyConfig("Conveyor",  () -> conveyorMotor.getConfigurator().apply(buildConveyorConfig()));
-        applyConfig("Indexer",   () -> indexerMotor.getConfigurator().apply(buildIndexerConfig()));
-        applyConfig("HopperA ToF", () -> hopperAToF.getConfigurator().apply(buildCANrangeConfig()));
-        applyConfig("HopperB ToF", () -> hopperBToF.getConfigurator().apply(buildCANrangeConfig()));
+        applyConfig("Conveyor",  () -> conveyorMotor.getConfigurator().apply(conveyorConfig()));
+        applyConfig("Indexer",   () -> indexerMotor.getConfigurator().apply(indexerConfig()));
+        applyConfig("HopperA ToF", () -> hopperAToF.getConfigurator().apply(CANrangeConfig()));
+        applyConfig("HopperB ToF", () -> hopperBToF.getConfigurator().apply(CANrangeConfig()));
 
         // Cache signal references after apply() so handles are clean
         conveyorVelocity   = conveyorMotor.getVelocity();
