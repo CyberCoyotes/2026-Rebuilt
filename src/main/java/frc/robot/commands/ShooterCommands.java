@@ -48,12 +48,12 @@ public class ShooterCommands {
             Commands.runOnce(shooter::prepareToShoot, shooter),
             Commands.waitUntil(shooter::isReady).withTimeout(1.0),
             Commands.run(() -> {
-                indexer.indexerForward();
-                indexer.conveyorForward();
+                // indexer.indexerForward();
+                // indexer.conveyorForward();
             }, indexer)
         ).finallyDo(() -> {
-            indexer.indexerStop();
-            indexer.conveyorStop();
+            // indexer.indexerStop();
+            // indexer.conveyorStop();
             shooter.returnToIdle();
         }).withName("ShootAtCurrentTarget");
     }

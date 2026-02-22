@@ -1,7 +1,9 @@
 package frc.robot.subsystems.indexer;
 
 import com.ctre.phoenix6.BaseStatusSignal;
+import com.ctre.phoenix6.StatusCode;
 import com.ctre.phoenix6.StatusSignal;
+import com.ctre.phoenix6.configs.CANrangeConfiguration;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.configs.TalonFXSConfiguration;
 import com.ctre.phoenix6.controls.VoltageOut;
@@ -12,116 +14,195 @@ import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.MotorArrangementValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 
+import edu.wpi.first.wpilibj.DriverStation;
 import frc.robot.Constants;
 
+/**
+ * IndexerIOHardware - Real hardware implementation of IndexerIO.
+ *
+ * Owns all hardware objects and translates them into the IndexerIOInputs
+ * data structure read by IndexerSubsystem.
+ *
+ * CANrange detection strategy:
+ * We configure each sensor with a ProximityThreshold and read getIsDetected()
+ * as a cached StatusSignal. This means the sensor itself decides "detected or not"
+ * based on the configured threshold — we don't do the comparison in code.
+ * getDistance() is also cached so students can watch raw values in AdvantageScope
+ * while tuning the threshold in Phoenix Tuner X.
+ */
 public class IndexerIOHardware implements IndexerIO {
 
-    // ── Conveyor Configuration ─────────────────────────────────────────────────
-    private static class ConveyorConfig {
+    // ── Detection Threshold ────────────────────────────────────────────────────
+    /**
+     * Distance in meters below which a CANrange reports "detected".
+     * This value is pushed to both sensors via CANrangeConfiguration.
+     * To tune: watch hopperA/BDistanceMeters in AdvantageScope with a game piece
+     * at each sensor, then set the threshold to ~50% between the piece-present
+     * and piece-absent readings.
+     * TODO: Tune on actual hardware.
+     */
+    private static final double TOF_DETECTION_THRESHOLD_METERS = 0.15; // ~6 inches
 
-        static TalonFXSConfiguration conveyor() {
-            TalonFXSConfiguration config = new TalonFXSConfiguration();
+    // ── Motor Configuration ────────────────────────────────────────────────────
+    // Config builders are private static methods so students can find and tune
+    // all motor settings in this file without hunting through Constants.java.
 
-            // Minion motor connected via JST connector
-            config.Commutation.MotorArrangement = MotorArrangementValue.Minion_JST;
+    private static TalonFXSConfiguration conveyorConfig() {
+        TalonFXSConfiguration config = new TalonFXSConfiguration();
 
-            config.MotorOutput.NeutralMode = NeutralModeValue.Brake;
-            config.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
+        // Minion motor connected via JST connector
+        config.Commutation.MotorArrangement = MotorArrangementValue.Minion_JST;
 
-            config.CurrentLimits.SupplyCurrentLimit = 40.0;
-            config.CurrentLimits.SupplyCurrentLimitEnable = true;
-            config.CurrentLimits.StatorCurrentLimit = 40.0;
-            config.CurrentLimits.StatorCurrentLimitEnable = true;
+        config.MotorOutput.NeutralMode = NeutralModeValue.Brake;
+        config.MotorOutput.Inverted    = InvertedValue.Clockwise_Positive;
 
-            config.Voltage.PeakForwardVoltage = 12.0;
-            config.Voltage.PeakReverseVoltage = -12.0;
+        config.CurrentLimits.SupplyCurrentLimit       = 40.0;
+        config.CurrentLimits.SupplyCurrentLimitEnable = true;
+        config.CurrentLimits.StatorCurrentLimit       = 40.0;
+        config.CurrentLimits.StatorCurrentLimitEnable = true;
 
-            return config;
-        }
+        config.Voltage.PeakForwardVoltage = 12.0;
+        config.Voltage.PeakReverseVoltage = -12.0;
+
+        return config;
     }
 
-    // ── Indexer Configuration ──────────────────────────────────────────────────
-    private static class IndexerConfig {
+    private static TalonFXConfiguration indexerConfig() {
+        TalonFXConfiguration config = new TalonFXConfiguration();
 
-        static TalonFXConfiguration indexer() {
-            TalonFXConfiguration config = new TalonFXConfiguration();
+        config.MotorOutput.NeutralMode = NeutralModeValue.Brake;
+        config.MotorOutput.Inverted    = InvertedValue.CounterClockwise_Positive;
 
-            config.MotorOutput.NeutralMode = NeutralModeValue.Brake;
-            config.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
+        config.CurrentLimits.SupplyCurrentLimit       = 40.0;
+        config.CurrentLimits.SupplyCurrentLimitEnable = true;
+        config.CurrentLimits.StatorCurrentLimit       = 50.0;
+        config.CurrentLimits.StatorCurrentLimitEnable = true;
 
-            config.CurrentLimits.SupplyCurrentLimit = 40.0;
-            config.CurrentLimits.SupplyCurrentLimitEnable = true;
-            config.CurrentLimits.StatorCurrentLimit = 50.0;
-            config.CurrentLimits.StatorCurrentLimitEnable = true;
+        config.Voltage.PeakForwardVoltage = 12.0;
+        config.Voltage.PeakReverseVoltage = -12.0;
 
-            config.Voltage.PeakForwardVoltage = 12.0;
-            config.Voltage.PeakReverseVoltage = -12.0;
-
-            return config;
-        }
+        return config;
     }
+
+private static CANrangeConfiguration CANrangeConfig() {
+    CANrangeConfiguration config = new CANrangeConfiguration();
+
+    // Sensor trips "detected" when distance drops below this value
+    config.ProximityParams.ProximityThreshold = TOF_DETECTION_THRESHOLD_METERS;
+
+    // Prevents chattering when a piece sits right at the threshold.
+    // Sensor won't un-detect until distance rises ~2.5cm above the threshold.
+    config.ProximityParams.ProximityHysteresis = 0.025; // meters — TODO: Tune
+
+    // Narrow the FOV to reduce false positives from hopper walls.
+    // Full range is ±6.75° each axis. Reduce if you see spurious detections.
+    config.FovParams.FOVRangeX = 6.75; // degrees — TODO: Tune down if needed
+    config.FovParams.FOVRangeY = 6.75; // degrees — TODO: Tune down if needed
+
+    return config;
+}
 
     // ── Hardware ───────────────────────────────────────────────────────────────
     private final TalonFXS conveyorMotor;
-    private final TalonFX indexerMotor;
-
+    private final TalonFX  indexerMotor;
     private final CANrange hopperAToF;
     private final CANrange hopperBToF;
-    // private final CANrange hopperCToF;
-    // private final CANrange indexerToF;
 
     // ── Control Requests ───────────────────────────────────────────────────────
     private final VoltageOut conveyorVoltageRequest = new VoltageOut(0.0);
     private final VoltageOut indexerVoltageRequest  = new VoltageOut(0.0);
 
-    // ── Status Signals — 50Hz (runtime-critical) ───────────────────────────────
-    // Velocity and current are kept because jam detection uses them for live logic.
-    // Applied volts are captured by Hoot and not needed at runtime.
+    // ── Status Signals ─────────────────────────────────────────────────────────
+    // Motors at 50 Hz — needed each cycle for jam detection logic
     private final StatusSignal<?> conveyorVelocity;
     private final StatusSignal<?> conveyorCurrent;
     private final StatusSignal<?> indexerVelocity;
     private final StatusSignal<?> indexerCurrent;
 
+    // CANrange distance signals at 50 Hz — raw meters, logged for threshold tuning
+    private final StatusSignal<?> hopperADistance;
+    private final StatusSignal<?> hopperBDistance;
+
+    // CANrange detection signals at 50 Hz — boolean result of onboard threshold compare
+    private final StatusSignal<Boolean> hopperAIsDetected;
+    private final StatusSignal<Boolean> hopperBIsDetected;
+
+    // ── Constructor ────────────────────────────────────────────────────────────
     public IndexerIOHardware() {
         conveyorMotor = new TalonFXS(Constants.Indexer.CONVEYOR_MOTOR_ID, Constants.RIO_CANBUS);
         indexerMotor  = new TalonFX(Constants.Indexer.INDEXER_MOTOR_ID, Constants.RIO_CANBUS);
+        hopperAToF    = new CANrange(Constants.Indexer.HOPPER_A_TOF_ID, Constants.RIO_CANBUS);
+        hopperBToF    = new CANrange(Constants.Indexer.HOPPER_B_TOF_ID, Constants.RIO_CANBUS);
 
-        conveyorMotor.getConfigurator().apply(ConveyorConfig.conveyor());
-        indexerMotor.getConfigurator().apply(IndexerConfig.indexer());
+        // Apply configurations with error checking.
+        // IMPORTANT: apply() can fail silently if the device is unreachable on CAN.
+        // When that happens the device keeps its previous config, which may have wrong
+        // current limits or direction. The warning below makes that visible.
+        applyConfig("Conveyor",  () -> conveyorMotor.getConfigurator().apply(conveyorConfig()));
+        applyConfig("Indexer",   () -> indexerMotor.getConfigurator().apply(indexerConfig()));
+        applyConfig("HopperA ToF", () -> hopperAToF.getConfigurator().apply(CANrangeConfig()));
+        applyConfig("HopperB ToF", () -> hopperBToF.getConfigurator().apply(CANrangeConfig()));
 
-        hopperAToF = new CANrange(Constants.Indexer.HOPPER_A_TOF_ID);
-        hopperBToF = new CANrange(Constants.Indexer.HOPPER_B_TOF_ID);
-        // hopperCToF = new CANrange(Constants.Indexer.HOPPER_C_TOF_ID);
-
-        // Cache signal references
-        conveyorVelocity = conveyorMotor.getVelocity();
-        conveyorCurrent  = conveyorMotor.getSupplyCurrent();
-        indexerVelocity  = indexerMotor.getVelocity();
-        indexerCurrent   = indexerMotor.getSupplyCurrent();
+        // Cache signal references after apply() so handles are clean
+        conveyorVelocity   = conveyorMotor.getVelocity();
+        conveyorCurrent    = conveyorMotor.getSupplyCurrent();
+        indexerVelocity    = indexerMotor.getVelocity();
+        indexerCurrent     = indexerMotor.getSupplyCurrent();
+        hopperADistance    = hopperAToF.getDistance();
+        hopperBDistance    = hopperBToF.getDistance();
+        hopperAIsDetected  = hopperAToF.getIsDetected();
+        hopperBIsDetected  = hopperBToF.getIsDetected();
 
         BaseStatusSignal.setUpdateFrequencyForAll(
             50.0,
             conveyorVelocity, conveyorCurrent,
-            indexerVelocity, indexerCurrent
+            indexerVelocity,  indexerCurrent,
+            hopperADistance,  hopperAIsDetected,
+            hopperBDistance,  hopperBIsDetected
         );
 
         conveyorMotor.optimizeBusUtilization();
         indexerMotor.optimizeBusUtilization();
     }
 
+    // ── Config Helper ──────────────────────────────────────────────────────────
+    /**
+     * Applies a Phoenix 6 configuration and reports a warning if it fails.
+     *
+     * @param deviceName Human-readable name for the warning message
+     * @param applyCall  Lambda that performs the apply() call and returns StatusCode
+     */
+    private void applyConfig(String deviceName, java.util.function.Supplier<StatusCode> applyCall) {
+        StatusCode result = applyCall.get();
+        if (!result.isOK()) {
+            DriverStation.reportWarning(
+                "[IndexerIOHardware] " + deviceName + " config apply failed: " + result.getName(), false
+            );
+        }
+    }
+
+    // ── IO Implementation ──────────────────────────────────────────────────────
     @Override
     public void updateInputs(IndexerIOInputs inputs) {
-        // Velocity and current — needed for jam detection logic at runtime
-        inputs.conveyorVelocityRPS  = conveyorVelocity.getValueAsDouble();
-        inputs.conveyorCurrentAmps  = conveyorCurrent.getValueAsDouble();
-        inputs.indexerVelocityRPS   = indexerVelocity.getValueAsDouble();
-        inputs.indexerCurrentAmps   = indexerCurrent.getValueAsDouble();
+        // Refresh all cached signals in a single CAN read
+        BaseStatusSignal.refreshAll(
+            conveyorVelocity, conveyorCurrent,
+            indexerVelocity,  indexerCurrent,
+            hopperADistance,  hopperAIsDetected,
+            hopperBDistance,  hopperBIsDetected
+        );
 
-        // ToF sensor inputs — uncomment as sensors are added
-        // inputs.hopperADetected = hopperAToF.getDistance().getValueAsDouble() < TOF_DETECTION_THRESHOLD_MM;
-        // inputs.hopperBDetected = hopperBToF.getDistance().getValueAsDouble() < TOF_DETECTION_THRESHOLD_MM;
-        // inputs.hopperCDetected = hopperCToF.getDistance().getValueAsDouble() < TOF_DETECTION_THRESHOLD_MM;
-        // inputs.gamePieceDetected = indexerToF.getDistance().getValueAsDouble() < TOF_DETECTION_THRESHOLD_MM;
+        // Motor data
+        inputs.conveyorVelocityRPS = conveyorVelocity.getValueAsDouble();
+        inputs.conveyorCurrentAmps = conveyorCurrent.getValueAsDouble();
+        inputs.indexerVelocityRPS  = indexerVelocity.getValueAsDouble();
+        inputs.indexerCurrentAmps  = indexerCurrent.getValueAsDouble();
+
+        // CANrange data — distance for logging, getIsDetected() for game piece logic
+        inputs.hopperADistanceMeters = hopperADistance.getValueAsDouble();
+        inputs.hopperADetected       = hopperAIsDetected.getValue();
+        inputs.hopperBDistanceMeters = hopperBDistance.getValueAsDouble();
+        inputs.hopperBDetected       = hopperBIsDetected.getValue();
     }
 
     @Override

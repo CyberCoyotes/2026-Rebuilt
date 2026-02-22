@@ -197,18 +197,18 @@ public class FarShotCommand extends Command {
         // =====================================================================
         if (shooter.isReady()) {
             isFeeding = true;
-            indexer.indexerForward();
-            indexer.conveyorForward();
+            // indexer.indexerForward();
+            // indexer.conveyorForward();
         } else if (!isFeeding) {
-            indexer.indexerStop();
-            indexer.conveyorStop();
+            // indexer.indexerStop();
+            // indexer.conveyorStop();
         }
     }
 
     @Override
     public void end(boolean interrupted) {
-        indexer.indexerStop();
-        indexer.conveyorStop();
+        // indexer.indexerStop();
+        // indexer.conveyorStop();
         shooter.returnToIdle();
         rotationPID.reset();
     }
