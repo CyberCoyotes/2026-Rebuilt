@@ -3,6 +3,7 @@ package frc.robot.subsystems.intake;
 import com.ctre.phoenix6.BaseStatusSignal;
 import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
+import com.ctre.phoenix6.controls.DynamicMotionMagicVoltage;
 import com.ctre.phoenix6.controls.MotionMagicVoltage;
 import com.ctre.phoenix6.controls.VoltageOut;
 import com.ctre.phoenix6.hardware.TalonFX;
@@ -59,7 +60,7 @@ public class IntakeIOHardware implements IntakeIO {
             TalonFXConfiguration config = new TalonFXConfiguration();
 
             config.MotorOutput.NeutralMode = NeutralModeValue.Brake;
-            config.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
+            config.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
 
             config.CurrentLimits.SupplyCurrentLimit = 40.0;
             config.CurrentLimits.SupplyCurrentLimitEnable = true;
@@ -76,7 +77,7 @@ public class IntakeIOHardware implements IntakeIO {
             config.Slot0.kD = 0.0;
 
             // MotionMagic profile
-            config.MotionMagic.MotionMagicCruiseVelocity = 16; // TODO: Tune
+            config.MotionMagic.MotionMagicCruiseVelocity = 16;//960; // TODO: Tune
             config.MotionMagic.MotionMagicAcceleration = 16;   // TODO: Tune
             config.MotionMagic.MotionMagicJerk = 0;
 
@@ -90,7 +91,14 @@ public class IntakeIOHardware implements IntakeIO {
 
     // ==== Control Requests ====
     private final VoltageOut rollerRequest = new VoltageOut(0);
+
+    // MotionMagic control for slide — set position, motor holds after command ends
     private final MotionMagicVoltage slideRequest = new MotionMagicVoltage(0);
+
+    // DynamicMotionMagic for slower slide movement 
+    // TODO: Tune these for a slower retract profile
+    private final DynamicMotionMagicVoltage slideRequestSlow = new DynamicMotionMagicVoltage(0, 16, 16);
+                                                              // (position=0, velocity=16, accel=16, jerk=0)
 
     // ==== Status Signals — 50Hz (control-critical) ====
     // Current, voltage, and temp are captured by CTRE Hoot for diagnostics.
@@ -140,11 +148,6 @@ public class IntakeIOHardware implements IntakeIO {
     }
 
     @Override
-    public double getRollerVoltage() {
-        return rollerRequest.Output;
-    }
-
-    @Override
     public void stopRoller() {
         roller.stopMotor();
     }
@@ -156,8 +159,8 @@ public class IntakeIOHardware implements IntakeIO {
     }
 
     @Override
-    public void setSlideVoltage(double volts) {
-        slide.setControl(new VoltageOut(volts));
+    public void setSlidePositionSlow(double position) {
+        slide.setControl(slideRequestSlow.withPosition(position));
     }
 
     @Override
@@ -165,6 +168,7 @@ public class IntakeIOHardware implements IntakeIO {
         return slidePosition.getValueAsDouble();
     }
 
+    @Override
     public void stopSlide() {
         slide.stopMotor();
     }
