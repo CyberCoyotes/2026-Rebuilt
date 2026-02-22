@@ -12,18 +12,16 @@ import com.ctre.phoenix6.swerve.SwerveRequest;
 import choreo.auto.AutoChooser;
 import choreo.auto.AutoFactory;
 
-import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.RobotModeTriggers;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 
 import frc.robot.generated.TunerConstants;
 import frc.robot.commands.AlignToHubCommand;
-import frc.robot.commands.FarShotCommand;
 import frc.robot.commands.IndexerCommands;
 import frc.robot.commands.ShooterCommands;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
@@ -38,9 +36,10 @@ import frc.robot.subsystems.led.LedSubsystem;
 import frc.robot.subsystems.vision.VisionIOLimelight;
 import frc.robot.subsystems.vision.VisionSubsystem;
 
-@SuppressWarnings("unused") // Suppress warnings for unused right now
+@SuppressWarnings("unused")
 
 public class RobotContainer {
+
     private double MaxSpeed = 0.5 * TunerConstants.kSpeedAt12Volts.in(MetersPerSecond);
     private double MaxAngularRate = RotationsPerSecond.of(0.5).in(RadiansPerSecond);
 
@@ -82,12 +81,11 @@ public class RobotContainer {
         // climber = new ClimberSubsystem();
 
         autoFactory = drivetrain.createAutoFactory();
-autoRoutines = new AutoRoutines(autoFactory, drivetrain, intake, shooter, indexer, vision);
+        autoRoutines = new AutoRoutines(autoFactory, drivetrain, intake, shooter, indexer, vision);
 
-autoChooser.addRoutine("SingleCenterShoot", autoRoutines::singleCenterShootAuto);
+        autoChooser.addRoutine("SingleCenterShoot", autoRoutines::singleCenterShootAuto);
         SmartDashboard.putData("Auto Chooser", autoChooser);
 
-    
         configureBindings();
     }
 
@@ -118,64 +116,46 @@ autoChooser.addRoutine("SingleCenterShoot", autoRoutines::singleCenterShootAuto)
         // DRIVER CONTROLLER (Port 0) - Vision Alignment
         // =====================================================================
 
-        // POV Left: Align to blue hub (tags 18-27).
-        // Robot rotates to face the nearest hub AprilTag while driver controls translation.
+        // POV Left: Align to hub AprilTags, interpolate hood/RPM by distance, and shoot.
+        // Robot rotates to face the center of the hub via weighted multi-tag averaging
+        // from limelight-four. Driver translation is locked during alignment.
+        // Release to cancel; command cleans up shooter and drivetrain automatically.
         driver.povLeft().whileTrue(
-            new AlignToHubCommand(
-                drivetrain,
-                vision,
-                () -> -driver.getLeftY() * MaxSpeed,
-                () -> -driver.getLeftX() * MaxSpeed
-            )
+            new AlignToHubCommand(drivetrain, shooter, indexer, 1.5)
         );
 
         // =====================================================================
         // DRIVER CONTROLLER (Port 0) - Shooter Presets
-        // Silently update target RPM and hood angle.
-        // No motors move until the shoot trigger is pressed.
         // =====================================================================
 
-        // A: Arm close shot — clears far shot flag, routes RT to shootAtCurrentTarget
+        // A: Arm close shot — clears hub shot flag, RT routes to shootAtCurrentTarget
         driver.a().onTrue(ShooterCommands.armCloseShot(shooter));
 
-        // X: Arm far shot — sets far shot flag, routes RT to FarShotCommand
-        driver.x().onTrue(ShooterCommands.armFarShot(shooter));
-
-        // B: Arm pass shot — clears far shot flag, routes RT to shootAtCurrentTarget
+        // B: Arm pass shot — clears hub shot flag, RT routes to shootAtCurrentTarget
         driver.b().onTrue(ShooterCommands.armPassShot(shooter));
+
+        // X: Arm hub shot — sets isHubShotArmed, spins up flywheel to hub defaults,
+        //    and unlocks the RT → AlignToHubCommand toggle below.
+        driver.x().onTrue(new InstantCommand(shooter::setHubShotPreset, shooter));
 
         // =====================================================================
         // DRIVER CONTROLLER (Port 0) - Shoot
         // =====================================================================
 
-        // Right Trigger: Shoot at currently armed preset.
-        //
-        // If FAR SHOT is armed (X was pressed):
-        //   → FarShotCommand — auto-rotates to hub, continuously adjusts hood by distance,
-        //     RPM at FAR_SHOT_RPM + 350, driver controls translation
-        //
-        // Otherwise (close shot or pass shot):
-        //   → shootAtCurrentTarget — ramps to preset targets, waits until ready, feeds
-        //
-        // Both commands return to SPINUP at IDLE_RPM on release.
+        // Hub shot armed state — true when X was the last preset pressed.
+        // setHubShotPreset() sets this flag; armCloseShot/armPassShot/returnToIdle clear it.
+        Trigger hubShotArmed = new Trigger(shooter::isHubShotArmed);
 
-        Trigger rtTrigger = driver.rightTrigger(0.5);
-        Trigger farShotArmed = new Trigger(shooter::isFarShotArmed);
-
-        // Far shot path — only when X was last pressed
-        rtTrigger.and(farShotArmed).whileTrue(
-            new FarShotCommand(
-                drivetrain,
-                shooter,
-                vision,
-                indexer,
-                () -> -driver.getLeftY() * MaxSpeed,
-                () -> -driver.getLeftX() * MaxSpeed
-            )
+        // Right Trigger (hub shot armed): Toggle the full align + shoot sequence.
+        //   First press  → starts ALIGNING, transitions to FEEDING when ready, then finishes.
+        //   Second press → cancels cleanly, shooter returns to idle.
+        driver.rightTrigger(0.5).and(hubShotArmed).toggleOnTrue(
+            new AlignToHubCommand(drivetrain, shooter, indexer, 1.5)
         );
 
-        // Standard shot path — when A or B was last pressed
-        rtTrigger.and(farShotArmed.negate()).whileTrue(
+        // Right Trigger (standard shot): Shoot at the currently armed close or pass preset.
+        //   Only active when hub shot is NOT armed (A or B was last pressed).
+        driver.rightTrigger(0.5).and(hubShotArmed.negate()).whileTrue(
             ShooterCommands.shootAtCurrentTarget(shooter, indexer)
         );
 
@@ -184,11 +164,10 @@ autoChooser.addRoutine("SingleCenterShoot", autoRoutines::singleCenterShootAuto)
         // =====================================================================
 
         // Left Trigger: Extend slides and run roller while held.
-        // Slides remain extended on release (intentional).
         driver.leftTrigger(0.5).whileTrue(intake.intakeFuel());
 
-        // Left Bumper: Retract intake slides while held.
-        driver.leftBumper().whileTrue(intake.retractSlidesCommand());
+        // Left Bumper: Retract intake and slowly reverse roller while held.
+        driver.leftBumper().whileTrue(intake.retractAndReverseRollerCommand());
 
         // =====================================================================
         // DRIVER CONTROLLER (Port 0) - Commented out (TODO: enable as needed)
@@ -246,4 +225,4 @@ autoChooser.addRoutine("SingleCenterShoot", autoRoutines::singleCenterShootAuto)
         return gameDataTelemetry;
     }
 
-} // End of
+}

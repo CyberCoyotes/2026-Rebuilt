@@ -16,7 +16,7 @@ import java.util.function.DoubleSupplier;
 public class FarShotCommand extends Command {
 
     // ===== Hub Tags =====
-    private static final Set<Integer> HUB_TAG_IDS = Set.of(18, 19, 20, 21, 24, 25, 26, 27);
+    private static final Set<Integer> HUB_TAG_IDS = Set.of(25, 27, 24);
 
     // ===== Distance Range =====
     private static final double CLOSE_DISTANCE_METERS = 0.85;
@@ -36,7 +36,7 @@ public class FarShotCommand extends Command {
 
     private static final double MIN_ROTATION_OUTPUT = 1.75;
     private static final double MAX_ROTATION_RATE = 4.0;
-    private static final double ALIGN_TOLERANCE_DEGREES = 1.0;
+    private static final double ALIGN_TOLERANCE_DEGREES = 4.0;
 
     // ===== Tag Lock =====
     private int lockedTagId = -1;

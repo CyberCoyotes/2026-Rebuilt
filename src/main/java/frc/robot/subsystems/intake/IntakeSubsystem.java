@@ -36,6 +36,9 @@ public class IntakeSubsystem extends SubsystemBase {
     final static double SLIDE_EXTEND_VOLTS = 10.0;   // TODO: Tune if needed
     final static double SLIDE_RETRACT_VOLTS = -3.0; // TODO: Tune if needed
 
+    /** Roller voltage used during retract — slow reverse to push pieces inwards */
+    final static double RETRACT_REVERSE_ROLLER_VOLTS = 2.0; // TODO: Tune if needed
+
     public IntakeSubsystem(IntakeIO intakeIO) {
         this.io = intakeIO;
     }
@@ -178,6 +181,25 @@ public class IntakeSubsystem extends SubsystemBase {
         return Commands.startEnd(
                 this::retractSlides,
                 this::stopSlide,
+                this);
+    }
+
+    /**
+     * Retracts the intake slides while slowly reversing the roller.
+     * Useful for pushing any partially-intaked pieces back out during retract.
+     * On release: stops both the slide motor and the roller.
+     * Bind to Left Bumper with whileTrue().
+     */
+    public Command retractAndReverseRollerCommand() {
+        return Commands.startEnd(
+                () -> {
+                    retractSlides();
+                    io.setRollerSpeed(RETRACT_REVERSE_ROLLER_VOLTS);
+                },
+                () -> {
+                    stopSlide();
+                    stopRoller();
+                },
                 this);
     }
 
