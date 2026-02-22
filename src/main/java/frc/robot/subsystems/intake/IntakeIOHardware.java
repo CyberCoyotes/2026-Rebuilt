@@ -60,7 +60,7 @@ public class IntakeIOHardware implements IntakeIO {
             TalonFXConfiguration config = new TalonFXConfiguration();
 
             config.MotorOutput.NeutralMode = NeutralModeValue.Brake;
-            config.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
+            config.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
 
             config.CurrentLimits.SupplyCurrentLimit = 40.0;
             config.CurrentLimits.SupplyCurrentLimitEnable = true;
@@ -75,14 +75,10 @@ public class IntakeIOHardware implements IntakeIO {
             config.Slot0.kP = 2.0; // TODO: Tune
             config.Slot0.kI = 0.0;
             config.Slot0.kD = 0.0;
-            
-            config.Slot1.kP = 2.0; // TODO: Tune
-            config.Slot1.kI = 0.0;
-            config.Slot1.kD = 0.0;
 
             // MotionMagic profile
-            config.MotionMagic.MotionMagicCruiseVelocity = 960; // TODO: Tune
-            config.MotionMagic.MotionMagicAcceleration = 720;   // TODO: Tune
+            config.MotionMagic.MotionMagicCruiseVelocity = 16;//960; // TODO: Tune
+            config.MotionMagic.MotionMagicAcceleration = 16;   // TODO: Tune
             config.MotionMagic.MotionMagicJerk = 0;
 
             return config;
