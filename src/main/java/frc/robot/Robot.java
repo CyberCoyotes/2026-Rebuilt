@@ -13,9 +13,7 @@ import org.littletonrobotics.junction.wpilog.WPILOGWriter;
 
 import com.ctre.phoenix6.HootAutoReplay;
 
-import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.RobotController;
-// import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 
@@ -30,37 +28,31 @@ public class Robot extends LoggedRobot {
         .withJoystickReplay();
 
     /**
+     * Set to true to enable AdvantageKit logging and replay features.
+     * This is separate from the Logger features, which are still active when this is false.
      *
+     * TODO Toggle on/off for testing
      */
-    // Limelight integration is currently disabled. Set to true if vision processing will be used in the future.
-    private final boolean kUseLimelight =true;
-
-    /** Set to true to enable AdvantageKit logging and replay features. 
-     * This is separate from the Logger features, which are still active when this is false. 
-     * 
-     * TODO Toggle on/off for testing 
-     * 
-     * */
     public static final boolean ENABLE_ADVANTAGEKIT = false;
 
     public Robot() {
-        
-    Logger.recordMetadata("ProjectName", "2026 Rebuilt"); // Set a metadata value
 
-    if (ENABLE_ADVANTAGEKIT) {
+        Logger.recordMetadata("ProjectName", "2026 Rebuilt");
 
-        if (isReal()) {
-            Logger.addDataReceiver(new WPILOGWriter()); // Log to a USB stick ("/U/logs")
-            Logger.addDataReceiver(new NT4Publisher()); // Publish data to NetworkTables
-        } else {
-            setUseTiming(false); // Run as fast as possible
-            String logPath = LogFileUtil.findReplayLog(); // Pull the replay log from AdvantageScope (or prompt the user)
-            Logger.setReplaySource(new WPILOGReader(logPath)); // Read replay log
-            Logger.addDataReceiver(new WPILOGWriter(LogFileUtil.addPathSuffix(logPath, "_sim"))); // Save outputs to a new log
+        if (ENABLE_ADVANTAGEKIT) {
+
+            if (isReal()) {
+                Logger.addDataReceiver(new WPILOGWriter()); // Log to a USB stick ("/U/logs")
+                Logger.addDataReceiver(new NT4Publisher()); // Publish data to NetworkTables
+            } else {
+                setUseTiming(false); // Run as fast as possible
+                String logPath = LogFileUtil.findReplayLog();
+                Logger.setReplaySource(new WPILOGReader(logPath));
+                Logger.addDataReceiver(new WPILOGWriter(LogFileUtil.addPathSuffix(logPath, "_sim")));
+            }
+
+            Logger.start();
         }
-
-        Logger.start(); // Start logging! No more data receivers, replay sources, or metadata values may be added.
-    }
 
         m_robotContainer = new RobotContainer();
     }
@@ -74,7 +66,6 @@ public class Robot extends LoggedRobot {
         CommandScheduler.getInstance().run();
 
         if (ENABLE_ADVANTAGEKIT) {
-            // Log system health data for post-match analysis
             Logger.recordOutput("Robot/BatteryVoltage", RobotController.getBatteryVoltage());
             Logger.recordOutput("Robot/BrownedOut", RobotController.isBrownedOut());
             Logger.recordOutput("Robot/CANBusUtilization", RobotController.getCANStatus().percentBusUtilization);
@@ -83,25 +74,8 @@ public class Robot extends LoggedRobot {
         // Update game data telemetry (polls FMS for scoring shift data)
         m_robotContainer.updateGameData();
 
-        /*
-         * This example of adding Limelight is very simple and may not be sufficient for on-field use.
-         * Users typically need to provide a standard deviation that scales with the distance to target
-         * and changes with number of tags available.
-         *
-         * This example is sufficient to show that vision integration is possible, though exact implementation
-         * of how to use vision should be tuned per-robot and to the team's specification.
-         */
-        if (kUseLimelight) {
-            var driveState = m_robotContainer.drivetrain.getState();
-            double headingDeg = driveState.Pose.getRotation().getDegrees();
-            double omegaRps = Units.radiansToRotations(driveState.Speeds.omegaRadiansPerSecond);
-
-            LimelightHelpers.SetRobotOrientation("limelight", headingDeg, 0, 0, 0, 0, 0);
-            var llMeasurement = LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2("limelight");
-            if (llMeasurement != null && llMeasurement.tagCount > 0 && Math.abs(omegaRps) < 2.0) {
-                m_robotContainer.drivetrain.addVisionMeasurement(llMeasurement.pose, llMeasurement.timestampSeconds);
-            }
-        }
+        // Vision is handled entirely by VisionSubsystem via VisionIOLimelight.
+        // Do not call LimelightHelpers directly here.
     }
 
     @Override
@@ -153,7 +127,7 @@ public class Robot extends LoggedRobot {
     public void testExit() {}
 
     @Override
-public void simulationPeriodic() {
-    robotContainer.updateSimVision();
-}
+    public void simulationPeriodic() {
+        m_robotContainer.updateSimVision();
+    }
 }
