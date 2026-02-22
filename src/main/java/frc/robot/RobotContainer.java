@@ -117,12 +117,13 @@ public class RobotContainer {
         // ----- Shooter -----
         // ----- Full Sequences -----
         // A: Full shoot sequence - close shot with indexer feed, then idle
-        /*
+        
         driver.rightTrigger(0.5).whileTrue(
             ShooterCommands.shootSequence(shooter, indexer,
                 ShooterSubsystem.CLOSE_SHOT_RPM, ShooterSubsystem.CLOSE_SHOT_HOOD)
         );
-         */
+
+        driver.leftTrigger().whileTrue(intake.intakeFuel());
 
         // Right Trigger: Flywheel ramp-up test — hold to ramp to target RPM, release to idle.
         // Ramp rate governed by ClosedLoopRamps in TalonFXConfigs (currently 4s).
@@ -135,6 +136,14 @@ public class RobotContainer {
         //     indexer.stop();
         // })
         // );
+
+        // Left Bumper: Retract intake slides while held.
+        driver.leftBumper().onTrue(Commands.run(intake::retractSlides, intake));
+        
+        /* TODO test for shooter compression that is used in the `Command compressFuel()`
+        / method in the IntakeSubsystem, which should stop the roller and retract the slides with a slower profile. */
+        driver.a().onTrue(Commands.run(intake::retractSlidesSlow, intake)); 
+        driver.b().onTrue(Commands.run(intake::compressFuel, intake)); 
 
         /* TODO Test rampTestShoot first, comment out, and try this one */
         /*
@@ -271,7 +280,6 @@ public class RobotContainer {
         // );
     
         // Left Bumper: Retract intake slides while held.
-        driver.leftBumper().whileTrue(intake.retractSlidesCommand());
 
         // =====================================================================
         // DRIVER CONTROLLER (Port 0) - Commented out (TODO: enable as needed)

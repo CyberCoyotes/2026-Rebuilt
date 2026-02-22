@@ -46,24 +46,18 @@ public interface IntakeIO {
 
     // ===== Roller methods =====
     void setRollerVoltage(double volts);
-    
-    double getRollerVoltage();
 
     void stopRoller();
 
     
     // ===== Slide methods =====
-    /** Position control via MotionMagic — currently commented out in subsystem */
+    /** Position control via MotionMagic */
     void setSlidePosition(double position);
+    
+    /** Position control via MotionMagic with slower velocity */
+    void setSlidePositionSlow(double position);
 
-    /**
-     * Voltage control for slide — use this for extend/retract while MotionMagic is disabled.
-     * Positive volts extends, negative volts retracts.
-     * Always call stopSlide() when done to prevent the motor running continuously.
-     *
-     * @param volts Output voltage (-12.0 to 12.0)
-     */
-    void setSlideVoltage(double volts);
+    void stopSlide();
 
     double getSlidePosition();
 
