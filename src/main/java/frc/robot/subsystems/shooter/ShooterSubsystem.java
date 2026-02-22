@@ -109,6 +109,9 @@ public class ShooterSubsystem extends SubsystemBase {
     /** EJECT: Flywheel velocity (-50% of max) */
     private static final double EJECT_VELOCITY_RPM = MAX_FLYWHEEL_MOTOR_RPM * -0.50;
 
+    /** EJECT: Maximum flywheel RPM at which EJECT entry is permitted (near-stopped) */
+    private static final double EJECT_ENTRY_THRESHOLD_RPM = 500.0;
+
     // ===== Shooting Presets =====
 
     /** Close shot */
@@ -200,6 +203,11 @@ public class ShooterSubsystem extends SubsystemBase {
 
     private void setState(ShooterState newState) {
         if (currentState == newState) return;
+
+        // Safety: EJECT reverses the flywheel — only allow entry when near-stopped
+        if (newState == ShooterState.EJECT && getCurrentVelocityRPM() > EJECT_ENTRY_THRESHOLD_RPM) {
+            return;
+        }
 
         currentState = newState;
         currentStateString = newState.toString();
