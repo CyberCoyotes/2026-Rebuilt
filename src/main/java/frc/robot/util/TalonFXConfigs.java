@@ -145,7 +145,7 @@ public class TalonFXConfigs {
         config.CurrentLimits.StatorCurrentLimitEnable = true;
 
         config.SoftwareLimitSwitch.ForwardSoftLimitEnable = true;
-        config.SoftwareLimitSwitch.ForwardSoftLimitThreshold = 40.0;
+        config.SoftwareLimitSwitch.ForwardSoftLimitThreshold = 44.5;
         config.SoftwareLimitSwitch.ReverseSoftLimitEnable = true;
         config.SoftwareLimitSwitch.ReverseSoftLimitThreshold = -0.-.1;
 

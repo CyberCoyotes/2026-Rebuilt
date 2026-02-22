@@ -51,13 +51,13 @@ public class AlignToHubCommand extends Command {
      * Ensures the robot always commits to rotating even when PID output is weak at large errors.
      * Sign is matched to the direction of error automatically via Math.copySign.
      */
-    private static final double MIN_ROTATION_OUTPUT = 1.25; // TODO: Tune
+    private static final double MIN_ROTATION_OUTPUT = 1.75; // TODO: Tune
 
     /** Maximum rotation rate (rad/s) */
     private static final double MAX_ROTATION_RATE = 4.0; // TODO: Tune
 
     /** Deadband — within this many degrees of tx, no correction applied */
-    private static final double ALIGN_TOLERANCE_DEGREES = 1.5;
+    private static final double ALIGN_TOLERANCE_DEGREES = 2.0;
 
     // ===== Hardware =====
     private final CommandSwerveDrivetrain drivetrain;

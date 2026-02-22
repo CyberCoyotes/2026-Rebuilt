@@ -82,9 +82,9 @@ public class RobotContainer {
         // climber = new ClimberSubsystem();
 
         autoFactory = drivetrain.createAutoFactory();
-        autoRoutines = new AutoRoutines(autoFactory);
+autoRoutines = new AutoRoutines(autoFactory, drivetrain, intake, shooter, indexer, vision);
 
-        autoChooser.addRoutine("SimplePath", autoRoutines::simplePathAuto);
+autoChooser.addRoutine("SingleCenterShoot", autoRoutines::singleCenterShootAuto);
         SmartDashboard.putData("Auto Chooser", autoChooser);
 
     

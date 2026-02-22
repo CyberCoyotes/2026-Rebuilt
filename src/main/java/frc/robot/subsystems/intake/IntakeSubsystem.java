@@ -8,7 +8,6 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.Intake;
 import frc.robot.subsystems.intake.IntakeIO.IntakeIOInputs;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 @SuppressWarnings("unused") // Suppress warnings for unused right now
 
@@ -44,7 +43,7 @@ public class IntakeSubsystem extends SubsystemBase {
     @Override
     public void periodic() {
         io.updateInputs(inputs);
-         SmartDashboard.putNumber("Intake/SlidePosition", io.getSlidePosition());
+        SmartDashboard.putNumber("Intake/SlidePosition", io.getSlidePosition());
         // Logger.processInputs("Intake", inputs); // FIXME
     }
 
@@ -136,7 +135,7 @@ public class IntakeSubsystem extends SubsystemBase {
     }
 
     /**
-     * Main intake command — extends slides and runs roller while held.
+     * Main intake command — extends slides and runs roller at full ROLLER_VOLTS while held.
      * On release: stops roller. Slides remain extended intentionally.
      * Bind to Left Trigger with whileTrue().
      */
@@ -145,6 +144,23 @@ public class IntakeSubsystem extends SubsystemBase {
                 () -> {
                     extendSlides();
                     runRoller();
+                },
+                this::stopRoller,
+                this);
+    }
+
+    /**
+     * Auto intake command — extends slides and runs roller at a custom voltage.
+     * Use this in auto routines where a different roller speed is desired.
+     * The regular intakeFuel() is unchanged for teleop use.
+     *
+     * @param rollerVolts Voltage to run the roller at (e.g. 4.0 for slower auto intake)
+     */
+    public Command intakeFuel(double rollerVolts) {
+        return Commands.startEnd(
+                () -> {
+                    extendSlides();
+                    io.setRollerSpeed(rollerVolts);
                 },
                 this::stopRoller,
                 this);
