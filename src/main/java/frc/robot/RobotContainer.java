@@ -74,9 +74,8 @@ public class RobotContainer {
     // Null when running on real hardware.
     private final VisionIOSim visionIOSim;
 
-    private final AutoFactory  autoFactory;
-    private final AutoRoutines autoRoutines;
-    private final AutoChooser  autoChooser = new AutoChooser();
+    private final AutoFactory autoFactory;
+    private final AutoChooser autoChooser = new AutoChooser();
 
     public RobotContainer() {
         intake  = new IntakeSubsystem(new IntakeIOHardware());
@@ -105,10 +104,7 @@ public class RobotContainer {
         ledSubsystem = new LedSubsystem();
         // climber = new ClimberSubsystem();
 
-        autoFactory  = drivetrain.createAutoFactory();
-        autoRoutines = new AutoRoutines(autoFactory, drivetrain, intake, shooter, indexer);
-
-        autoChooser.addRoutine("SingleCenterShoot", autoRoutines::singleCenterShootAuto);
+        autoFactory = drivetrain.createAutoFactory();
         SmartDashboard.putData("Auto Chooser", autoChooser);
 
         configureBindings();
@@ -118,17 +114,6 @@ public class RobotContainer {
     // Sim update — call from Robot.simulationPeriodic()
     // -------------------------------------------------------------------------
 
-    /**
-     * Feeds the current simulated drivetrain pose into VisionIOSim so it can
-     * produce realistic fake detections. Does nothing on real hardware.
-     *
-     * Add this to Robot.java:
-     *
-     *   @Override
-     *   public void simulationPeriodic() {
-     *       robotContainer.updateSimVision();
-     *   }
-     */
     public void updateSimVision() {
         if (visionIOSim != null) {
             visionIOSim.setSimRobotPose(drivetrain.getState().Pose);
