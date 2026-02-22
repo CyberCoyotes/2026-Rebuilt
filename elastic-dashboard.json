@@ -1195,6 +1195,230 @@
         ],
         "containers": []
       }
+    },
+    {
+      "name": "Shooter",
+      "grid_layout": {
+        "layouts": [
+          {
+            "title": "State",
+            "x": 0.0,
+            "y": 0.0,
+            "width": 512.0,
+            "height": 192.0,
+            "type": "List Layout",
+            "properties": {
+              "label_position": "TOP"
+            },
+            "children": [
+              {
+                "title": "Shooter State",
+                "x": 0.0,
+                "y": 0.0,
+                "width": 256.0,
+                "height": 128.0,
+                "type": "Text Display",
+                "properties": {
+                  "topic": "/Shooter/State",
+                  "period": 0.06,
+                  "data_type": "string",
+                  "show_submit_button": false
+                }
+              },
+              {
+                "title": "Ready",
+                "x": 0.0,
+                "y": 0.0,
+                "width": 128.0,
+                "height": 128.0,
+                "type": "Boolean Box",
+                "properties": {
+                  "topic": "/Shooter/IsReady",
+                  "period": 0.06,
+                  "data_type": "boolean",
+                  "true_color": 4278255360,
+                  "false_color": 4294901760,
+                  "true_icon": "None",
+                  "false_icon": "None"
+                }
+              }
+            ]
+          },
+          {
+            "title": "Flywheel",
+            "x": 0.0,
+            "y": 192.0,
+            "width": 512.0,
+            "height": 384.0,
+            "type": "List Layout",
+            "properties": {
+              "label_position": "TOP"
+            },
+            "children": [
+              {
+                "title": "Flywheel RPM",
+                "x": 0.0,
+                "y": 0.0,
+                "width": 192.0,
+                "height": 64.0,
+                "type": "Text Display",
+                "properties": {
+                  "topic": "/Shooter/FlywheelRPM",
+                  "period": 0.06,
+                  "data_type": "double",
+                  "show_submit_button": false
+                }
+              },
+              {
+                "title": "Target RPM",
+                "x": 0.0,
+                "y": 0.0,
+                "width": 192.0,
+                "height": 64.0,
+                "type": "Text Display",
+                "properties": {
+                  "topic": "/Shooter/TargetFlywheelRPM",
+                  "period": 0.06,
+                  "data_type": "double",
+                  "show_submit_button": false
+                }
+              },
+              {
+                "title": "Flywheel Error (RPM)",
+                "x": 0.0,
+                "y": 0.0,
+                "width": 192.0,
+                "height": 64.0,
+                "type": "Text Display",
+                "properties": {
+                  "topic": "/Shooter/FlywheelError",
+                  "period": 0.06,
+                  "data_type": "double",
+                  "show_submit_button": false
+                }
+              },
+              {
+                "title": "Applied Volts",
+                "x": 0.0,
+                "y": 0.0,
+                "width": 192.0,
+                "height": 64.0,
+                "type": "Text Display",
+                "properties": {
+                  "topic": "/Shooter/FlywheelAppliedVolts",
+                  "period": 0.06,
+                  "data_type": "double",
+                  "show_submit_button": false
+                }
+              }
+            ]
+          },
+          {
+            "title": "Hood",
+            "x": 512.0,
+            "y": 0.0,
+            "width": 512.0,
+            "height": 576.0,
+            "type": "List Layout",
+            "properties": {
+              "label_position": "TOP"
+            },
+            "children": [
+              {
+                "title": "Hood Position (rot)",
+                "x": 0.0,
+                "y": 0.0,
+                "width": 192.0,
+                "height": 64.0,
+                "type": "Text Display",
+                "properties": {
+                  "topic": "/Shooter/HoodAngle",
+                  "period": 0.06,
+                  "data_type": "double",
+                  "show_submit_button": false
+                }
+              },
+              {
+                "title": "Target Hood (rot)",
+                "x": 0.0,
+                "y": 0.0,
+                "width": 192.0,
+                "height": 64.0,
+                "type": "Text Display",
+                "properties": {
+                  "topic": "/Shooter/TargetHoodAngle",
+                  "period": 0.06,
+                  "data_type": "double",
+                  "show_submit_button": false
+                }
+              },
+              {
+                "title": "Hood Error (rot)",
+                "x": 0.0,
+                "y": 0.0,
+                "width": 192.0,
+                "height": 64.0,
+                "type": "Text Display",
+                "properties": {
+                  "topic": "/Shooter/HoodError",
+                  "period": 0.06,
+                  "data_type": "double",
+                  "show_submit_button": false
+                }
+              },
+              {
+                "title": "Hood At Pose",
+                "x": 0.0,
+                "y": 0.0,
+                "width": 128.0,
+                "height": 128.0,
+                "type": "Boolean Box",
+                "properties": {
+                  "topic": "/Shooter/HoodAtPose",
+                  "period": 0.06,
+                  "data_type": "boolean",
+                  "true_color": 4278255360,
+                  "false_color": 4294944000,
+                  "true_icon": "None",
+                  "false_icon": "None"
+                }
+              },
+              {
+                "title": "ThroughBore (rot)",
+                "x": 0.0,
+                "y": 0.0,
+                "width": 192.0,
+                "height": 64.0,
+                "type": "Text Display",
+                "properties": {
+                  "topic": "/Shooter/ThroughBorePosition",
+                  "period": 0.06,
+                  "data_type": "double",
+                  "show_submit_button": false
+                }
+              },
+              {
+                "title": "ThroughBore Connected",
+                "x": 0.0,
+                "y": 0.0,
+                "width": 128.0,
+                "height": 64.0,
+                "type": "Boolean Box",
+                "properties": {
+                  "topic": "/Shooter/ThroughBoreConnected",
+                  "period": 0.06,
+                  "data_type": "boolean",
+                  "true_color": 4278255360,
+                  "false_color": 4294901760,
+                  "true_icon": "None",
+                  "false_icon": "None"
+                }
+              }
+            ]
+          }
+        ],
+        "containers": []
+      }
     }
   ]
 }
