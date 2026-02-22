@@ -163,6 +163,11 @@ private static CANrangeConfiguration CANrangeConfig() {
 
         conveyorMotor.optimizeBusUtilization();
         indexerMotor.optimizeBusUtilization();
+        // Silence unused CANrange signals — same as motors above.
+        // Hopper A LEDs lit but NT data not flowing may be caused by excess bus traffic;
+        // optimizing both sensors reduces that risk.
+        hopperAToF.optimizeBusUtilization();
+        hopperBToF.optimizeBusUtilization();
     }
 
     // ── Config Helper ──────────────────────────────────────────────────────────
