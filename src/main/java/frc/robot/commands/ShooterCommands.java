@@ -16,7 +16,7 @@ import frc.robot.subsystems.shooter.ShooterSubsystem;
  * SHOT FLOW:
  * 1. Driver presses preset (A/X/B) — silently arms target RPM and hood angle
  * 2. Driver holds shoot trigger — flywheel ramps to target, hood moves, waits until ready, feeds
- * 3. Driver releases trigger — returns to SPINUP at IDLE_RPM
+ * 3. Driver releases trigger — returns to IDLE (TODO: STANDBY once spin logic validated)
  *
  * Pattern used by: FRC 254, 1678, 6328, and other top teams
  *
