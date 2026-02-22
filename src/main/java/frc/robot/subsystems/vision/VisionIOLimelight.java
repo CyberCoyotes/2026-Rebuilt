@@ -17,6 +17,7 @@ import edu.wpi.first.math.geometry.Pose2d;
  * angle to hub) is now done in VisionSubsystem using the robot's pose and the
  * known hub field position from Constants.Vision.HUB_CENTER_BLUE.
  */
+
 public interface VisionIO {
 
     /**

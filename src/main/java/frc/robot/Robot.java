@@ -153,9 +153,6 @@ public class Robot extends LoggedRobot {
     public void testExit() {}
 
     @Override
-    public void simulationPeriodic() {}
-
-    @Override
 public void simulationPeriodic() {
     robotContainer.updateSimVision();
 }
