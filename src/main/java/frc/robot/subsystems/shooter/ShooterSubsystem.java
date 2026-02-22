@@ -45,7 +45,7 @@ public class ShooterSubsystem extends SubsystemBase {
     /** TODO tune RPMs for flywheel without excessive current draw
      * Add an end of line comment `Tuned` when each is verified */
     private static final double STANDBY_RPM = 2240; //
-    private static final double CLOSE_RPM   = 2750; //
+    public static final double CLOSE_RPM   = 2750; //
     private static final double FAR_RPM     = 3000; //
     private static final double PASS_RPM    = 4000; //
 

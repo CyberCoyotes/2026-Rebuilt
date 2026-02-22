@@ -118,7 +118,7 @@ public class RobotContainer {
         // ----- Full Sequences -----        
         driver.rightTrigger(0.5).whileTrue(
             ShooterCommands.shootSequence(shooter, indexer,
-                ShooterSubsystem.CLOSE_SHOT_RPM, ShooterSubsystem.CLOSE_SHOT_HOOD)
+                ShooterSubsystem.CLOSE_RPM, ShooterSubsystem.CLOSE_HOOD)
         );
 
         driver.leftTrigger().whileTrue(Commands.runOnce(intake::extendSlides, intake));
