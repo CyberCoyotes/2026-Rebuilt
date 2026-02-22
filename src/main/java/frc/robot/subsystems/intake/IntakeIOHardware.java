@@ -97,7 +97,7 @@ public class IntakeIOHardware implements IntakeIO {
 
     // DynamicMotionMagic for slower slide movement 
     // TODO: Tune these for a slower retract profile
-    private final DynamicMotionMagicVoltage slideRequestSlow = new DynamicMotionMagicVoltage(0, 16, 16);
+    private final DynamicMotionMagicVoltage slideRequestSlow = new DynamicMotionMagicVoltage(0, 32, 32);
                                                               // (position=0, velocity=16, accel=16, jerk=0)
 
     // ==== Status Signals — 50Hz (control-critical) ====

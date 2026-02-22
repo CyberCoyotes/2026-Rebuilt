@@ -121,7 +121,9 @@ public class RobotContainer {
                 ShooterSubsystem.CLOSE_SHOT_RPM, ShooterSubsystem.CLOSE_SHOT_HOOD)
         );
 
-        driver.leftTrigger().whileTrue(intake.intakeFuel());
+        driver.leftTrigger().whileTrue(Commands.runOnce(intake::extendSlides, intake));
+
+        // driver.leftTrigger().whileTrue(intake.intakeFuel());
 
         // Left Bumper: Retract intake slides while held.
         driver.leftBumper().onTrue(Commands.run(intake::retractSlides, intake));

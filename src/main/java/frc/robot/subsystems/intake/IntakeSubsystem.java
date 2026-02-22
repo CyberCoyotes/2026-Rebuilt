@@ -84,6 +84,7 @@ public class IntakeSubsystem extends SubsystemBase {
     // Slide — MotionMagic position control (motor holds position after command)
     public void extendSlides(){
         io.setSlidePosition(SLIDE_EXTENDED_POSITION);
+        // intakeState
     }
     
     public void retractSlides(){
