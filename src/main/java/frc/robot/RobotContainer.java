@@ -23,7 +23,6 @@ import frc.robot.generated.TunerConstants;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.generated.TunerConstants;
 import frc.robot.commands.AlignToHubCommand;
-import frc.robot.commands.FarShotCommand;
 import frc.robot.commands.ShooterCommands;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
 import frc.robot.subsystems.indexer.IndexerSubsystem;
