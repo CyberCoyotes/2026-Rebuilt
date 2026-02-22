@@ -84,7 +84,7 @@ public class ShooterSubsystem extends SubsystemBase {
     private static final double MAX_FLYWHEEL_MOTOR_RPM = 6380.0;
 
     /** Idle flywheel velocity (RPM) — always spinning during match for quick response */
-    public static final double IDLE_RPM = 2000.0;
+    public static final double IDLE_RPM = 000.0; // FIXME:
 
     /** Minimum hood pose (rotations) */
     public static final double MIN_HOOD_POSE_ROT = 0.0;
