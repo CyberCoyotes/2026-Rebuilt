@@ -83,7 +83,10 @@ public class RobotContainer {
         autoFactory = drivetrain.createAutoFactory();
         autoRoutines = new AutoRoutines(autoFactory, drivetrain, intake, shooter, indexer, vision);
 
-        autoChooser.addRoutine("SingleCenterShoot", autoRoutines::singleCenterShootAuto);
+        // ===== Auto Routines =====
+        autoChooser.addRoutine("BR: Center Only",        autoRoutines::blueRight_CenterRun);
+        autoChooser.addRoutine("BR: Center + Switch",    autoRoutines::blueRight_CenterThenSwitch);
+        autoChooser.addRoutine("BR: Center + Climb",     autoRoutines::blueRight_CenterThenClimb);
         SmartDashboard.putData("Auto Chooser", autoChooser);
 
         configureBindings();

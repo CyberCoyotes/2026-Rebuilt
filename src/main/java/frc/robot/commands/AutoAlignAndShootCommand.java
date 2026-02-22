@@ -37,10 +37,10 @@ public class AutoAlignAndShootCommand extends Command {
     private static final double kP = 0.05;      // TODO: Tune
     private static final double kI = 0.0;
     private static final double kD = 0.001;
-    private static final double MIN_ROTATION_OUTPUT = 1.75;   // TODO: Tune
+    private static final double MIN_ROTATION_OUTPUT = 0.5;   // TODO: Tune
     private static final double MAX_ROTATION_RATE = 4.0;      // TODO: Tune
-    private static final double ALIGN_TOLERANCE_DEGREES = 1.0;
-    private static final double MAX_ALIGN_WAIT_SECONDS = 3.0; // TODO: Tune
+    private static final double ALIGN_TOLERANCE_DEGREES = 3.0;
+    private static final double MAX_ALIGN_WAIT_SECONDS = 1.0; // TODO: Tune
 
     private final CommandSwerveDrivetrain drivetrain;
     private final ShooterSubsystem shooter;
