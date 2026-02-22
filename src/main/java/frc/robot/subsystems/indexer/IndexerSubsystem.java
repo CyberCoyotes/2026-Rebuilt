@@ -6,6 +6,7 @@ import edu.wpi.first.networktables.BooleanPublisher;
 import edu.wpi.first.networktables.IntegerPublisher;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
+import edu.wpi.first.networktables.StringPublisher;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -27,6 +28,36 @@ public class IndexerSubsystem extends SubsystemBase {
         EJECTING
     }
 
+    // ==== Hopper Fill Level ===================================================
+    /**
+     * HopperFillLevel — Describes how full the hopper is at a given sensor
+     * position.
+     *
+     * Each level maps to a percentage of the usable hopper depth measured by a
+     * CANrange sensor. Smaller distance = more full (pieces are closer to sensor).
+     *
+     * How the math works:
+     * fillRatio = 1.0 - ((distance - MIN) / (MAX - MIN))
+     *
+     * Example with MIN=0.02m and MAX=0.40m, piece 10cm away:
+     * fillRatio = 1.0 - ((0.10 - 0.02) / (0.40 - 0.02)) = 1.0 - 0.21 = 0.79 →
+     * THREE_QUARTERS_FULL
+     *
+     * Threshold table (tune MIN/MAX constants experimentally):
+     * fillRatio >= 0.90 → FULL (≤ 10% depth remaining)
+     * fillRatio >= 0.75 → THREE_QUARTERS_FULL
+     * fillRatio >= 0.50 → HALF_FULL
+     * fillRatio >= 0.25 → QUARTER_FULL
+     * fillRatio < 0.25 → EMPTY (≥ 75% depth remaining)
+     */
+    public enum HopperFillLevel {
+        EMPTY,
+        QUARTER_FULL,
+        HALF_FULL,
+        THREE_QUARTERS_FULL,
+        FULL
+    }
+
     // ==== IO Layer ============================================================
     private final IndexerIO io;
 
@@ -42,25 +73,38 @@ public class IndexerSubsystem extends SubsystemBase {
     // ==== Voltage Constants ===================================================
     // Kept here (alongside the commands that use them) so students can find
     // and tune these without hunting through a separate Constants file.
-    //
-    // Historical note: a previous IndexerCommands class used FEED_VOLTS=9.6 and
-    // CONVEYOR_VOLTS=7.2. Reconcile those values against these on the actual robot.
     public static final double CONVEYOR_FORWARD_VOLTAGE = 4.0; // TODO: Tune
     public static final double CONVEYOR_REVERSE_VOLTAGE = -4.0;
     public static final double INDEXER_FORWARD_VOLTAGE = 4.0; // TODO: Tune
     public static final double INDEXER_REVERSE_VOLTAGE = -4.0;
 
+    // ==== Hopper Fill Level Distance Constants ================================
+    // MIN = distance (meters) when hopper is packed full (piece right at sensor).
+    // MAX = distance (meters) when hopper is completely empty (far wall or
+    // nothing).
+    //
+    // HOW TO TUNE THESE:
+    // 1. Watch hopperA/BDistanceMeters live in AdvantageScope or Phoenix Tuner X.
+    // 2. Fill the hopper completely → record the distance. That's MIN.
+    // 3. Empty the hopper completely → record the distance. That's MAX.
+    // 4. Update the constants below and rebuild.
+    //
+    // Sensors A and B may differ slightly if they're mounted at different depths.
+    public static final double HOPPER_A_MIN_DISTANCE = 0.02; // TODO: Tune experimentally
+    public static final double HOPPER_A_MAX_DISTANCE = 0.40; // TODO: Tune experimentally
+    public static final double HOPPER_B_MIN_DISTANCE = 0.02; // TODO: Tune experimentally
+    public static final double HOPPER_B_MAX_DISTANCE = 0.40; // TODO: Tune experimentally
 
     // ==== Elastic Dashboard Publishers ========================================
-    // Only live-match booleans belong here — everything else is covered by AK or
-    // Hoot.
-    // Velocity, current, and distance signals are logged by processInputs() and
-    // Hoot;
-    // publishing them to NT again would be redundant.
+    // Only live-match driver awareness data belongs here. Velocity, current, and
+    // raw distance signals are already logged by processInputs() and Hoot;
+    // publishing them to NT would be redundant.
     private final NetworkTable indexerTable;
     private final BooleanPublisher hopperAPublisher;
     private final BooleanPublisher hopperBPublisher;
     private final IntegerPublisher hopperCountPublisher;
+    private final StringPublisher hopperAFillLevelPublisher; // For future Elastic widget
+    private final StringPublisher hopperBFillLevelPublisher; // For future Elastic widget
 
     // ==== Constructor =========================================================
     public IndexerSubsystem(IndexerIO io) {
@@ -69,13 +113,11 @@ public class IndexerSubsystem extends SubsystemBase {
         NetworkTableInstance inst = NetworkTableInstance.getDefault();
         indexerTable = inst.getTable("Indexer");
 
-        hopperAPublisher = indexerTable.getBooleanTopic("HopperA").publish();
-        hopperBPublisher = indexerTable.getBooleanTopic("HopperB").publish();
+        hopperAPublisher = indexerTable.getBooleanTopic("HopperA/Detected").publish();
+        hopperBPublisher = indexerTable.getBooleanTopic("HopperB/Detected").publish();
         hopperCountPublisher = indexerTable.getIntegerTopic("HopperCount").publish();
-        // hopperJammedPublisher =
-        // indexerTable.getBooleanTopic("HopperJammed").publish();
-        // indexerJammedPublisher =
-        // indexerTable.getBooleanTopic("IndexerJammed").publish();
+        hopperAFillLevelPublisher = indexerTable.getStringTopic("HopperA/FillLevel").publish();
+        hopperBFillLevelPublisher = indexerTable.getStringTopic("HopperB/FillLevel").publish();
     }
 
     // ==== Periodic ============================================================
@@ -84,32 +126,31 @@ public class IndexerSubsystem extends SubsystemBase {
         io.updateInputs(inputs);
 
         // processInputs() logs the raw IO layer — motor signals and sensor readings.
-        // These show up in AdvantageScope under "Indexer/".
+        // These appear in AdvantageScope under "Indexer/".
         Logger.processInputs("Indexer", inputs);
 
         // recordOutput() logs computed/derived values — the decisions the subsystem
-        // is making on top of the raw data. Hoot can't see these; AK can.
+        // makes on top of raw data. Hoot can't see these; AK can.
         Logger.recordOutput("Indexer/State", currentState.name());
         Logger.recordOutput("Indexer/IsHopperFull", isHopperFull());
         Logger.recordOutput("Indexer/HopperCount", getHopperGamePieceCount());
+        Logger.recordOutput("Indexer/HopperA/FillLevel", getHopperAFillLevel().name());
+        Logger.recordOutput("Indexer/HopperB/FillLevel", getHopperBFillLevel().name());
 
         publishTelemetry();
     }
 
-    // Elastic gets the sensor booleans and piece count for driver awareness.
-    // State is already in AK; no need to publish it to NT as well.
+    // Elastic gets the booleans, piece count, and fill levels for driver awareness.
+    // State and raw distances are in AK already; no need to duplicate them in NT.
     private void publishTelemetry() {
         hopperAPublisher.set(inputs.hopperADetected);
         hopperBPublisher.set(inputs.hopperBDetected);
         hopperCountPublisher.set(getHopperGamePieceCount());
-        // hopperJammedPublisher.set(isHopperJammed());
-        // indexerJammedPublisher.set(isIndexerJammed());
+        hopperAFillLevelPublisher.set(getHopperAFillLevel().name());
+        hopperBFillLevelPublisher.set(getHopperBFillLevel().name());
     }
 
     // ==== State ===============================================================
-    // Private — state only changes through command factories in this class.
-    // This prevents outside code from putting the subsystem into an inconsistent
-    // state.
     private void setState(IndexerState state) {
         this.currentState = state;
     }
@@ -119,8 +160,6 @@ public class IndexerSubsystem extends SubsystemBase {
     }
 
     // ==== Motor Control =======================================================
-    // Package-private — used only by command factories in this file.
-    // setConveyorVolts / setIndexerVolts are public for superstructure overrides.
     void conveyorForward() {
         io.setConveyorMotor(CONVEYOR_FORWARD_VOLTAGE);
     }
@@ -189,27 +228,83 @@ public class IndexerSubsystem extends SubsystemBase {
         return count;
     }
 
-    // ==== Jam Detection =======================================================
-    // Uncomment these methods and the corresponding constants and publishers
-    // above once you have real current/velocity data to tune the thresholds with.
-    //
-    // public boolean isHopperJammed() {
-    // boolean highCurrent = inputs.conveyorCurrentAmps >=
-    // CONVEYOR_JAM_CURRENT_THRESHOLD;
-    // boolean lowVelocity = Math.abs(inputs.conveyorVelocityRPS) <=
-    // CONVEYOR_JAM_VELOCITY_THRESHOLD;
-    // return highCurrent && lowVelocity;
-    // }
-    //
-    // public boolean isIndexerJammed() {
-    // boolean highCurrent = inputs.indexerCurrentAmps >=
-    // INDEXER_JAM_CURRENT_THRESHOLD;
-    // boolean lowVelocity = Math.abs(inputs.indexerVelocityRPS) <=
-    // INDEXER_JAM_VELOCITY_THRESHOLD;
-    // return highCurrent && lowVelocity;
-    // }
+    // ==== Hopper Fill Level ===================================================
 
-    // ==== Command Factories ====
+    /**
+     * Returns how full hopper position A is based on raw CANrange distance.
+     *
+     * Delegates to the shared helper so the math lives in one place.
+     * Tune HOPPER_A_MIN/MAX_DISTANCE constants to match your physical hopper.
+     */
+    public HopperFillLevel getHopperAFillLevel() {
+        return calculateFillLevel(
+                inputs.hopperADistanceMeters,
+                HOPPER_A_MIN_DISTANCE,
+                HOPPER_A_MAX_DISTANCE);
+    }
+
+    /**
+     * Returns how full hopper position B is based on raw CANrange distance.
+     *
+     * Delegates to the shared helper so the math lives in one place.
+     * Tune HOPPER_B_MIN/MAX_DISTANCE constants to match your physical hopper.
+     */
+    public HopperFillLevel getHopperBFillLevel() {
+        return calculateFillLevel(
+                inputs.hopperBDistanceMeters,
+                HOPPER_B_MIN_DISTANCE,
+                HOPPER_B_MAX_DISTANCE);
+    }
+
+    /**
+     * Converts a raw CANrange distance into a HopperFillLevel bucket.
+     *
+     * This is a private static helper — it only does math on the numbers
+     * you hand it, with no access to subsystem state. That keeps the logic
+     * easy to understand, test, and reuse for both sensors.
+     *
+     * Fill ratio formula:
+     * fillRatio = 1.0 - clamp((distance - min) / (max - min), 0.0, 1.0)
+     *
+     * A fillRatio of 1.0 means pieces are right at the sensor (packed full).
+     * A fillRatio of 0.0 means the sensor sees the far wall (completely empty).
+     *
+     * @param distanceMeters Raw CANrange reading (meters)
+     * @param minDistance    Distance when hopper is completely full (meters)
+     * @param maxDistance    Distance when hopper is completely empty (meters)
+     * @return The appropriate HopperFillLevel bucket
+     */
+    private static HopperFillLevel calculateFillLevel(
+            double distanceMeters,
+            double minDistance,
+            double maxDistance) {
+
+        // Guard: if min and max are the same the constants aren't tuned yet.
+        // Return EMPTY so the robot fails safe rather than doing weird math.
+        if (maxDistance <= minDistance) {
+            return HopperFillLevel.EMPTY;
+        }
+
+        // Normalize distance to a 0.0–1.0 fill ratio.
+        // clamp() ensures values outside the calibrated range stay within bounds.
+        double raw = (distanceMeters - minDistance) / (maxDistance - minDistance);
+        double clamped = Math.max(0.0, Math.min(1.0, raw));
+        double fillRatio = 1.0 - clamped; // Invert: closer = more full
+
+        // Map fill ratio to enum bucket.
+        // Read top-to-bottom: most full wins.
+        if (fillRatio >= 0.90)
+            return HopperFillLevel.FULL;
+        if (fillRatio >= 0.75)
+            return HopperFillLevel.THREE_QUARTERS_FULL;
+        if (fillRatio >= 0.50)
+            return HopperFillLevel.HALF_FULL;
+        if (fillRatio >= 0.25)
+            return HopperFillLevel.QUARTER_FULL;
+        return HopperFillLevel.EMPTY;
+    }
+
+    // ==== Command Factories ===================================================
     // Single-subsystem commands live here because they are tightly coupled to
     // this subsystem's motors and state. Commands that coordinate multiple
     // subsystems belong in RobotContainer or a superstructure class.
@@ -229,7 +324,7 @@ public class IndexerSubsystem extends SubsystemBase {
                     stop();
                     setState(IndexerState.IDLE);
                 },
-                this).withName("Feed");
+                this).withName("Feed Fuel");
     }
 
     /**
@@ -249,7 +344,7 @@ public class IndexerSubsystem extends SubsystemBase {
                 Commands.runOnce(() -> {
                     stop();
                     setState(IndexerState.IDLE);
-                }, this)).withName("FeedTimed(" + durationSeconds + "s)");
+                }, this)).withName("Feed Fuel Timed(" + durationSeconds + "s)");
     }
 
     /**
