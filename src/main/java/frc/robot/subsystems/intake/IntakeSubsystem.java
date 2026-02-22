@@ -47,6 +47,8 @@ public class IntakeSubsystem extends SubsystemBase {
     public void periodic() {
         io.updateInputs(inputs);
         SmartDashboard.putNumber("Intake/SlidePosition", io.getSlidePosition());
+        SmartDashboard.putBoolean("Intake/RollerRunning", io.getRollerVolts() != 0);
+      
         // Logger.processInputs("Intake", inputs); // FIXME
     }
 
