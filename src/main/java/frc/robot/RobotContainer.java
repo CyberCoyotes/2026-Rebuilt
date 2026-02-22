@@ -74,8 +74,9 @@ public class RobotContainer {
     // Null when running on real hardware.
     private final VisionIOSim visionIOSim;
 
-    private final AutoFactory autoFactory;
-    private final AutoChooser autoChooser = new AutoChooser();
+    private final AutoFactory  autoFactory;
+    private final AutoRoutines autoRoutines;
+    private final AutoChooser  autoChooser = new AutoChooser();
 
     public RobotContainer() {
         intake  = new IntakeSubsystem(new IntakeIOHardware());
@@ -83,7 +84,6 @@ public class RobotContainer {
         shooter = new ShooterSubsystem(new ShooterIOHardware());
 
         // Automatically swap between sim and real Limelight.
-        // visionIOSim is only non-null in simulation so Robot.java can update it.
         if (RobotBase.isSimulation()) {
             visionIOSim = new VisionIOSim();
         } else {
@@ -104,7 +104,9 @@ public class RobotContainer {
         ledSubsystem = new LedSubsystem();
         // climber = new ClimberSubsystem();
 
-        autoFactory = drivetrain.createAutoFactory();
+        autoFactory  = drivetrain.createAutoFactory();
+        autoRoutines = new AutoRoutines(autoFactory, drivetrain, intake, shooter, indexer, vision);
+
         SmartDashboard.putData("Auto Chooser", autoChooser);
 
         configureBindings();
@@ -153,7 +155,7 @@ public class RobotContainer {
 
         // POV Left: Align to hub, interpolate hood/RPM by distance, and shoot.
         driver.povLeft().whileTrue(
-            new AlignToHubCommand(drivetrain, shooter, indexer, 1.5)
+            new AlignToHubCommand(drivetrain, shooter, indexer, vision, 1.5)
         );
 
         // =====================================================================
@@ -166,8 +168,7 @@ public class RobotContainer {
         // B: Arm pass shot
         driver.b().onTrue(ShooterCommands.armPassShot(shooter));
 
-        // X: Arm hub shot — sets isHubShotArmed, spins up to hub defaults,
-        //    unlocks the RT → AlignToHubCommand toggle below.
+        // X: Arm hub shot
         driver.x().onTrue(new InstantCommand(shooter::setHubShotPreset, shooter));
 
         // =====================================================================
@@ -178,7 +179,7 @@ public class RobotContainer {
 
         // RT (hub shot armed): Toggle full align + shoot sequence.
         driver.rightTrigger(0.5).and(hubShotArmed).toggleOnTrue(
-            new AlignToHubCommand(drivetrain, shooter, indexer, 1.5)
+            new AlignToHubCommand(drivetrain, shooter, indexer, vision, 1.5)
         );
 
         // RT (standard shot): Close or pass shot at currently armed preset.
@@ -200,34 +201,22 @@ public class RobotContainer {
         // DRIVER CONTROLLER (Port 0) - Commented out (TODO: enable as needed)
         // =====================================================================
 
-        // Right Bumper: (free)
         // driver.rightBumper()...
-
-        // Y: Indexer forward while held
         // driver.y().whileTrue(Commands.startEnd(indexer::indexerForward, indexer::indexerStop));
-
-        // POV Up/Down: Incremental hood angle adjustment
         // driver.povUp().onTrue(ShooterCommands.increaseTargetHoodPose(shooter, ShooterSubsystem.HOOD_TEST_INCREMENT));
         // driver.povDown().onTrue(ShooterCommands.decreaseTargetHoodPose(shooter, ShooterSubsystem.HOOD_TEST_INCREMENT));
-
-        // Eject fuel from intake
         // driver.y().whileTrue(intake.ejectFuel());
 
         // =====================================================================
         // OPERATOR CONTROLLER (Port 1) - Commented out (TODO: enable as needed)
         // =====================================================================
 
-        // POV Up/Down: Incremental hood angle adjustment
         // operator.povUp().onTrue(ShooterCommands.increaseTargetHoodPose(shooter, ShooterSubsystem.HOOD_TEST_INCREMENT));
         // operator.povDown().onTrue(ShooterCommands.decreaseTargetHoodPose(shooter, ShooterSubsystem.HOOD_TEST_INCREMENT));
-
-        // Indexer testing
         // operator.a().whileTrue(Commands.startEnd(indexer::conveyorForward, indexer::conveyorStop));
         // operator.b().whileTrue(Commands.startEnd(indexer::conveyorReverse, indexer::conveyorStop));
         // operator.x().whileTrue(Commands.startEnd(indexer::indexerForward, indexer::indexerStop));
         // operator.y().whileTrue(Commands.startEnd(indexer::indexerReverse, indexer::indexerStop));
-
-        // Stop climber
         // operator.start().onTrue(climber.stopClimber());
     }
 

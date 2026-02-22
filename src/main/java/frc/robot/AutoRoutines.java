@@ -13,13 +13,10 @@ import frc.robot.subsystems.CommandSwerveDrivetrain;
 import frc.robot.subsystems.indexer.IndexerSubsystem;
 import frc.robot.subsystems.intake.IntakeSubsystem;
 import frc.robot.subsystems.shooter.ShooterSubsystem;
+import frc.robot.subsystems.vision.VisionSubsystem;
 
 /**
  * AutoRoutines — Autonomous routine definitions.
- *
- * Vision dependency removed. Hub alignment in auto now uses AlignToHubCommand
- * directly, which reads from the Limelight and uses pose-based distance from
- * VisionSubsystem internally. No VisionSubsystem reference needed here.
  */
 public class AutoRoutines {
 
@@ -44,18 +41,21 @@ public class AutoRoutines {
     private final IntakeSubsystem         m_intake;
     private final ShooterSubsystem        m_shooter;
     private final IndexerSubsystem        m_indexer;
+    private final VisionSubsystem         m_vision;
 
     public AutoRoutines(
             AutoFactory factory,
             CommandSwerveDrivetrain drivetrain,
             IntakeSubsystem intake,
             ShooterSubsystem shooter,
-            IndexerSubsystem indexer) {
+            IndexerSubsystem indexer,
+            VisionSubsystem vision) {
         m_factory    = factory;
         m_drivetrain = drivetrain;
         m_intake     = intake;
         m_shooter    = shooter;
         m_indexer    = indexer;
+        m_vision     = vision;
     }
 
     // =========================================================================
@@ -92,10 +92,6 @@ public class AutoRoutines {
     // SINGLE-AUTO ENTRY POINT (used by AutoChooser in RobotContainer)
     // =========================================================================
 
-    /**
-     * Simple center shoot auto — used by the AutoChooser.
-     * Drives the center run path, intakes fuel, then aligns and shoots.
-     */
     public void singleCenterShootAuto(AutoRoutine routine) {
         AutoTrajectory path = routine.trajectory("BR_CenterRun");
 
@@ -107,7 +103,7 @@ public class AutoRoutines {
                     )
                 )
                 .andThen(
-                    new AlignToHubCommand(m_drivetrain, m_shooter, m_indexer, 1.5)
+                    new AlignToHubCommand(m_drivetrain, m_shooter, m_indexer, m_vision, 1.5)
                 )
         );
 
@@ -131,7 +127,7 @@ public class AutoRoutines {
                     )
                 )
                 .andThen(
-                    new AlignToHubCommand(m_drivetrain, m_shooter, m_indexer, 1.5)
+                    new AlignToHubCommand(m_drivetrain, m_shooter, m_indexer, m_vision, 1.5)
                 )
         );
 
@@ -169,8 +165,6 @@ public class AutoRoutines {
         routine.active().onTrue(path.cmd());
 
         path.atTime("RetractIntake").onTrue(m_intake.stopFuel());
-        // path.atTime("PauseExtendClimber").onTrue(climber.pauseExtend());
-        // path.atTime("RetractClimber").onTrue(climber.retract());
 
         return routine.cmd();
     }
