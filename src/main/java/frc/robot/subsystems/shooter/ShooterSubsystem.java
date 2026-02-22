@@ -23,17 +23,15 @@ import frc.robot.subsystems.shooter.ShooterIO.ShooterIOInputs;
  * - EJECT: Flywheel reverse at EJECT_RPM for clearing jams — velocity-gated
  *
  * SHOT FLOW:
- * 2. Driver presses a preset button (A/X/B) — silently updates target RPM and
- * hood angle
- * 3. Driver holds shoot trigger — transitions to READY, hood moves, waits until
- * up to speed, feeds
- * 4. Driver releases trigger — returns to STANDBY at STANDBY_RPM
+ * 1. Shooter enabled — spinup() called, flywheel spins to STANDBY_RPM
+ * 2. Driver presses a preset button (A/X/B) — silently sets target RPM and hood position
+ * 3. Driver holds shoot trigger — transitions to READY, hood moves, waits until up to speed, feeds
+ * 4. Driver releases trigger — returns to IDLE (TODO: change to STANDBY once spin logic validated)
  *
- * FAR SHOT FLOW (X + RT):
- * - X silently arms far shot and sets isFarShotArmed = true
+ * FAR SHOT FLOW (X + RT): [NOT YET ACTIVE — isFarShotArmed disabled]
+ * - X silently arms far shot
  * - RT routes to FarShotCommand instead of shootAtCurrentTarget
- * - FarShotCommand continuously updates hood via updateHoodForDistance()
- * - On release, isFarShotArmed is cleared and shooter returns to SPINUP
+ * - FarShotCommand continuously updates hood position via updateHoodForDistance()
  *
  * @see Constants.Shooter for hardware configuration
  * @author @Isaak3
@@ -420,17 +418,24 @@ public class ShooterSubsystem extends SubsystemBase {
         setTargetHoodPose(pose);
     }
 
-    // ==== BACKWARD COMPATIBILITY ====
+    // ==== LEGACY / CONVENIENCE SHIMS ====
+    // These combine steps that are intentionally separate in the normal shot flow.
+    // Prefer setCloseShotPreset() / setFarShotPreset() + prepareToShoot() at the call site.
 
+    /** Used by spinUpCommand(). Transitions to STANDBY. */
     public void spinup() {
         setState(ShooterState.STANDBY);
     }
 
+    /** @deprecated Bypasses the silent-preset + shoot-trigger split. Use setCloseShotPreset() instead. */
+    @Deprecated
     public void closeShot() {
         setCloseShotPreset();
         prepareToShoot();
     }
 
+    /** @deprecated Bypasses the silent-preset + shoot-trigger split. Use setFarShotPreset() instead. */
+    @Deprecated
     public void farShot() {
         setFarShotPreset();
         prepareToShoot();
