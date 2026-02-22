@@ -209,7 +209,7 @@ public class FarShotCommand extends Command {
     public void end(boolean interrupted) {
         // indexer.indexerStop();
         // indexer.conveyorStop();
-        shooter.returnToIdle();
+        shooter.returnToStandby();
         rotationPID.reset();
     }
 

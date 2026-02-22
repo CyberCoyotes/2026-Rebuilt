@@ -54,7 +54,7 @@ public class ShooterCommands {
         ).finallyDo(() -> {
             // indexer.indexerStop();
             // indexer.conveyorStop();
-            shooter.returnToIdle();
+            shooter.returnToStandby();
         }).withName("ShootAtCurrentTarget");
     }
 
@@ -170,7 +170,7 @@ public class ShooterCommands {
         return Commands.sequence(
             Commands.runOnce(shooter::eject, shooter),
             Commands.waitSeconds(durationSeconds),
-            Commands.runOnce(shooter::returnToIdle, shooter)
+            Commands.runOnce(shooter::returnToStandby, shooter)
         ).withName("EjectShooter");
     }
 
@@ -229,7 +229,7 @@ public class ShooterCommands {
             }, shooter),
             Commands.waitUntil(shooter::isReady).withTimeout(3.0),
             // IndexerCommands.feedTimed(indexer, 0.5), // FIXME to use the IndexerSubsystem's feed method instead of a command from IndexerCommands
-            Commands.runOnce(shooter::returnToIdle, shooter)
+            Commands.runOnce(shooter::returnToStandby, shooter)
         ).withName("ShootSequence");
     }
 
@@ -247,7 +247,7 @@ public class ShooterCommands {
             Commands.waitUntil(vision::hasTarget).withTimeout(1.0),
             visionShot(shooter, vision),
             // IndexerCommands.feedTimed(indexer, 0.5), // FIXME to use the IndexerSubsystem's feed method instead of a command from IndexerCommands
-            Commands.runOnce(shooter::returnToIdle, shooter)
+            Commands.runOnce(shooter::returnToStandby, shooter)
         ).withName("VisionShootSequence");
     }
 
@@ -264,14 +264,14 @@ public class ShooterCommands {
     }
 
     /**
-     * Creates a command to return shooter to SPINUP at IDLE_RPM.
+     * Creates a command to return shooter to SPINUP at STANDBY_RPM.
      *
      * @param shooter The shooter subsystem
-     * @return Command that returns shooter to idle spinning state
+     * @return Command that returns shooter to standby spinning state
      */
-    public static Command returnToIdle(ShooterSubsystem shooter) {
-        return Commands.runOnce(shooter::returnToIdle, shooter)
-            .withName("ReturnToIdle");
+    public static Command returnToStandby(ShooterSubsystem shooter) {
+        return Commands.runOnce(shooter::returnToStandby, shooter)
+            .withName("ReturnToStandby");
     }
 
     /**
