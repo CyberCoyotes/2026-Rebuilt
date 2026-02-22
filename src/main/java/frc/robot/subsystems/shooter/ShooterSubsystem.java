@@ -17,18 +17,17 @@ import frc.robot.subsystems.shooter.ShooterIO.ShooterIOInputs;
  *
  * STATE MACHINE:
  * - IDLE: All motors off, hood at home position (not used during match)
- * - SPINUP: Flywheel spinning at IDLE_RPM — always active during match
+ * - STANDBY: Flywheel spinning at STANDBY_RPM — always active during match
  * - READY: Flywheel and hood at preset targets, ready to shoot
  * - PASS: Passing shot at reduced velocity, hood at max
  * - EJECT: Flywheel reverse for clearing jams
  *
  * SHOT FLOW:
- * 1. On boot, shooter enters SPINUP at IDLE_RPM (2000 RPM) automatically
  * 2. Driver presses a preset button (A/X/B) — silently updates target RPM and
  * hood angle
  * 3. Driver holds shoot trigger — transitions to READY, hood moves, waits until
  * up to speed, feeds
- * 4. Driver releases trigger — returns to SPINUP at IDLE_RPM
+    * 4. Driver releases trigger — returns to STANDBY at STANDBY_RPM
  *
  * FAR SHOT FLOW (X + RT):
  * - X silently arms far shot and sets isFarShotArmed = true
@@ -44,7 +43,7 @@ public class ShooterSubsystem extends SubsystemBase {
     // ==== State Machine ====
     public enum ShooterState {
         IDLE, // Motors off — only used on explicit stop, not during normal match play
-        SPINUP, // Flywheel spinning at IDLE_RPM, ready to ramp to target on demand
+        STANDBY, // Flywheel spinning at prepare RPM; preparing ready to ramp to target on demand
         READY, // Flywheel and hood at preset targets, ready to shoot
         PASS, // Passing shot: 50% max velocity, hood at MAX_POSE
         EJECT // Clearing jams: -50% max velocity, hood at MIN_POSE
@@ -88,11 +87,10 @@ public class ShooterSubsystem extends SubsystemBase {
     /** Maximum flywheel velocity (RPM) */
     private static final double MAX_FLYWHEEL_MOTOR_RPM = 6380.0;
 
-    /**
-     * Idle flywheel velocity (RPM) — always spinning during match for quick
-     * response
-     */
-    public static final double IDLE_RPM = 000.0; // FIXME:
+    public static final double IDLE_RPM =   0;
+    public static final double STANDBY_RPM = 2000.0; // TODO: Tune
+    public static final double CLOSE_SHOT_RPM = 2750.0; // TODO: Tune
+    public static final double MAX_RPM = 6380.0; // Absolute max for safety — not a preset
 
     /** Minimum hood pose (rotations) */
     public static final double MIN_HOOD_POSE_ROT = 0.0;
@@ -120,7 +118,6 @@ public class ShooterSubsystem extends SubsystemBase {
     // ===== Shooting Presets =====
 
     /** Close shot */
-    public static final double CLOSE_SHOT_RPM = 2750.0; // TODO: Tune
     public static final double CLOSE_SHOT_HOOD = 0.0; // TODO: Tune
 
     /** Far shot — used as interpolation endpoint in FarShotCommand */
@@ -188,7 +185,7 @@ public class ShooterSubsystem extends SubsystemBase {
         switch (currentState) {
             case IDLE:
                 break;
-            case SPINUP:
+            case STANDBY:
                 break;
             case READY:
                 break;
@@ -212,8 +209,8 @@ public class ShooterSubsystem extends SubsystemBase {
                 io.setHoodPose(MIN_HOOD_POSE_ROT);
                 break;
 
-            case SPINUP:
-                io.setFlywheelVelocity(IDLE_RPM);
+            case STANDBY:
+                io.setFlywheelVelocity(STANDBY_RPM);
                 io.setHoodPose(MIN_HOOD_POSE_ROT);
                 break;
 
@@ -240,19 +237,19 @@ public class ShooterSubsystem extends SubsystemBase {
     // PUBLIC COMMAND METHODS
     // =========================================================================
 
-    /** Full stop. Not used during normal match play — returns to SPINUP instead. */
+    /** Full stop. Not used during normal match play — returns to STANDBYUP instead. */
     public void setIdle() {
         setState(ShooterState.IDLE);
     }
 
     /**
-     * Returns shooter to SPINUP at IDLE_RPM.
+     * Returns shooter to STANDBYUP at STANDBY_RPM.
      * Call this after a shot is complete to keep the flywheel warm.
      * Also clears the far shot armed flag.
      */
-    public void returnToIdle() {
+    public void returnToStandby() {
         isFarShotArmed = false;
-        setState(ShooterState.SPINUP);
+        setState(ShooterState.STANDBY);
     }
 
     /**
@@ -463,14 +460,14 @@ public class ShooterSubsystem extends SubsystemBase {
                     setTargetVelocity(targetRPM);
                     prepareToShoot();
                 },
-                this::returnToIdle,
+                this::returnToStandby,
                 this).withName("FlywheelRampTest");
     }
 
     // ==== BACKWARD COMPATIBILITY ====
 
     public void spinup() {
-        setState(ShooterState.SPINUP);
+        setState(ShooterState.STANDBY);
     }
 
     public void closeShot() {
