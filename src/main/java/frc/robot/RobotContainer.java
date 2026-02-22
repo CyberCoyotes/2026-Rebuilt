@@ -9,9 +9,10 @@ import static edu.wpi.first.units.Units.*;
 import com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType;
 import com.ctre.phoenix6.swerve.SwerveRequest;
 
+import choreo.auto.AutoChooser;
 import choreo.auto.AutoFactory;
 
-import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
+import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
@@ -33,7 +34,9 @@ import frc.robot.subsystems.intake.IntakeIOHardware;
 import frc.robot.subsystems.shooter.ShooterIOHardware;
 import frc.robot.subsystems.shooter.ShooterSubsystem;
 import frc.robot.subsystems.led.LedSubsystem;
+import frc.robot.subsystems.vision.VisionIO;
 import frc.robot.subsystems.vision.VisionIOLimelight;
+import frc.robot.subsystems.vision.VisionIOSim;
 import frc.robot.subsystems.vision.VisionSubsystem;
 
 @SuppressWarnings("unused")
@@ -55,64 +58,86 @@ public class RobotContainer {
     private final GameDataTelemetry gameDataTelemetry = new GameDataTelemetry();
 
     // ===== Controllers =====
-    private final CommandXboxController driver = new CommandXboxController(0);
+    private final CommandXboxController driver   = new CommandXboxController(0);
     private final CommandXboxController operator = new CommandXboxController(1);
 
     // ===== Subsystems =====
     public final CommandSwerveDrivetrain drivetrain = TunerConstants.createDrivetrain();
-    private final IntakeSubsystem intake;
+    private final IntakeSubsystem  intake;
     private final IndexerSubsystem indexer;
     private final ShooterSubsystem shooter;
-    private final VisionSubsystem vision;
-    private final LedSubsystem ledSubsystem;
+    private final VisionSubsystem  vision;
+    private final LedSubsystem     ledSubsystem;
     // private final ClimberSubsystem climber;
 
-    private final AutoFactory autoFactory;
-    private final AutoRoutines autoRoutines;
+    // Kept as a field so Robot.java can call updateSimVision() every sim tick.
+    // Null when running on real hardware.
+    private final VisionIOSim visionIOSim;
 
-    // ===== Auto Phase Choosers =====
-    // Three independent dropdowns — one per phase.
-    // getAutonomousCommand() reads all three and chains them sequentially.
-    private final SendableChooser<String> phase1Chooser = new SendableChooser<>();
-    private final SendableChooser<String> phase2Chooser = new SendableChooser<>();
-    private final SendableChooser<String> phase3Chooser = new SendableChooser<>();
+    private final AutoFactory  autoFactory;
+    private final AutoRoutines autoRoutines;
+    private final AutoChooser  autoChooser = new AutoChooser();
 
     public RobotContainer() {
-        intake = new IntakeSubsystem(new IntakeIOHardware());
+        intake  = new IntakeSubsystem(new IntakeIOHardware());
         indexer = new IndexerSubsystem(new IndexerIOHardware());
         shooter = new ShooterSubsystem(new ShooterIOHardware());
-        vision = new VisionSubsystem(new VisionIOLimelight(Constants.Vision.LIMELIGHT4_NAME));
+
+        // Automatically swap between sim and real Limelight.
+        // visionIOSim is only non-null in simulation so Robot.java can update it.
+        if (RobotBase.isSimulation()) {
+            visionIOSim = new VisionIOSim();
+        } else {
+            visionIOSim = null;
+        }
+
+        VisionIO visionIO = (visionIOSim != null)
+                ? visionIOSim
+                : new VisionIOLimelight(Constants.Vision.LIMELIGHT4_NAME);
+
+        vision = new VisionSubsystem(
+            visionIO,
+            drivetrain::addVisionMeasurement,
+            () -> drivetrain.getState().Pose,
+            () -> drivetrain.getState().RawHeading.getDegrees()
+        );
 
         ledSubsystem = new LedSubsystem();
         // climber = new ClimberSubsystem();
 
-        autoFactory = drivetrain.createAutoFactory();
-        autoRoutines = new AutoRoutines(autoFactory, drivetrain, intake, shooter, indexer, vision);
+        autoFactory  = drivetrain.createAutoFactory();
+        autoRoutines = new AutoRoutines(autoFactory, drivetrain, intake, shooter, indexer);
 
-        configureAutoChoosers();
+        autoChooser.addRoutine("SingleCenterShoot", autoRoutines::singleCenterShootAuto);
+        SmartDashboard.putData("Auto Chooser", autoChooser);
+
         configureBindings();
     }
 
+    // -------------------------------------------------------------------------
+    // Sim update — call from Robot.simulationPeriodic()
+    // -------------------------------------------------------------------------
+
     /**
-     * Populates the three phase choosers and publishes them to Elastic.
-     * Add new options here as you build out more trajectory files.
+     * Feeds the current simulated drivetrain pose into VisionIOSim so it can
+     * produce realistic fake detections. Does nothing on real hardware.
+     *
+     * Add this to Robot.java:
+     *
+     *   @Override
+     *   public void simulationPeriodic() {
+     *       robotContainer.updateSimVision();
+     *   }
      */
-    private void configureAutoChoosers() {
-        // ----- Phase 1 -----
-        phase1Chooser.setDefaultOption("Center Run",  AutoRoutines.PHASE1_CENTER_RUN);
-        phase1Chooser.addOption("Chute Catch",        AutoRoutines.PHASE1_CHUTE_CATCH);
-        SmartDashboard.putData("Auto Phase 1", phase1Chooser);
-
-        // ----- Phase 2 -----
-        phase2Chooser.setDefaultOption("Switch Run",  AutoRoutines.PHASE2_SWITCH_RUN);
-        phase2Chooser.addOption("Climb",              AutoRoutines.PHASE2_CLIMB);
-        SmartDashboard.putData("Auto Phase 2", phase2Chooser);
-
-        // ----- Phase 3 -----
-        phase3Chooser.setDefaultOption("None",        AutoRoutines.PHASE3_NONE);
-        // phase3Chooser.addOption("...", AutoRoutines.PHASE3_...);
-        SmartDashboard.putData("Auto Phase 3", phase3Chooser);
+    public void updateSimVision() {
+        if (visionIOSim != null) {
+            visionIOSim.setSimRobotPose(drivetrain.getState().Pose);
+        }
     }
+
+    // -------------------------------------------------------------------------
+    // Bindings
+    // -------------------------------------------------------------------------
 
     private void configureBindings() {
         // =====================================================================
@@ -141,10 +166,7 @@ public class RobotContainer {
         // DRIVER CONTROLLER (Port 0) - Vision Alignment
         // =====================================================================
 
-        // POV Left: Align to hub AprilTags, interpolate hood/RPM by distance, and shoot.
-        // Robot rotates to face the center of the hub via weighted multi-tag averaging
-        // from limelight-four. Driver translation is locked during alignment.
-        // Release to cancel; command cleans up shooter and drivetrain automatically.
+        // POV Left: Align to hub, interpolate hood/RPM by distance, and shoot.
         driver.povLeft().whileTrue(
             new AlignToHubCommand(drivetrain, shooter, indexer, 1.5)
         );
@@ -153,33 +175,28 @@ public class RobotContainer {
         // DRIVER CONTROLLER (Port 0) - Shooter Presets
         // =====================================================================
 
-        // A: Arm close shot — clears hub shot flag, RT routes to shootAtCurrentTarget
+        // A: Arm close shot
         driver.a().onTrue(ShooterCommands.armCloseShot(shooter));
 
-        // B: Arm pass shot — clears hub shot flag, RT routes to shootAtCurrentTarget
+        // B: Arm pass shot
         driver.b().onTrue(ShooterCommands.armPassShot(shooter));
 
-        // X: Arm hub shot — sets isHubShotArmed, spins up flywheel to hub defaults,
-        //    and unlocks the RT → AlignToHubCommand toggle below.
+        // X: Arm hub shot — sets isHubShotArmed, spins up to hub defaults,
+        //    unlocks the RT → AlignToHubCommand toggle below.
         driver.x().onTrue(new InstantCommand(shooter::setHubShotPreset, shooter));
 
         // =====================================================================
         // DRIVER CONTROLLER (Port 0) - Shoot
         // =====================================================================
 
-        // Hub shot armed state — true when X was the last preset pressed.
-        // setHubShotPreset() sets this flag; armCloseShot/armPassShot/returnToIdle clear it.
         Trigger hubShotArmed = new Trigger(shooter::isHubShotArmed);
 
-        // Right Trigger (hub shot armed): Toggle the full align + shoot sequence.
-        //   First press  → starts ALIGNING, transitions to FEEDING when ready, then finishes.
-        //   Second press → cancels cleanly, shooter returns to idle.
+        // RT (hub shot armed): Toggle full align + shoot sequence.
         driver.rightTrigger(0.5).and(hubShotArmed).toggleOnTrue(
             new AlignToHubCommand(drivetrain, shooter, indexer, 1.5)
         );
 
-        // Right Trigger (standard shot): Shoot at the currently armed close or pass preset.
-        //   Only active when hub shot is NOT armed (A or B was last pressed).
+        // RT (standard shot): Close or pass shot at currently armed preset.
         driver.rightTrigger(0.5).and(hubShotArmed.negate()).whileTrue(
             ShooterCommands.shootAtCurrentTarget(shooter, indexer)
         );
@@ -204,8 +221,6 @@ public class RobotContainer {
         // Y: Indexer forward while held
         // driver.y().whileTrue(Commands.startEnd(indexer::indexerForward, indexer::indexerStop));
 
-        // POV Right/Up/Down: (free)
-
         // POV Up/Down: Incremental hood angle adjustment
         // driver.povUp().onTrue(ShooterCommands.increaseTargetHoodPose(shooter, ShooterSubsystem.HOOD_TEST_INCREMENT));
         // driver.povDown().onTrue(ShooterCommands.decreaseTargetHoodPose(shooter, ShooterSubsystem.HOOD_TEST_INCREMENT));
@@ -216,13 +231,6 @@ public class RobotContainer {
         // =====================================================================
         // OPERATOR CONTROLLER (Port 1) - Commented out (TODO: enable as needed)
         // =====================================================================
-
-        // Right Trigger: Vision-based shot
-        // operator.rightTrigger(0.5).whileTrue(ShooterCommands.visionShot(shooter, vision));
-
-        // Right Bumper: Conveyor forward
-        // operator.rightBumper().whileTrue(
-        //     Commands.startEnd(() -> indexer.conveyorForward(), () -> indexer.conveyorStop(), indexer));
 
         // POV Up/Down: Incremental hood angle adjustment
         // operator.povUp().onTrue(ShooterCommands.increaseTargetHoodPose(shooter, ShooterSubsystem.HOOD_TEST_INCREMENT));
@@ -239,11 +247,7 @@ public class RobotContainer {
     }
 
     public Command getAutonomousCommand() {
-        return autoRoutines.buildAuto(
-            phase1Chooser.getSelected(),
-            phase2Chooser.getSelected(),
-            phase3Chooser.getSelected()
-        );
+        return autoChooser.selectedCommand();
     }
 
     public void updateGameData() {

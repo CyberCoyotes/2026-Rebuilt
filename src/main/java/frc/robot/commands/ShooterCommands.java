@@ -2,24 +2,19 @@ package frc.robot.commands;
 
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
-import frc.robot.subsystems.vision.VisionSubsystem;
 import frc.robot.subsystems.indexer.IndexerSubsystem;
 import frc.robot.subsystems.shooter.ShooterSubsystem;
 
 /**
- * ShooterCommands - Factory for shooter-related commands.
- *
- * This class provides static factory methods to create common shooter commands.
- * Using a factory pattern keeps command creation centralized and reusable.
+ * ShooterCommands — Factory for shooter-related commands.
  *
  * SHOT FLOW:
- * 1. Driver presses preset (A/X/B) — silently arms target RPM and hood angle
- * 2. Driver holds shoot trigger — flywheel ramps to target, hood moves, waits until ready, feeds
- * 3. Driver releases trigger — returns to SPINUP at IDLE_RPM
+ * 1. Driver presses preset (A/B) — silently arms target RPM and hood angle.
+ * 2. Driver presses RT — flywheel ramps to target, hood moves, waits until ready, feeds.
+ * 3. Driver releases RT — returns to SPINUP at IDLE_RPM.
  *
- * Pattern used by: FRC 254, 1678, 6328, and other top teams
- *
- * @author @Isaak3
+ * For hub shots, AlignToHubCommand handles everything directly using pose-based
+ * distance from VisionSubsystem. No shooter commands are needed for that path.
  */
 public class ShooterCommands {
 
@@ -28,19 +23,14 @@ public class ShooterCommands {
     // =========================================================================
 
     /**
-     * Shoots at whatever preset is currently armed (set by A/X/B).
+     * Shoots at whatever preset is currently armed (A or B).
      *
-     * Behavior:
-     * - Transitions shooter to READY — flywheel ramps to target RPM, hood moves to target angle
+     * - Transitions shooter to READY — flywheel ramps to target RPM, hood moves
      * - Waits until both flywheel and hood are at target (isReady())
      * - Runs indexer and conveyor to feed the game piece
-     * - On button release, stops indexer and returns shooter to SPINUP at IDLE_RPM
+     * - On release, stops indexer and returns shooter to SPINUP
      *
      * Use with whileTrue() on the shoot trigger.
-     *
-     * @param shooter The shooter subsystem
-     * @param indexer The indexer subsystem
-     * @return Command that shoots at current targets and returns to idle on release
      */
     public static Command shootAtCurrentTarget(ShooterSubsystem shooter, IndexerSubsystem indexer) {
         return Commands.sequence(
@@ -58,17 +48,11 @@ public class ShooterCommands {
     }
 
     // =========================================================================
-    // SILENT PRESET COMMANDS (A / X / B)
+    // SILENT PRESET COMMANDS (A / B)
     // =========================================================================
-    // These only update the target RPM and hood angle.
-    // No motors move until the shoot trigger is pressed.
 
     /**
-     * Silently arms close shot targets (CLOSE_SHOT_RPM + CLOSE_SHOT_HOOD).
-     * No motor movement. Use with onTrue().
-     *
-     * @param shooter The shooter subsystem
-     * @return Command that silently sets close shot targets
+     * Silently arms close shot targets. No motor movement. Use with onTrue().
      */
     public static Command armCloseShot(ShooterSubsystem shooter) {
         return Commands.runOnce(shooter::setCloseShotPreset, shooter)
@@ -76,23 +60,7 @@ public class ShooterCommands {
     }
 
     /**
-     * Silently arms far shot targets (FAR_SHOT_RPM + FAR_SHOT_HOOD).
-     * No motor movement. Use with onTrue().
-     *
-     * @param shooter The shooter subsystem
-     * @return Command that silently sets far shot targets
-     */
-    public static Command armFarShot(ShooterSubsystem shooter) {
-        return Commands.runOnce(shooter::setFarShotPreset, shooter)
-            .withName("ArmFarShot");
-    }
-
-    /**
-     * Silently arms pass shot targets (PASS_SHOT_RPM + PASS_SHOT_HOOD).
-     * No motor movement. Use with onTrue().
-     *
-     * @param shooter The shooter subsystem
-     * @return Command that silently sets pass shot targets
+     * Silently arms pass shot targets. No motor movement. Use with onTrue().
      */
     public static Command armPassShot(ShooterSubsystem shooter) {
         return Commands.runOnce(shooter::setPassShotPreset, shooter)
@@ -104,12 +72,8 @@ public class ShooterCommands {
     // =========================================================================
 
     /**
-     * Increases the target hood pose by the provided increment.
+     * Increases the target hood pose by the given increment.
      * If shooter is already in READY state, hood moves immediately.
-     *
-     * @param shooter The shooter subsystem
-     * @param increment Rotations to increase (positive value expected)
-     * @return Command that adjusts target hood pose upward
      */
     public static Command increaseTargetHoodPose(ShooterSubsystem shooter, double increment) {
         return Commands.runOnce(() -> shooter.adjustTargetHoodPose(Math.abs(increment)), shooter)
@@ -117,12 +81,8 @@ public class ShooterCommands {
     }
 
     /**
-     * Decreases the target hood pose by the provided increment.
+     * Decreases the target hood pose by the given increment.
      * If shooter is already in READY state, hood moves immediately.
-     *
-     * @param shooter The shooter subsystem
-     * @param increment Rotations to decrease (positive value expected)
-     * @return Command that adjusts target hood pose downward
      */
     public static Command decreaseTargetHoodPose(ShooterSubsystem shooter, double increment) {
         return Commands.runOnce(() -> shooter.adjustTargetHoodPose(-Math.abs(increment)), shooter)
@@ -134,11 +94,7 @@ public class ShooterCommands {
     // =========================================================================
 
     /**
-     * Creates a command to increase target flywheel RPM by the provided increment.
-     *
-     * @param shooter The shooter subsystem
-     * @param incrementRPM RPM delta to apply
-     * @return Command that adjusts target flywheel velocity
+     * Increases target flywheel RPM by the given increment.
      */
     public static Command increaseTargetVelocity(ShooterSubsystem shooter, double incrementRPM) {
         return Commands.runOnce(() -> shooter.adjustTargetVelocity(Math.abs(incrementRPM)), shooter)
@@ -146,11 +102,7 @@ public class ShooterCommands {
     }
 
     /**
-     * Creates a command to decrease target flywheel RPM by the provided increment.
-     *
-     * @param shooter The shooter subsystem
-     * @param decrementRPM RPM delta to apply
-     * @return Command that adjusts target flywheel velocity
+     * Decreases target flywheel RPM by the given increment.
      */
     public static Command decreaseTargetVelocity(ShooterSubsystem shooter, double decrementRPM) {
         return Commands.runOnce(() -> shooter.adjustTargetVelocity(-Math.abs(decrementRPM)), shooter)
@@ -158,12 +110,7 @@ public class ShooterCommands {
     }
 
     /**
-     * Creates a command to eject jammed game pieces.
-     * Reverses flywheel for a duration then returns to SPINUP.
-     *
-     * @param shooter The shooter subsystem
-     * @param durationSeconds How long to eject
-     * @return Command that ejects then returns to idle
+     * Ejects jammed game pieces by reversing the flywheel, then returns to idle.
      */
     public static Command eject(ShooterSubsystem shooter, double durationSeconds) {
         return Commands.sequence(
@@ -174,56 +121,15 @@ public class ShooterCommands {
     }
 
     /**
-     * Creates a command to shoot using vision-based distance calculation.
-     *
-     * @param shooter The shooter subsystem
-     * @param vision The vision subsystem
-     * @return Command that uses vision for aiming
-     */
-    public static Command visionShot(ShooterSubsystem shooter, VisionSubsystem vision) {
-        return Commands.sequence(
-            Commands.runOnce(() -> {
-                double distance = vision.getDistanceToTargetMeters();
-                shooter.updateFromDistance(distance);
-                shooter.prepareToShoot();
-            }, shooter, vision),
-            Commands.waitUntil(shooter::isReady)
-        ).withTimeout(3.0)
-         .withName("VisionShot");
-    }
-
-    /**
-     * Creates a command to continuously update shooter based on vision.
-     *
-     * @param shooter The shooter subsystem
-     * @param vision The vision subsystem
-     * @return Command that continuously tracks target
-     */
-    public static Command trackTarget(ShooterSubsystem shooter, VisionSubsystem vision) {
-        return Commands.run(() -> {
-            if (vision.hasTarget()) {
-                double distance = vision.getDistanceToTargetMeters();
-                shooter.updateFromDistance(distance);
-            }
-        }, shooter, vision)
-        .withName("TrackTarget");
-    }
-
-    /**
-     * Creates a complete shoot sequence with indexer coordination.
-     *
-     * @param shooter The shooter subsystem
-     * @param indexer The indexer subsystem
-     * @param velocityRPM Target flywheel velocity
-     * @param hoodAngleDegrees Target hood angle
-     * @return Complete shooting sequence
+     * Shoots a timed sequence at a specific RPM and hood angle.
+     * Useful for auto routines that need explicit targets.
      */
     public static Command shootSequence(ShooterSubsystem shooter, IndexerSubsystem indexer,
-                                        double velocityRPM, double hoodAngleDegrees) {
+                                        double velocityRPM, double hoodAngle) {
         return Commands.sequence(
             Commands.runOnce(() -> {
                 shooter.setTargetVelocity(velocityRPM);
-                shooter.setTargetHoodPose(hoodAngleDegrees);
+                shooter.setTargetHoodPose(hoodAngle);
                 shooter.prepareToShoot();
             }, shooter),
             Commands.waitUntil(shooter::isReady).withTimeout(3.0),
@@ -233,40 +139,7 @@ public class ShooterCommands {
     }
 
     /**
-     * Creates a vision-based shoot sequence with indexer coordination.
-     *
-     * @param shooter The shooter subsystem
-     * @param vision The vision subsystem
-     * @param indexer The indexer subsystem
-     * @return Vision-based shooting sequence
-     */
-    public static Command visionShootSequence(ShooterSubsystem shooter, VisionSubsystem vision,
-                                              IndexerSubsystem indexer) {
-        return Commands.sequence(
-            Commands.waitUntil(vision::hasTarget).withTimeout(1.0),
-            visionShot(shooter, vision),
-            IndexerCommands.feedTimed(indexer, 0.5),
-            Commands.runOnce(shooter::returnToIdle, shooter)
-        ).withName("VisionShootSequence");
-    }
-
-    /**
-     * Creates a command that waits until shooter is ready.
-     *
-     * @param shooter The shooter subsystem
-     * @return Command that waits for shooter ready state
-     */
-    public static Command waitUntilReady(ShooterSubsystem shooter) {
-        return Commands.waitUntil(shooter::isReady)
-            .withTimeout(3.0)
-            .withName("WaitForShooterReady");
-    }
-
-    /**
-     * Creates a command to return shooter to SPINUP at IDLE_RPM.
-     *
-     * @param shooter The shooter subsystem
-     * @return Command that returns shooter to idle spinning state
+     * Returns shooter to SPINUP at IDLE_RPM.
      */
     public static Command returnToIdle(ShooterSubsystem shooter) {
         return Commands.runOnce(shooter::returnToIdle, shooter)
@@ -274,18 +147,14 @@ public class ShooterCommands {
     }
 
     /**
-     * Creates a command that ramps the flywheel up to a target RPM for testing.
-     *
-     * @param shooter The shooter subsystem
-     * @param targetRPM Target flywheel velocity
-     * @return Command that ramps flywheel and returns to idle on release
+     * Ramps the flywheel to a target RPM for testing purposes.
      */
     public static Command rampUpFlywheel(ShooterSubsystem shooter, double targetRPM) {
         return shooter.flywheelRampTest(targetRPM);
     }
 
-    // Private constructor to prevent instantiation
+    // Private constructor — utility class
     private ShooterCommands() {
-        throw new UnsupportedOperationException("This is a utility class!");
+        throw new UnsupportedOperationException("Utility class");
     }
 }
