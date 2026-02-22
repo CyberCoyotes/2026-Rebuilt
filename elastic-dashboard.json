@@ -247,7 +247,7 @@
                 "height": 64.0,
                 "type": "Text Display",
                 "properties": {
-                  "topic": "/Shooter/HoodAngle",
+                  "topic": "/Shooter/HoodRotations",
                   "period": 0.06,
                   "data_type": "double",
                   "show_submit_button": false
@@ -722,7 +722,7 @@
                 "height": 64.0,
                 "type": "Text Display",
                 "properties": {
-                  "topic": "/Shooter/HoodAngle",
+                  "topic": "/Shooter/HoodRotations",
                   "period": 0.06,
                   "data_type": "double",
                   "show_submit_button": false
@@ -736,7 +736,7 @@
                 "height": 64.0,
                 "type": "Text Display",
                 "properties": {
-                  "topic": "/Shooter/TargetHoodAngle",
+                  "topic": "/Shooter/TargetHoodRotations",
                   "period": 0.06,
                   "data_type": "double",
                   "show_submit_button": false
@@ -818,14 +818,14 @@
             },
             "children": [
               {
-                "title": "HoodAngle",
+                "title": "HoodRotations",
                 "x": 0.0,
                 "y": 0.0,
                 "width": 128.0,
                 "height": 128.0,
                 "type": "Text Display",
                 "properties": {
-                  "topic": "/Shooter/HoodAngle",
+                  "topic": "/Shooter/HoodRotations",
                   "period": 0.06,
                   "data_type": "double",
                   "show_submit_button": false
@@ -874,14 +874,14 @@
                 }
               },
               {
-                "title": "TargetHoodAngle",
+                "title": "TargetHoodRotations",
                 "x": 0.0,
                 "y": 0.0,
                 "width": 128.0,
                 "height": 128.0,
                 "type": "Text Display",
                 "properties": {
-                  "topic": "/Shooter/TargetHoodAngle",
+                  "topic": "/Shooter/TargetHoodRotations",
                   "period": 0.06,
                   "data_type": "double",
                   "show_submit_button": false
@@ -1078,7 +1078,7 @@
                 "height": 64.0,
                 "type": "Text Display",
                 "properties": {
-                  "topic": "/Shooter/HoodAngle",
+                  "topic": "/Shooter/HoodRotations",
                   "period": 0.06,
                   "data_type": "double",
                   "show_submit_button": false
@@ -1092,7 +1092,7 @@
                 "height": 64.0,
                 "type": "Text Display",
                 "properties": {
-                  "topic": "/Shooter/TargetHoodAngle",
+                  "topic": "/Shooter/TargetHoodRotations",
                   "period": 0.06,
                   "data_type": "double",
                   "show_submit_button": false
@@ -1332,7 +1332,7 @@
                 "height": 64.0,
                 "type": "Text Display",
                 "properties": {
-                  "topic": "/Shooter/HoodAngle",
+                  "topic": "/Shooter/HoodRotations",
                   "period": 0.06,
                   "data_type": "double",
                   "show_submit_button": false
@@ -1346,7 +1346,7 @@
                 "height": 64.0,
                 "type": "Text Display",
                 "properties": {
-                  "topic": "/Shooter/TargetHoodAngle",
+                  "topic": "/Shooter/TargetHoodRotations",
                   "period": 0.06,
                   "data_type": "double",
                   "show_submit_button": false
