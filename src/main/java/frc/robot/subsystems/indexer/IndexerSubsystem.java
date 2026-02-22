@@ -117,6 +117,9 @@ public class IndexerSubsystem extends SubsystemBase {
     public void periodic() {
         // Update inputs from hardware/simulation every cycle (20ms)
         io.updateInputs(inputs);
+    SmartDashboard.putNumber("Intake/SlidePosition", io.getSlidePosition());
+    SmartDashboard.putBoolean("Intake/RollerRunning", io.getRollerVolts() != 0);
+
 
         // Log all inputs for AdvantageKit replay
         // if (Robot.ENABLE_ADVANTAGEKIT) {  // make it public or put in Constants
