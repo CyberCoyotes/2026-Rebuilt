@@ -13,8 +13,7 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.subsystems.shooter.ShooterIO.ShooterIOInputs;
 
 /**
- * ShooterSubsystem - Main shooter subsystem with state machine control.
- *
+ * THESE COMMENTS ARE ALL FROM EXPERIMENTAL AND SHOULD NOT DRIVE FUNCTIONALITY OF THE SHOOTER SUBSYSTEM. 
  * STATE MACHINE:
  * - IDLE: All motors off, hood at home position (not used during match)
  * - STANDBY: Flywheel spinning at STANDBY_RPM — always active during match
@@ -90,8 +89,8 @@ public class ShooterSubsystem extends SubsystemBase {
     private final DoublePublisher  targetRpmPublisher;
     private final DoublePublisher  flywheelRpsPublisher;
     private final DoublePublisher  flywheelErrorPublisher;
-    private final DoublePublisher  hoodAnglePublisher;
-    private final DoublePublisher  targetHoodAnglePublisher;
+    private final DoublePublisher  hoodRotationsPublisher;
+    private final DoublePublisher  targetHoodRotationsPublisher;
     private final DoublePublisher  hoodErrorPublisher;
     private final BooleanPublisher hoodAtPosePublisher;
     private final DoublePublisher  flywheelVoltsPublisher;
@@ -120,8 +119,8 @@ public class ShooterSubsystem extends SubsystemBase {
         targetRpmPublisher           = shooterTable.getDoubleTopic("TargetFlywheelRPM").publish();
         flywheelRpsPublisher         = shooterTable.getDoubleTopic("FlywheelMotorRPS").publish();
         flywheelErrorPublisher       = shooterTable.getDoubleTopic("FlywheelError").publish();
-        hoodAnglePublisher           = shooterTable.getDoubleTopic("HoodAngle").publish();
-        targetHoodAnglePublisher     = shooterTable.getDoubleTopic("TargetHoodAngle").publish();
+        hoodRotationsPublisher       = shooterTable.getDoubleTopic("HoodRotations").publish();
+        targetHoodRotationsPublisher = shooterTable.getDoubleTopic("TargetHoodRotations").publish();
         hoodErrorPublisher           = shooterTable.getDoubleTopic("HoodError").publish();
         hoodAtPosePublisher          = shooterTable.getBooleanTopic("HoodAtPose").publish();
         flywheelVoltsPublisher       = shooterTable.getDoubleTopic("FlywheelAppliedVolts").publish();
@@ -157,8 +156,8 @@ public class ShooterSubsystem extends SubsystemBase {
         targetRpmPublisher.set(targetFlywheelMotorRPM);
         flywheelRpsPublisher.set(inputs.flywheelLeaderMotorRPS);
         flywheelErrorPublisher.set(targetFlywheelMotorRPM - inputs.flywheelLeaderMotorRPM);
-        hoodAnglePublisher.set(inputs.hoodPositionRotations);
-        targetHoodAnglePublisher.set(targetHoodPoseRot);
+        hoodRotationsPublisher.set(inputs.hoodPositionRotations);
+        targetHoodRotationsPublisher.set(targetHoodPoseRot);
         hoodErrorPublisher.set(targetHoodPoseRot - inputs.hoodPositionRotations);
         hoodAtPosePublisher.set(isHoodAtPose());
         flywheelVoltsPublisher.set(inputs.flywheelAppliedVolts);
