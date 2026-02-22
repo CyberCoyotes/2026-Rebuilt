@@ -1,104 +1,66 @@
 package frc.robot.subsystems.vision;
 
-import org.littletonrobotics.junction.LogTable;
-import org.littletonrobotics.junction.inputs.LoggableInputs;
-
-import edu.wpi.first.math.geometry.Pose2d;
+import frc.robot.LimelightHelpers;
+import frc.robot.LimelightHelpers.PoseEstimate;
 
 /**
- * VisionIO — Hardware abstraction for MegaTag2-based pose estimation.
+ * VisionIOLimelight — MegaTag2 implementation of VisionIO for the LL4.
  *
- * This interface is purpose-built for the LL4 MegaTag2 workflow:
- *   1. RobotContainer calls SetRobotOrientation() every loop with the current gyro yaw.
- *   2. VisionIOLimelight reads the resulting botpose_orb_wpiblue estimate.
- *   3. VisionSubsystem validates the estimate and feeds it to SwerveDrivePoseEstimator.
+ * Every loop:
+ *   1. RobotContainer (via VisionSubsystem) calls setRobotOrientation() with the
+ *      current gyro yaw so MegaTag2 has a stable heading reference.
+ *   2. updateInputs() reads botpose_orb_wpiblue via getBotPoseEstimate_wpiBlue_MegaTag2().
+ *   3. VisionSubsystem validates the estimate and feeds it to the pose estimator.
  *
- * The old tx/ty/distance approach is gone. All targeting math (distance to hub,
- * angle to hub) is now done in VisionSubsystem using the robot's pose and the
- * known hub field position from Constants.Vision.HUB_CENTER_BLUE.
+ * Note: MegaTag2 fixes the rotation component of the pose using the IMU, so the
+ * returned yaw matches the robot's gyro yaw. Only X/Y translation is solved from
+ * the tags. This makes it very stable even with a single tag visible.
  */
+public class VisionIOLimelight implements VisionIO {
 
-public interface VisionIO {
-
-    /**
-     * Updates inputs from the camera hardware.
-     * Called every periodic loop by VisionSubsystem.
-     */
-    default void updateInputs(VisionIOInputs inputs) {}
+    private final String limelightName;
 
     /**
-     * Sends the robot's current heading to the Limelight so MegaTag2
-     * can produce a rotationally-stable pose estimate.
-     * Must be called every loop BEFORE reading pose estimates.
-     *
-     * @param yawDegrees Current robot yaw from the drivetrain IMU (degrees, CCW positive)
+     * @param limelightName NetworkTable name of the Limelight (e.g. "limelight-four")
      */
-    default void setRobotOrientation(double yawDegrees) {}
+    public VisionIOLimelight(String limelightName) {
+        this.limelightName = limelightName;
+        LimelightHelpers.setPipelineIndex(limelightName, 0);
+    }
 
-    /**
-     * Sets the active pipeline.
-     *
-     * @param pipelineIndex Pipeline index (0-9)
-     */
-    default void setPipeline(int pipelineIndex) {}
+    @Override
+    public void setRobotOrientation(double yawDegrees) {
+        // Send current IMU yaw to the Limelight so MegaTag2 can use it.
+        // Yaw rate and other angular rates are not needed — pass zeros.
+        LimelightHelpers.SetRobotOrientation(limelightName, yawDegrees, 0, 0, 0, 0, 0);
+    }
 
-    // -------------------------------------------------------------------------
-    // Inputs container
-    // -------------------------------------------------------------------------
+    @Override
+    public void updateInputs(VisionIOInputs inputs) {
+        // Read raw tx and target valid flag from NT — always available
+        inputs.hasTarget   = LimelightHelpers.getTV(limelightName);
+        inputs.txDegrees   = LimelightHelpers.getTX(limelightName);
+        inputs.totalLatencyMs = LimelightHelpers.getLatency_Pipeline(limelightName)
+                              + LimelightHelpers.getLatency_Capture(limelightName);
 
-    class VisionIOInputs implements LoggableInputs {
+        // Read MegaTag2 pose estimate
+        PoseEstimate estimate = LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2(limelightName);
 
-        // Whether the Limelight returned a valid pose estimate this cycle
-        public boolean poseValid = false;
-
-        // The estimated robot pose in WPILib Blue Alliance field coordinates
-        public Pose2d estimatedPose = new Pose2d();
-
-        // Timestamp of the estimate, adjusted for latency (FPGA seconds)
-        public double timestampSeconds = 0.0;
-
-        // Number of tags used in this estimate
-        public int tagCount = 0;
-
-        // Average distance from robot to the tags used (meters)
-        public double avgTagDistance = 0.0;
-
-        // Average tag area across tags used (% of image)
-        public double avgTagArea = 0.0;
-
-        // Whether the Limelight sees any target at all (tv)
-        public boolean hasTarget = false;
-
-        // Primary target horizontal angle (degrees) — used as fallback if pose invalid
-        public double txDegrees = 0.0;
-
-        // Pipeline + capture latency (ms)
-        public double totalLatencyMs = 0.0;
-
-        @Override
-        public void toLog(LogTable table) {
-            table.put("PoseValid",       poseValid);
-            table.put("EstimatedPose",   estimatedPose);
-            table.put("TimestampSeconds", timestampSeconds);
-            table.put("TagCount",        tagCount);
-            table.put("AvgTagDistance",  avgTagDistance);
-            table.put("AvgTagArea",      avgTagArea);
-            table.put("HasTarget",       hasTarget);
-            table.put("TxDegrees",       txDegrees);
-            table.put("TotalLatencyMs",  totalLatencyMs);
+        if (estimate == null || estimate.pose == null) {
+            inputs.poseValid = false;
+            return;
         }
 
-        @Override
-        public void fromLog(LogTable table) {
-            poseValid        = table.get("PoseValid",        poseValid);
-            estimatedPose    = table.get("EstimatedPose",    estimatedPose);
-            timestampSeconds = table.get("TimestampSeconds", timestampSeconds);
-            tagCount         = table.get("TagCount",         tagCount);
-            avgTagDistance   = table.get("AvgTagDistance",   avgTagDistance);
-            avgTagArea       = table.get("AvgTagArea",       avgTagArea);
-            hasTarget        = table.get("HasTarget",        hasTarget);
-            txDegrees        = table.get("TxDegrees",        txDegrees);
-            totalLatencyMs   = table.get("TotalLatencyMs",   totalLatencyMs);
-        }
+        inputs.poseValid        = true;
+        inputs.estimatedPose    = estimate.pose;
+        inputs.timestampSeconds = estimate.timestampSeconds;
+        inputs.tagCount         = estimate.tagCount;
+        inputs.avgTagDistance   = estimate.avgTagDist;
+        inputs.avgTagArea       = estimate.avgTagArea;
+    }
+
+    @Override
+    public void setPipeline(int pipelineIndex) {
+        LimelightHelpers.setPipelineIndex(limelightName, pipelineIndex);
     }
 }
