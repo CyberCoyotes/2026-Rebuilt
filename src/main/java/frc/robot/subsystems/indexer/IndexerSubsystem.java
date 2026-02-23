@@ -3,6 +3,7 @@ package frc.robot.subsystems.indexer;
 import org.littletonrobotics.junction.Logger;
 
 import edu.wpi.first.networktables.BooleanPublisher;
+import edu.wpi.first.networktables.DoublePublisher;
 import edu.wpi.first.networktables.IntegerPublisher;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
@@ -96,15 +97,16 @@ public class IndexerSubsystem extends SubsystemBase {
     public static final double HOPPER_B_MAX_DISTANCE = 0.40; // TODO: Tune experimentally
 
     // ==== Elastic Dashboard Publishers ========================================
-    // Only live-match driver awareness data belongs here. Velocity, current, and
-    // raw distance signals are already logged by processInputs() and Hoot;
-    // publishing them to NT would be redundant.
     private final NetworkTable indexerTable;
     private final BooleanPublisher hopperAPublisher;
     private final BooleanPublisher hopperBPublisher;
     private final IntegerPublisher hopperCountPublisher;
-    private final StringPublisher hopperAFillLevelPublisher; // For future Elastic widget
-    private final StringPublisher hopperBFillLevelPublisher; // For future Elastic widget
+    private final StringPublisher hopperAFillLevelPublisher;
+    private final StringPublisher hopperBFillLevelPublisher;
+    // Raw distance from each CANrange — useful during threshold tuning without
+    // needing AdvantageScope open; displayed on the Indexer Elastic tab.
+    private final DoublePublisher hopperADistancePublisher;
+    private final DoublePublisher hopperBDistancePublisher;
 
     // ==== Constructor =========================================================
     public IndexerSubsystem(IndexerIO io) {
@@ -113,11 +115,13 @@ public class IndexerSubsystem extends SubsystemBase {
         NetworkTableInstance inst = NetworkTableInstance.getDefault();
         indexerTable = inst.getTable("Indexer");
 
-        hopperAPublisher = indexerTable.getBooleanTopic("HopperA/Detected").publish();
-        hopperBPublisher = indexerTable.getBooleanTopic("HopperB/Detected").publish();
-        hopperCountPublisher = indexerTable.getIntegerTopic("HopperCount").publish();
+        hopperAPublisher          = indexerTable.getBooleanTopic("HopperA/Detected").publish();
+        hopperBPublisher          = indexerTable.getBooleanTopic("HopperB/Detected").publish();
+        hopperCountPublisher      = indexerTable.getIntegerTopic("HopperCount").publish();
         hopperAFillLevelPublisher = indexerTable.getStringTopic("HopperA/FillLevel").publish();
         hopperBFillLevelPublisher = indexerTable.getStringTopic("HopperB/FillLevel").publish();
+        hopperADistancePublisher  = indexerTable.getDoubleTopic("HopperA/Distance_m").publish();
+        hopperBDistancePublisher  = indexerTable.getDoubleTopic("HopperB/Distance_m").publish();
     }
 
     // ==== Periodic ============================================================
@@ -140,14 +144,17 @@ public class IndexerSubsystem extends SubsystemBase {
         publishTelemetry();
     }
 
-    // Elastic gets the booleans, piece count, and fill levels for driver awareness.
-    // State and raw distances are in AK already; no need to duplicate them in NT.
     private void publishTelemetry() {
         hopperAPublisher.set(inputs.hopperADetected);
         hopperBPublisher.set(inputs.hopperBDetected);
         hopperCountPublisher.set(getHopperGamePieceCount());
         hopperAFillLevelPublisher.set(getHopperAFillLevel().name());
         hopperBFillLevelPublisher.set(getHopperBFillLevel().name());
+        // Raw distance in meters — lets you tune the threshold from Elastic
+        // without opening AdvantageScope. Watch these with/without a game piece
+        // at each sensor to determine the correct ProximityThreshold value.
+        hopperADistancePublisher.set(inputs.hopperADistanceMeters);
+        hopperBDistancePublisher.set(inputs.hopperBDistanceMeters);
     }
 
     // ==== State ===============================================================
