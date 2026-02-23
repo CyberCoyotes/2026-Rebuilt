@@ -163,7 +163,7 @@ public class AlignToHubCommand extends Command {
         smoothedTx = 0.0;
 
         shooter.setHubShotPreset();
-        shooter.refreshReady();
+        shooter.prepareToShoot();
 
         // Seed filter with first real reading so we don't snap toward zero
         if (vision.hasTarget()) {

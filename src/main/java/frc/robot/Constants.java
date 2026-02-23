@@ -58,6 +58,23 @@ public final class Constants {
 
     /** Time of Flight sensor B - hopper fullness */
     public static final int HOPPER_B_TOF_ID = 44;
+
+    // -------------------------------------------------------
+    // Jam Detection Thresholds
+    // A motor is jammed when current is HIGH but velocity is LOW.
+    // -------------------------------------------------------
+
+    /** Conveyor (hopper) motor jam current threshold in amps (TODO: Tune on robot) */
+    public static final double HOPPER_JAM_CURRENT_THRESHOLD = 20.0;
+
+    /** Conveyor (hopper) motor jam velocity threshold in RPS (TODO: Tune on robot) */
+    public static final double HOPPER_JAM_VELOCITY_THRESHOLD = 0.5;
+
+    /** Indexer motor jam current threshold in amps (TODO: Tune on robot) */
+    public static final double INDEXER_JAM_CURRENT_THRESHOLD = 20.0;
+
+    /** Indexer motor jam velocity threshold in RPS (TODO: Tune on robot) */
+    public static final double INDEXER_JAM_VELOCITY_THRESHOLD = 0.5;
   }
 
   // =========================================================

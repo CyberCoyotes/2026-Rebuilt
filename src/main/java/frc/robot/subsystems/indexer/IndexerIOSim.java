@@ -13,8 +13,7 @@ package frc.robot.subsystems.indexer;
  * FEATURES:
  * - Simulated motor speeds
  * - Simulated game piece detection at indexer
- * - Simulated game piece detection at 3 hopper positions
- * - Methods to control simulation state for testing
+ * - Simulated game piece detection at 2 hopper positions
  *
  * @see IndexerSubsystemBasic for a simpler direct-hardware approach (good for learning)
  */
@@ -28,7 +27,6 @@ public class IndexerIOSim implements IndexerIO {
     private boolean indexerGamePiecePresent = false;
     private boolean hopperAGamePiecePresent = false;
     private boolean hopperBGamePiecePresent = false;
-    private boolean hopperCGamePiecePresent = false;
 
     // ===== Simulation Parameters =====
     private static final double SIMULATED_TOF_DISTANCE_WITH_PIECE = 50.0;   // mm
@@ -40,7 +38,7 @@ public class IndexerIOSim implements IndexerIO {
     @Override
     public void updateInputs(IndexerIOInputs inputs) {
         // Simulate conveyor motor
-        inputs.conveyorVelocityRPS = (conveyorMotorVolts / NOMINAL_VOLTAGE) * 10.0;  // Fake velocity
+        inputs.conveyorVelocityRPS = (conveyorMotorVolts / NOMINAL_VOLTAGE) * 10.0;
         inputs.conveyorAppliedVolts = conveyorMotorVolts;
         inputs.conveyorCurrentAmps = Math.abs(conveyorMotorVolts) * MOTOR_CURRENT_PER_VOLT;
         inputs.conveyorTempCelsius = MOTOR_TEMP;
@@ -71,13 +69,6 @@ public class IndexerIOSim implements IndexerIO {
             SIMULATED_TOF_DISTANCE_NO_PIECE;
         inputs.hopperBValid = true;
         inputs.hopperBDetected = hopperBGamePiecePresent;
-
-        // Simulate hopper C ToF sensor
-        inputs.hopperCDistanceMM = hopperCGamePiecePresent ?
-            SIMULATED_TOF_DISTANCE_WITH_PIECE :
-            SIMULATED_TOF_DISTANCE_NO_PIECE;
-        inputs.hopperCValid = true;
-        inputs.hopperCDetected = hopperCGamePiecePresent;
     }
 
     @Override
@@ -100,7 +91,6 @@ public class IndexerIOSim implements IndexerIO {
 
     /**
      * Simulates a game piece at the indexer position (ready to shoot).
-     * Call this to test state transitions when a piece is ready to fire.
      *
      * @param present true if game piece should be simulated as present
      */
@@ -148,52 +138,32 @@ public class IndexerIOSim implements IndexerIO {
     }
 
     /**
-     * Simulates a game piece at hopper position C.
-     *
-     * @param present true if game piece should be simulated as present
-     */
-    public void setHopperCGamePiecePresent(boolean present) {
-        this.hopperCGamePiecePresent = present;
-    }
-
-    /**
-     * Gets whether a game piece is simulated as present at hopper position C.
-     */
-    public boolean isHopperCGamePiecePresent() {
-        return hopperCGamePiecePresent;
-    }
-
-    /**
-     * Convenience method to set all hopper positions at once.
-     * Useful for simulating a full or empty hopper.
+     * Convenience method to set both hopper positions at once.
      *
      * @param a game piece present at position A
      * @param b game piece present at position B
-     * @param c game piece present at position C
      */
-    public void setHopperGamePiecesPresent(boolean a, boolean b, boolean c) {
+    public void setHopperGamePiecesPresent(boolean a, boolean b) {
         this.hopperAGamePiecePresent = a;
         this.hopperBGamePiecePresent = b;
-        this.hopperCGamePiecePresent = c;
     }
 
     /**
-     * Simulates a full hopper (all 3 positions have game pieces).
+     * Simulates a full hopper (both positions have game pieces).
      */
     public void simulateFullHopper() {
-        setHopperGamePiecesPresent(true, true, true);
+        setHopperGamePiecesPresent(true, true);
     }
 
     /**
      * Simulates an empty hopper (no game pieces).
      */
     public void simulateEmptyHopper() {
-        setHopperGamePiecesPresent(false, false, false);
+        setHopperGamePiecesPresent(false, false);
         setFeederGamePiecePresent(false);
     }
 
     // ===== Backwards Compatibility =====
-    // These methods maintain compatibility with old code that used the single-sensor API
 
     /**
      * @deprecated Use setFeederGamePiecePresent instead

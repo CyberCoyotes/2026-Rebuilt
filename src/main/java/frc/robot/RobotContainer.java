@@ -196,7 +196,7 @@ public class RobotContainer {
         // returns to SPINUP and the previously armed preset is preserved.
         driver.leftTrigger(0.5).whileTrue(
             intake.intakeFuel()
-                .alongWith(ShooterCommands.intakeSpinup(shooter, indexer))
+                .alongWith(shooter.intakeModeCommand())
         );
 
         // Left Bumper: Retract intake and slowly reverse roller while held.
@@ -236,5 +236,4 @@ public class RobotContainer {
     public GameDataTelemetry getGameDataTelemetry() {
         return gameDataTelemetry;
     }
-
 }

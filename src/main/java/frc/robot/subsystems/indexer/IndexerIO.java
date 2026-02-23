@@ -1,8 +1,6 @@
 package frc.robot.subsystems.indexer;
 
 import org.littletonrobotics.junction.AutoLog;
-import org.littletonrobotics.junction.LogTable;
-import org.littletonrobotics.junction.inputs.LoggableInputs;
 
 /**
  * IndexerIO - Hardware abstraction interface for the indexer subsystem.
@@ -12,7 +10,7 @@ import org.littletonrobotics.junction.inputs.LoggableInputs;
  * - Conveyor motor: Moves pieces along the conveyor of the hopper toward the indexer
  * - Indexer motor: Grabs pieces from the hopper and feeds them into the shooter
  * - Indexer ToF sensor: Detects when a game piece is staged and ready to shoot
- * - Hopper ToF sensors (A, B, C): Detect game pieces at different positions in hopper
+ * - Hopper ToF sensors (A, B): Detect game pieces at different positions in hopper
  *
  * PATTERN: IO Interface
  * - IndexerIO: Interface defining what indexer hardware can do
@@ -89,16 +87,6 @@ public interface IndexerIO {
 
         /** True if a game piece is detected at hopper position B */
         public boolean hopperBDetected = false;
-
-        /** Distance reading from hopper C ToF sensor in millimeters */
-        public double hopperCDistanceMM = 0.0;
-
-        /** True if hopper C ToF sensor has valid measurement */
-        public boolean hopperCValid = false;
-
-        /** True if a game piece is detected at hopper position C */
-        public boolean hopperCDetected = false;
-
     }
 
     /**

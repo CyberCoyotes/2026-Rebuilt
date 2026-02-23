@@ -23,7 +23,7 @@ public interface ShooterIO {
      * ShooterIOInputs - Container for all shooter sensor data.
      *
      * This class holds all data we read from the shooter hardware each cycle.
-     * Implements LoggableInputs for automatic AdvantageKit logging and replay.
+     * Uses @AutoLog for automatic AdvantageKit logging and replay.
      *
      * PERFORMANCE NOTE:
      * Fields are split into "fast" (updated every cycle) and "slow" (updated at 10Hz).

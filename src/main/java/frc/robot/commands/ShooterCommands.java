@@ -23,7 +23,7 @@ public class ShooterCommands {
     // =========================================================================
 
     /**
-     * Shoots at whatever preset is currently armed (A or B).
+     * Shoots at whatever preset is currently armed (close or pass).
      *
      * - Transitions shooter to READY — flywheel ramps to target RPM, hood moves
      * - Waits until both flywheel and hood are at target (isReady())
@@ -45,35 +45,6 @@ public class ShooterCommands {
             indexer.conveyorStop();
             shooter.returnToIdle();
         }).withName("ShootAtCurrentTarget");
-    }
-
-    // =========================================================================
-    // INTAKE SPINUP
-    // =========================================================================
-
-    /**
-     * Sets the shooter target to IDLE_RPM and INTAKE_HOOD while intake is running,
-     * activating the indexer automatically via the state machine. On release, the
-     * target RPM and hood return to whatever preset was last armed.
-     * Uses refreshReady() to bypass the state guard so targets are always applied.
-     * Use with whileTrue() on the intake trigger.
-     */
-    public static Command intakeSpinup(ShooterSubsystem shooter, IndexerSubsystem indexer) {
-        return Commands.startEnd(
-            () -> {
-                shooter.setTargetVelocity(ShooterSubsystem.IDLE_RPM);
-                shooter.setTargetHoodPose(ShooterSubsystem.INTAKE_HOOD);
-                shooter.refreshReady();
-                indexer.indexerForward();
-                indexer.conveyorForward();
-            },
-            () -> {
-                indexer.indexerStop();
-                indexer.conveyorStop();
-                shooter.returnToIdle();
-            },
-            shooter, indexer
-        ).withName("IntakeSpinup");
     }
 
     // =========================================================================
@@ -173,13 +144,6 @@ public class ShooterCommands {
     public static Command returnToIdle(ShooterSubsystem shooter) {
         return Commands.runOnce(shooter::returnToIdle, shooter)
             .withName("ReturnToIdle");
-    }
-
-    /**
-     * Ramps the flywheel to a target RPM for testing purposes.
-     */
-    public static Command rampUpFlywheel(ShooterSubsystem shooter, double targetRPM) {
-        return shooter.flywheelRampTest(targetRPM);
     }
 
     // Private constructor — utility class

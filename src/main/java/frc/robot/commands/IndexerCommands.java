@@ -16,10 +16,9 @@ public class IndexerCommands {
 
     // ===== Motor Voltages =====
     // These are voltage values sent via VoltageOut for battery-independent behavior
-    private static final double FEED_VOLTS = 9.6;        // Forward voltage to feed pieces to shooter
-    private static final double CONVEYOR_VOLTS = 7.2;    // Forward voltage for conveyor belt
-    private static final double EJECT_VOLTS = -7.2;      // Reverse voltage to eject jams
-    private static final double INTAKE_VOLTS = 4.8;      // Slower voltage for intaking into hopper
+    private static final double FEED_VOLTS     = 9.6;   // Forward voltage to feed pieces to shooter
+    private static final double CONVEYOR_VOLTS = 7.2;   // Forward voltage for conveyor belt
+    private static final double EJECT_VOLTS    = -7.2;  // Reverse voltage to eject jams
 
     /**
      * Creates a command that feeds a game piece to the shooter for a set duration.
@@ -43,52 +42,6 @@ public class IndexerCommands {
             }, indexer)
         ).withName("FeedTimed");
     }
-
-    /**
-     * Creates a command that continuously feeds game pieces to the shooter.
-     * Runs until interrupted. Use this with whileTrue() bindings.
-     *
-     * @param indexer The indexer subsystem
-     * @return Continuous feed command (runs until interrupted)
-     */
-    /*
-    public static Command feed(IndexerSubsystem indexer) {
-        return Commands.startEnd(
-            () -> {
-                // indexer.setState("FEEDING");
-                indexer.conveyorForward;
-                indexer.setIndexerMotorVolts(FEED_VOLTS);
-            },
-            () -> {
-                indexer.stop();
-                indexer.setState("IDLE");
-            },
-            indexer
-        ).withName("Feed");
-    } 
-    */
-
-    /**
-     * Creates a command that runs the conveyor to intake game pieces into the hopper.
-     * Only runs conveyor (not indexer motor) at a slower speed.
-     * Runs until interrupted.
-     *
-     * @param indexer The indexer subsystem
-     * @return Continuous intake command
-     */
-    // public static Command intake(IndexerSubsystem indexer) {
-    //     return Commands.startEnd(
-    //         () -> {
-    //             indexer.setState("INTAKING");
-    //             indexer.setConveyorMotorVolts(INTAKE_VOLTS);
-    //         },
-    //         () -> {
-    //             indexer.stop();
-    //             indexer.setState("IDLE");
-    //         },
-    //         indexer
-    //     ).withName("IndexerIntake");
-    // }
 
     /**
      * Creates a command that reverses both motors to eject jammed game pieces.
