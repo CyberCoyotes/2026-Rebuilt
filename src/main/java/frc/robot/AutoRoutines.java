@@ -7,7 +7,6 @@ import choreo.auto.AutoTrajectory;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 
-import frc.robot.commands.AlignToHubCommand;
 import frc.robot.commands.ShooterCommands;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
 import frc.robot.subsystems.indexer.IndexerSubsystem;
@@ -103,7 +102,11 @@ public class AutoRoutines {
                     )
                 )
                 .andThen(
-                    new AlignToHubCommand(m_drivetrain, m_shooter, m_indexer, m_vision, 1.5)
+                    ShooterCommands.shootSequence(
+                        m_shooter, m_indexer,
+                        ShooterSubsystem.CLOSE_SHOT_RPM,
+                        ShooterSubsystem.CLOSE_SHOT_HOOD
+                    )
                 )
         );
 
@@ -127,7 +130,11 @@ public class AutoRoutines {
                     )
                 )
                 .andThen(
-                    new AlignToHubCommand(m_drivetrain, m_shooter, m_indexer, m_vision, 1.5)
+                    ShooterCommands.shootSequence(
+                        m_shooter, m_indexer,
+                        ShooterSubsystem.CLOSE_SHOT_RPM,
+                        ShooterSubsystem.CLOSE_SHOT_HOOD
+                    )
                 )
         );
 

@@ -13,8 +13,11 @@ import frc.robot.subsystems.shooter.ShooterSubsystem;
  * 2. Driver presses RT — flywheel ramps to target, hood moves, waits until ready, feeds.
  * 3. Driver releases RT — returns to SPINUP at IDLE_RPM.
  *
- * For hub shots, AlignToHubCommand handles everything directly using pose-based
- * distance from VisionSubsystem. No shooter commands are needed for that path.
+ * HUB SHOT FLOW:
+ * 1. Driver presses X — calls hubShot(), flywheel spins up at hub defaults.
+ * 2. Driver holds RT — HubTrackingCommand rotates to face hub, updates RPM/hood from distance.
+ * 3. Once shooter.isReady(), feedOnly() activates automatically via Trigger in RobotContainer.
+ * 4. Driver releases RT — HubTrackingCommand ends, shooter returns to idle, feeding stops.
  */
 public class ShooterCommands {
 
@@ -45,6 +48,35 @@ public class ShooterCommands {
             indexer.conveyorStop();
             shooter.returnToIdle();
         }).withName("ShootAtCurrentTarget");
+    }
+
+    // =========================================================================
+    // HUB SHOT FEED COMMAND
+    // =========================================================================
+
+    /**
+     * Runs the indexer and conveyor while held. No shooter state changes.
+     *
+     * Used exclusively with HubTrackingCommand — triggered by:
+     *   driver.rightTrigger(0.5).and(hubShotArmed).and(shooter::isReady).whileTrue(feedOnly(indexer))
+     *
+     * HubTrackingCommand owns the shooter lifecycle (init/end). This command
+     * only feeds when the shooter is already confirmed ready, so it never fires blind.
+     *
+     * Use with whileTrue().
+     */
+    public static Command feedOnly(IndexerSubsystem indexer) {
+        return Commands.startEnd(
+            () -> {
+                indexer.indexerForward();
+                indexer.conveyorForward();
+            },
+            () -> {
+                indexer.indexerStop();
+                indexer.conveyorStop();
+            },
+            indexer
+        ).withName("FeedOnly");
     }
 
     // =========================================================================

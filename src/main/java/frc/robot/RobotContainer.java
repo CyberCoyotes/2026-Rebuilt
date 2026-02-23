@@ -22,7 +22,7 @@ import edu.wpi.first.wpilibj2.command.button.RobotModeTriggers;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 
 import frc.robot.generated.TunerConstants;
-import frc.robot.commands.AlignToHubCommand;
+import frc.robot.commands.HubTrackingCommand;
 import frc.robot.commands.IndexerCommands;
 import frc.robot.commands.ShooterCommands;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
@@ -150,36 +150,42 @@ public class RobotContainer {
         drivetrain.registerTelemetry(logger::telemeterize);
 
         // =====================================================================
-        // DRIVER CONTROLLER (Port 0) - Vision Alignment
-        // =====================================================================
-
-        // POV Left: Align to hub, interpolate hood/RPM by distance, and shoot.
-        driver.povLeft().whileTrue(
-            new AlignToHubCommand(drivetrain, shooter, indexer, vision, 1.5)
-        );
-
-        // =====================================================================
         // DRIVER CONTROLLER (Port 0) - Shooter Presets
         // =====================================================================
 
-        // A: Arm close shot
+        // A: Arm close shot — silently sets target RPM and hood, no motor movement
         driver.a().onTrue(ShooterCommands.armCloseShot(shooter));
 
-        // B: Arm pass shot
+        // B: Arm pass shot — silently sets target RPM and hood, no motor movement
         driver.b().onTrue(ShooterCommands.armPassShot(shooter));
 
-        // X: Arm hub shot
-        driver.x().onTrue(new InstantCommand(shooter::setHubShotPreset, shooter));
+        // X: Arm hub shot — spins flywheel up to hub defaults immediately.
+        //    HubTrackingCommand overrides RPM/hood from live distance when RT is held.
+        driver.x().onTrue(new InstantCommand(shooter::hubShot, shooter));
 
         // =====================================================================
         // DRIVER CONTROLLER (Port 0) - Shoot
         // =====================================================================
 
         Trigger hubShotArmed = new Trigger(shooter::isHubShotArmed);
+        Trigger shooterReady = new Trigger(shooter::isReady);
 
-        // RT (hub shot armed): Toggle full align + shoot sequence.
-        driver.rightTrigger(0.5).and(hubShotArmed).toggleOnTrue(
-            new AlignToHubCommand(drivetrain, shooter, indexer, vision, 1.5)
+        // RT (hub shot armed): Rotate to face hub and update RPM/hood from distance.
+        //   Translation is capped to MAX_TRACKING_SPEED_MPS — driver can still reposition.
+        //   Releases everything (shooter to idle, drivetrain unlocked) when RT is released.
+        driver.rightTrigger(0.5).and(hubShotArmed).whileTrue(
+            new HubTrackingCommand(
+                drivetrain, shooter, vision,
+                () -> -driver.getLeftY() * MaxSpeed,
+                () -> -driver.getLeftX() * MaxSpeed
+            )
+        );
+
+        // RT (hub shot armed + shooter ready): Feed indexer.
+        //   Activates automatically once flywheel and hood are both on target.
+        //   Stops automatically if shooter falls out of tolerance mid-match.
+        driver.rightTrigger(0.5).and(hubShotArmed).and(shooterReady).whileTrue(
+            ShooterCommands.feedOnly(indexer)
         );
 
         // RT (standard shot): Close or pass shot at currently armed preset.
@@ -206,6 +212,7 @@ public class RobotContainer {
         // DRIVER CONTROLLER (Port 0) - Commented out (TODO: enable as needed)
         // =====================================================================
 
+        // driver.povLeft()  — free to reassign (was AlignToHubCommand, now replaced by RT)
         // driver.rightBumper()...
         // driver.y().whileTrue(Commands.startEnd(indexer::indexerForward, indexer::indexerStop));
         // driver.povUp().onTrue(ShooterCommands.increaseTargetHoodPose(shooter, ShooterSubsystem.HOOD_TEST_INCREMENT));
