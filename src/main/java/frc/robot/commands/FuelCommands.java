@@ -139,6 +139,142 @@ public class FuelCommands {
     }
 
     // =========================================================================
+    // AUTO SHOOT COMMANDS (ball-detector terminated — for autonomous routines)
+    // =========================================================================
+    //
+    // These commands use the PseudoBallDetector built into IndexerSubsystem to
+    // terminate feeding automatically once no ball activity is detected for a
+    // configurable window, rather than running for a fixed duration.
+    //
+    // HOW IT DIFFERS FROM THE TELEOP VARIANTS:
+    //   Teleop commands (.shootWithSelectedPreset / .shootWithPreset) run the
+    //   feed phase until the driver releases the trigger (whileTrue interrupt).
+    //
+    //   Auto commands (.autoShootWithSelectedPreset / .autoShootWithPreset)
+    //   self-terminate once the detector reports no ball activity for windowSeconds,
+    //   then fall through to the next command in the autonomous sequence.
+    //
+    // PAIRING WITH A SAFETY TIMEOUT:
+    //   Always pair with .withTimeout(maxSeconds) so an empty hopper (no ball events
+    //   ever fired) or stuck ball doesn't hang the auto routine indefinitely:
+    //
+    //     FuelCommands.autoShootWithSelectedPreset(shooter, indexer)
+    //         .withTimeout(8.0)
+    //
+    // DETECTOR SIGNALS (see IndexerSubsystem for full documentation):
+    //   - HopperA or HopperB ToF falling edge while FEEDING → ball left sensor zone
+    //   - Indexer supply-current spike above threshold while FEEDING → ball in indexer
+
+    /**
+     * Autonomous shoot command using the currently selected preset.
+     *
+     * Identical to shootWithSelectedPreset() except the feed phase self-terminates
+     * after no ball activity is detected for windowSeconds. This replaces a fixed
+     * feedTimed() duration in auto — the robot moves on as soon as it's actually done,
+     * not after an arbitrary wait.
+     *
+     * Flow:
+     *   1. Resets ball detector, arms selected preset, calls prepareToShoot()
+     *   2. Waits until shooter is ready (isReady()), safety timeout 3s
+     *   3. Runs indexer + conveyor forward until isDoneShootingBalls(windowSeconds)
+     *   4. finallyDo: stops indexer + conveyor, returns shooter to IDLE
+     *
+     * @param shooter       The shooter subsystem
+     * @param indexer       The indexer subsystem
+     * @param windowSeconds Seconds of inactivity after last ball before declaring done
+     *                      (default: IndexerSubsystem.BALL_DETECTOR_WINDOW_SECONDS = 2.0)
+     * @return Self-terminating shoot command for use in auto sequences
+     */
+    public static Command autoShootWithSelectedPreset(ShooterSubsystem shooter,
+                                                      IndexerSubsystem indexer,
+                                                      double windowSeconds) {
+        return Commands.sequence(
+            Commands.runOnce(() -> {
+                indexer.resetBallDetector();
+                shooter.armSelectedPreset();
+                shooter.prepareToShoot();
+            }, shooter, indexer),
+            Commands.waitUntil(shooter::isReady).withTimeout(3.0),
+            Commands.run(() -> {
+                indexer.indexerForward();
+                indexer.conveyorForward();
+            }, indexer)
+            .until(() -> indexer.isDoneShootingBalls(windowSeconds))
+        ).finallyDo(() -> {
+            indexer.indexerStop();
+            indexer.conveyorStop();
+            shooter.setIdle();
+        }).withName("AutoShootWithSelectedPreset[" + windowSeconds + "s]");
+    }
+
+    /**
+     * Overload using the default {@link IndexerSubsystem#BALL_DETECTOR_WINDOW_SECONDS} window (2.0s).
+     *
+     * @param shooter The shooter subsystem
+     * @param indexer The indexer subsystem
+     * @return Self-terminating shoot command for use in auto sequences
+     */
+    public static Command autoShootWithSelectedPreset(ShooterSubsystem shooter,
+                                                      IndexerSubsystem indexer) {
+        return autoShootWithSelectedPreset(shooter, indexer,
+            IndexerSubsystem.BALL_DETECTOR_WINDOW_SECONDS);
+    }
+
+    /**
+     * Autonomous shoot command for a specific RPM and hood angle.
+     *
+     * Same adaptive termination logic as autoShootWithSelectedPreset() but with
+     * explicit RPM and hood targets — useful for auto routines that set their
+     * own preset values rather than cycling through ShotPreset.
+     *
+     * @param shooter       The shooter subsystem
+     * @param indexer       The indexer subsystem
+     * @param rpm           Target flywheel velocity in RPM
+     * @param hood          Target hood position in rotations
+     * @param windowSeconds Seconds of inactivity after last ball before declaring done
+     * @return Self-terminating preset shoot command for use in auto sequences
+     */
+    public static Command autoShootWithPreset(ShooterSubsystem shooter,
+                                              IndexerSubsystem indexer,
+                                              double rpm, double hood,
+                                              double windowSeconds) {
+        return Commands.sequence(
+            Commands.runOnce(() -> {
+                indexer.resetBallDetector();
+                shooter.setTargetVelocity(rpm);
+                shooter.setTargetHoodPose(hood);
+                shooter.prepareToShoot();
+            }, shooter, indexer),
+            Commands.waitUntil(shooter::isReady).withTimeout(3.0),
+            Commands.run(() -> {
+                indexer.indexerForward();
+                indexer.conveyorForward();
+            }, indexer)
+            .until(() -> indexer.isDoneShootingBalls(windowSeconds))
+        ).finallyDo(() -> {
+            indexer.indexerStop();
+            indexer.conveyorStop();
+            shooter.setIdle();
+        }).withName("AutoShootWithPreset[" + rpm + "rpm," + windowSeconds + "s]");
+    }
+
+    /**
+     * Overload using the default {@link IndexerSubsystem#BALL_DETECTOR_WINDOW_SECONDS} window (2.0s).
+     *
+     * @param shooter The shooter subsystem
+     * @param indexer The indexer subsystem
+     * @param rpm     Target flywheel velocity in RPM
+     * @param hood    Target hood position in rotations
+     * @return Self-terminating preset shoot command for use in auto sequences
+     */
+    public static Command autoShootWithPreset(ShooterSubsystem shooter,
+                                              IndexerSubsystem indexer,
+                                              double rpm, double hood) {
+        return autoShootWithPreset(shooter, indexer, rpm, hood,
+            IndexerSubsystem.BALL_DETECTOR_WINDOW_SECONDS);
+    }
+
+    // =========================================================================
     // SILENT PRESET COMMANDS (A / X / B)
     // =========================================================================
     // These only update the target RPM and hood angle.

@@ -3,6 +3,7 @@ package frc.robot.subsystems.indexer;
 import org.littletonrobotics.junction.Logger;
 
 import edu.wpi.first.networktables.BooleanPublisher;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.networktables.DoublePublisher;
 import edu.wpi.first.networktables.IntegerPublisher;
 import edu.wpi.first.networktables.NetworkTable;
@@ -96,6 +97,66 @@ public class IndexerSubsystem extends SubsystemBase {
     public static final double HOPPER_B_MIN_DISTANCE = 0.02; // TODO: Tune experimentally
     public static final double HOPPER_B_MAX_DISTANCE = 0.40; // TODO: Tune experimentally
 
+    // ==== Pseudo Ball Detector ================================================
+    //
+    // Detects ball passage events to determine when the shooter is done feeding.
+    // Replaces fixed-duration timeouts in auto routines with an adaptive boolean.
+    //
+    // HOW IT WORKS:
+    //   Three corroborating signals trigger a "ball event" and stamp a timestamp:
+    //
+    //   a) ToF falling-edge on HopperA (detected → not detected while FEEDING)
+    //      → ball left the front sensor position heading toward the indexer.
+    //
+    //   b) ToF falling-edge on HopperB (detected → not detected while FEEDING)
+    //      → ball left the back sensor position heading toward HopperA.
+    //
+    //   c) Indexer supply-current spike above INDEXER_CURRENT_SPIKE_AMPS while FEEDING
+    //      → indexer wheel is loaded by a ball passing through (secondary signal).
+    //      NOTE: Stator current would be more reliable (measures actual motor load
+    //      vs. battery draw). If you add indexerStatorCurrentAmps to IndexerIO,
+    //      prefer that signal here and reduce the threshold accordingly.
+    //
+    //   The 'hadBallActivity' latch prevents isDoneShootingBalls() from returning
+    //   true before any ball has passed — ensuring the command doesn't exit
+    //   immediately on an empty hopper. Pair with .withTimeout() as a safety ceiling.
+    //
+    // TUNING:
+    //   BALL_DETECTOR_WINDOW_SECONDS — seconds of silence after last ball event
+    //     before declaring the shoot sequence done. 2.0s is conservative; tighten
+    //     to 1.0–1.5s once ball-to-ball timing is characterized on the real robot.
+    //
+    //   INDEXER_CURRENT_SPIKE_AMPS — supply-current threshold for the current spike
+    //     signal. Free-spin current is ~1–3A; a ball engaging the indexer wheel
+    //     typically pulls 6–15A. Start at 8A and tune down until reliable without
+    //     false positives (e.g., motor startup transient).
+    //
+    // USAGE in FuelCommands (auto):
+    //   Commands.runOnce(indexer::resetBallDetector, indexer),
+    //   Commands.run(() -> { indexer.indexerForward(); indexer.conveyorForward(); }, indexer)
+    //       .until(indexer::isDoneShootingBalls)
+    //       .withTimeout(10.0)   // safety ceiling — never hang indefinitely
+
+    /** Default window: seconds of silence before the shoot sequence is declared done. */
+    public static final double BALL_DETECTOR_WINDOW_SECONDS = 2.0;
+
+    /**
+     * Supply-current threshold for the indexer-motor current-spike signal (amps).
+     * Free-spin draw is ~1–3A; a ball engaging the indexer wheel typically pulls
+     * 6–15A. TODO: Tune on hardware — reduce toward 6A once false positives are ruled out.
+     */
+    public static final double INDEXER_CURRENT_SPIKE_AMPS = 8.0;
+
+    /** FPGA timestamp of the most recent ball event. Negative infinity = no event yet. */
+    private double  lastBallEventTimestamp = Double.NEGATIVE_INFINITY;
+
+    /** Latches true once the first ball event fires. Prevents early exit on empty hopper. */
+    private boolean hadBallActivity = false;
+
+    /** Previous-cycle sensor states for falling-edge detection. */
+    private boolean prevHopperADetected = false;
+    private boolean prevHopperBDetected = false;
+
     // ==== Elastic Dashboard Publishers ========================================
     private final NetworkTable indexerTable;
     private final BooleanPublisher hopperAPublisher;
@@ -129,6 +190,9 @@ public class IndexerSubsystem extends SubsystemBase {
     public void periodic() {
         io.updateInputs(inputs);
 
+        // Update ball detector with fresh sensor data before logging.
+        updateBallDetector();
+
         // processInputs() logs the raw IO layer — motor signals and sensor readings.
         // These appear in AdvantageScope under "Indexer/".
         Logger.processInputs("Indexer", inputs);
@@ -140,6 +204,13 @@ public class IndexerSubsystem extends SubsystemBase {
         Logger.recordOutput("Indexer/HopperCount", getHopperGamePieceCount());
         Logger.recordOutput("Indexer/HopperA/FillLevel", getHopperAFillLevel().name());
         Logger.recordOutput("Indexer/HopperB/FillLevel", getHopperBFillLevel().name());
+
+        // Ball detector telemetry — watch in AdvantageScope to tune thresholds.
+        Logger.recordOutput("Indexer/BallDetector/HadActivity",      hadBallActivity);
+        Logger.recordOutput("Indexer/BallDetector/RecentBall",       hasBallPassedRecently(BALL_DETECTOR_WINDOW_SECONDS));
+        Logger.recordOutput("Indexer/BallDetector/IsDone",           isDoneShootingBalls());
+        Logger.recordOutput("Indexer/BallDetector/TimeSinceLastBall",
+            hadBallActivity ? Timer.getFPGATimestamp() - lastBallEventTimestamp : -1.0);
 
         publishTelemetry();
     }
@@ -164,6 +235,108 @@ public class IndexerSubsystem extends SubsystemBase {
 
     public IndexerState getState() {
         return currentState;
+    }
+
+    // ==== Ball Detector =======================================================
+
+    /**
+     * Updates ball detector state using fresh sensor data from the current cycle.
+     *
+     * Called once per periodic() after updateInputs() so sensor values are current.
+     * Detects ball passage via three corroborating signals:
+     *   1. HopperA falling edge (true → false) while FEEDING
+     *   2. HopperB falling edge (true → false) while FEEDING
+     *   3. Indexer supply-current spike above threshold while FEEDING
+     *
+     * Any of the three signals stamps lastBallEventTimestamp and latches hadBallActivity.
+     */
+    private void updateBallDetector() {
+        // Falling-edge detection: sensor was true last cycle, false this cycle.
+        // Gated on FEEDING so a ball settling during intake loading doesn't count.
+        boolean aFallingEdge = prevHopperADetected && !inputs.hopperADetected
+                               && currentState == IndexerState.FEEDING;
+        boolean bFallingEdge = prevHopperBDetected && !inputs.hopperBDetected
+                               && currentState == IndexerState.FEEDING;
+
+        // Current spike: indexer wheel loaded by a passing ball.
+        // Uses supply current (available in inputs). See TUNING notes above.
+        boolean currentSpike = currentState == IndexerState.FEEDING
+                               && inputs.indexerCurrentAmps > INDEXER_CURRENT_SPIKE_AMPS;
+
+        if (aFallingEdge || bFallingEdge || currentSpike) {
+            lastBallEventTimestamp = Timer.getFPGATimestamp();
+            hadBallActivity = true;
+        }
+
+        // Advance edge-detection history for next cycle.
+        prevHopperADetected = inputs.hopperADetected;
+        prevHopperBDetected = inputs.hopperBDetected;
+    }
+
+    /**
+     * Returns true if a ball event was detected within the given time window.
+     *
+     * A "ball event" is any of: HopperA falling edge, HopperB falling edge,
+     * or indexer current spike above {@link #INDEXER_CURRENT_SPIKE_AMPS}.
+     *
+     * @param windowSeconds How far back to look for activity (seconds)
+     * @return true if a ball passed within the last windowSeconds
+     */
+    public boolean hasBallPassedRecently(double windowSeconds) {
+        return (Timer.getFPGATimestamp() - lastBallEventTimestamp) <= windowSeconds;
+    }
+
+    /**
+     * Returns true when the shoot sequence appears complete.
+     *
+     * Conditions (both must be true):
+     *   1. At least one ball event has been recorded since the last resetBallDetector() call.
+     *   2. No ball event has been recorded in the last windowSeconds.
+     *
+     * Use with .until() to replace fixed-duration timeouts in auto routines:
+     * <pre>
+     *   Commands.runOnce(indexer::resetBallDetector, indexer),
+     *   Commands.run(() -> {
+     *       indexer.indexerForward();
+     *       indexer.conveyorForward();
+     *   }, indexer)
+     *   .until(() -> indexer.isDoneShootingBalls(2.0))
+     *   .withTimeout(10.0)   // safety ceiling
+     * </pre>
+     *
+     * @param windowSeconds Seconds of inactivity before declaring "done"
+     * @return true when at least one ball has passed and none in the last windowSeconds
+     */
+    public boolean isDoneShootingBalls(double windowSeconds) {
+        return hadBallActivity && !hasBallPassedRecently(windowSeconds);
+    }
+
+    /**
+     * Convenience overload using the default {@link #BALL_DETECTOR_WINDOW_SECONDS} window.
+     *
+     * @return true when shooting appears complete (default 2-second window)
+     */
+    public boolean isDoneShootingBalls() {
+        return isDoneShootingBalls(BALL_DETECTOR_WINDOW_SECONDS);
+    }
+
+    /**
+     * Resets all ball detector state.
+     *
+     * Call this at the start of each shoot sequence to clear data from prior runs.
+     * Without resetting, a ball event from a previous sequence could satisfy the
+     * 'hadBallActivity' latch and cause the next sequence to exit prematurely.
+     *
+     * Also syncs the falling-edge previous-cycle state to current sensor values
+     * so the first periodic() after reset cannot generate a phantom edge.
+     */
+    public void resetBallDetector() {
+        lastBallEventTimestamp = Double.NEGATIVE_INFINITY;
+        hadBallActivity        = false;
+        // Sync edge detectors to current readings so a sustained sensor state
+        // doesn't produce a phantom falling edge on the first cycle after reset.
+        prevHopperADetected    = inputs.hopperADetected;
+        prevHopperBDetected    = inputs.hopperBDetected;
     }
 
     // ==== Motor Control =======================================================
