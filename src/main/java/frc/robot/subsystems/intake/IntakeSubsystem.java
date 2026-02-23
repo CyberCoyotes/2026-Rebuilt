@@ -31,7 +31,7 @@ public class IntakeSubsystem extends SubsystemBase {
     static final double SLIDE_MIN_POSITION        = 0.0;
     static final double SLIDE_MAX_POSITION        = 44.455;
 
-    static final double ROLLER_VOLTS = 6.0;
+    static final double ROLLER_VOLTS = 8.0; // was 6
 
     // ==== Elastic Dashboard Publishers ====
     // Driver-awareness data: state string, slide position, and at-target booleans.
@@ -129,6 +129,7 @@ public class IntakeSubsystem extends SubsystemBase {
 
     public void retractSlidesSlow(){
         io.setSlidePositionSlow(SLIDE_RETRACTED_POSITION);
+        // this.runRoller(); // FIXME
     }
 
     public void stopSlide(){
@@ -232,8 +233,11 @@ public class IntakeSubsystem extends SubsystemBase {
     public Command compressFuel() {
         return Commands.runOnce(
                 () -> {
-                    stopRoller();
+                    // TODO: Run roller while the slides retract and until the rectract is done
+                    runRoller();
                     retractSlidesSlow();
+                    stopRoller();
+
                 },
                 this)
                 .withName("CompressFuel");

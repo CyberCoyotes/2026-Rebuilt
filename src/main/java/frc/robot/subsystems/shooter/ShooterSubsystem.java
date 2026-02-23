@@ -49,8 +49,8 @@ public class ShooterSubsystem extends SubsystemBase {
      * Add an end of line comment `Tuned` when each is verified */
     private static final double STANDBY_RPM = 2240; //
     public static final double CLOSE_RPM   = 2750; //
-    private static final double TOWER_RPM   = 2900; // TODO: Tune
-    private static final double TRENCH_RPM  = 3000; // TODO: Tune
+    private static final double TOWER_RPM   = 3200; // TODO: Tune was 3100, 4.42
+    private static final double TRENCH_RPM  = 3200; // TODO: Tune
     private static final double FAR_RPM     = 3000; //
     private static final double PASS_RPM    = 4000; //
 
@@ -70,8 +70,8 @@ public class ShooterSubsystem extends SubsystemBase {
      * Consider using WCP Encoder
      * Add an end of line comment `Tuned` when each is verified */
     public static final double CLOSE_HOOD  = 0.00; //
-    public static final double TOWER_HOOD  = 4.42; //
-    public static final double TRENCH_HOOD = 5.00; //
+    public static final double TOWER_HOOD  = 4.30; //
+    public static final double TRENCH_HOOD = 4.30; //
     public static final double PASS_HOOD   = 5.50; //
     public static final double FAR_HOOD    = 6.00; //
 

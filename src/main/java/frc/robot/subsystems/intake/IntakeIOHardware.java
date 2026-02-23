@@ -68,7 +68,7 @@ public class IntakeIOHardware implements IntakeIO {
             config.CurrentLimits.StatorCurrentLimitEnable = true;
 
             config.SoftwareLimitSwitch.ForwardSoftLimitEnable = true;
-            config.SoftwareLimitSwitch.ForwardSoftLimitThreshold = 44.454;
+            config.SoftwareLimitSwitch.ForwardSoftLimitThreshold = 44.25;
             config.SoftwareLimitSwitch.ReverseSoftLimitEnable = true;
             config.SoftwareLimitSwitch.ReverseSoftLimitThreshold = 0.0;
 

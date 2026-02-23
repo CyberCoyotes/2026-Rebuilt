@@ -40,11 +40,11 @@ public class ShooterIOHardware implements ShooterIO {
 
     static TalonFXConfiguration competition() {
       TalonFXConfiguration config = leader();
-      // TODO: Dial in competition current limits and ramps
       return config;
     }
 
     /** Config for Motor A (leader) — runs velocity closed-loop with PID and ramp. */
+    // TODO: Dial in competition current limits and ramps
     static TalonFXConfiguration test() {
       TalonFXConfiguration config = leader();
 
@@ -93,7 +93,7 @@ public class ShooterIOHardware implements ShooterIO {
 
       // Velocity closed loop — Slot 0
       config.Slot0.kP = 0.12; // TODO: Tune
-      config.Slot0.kV = 0.10; // TODO: Tune
+      config.Slot0.kV = 0.12; // TODO: Tune
 
       return config;
     }

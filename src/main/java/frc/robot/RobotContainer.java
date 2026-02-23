@@ -140,8 +140,9 @@ public class RobotContainer {
 
         // Left Bumper: Retract slides immediately.
         // TODO Check if this is proper way to call the command `compressFuel()` from IntakeSubsytem
-        driver.leftBumper().onTrue(//Commands.runOnce(
-            intake.compressFuel());
+        driver.leftBumper().onTrue(
+            intake.compressFuel()
+        );
     }
 
     public Command getAutonomousCommand() {
