@@ -88,33 +88,33 @@ public class AutoRoutines {
     // =========================================================================
 
     public Command buildFullAuto(String p1, String p2, String p3) {
-    List<String> selected = new ArrayList<>();
-    if (!p1.equals(NONE)) selected.add(p1);
-    if (!p2.equals(NONE)) selected.add(p2);
-    if (!p3.equals(NONE)) selected.add(p3);
+        List<String> selected = new ArrayList<>();
+        if (!p1.equals(NONE)) selected.add(p1);
+        if (!p2.equals(NONE)) selected.add(p2);
+        if (!p3.equals(NONE)) selected.add(p3);
 
-    if (selected.isEmpty()) return Commands.none();
+        if (selected.isEmpty()) return Commands.none();
 
-    Command full = buildPathCommand(selected.get(0), true);
+        Command full = buildPathCommand(selected.get(0), true);
 
-    for (int i = 1; i < selected.size(); i++) {
+        for (int i = 1; i < selected.size(); i++) {
+            full = full
+                .andThen(Commands.deadline(
+                    shootWindow(),            // shootWindow drives the duration
+                    Commands.waitSeconds(2.0) // hard 2s ceiling
+                ))
+                .andThen(buildPathCommand(selected.get(i), false));
+        }
+
         full = full
             .andThen(Commands.deadline(
-                Commands.waitSeconds(2.0), // 2s timer drives the duration
-                shootWindow()                      // shooter runs alongside, gets cut off at 2s
+                shootWindow(),
+                Commands.waitSeconds(2.0)
             ))
-            .andThen(buildPathCommand(selected.get(i), false));
+            .andThen(Commands.runOnce(m_shooter::returnToIdle, m_shooter));
+
+        return full;
     }
-
-    full = full
-        .andThen(Commands.deadline(
-            Commands.waitSeconds(2.0),
-            shootWindow()
-        ))
-        .andThen(Commands.runOnce(m_shooter::returnToIdle, m_shooter));
-
-    return full;
-}
 
     // =========================================================================
     // PATH COMMAND BUILDER
@@ -196,7 +196,7 @@ public class AutoRoutines {
     // =========================================================================
 
     private Command shootWindow() {
-        PIDController pid = new PIDController(0.10, 0.00, 0.00);
+        PIDController pid = new PIDController(0.17, 0.00, 0.00);
         pid.setSetpoint(0.0);
         pid.setTolerance(1.0);
         pid.enableContinuousInput(-180.0, 180.0);
@@ -240,7 +240,7 @@ public class AutoRoutines {
 
                 // Wait until ready then feed — ends race group when feedOnly finishes
                 Commands.sequence(
-                    Commands.waitUntil(m_shooter::isReady).withTimeout(3.0),
+                    Commands.waitUntil(m_shooter::isReady).withTimeout(2.0),
                     Commands.runOnce(() ->
                         System.out.println("[ShootWindow] Shooter ready — feeding now.")
                     ),
@@ -248,7 +248,7 @@ public class AutoRoutines {
                 ),
 
                 // Hard 4-second ceiling
-                Commands.waitSeconds(4.0)
+                Commands.waitSeconds(2.0)
             ),
 
             // Clean up after the window closes
