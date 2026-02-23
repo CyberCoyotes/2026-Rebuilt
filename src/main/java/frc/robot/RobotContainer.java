@@ -9,10 +9,10 @@ import static edu.wpi.first.units.Units.*;
 import com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType;
 import com.ctre.phoenix6.swerve.SwerveRequest;
 
-import choreo.auto.AutoChooser;
 import choreo.auto.AutoFactory;
 
 import edu.wpi.first.wpilibj.RobotBase;
+import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
@@ -26,7 +26,6 @@ import frc.robot.commands.HubTrackingCommand;
 import frc.robot.commands.IndexerCommands;
 import frc.robot.commands.ShooterCommands;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
-// import frc.robot.subsystems.climber.ClimberSubsystem;
 import frc.robot.subsystems.indexer.IndexerSubsystem;
 import frc.robot.subsystems.intake.IntakeSubsystem;
 import frc.robot.subsystems.indexer.IndexerIOHardware;
@@ -74,9 +73,13 @@ public class RobotContainer {
     // Null when running on real hardware.
     private final VisionIOSim visionIOSim;
 
+    // ===== Auto =====
     private final AutoFactory  autoFactory;
     private final AutoRoutines autoRoutines;
-    private final AutoChooser  autoChooser = new AutoChooser();
+
+    private final SendableChooser<String> phase1Chooser = new SendableChooser<>();
+    private final SendableChooser<String> phase2Chooser = new SendableChooser<>();
+    private final SendableChooser<String> phase3Chooser = new SendableChooser<>();
 
     public RobotContainer() {
         intake  = new IntakeSubsystem(new IntakeIOHardware());
@@ -107,7 +110,20 @@ public class RobotContainer {
         autoFactory  = drivetrain.createAutoFactory();
         autoRoutines = new AutoRoutines(autoFactory, drivetrain, intake, shooter, indexer, vision);
 
-        SmartDashboard.putData("Auto Chooser", autoChooser);
+        // ===== Phase 1 Chooser =====
+        phase1Chooser.setDefaultOption(AutoRoutines.NONE, AutoRoutines.NONE);
+        // phase1Chooser.addOption("My Routine", AutoRoutines.PHASE1_MY_ROUTINE);
+        SmartDashboard.putData("Auto Phase 1", phase1Chooser);
+
+        // ===== Phase 2 Chooser =====
+        phase2Chooser.setDefaultOption(AutoRoutines.NONE, AutoRoutines.NONE);
+        // phase2Chooser.addOption("My Routine", AutoRoutines.PHASE2_MY_ROUTINE);
+        SmartDashboard.putData("Auto Phase 2", phase2Chooser);
+
+        // ===== Phase 3 Chooser =====
+        phase3Chooser.setDefaultOption(AutoRoutines.NONE, AutoRoutines.NONE);
+        // phase3Chooser.addOption("My Routine", AutoRoutines.PHASE3_MY_ROUTINE);
+        SmartDashboard.putData("Auto Phase 3", phase3Chooser);
 
         configureBindings();
     }
@@ -153,14 +169,13 @@ public class RobotContainer {
         // DRIVER CONTROLLER (Port 0) - Shooter Presets
         // =====================================================================
 
-        // A: Arm close shot — silently sets target RPM and hood, no motor movement
+        // A: Arm close shot
         driver.a().onTrue(ShooterCommands.armCloseShot(shooter));
 
-        // B: Arm pass shot — silently sets target RPM and hood, no motor movement
+        // B: Arm pass shot
         driver.b().onTrue(ShooterCommands.armPassShot(shooter));
 
-        // X: Arm hub shot — spins flywheel up to hub defaults immediately.
-        //    HubTrackingCommand overrides RPM/hood from live distance when RT is held.
+        // X: Arm hub shot
         driver.x().onTrue(new InstantCommand(shooter::hubShot, shooter));
 
         // =====================================================================
@@ -170,9 +185,6 @@ public class RobotContainer {
         Trigger hubShotArmed = new Trigger(shooter::isHubShotArmed);
         Trigger shooterReady = new Trigger(shooter::isReady);
 
-        // RT (hub shot armed): Rotate to face hub and update RPM/hood from distance.
-        //   Translation is capped to MAX_TRACKING_SPEED_MPS — driver can still reposition.
-        //   Releases everything (shooter to idle, drivetrain unlocked) when RT is released.
         driver.rightTrigger(0.5).and(hubShotArmed).whileTrue(
             new HubTrackingCommand(
                 drivetrain, shooter, vision,
@@ -181,14 +193,10 @@ public class RobotContainer {
             )
         );
 
-        // RT (hub shot armed + shooter ready): Feed indexer.
-        //   Activates automatically once flywheel and hood are both on target.
-        //   Stops automatically if shooter falls out of tolerance mid-match.
         driver.rightTrigger(0.5).and(hubShotArmed).and(shooterReady).whileTrue(
             ShooterCommands.feedOnly(indexer)
         );
 
-        // RT (standard shot): Close or pass shot at currently armed preset.
         driver.rightTrigger(0.5).and(hubShotArmed.negate()).whileTrue(
             ShooterCommands.shootAtCurrentTarget(shooter, indexer)
         );
@@ -197,22 +205,18 @@ public class RobotContainer {
         // DRIVER CONTROLLER (Port 0) - Intake
         // =====================================================================
 
-        // Left Trigger: Extend slides, run roller, and slowly spin shooter/indexer
-        // at IDLE_RPM while held to prevent balls from jamming. On release, shooter
-        // returns to SPINUP and the previously armed preset is preserved.
         driver.leftTrigger(0.5).whileTrue(
             intake.intakeFuel()
                 .alongWith(shooter.intakeModeCommand())
         );
 
-        // Left Bumper: Retract intake and slowly reverse roller while held.
         driver.leftBumper().whileTrue(intake.retractAndReverseRollerCommand());
 
         // =====================================================================
         // DRIVER CONTROLLER (Port 0) - Commented out (TODO: enable as needed)
         // =====================================================================
 
-        // driver.povLeft()  — free to reassign (was AlignToHubCommand, now replaced by RT)
+        // driver.povLeft()  — free to reassign
         // driver.rightBumper()...
         // driver.y().whileTrue(Commands.startEnd(indexer::indexerForward, indexer::indexerStop));
         // driver.povUp().onTrue(ShooterCommands.increaseTargetHoodPose(shooter, ShooterSubsystem.HOOD_TEST_INCREMENT));
@@ -232,8 +236,7 @@ public class RobotContainer {
         // operator.start().onTrue(climber.stopClimber());
 
         // =====================================================================
-        // OPERATOR PERSPECTIVE — rotates field-centric controls to match physical orientation.
-        // TODO: Tune on real hardware. Try 0, 90, -90, or 180 if controls feel rotated.
+        // OPERATOR PERSPECTIVE
         // =====================================================================
         drivetrain.setOperatorPerspectiveForward(
             edu.wpi.first.math.geometry.Rotation2d.fromDegrees(-90)
@@ -241,7 +244,9 @@ public class RobotContainer {
     }
 
     public Command getAutonomousCommand() {
-        return autoChooser.selectedCommand();
+        return autoRoutines.buildPhase1(phase1Chooser.getSelected())
+            .andThen(autoRoutines.buildPhase2(phase2Chooser.getSelected()))
+            .andThen(autoRoutines.buildPhase3(phase3Chooser.getSelected()));
     }
 
     public void updateGameData() {
