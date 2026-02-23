@@ -139,60 +139,7 @@ public class RobotContainer {
         // Left Bumper: Retract slides immediately.
         driver.leftBumper().onTrue(Commands.runOnce(intake::retractSlides, intake));
 
-        // =====================================================================
-        // OPERATOR CONTROLLER (Port 1)
-        // =====================================================================
-
-        // Right Bumper: Conveyor forward while held (for manual feeding / testing).
-        operator.rightBumper().whileTrue(
-            Commands.startEnd(
-                () -> indexer.conveyorForward(),
-                () -> indexer.conveyorStop(),
-                indexer)
-        );
-
-        // =====================================================================
-        // DRIVER CONTROLLER (Port 0) - Commented out (TODO: enable as needed)
-        // =====================================================================
-
-        // Right Bumper: (free)
-        // driver.rightBumper()...
-
-        // Y: Indexer forward while held
-        // driver.y().whileTrue(Commands.startEnd(indexer::indexerForward, indexer::indexerStop));
-
-        // POV Right/Up/Down: (free)
-
-        // POV Up/Down: Incremental hood angle adjustment
-        // driver.povUp().onTrue(ShooterCommands.increaseTargetHoodPose(shooter, ShooterSubsystem.HOOD_TEST_INCREMENT));
-        // driver.povDown().onTrue(ShooterCommands.decreaseTargetHoodPose(shooter, ShooterSubsystem.HOOD_TEST_INCREMENT));
-
-        // Eject fuel from intake
-        // driver.y().whileTrue(intake.ejectFuel());
-
-        // =====================================================================
-        // OPERATOR CONTROLLER (Port 1) - Commented out (TODO: enable as needed)
-        // =====================================================================
-
-        // Right Trigger: Vision-based shot
-        // operator.rightTrigger(0.5).whileTrue(ShooterCommands.visionShot(shooter, vision));
-
-        // Right Bumper: Conveyor forward
-        // operator.rightBumper().whileTrue(
-        //     Commands.startEnd(() -> indexer.conveyorForward(), () -> indexer.conveyorStop(), indexer));
-
-        // POV Up/Down: Incremental hood angle adjustment
-        // operator.povUp().onTrue(ShooterCommands.increaseTargetHoodPose(shooter, ShooterSubsystem.HOOD_TEST_INCREMENT));
-        // operator.povDown().onTrue(ShooterCommands.decreaseTargetHoodPose(shooter, ShooterSubsystem.HOOD_TEST_INCREMENT));
-
-        // Indexer testing
-        // operator.a().whileTrue(Commands.startEnd(indexer::conveyorForward, indexer::conveyorStop));
-        // operator.b().whileTrue(Commands.startEnd(indexer::conveyorReverse, indexer::conveyorStop));
-        // operator.x().whileTrue(Commands.startEnd(indexer::indexerForward, indexer::indexerStop));
-        // operator.y().whileTrue(Commands.startEnd(indexer::indexerReverse, indexer::indexerStop));
-
-        // Stop climber
-        // operator.start().onTrue(climber.stopClimber());
+      
     }
 
     public Command getAutonomousCommand() {

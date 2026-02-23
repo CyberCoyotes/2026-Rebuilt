@@ -167,31 +167,31 @@ public class IndexerSubsystem extends SubsystemBase {
     }
 
     // ==== Motor Control =======================================================
-    void conveyorForward() {
+    public void conveyorForward() {
         io.setConveyorMotor(CONVEYOR_FORWARD_VOLTAGE);
     }
 
-    void conveyorReverse() {
+    public void conveyorReverse() {
         io.setConveyorMotor(CONVEYOR_REVERSE_VOLTAGE);
     }
 
-    void conveyorStop() {
+    public void conveyorStop() {
         io.setConveyorMotor(0.0);
     }
 
-    void indexerForward() {
+    public void indexerForward() {
         io.setIndexerMotor(INDEXER_FORWARD_VOLTAGE);
     }
 
-    void indexerReverse() {
+    public void indexerReverse() {
         io.setIndexerMotor(INDEXER_REVERSE_VOLTAGE);
     }
 
-    void indexerStop() {
+    public void indexerStop() {
         io.setIndexerMotor(0.0);
     }
 
-    void stop() {
+    public void stop() {
         io.stop();
     }
 

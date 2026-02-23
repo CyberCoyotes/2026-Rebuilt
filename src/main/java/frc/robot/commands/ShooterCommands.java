@@ -52,9 +52,9 @@ public class ShooterCommands {
                 // indexer.conveyorForward();
             }, indexer)
         ).finallyDo(() -> {
-            // indexer.indexerStop();
-            // indexer.conveyorStop();
-            shooter.returnToStandby();
+            indexer.indexerStop();
+            indexer.conveyorStop();
+            // shooter.returnToStandby();
         }).withName("ShootAtCurrentTarget");
     }
 
@@ -96,7 +96,7 @@ public class ShooterCommands {
         ).finallyDo(() -> {
             indexer.indexerStop();
             indexer.conveyorStop();
-            shooter.returnToStandby();
+            // shooter.returnToStandby();
         }).withName("ShootWithPreset[" + rpm + "rpm]");
     }
 
@@ -137,7 +137,7 @@ public class ShooterCommands {
         ).finallyDo(() -> {
             indexer.indexerStop();
             indexer.conveyorStop();
-            shooter.returnToStandby();
+            // shooter.returnToStandby();
         }).withName("ShootWithSelectedPreset");
     }
 
