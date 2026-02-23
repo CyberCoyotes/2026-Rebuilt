@@ -12,17 +12,11 @@ import com.ctre.phoenix6.swerve.SwerveRequest;
 import choreo.auto.AutoChooser;
 import choreo.auto.AutoFactory;
 
-import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.RobotModeTriggers;
-import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
 import frc.robot.generated.TunerConstants;
-import edu.wpi.first.wpilibj2.command.button.Trigger;
-import frc.robot.generated.TunerConstants;
-import frc.robot.commands.AlignToHubCommand;
 import frc.robot.commands.ShooterCommands;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
 import frc.robot.subsystems.indexer.IndexerSubsystem;
@@ -113,160 +107,49 @@ public class RobotContainer {
         // DRIVER CONTROLLER (Port 0) - Vision Alignment
         // =====================================================================
 
-        // ----- Shooter -----
-        // ----- Full Sequences -----        
+        // =====================================================================
+        // DRIVER CONTROLLER (Port 0) - Shooter
+        // =====================================================================
+
+        // Right Trigger: Shoot with the currently selected preset.
+        //
+        // Default preset on startup: CLOSE (Close RPM + Close hood).
+        // Cycle presets with POV Left / POV Right before shooting.
+        //
+        // Sequence: arm preset → ramp flywheel + move hood → wait until ready → feed
+        // On release: stop indexer/conveyor → return shooter to standby.
         driver.rightTrigger(0.5).whileTrue(
-            ShooterCommands.shootSequence(shooter, indexer,
-                ShooterSubsystem.CLOSE_RPM, ShooterSubsystem.CLOSE_HOOD)
+            ShooterCommands.shootWithSelectedPreset(shooter, indexer)
         );
 
-        driver.leftTrigger().whileTrue(Commands.runOnce(intake::extendSlides, intake));
-
-        // driver.leftTrigger().whileTrue(intake.intakeFuel());
-
-        // Left Bumper: Retract intake slides while held.
-        driver.leftBumper().onTrue(Commands.run(intake::retractSlides, intake));
-        
-        /* TODO Test for fuel compression that is used in the `Command compressFuel()`
-        / method in the IntakeSubsystem, which should stop the roller and retract the slides with a slower profile. */
-        driver.a().onTrue(Commands.run(intake::retractSlidesSlow, intake)); // Slides only
-        driver.b().onTrue(Commands.run(intake::compressFuel, intake)); // Stops slides and roller
-
-        /* TODO Test rampTestShoot first, comment out, and try this one */
-        /*
-        driver.rightTrigger(0.5).whileTrue(
-            Commands.parallel(
-                ShooterCommands.rampUpFlywheel(shooter, ShooterSubsystem.RAMP_TEST_TARGET_RPM),
-                Commands.waitUntil(shooter::isReady).withTimeout(5.0), // Timeout to prevent indefinite waiting if something goes wrong
-                Commands.run(indexer::indexerForward).withTimeout(10.0) // Run indexer forward for 10 seconds or until interrupted (e.g., by releasing trigger)
-        // POV Left: Align to blue hub (tags 18-27).
-        // Robot rotates to face the nearest hub AprilTag while driver controls translation.
-        driver.povLeft().whileTrue(
-            new AlignToHubCommand(
-                drivetrain,
-                vision,
-                () -> -driver.getLeftY() * MaxSpeed,
-                () -> -driver.getLeftX() * MaxSpeed
-            )
-        );
-
-        // =====================================================================
-        // DRIVER CONTROLLER (Port 0) - Shooter Presets
-        // Silently update target RPM and hood angle.
-        // No motors move until the shoot trigger is pressed.
-        // =====================================================================
-
-        // A: Arm close shot — clears far shot flag, routes RT to shootAtCurrentTarget
-        driver.a().onTrue(ShooterCommands.armCloseShot(shooter));
-
-        // B: Pass shot (prepare and wait for ready)
-        driver.b().onTrue(Commands.runOnce(() -> {
-            shooter.setTargetHoodPose(ShooterSubsystem.PASS_SHOT_HOOD);
-            shooter.prepareToShoot();
-        }));
-        driver.y().whileTrue(
-            Commands.startEnd(indexer::indexerForward, indexer::indexerStop));
-        // POV Up: Eject from shooter (clear jams, 1 second reverse)
-        
-        // driver.povLeft().onTrue(ShooterCommands.eject(shooter, 1.0));
-        // X: Arm far shot — sets far shot flag, routes RT to FarShotCommand
-        driver.x().onTrue(ShooterCommands.armFarShot(shooter));
-
-        // B: Arm pass shot — clears far shot flag, routes RT to shootAtCurrentTarget
-        driver.b().onTrue(ShooterCommands.armPassShot(shooter));
-
-        // =====================================================================
-        // DRIVER CONTROLLER (Port 0) - Shoot
-        // =====================================================================
-
-        // Right Trigger: Shoot at currently armed preset.
-        //
-        // If FAR SHOT is armed (X was pressed):
-        //   → FarShotCommand — auto-rotates to hub, continuously adjusts hood by distance,
-        //     RPM at FAR_SHOT_RPM + 350, driver controls translation
-        //
-        // Otherwise (close shot or pass shot):
-        //   → shootAtCurrentTarget — ramps to preset targets, waits until ready, feeds
-        //
-        // Both commands return to SPINUP at IDLE_RPM on release.
-
-        Trigger rtTrigger = driver.rightTrigger(0.5);
-        Trigger farShotArmed = new Trigger(shooter::isFarShotArmed);
-
-        // Far shot path — only when X was last pressed
-        rtTrigger.and(farShotArmed).whileTrue(
-            new FarShotCommand(
-                drivetrain,
-                shooter,
-                vision,
-                indexer,
-                () -> -driver.getLeftY() * MaxSpeed,
-                () -> -driver.getLeftX() * MaxSpeed
-            )
-        );
-
-        // Standard shot path — when A or B was last pressed
-        rtTrigger.and(farShotArmed.negate()).whileTrue(
-            ShooterCommands.shootAtCurrentTarget(shooter, indexer)
-        );
+        // POV Right: Cycle to next preset (Close → Tower → Trench → Pass → Far → Close).
+        // POV Left:  Cycle to previous preset (Close → Far → Pass → Trench → Tower → Close).
+        // Selected preset is published to Shooter/SelectedPreset on NetworkTables / Elastic.
+        // No subsystem requirement — safe to press while trigger is held without interrupting a shot.
+        driver.povRight().onTrue(Commands.runOnce(shooter::cyclePresetForward));
+        driver.povLeft().onTrue(Commands.runOnce(shooter::cyclePresetBackward));
 
         // =====================================================================
         // DRIVER CONTROLLER (Port 0) - Intake
         // =====================================================================
 
         // Left Trigger: Extend slides and run roller while held.
-        // Slides remain extended on release (intentional).
         driver.leftTrigger(0.5).whileTrue(intake.intakeFuel());
 
-        // Left Bumper: Stop intake jam (quick reverse)
-        // driver.leftBumper().whileTrue(intake.ejectFuel());
+        // Left Bumper: Retract slides immediately.
         driver.leftBumper().onTrue(Commands.runOnce(intake::retractSlides, intake));
 
-        // ----- Climber (POV) -----
-        // POV Up: Extend climber arm (preset})
-        //  driver.povUp().onTrue(climber.extendArm());
-        // POV Down: Retract climber arm (Preset)
-        // driver.povDown().onTrue(climber.retractArm());
-        
-        // POV Right: Extend climber arm (while held)
-        // driver.povRight().whileTrue(climber.extendArm());
-        // POV Left: Retract climber arm (while held)
-        // driver.povLeft().whileTrue(climber.retractArm());
+        // =====================================================================
+        // OPERATOR CONTROLLER (Port 1)
+        // =====================================================================
 
-        // Start: Stop climber
-       // operator.start().onTrue(climber.stopClimber());
-
-        // ----- Operator Controller (Port 1) - Shooter Hood Testing -----
-        // operator.povDown().onTrue(shooter.runOnce(shooter::decreaseHoodForTesting));
-        // operator.povUp().onTrue(shooter.runOnce(shooter::increaseHoodForTesting));
-
-        // Hood position testing (closed-loop position control)
-        // operator.rightBumper().onTrue(shooter.runHoodToMax());   // Move hood to MAX_HOOD_POSE
-        // operator.leftBumper().onTrue(shooter.runHoodToMin());    // Move hood to MIN_HOOD_POSE
+        // Right Bumper: Conveyor forward while held (for manual feeding / testing).
         operator.rightBumper().whileTrue(
             Commands.startEnd(
-                () -> indexer.conveyorForward(), 
-                () -> indexer.conveyorStop(), 
+                () -> indexer.conveyorForward(),
+                () -> indexer.conveyorStop(),
                 indexer)
         );
-
-
-        //
-        // operator.rightTrigger(0.5).whileTrue(
-        //     ShooterCommands.visionShot(shooter, vision)
-        // );
-        
-
-        // /* */
-        // operator.rightTrigger(0.5).whileTrue(
-        //     Commands.parallel(
-        //         ShooterCommands.rampUpFlywheel(shooter, ShooterSubsystem.RAMP_TEST_TARGET_RPM),
-        //         Commands.waitUntil(shooter::isReady).withTimeout(10.0), // Timeout to prevent indefinite waiting if something goes wrong
-        //         Commands.run(indexer::indexerForward).withTimeout(10.0) // Run indexer forward for 10 seconds or until interrupted (e.g., by releasing trigger)
-        //     )
-        // );
-    
-        // Left Bumper: Retract intake slides while held.
 
         // =====================================================================
         // DRIVER CONTROLLER (Port 0) - Commented out (TODO: enable as needed)

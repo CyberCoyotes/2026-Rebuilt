@@ -46,6 +46,8 @@ public class ShooterSubsystem extends SubsystemBase {
      * Add an end of line comment `Tuned` when each is verified */
     private static final double STANDBY_RPM = 2240; //
     public static final double CLOSE_RPM   = 2750; //
+    private static final double TOWER_RPM   = 2900; // TODO: Tune
+    private static final double TRENCH_RPM  = 3000; // TODO: Tune
     private static final double FAR_RPM     = 3000; //
     private static final double PASS_RPM    = 4000; //
 
@@ -74,6 +76,34 @@ public class ShooterSubsystem extends SubsystemBase {
     public static final double HOOD_TEST_INCREMENT         = 0.2;
     public static final double FLYWHEEL_TEST_INCREMENT_RPM = 100.0;
 
+    // =========================================================================
+    // SHOT PRESETS (for cycling via POV left/right)
+    // =========================================================================
+
+    /**
+     * Named shot presets that can be selected via POV left/right on the driver controller.
+     * The selected preset is armed silently and fired on the right trigger.
+     * Published to NetworkTables as Shooter/SelectedPreset for Elastic display.
+     */
+    public enum ShotPreset {
+        CLOSE  ("Close",   CLOSE_RPM,  CLOSE_HOOD),
+        TOWER  ("Tower",   TOWER_RPM,  TOWER_HOOD),
+        TRENCH ("Trench",  TRENCH_RPM, TRENCH_HOOD),
+        PASS   ("Pass",    PASS_RPM,   PASS_HOOD),
+        FAR    ("Far",     FAR_RPM,    FAR_HOOD);
+
+        public final String label;
+        public final double rpm;
+        public final double hood;
+
+        ShotPreset(String label, double rpm, double hood) {
+            this.label = label;
+            this.rpm   = rpm;
+            this.hood  = hood;
+        }
+    }
+
+    private static final ShotPreset[] PRESETS = ShotPreset.values();
 
     // ==== Hardware Interface ====
     private final ShooterIO io;
@@ -94,9 +124,11 @@ public class ShooterSubsystem extends SubsystemBase {
     private final DoublePublisher  flywheelVoltsPublisher;
     private final DoublePublisher  throughBorePositionPublisher;
     private final BooleanPublisher throughBoreConnectedPublisher;
+    private final StringPublisher  selectedPresetPublisher;
 
     // ==== State ====
     private ShooterState currentState     = ShooterState.IDLE;
+    private ShotPreset   selectedPreset   = ShotPreset.CLOSE;
     private String currentStateString     = ShooterState.IDLE.toString();
     private double targetFlywheelMotorRPM = 0.0;
     private double targetHoodPoseRot      = 0.0;
@@ -122,8 +154,9 @@ public class ShooterSubsystem extends SubsystemBase {
         hoodErrorPublisher           = shooterTable.getDoubleTopic("HoodError").publish();
         hoodAtPosePublisher          = shooterTable.getBooleanTopic("HoodAtPose").publish();
         flywheelVoltsPublisher       = shooterTable.getDoubleTopic("FlywheelAppliedVolts").publish();
-        throughBorePositionPublisher = shooterTable.getDoubleTopic("ThroughBorePosition").publish();
+        throughBorePositionPublisher  = shooterTable.getDoubleTopic("ThroughBorePosition").publish();
         throughBoreConnectedPublisher = shooterTable.getBooleanTopic("ThroughBoreConnected").publish();
+        selectedPresetPublisher       = shooterTable.getStringTopic("SelectedPreset").publish();
     }
 
     // ==== State Machine ====
@@ -161,6 +194,7 @@ public class ShooterSubsystem extends SubsystemBase {
         flywheelVoltsPublisher.set(inputs.flywheelAppliedVolts);
         throughBorePositionPublisher.set(inputs.hoodThroughBorePositionRotations);
         throughBoreConnectedPublisher.set(inputs.hoodThroughBoreConnected);
+        selectedPresetPublisher.set(selectedPreset.label);
     }
 
     // =====STATE MACHINE=====
@@ -399,6 +433,49 @@ public class ShooterSubsystem extends SubsystemBase {
 
     public double getTargetHoodPose() {
         return targetHoodPoseRot;
+    }
+
+    // =========================================================================
+    // PRESET CYCLING (POV left/right in RobotContainer)
+    // =========================================================================
+
+    /**
+     * Arms the currently selected test preset silently (RPM + hood).
+     * No motor movement until shoot trigger is pressed.
+     */
+    public void armSelectedPreset() {
+        targetFlywheelMotorRPM = selectedPreset.rpm;
+        targetHoodPoseRot      = selectedPreset.hood;
+    }
+
+    /** Returns the currently selected test preset. */
+    public ShotPreset getSelectedPreset() {
+        return selectedPreset;
+    }
+
+    /**
+     * Advances to the next preset in the cycle order:
+     * Close → Tower → Trench → Pass → Far → Close
+     * Arms the new preset silently so it's ready when RT is pressed.
+     */
+    public void cyclePresetForward() {
+        selectedPreset = PRESETS[(selectedPreset.ordinal() + 1) % PRESETS.length];
+        armSelectedPreset();
+    }
+
+    /**
+     * Moves to the previous preset in the cycle order:
+     * Close → Far → Pass → Trench → Tower → Close
+     * Arms the new preset silently so it's ready when RT is pressed.
+     */
+    public void cyclePresetBackward() {
+        selectedPreset = PRESETS[(selectedPreset.ordinal() - 1 + PRESETS.length) % PRESETS.length];
+        armSelectedPreset();
+    }
+
+    /** Returns true if the FAR preset is currently selected (used to gate FarShotCommand). */
+    public boolean isFarShotArmed() {
+        return selectedPreset == ShotPreset.FAR;
     }
 
     // ==== Vision ====
