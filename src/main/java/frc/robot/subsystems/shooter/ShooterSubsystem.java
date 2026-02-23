@@ -227,7 +227,7 @@ public class ShooterSubsystem extends SubsystemBase {
                 break;
 
             case STANDBY:
-                io.setFlywheelVelocity(STANDBY_RPM);
+                // io.setFlywheelVelocity(STANDBY_RPM); // TODO: Do not use right now **EXPERIMENTAL**
                 io.setHoodPose(MIN_HOOD_POSE_ROT);
                 break;
 
@@ -259,7 +259,7 @@ public class ShooterSubsystem extends SubsystemBase {
 
     /**
      * Called after a shot is complete to reset the shooter.
-     * TODO: Change to setState(ShooterState.STANDBY) once standby spin logic is validated.
+     * TODO: Do not use right now **EXPERIMENTAL**
      */
     public void returnToStandby() {
         setState(ShooterState.IDLE);
@@ -394,9 +394,9 @@ public class ShooterSubsystem extends SubsystemBase {
     // ── Commands ───────────────────────────────────────────────────────────────
 
     /** Spins up flywheel to pre-rev speed. */
-    public Command spinUpCommand() {
-        return Commands.runOnce(this::spinup, this).withName("SpinUp");
-    }
+    // public Command spinUpCommand() {
+    //     return Commands.runOnce(this::spinup, this).withName("SpinUp");
+    // }
 
     /** Returns shooter to idle. */
     public Command idleCommand() {
@@ -499,9 +499,9 @@ public class ShooterSubsystem extends SubsystemBase {
     // Prefer setCloseShotPreset() / setFarShotPreset() + prepareToShoot() at the call site.
 
     /** Used by spinUpCommand(). Transitions to STANDBY. */
-    public void spinup() {
-        setState(ShooterState.STANDBY);
-    }
+    // public void spinup() {
+    //     setState(ShooterState.STANDBY);
+    // }
 
     /** @deprecated Bypasses the silent-preset + shoot-trigger split. Use setCloseShotPreset() instead. */
     @Deprecated
