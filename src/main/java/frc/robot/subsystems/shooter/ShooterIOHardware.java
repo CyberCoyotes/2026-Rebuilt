@@ -39,13 +39,14 @@ public class ShooterIOHardware implements ShooterIO {
   private static class FlywheelConfig {
 
     static TalonFXConfiguration competition() {
-      TalonFXConfiguration config = base();
+      TalonFXConfiguration config = leader();
       // TODO: Dial in competition current limits and ramps
       return config;
     }
 
+    /** Config for Motor A (leader) — runs velocity closed-loop with PID and ramp. */
     static TalonFXConfiguration test() {
-      TalonFXConfiguration config = base();
+      TalonFXConfiguration config = leader();
 
       config.CurrentLimits.SupplyCurrentLimit = 60.0;
       config.CurrentLimits.SupplyCurrentLimitEnable = true;
@@ -56,7 +57,35 @@ public class ShooterIOHardware implements ShooterIO {
       return config;
     }
 
-    private static TalonFXConfiguration base() {
+    /**
+     * Config for Motors B and C (followers).
+     * Followers must NOT have a ramp period — the leader owns the ramp.
+     * A ramp on the follower causes it to lag behind A, producing desync,
+     * orange LEDs, and the characteristic whoop-whoop-whoop noise.
+     * PID gains are also cleared — followers never run closed-loop independently.
+     */
+    static TalonFXConfiguration follower() {
+      TalonFXConfiguration config = new TalonFXConfiguration();
+
+      config.MotorOutput.NeutralMode = NeutralModeValue.Coast;
+      config.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
+
+      config.CurrentLimits.SupplyCurrentLimit = 60.0;
+      config.CurrentLimits.SupplyCurrentLimitEnable = true;
+      config.CurrentLimits.StatorCurrentLimit = 120.0;
+      config.CurrentLimits.StatorCurrentLimitEnable = true;
+
+      // No ramp period — leader controls the ramp, followers just mirror output
+      config.ClosedLoopRamps.VoltageClosedLoopRampPeriod = 0.0;
+
+      // No PID gains — followers never run closed-loop
+      config.Slot0.kP = 0.0;
+      config.Slot0.kV = 0.0;
+
+      return config;
+    }
+
+    private static TalonFXConfiguration leader() {
       TalonFXConfiguration config = new TalonFXConfiguration();
 
       config.MotorOutput.NeutralMode = NeutralModeValue.Coast;
@@ -137,10 +166,10 @@ public class ShooterIOHardware implements ShooterIO {
     encoderConfig.MagnetSensor.MagnetOffset = 0.0;
     hoodEncoder.getConfigurator().apply(encoderConfig);
 
-    // Apply motor configs
+    // Apply motor configs — B and C use a separate follower config (no ramp, no PID)
     flywheelMotorA.getConfigurator().apply(FlywheelConfig.test());
-    flywheelMotorB.getConfigurator().apply(FlywheelConfig.test());
-    flywheelMotorC.getConfigurator().apply(FlywheelConfig.test());
+    flywheelMotorB.getConfigurator().apply(FlywheelConfig.follower());
+    flywheelMotorC.getConfigurator().apply(FlywheelConfig.follower());
     hoodMotor.getConfigurator().apply(HoodConfig.hood());
 
     // Cache status signal references
