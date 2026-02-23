@@ -59,6 +59,89 @@ public class ShooterCommands {
     }
 
     // =========================================================================
+    // PRESET SHOOT COMMANDS (pseudo-superstructure — requires shooter + indexer)
+    // =========================================================================
+
+    /**
+     * Full preset shoot sequence that owns both the shooter and indexer subsystems.
+     *
+     * Flow:
+     *   1. Arms the given RPM + hood target silently
+     *   2. Calls prepareToShoot() — flywheel ramps up, hood moves to target
+     *   3. Waits until both are at target (isReady()), with a 3-second safety timeout
+     *   4. Runs indexer and conveyor forward to feed the game piece
+     *   5. On trigger release (whileTrue interrupt): stops indexer/conveyor, returns shooter to standby
+     *
+     * Use with whileTrue() on the shoot trigger.
+     *
+     * @param shooter The shooter subsystem
+     * @param indexer The indexer subsystem
+     * @param rpm     Target flywheel velocity in RPM
+     * @param hood    Target hood position in rotations
+     * @return Complete preset shoot command requiring both subsystems
+     */
+    public static Command shootWithPreset(ShooterSubsystem shooter, IndexerSubsystem indexer,
+                                          double rpm, double hood) {
+        return Commands.sequence(
+            Commands.runOnce(() -> {
+                shooter.setTargetVelocity(rpm);
+                shooter.setTargetHoodPose(hood);
+                shooter.prepareToShoot();
+            }, shooter),
+            Commands.waitUntil(shooter::isReady).withTimeout(3.0),
+            Commands.run(() -> {
+                indexer.indexerForward();
+                indexer.conveyorForward();
+            }, indexer)
+        ).finallyDo(() -> {
+            indexer.indexerStop();
+            indexer.conveyorStop();
+            shooter.returnToStandby();
+        }).withName("ShootWithPreset[" + rpm + "rpm]");
+    }
+
+    /**
+     * Full shoot sequence using the preset currently selected via POV left/right cycling.
+     * Defaults to the CLOSE preset (Close RPM + Close hood) on robot startup.
+     *
+     * This is the primary driver RT command — a pseudo-superstructure command that
+     * coordinates shooter and indexer in a single command.
+     *
+     * Flow:
+     *   1. Arms the selected preset (RPM + hood) silently
+     *   2. Calls prepareToShoot() — flywheel ramps up, hood moves to target
+     *   3. Waits until both are at target (isReady()), with a 3-second safety timeout
+     *   4. Runs indexer and conveyor forward to feed the game piece
+     *   5. On trigger release (whileTrue interrupt): stops indexer/conveyor, returns to standby
+     *
+     * Cycle the selected preset with POV left/right on the driver controller.
+     * The active preset name is published to Shooter/SelectedPreset on NetworkTables for Elastic.
+     *
+     * Use with whileTrue() on the shoot trigger.
+     *
+     * @param shooter The shooter subsystem
+     * @param indexer The indexer subsystem
+     * @return Complete preset shoot command using the currently selected preset
+     */
+    public static Command shootWithSelectedPreset(ShooterSubsystem shooter, IndexerSubsystem indexer) {
+        return Commands.sequence(
+            Commands.runOnce(() -> {
+                shooter.armSelectedPreset();
+                shooter.prepareToShoot();
+            }, shooter),
+            Commands.waitUntil(shooter::isReady).withTimeout(3.0),
+            Commands.run(() -> {
+                indexer.indexerForward();
+                indexer.conveyorForward();
+            }, indexer)
+        ).finallyDo(() -> {
+            indexer.indexerStop();
+            indexer.conveyorStop();
+            shooter.returnToStandby();
+        }).withName("ShootWithSelectedPreset");
+    }
+
+    // =========================================================================
     // SILENT PRESET COMMANDS (A / X / B)
     // =========================================================================
     // These only update the target RPM and hood angle.
