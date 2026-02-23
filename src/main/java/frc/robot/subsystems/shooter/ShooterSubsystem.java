@@ -67,7 +67,7 @@ public class ShooterSubsystem extends SubsystemBase {
     public static final double CLOSE_SHOT_RPM  = 2750.0;  // TODO: Tune
     public static final double CLOSE_SHOT_HOOD = 0.0;     // TODO: Tune
 
-    public static final double FAR_SHOT_RPM  = 2750.0;                   // TODO: Tune
+    public static final double FAR_SHOT_RPM  = 3750.0;                   // TODO: Tune
     public static final double FAR_SHOT_HOOD = MAX_HOOD_POSE_ROT * 0.5;  // TODO: Tune
 
     public static final double PASS_SHOT_RPM  = 4000.0;                   // TODO: Tune

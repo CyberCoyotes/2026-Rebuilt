@@ -55,10 +55,10 @@ public class HubTrackingCommand extends Command {
     // Rotation PID — tuned for tx in degrees, output in rad/s for swerve
     // -------------------------------------------------------------------------
 
-    private static final double ROT_kP         = 0.06;   // TODO: Tune
+    private static final double ROT_kP         = 0.10;   // TODO: Tune
     private static final double ROT_kI         = 0.00;
     private static final double ROT_kD         = 0.003;  // TODO: Tune
-    private static final double ROT_MIN_OUTPUT = 0.3;    // Minimum nudge to overcome static friction
+    private static final double ROT_MIN_OUTPUT = 0.05;    // Minimum nudge to overcome static friction
     private static final double ROT_MAX_OUTPUT = 3.5;    // Max rotation rate (rad/s)
 
     private static final double ALIGN_TOLERANCE_DEG = 1.5; // TODO: Tune — tighter once PID is dialed

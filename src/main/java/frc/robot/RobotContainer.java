@@ -230,6 +230,14 @@ public class RobotContainer {
         // operator.x().whileTrue(Commands.startEnd(indexer::indexerForward, indexer::indexerStop));
         // operator.y().whileTrue(Commands.startEnd(indexer::indexerReverse, indexer::indexerStop));
         // operator.start().onTrue(climber.stopClimber());
+
+        // =====================================================================
+        // OPERATOR PERSPECTIVE — rotates field-centric controls to match physical orientation.
+        // TODO: Tune on real hardware. Try 0, 90, -90, or 180 if controls feel rotated.
+        // =====================================================================
+        drivetrain.setOperatorPerspectiveForward(
+            edu.wpi.first.math.geometry.Rotation2d.fromDegrees(90)
+        );
     }
 
     public Command getAutonomousCommand() {
