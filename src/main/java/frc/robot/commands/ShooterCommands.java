@@ -358,21 +358,4 @@ public class ShooterCommands {
     //     return Commands.runOnce(shooter::returnToStandby, shooter)
     //         .withName("ReturnToStandby");
     // }
-
-    /**
-     * Creates a command that ramps the flywheel up to a target RPM for testing.
-     *
-     * @param shooter The shooter subsystem
-     * @param targetRPM Target flywheel velocity
-     * @return Command that ramps flywheel and returns to idle on release
-     */
-    public static Command rampUpFlywheel(ShooterSubsystem shooter, double targetRPM) {
-        return shooter.flywheelRampTest(targetRPM);
-    }
-
-//     // Private constructor to prevent instantiation
-//     private ShooterCommands() {
-//         throw new UnsupportedOperationException("This is a utility class!");
-//     }
-
 }

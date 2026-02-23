@@ -403,18 +403,6 @@ public class ShooterSubsystem extends SubsystemBase {
         return Commands.runOnce(this::setIdle, this).withName("ShooterIdle");
     }
 
-    /** Test command: ramps flywheel to targetRPM and stops on release. */
-    public Command flywheelRampTest(double targetRPM) {
-        return Commands.startEnd(
-            () -> {
-                targetFlywheelMotorRPM = Math.min(Math.abs(targetRPM), MAX_FLYWHEEL_RPM);
-                io.setFlywheelVelocity(targetFlywheelMotorRPM);
-            },
-            this::setIdle,
-            this
-        ).withName("FlywheelRampTest");
-    }
-
     public ShooterState getState() {
         return currentState;
     }
