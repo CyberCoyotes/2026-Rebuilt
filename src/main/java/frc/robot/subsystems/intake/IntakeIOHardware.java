@@ -77,8 +77,8 @@ public class IntakeIOHardware implements IntakeIO {
             config.Slot0.kD = 0.0;
 
             // MotionMagic profile
-            config.MotionMagic.MotionMagicCruiseVelocity = 16;//960; // TODO: Tune
-            config.MotionMagic.MotionMagicAcceleration = 16;   // TODO: Tune
+            config.MotionMagic.MotionMagicCruiseVelocity = 363;//960; // TODO: Tune
+            config.MotionMagic.MotionMagicAcceleration = 363;   // TODO: Tune
             config.MotionMagic.MotionMagicJerk = 0;
 
             return config;

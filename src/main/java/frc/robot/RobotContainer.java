@@ -134,12 +134,14 @@ public class RobotContainer {
         // =====================================================================
 
         // Left Trigger: Extend slides and run roller while held.
-        driver.leftTrigger(0.5).whileTrue(intake.intakeFuel());
+        // TODO Check if this is proper way to call the command `intakeFuel()` from IntakeSubsytem
+        driver.leftTrigger(0.5).whileTrue(
+            intake.intakeFuel());
 
         // Left Bumper: Retract slides immediately.
-        driver.leftBumper().onTrue(Commands.runOnce(intake::retractSlides, intake));
-
-      
+        // TODO Check if this is proper way to call the command `compressFuel()` from IntakeSubsytem
+        driver.leftBumper().onTrue(//Commands.runOnce(
+            intake.compressFuel());
     }
 
     public Command getAutonomousCommand() {
