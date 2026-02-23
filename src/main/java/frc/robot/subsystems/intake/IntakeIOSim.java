@@ -131,10 +131,10 @@ public class IntakeIOSim implements IntakeIO {
         return rollerVoltageCommand;
     }
 
-    @Override
-    public void stopRoller() {
-        rollerVoltageCommand = 0.0;
-    }
+    // @Override
+    // public void stopRoller() {
+    //     rollerVoltageCommand = 0.0;
+    // }
 
     // ===== Slide methods =====
 

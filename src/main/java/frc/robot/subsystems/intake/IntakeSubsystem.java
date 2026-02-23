@@ -135,10 +135,6 @@ public class IntakeSubsystem extends SubsystemBase {
                 this::stopRoller, this);
     }
 
-    public Command stopRollerCommand() {
-        return Commands.run(this::stopRoller, this);
-    }
-
     /**
      * Main intake command — extends slides and runs roller at full ROLLER_VOLTS while held.
      * On release: stops roller. Slides remain extended intentionally.
@@ -206,26 +202,16 @@ public class IntakeSubsystem extends SubsystemBase {
     }
 
     /**
-     * Ejects fuel by reversing the roller while held.
-     * Bind with whileTrue() — roller stops on release.
-     *
-     * NOTE: Currently commented out — uncomment in RobotContainer when needed.
+     * Stops the roller and slide motor.
+     * Use at the end of an intake sequence in auto to halt all intake motion.
      */
-    // public Command ejectFuel() {
-    //     return Commands.startEnd(
-    //             this::reverseRoller,  // Fixed: was incorrectly calling this::ejectFuel (recursive)
-    //             this::stopRoller,
-    //             this);
-    // }
-
     public Command stopFuel() {
         return Commands.runOnce(
                 () -> {
-                    this.stopRoller();
-                    this.retractSlides();
+                    stopRoller();
+                    stopSlide();
                 },
-                this
-        );
+                this);
     }
 
 } // end of class

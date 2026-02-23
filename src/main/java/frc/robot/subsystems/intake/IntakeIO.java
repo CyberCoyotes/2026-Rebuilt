@@ -55,13 +55,6 @@ public interface IntakeIO {
 
         /** Slide motor temperature in Celsius */
         public double slideTempCelsius = 0.0;
-
-        // // Sensor Data
-        // // distance from nearest thing to intake sensor in mm
-        // public double intakeDistance = 0.0;
-
-        // // is a target detected
-        // public boolean intakeTarget = false;
     }
 
     /**
@@ -75,7 +68,6 @@ public interface IntakeIO {
     // ===== Roller methods =====
     void setRollerSpeed(double volts);
     double getRollerVolts();
-    void stopRoller();
 
     // ===== Slide methods =====
     /** Position control via MotionMagic — currently commented out in subsystem */
@@ -91,8 +83,4 @@ public interface IntakeIO {
     void setSlideVoltage(double volts);
 
     double getSlidePosition();
-
-    // ===== Intake sensor methods =====
-    // double getIntakeDistance();
-    // boolean intakeTargetClose();
 }

@@ -48,6 +48,35 @@ public class ShooterCommands {
     }
 
     // =========================================================================
+    // INTAKE SPINUP
+    // =========================================================================
+
+    /**
+     * Sets the shooter target to IDLE_RPM and INTAKE_HOOD while intake is running,
+     * activating the indexer automatically via the state machine. On release, the
+     * target RPM and hood return to whatever preset was last armed.
+     * Uses refreshReady() to bypass the state guard so targets are always applied.
+     * Use with whileTrue() on the intake trigger.
+     */
+    public static Command intakeSpinup(ShooterSubsystem shooter, IndexerSubsystem indexer) {
+        return Commands.startEnd(
+            () -> {
+                shooter.setTargetVelocity(ShooterSubsystem.IDLE_RPM);
+                shooter.setTargetHoodPose(ShooterSubsystem.INTAKE_HOOD);
+                shooter.refreshReady();
+                indexer.indexerForward();
+                indexer.conveyorForward();
+            },
+            () -> {
+                indexer.indexerStop();
+                indexer.conveyorStop();
+                shooter.returnToIdle();
+            },
+            shooter, indexer
+        ).withName("IntakeSpinup");
+    }
+
+    // =========================================================================
     // SILENT PRESET COMMANDS (A / B)
     // =========================================================================
 

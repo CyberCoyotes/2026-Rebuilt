@@ -1,24 +1,16 @@
 package frc.robot.subsystems.intake;
 
 import com.ctre.phoenix6.BaseStatusSignal;
-import com.ctre.phoenix6.CANBus;
 import com.ctre.phoenix6.StatusSignal;
-import com.ctre.phoenix6.controls.DutyCycleOut;
 import com.ctre.phoenix6.controls.MotionMagicVoltage;
-import com.ctre.phoenix6.controls.PositionVoltage;
-import com.ctre.phoenix6.controls.VelocityVoltage;
 import com.ctre.phoenix6.controls.VoltageOut;
 import com.ctre.phoenix6.hardware.TalonFX;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Current;
-import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.units.measure.Temperature;
-import edu.wpi.first.units.measure.Velocity;
 import edu.wpi.first.units.measure.Voltage;
-import edu.wpi.first.units.Units;
 import frc.robot.Constants;
-import frc.robot.Constants.Intake;
 import frc.robot.util.TalonFXConfigs;
 
 /**
@@ -108,26 +100,21 @@ public class IntakeIOHardware implements IntakeIO {
 
     @Override
     public void updateInputs(IntakeIO.IntakeIOInputs inputs) {
-        // refreshAll commented out — all input reads are disabled.
-        // Re-enable alongside the reads below when telemetry is needed.
-        // BaseStatusSignal.refreshAll(
-        //     rollerVelocity, rollerVoltage, rollerCurrent, rollerTemp,
-        //     slidePosition, slideVelocity, slideVoltage, slideCurrent, slideTemp
-        // );
+        BaseStatusSignal.refreshAll(
+            rollerVelocity, rollerVoltage, rollerCurrent, rollerTemp,
+            slidePosition, slideVelocity, slideVoltage, slideCurrent, slideTemp
+        );
 
-        // inputs.rollerVelocityRPS = rollerVelocity.getValueAsDouble();
-        // inputs.rollerAppliedVolts = rollerVoltage.getValueAsDouble();
-        // inputs.rollerCurrentAmps = rollerCurrent.getValueAsDouble();
-        // inputs.rollerTempCelsius = rollerTemp.getValueAsDouble();
+        inputs.rollerVelocityRPS = rollerVelocity.getValueAsDouble();
+        inputs.rollerAppliedVolts = rollerVoltage.getValueAsDouble();
+        inputs.rollerCurrentAmps = rollerCurrent.getValueAsDouble();
+        inputs.rollerTempCelsius = rollerTemp.getValueAsDouble();
 
-        // inputs.slidePositionRotations = slidePosition.getValueAsDouble();
-        // inputs.slideVelocityRPS = slideVelocity.getValueAsDouble();
-        // inputs.slideAppliedVolts = slideVoltage.getValueAsDouble();
-        // inputs.slideCurrentAmps = slideCurrent.getValueAsDouble();
-        // inputs.slideTempCelsius = slideTemp.getValueAsDouble();
-
-        // inputs.intakeDistance = getIntakeDistance();
-        // inputs.intakeTarget = intakeTargetClose();
+        inputs.slidePositionRotations = slidePosition.getValueAsDouble();
+        inputs.slideVelocityRPS = slideVelocity.getValueAsDouble();
+        inputs.slideAppliedVolts = slideVoltage.getValueAsDouble();
+        inputs.slideCurrentAmps = slideCurrent.getValueAsDouble();
+        inputs.slideTempCelsius = slideTemp.getValueAsDouble();
     }
 
     // ===== Roller methods =====
@@ -140,11 +127,6 @@ public class IntakeIOHardware implements IntakeIO {
     @Override
     public double getRollerVolts() {
         return m_roller.getMotorVoltage().getValueAsDouble();
-    }
-
-    @Override
-    public void stopRoller() {
-        m_roller.setControl(new VoltageOut(0));
     }
 
     // ===== Slide methods =====
@@ -174,14 +156,5 @@ public class IntakeIOHardware implements IntakeIO {
     public double getSlidePosition() {
         return m_slide.getPosition().getValueAsDouble();
     }
-
-    // ===== Intake sensor methods =====
-    // public double getIntakeDistance() {
-    //     return s_intakeTOF.isRangeValid() ? s_intakeTOF.getRange() : Double.NaN;
-    // }
-
-    // public boolean intakeTargetClose() {
-    //     return (s_intakeTOF.getRange() <= IntakeSubsystem.INTAKE_THRESHOLD) && s_intakeTOF.isRangeValid();
-    // }
 
 } // end of class

@@ -30,6 +30,7 @@ public class ShooterSubsystem extends SubsystemBase {
     private final BooleanPublisher readyPublisher;
     private final DoublePublisher  flywheelRpmPublisher;
     private final DoublePublisher  targetRpmPublisher;
+    private final DoublePublisher  targetHoodPosePublisher;
     private final DoublePublisher  flywheelErrorPublisher;
     private final DoublePublisher  hoodErrorPublisher;
     private final BooleanPublisher hoodAtPosePublisher;
@@ -48,12 +49,13 @@ public class ShooterSubsystem extends SubsystemBase {
     private int          periodicCounter = 0;
 
     private static final double MAX_FLYWHEEL_MOTOR_RPM  = 6000.0;
-    public  static final double IDLE_RPM                = 2000.0;
+    public  static final double IDLE_RPM                = 500.0;
     public  static final double MIN_HOOD_POSE_ROT       = 0.0;
     public  static final double MAX_HOOD_POSE_ROT       = 9.14;
     private static final double FLYWHEEL_TOLERANCE_PERCENT = 0.10;
     public  static final double HOOD_POSE_TOLERANCE     = 0.25;
     public  static final double HOOD_TEST_INCREMENT     = 0.5;
+    public  static final double INTAKE_HOOD             = 8.0;  // TODO: Tune
 
     private static final double PASS_VELOCITY_RPM  = MAX_FLYWHEEL_MOTOR_RPM * 0.50;
     private static final double EJECT_VELOCITY_RPM = MAX_FLYWHEEL_MOTOR_RPM * -0.50;
@@ -88,6 +90,7 @@ public class ShooterSubsystem extends SubsystemBase {
         readyPublisher               = shooterTable.getBooleanTopic("IsReady").publish();
         flywheelRpmPublisher         = shooterTable.getDoubleTopic("FlywheelLeaderMotorRPM").publish();
         targetRpmPublisher           = shooterTable.getDoubleTopic("TargetFlywheelLeaderMotorRPM").publish();
+        targetHoodPosePublisher      = shooterTable.getDoubleTopic("TargetHoodPose").publish();
         flywheelErrorPublisher       = shooterTable.getDoubleTopic("FlywheelError").publish();
         hoodErrorPublisher           = shooterTable.getDoubleTopic("HoodError").publish();
         hoodAtPosePublisher          = shooterTable.getBooleanTopic("HoodAtPose").publish();
@@ -118,6 +121,7 @@ public class ShooterSubsystem extends SubsystemBase {
         readyPublisher.set(isReady());
         flywheelRpmPublisher.set(inputs.flywheelLeaderMotorRPM);
         targetRpmPublisher.set(targetFlywheelMotorRPM);
+        targetHoodPosePublisher.set(targetHoodPoseRot);
         flywheelErrorPublisher.set(getFlywheelError());
         hoodErrorPublisher.set(getHoodError());
         hoodAtPosePublisher.set(isHoodAtPose());
@@ -224,6 +228,7 @@ public class ShooterSubsystem extends SubsystemBase {
      * immediately command the motors. Every execute() tick after that, the command
      * calls updateFlywheelVelocity() and updateHoodForDistance() to override these
      * defaults with live LL4 distance-interpolated values.
+     * Treat as safe fallbacks only; tune CLOSE_SHOT_* first.
      */
     public void setHubShotPreset() {
         isFarShotArmed         = false;

@@ -191,8 +191,13 @@ public class RobotContainer {
         // DRIVER CONTROLLER (Port 0) - Intake
         // =====================================================================
 
-        // Left Trigger: Extend slides and run roller while held.
-        driver.leftTrigger(0.5).whileTrue(intake.intakeFuel());
+        // Left Trigger: Extend slides, run roller, and slowly spin shooter/indexer
+        // at IDLE_RPM while held to prevent balls from jamming. On release, shooter
+        // returns to SPINUP and the previously armed preset is preserved.
+        driver.leftTrigger(0.5).whileTrue(
+            intake.intakeFuel()
+                .alongWith(ShooterCommands.intakeSpinup(shooter, indexer))
+        );
 
         // Left Bumper: Retract intake and slowly reverse roller while held.
         driver.leftBumper().whileTrue(intake.retractAndReverseRollerCommand());
