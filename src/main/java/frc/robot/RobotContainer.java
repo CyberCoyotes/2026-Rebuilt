@@ -113,11 +113,14 @@ public class RobotContainer {
         // ===== Phase 1 Chooser =====
         phase1Chooser.setDefaultOption(AutoRoutines.NONE, AutoRoutines.NONE);
         phase1Chooser.addOption("Right Center Run", AutoRoutines.PHASE1_RIGHT_CENTER_RUN);
+        phase1Chooser.addOption("Left Center Run", AutoRoutines.PHASE1_LEFT_CENTER_RUN); // Add to this when introducing a new Auton Run, specify which selector it should be available in
+
         SmartDashboard.putData("Auto Phase 1", phase1Chooser);
 
         // ===== Phase 2 Chooser =====
         phase2Chooser.setDefaultOption(AutoRoutines.NONE, AutoRoutines.NONE);
         phase2Chooser.addOption("Right To Left Run", AutoRoutines.PHASE2_RIGHT_TO_LEFT_RUN);
+        phase2Chooser.addOption("Depot Run", AutoRoutines.PHASE2_DEPOT_RUN);
         SmartDashboard.putData("Auto Phase 2", phase2Chooser);
 
         // ===== Phase 3 Chooser =====

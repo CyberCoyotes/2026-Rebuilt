@@ -32,7 +32,9 @@ public class AutoRoutines {
     public static final String NONE = "[NONE]";
 
     public static final String PHASE1_RIGHT_CENTER_RUN  = "Blue1_RightCenterRun";
+    public static final String PHASE1_LEFT_CENTER_RUN   = "Blue1_LeftCenterRun";  // Add to this when introducing a new Auton Path
     public static final String PHASE2_RIGHT_TO_LEFT_RUN = "Blue2_RightToLeftRun";
+    public static final String PHASE2_DEPOT_RUN         = "Blue2_DepotRun";
     public static final String PHASE3_DEPOT_RUN         = "Blue3_DepotRun";
 
     // =========================================================================
@@ -40,8 +42,12 @@ public class AutoRoutines {
     // =========================================================================
 
     // Blue1_RightCenterRun
-    private static final double P1_INTAKE_START = 0.0;
-    private static final double P1_INTAKE_STOP  = 3.698;
+    private static final double P1R_INTAKE_START = 0.0;
+    private static final double P1R_INTAKE_STOP  = 3.698;
+
+    // Blue1_LeftCenterRun — update these once you have the .traj timestamps
+    private static final double P1L_INTAKE_START = 0.0;
+    private static final double P1L_INTAKE_STOP  = 3.698;
 
     // Blue2_RightToLeftRun
     private static final double P2_INTAKE_START = 2.371;
@@ -64,8 +70,12 @@ public class AutoRoutines {
     // Load all trajectories once at startup — never load inside a command
     private final Optional<Trajectory<SwerveSample>> m_traj1 =
         Choreo.loadTrajectory(PHASE1_RIGHT_CENTER_RUN);
+    private final Optional<Trajectory<SwerveSample>> m_traj1Left =  // Add to this when introducing a new Auton Path
+        Choreo.loadTrajectory(PHASE1_LEFT_CENTER_RUN);
     private final Optional<Trajectory<SwerveSample>> m_traj2 =
         Choreo.loadTrajectory(PHASE2_RIGHT_TO_LEFT_RUN);
+        private final Optional<Trajectory<SwerveSample>> m_traj2Depot =
+    Choreo.loadTrajectory(PHASE2_DEPOT_RUN);
     private final Optional<Trajectory<SwerveSample>> m_traj3 =
         Choreo.loadTrajectory(PHASE3_DEPOT_RUN);
 
@@ -100,8 +110,8 @@ public class AutoRoutines {
         for (int i = 1; i < selected.size(); i++) {
             full = full
                 .andThen(Commands.deadline(
-                    shootWindow(),            // shootWindow drives the duration
-                    Commands.waitSeconds(2.0) // hard 2s ceiling
+                    shootWindow(),
+                    Commands.waitSeconds(2.0)
                 ))
                 .andThen(buildPathCommand(selected.get(i), false));
         }
@@ -137,8 +147,12 @@ public class AutoRoutines {
 
         switch (name) {
             case PHASE1_RIGHT_CENTER_RUN:
-                intakeStartTime = P1_INTAKE_START;
-                intakeStopTime  = P1_INTAKE_STOP;
+                intakeStartTime = P1R_INTAKE_START;
+                intakeStopTime  = P1R_INTAKE_STOP;
+                break;
+            case PHASE1_LEFT_CENTER_RUN:   // NEW
+                intakeStartTime = P1L_INTAKE_START;
+                intakeStopTime  = P1L_INTAKE_STOP;
                 break;
             case PHASE2_RIGHT_TO_LEFT_RUN:
                 intakeStartTime = P2_INTAKE_START;
@@ -178,12 +192,13 @@ public class AutoRoutines {
                 }
             },
 
-          // onEnd
-        interrupted -> {
-            System.out.println("[AutoRoutines] Path ended: " + name + " | interrupted=" + interrupted);
-            timer.stop();
-            m_drivetrain.setControl(new com.ctre.phoenix6.swerve.SwerveRequest.SwerveDriveBrake());
-        },
+            // onEnd
+            interrupted -> {
+                System.out.println("[AutoRoutines] Path ended: " + name + " | interrupted=" + interrupted);
+                timer.stop();
+                m_drivetrain.setControl(new com.ctre.phoenix6.swerve.SwerveRequest.SwerveDriveBrake());
+            },
+
             // isFinished
             () -> timer.hasElapsed(totalTime),
 
@@ -218,25 +233,25 @@ public class AutoRoutines {
                 pid.reset();
             }, m_shooter),
 
-            // Race: rotate + update RPM/hood vs feed-when-ready vs 4s timeout
+            // Race: rotate + update RPM/hood vs feed-when-ready vs 2s timeout
             new ParallelRaceGroup(
                 // Rotate to face hub and live-update RPM/hood from distance
                 Commands.run(() -> {
-    double dist = m_vision.getDistanceToHub();
-    double angle = m_vision.getAngleToHub();
+                    double dist = m_vision.getDistanceToHub();
+                    double angle = m_vision.getAngleToHub();
 
-    if (dist > 0) m_shooter.updateFromDistance(dist);
+                    if (dist > 0) m_shooter.updateFromDistance(dist);
 
-    double rot = pid.calculate(angle);
-    rot = Math.max(-3.0, Math.min(3.0, rot));
+                    double rot = pid.calculate(angle);
+                    rot = Math.max(-3.0, Math.min(3.0, rot));
 
-    m_drivetrain.setControl(
-        new com.ctre.phoenix6.swerve.SwerveRequest.FieldCentric()
-            .withVelocityX(0.0)
-            .withVelocityY(0.0)
-            .withRotationalRate(rot)
-        );
-        }, m_drivetrain),
+                    m_drivetrain.setControl(
+                        new com.ctre.phoenix6.swerve.SwerveRequest.FieldCentric()
+                            .withVelocityX(0.0)
+                            .withVelocityY(0.0)
+                            .withRotationalRate(rot)
+                    );
+                }, m_drivetrain),
 
                 // Wait until ready then feed — ends race group when feedOnly finishes
                 Commands.sequence(
@@ -247,7 +262,7 @@ public class AutoRoutines {
                     ShooterCommands.feedOnly(m_indexer)
                 ),
 
-                // Hard 4-second ceiling
+                // Hard 2-second ceiling
                 Commands.waitSeconds(2.0)
             ),
 
@@ -270,7 +285,9 @@ public class AutoRoutines {
     private Optional<Trajectory<SwerveSample>> getTrajectory(String name) {
         switch (name) {
             case PHASE1_RIGHT_CENTER_RUN:  return m_traj1;
+            case PHASE1_LEFT_CENTER_RUN:   return m_traj1Left;  // Add to this when introducing a new Auton Path
             case PHASE2_RIGHT_TO_LEFT_RUN: return m_traj2;
+            case PHASE2_DEPOT_RUN:         return m_traj2Depot;
             case PHASE3_DEPOT_RUN:         return m_traj3;
             default: return Optional.empty();
         }
