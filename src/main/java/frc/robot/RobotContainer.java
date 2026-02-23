@@ -17,7 +17,7 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.RobotModeTriggers;
 import frc.robot.generated.TunerConstants;
-import frc.robot.commands.ShooterCommands;
+import frc.robot.commands.FuelCommands;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
 import frc.robot.subsystems.indexer.IndexerSubsystem;
 import frc.robot.subsystems.intake.IntakeSubsystem;
@@ -119,7 +119,7 @@ public class RobotContainer {
         // Sequence: arm preset → ramp flywheel + move hood → wait until ready → feed
         // On release: stop indexer/conveyor → return shooter to standby.
         driver.rightTrigger(0.5).whileTrue(
-            ShooterCommands.shootWithSelectedPreset(shooter, indexer)
+            FuelCommands.shootWithSelectedPreset(shooter, indexer)
         );
 
         // POV Right: Cycle to next preset (Close → Tower → Trench → Pass → Far → Close).
