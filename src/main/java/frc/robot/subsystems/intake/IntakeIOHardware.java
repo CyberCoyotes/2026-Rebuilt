@@ -132,6 +132,11 @@ public class IntakeIOHardware implements IntakeIO {
 
     @Override
     public void updateInputs(IntakeIO.IntakeIOInputs inputs) {
+        // Refresh cached signals before reading — same pattern as IndexerIOHardware.
+        // Without this, slidePositionRotations is always 0 (startup value), so
+        // isSlideFullyExtended() / isSlideFullyRetracted() never update correctly.
+        BaseStatusSignal.refreshAll(slidePosition, slideVelocity);
+
         // Slide position and velocity — needed every cycle for MotionMagic and at-target checks
         inputs.slidePositionRotations = slidePosition.getValueAsDouble();
         inputs.slideVelocityRPS = slideVelocity.getValueAsDouble();
