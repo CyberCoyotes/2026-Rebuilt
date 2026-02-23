@@ -101,7 +101,7 @@ public class AutoRoutines {
         full = full
             .andThen(Commands.deadline(
                 Commands.waitSeconds(2.0), // 2s timer drives the duration
-                shootWindow()              // shooter runs alongside, gets cut off at 2s
+                shootWindow()                      // shooter runs alongside, gets cut off at 2s
             ))
             .andThen(buildPathCommand(selected.get(i), false));
     }
