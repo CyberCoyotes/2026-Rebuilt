@@ -236,7 +236,7 @@ public class RobotContainer {
         // TODO: Tune on real hardware. Try 0, 90, -90, or 180 if controls feel rotated.
         // =====================================================================
         drivetrain.setOperatorPerspectiveForward(
-            edu.wpi.first.math.geometry.Rotation2d.fromDegrees(90)
+            edu.wpi.first.math.geometry.Rotation2d.fromDegrees(-90)
         );
     }
 

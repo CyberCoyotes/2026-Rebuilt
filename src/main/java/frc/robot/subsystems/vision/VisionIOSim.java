@@ -58,7 +58,7 @@ public class VisionIOSim implements VisionIO {
     // -------------------------------------------------------------------------
 
     /** Maximum distance at which the sim camera can detect hub tags (meters) */
-    private static final double MAX_DETECTION_RANGE_M = 5.0;
+    private static final double MAX_DETECTION_RANGE_M = 8.0;
 
     /** Half-angle of the simulated camera field of view (degrees) */
     private static final double DETECTION_FOV_DEG = 30.0;

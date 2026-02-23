@@ -230,8 +230,9 @@ public class VisionSubsystem extends SubsystemBase {
      * Returns 0.0 if no valid pose is available.
      */
     public double getAngleToHub() {
-        Pose2d pose = poseSupplier.get();
-        if (pose == null) return 0.0;
+    Pose2d pose = poseSupplier.get();
+    System.out.println("DEBUG getAngleToHub pose=" + pose);
+    if (pose == null) return 0.0;
 
         Translation2d toHub = Constants.Vision.HUB_CENTER_BLUE
                 .minus(pose.getTranslation());
@@ -240,7 +241,9 @@ public class VisionSubsystem extends SubsystemBase {
         Rotation2d angleToHub   = new Rotation2d(toHub.getX(), toHub.getY());
         Rotation2d currentAngle = pose.getRotation();
 
-        return angleToHub.minus(currentAngle).getDegrees();
+        return currentAngle.minus(angleToHub).getDegrees();
+
+        
     }
 
     /**
