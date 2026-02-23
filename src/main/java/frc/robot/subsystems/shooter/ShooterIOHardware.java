@@ -169,7 +169,8 @@ public class ShooterIOHardware implements ShooterIO {
     hoodEncoder.optimizeBusUtilization();
 
     /* Followers MUST be set AFTER optimizeBusUtilization()
-     * otherwise aggressive frame disabling can break the follower control link */
+     * otherwise aggressive frame disabling can break the follower control link.
+     * All three motors are physically aligned in the same direction — use Aligned. */
     flywheelMotorB.setControl(new Follower(Constants.Shooter.FLYWHEEL_A_MOTOR_ID, MotorAlignmentValue.Aligned));
     flywheelMotorC.setControl(new Follower(Constants.Shooter.FLYWHEEL_A_MOTOR_ID, MotorAlignmentValue.Aligned));
 
