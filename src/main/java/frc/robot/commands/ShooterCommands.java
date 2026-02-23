@@ -54,7 +54,7 @@ public class ShooterCommands {
         ).finallyDo(() -> {
             indexer.indexerStop();
             indexer.conveyorStop();
-            // shooter.returnToStandby();
+            shooter.setIdle(); // Stop all flywheel motors on trigger release
         }).withName("ShootAtCurrentTarget");
     }
 
@@ -96,7 +96,7 @@ public class ShooterCommands {
         ).finallyDo(() -> {
             indexer.indexerStop();
             indexer.conveyorStop();
-            // shooter.returnToStandby();
+            shooter.setIdle(); // Stop all flywheel motors on trigger release
         }).withName("ShootWithPreset[" + rpm + "rpm]");
     }
 
@@ -137,7 +137,7 @@ public class ShooterCommands {
         ).finallyDo(() -> {
             indexer.indexerStop();
             indexer.conveyorStop();
-            // shooter.returnToStandby();
+            shooter.setIdle(); // Stop all flywheel motors on trigger release
         }).withName("ShootWithSelectedPreset");
     }
 
@@ -252,8 +252,8 @@ public class ShooterCommands {
     public static Command eject(ShooterSubsystem shooter, double durationSeconds) {
         return Commands.sequence(
             Commands.runOnce(shooter::eject, shooter),
-            Commands.waitSeconds(durationSeconds),
-            Commands.runOnce(shooter::returnToStandby, shooter)
+            Commands.waitSeconds(durationSeconds)
+            // Commands.runOnce(shooter::returnToStandby, shooter) // TODO: Do not use right now **EXPERIMENTAL**
         ).withName("EjectShooter");
     }
 
@@ -310,9 +310,9 @@ public class ShooterCommands {
                 shooter.setTargetHoodPose(hoodAngleDegrees);
                 shooter.prepareToShoot();
             }, shooter),
-            Commands.waitUntil(shooter::isReady).withTimeout(3.0),
+            Commands.waitUntil(shooter::isReady).withTimeout(3.0)
             // IndexerCommands.feedTimed(indexer, 0.5), // FIXME to use the IndexerSubsystem's feed method instead of a command from IndexerCommands
-            Commands.runOnce(shooter::returnToStandby, shooter)
+            // Commands.runOnce(shooter::returnToStandby, shooter) // TODO: Do not use right now **EXPERIMENTAL**
         ).withName("ShootSequence");
     }
 
@@ -328,9 +328,9 @@ public class ShooterCommands {
                                               IndexerSubsystem indexer) {
         return Commands.sequence(
             Commands.waitUntil(vision::hasTarget).withTimeout(1.0),
-            visionShot(shooter, vision),
+            visionShot(shooter, vision)
             // IndexerCommands.feedTimed(indexer, 0.5), // FIXME to use the IndexerSubsystem's feed method instead of a command from IndexerCommands
-            Commands.runOnce(shooter::returnToStandby, shooter)
+            // Commands.runOnce(shooter::returnToStandby, shooter)
         ).withName("VisionShootSequence");
     }
 
@@ -352,25 +352,10 @@ public class ShooterCommands {
      * @param shooter The shooter subsystem
      * @return Command that returns shooter to standby spinning state
      */
-    public static Command returnToStandby(ShooterSubsystem shooter) {
-        return Commands.runOnce(shooter::returnToStandby, shooter)
-            .withName("ReturnToStandby");
-    }
 
-    /**
-     * Creates a command that ramps the flywheel up to a target RPM for testing.
-     *
-     * @param shooter The shooter subsystem
-     * @param targetRPM Target flywheel velocity
-     * @return Command that ramps flywheel and returns to idle on release
-     */
-    public static Command rampUpFlywheel(ShooterSubsystem shooter, double targetRPM) {
-        return shooter.flywheelRampTest(targetRPM);
-    }
-
-//     // Private constructor to prevent instantiation
-//     private ShooterCommands() {
-//         throw new UnsupportedOperationException("This is a utility class!");
-//     }
-
+     /** TODO: Do not use right now _EXPERIMENTAL_ */
+    // public static Command returnToStandby(ShooterSubsystem shooter) {
+    //     return Commands.runOnce(shooter::returnToStandby, shooter)
+    //         .withName("ReturnToStandby");
+    // }
 }

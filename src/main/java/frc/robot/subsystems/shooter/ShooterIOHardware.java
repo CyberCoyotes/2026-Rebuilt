@@ -39,13 +39,14 @@ public class ShooterIOHardware implements ShooterIO {
   private static class FlywheelConfig {
 
     static TalonFXConfiguration competition() {
-      TalonFXConfiguration config = base();
+      TalonFXConfiguration config = leader();
       // TODO: Dial in competition current limits and ramps
       return config;
     }
 
+    /** Config for Motor A (leader) — runs velocity closed-loop with PID and ramp. */
     static TalonFXConfiguration test() {
-      TalonFXConfiguration config = base();
+      TalonFXConfiguration config = leader();
 
       config.CurrentLimits.SupplyCurrentLimit = 60.0;
       config.CurrentLimits.SupplyCurrentLimitEnable = true;
@@ -56,7 +57,35 @@ public class ShooterIOHardware implements ShooterIO {
       return config;
     }
 
-    private static TalonFXConfiguration base() {
+    /**
+     * Config for Motors B and C (followers).
+     * Followers must NOT have a ramp period — the leader owns the ramp.
+     * A ramp on the follower causes it to lag behind A, producing desync,
+     * orange LEDs, and the characteristic whoop-whoop-whoop noise.
+     * PID gains are also cleared — followers never run closed-loop independently.
+     */
+    static TalonFXConfiguration follower() {
+      TalonFXConfiguration config = new TalonFXConfiguration();
+
+      config.MotorOutput.NeutralMode = NeutralModeValue.Coast;
+      config.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
+
+      config.CurrentLimits.SupplyCurrentLimit = 60.0;
+      config.CurrentLimits.SupplyCurrentLimitEnable = true;
+      config.CurrentLimits.StatorCurrentLimit = 120.0;
+      config.CurrentLimits.StatorCurrentLimitEnable = true;
+
+      // No ramp period — leader controls the ramp, followers just mirror output
+      config.ClosedLoopRamps.VoltageClosedLoopRampPeriod = 0.0;
+
+      // No PID gains — followers never run closed-loop
+      config.Slot0.kP = 0.0;
+      config.Slot0.kV = 0.0;
+
+      return config;
+    }
+
+    private static TalonFXConfiguration leader() {
       TalonFXConfiguration config = new TalonFXConfiguration();
 
       config.MotorOutput.NeutralMode = NeutralModeValue.Coast;
@@ -137,10 +166,10 @@ public class ShooterIOHardware implements ShooterIO {
     encoderConfig.MagnetSensor.MagnetOffset = 0.0;
     hoodEncoder.getConfigurator().apply(encoderConfig);
 
-    // Apply motor configs
+    // Apply motor configs — B and C use a separate follower config (no ramp, no PID)
     flywheelMotorA.getConfigurator().apply(FlywheelConfig.test());
-    flywheelMotorB.getConfigurator().apply(FlywheelConfig.test());
-    flywheelMotorC.getConfigurator().apply(FlywheelConfig.test());
+    flywheelMotorB.getConfigurator().apply(FlywheelConfig.follower());
+    flywheelMotorC.getConfigurator().apply(FlywheelConfig.follower());
     hoodMotor.getConfigurator().apply(HoodConfig.hood());
 
     // Cache status signal references
@@ -168,8 +197,20 @@ public class ShooterIOHardware implements ShooterIO {
     hoodMotor.optimizeBusUtilization();
     hoodEncoder.optimizeBusUtilization();
 
+    /* optimizeBusUtilization() suppresses ALL status frames on Motor A, including
+     * the DutyCycle and MotorVoltage output signals that B and C need to follow.
+     * Without these signals, followers lose sync — causing orange LEDs and the
+     * whump-whump noise. Explicitly re-enable them at 100Hz on the leader AFTER
+     * optimizing, so followers always have a fresh output value to mirror. */
+    BaseStatusSignal.setUpdateFrequencyForAll(
+        100.0,
+        flywheelMotorA.getDutyCycle(),
+        flywheelMotorA.getMotorVoltage()
+    );
+
     /* Followers MUST be set AFTER optimizeBusUtilization()
-     * otherwise aggressive frame disabling can break the follower control link */
+     * otherwise aggressive frame disabling can break the follower control link.
+     * All three motors are physically aligned in the same direction — use Aligned. */
     flywheelMotorB.setControl(new Follower(Constants.Shooter.FLYWHEEL_A_MOTOR_ID, MotorAlignmentValue.Aligned));
     flywheelMotorC.setControl(new Follower(Constants.Shooter.FLYWHEEL_A_MOTOR_ID, MotorAlignmentValue.Aligned));
 
@@ -203,7 +244,14 @@ public class ShooterIOHardware implements ShooterIO {
 
   @Override
   public void stopFlywheels() {
-    flywheelMotorA.stopMotor(); // followers stop automatically
+    // Explicitly stop all three motors — Follower control on B/C does NOT
+    // automatically stop when A receives a neutral/stop request in Phoenix 6.
+    flywheelMotorA.stopMotor();
+    flywheelMotorB.stopMotor();
+    flywheelMotorC.stopMotor();
+    // Re-establish follower after stopping so they're ready for the next shot.
+    flywheelMotorB.setControl(new Follower(Constants.Shooter.FLYWHEEL_A_MOTOR_ID, MotorAlignmentValue.Aligned));
+    flywheelMotorC.setControl(new Follower(Constants.Shooter.FLYWHEEL_A_MOTOR_ID, MotorAlignmentValue.Aligned));
   }
 
   @Override
@@ -219,6 +267,8 @@ public class ShooterIOHardware implements ShooterIO {
   @Override
   public void stop() {
     flywheelMotorA.stopMotor();
+    flywheelMotorB.stopMotor();
+    flywheelMotorC.stopMotor();
     hoodMotor.stopMotor();
   }
 
