@@ -54,7 +54,7 @@ public class ShooterCommands {
         ).finallyDo(() -> {
             indexer.indexerStop();
             indexer.conveyorStop();
-            // shooter.returnToStandby(); // TODO: Do not use right now **EXPERIMENTAL**
+            shooter.setIdle(); // Stop all flywheel motors on trigger release
         }).withName("ShootAtCurrentTarget");
     }
 
@@ -96,7 +96,7 @@ public class ShooterCommands {
         ).finallyDo(() -> {
             indexer.indexerStop();
             indexer.conveyorStop();
-            // shooter.returnToStandby(); // TODO: Do not use right now **EXPERIMENTAL**
+            shooter.setIdle(); // Stop all flywheel motors on trigger release
         }).withName("ShootWithPreset[" + rpm + "rpm]");
     }
 
@@ -137,7 +137,7 @@ public class ShooterCommands {
         ).finallyDo(() -> {
             indexer.indexerStop();
             indexer.conveyorStop();
-            // shooter.returnToStandby(); // TODO: Do not use right now **EXPERIMENTAL**
+            shooter.setIdle(); // Stop all flywheel motors on trigger release
         }).withName("ShootWithSelectedPreset");
     }
 

@@ -203,7 +203,14 @@ public class ShooterIOHardware implements ShooterIO {
 
   @Override
   public void stopFlywheels() {
-    flywheelMotorA.stopMotor(); // followers stop automatically
+    // Explicitly stop all three motors — Follower control on B/C does NOT
+    // automatically stop when A receives a neutral/stop request in Phoenix 6.
+    flywheelMotorA.stopMotor();
+    flywheelMotorB.stopMotor();
+    flywheelMotorC.stopMotor();
+    // Re-establish follower after stopping so they're ready for the next shot.
+    flywheelMotorB.setControl(new Follower(Constants.Shooter.FLYWHEEL_A_MOTOR_ID, MotorAlignmentValue.Aligned));
+    flywheelMotorC.setControl(new Follower(Constants.Shooter.FLYWHEEL_A_MOTOR_ID, MotorAlignmentValue.Aligned));
   }
 
   @Override
@@ -219,6 +226,8 @@ public class ShooterIOHardware implements ShooterIO {
   @Override
   public void stop() {
     flywheelMotorA.stopMotor();
+    flywheelMotorB.stopMotor();
+    flywheelMotorC.stopMotor();
     hoodMotor.stopMotor();
   }
 
