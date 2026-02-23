@@ -109,23 +109,20 @@ public class RobotContainer {
 
         autoFactory  = drivetrain.createAutoFactory();
         autoRoutines = new AutoRoutines(autoFactory, drivetrain, intake, shooter, indexer, vision);
+// ===== Phase 1 Chooser =====
+phase1Chooser.setDefaultOption(AutoRoutines.NONE, AutoRoutines.NONE);
+phase1Chooser.addOption("Right Center Run", AutoRoutines.PHASE1_RIGHT_CENTER_RUN);
+SmartDashboard.putData("Auto Phase 1", phase1Chooser);
 
-        // ===== Phase 1 Chooser =====
-        phase1Chooser.setDefaultOption(AutoRoutines.NONE, AutoRoutines.NONE);
-        // phase1Chooser.addOption("My Routine", AutoRoutines.PHASE1_MY_ROUTINE);
-        SmartDashboard.putData("Auto Phase 1", phase1Chooser);
+// ===== Phase 2 Chooser =====
+phase2Chooser.setDefaultOption(AutoRoutines.NONE, AutoRoutines.NONE);
+phase2Chooser.addOption("Right To Left Run", AutoRoutines.PHASE2_RIGHT_TO_LEFT_RUN);
+SmartDashboard.putData("Auto Phase 2", phase2Chooser);
 
-        // ===== Phase 2 Chooser =====
-        phase2Chooser.setDefaultOption(AutoRoutines.NONE, AutoRoutines.NONE);
-        // phase2Chooser.addOption("My Routine", AutoRoutines.PHASE2_MY_ROUTINE);
-        SmartDashboard.putData("Auto Phase 2", phase2Chooser);
-
-        // ===== Phase 3 Chooser =====
-        phase3Chooser.setDefaultOption(AutoRoutines.NONE, AutoRoutines.NONE);
-        // phase3Chooser.addOption("My Routine", AutoRoutines.PHASE3_MY_ROUTINE);
-        SmartDashboard.putData("Auto Phase 3", phase3Chooser);
-
-        configureBindings();
+// ===== Phase 3 Chooser =====
+phase3Chooser.setDefaultOption(AutoRoutines.NONE, AutoRoutines.NONE);
+phase3Chooser.addOption("Depot Run", AutoRoutines.PHASE3_DEPOT_RUN);
+SmartDashboard.putData("Auto Phase 3", phase3Chooser);
     }
 
     // -------------------------------------------------------------------------
