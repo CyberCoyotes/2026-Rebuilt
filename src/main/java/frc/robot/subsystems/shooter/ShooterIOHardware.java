@@ -197,6 +197,17 @@ public class ShooterIOHardware implements ShooterIO {
     hoodMotor.optimizeBusUtilization();
     hoodEncoder.optimizeBusUtilization();
 
+    /* optimizeBusUtilization() suppresses ALL status frames on Motor A, including
+     * the DutyCycle and MotorVoltage output signals that B and C need to follow.
+     * Without these signals, followers lose sync — causing orange LEDs and the
+     * whump-whump noise. Explicitly re-enable them at 100Hz on the leader AFTER
+     * optimizing, so followers always have a fresh output value to mirror. */
+    BaseStatusSignal.setUpdateFrequencyForAll(
+        100.0,
+        flywheelMotorA.getDutyCycle(),
+        flywheelMotorA.getMotorVoltage()
+    );
+
     /* Followers MUST be set AFTER optimizeBusUtilization()
      * otherwise aggressive frame disabling can break the follower control link.
      * All three motors are physically aligned in the same direction — use Aligned. */
