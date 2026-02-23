@@ -10,7 +10,7 @@ import com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType;
 import com.ctre.phoenix6.swerve.SwerveRequest;
 
 import choreo.auto.AutoFactory;
-
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -81,6 +81,18 @@ public class RobotContainer {
     private final SendableChooser<String> phase2Chooser = new SendableChooser<>();
     private final SendableChooser<String> phase3Chooser = new SendableChooser<>();
 
+    // =========================================================================
+    // ALL AUTO PATHS — add new paths here and they'll appear in all 3 choosers
+    // =========================================================================
+    private static final String[][] ALL_AUTO_PATHS = {
+        // { "Display Name",                    AutoRoutines.CONSTANT                  }
+        { "Right Center Run",                AutoRoutines.PHASE1_RIGHT_CENTER_RUN   },
+        { "Left Center Run",                 AutoRoutines.PHASE1_LEFT_CENTER_RUN    },
+        { "Right To Left Run",               AutoRoutines.PHASE2_RIGHT_TO_LEFT_RUN  },
+        { "Depot Run (Phase 2)",             AutoRoutines.PHASE2_DEPOT_RUN          },
+        { "Left To Right Run",               AutoRoutines.PHASE2_LEFT_TO_RIGHT_RUN  },
+    };
+
     public RobotContainer() {
         intake  = new IntakeSubsystem(new IntakeIOHardware());
         indexer = new IndexerSubsystem(new IndexerIOHardware());
@@ -101,7 +113,7 @@ public class RobotContainer {
             visionIO,
             drivetrain::addVisionMeasurement,
             () -> drivetrain.getState().Pose,
-            () -> drivetrain.getState().RawHeading.getDegrees()
+            () -> drivetrain.getState().Pose.getRotation().getDegrees()
         );
 
         ledSubsystem = new LedSubsystem();
@@ -110,22 +122,20 @@ public class RobotContainer {
         autoFactory  = drivetrain.createAutoFactory();
         autoRoutines = new AutoRoutines(autoFactory, drivetrain, intake, shooter, indexer, vision);
 
-        // ===== Phase 1 Chooser =====
+        // ===== Auto Choosers =====
+        // NONE is the default for all three — just add new paths to ALL_AUTO_PATHS above
         phase1Chooser.setDefaultOption(AutoRoutines.NONE, AutoRoutines.NONE);
-        phase1Chooser.addOption("Right Center Run", AutoRoutines.PHASE1_RIGHT_CENTER_RUN);
-        phase1Chooser.addOption("Left Center Run", AutoRoutines.PHASE1_LEFT_CENTER_RUN); // Add to this when introducing a new Auton Run, specify which selector it should be available in
+        phase2Chooser.setDefaultOption(AutoRoutines.NONE, AutoRoutines.NONE);
+        phase3Chooser.setDefaultOption(AutoRoutines.NONE, AutoRoutines.NONE);
+
+        for (String[] path : ALL_AUTO_PATHS) {
+            phase1Chooser.addOption(path[0], path[1]);
+            phase2Chooser.addOption(path[0], path[1]);
+            phase3Chooser.addOption(path[0], path[1]);
+        }
 
         SmartDashboard.putData("Auto Phase 1", phase1Chooser);
-
-        // ===== Phase 2 Chooser =====
-        phase2Chooser.setDefaultOption(AutoRoutines.NONE, AutoRoutines.NONE);
-        phase2Chooser.addOption("Right To Left Run", AutoRoutines.PHASE2_RIGHT_TO_LEFT_RUN);
-        phase2Chooser.addOption("Depot Run", AutoRoutines.PHASE2_DEPOT_RUN);
         SmartDashboard.putData("Auto Phase 2", phase2Chooser);
-
-        // ===== Phase 3 Chooser =====
-        phase3Chooser.setDefaultOption(AutoRoutines.NONE, AutoRoutines.NONE);
-        phase3Chooser.addOption("Depot Run", AutoRoutines.PHASE3_DEPOT_RUN);
         SmartDashboard.putData("Auto Phase 3", phase3Chooser);
 
         configureBindings();
@@ -161,6 +171,20 @@ public class RobotContainer {
         final var idle = new SwerveRequest.Idle();
         RobotModeTriggers.disabled().whileTrue(
             drivetrain.applyRequest(() -> idle).ignoringDisable(true)
+        );
+
+        // Seed drivetrain pose from selected Phase 1 auto start position when teleop begins.
+        // This ensures the robot knows roughly where it is even if vision hasn't acquired yet.
+new Trigger(() -> DriverStation.isTeleopEnabled()).onTrue(
+    drivetrain.runOnce(() -> {
+                String selected = phase1Chooser.getSelected();
+                if (selected != null && !selected.equals(AutoRoutines.NONE)) {
+                    autoRoutines.getStartPose(selected).ifPresent(pose -> {
+                        drivetrain.resetPose(pose);
+                        System.out.println("[RobotContainer] Teleop pose seeded from auto: " + selected + " -> " + pose);
+                    });
+                }
+            })
         );
 
         // Start: Reset field-centric heading

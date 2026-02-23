@@ -6,6 +6,7 @@ import choreo.trajectory.Trajectory;
 import choreo.auto.AutoFactory;
 
 import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
@@ -31,31 +32,35 @@ public class AutoRoutines {
 
     public static final String NONE = "[NONE]";
 
-    public static final String PHASE1_RIGHT_CENTER_RUN  = "Blue1_RightCenterRun";
-    public static final String PHASE1_LEFT_CENTER_RUN   = "Blue1_LeftCenterRun";  // Add to this when introducing a new Auton Path
-    public static final String PHASE2_RIGHT_TO_LEFT_RUN = "Blue2_RightToLeftRun";
-    public static final String PHASE2_DEPOT_RUN         = "Blue2_DepotRun";
-    public static final String PHASE3_DEPOT_RUN         = "Blue3_DepotRun";
+    public static final String PHASE1_RIGHT_CENTER_RUN  = "RightCenterRun";
+    public static final String PHASE1_LEFT_CENTER_RUN   = "LeftCenterRun";
+    public static final String PHASE2_RIGHT_TO_LEFT_RUN = "RightToLeftRun";
+    public static final String PHASE2_DEPOT_RUN         = "DepotRun";
+    public static final String PHASE2_LEFT_TO_RIGHT_RUN = "LeftToRightRun";
 
     // =========================================================================
     // INTAKE EVENT TIMESTAMPS (read directly from .traj files)
     // =========================================================================
 
-    // Blue1_RightCenterRun
+    // RightCenterRun
     private static final double P1R_INTAKE_START = 0.0;
     private static final double P1R_INTAKE_STOP  = 3.698;
 
-    // Blue1_LeftCenterRun — update these once you have the .traj timestamps
+    // LeftCenterRun — update these once you have the .traj timestamps
     private static final double P1L_INTAKE_START = 0.0;
     private static final double P1L_INTAKE_STOP  = 3.698;
 
-    // Blue2_RightToLeftRun
+    // RightToLeftRun
     private static final double P2_INTAKE_START = 2.371;
     private static final double P2_INTAKE_STOP  = 6.446;
 
-    // Blue3_DepotRun
-    private static final double P3_INTAKE_START = 0.0;
-    private static final double P3_INTAKE_STOP  = 4.846;
+    // DepotRun
+    private static final double P2D_INTAKE_START = 0.0;
+    private static final double P2D_INTAKE_STOP  = 0.0;
+
+    // LeftToRightRun — update these once you have the .traj timestamps
+    private static final double P2LR_INTAKE_START = 0.0;
+    private static final double P2LR_INTAKE_STOP  = 0.0;
 
     // =========================================================================
     // SUBSYSTEM REFERENCES
@@ -70,14 +75,14 @@ public class AutoRoutines {
     // Load all trajectories once at startup — never load inside a command
     private final Optional<Trajectory<SwerveSample>> m_traj1 =
         Choreo.loadTrajectory(PHASE1_RIGHT_CENTER_RUN);
-    private final Optional<Trajectory<SwerveSample>> m_traj1Left =  // Add to this when introducing a new Auton Path
+    private final Optional<Trajectory<SwerveSample>> m_traj1Left =
         Choreo.loadTrajectory(PHASE1_LEFT_CENTER_RUN);
     private final Optional<Trajectory<SwerveSample>> m_traj2 =
         Choreo.loadTrajectory(PHASE2_RIGHT_TO_LEFT_RUN);
-        private final Optional<Trajectory<SwerveSample>> m_traj2Depot =
-    Choreo.loadTrajectory(PHASE2_DEPOT_RUN);
-    private final Optional<Trajectory<SwerveSample>> m_traj3 =
-        Choreo.loadTrajectory(PHASE3_DEPOT_RUN);
+    private final Optional<Trajectory<SwerveSample>> m_traj2Depot =
+        Choreo.loadTrajectory(PHASE2_DEPOT_RUN);
+    private final Optional<Trajectory<SwerveSample>> m_traj2LeftRight =
+        Choreo.loadTrajectory(PHASE2_LEFT_TO_RIGHT_RUN);
 
     public AutoRoutines(
             AutoFactory factory,
@@ -91,6 +96,16 @@ public class AutoRoutines {
         m_shooter    = shooter;
         m_indexer    = indexer;
         m_vision     = vision;
+    }
+
+    // =========================================================================
+    // STARTING POSE HELPER
+    // Returns the initial pose of the given path name, for seeding teleop odometry.
+    // =========================================================================
+
+    public Optional<Pose2d> getStartPose(String pathName) {
+        return getTrajectory(pathName)
+            .flatMap(traj -> traj.getInitialPose(false));
     }
 
     // =========================================================================
@@ -150,7 +165,7 @@ public class AutoRoutines {
                 intakeStartTime = P1R_INTAKE_START;
                 intakeStopTime  = P1R_INTAKE_STOP;
                 break;
-            case PHASE1_LEFT_CENTER_RUN:   // NEW
+            case PHASE1_LEFT_CENTER_RUN:
                 intakeStartTime = P1L_INTAKE_START;
                 intakeStopTime  = P1L_INTAKE_STOP;
                 break;
@@ -158,9 +173,13 @@ public class AutoRoutines {
                 intakeStartTime = P2_INTAKE_START;
                 intakeStopTime  = P2_INTAKE_STOP;
                 break;
-            case PHASE3_DEPOT_RUN:
-                intakeStartTime = P3_INTAKE_START;
-                intakeStopTime  = P3_INTAKE_STOP;
+            case PHASE2_DEPOT_RUN:
+                intakeStartTime = P2D_INTAKE_START;
+                intakeStopTime  = P2D_INTAKE_STOP;
+                break;
+            case PHASE2_LEFT_TO_RIGHT_RUN:
+                intakeStartTime = P2LR_INTAKE_START;
+                intakeStopTime  = P2LR_INTAKE_STOP;
                 break;
             default:
                 intakeStartTime = -1;
@@ -285,10 +304,10 @@ public class AutoRoutines {
     private Optional<Trajectory<SwerveSample>> getTrajectory(String name) {
         switch (name) {
             case PHASE1_RIGHT_CENTER_RUN:  return m_traj1;
-            case PHASE1_LEFT_CENTER_RUN:   return m_traj1Left;  // Add to this when introducing a new Auton Path
+            case PHASE1_LEFT_CENTER_RUN:   return m_traj1Left;
             case PHASE2_RIGHT_TO_LEFT_RUN: return m_traj2;
             case PHASE2_DEPOT_RUN:         return m_traj2Depot;
-            case PHASE3_DEPOT_RUN:         return m_traj3;
+            case PHASE2_LEFT_TO_RIGHT_RUN: return m_traj2LeftRight;
             default: return Optional.empty();
         }
     }
