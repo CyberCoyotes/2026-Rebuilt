@@ -132,23 +132,23 @@ public class ShooterIOHardware implements ShooterIO {
     }
   }
 
-  // ── Hardware ───────────────────────────────────────────────────────────────
+  // === Hardware ===== 
   private final TalonFX flywheelMotorA;
   private final TalonFX flywheelMotorB;
   private final TalonFX flywheelMotorC;
   private final TalonFXS hoodMotor;
   private final CANcoder hoodEncoder;
 
-  // ── Control Requests ───────────────────────────────────────────────────────
+  // === Control Requests =====
   private final VelocityVoltage flywheelVelocityRequest = new VelocityVoltage(0.0).withEnableFOC(true);
   private final PositionVoltage hoodPositionRequest = new PositionVoltage(0.0);
   private final VoltageOut hoodVoltageRequest = new VoltageOut(0.0);
 
-  // ── Status Signals — 50Hz (control-critical) ───────────────────────────────
+  // === Status Signals =====
   private final StatusSignal<?> flywheelAVelocity;
   private final StatusSignal<?> hoodPosition;
 
-  // ── Status Signals — 10Hz (runtime safety only) ────────────────────────────
+  // === Status Signals =====
   // Current/voltage diagnostics are handled by CTRE Hoot logs, not read here.
   private final StatusSignal<?> hoodEncoderAbsPosition;
 
@@ -250,7 +250,7 @@ public class ShooterIOHardware implements ShooterIO {
     flywheelMotorB.stopMotor();
     flywheelMotorC.stopMotor();
     // Re-establish follower after stopping so they're ready for the next shot.
-    flywheelMotorB.setControl(new Follower(Constants.Shooter.FLYWHEEL_A_MOTOR_ID, MotorAlignmentValue.Aligned));
+    flywheelMotorB.setControl(new Follower(Constants.Shooter.FLYWHEEL_A_MOTOR_ID, MotorAlignmentValue.Aligned)); // TODO I question if this is necessary — does the follower control link persist through a stopMotor() call? If not, this is required to prevent desync. If it does persist, this is redundant but harmless.
     flywheelMotorC.setControl(new Follower(Constants.Shooter.FLYWHEEL_A_MOTOR_ID, MotorAlignmentValue.Aligned));
   }
 
@@ -272,7 +272,7 @@ public class ShooterIOHardware implements ShooterIO {
     hoodMotor.stopMotor();
   }
 
-  // ── Unit Conversions ───────────────────────────────────────────────────────
+  // == Unit Conversions =====
   private double rpsToRPM(double rps) {
     return rps * 60.0;
   }

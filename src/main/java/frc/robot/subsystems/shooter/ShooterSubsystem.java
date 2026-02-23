@@ -35,6 +35,9 @@ import frc.robot.subsystems.shooter.ShooterIO.ShooterIOInputs;
  * @see Constants.Shooter for hardware configuration
  * @author @Isaak3
  */
+
+@SuppressWarnings("unused") // Unused methods are intentional for future use and testing
+
 public class ShooterSubsystem extends SubsystemBase {
 
     // == Constants ======

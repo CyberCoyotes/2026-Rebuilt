@@ -23,7 +23,7 @@ public class Larson extends SubsystemBase {
 
     private final LarsonAnimation m_slot0Animation = new LarsonAnimation(0, 8)
         .withSlot(0)
-        .withColor(new RGBWColor(255, 5, 1, 0))
+        .withColor(new RGBWColor(255, 0, 0, 0))
         .withSize(1)
         .withBounceMode(LarsonBounceValue.Front)
         .withFrameRate(Hertz.of(10));
