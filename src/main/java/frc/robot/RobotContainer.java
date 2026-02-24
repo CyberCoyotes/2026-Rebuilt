@@ -58,7 +58,7 @@ public class RobotContainer {
     private final VisionSubsystem vision;
     private final LedSubsystem ledSubsystem;
     // private final ClimberSubsystem climber;
-
+    private final FuelCommands fuelCommands = null;
     private final AutoFactory autoFactory;
     private final AutoRoutines autoRoutines;
     private final AutoChooser autoChooser = new AutoChooser();
@@ -73,10 +73,13 @@ public class RobotContainer {
         // climber = new ClimberSubsystem();
 
         autoFactory = drivetrain.createAutoFactory();
-        autoRoutines = new AutoRoutines(autoFactory);
+        autoRoutines = new AutoRoutines(autoFactory,drivetrain,indexer, intake, shooter, fuelCommands);
 
-        autoChooser.addRoutine("SimplePath", autoRoutines::simplePathAuto);
-
+        autoChooser.addRoutine("FM", autoRoutines::FM);
+        autoChooser.addRoutine("B", autoRoutines::B);
+        autoChooser.addRoutine("Lob", autoRoutines::Lob);
+        autoChooser.addRoutine("Default", autoRoutines::Default);
+        autoChooser.addRoutine("The Big D", autoRoutines::Dummy);
         configureBindings();
     }
 
