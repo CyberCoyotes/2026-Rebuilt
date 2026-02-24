@@ -13,7 +13,6 @@ import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
 
 import frc.robot.Constants;
-import frc.robot.Constants.Intake;
 
 /**
  * IntakeIOHardware - Real hardware implementation using CTRE TalonFX motors.
