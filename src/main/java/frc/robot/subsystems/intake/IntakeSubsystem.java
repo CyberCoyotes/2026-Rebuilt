@@ -134,7 +134,7 @@ public class IntakeSubsystem extends SubsystemBase {
 
     public void retractSlidesSlow() {
         io.setSlidePositionSlow(SLIDE_RETRACTED_POSITION);
-        // this.runRoller(); // FIXME
+
     }
 
     public void stopSlide() {
