@@ -55,6 +55,15 @@ public class TunerConstants {
 
     // Initial configs for the drive and steer motors and the azimuth encoder; these cannot be null.
     // Some configs will be overwritten; check the `with*InitialConfigs()` API documentation.
+
+    /*
+    TODO possible fix for odd driving behavior
+    private static final TalonFXConfiguration driveInitialConfigs = new TalonFXConfiguration()
+    .withMotorOutput(
+        new MotorOutputConfigs()
+            .withNeutralMode(NeutralModeValue.Brake)
+    );
+    */
     private static final TalonFXConfiguration driveInitialConfigs = new TalonFXConfiguration();
     private static final TalonFXConfiguration steerInitialConfigs = new TalonFXConfiguration()
         .withCurrentLimits(
