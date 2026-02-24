@@ -68,7 +68,7 @@ public class IntakeIOHardware implements IntakeIO {
             config.CurrentLimits.StatorCurrentLimitEnable = true;
 
             config.SoftwareLimitSwitch.ForwardSoftLimitEnable = true;
-            config.SoftwareLimitSwitch.ForwardSoftLimitThreshold = 44.454;
+            config.SoftwareLimitSwitch.ForwardSoftLimitThreshold = 44.25;
             config.SoftwareLimitSwitch.ReverseSoftLimitEnable = true;
             config.SoftwareLimitSwitch.ReverseSoftLimitThreshold = 0.0;
 
@@ -97,7 +97,7 @@ public class IntakeIOHardware implements IntakeIO {
 
     // DynamicMotionMagic for slower slide movement 
     // TODO: Tune these for a slower retract profile
-    private final DynamicMotionMagicVoltage slideRequestSlow = new DynamicMotionMagicVoltage(0, 32, 32);
+    private final DynamicMotionMagicVoltage slideRequestSlow = new DynamicMotionMagicVoltage(0, 4, 4);
                                                               // (position=0, velocity=16, accel=16, jerk=0)
 
     // ==== Status Signals — 50Hz (control-critical) ====

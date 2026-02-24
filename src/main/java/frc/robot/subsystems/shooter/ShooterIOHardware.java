@@ -19,6 +19,8 @@ import com.ctre.phoenix6.signals.MotorArrangementValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 import com.ctre.phoenix6.signals.SensorDirectionValue;
 
+import com.ctre.phoenix6.controls.VelocityTorqueCurrentFOC; // Testing
+
 import frc.robot.Constants;
 
 /**
@@ -40,11 +42,11 @@ public class ShooterIOHardware implements ShooterIO {
 
     static TalonFXConfiguration competition() {
       TalonFXConfiguration config = leader();
-      // TODO: Dial in competition current limits and ramps
       return config;
     }
 
     /** Config for Motor A (leader) — runs velocity closed-loop with PID and ramp. */
+    // TODO: Dial in competition current limits and ramps
     static TalonFXConfiguration test() {
       TalonFXConfiguration config = leader();
 
@@ -91,9 +93,14 @@ public class ShooterIOHardware implements ShooterIO {
       config.MotorOutput.NeutralMode = NeutralModeValue.Coast;
       config.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
 
-      // Velocity closed loop — Slot 0
+      // Slot 0 — VelocityVoltage gains (kP in Volts/RPS)
       config.Slot0.kP = 0.12; // TODO: Tune
-      config.Slot0.kV = 0.10; // TODO: Tune
+      config.Slot0.kV = 0.12; // TODO: Tune
+
+      // Slot 1 — VelocityTorqueCurrentFOC gains (kP in Amps/RPS — different units, retune separately)
+      // NOTE: Only active on CAN FD (CANivore). On RIO CAN these won't behave correctly.
+      config.Slot1.kP = 5.0;  // TODO: Tune — starting point for torque current; units are Amps not Volts
+      config.Slot1.kV = 0.12; // TODO: Tune
 
       return config;
     }
@@ -141,8 +148,14 @@ public class ShooterIOHardware implements ShooterIO {
 
   // === Control Requests =====
   private final VelocityVoltage flywheelVelocityRequest = new VelocityVoltage(0.0).withEnableFOC(true);
+
+  // TODO: Test VelocityTorqueCurrentFOC on flywheel — compare to VelocityVoltage with FOC, see if it improves acceleration or stability. 
+  // Requires CAN FD (CANivore bus) for proper performance, but can be tested on RIO CAN for comparison purposes before flywheel motors are moved.
+  private final VelocityTorqueCurrentFOC flywheelTorqueRequest = new VelocityTorqueCurrentFOC(0.0);
+  
   private final PositionVoltage hoodPositionRequest = new PositionVoltage(0.0);
   private final VoltageOut hoodVoltageRequest = new VoltageOut(0.0);
+
 
   // === Status Signals =====
   private final StatusSignal<?> flywheelAVelocity;
@@ -280,4 +293,12 @@ public class ShooterIOHardware implements ShooterIO {
   private double rpmToRPS(double rpm) {
     return rpm / 60.0;
   }
+
+  @Override
+  public void setFlywheelVelocityTorqueFOC(double rpm) {
+      double motorRPS = rpmToRPS(rpm);
+      // .withSlot(1) selects the TorqueCurrentFOC-specific PID gains
+      flywheelMotorA.setControl(flywheelTorqueRequest.withVelocity(motorRPS).withSlot(1));
+  }
+
 }
