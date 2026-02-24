@@ -182,6 +182,10 @@ public class IntakeSubsystem extends SubsystemBase {
                 .withName("RetractSlides");
     }
 
+    public Command retractSlidesSlowCmd() {
+        return Commands.runOnce(this::retractSlidesSlow, this)
+                .withName("RetractSlidesSlow");
+    }
     // ---- Combination commands ----
 
     /**
@@ -227,20 +231,25 @@ public class IntakeSubsystem extends SubsystemBase {
     }
 
     /**
-     * Similar to stopFuel - stops roller and retracts slides.
-     * But slides retract with a a slowler profile
+     * TODO: Intention is to have the slides retract slowly while running the roller.
      */
     public Command compressFuel() {
-        return Commands.runOnce(
-                () -> {
-                    // TODO: Run roller while the slides retract and until the rectract is done
+        return Commands.sequence(
+                Commands.runOnce(() -> {
                     runRoller();
                     retractSlidesSlow();
-                    stopRoller();
+                }, this),
+                Commands.waitUntil(this::isSlideFullyRetracted).withTimeout(3.0) // safety timeout in case something goes wrong
+        ).withName("CompressFuel");
+    }
 
-                },
-                this)
-                .withName("CompressFuel");
+        public Command compressFuelBetter() {
+        return Commands.sequence(
+                // Runs once, but slides hold position with MotionMagic
+                retractSlidesCmd(), 
+                // Allows the roller to keep running.
+                Commands.startEnd(this::reverseRoller, this::stopRoller, this))
+                .withName("CompressFuelBetter");
     }
 
 } // end of class
