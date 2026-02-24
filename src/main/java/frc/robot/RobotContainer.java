@@ -113,15 +113,24 @@ public class RobotContainer {
         // DRIVER CONTROLLER (Port 0) - Shooter
         // =====================================================================
 
-        // Right Trigger: Shoot with the currently selected preset.
+        // Right Trigger: Vision-aligned shot.
         //
-        // Default preset on startup: CLOSE (Close RPM + Close hood).
-        // Cycle presets with POV Left / POV Right before shooting.
+        // While held:
+        //   - Starts spinning at the current POV-selected preset immediately.
+        //   - If a hub AprilTag is visible: continuously updates RPM + hood from
+        //     the distance lookup table and drives rotation to center the tag.
+        //   - If no hub tag is visible: holds current preset, no rotation override.
+        //   - Fires indexer/conveyor as soon as vision is aligned AND shooter is ready.
+        //   - Driver left stick still controls translation freely throughout.
         //
-        // Sequence: arm preset → ramp flywheel + move hood → wait until ready → feed
-        // On release: stop indexer/conveyor → return shooter to standby.
+        // Cycle the fallback preset with POV Left / POV Right before or during hold.
+        // Active preset name is published to Shooter/SelectedPreset on NetworkTables.
         driver.rightTrigger(0.5).whileTrue(
-            FuelCommands.shootWithSelectedPreset(shooter, indexer)
+            FuelCommands.visionAlignAndShoot(
+                shooter, vision, indexer, drivetrain,
+                () -> -driver.getLeftY() * MaxSpeed,
+                () -> -driver.getLeftX() * MaxSpeed
+            )
         );
 
         // POV Right: Cycle to next preset (Close → Tower → Trench → Pass → Far → Close).

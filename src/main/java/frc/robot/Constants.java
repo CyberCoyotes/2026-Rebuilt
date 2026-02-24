@@ -140,9 +140,32 @@ public final class Constants {
     public static final int BLUE_HUB_MIN_TAG_ID = 23;
     public static final int BLUE_HUB_MAX_TAG_ID = 28;
 
+    // Red hub AprilTag IDs
+    // TODO: Verify these against the 2026 game manual / WPILib field layout JSON
+    public static final int RED_HUB_MIN_TAG_ID = 1;
+    public static final int RED_HUB_MAX_TAG_ID = 6;
+
     // State tracking
     /** Time in seconds before considering target "lost" after losing sight */
     public static final double TARGET_TIMEOUT_SECONDS = 0.5;
+
+    // ── Vision-driven drivetrain rotation ─────────────────────────────────────
+    /**
+     * Proportional gain for rotational alignment: (rad/s output) per (degree of tx error).
+     *
+     * Tuning starting point: 0.06
+     *   - Too low  → slow to center, may not reach ALIGNED before timeout
+     *   - Too high → oscillates left/right around the target
+     * See TUNING.md §5 for step-by-step procedure.
+     */
+    public static final double ROTATIONAL_KP = 0.06;
+
+    /**
+     * Maximum rotational rate the vision command will apply to the drivetrain (rad/s).
+     * Prevents violent snap when tx error is large on first acquisition.
+     * Default: 3.0 rad/s (~172°/s). Reduce if the robot swings too aggressively.
+     */
+    public static final double MAX_ALIGNMENT_ROTATION_RAD_PER_SEC = 3.0;
   }
 
   // =========================================================
