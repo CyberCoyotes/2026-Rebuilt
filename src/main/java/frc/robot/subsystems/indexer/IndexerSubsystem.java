@@ -92,9 +92,9 @@ public class IndexerSubsystem extends SubsystemBase {
     //
     // Sensors A and B may differ slightly if they're mounted at different depths.
     public static final double HOPPER_A_MIN_DISTANCE = 0.02; // TODO: Tune experimentally
-    public static final double HOPPER_A_MAX_DISTANCE = 0.40; // TODO: Tune experimentally
+    public static final double HOPPER_A_MAX_DISTANCE = 0.50; // TODO: Tune experimentally
     public static final double HOPPER_B_MIN_DISTANCE = 0.02; // TODO: Tune experimentally
-    public static final double HOPPER_B_MAX_DISTANCE = 0.40; // TODO: Tune experimentally
+    public static final double HOPPER_B_MAX_DISTANCE = 0.50; // TODO: Tune experimentally
 
     // ==== Elastic Dashboard Publishers ========================================
     private final NetworkTable indexerTable;
