@@ -175,6 +175,19 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
         );
     }
 
+    /**
+     * Hard-resets the robot's pose to the given vision-derived pose.
+     * This preserves the current gyro heading and module positions while
+     * snapping the field-relative position to what the camera sees.
+     *
+     * Called once by VisionSubsystem on first valid AprilTag sighting so
+     * the pose estimator doesn't try to blend from the wrong starting pose.
+     */
+    public void resetPoseToVision(Pose2d visionPose) {
+        resetPose(visionPose);
+        System.out.println("[Drivetrain] Pose hard-reset to vision: " + visionPose);
+    }
+
     public Command sysIdQuasistatic(SysIdRoutine.Direction direction) {
         return m_sysIdRoutineToApply.quasistatic(direction);
     }

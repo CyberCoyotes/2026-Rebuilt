@@ -1,0 +1,14 @@
+{
+  "Connections": {
+    "open": true
+  },
+  "NetworkTables Settings": {
+    "mode": "Client (NT4)",
+    "serverTeam": "3603"
+  },
+  "transitory": {
+    "limelight-four": {
+      "open": true
+    }
+  }
+}

@@ -12,9 +12,11 @@ import frc.robot.LimelightHelpers.PoseEstimate;
  *   2. updateInputs() reads botpose_orb_wpiblue via getBotPoseEstimate_wpiBlue_MegaTag2().
  *   3. VisionSubsystem validates the estimate and feeds it to the pose estimator.
  *
- * Note: MegaTag2 fixes the rotation component of the pose using the IMU, so the
- * returned yaw matches the robot's gyro yaw. Only X/Y translation is solved from
- * the tags. This makes it very stable even with a single tag visible.
+ * IMU Mode strategy (LL4 internal IMU):
+ *   - Mode 1 (EXTERNAL_SEED): Used while disabled. Seeds the internal IMU with the
+ *     robot's gyro yaw so it knows its starting orientation.
+ *   - Mode 4 (INTERNAL_EXTERNAL_ASSIST): Used while enabled. Internal IMU runs at
+ *     1kHz for smooth updates; external gyro gently corrects drift over time.
  */
 public class VisionIOLimelight implements VisionIO {
 
@@ -23,29 +25,44 @@ public class VisionIOLimelight implements VisionIO {
     /**
      * @param limelightName NetworkTable name of the Limelight (e.g. "limelight-four")
      */
-    public VisionIOLimelight(String limelightName) {
-        this.limelightName = limelightName;
-        LimelightHelpers.setPipelineIndex(limelightName, 0);
+public VisionIOLimelight(String limelightName) {
+    this.limelightName = limelightName;
+    LimelightHelpers.setPipelineIndex(limelightName, 0);
+    LimelightHelpers.SetIMUMode(limelightName, 0);
+}
+
+    /**
+     * Sets the LL4 IMU mode.
+     * Call with mode 1 while disabled (seeding), mode 4 when enabled (full operation).
+     */
+    public void setIMUMode(int mode) {
+        System.out.println("[Vision] Setting IMU mode to: " + mode);
+        LimelightHelpers.SetIMUMode(limelightName, mode);
     }
 
     @Override
     public void setRobotOrientation(double yawDegrees) {
-        // Send current IMU yaw to the Limelight so MegaTag2 can use it.
-        // Yaw rate and other angular rates are not needed — pass zeros.
+        System.out.println("[Vision] yaw=" + yawDegrees);
         LimelightHelpers.SetRobotOrientation(limelightName, yawDegrees, 0, 0, 0, 0, 0);
     }
 
     @Override
     public void updateInputs(VisionIOInputs inputs) {
         // Read raw tx and target valid flag from NT — always available
-        inputs.hasTarget   = LimelightHelpers.getTV(limelightName);
-        inputs.txDegrees   = LimelightHelpers.getTX(limelightName);
+        inputs.hasTarget      = LimelightHelpers.getTV(limelightName);
+        inputs.txDegrees      = LimelightHelpers.getTX(limelightName);
         inputs.totalLatencyMs = LimelightHelpers.getLatency_Pipeline(limelightName)
                               + LimelightHelpers.getLatency_Capture(limelightName);
 
         // Read MegaTag2 pose estimate
         PoseEstimate estimate = LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2(limelightName);
+        PoseEstimate mt2 = LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2(limelightName);
+        PoseEstimate mt1 = LimelightHelpers.getBotPoseEstimate_wpiBlue(limelightName);
 
+    System.out.println("[Vision] MT1=" + (mt1 == null ? "NULL" : mt1.pose) 
+                     + " MT2=" + (mt2 == null ? "NULL" : mt2.pose)
+                     + " imuMode=" + LimelightHelpers.getLimelightNTDouble(limelightName, "imumode_set")
+                     + " tagCount=" + (mt2 == null ? 0 : mt2.tagCount));
         if (estimate == null || estimate.pose == null) {
             inputs.poseValid = false;
             return;

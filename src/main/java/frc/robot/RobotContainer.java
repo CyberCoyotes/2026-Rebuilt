@@ -65,13 +65,17 @@ public class RobotContainer {
     private final IntakeSubsystem  intake;
     private final IndexerSubsystem indexer;
     private final ShooterSubsystem shooter;
-    private final VisionSubsystem  vision;
+    private VisionSubsystem  vision;
     private final LedSubsystem     ledSubsystem;
     // private final ClimberSubsystem climber;
 
     // Kept as a field so Robot.java can call updateSimVision() every sim tick.
     // Null when running on real hardware.
     private final VisionIOSim visionIOSim;
+
+    // Keep a direct reference to the Limelight IO so we can call setIMUMode()
+    // from triggers. Null when running in simulation.
+    private final VisionIOLimelight visionIOLimelight;
 
     // ===== Auto =====
     private final AutoFactory  autoFactory;
@@ -100,21 +104,29 @@ public class RobotContainer {
 
         // Automatically swap between sim and real Limelight.
         if (RobotBase.isSimulation()) {
-            visionIOSim = new VisionIOSim();
+            visionIOSim       = new VisionIOSim();
+            visionIOLimelight = null;
         } else {
-            visionIOSim = null;
+            visionIOSim       = null;
+            visionIOLimelight = new VisionIOLimelight(Constants.Vision.LIMELIGHT4_NAME);
         }
 
         VisionIO visionIO = (visionIOSim != null)
                 ? visionIOSim
-                : new VisionIOLimelight(Constants.Vision.LIMELIGHT4_NAME);
+                : visionIOLimelight;
 
-        vision = new VisionSubsystem(
+        // Temporary holder so the reset lambda can reference vision before assignment completes
+        VisionSubsystem[] visionHolder = new VisionSubsystem[1];
+
+        visionHolder[0] = new VisionSubsystem(
             visionIO,
             drivetrain::addVisionMeasurement,
+            () -> drivetrain.resetPoseToVision(visionHolder[0].getLastAcceptedPose()),
             () -> drivetrain.getState().Pose,
             () -> drivetrain.getState().Pose.getRotation().getDegrees()
         );
+
+        vision = visionHolder[0];
 
         ledSubsystem = new LedSubsystem();
         // climber = new ClimberSubsystem();
@@ -173,10 +185,26 @@ public class RobotContainer {
             drivetrain.applyRequest(() -> idle).ignoringDisable(true)
         );
 
+        // =====================================================================
+        // LL4 IMU MODE SWITCHING
+        // While disabled: mode 1 (EXTERNAL_SEED) — continuously seeds the internal
+        // IMU with the robot's gyro so it knows its orientation before the match.
+        // When enabled: mode 4 (INTERNAL_EXTERNAL_ASSIST) — internal IMU runs at
+        // 1kHz for smooth per-frame updates; external gyro corrects drift over time.
+        // =====================================================================
+        if (visionIOLimelight != null) {
+    RobotModeTriggers.disabled().whileTrue(
+        Commands.run(() -> visionIOLimelight.setIMUMode(1)).ignoringDisable(true)
+    );
+
+    new Trigger(() -> DriverStation.isTeleopEnabled() || DriverStation.isAutonomousEnabled())
+        .onTrue(Commands.runOnce(() -> visionIOLimelight.setIMUMode(4)));
+}
+
         // Seed drivetrain pose from selected Phase 1 auto start position when teleop begins.
         // This ensures the robot knows roughly where it is even if vision hasn't acquired yet.
-new Trigger(() -> DriverStation.isTeleopEnabled()).onTrue(
-    drivetrain.runOnce(() -> {
+        new Trigger(() -> DriverStation.isTeleopEnabled()).onTrue(
+            drivetrain.runOnce(() -> {
                 String selected = phase1Chooser.getSelected();
                 if (selected != null && !selected.equals(AutoRoutines.NONE)) {
                     autoRoutines.getStartPose(selected).ifPresent(pose -> {

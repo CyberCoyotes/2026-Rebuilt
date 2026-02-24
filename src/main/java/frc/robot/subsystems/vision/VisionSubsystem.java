@@ -22,14 +22,18 @@ import java.util.function.Supplier;
  *   1. Calls setRobotOrientation() every loop so MegaTag2 has a stable heading reference.
  *   2. Validates incoming pose estimates and feeds good ones to the drivetrain's
  *      SwerveDrivePoseEstimator via the poseConsumer callback.
- *   3. Exposes getDistanceToHub() and getAngleToHub() so AlignToHubCommand and
+ *   3. On the FIRST valid pose estimate, performs a hard resetPose() via resetPoseCallback
+ *      so the robot snaps to its real field position instead of blending from field center.
+ *   4. Exposes getDistanceToHub() and getAngleToHub() so AlignToHubCommand and
  *      future commands can aim purely from robot pose without touching raw camera data.
  *
  * WIRING (in RobotContainer):
  *   vision = new VisionSubsystem(
  *       new VisionIOLimelight(Constants.Vision.LIMELIGHT4_NAME),
- *       drivetrain::addVisionMeasurement,   // Consumer<PoseEstimate>
- *       drivetrain::getState                // Supplier for current pose + yaw
+ *       drivetrain::addVisionMeasurement,
+ *       () -> drivetrain.resetPoseToVision(vision.getLastAcceptedPose()),
+ *       () -> drivetrain.getState().Pose,
+ *       () -> drivetrain.getState().Pose.getRotation().getDegrees()
  *   );
  *
  * POSE VALIDATION:
@@ -55,6 +59,12 @@ public class VisionSubsystem extends SubsystemBase {
 
     /** Called with (pose, timestampSeconds, stdDevs) when a valid estimate arrives. */
     private final PoseEstimateConsumer poseConsumer;
+
+    /**
+     * Called once on the first valid tag sighting to hard-reset the drivetrain pose.
+     * This prevents the Kalman filter from blending against the wrong starting pose.
+     */
+    private final Runnable resetPoseCallback;
 
     /** Supplies the current robot pose (for hub angle/distance calculation). */
     private final Supplier<Pose2d> poseSupplier;
@@ -84,6 +94,9 @@ public class VisionSubsystem extends SubsystemBase {
     private int    acceptedCount    = 0;
     private int    rejectedCount    = 0;
 
+    /** Tracks whether we've done the initial hard pose reset from vision. */
+    private boolean hasResetPose = false;
+
     // -------------------------------------------------------------------------
     // Functional interface for pose consumer
     // Matches SwerveDrivePoseEstimator.addVisionMeasurement signature.
@@ -101,21 +114,24 @@ public class VisionSubsystem extends SubsystemBase {
     // -------------------------------------------------------------------------
 
     /**
-     * @param io           VisionIO hardware implementation
-     * @param poseConsumer Callback to feed validated pose estimates to the drivetrain
-     * @param poseSupplier Supplies the current robot Pose2d (from drivetrain odometry)
-     * @param yawSupplier  Supplies the current robot yaw in degrees (from drivetrain IMU)
+     * @param io                 VisionIO hardware implementation
+     * @param poseConsumer       Callback to feed validated pose estimates to the drivetrain
+     * @param resetPoseCallback  Called once on first valid tag to hard-reset the drivetrain pose
+     * @param poseSupplier       Supplies the current robot Pose2d (from drivetrain odometry)
+     * @param yawSupplier        Supplies the current robot yaw in degrees (from drivetrain IMU)
      */
     public VisionSubsystem(
             VisionIO io,
             PoseEstimateConsumer poseConsumer,
+            Runnable resetPoseCallback,
             Supplier<Pose2d> poseSupplier,
             Supplier<Double> yawSupplier) {
 
-        this.io           = io;
-        this.poseConsumer = poseConsumer;
-        this.poseSupplier = poseSupplier;
-        this.yawSupplier  = yawSupplier;
+        this.io                 = io;
+        this.poseConsumer       = poseConsumer;
+        this.resetPoseCallback  = resetPoseCallback;
+        this.poseSupplier       = poseSupplier;
+        this.yawSupplier        = yawSupplier;
 
         NetworkTableInstance inst = NetworkTableInstance.getDefault();
         visionTable = inst.getTable("Vision");
@@ -147,6 +163,15 @@ public class VisionSubsystem extends SubsystemBase {
 
         // Step 3 — validate and submit pose estimate
         if (inputs.poseValid && isEstimateAcceptable()) {
+            // On first valid sighting, hard-reset the pose instead of blending
+            // against the wrong starting position (field center default).
+            if (!hasResetPose) {
+                lastAcceptedPose = inputs.estimatedPose;
+                resetPoseCallback.run();
+                hasResetPose = true;
+                System.out.println("[Vision] Hard pose reset to: " + inputs.estimatedPose);
+            }
+
             poseConsumer.accept(
                 inputs.estimatedPose,
                 inputs.timestampSeconds,
@@ -230,9 +255,9 @@ public class VisionSubsystem extends SubsystemBase {
      * Returns 0.0 if no valid pose is available.
      */
     public double getAngleToHub() {
-    Pose2d pose = poseSupplier.get();
-    System.out.println("DEBUG getAngleToHub pose=" + pose);
-    if (pose == null) return 0.0;
+        Pose2d pose = poseSupplier.get();
+        System.out.println("DEBUG getAngleToHub pose=" + pose);
+        if (pose == null) return 0.0;
 
         Translation2d toHub = Constants.Vision.HUB_CENTER_BLUE
                 .minus(pose.getTranslation());
@@ -242,8 +267,6 @@ public class VisionSubsystem extends SubsystemBase {
         Rotation2d currentAngle = pose.getRotation();
 
         return currentAngle.minus(angleToHub).getDegrees();
-
-        
     }
 
     /**
@@ -298,6 +321,7 @@ public class VisionSubsystem extends SubsystemBase {
 
         Logger.recordOutput("Vision/AcceptedCount",  acceptedCount);
         Logger.recordOutput("Vision/RejectedCount",  rejectedCount);
+        Logger.recordOutput("Vision/HasResetPose",   hasResetPose);
         Logger.recordOutput("Vision/DistanceToHub",  getDistanceToHub());
         Logger.recordOutput("Vision/AngleToHub",     getAngleToHub());
         Logger.recordOutput("Vision/LastAcceptedPose", lastAcceptedPose);
