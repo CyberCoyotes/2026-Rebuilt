@@ -2,6 +2,7 @@ package frc.robot.subsystems.shooter;
 
 // import org.littletonrobotics.junction.Logger;
 
+import edu.wpi.first.math.interpolation.InterpolatingDoubleTreeMap;
 import edu.wpi.first.networktables.BooleanPublisher;
 import edu.wpi.first.networktables.DoublePublisher;
 import edu.wpi.first.networktables.NetworkTable;
@@ -490,20 +491,70 @@ public class ShooterSubsystem extends SubsystemBase {
         return selectedPreset == ShotPreset.FAR;
     }
 
-    // ==== Vision ====
+    // ==== Vision Lookup Tables ====
 
     /**
-     * Updates shooter targets based on distance to target.
-     * Linear interpolation between close and far shots.
-     * Does NOT change state — call prepareToShoot() after.
+     * Distance-to-RPM and distance-to-hood lookup tables.
+     *
+     * Keys   = distance from hub AprilTag in meters (floor distance, not slant).
+     * Values = target flywheel RPM / hood rotations at that distance.
+     *
+     * InterpolatingDoubleTreeMap linearly interpolates between measured points and
+     * clamps to the nearest endpoint outside the measured range.
+     *
+     * HOW TO FILL IN: See TUNING.md §4 for the full measurement procedure.
+     *   1. Place robot at each distance with a tape measure.
+     *   2. Enable, hold RT, watch Vision/Distance_m on Elastic to confirm distance reads correctly.
+     *   3. Manually command a shot (use POV preset cycling as a baseline).
+     *   4. Adjust RPM/hood until shots land center target.
+     *   5. Record values here, rebuild, repeat at next distance.
+     *
+     * Distances below 1.0 m and above 6.0 m are clamped to the nearest endpoint.
+     * Add or remove rows as the shot envelope changes.
+     */
+    private static final InterpolatingDoubleTreeMap FLYWHEEL_RPM_MAP = new InterpolatingDoubleTreeMap();
+    private static final InterpolatingDoubleTreeMap HOOD_ROT_MAP     = new InterpolatingDoubleTreeMap();
+
+    static {
+        // ── Flywheel RPM vs. distance ──────────────────────────────────────────
+        // TODO: Replace each value with a measured result (see TUNING.md §4)
+        FLYWHEEL_RPM_MAP.put(1.0, 2750.0); // TODO: tune
+        FLYWHEEL_RPM_MAP.put(2.0, 2900.0); // TODO: tune
+        FLYWHEEL_RPM_MAP.put(3.0, 3100.0); // TODO: tune
+        FLYWHEEL_RPM_MAP.put(4.0, 3200.0); // TODO: tune
+        FLYWHEEL_RPM_MAP.put(5.0, 3300.0); // TODO: tune
+        FLYWHEEL_RPM_MAP.put(6.0, 3400.0); // TODO: tune  (hw max ~6380 RPM)
+
+        // ── Hood position (rotations) vs. distance ────────────────────────────
+        // TODO: Replace each value with a measured result (see TUNING.md §4)
+        HOOD_ROT_MAP.put(1.0, 0.00); // TODO: tune  (0.0 = fully up / close)
+        HOOD_ROT_MAP.put(2.0, 1.50); // TODO: tune
+        HOOD_ROT_MAP.put(3.0, 3.00); // TODO: tune
+        HOOD_ROT_MAP.put(4.0, 4.30); // TODO: tune
+        HOOD_ROT_MAP.put(5.0, 5.50); // TODO: tune
+        HOOD_ROT_MAP.put(6.0, 6.00); // TODO: tune  (hw max ~9.14 rot)
+    }
+
+    /**
+     * Updates shooter targets from the interpolation maps for the given distance.
+     *
+     * If the shooter is already in READY state the new targets are pushed to
+     * hardware immediately, enabling continuous live tracking while the trigger
+     * is held.  If not yet in READY, the targets are stored and applied when
+     * prepareToShoot() is called.
+     *
+     * @param distanceMeters Measured distance to hub tag in meters (floor distance)
      */
     public void updateFromDistance(double distanceMeters) {
-        double distance = Math.max(1.0, Math.min(5.0, distanceMeters));
-        double t = (distance - 1.0) / (5.0 - 1.0);
-        double velocity = CLOSE_RPM + t * (FAR_RPM - CLOSE_RPM);
-        double pose = CLOSE_HOOD + t * (FAR_HOOD - CLOSE_HOOD);
-        setTargetVelocity(velocity);
-        setTargetHoodPose(pose);
+        double dist = Math.max(1.0, Math.min(6.0, distanceMeters));
+        setTargetVelocity(FLYWHEEL_RPM_MAP.get(dist));
+        setTargetHoodPose(HOOD_ROT_MAP.get(dist));
+
+        // Push to hardware immediately if already spinning — keeps tracking live
+        if (currentState == ShooterState.READY) {
+            commandFlywheelVelocity(targetFlywheelMotorRPM);
+            io.setHoodPose(targetHoodPoseRot);
+        }
     }
 
     // ==== LEGACY / CONVENIENCE SHIMS ====
