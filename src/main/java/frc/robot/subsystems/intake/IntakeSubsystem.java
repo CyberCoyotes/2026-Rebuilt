@@ -31,11 +31,11 @@ public class IntakeSubsystem extends SubsystemBase {
 
     // ==== Intake Constants ====
     static final double SLIDE_RETRACTED_POSITION = 0.0;
-    static final double SLIDE_EXTENDED_POSITION = 44.44; // TODO: Verify on robot
+    static final double SLIDE_EXTENDED_POSITION = 44.40;
     static final double SLIDE_MIN_POSITION = 0.0;
-    static final double SLIDE_MAX_POSITION = 44.455;
+    static final double SLIDE_MAX_POSITION = 44.454;
 
-    static final double ROLLER_VOLTS = 8.0; // was 6
+    static final double ROLLER_VOLTS = 6.0;
 
     // ==== Elastic Dashboard Publishers ====
     // Driver-awareness data: state string, slide position, and at-target booleans.
