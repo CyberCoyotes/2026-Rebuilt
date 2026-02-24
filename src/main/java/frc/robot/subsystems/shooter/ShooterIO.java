@@ -104,6 +104,18 @@ public interface ShooterIO {
     default void setFlywheelVelocity(double rpm) {}
 
     /**
+     * Sets the flywheel target velocity using VelocityTorqueCurrentFOC.
+     *
+     * NOTE: TorqueCurrentFOC requires CAN FD (CANivore bus).
+     * On RIO CAN it will not perform as intended — for comparison testing only
+     * until flywheel motors are moved to CANivore.
+     *
+     * kP units: Amps per RPS (NOT Volts/RPS — retune separately from VelocityVoltage gains).
+     *
+     * @param rpm Target velocity in rotations per minute
+     */
+    default void setFlywheelVelocityTorqueFOC(double rpm) {}
+    /**
      * Stops the flywheel motors (velocity = 0).
      */
     default void stopFlywheels() {}

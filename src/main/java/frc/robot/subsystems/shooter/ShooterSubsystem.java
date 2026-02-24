@@ -2,6 +2,7 @@ package frc.robot.subsystems.shooter;
 
 // import org.littletonrobotics.junction.Logger;
 
+import edu.wpi.first.math.interpolation.InterpolatingDoubleTreeMap;
 import edu.wpi.first.networktables.BooleanPublisher;
 import edu.wpi.first.networktables.DoublePublisher;
 import edu.wpi.first.networktables.NetworkTable;
@@ -49,8 +50,8 @@ public class ShooterSubsystem extends SubsystemBase {
      * Add an end of line comment `Tuned` when each is verified */
     private static final double STANDBY_RPM = 2240; //
     public static final double CLOSE_RPM   = 2750; //
-    private static final double TOWER_RPM   = 2900; // TODO: Tune
-    private static final double TRENCH_RPM  = 3000; // TODO: Tune
+    private static final double TOWER_RPM   = 3200; // TODO: Tune was 3100, 4.42
+    private static final double TRENCH_RPM  = 3200; // TODO: Tune
     private static final double FAR_RPM     = 3000; //
     private static final double PASS_RPM    = 4000; //
 
@@ -70,8 +71,8 @@ public class ShooterSubsystem extends SubsystemBase {
      * Consider using WCP Encoder
      * Add an end of line comment `Tuned` when each is verified */
     public static final double CLOSE_HOOD  = 0.00; //
-    public static final double TOWER_HOOD  = 4.42; //
-    public static final double TRENCH_HOOD = 5.00; //
+    public static final double TOWER_HOOD  = 4.30; //
+    public static final double TRENCH_HOOD = 4.30; //
     public static final double PASS_HOOD   = 5.50; //
     public static final double FAR_HOOD    = 6.00; //
 
@@ -112,6 +113,16 @@ public class ShooterSubsystem extends SubsystemBase {
     private final ShooterIO io;
     private final ShooterIOInputs inputs = new ShooterIOInputs();
 
+    // ==== TODO Control Mode Toggle ====
+    /**
+     * When true, flywheel uses VelocityTorqueCurrentFOC (Slot 1 gains).
+     * When false, uses VelocityVoltage with FOC enabled (Slot 0 gains) — default.
+     *
+     * NOTE: TorqueCurrentFOC requires CAN FD. On RIO CAN this flag should stay false
+     * until flywheel motors are moved to CANivore.
+     */
+    private boolean useTorqueFOC = false;
+
     // ==== Dashboard Publishers (NetworkTables) ====
     private final NetworkTable shooterTable;
     private final StringPublisher  statePublisher;
@@ -128,6 +139,8 @@ public class ShooterSubsystem extends SubsystemBase {
     private final DoublePublisher  throughBorePositionPublisher;
     private final BooleanPublisher throughBoreConnectedPublisher;
     private final StringPublisher  selectedPresetPublisher;
+    private final BooleanPublisher torqueFOCPublisher; // TODO Test VelocityTorqueCurrentFOC on flywheel — compare to VelocityVoltage with FOC, see if it improves acceleration or stability. Publish active control mode for visibility on dashboard.
+
 
     // ==== State ====
     private ShooterState currentState     = ShooterState.IDLE;
@@ -160,6 +173,9 @@ public class ShooterSubsystem extends SubsystemBase {
         throughBorePositionPublisher  = shooterTable.getDoubleTopic("ThroughBorePosition").publish();
         throughBoreConnectedPublisher = shooterTable.getBooleanTopic("ThroughBoreConnected").publish();
         selectedPresetPublisher       = shooterTable.getStringTopic("SelectedPreset").publish();
+        // TODO Test VelocityTorqueCurrentFOC on flywheel — compare to VelocityVoltage with FOC, see if it improves acceleration or stability. Publish active control mode for visibility on dashboard.
+        torqueFOCPublisher = shooterTable.getBooleanTopic("UsingTorqueFOC").publish();
+
     }
 
     // ==== State Machine ====
@@ -198,6 +214,9 @@ public class ShooterSubsystem extends SubsystemBase {
         throughBorePositionPublisher.set(inputs.hoodThroughBorePositionRotations);
         throughBoreConnectedPublisher.set(inputs.hoodThroughBoreConnected);
         selectedPresetPublisher.set(selectedPreset.label);
+
+        // TODO Test VelocityTorqueCurrentFOC on flywheel — compare to VelocityVoltage with FOC, see if it improves acceleration or stability. Publish active control mode for visibility on dashboard.
+        torqueFOCPublisher.set(useTorqueFOC);
     }
 
     // =====STATE MACHINE=====
@@ -235,17 +254,20 @@ public class ShooterSubsystem extends SubsystemBase {
                 break;
 
             case READY:
-                io.setFlywheelVelocity(targetFlywheelMotorRPM);
+                // io.setFlywheelVelocity(targetFlywheelMotorRPM);
+                commandFlywheelVelocity(targetFlywheelMotorRPM); // Routes to the active control mode (VelocityVoltage or VelocityTorqueCurrentFOC)
                 io.setHoodPose(targetHoodPoseRot);
                 break;
 
             case PASS:
-                io.setFlywheelVelocity(PASS_RPM);
+                // io.setFlywheelVelocity(PASS_RPM);
+                commandFlywheelVelocity(PASS_RPM); // Routes to the active control mode (VelocityVoltage or VelocityTorqueCurrentFOC)
                 io.setHoodPose(PASS_HOOD);
                 break;
 
             case EJECT:
-                io.setFlywheelVelocity(EJECT_RPM);
+                // io.setFlywheelVelocity(EJECT_RPM);
+                commandFlywheelVelocity(EJECT_RPM); // Routes to the active control mode (VelocityVoltage or VelocityTorqueCurrentFOC)
                 io.setHoodPose(MIN_HOOD_POSE_ROT);
                 break;
         }
@@ -469,20 +491,70 @@ public class ShooterSubsystem extends SubsystemBase {
         return selectedPreset == ShotPreset.FAR;
     }
 
-    // ==== Vision ====
+    // ==== Vision Lookup Tables ====
 
     /**
-     * Updates shooter targets based on distance to target.
-     * Linear interpolation between close and far shots.
-     * Does NOT change state — call prepareToShoot() after.
+     * Distance-to-RPM and distance-to-hood lookup tables.
+     *
+     * Keys   = distance from hub AprilTag in meters (floor distance, not slant).
+     * Values = target flywheel RPM / hood rotations at that distance.
+     *
+     * InterpolatingDoubleTreeMap linearly interpolates between measured points and
+     * clamps to the nearest endpoint outside the measured range.
+     *
+     * HOW TO FILL IN: See TUNING.md §4 for the full measurement procedure.
+     *   1. Place robot at each distance with a tape measure.
+     *   2. Enable, hold RT, watch Vision/Distance_m on Elastic to confirm distance reads correctly.
+     *   3. Manually command a shot (use POV preset cycling as a baseline).
+     *   4. Adjust RPM/hood until shots land center target.
+     *   5. Record values here, rebuild, repeat at next distance.
+     *
+     * Distances below 1.0 m and above 6.0 m are clamped to the nearest endpoint.
+     * Add or remove rows as the shot envelope changes.
+     */
+    private static final InterpolatingDoubleTreeMap FLYWHEEL_RPM_MAP = new InterpolatingDoubleTreeMap();
+    private static final InterpolatingDoubleTreeMap HOOD_ROT_MAP     = new InterpolatingDoubleTreeMap();
+
+    static {
+        // ── Flywheel RPM vs. distance ──────────────────────────────────────────
+        // TODO: Replace each value with a measured result (see TUNING.md §4)
+        FLYWHEEL_RPM_MAP.put(1.0, 2750.0); // TODO: tune
+        FLYWHEEL_RPM_MAP.put(2.0, 2900.0); // TODO: tune
+        FLYWHEEL_RPM_MAP.put(3.0, 3100.0); // TODO: tune
+        FLYWHEEL_RPM_MAP.put(4.0, 3200.0); // TODO: tune
+        FLYWHEEL_RPM_MAP.put(5.0, 3300.0); // TODO: tune
+        FLYWHEEL_RPM_MAP.put(6.0, 3400.0); // TODO: tune  (hw max ~6380 RPM)
+
+        // ── Hood position (rotations) vs. distance ────────────────────────────
+        // TODO: Replace each value with a measured result (see TUNING.md §4)
+        HOOD_ROT_MAP.put(1.0, 0.00); // TODO: tune  (0.0 = fully up / close)
+        HOOD_ROT_MAP.put(2.0, 1.50); // TODO: tune
+        HOOD_ROT_MAP.put(3.0, 3.00); // TODO: tune
+        HOOD_ROT_MAP.put(4.0, 4.30); // TODO: tune
+        HOOD_ROT_MAP.put(5.0, 5.50); // TODO: tune
+        HOOD_ROT_MAP.put(6.0, 6.00); // TODO: tune  (hw max ~9.14 rot)
+    }
+
+    /**
+     * Updates shooter targets from the interpolation maps for the given distance.
+     *
+     * If the shooter is already in READY state the new targets are pushed to
+     * hardware immediately, enabling continuous live tracking while the trigger
+     * is held.  If not yet in READY, the targets are stored and applied when
+     * prepareToShoot() is called.
+     *
+     * @param distanceMeters Measured distance to hub tag in meters (floor distance)
      */
     public void updateFromDistance(double distanceMeters) {
-        double distance = Math.max(1.0, Math.min(5.0, distanceMeters));
-        double t = (distance - 1.0) / (5.0 - 1.0);
-        double velocity = CLOSE_RPM + t * (FAR_RPM - CLOSE_RPM);
-        double pose = CLOSE_HOOD + t * (FAR_HOOD - CLOSE_HOOD);
-        setTargetVelocity(velocity);
-        setTargetHoodPose(pose);
+        double dist = Math.max(1.0, Math.min(6.0, distanceMeters));
+        setTargetVelocity(FLYWHEEL_RPM_MAP.get(dist));
+        setTargetHoodPose(HOOD_ROT_MAP.get(dist));
+
+        // Push to hardware immediately if already spinning — keeps tracking live
+        if (currentState == ShooterState.READY) {
+            commandFlywheelVelocity(targetFlywheelMotorRPM);
+            io.setHoodPose(targetHoodPoseRot);
+        }
     }
 
     // ==== LEGACY / CONVENIENCE SHIMS ====
@@ -507,4 +579,23 @@ public class ShooterSubsystem extends SubsystemBase {
         setFarShotPreset();
         prepareToShoot();
     }
+
+    /** TODO Test VelocityTorqueCurrentFOC on flywheel — compare to VelocityVoltage with FOC, see if it improves acceleration or stability.
+     * Routes flywheel velocity command to the active control mode.
+     * Toggle useTorqueFOC to switch between VelocityVoltage and VelocityTorqueCurrentFOC.
+     */
+    private void commandFlywheelVelocity(double rpm) {
+        if (useTorqueFOC) {
+            io.setFlywheelVelocityTorqueFOC(rpm);
+        } else {
+            io.setFlywheelVelocity(rpm);
+        }
+    }
+
+    public Command toggleControlModeCommand() {
+    return Commands.runOnce(() -> {
+        useTorqueFOC = !useTorqueFOC;
+        System.out.println("[Shooter] Control mode: " + (useTorqueFOC ? "TorqueCurrentFOC (Slot 1)" : "VelocityVoltage (Slot 0)"));
+    }, this).withName("ToggleFlywheelControlMode");
+}
 }

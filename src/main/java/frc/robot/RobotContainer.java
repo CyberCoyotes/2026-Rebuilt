@@ -56,7 +56,8 @@ public class RobotContainer {
     private final IndexerSubsystem indexer;
     private final ShooterSubsystem shooter;
     private final VisionSubsystem vision;
-    private final LedSubsystem ledSubsystem;
+    // private final LedSubsystem ledSubsystem;
+    private final LedSubsystem larson;
     // private final ClimberSubsystem climber;
     private final FuelCommands fuelCommands = null;
     private final AutoFactory autoFactory;
@@ -69,7 +70,7 @@ public class RobotContainer {
         shooter = new ShooterSubsystem(new ShooterIOHardware());
         vision = new VisionSubsystem(new VisionIOLimelight(Constants.Vision.LIMELIGHT4_NAME));
 
-        ledSubsystem = new LedSubsystem();
+        larson = new LedSubsystem();
         // climber = new ClimberSubsystem();
 
         autoFactory = drivetrain.createAutoFactory();
@@ -107,22 +108,30 @@ public class RobotContainer {
         drivetrain.registerTelemetry(logger::telemeterize);
 
         // =====================================================================
-        // DRIVER CONTROLLER (Port 0) - Vision Alignment
-        // =====================================================================
-
-        // =====================================================================
         // DRIVER CONTROLLER (Port 0) - Shooter
         // =====================================================================
 
-        // Right Trigger: Shoot with the currently selected preset.
-        //
-        // Default preset on startup: CLOSE (Close RPM + Close hood).
-        // Cycle presets with POV Left / POV Right before shooting.
-        //
-        // Sequence: arm preset → ramp flywheel + move hood → wait until ready → feed
-        // On release: stop indexer/conveyor → return shooter to standby.
         driver.rightTrigger(0.5).whileTrue(
             FuelCommands.shootWithSelectedPreset(shooter, indexer)
+        );
+        // Right Trigger: Vision-aligned shot.
+        //
+        // While held:
+        //   - Starts spinning at the current POV-selected preset immediately.
+        //   - If a hub AprilTag is visible: continuously updates RPM + hood from
+        //     the distance lookup table and drives rotation to center the tag.
+        //   - If no hub tag is visible: holds current preset, no rotation override.
+        //   - Fires indexer/conveyor as soon as vision is aligned AND shooter is ready.
+        //   - Driver left stick still controls translation freely throughout.
+        //
+        // Cycle the fallback preset with POV Left / POV Right before or during hold.
+        // Active preset name is published to Shooter/SelectedPreset on NetworkTables.
+        driver.rightTrigger(0.5).and(driver.a()).whileTrue(
+            FuelCommands.visionAlignAndShoot(
+                shooter, vision, indexer, drivetrain,
+                () -> -driver.getLeftY() * MaxSpeed,
+                () -> -driver.getLeftX() * MaxSpeed
+            )
         );
 
         // POV Right: Cycle to next preset (Close → Tower → Trench → Pass → Far → Close).
@@ -138,13 +147,11 @@ public class RobotContainer {
 
         // Left Trigger: Extend slides and run roller while held.
         // TODO Check if this is proper way to call the command `intakeFuel()` from IntakeSubsytem
-        driver.leftTrigger(0.5).whileTrue(
-            intake.intakeFuel());
+        driver.leftTrigger(0.5).whileTrue(intake.intakeFuel());
 
         // Left Bumper: Retract slides immediately.
-        // TODO Check if this is proper way to call the command `compressFuel()` from IntakeSubsytem
-        driver.leftBumper().onTrue(//Commands.runOnce(
-            intake.compressFuel());
+        driver.leftBumper().whileTrue(intake.compressFuelIncremental()); // TODO: Test
+
     }
 
     public Command getAutonomousCommand() {
@@ -159,4 +166,4 @@ public class RobotContainer {
         return gameDataTelemetry;
     }
 
-} // End of
+} // End of Class RobotContainer

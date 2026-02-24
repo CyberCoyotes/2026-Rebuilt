@@ -1,6 +1,7 @@
 package frc.robot.subsystems.vision;
 
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.networktables.BooleanPublisher;
 import edu.wpi.first.networktables.DoublePublisher;
 import edu.wpi.first.networktables.IntegerPublisher;
@@ -254,6 +255,47 @@ public class VisionSubsystem extends SubsystemBase {
      */
     public int getTagId() {
         return inputs.tagId;
+    }
+
+    /**
+     * Returns true if the currently visible tag is a hub target for the active alliance.
+     *
+     * Defaults to blue alliance if DriverStation has not yet reported alliance color
+     * (e.g., during pre-match or practice mode without FMS).
+     *
+     * NOTE: Hub tag ID ranges must be verified against the 2026 game manual.
+     * Blue: Constants.Vision.BLUE_HUB_MIN/MAX_TAG_ID
+     * Red:  Constants.Vision.RED_HUB_MIN/MAX_TAG_ID
+     */
+    public boolean isHubTarget() {
+        int id = inputs.tagId;
+        if (id < 0) return false;
+
+        var alliance = DriverStation.getAlliance();
+        if (alliance.isPresent() && alliance.get() == DriverStation.Alliance.Red) {
+            return id >= Constants.Vision.RED_HUB_MIN_TAG_ID
+                && id <= Constants.Vision.RED_HUB_MAX_TAG_ID;
+        }
+        // Default / blue alliance
+        return id >= Constants.Vision.BLUE_HUB_MIN_TAG_ID
+            && id <= Constants.Vision.BLUE_HUB_MAX_TAG_ID;
+    }
+
+    /**
+     * Returns true when vision data is safe to use for shooter parameter updates.
+     *
+     * True when:
+     *   - An active hub target is locked (TARGET_ACQUIRED or ALIGNED), OR
+     *   - We just lost a hub target and are in the grace period (LOST_TARGET with valid last-known distance)
+     *
+     * False when no target has ever been seen or the grace period has expired.
+     */
+    public boolean isUsableForShooting() {
+        if (currentState == AlignmentState.LOST_TARGET) {
+            // Grace period: use last-known distance rather than resetting the shooter
+            return lastKnownDistance > 0.1;
+        }
+        return hasTarget() && isHubTarget() && getDistanceToTargetMeters() > 0.1;
     }
 
     // =========================================================================
