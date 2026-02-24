@@ -98,7 +98,6 @@ public class ShooterIOHardware implements ShooterIO {
       config.Slot0.kV = 0.12; // TODO: Tune
 
       // Slot 1 — VelocityTorqueCurrentFOC gains (kP in Amps/RPS — different units, retune separately)
-      // NOTE: Only active on CAN FD (CANivore). On RIO CAN these won't behave correctly.
       config.Slot1.kP = 5.0;  // TODO: Tune — starting point for torque current; units are Amps not Volts
       config.Slot1.kV = 0.12; // TODO: Tune
 
@@ -117,7 +116,7 @@ public class ShooterIOHardware implements ShooterIO {
       config.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
 
       /* Voltage limits — capped for safe hood movement during testing.
-       * TODO: Increase after hood travel range is verified. 4V has been safe. */
+       * Consider increasing after hood travel range is verified. 4V has been safe without breakage. */
       config.Voltage.PeakForwardVoltage = 4.0;
       config.Voltage.PeakReverseVoltage = -4.0;
 
