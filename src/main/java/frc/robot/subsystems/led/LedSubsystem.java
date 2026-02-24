@@ -6,6 +6,7 @@ import static edu.wpi.first.units.Units.*;
 
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.Constants;
 
 import com.ctre.phoenix6.CANBus;
 import com.ctre.phoenix6.controls.LarsonAnimation;
@@ -17,9 +18,8 @@ import com.ctre.phoenix6.signals.RGBWColor;
 /**
  * Subsystem that controls an addressable LED strip using a CANdle.
  */
-public class LEDSubsystem extends SubsystemBase {
-    private final CANBus kCANBus = new CANBus("rio");
-    private final CANdle m_candle = new CANdle(15, kCANBus);
+public class LedSubsystem extends SubsystemBase {
+    private final CANdle m_candle = new CANdle(Constants.Led.CANDLE_ID, Constants.RIO_CANBUS);
 
     // // == Preset Colors ==
     // private static final LedColor IDLE_COLOR = new LedColor(0, 0, 0);
@@ -42,7 +42,7 @@ public class LEDSubsystem extends SubsystemBase {
 
     // private LedColor lastColor = IDLE_COLOR;
 
-    public LEDSubsystem() {
+    public LedSubsystem() {
         setDefaultCommand(updateLEDs());
     }
 

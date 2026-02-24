@@ -25,7 +25,7 @@ import frc.robot.subsystems.indexer.IndexerIOHardware;
 import frc.robot.subsystems.intake.IntakeIOHardware;
 import frc.robot.subsystems.shooter.ShooterIOHardware;
 import frc.robot.subsystems.shooter.ShooterSubsystem;
-import frc.robot.subsystems.led.LEDSubsystem;
+import frc.robot.subsystems.led.LedSubsystem;
 import frc.robot.subsystems.vision.VisionIOLimelight;
 import frc.robot.subsystems.vision.VisionSubsystem;
 
@@ -57,7 +57,7 @@ public class RobotContainer {
     private final ShooterSubsystem shooter;
     private final VisionSubsystem vision;
     // private final LedSubsystem ledSubsystem;
-    private final LEDSubsystem larson;
+    private final LedSubsystem larson;
     // private final ClimberSubsystem climber;
 
     private final AutoFactory autoFactory;
@@ -70,7 +70,7 @@ public class RobotContainer {
         shooter = new ShooterSubsystem(new ShooterIOHardware());
         vision = new VisionSubsystem(new VisionIOLimelight(Constants.Vision.LIMELIGHT4_NAME));
 
-        larson = new LEDSubsystem();
+        larson = new LedSubsystem();
         // climber = new ClimberSubsystem();
 
         autoFactory = drivetrain.createAutoFactory();
@@ -105,13 +105,12 @@ public class RobotContainer {
         drivetrain.registerTelemetry(logger::telemeterize);
 
         // =====================================================================
-        // DRIVER CONTROLLER (Port 0) - Vision Alignment
-        // =====================================================================
-
-        // =====================================================================
         // DRIVER CONTROLLER (Port 0) - Shooter
         // =====================================================================
 
+        driver.rightTrigger(0.5).whileTrue(
+            FuelCommands.shootWithSelectedPreset(shooter, indexer)
+        );
         // Right Trigger: Vision-aligned shot.
         //
         // While held:
@@ -124,7 +123,7 @@ public class RobotContainer {
         //
         // Cycle the fallback preset with POV Left / POV Right before or during hold.
         // Active preset name is published to Shooter/SelectedPreset on NetworkTables.
-        driver.rightTrigger(0.5).whileTrue(
+        driver.rightTrigger(0.5).and(driver.a()).whileTrue(
             FuelCommands.visionAlignAndShoot(
                 shooter, vision, indexer, drivetrain,
                 () -> -driver.getLeftY() * MaxSpeed,
