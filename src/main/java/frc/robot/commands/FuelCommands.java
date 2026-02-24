@@ -23,12 +23,11 @@ import static edu.wpi.first.units.Units.MetersPerSecond;
  * This class provides static factory methods to create common shooter commands.
  * Using a factory pattern keeps command creation centralized and reusable.
  *
- * SHOT FLOW:
- * 1. Driver presses preset (A/X/B) — silently arms target RPM and hood angle
- * 2. Driver holds shoot trigger — flywheel ramps to target, hood moves, waits until ready, feeds
- * 3. Driver releases trigger — returns to IDLE (TODO: STANDBY once spin logic validated)
+ * Current Test Shot Flow:
+ * - Select a preset with POV left/right (sets target RPM + hood, but does not move yet)
+ * - Driver holds shoot trigger;flywheel ramps to target, hood moves, waits until ready, feeds
+ * - Driver releases trigger; returns to IDLE (TODO: STANDBY once spin logic validated)
  *
- * @author @Isaak3
  */
 public class FuelCommands {
 
