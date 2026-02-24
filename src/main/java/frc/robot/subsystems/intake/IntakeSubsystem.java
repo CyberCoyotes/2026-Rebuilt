@@ -215,14 +215,37 @@ public class IntakeSubsystem extends SubsystemBase {
                 .withName("IntakeFuel");
     }
 
-    // Auton convenience wrappers — build on intakeFuel(), not duplicate logic
-    public Command intakeFuelTimer(double seconds) {
-        return intakeFuel().withTimeout(seconds);
-    }
-
-    // Auton convenience wrappers — build on intakeFuel(), not duplicate logic
-    public Command intakeFuelUntil(BooleanSupplier condition) {
-        return intakeFuel().until(condition);
+    /**
+     * Autonomous-friendly intake command.
+     *
+     * Ends via timeout (primary) — the {@code waitForSensor} flag is reserved for
+     * future use once a game-piece sensor (e.g. hopper beam-break) is available.
+     *
+     * Flow:
+     *   1. Extends slides to the MotionMagic setpoint (runOnce)
+     *   2. Runs the roller for {@code timeoutSeconds} — acts as the end trigger
+     *   3. Stops the roller on completion or interrupt
+     *   Slides remain extended after the command (MotionMagic holds them).
+     *   Call {@link #stopFuel()} or {@link #retractSlidesCmd()} afterward if needed.
+     *
+     * Typical auton usage:
+     * <pre>
+     *   intake.intakeFuelAuton(2.0, false)
+     * </pre>
+     *
+     * @param timeoutSeconds How long to run the roller; acts as the end trigger (timeout).
+     *                       Tune per path segment length or expected ball count.
+     * @param waitForSensor  Reserved for future use — when true, will end early on a
+     *                       game-piece sensor trigger rather than relying solely on the
+     *                       timer. Pass {@code false} for now.
+     * @return Autonomous intake command
+     */
+    public Command intakeFuelAuton(double timeoutSeconds, boolean waitForSensor) {
+        return Commands.sequence(
+                extendSlidesCmd(),
+                Commands.startEnd(this::runRoller, this::stopRoller, this)
+                        .withTimeout(timeoutSeconds) // primary end trigger: timeout
+        ).withName("IntakeFuelAuton");
     }
 
     /**

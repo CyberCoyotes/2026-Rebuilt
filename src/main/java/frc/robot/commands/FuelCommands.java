@@ -12,6 +12,7 @@ import frc.robot.subsystems.CommandSwerveDrivetrain;
 import frc.robot.subsystems.vision.VisionSubsystem;
 import frc.robot.subsystems.indexer.IndexerSubsystem;
 import frc.robot.subsystems.shooter.ShooterSubsystem;
+import frc.robot.subsystems.shooter.ShooterSubsystem.ShotPreset;
 
 import java.util.function.DoubleSupplier;
 
@@ -105,6 +106,99 @@ public class FuelCommands {
             indexer.conveyorStop();
             shooter.setIdle(); // Stop all flywheel motors on trigger release
         }).withName("ShootWithPreset[" + rpm + "rpm]");
+    }
+
+    /**
+     * Autonomous-friendly preset shoot command using a named ShotPreset enum value.
+     *
+     * Ends via timeout (primary) — the {@code waitForReady} flag is reserved for future
+     * use once sensor-based game-piece detection is available.
+     *
+     * Flow:
+     *   1. Arms the given preset (RPM + hood) silently
+     *   2. Calls prepareToShoot() — flywheel ramps up, hood moves to target
+     *   3. Waits until both are at target (isReady()), with a 3-second safety timeout
+     *   4. Runs indexer and conveyor for {@code feedSeconds} to deliver the game piece
+     *   5. Stops indexer/conveyor and returns shooter to idle
+     *
+     * Typical auton usage:
+     * <pre>
+     *   FuelCommands.shootPresetAuton(shooter, indexer, ShotPreset.TRENCH, 1.0)
+     * </pre>
+     *
+     * @param shooter      The shooter subsystem
+     * @param indexer      The indexer subsystem
+     * @param preset       The named shot preset (TRENCH, CLOSE, TOWER, …)
+     * @param feedSeconds  How long to run the indexer/conveyor after ready; acts as the
+     *                     end trigger (timeout). Tune per game-piece count needed.
+     * @param waitForReady Reserved for future use — when true, will gate the feed on a
+     *                     game-piece sensor rather than a timer. Pass {@code false} for now.
+     * @return Complete autonomous shoot sequence
+     */
+    public static Command shootPresetAuton(ShooterSubsystem shooter, IndexerSubsystem indexer,
+                                           ShotPreset preset, double feedSeconds,
+                                           boolean waitForReady) {
+        return Commands.sequence(
+            Commands.runOnce(() -> {
+                shooter.setTargetVelocity(preset.rpm);
+                shooter.setTargetHoodPose(preset.hood);
+                shooter.prepareToShoot();
+            }, shooter),
+            Commands.waitUntil(shooter::isReady).withTimeout(3.0),
+            Commands.run(() -> {
+                indexer.indexerForward();
+                indexer.conveyorForward();
+            }, indexer).withTimeout(feedSeconds) // primary end trigger: timeout
+        ).finallyDo(() -> {
+            indexer.indexerStop();
+            indexer.conveyorStop();
+            shooter.setIdle();
+        }).withName("ShootPresetAuton[" + preset.label + "]");
+    }
+
+    /**
+     * Autonomous: shoot using the TRENCH preset.
+     * Ends after {@code feedSeconds} of feed time (timeout).
+     *
+     * @param shooter     The shooter subsystem
+     * @param indexer     The indexer subsystem
+     * @param feedSeconds How long to run the indexer/conveyor after ready
+     * @return Autonomous TRENCH shoot command
+     */
+    public static Command shootTrenchAuton(ShooterSubsystem shooter, IndexerSubsystem indexer,
+                                           double feedSeconds) {
+        return shootPresetAuton(shooter, indexer, ShotPreset.TRENCH, feedSeconds, false)
+            .withName("ShootTrenchAuton");
+    }
+
+    /**
+     * Autonomous: shoot using the CLOSE preset.
+     * Ends after {@code feedSeconds} of feed time (timeout).
+     *
+     * @param shooter     The shooter subsystem
+     * @param indexer     The indexer subsystem
+     * @param feedSeconds How long to run the indexer/conveyor after ready
+     * @return Autonomous CLOSE shoot command
+     */
+    public static Command shootCloseAuton(ShooterSubsystem shooter, IndexerSubsystem indexer,
+                                          double feedSeconds) {
+        return shootPresetAuton(shooter, indexer, ShotPreset.CLOSE, feedSeconds, false)
+            .withName("ShootCloseAuton");
+    }
+
+    /**
+     * Autonomous: shoot using the TOWER preset.
+     * Ends after {@code feedSeconds} of feed time (timeout).
+     *
+     * @param shooter     The shooter subsystem
+     * @param indexer     The indexer subsystem
+     * @param feedSeconds How long to run the indexer/conveyor after ready
+     * @return Autonomous TOWER shoot command
+     */
+    public static Command shootTowerAuton(ShooterSubsystem shooter, IndexerSubsystem indexer,
+                                          double feedSeconds) {
+        return shootPresetAuton(shooter, indexer, ShotPreset.TOWER, feedSeconds, false)
+            .withName("ShootTowerAuton");
     }
 
     /**
