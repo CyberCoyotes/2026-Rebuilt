@@ -261,19 +261,55 @@ public class IntakeSubsystem extends SubsystemBase {
                 .withName("StopFuel");
     }
 
+    // =========================================================================
+    // COMPRESS FUEL
+    // =========================================================================
+
     /**
-     * TODO: Intention is to have the slides retract slowly while running the
-     * roller.
+     * Slowly retracts slides over ~2 seconds while continuously running the roller
+     * to compress/compact fuel into the hopper.
+     *
+     * Design: uses {@code Commands.run()} so both the slow-retract setpoint and the
+     * roller voltage are re-commanded every loop cycle. A single {@code runOnce}
+     * would send the setpoint once and then hold the roller with nothing enforcing
+     * DynamicMotionMagic on subsequent ticks — this version avoids that gap.
+     *
+     * End trigger: {@code withTimeout(timeoutSeconds)} is the primary end trigger.
+     * The {@code waitForRetract} flag is reserved for future use (e.g., ending early
+     * once {@link #isSlideFullyRetracted()} returns true). Pass {@code false} for now.
+     *
+     * Non-blocking: the command owns the subsystem requirement but ends on its own
+     * after {@code timeoutSeconds}, making it safe to compose with other commands
+     * via {@code Commands.parallel()} or as a deadline group in auton.
+     *
+     * Typical teleop usage (whileTrue):
+     * <pre>
+     *   operator.leftBumper().whileTrue(intake.compressFuel(2.0, false));
+     * </pre>
+     *
+     * Typical auton usage (parallel with a shoot command):
+     * <pre>
+     *   Commands.parallel(
+     *       intake.compressFuel(2.0, false),
+     *       FuelCommands.shootTrenchAuton(shooter, indexer, 1.5)
+     *   )
+     * </pre>
+     *
+     * @param timeoutSeconds  How long to run; acts as the primary end trigger.
+     *                        ~2.0 s is a good starting point to match slide travel time.
+     * @param waitForRetract  Reserved for future use — when true, will end early once
+     *                        the slide is fully retracted. Pass {@code false} for now.
+     * @return Command that slowly retracts slides while running the roller, ends on timeout
      */
-    public Command compressFuel() {
-        return Commands.sequence(
-                Commands.runOnce(() -> {
+    public Command compressFuel(double timeoutSeconds, boolean waitForRetract) {
+        return Commands.run(
+                () -> {
+                    retractSlidesSlow(); // re-commands DynamicMotionMagic every cycle
                     runRoller();
-                    retractSlidesSlow();
                 }, this)
-                // safety timeout in case something goes wrong
-                // Commands.waitUntil(this::isSlideFullyRetracted).withTimeout(3.0) 
-        ).withName("CompressFuel");
+                .withTimeout(timeoutSeconds) // primary end trigger
+                .finallyDo(() -> stopRoller())
+                .withName("CompressFuel");
     }
 
     /* Incremental slide retraction */
@@ -298,12 +334,5 @@ public class IntakeSubsystem extends SubsystemBase {
                 this)
                 .withName("CompressFuelIncremental");
     }
-
-    public Command compressFuelSlowly() {
-    return Commands.sequence(
-            retractSlidesSlowCmd(),
-            Commands.startEnd(this::runRoller, this::stopRoller, this))
-            .withName("CompressFuelSlowly");
-}
 
 } // end of class
