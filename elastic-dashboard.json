@@ -193,22 +193,21 @@
             "properties": {
               "label_position": "TOP"
             },
-
             "children": [
               {
-                  "title": "Selected Preset",
-                  "x": 0.0,
-                  "y": 0.0,
-                  "width": 192.0,
-                  "height": 64.0,
-                  "type": "Text Display",
-                  "properties": {
-                    "topic": "/Shooter/SelectedPreset",
-                    "period": 0.06,
-                    "data_type": "string",
-                    "show_submit_button": false
-                  }
-                },
+                "title": "Selected Preset",
+                "x": 0.0,
+                "y": 0.0,
+                "width": 192.0,
+                "height": 64.0,
+                "type": "Text Display",
+                "properties": {
+                  "topic": "/Shooter/SelectedPreset",
+                  "period": 0.06,
+                  "data_type": "string",
+                  "show_submit_button": false
+                }
+              },
               {
                 "title": "Shooter Ready",
                 "x": 0.0,
@@ -537,6 +536,20 @@
               "label_position": "TOP"
             },
             "children": [
+              {
+                "title": "Selected Preset",
+                "x": 0.0,
+                "y": 0.0,
+                "width": 192.0,
+                "height": 64.0,
+                "type": "Text Display",
+                "properties": {
+                  "topic": "/Shooter/SelectedPreset",
+                  "period": 0.06,
+                  "data_type": "string",
+                  "show_submit_button": false
+                }
+              },
               {
                 "title": "Shooter State",
                 "x": 0.0,
@@ -1209,6 +1222,20 @@
               "label_position": "TOP"
             },
             "children": [
+              {
+                "title": "Selected Preset",
+                "x": 0.0,
+                "y": 0.0,
+                "width": 192.0,
+                "height": 64.0,
+                "type": "Text Display",
+                "properties": {
+                  "topic": "/Shooter/SelectedPreset",
+                  "period": 0.06,
+                  "data_type": "string",
+                  "show_submit_button": false
+                }
+              },
               {
                 "title": "Shooter State",
                 "x": 0.0,
