@@ -26,6 +26,7 @@ import frc.robot.subsystems.intake.IntakeIOHardware;
 import frc.robot.subsystems.shooter.ShooterIOHardware;
 import frc.robot.subsystems.shooter.ShooterSubsystem;
 import frc.robot.subsystems.led.LedSubsystem;
+import frc.robot.subsystems.led.Larson;
 import frc.robot.subsystems.vision.VisionIOLimelight;
 import frc.robot.subsystems.vision.VisionSubsystem;
 
@@ -56,7 +57,8 @@ public class RobotContainer {
     private final IndexerSubsystem indexer;
     private final ShooterSubsystem shooter;
     private final VisionSubsystem vision;
-    private final LedSubsystem ledSubsystem;
+    // private final LedSubsystem ledSubsystem;
+    private final Larson larson;
     // private final ClimberSubsystem climber;
 
     private final AutoFactory autoFactory;
@@ -69,7 +71,7 @@ public class RobotContainer {
         shooter = new ShooterSubsystem(new ShooterIOHardware());
         vision = new VisionSubsystem(new VisionIOLimelight(Constants.Vision.LIMELIGHT4_NAME));
 
-        ledSubsystem = new LedSubsystem();
+        larson = new Larson();
         // climber = new ClimberSubsystem();
 
         autoFactory = drivetrain.createAutoFactory();
@@ -138,7 +140,7 @@ public class RobotContainer {
         driver.leftTrigger(0.5).whileTrue(intake.intakeFuel());
 
         // Left Bumper: Retract slides immediately.
-        driver.leftBumper().whileTrue(intake.compressFuel()); // TODO: Test
+        driver.leftBumper().whileTrue(intake.compressFuelIncremental()); // TODO: Test
 
     }
 

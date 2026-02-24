@@ -247,29 +247,40 @@ public class IntakeSubsystem extends SubsystemBase {
                 Commands.runOnce(() -> {
                     runRoller();
                     retractSlidesSlow();
-                }, this),
+                }, this)
                 // safety timeout in case something goes wrong
-                Commands.waitUntil(this::isSlideFullyRetracted).withTimeout(3.0) 
+                // Commands.waitUntil(this::isSlideFullyRetracted).withTimeout(3.0) 
         ).withName("CompressFuel");
     }
 
     /* Incremental slide retraction */
     // Slide — incremental retract by 2 rotations, clamped to min position
     public void retractSlidesIncremental() {
-        double target = Math.max(inputs.slidePositionRotations - 2.0, SLIDE_MIN_POSITION);
+        double target = Math.max(inputs.slidePositionRotations - 8.0, SLIDE_MIN_POSITION);
         io.setSlidePosition(target);
     }
 
     public Command retractSlidesIncrementalCmd() {
-        return Commands.runOnce(this::retractSlidesIncremental, this)
+        return Commands.run(this::retractSlidesIncremental, this)
                 .withName("RetractSlidesIncremental");
     }
 
     public Command compressFuelIncremental() {
-        return Commands.sequence(
-                retractSlidesIncrementalCmd(),
-                Commands.startEnd(this::reverseRoller, this::stopRoller, this))
+        return Commands.startEnd(
+                () -> {
+                    retractSlidesIncremental();
+                    runRoller();
+                },
+                this::stopRoller,
+                this)
                 .withName("CompressFuelIncremental");
     }
+
+    public Command compressFuelSlowly() {
+    return Commands.sequence(
+            retractSlidesSlowCmd(),
+            Commands.startEnd(this::runRoller, this::stopRoller, this))
+            .withName("CompressFuelSlowly");
+}
 
 } // end of class
