@@ -79,7 +79,7 @@ public class RobotContainer {
         autoChooser.addRoutine("FM", autoRoutines::FM);
         autoChooser.addRoutine("B", autoRoutines::B);
         autoChooser.addRoutine("Lob", autoRoutines::Lob);
-        autoChooser.addRoutine("Default", autoRoutines::Default);
+        autoChooser.addRoutine("Default(Run this one)", autoRoutines::Default);
         autoChooser.addRoutine("The Big D", autoRoutines::Dummy);
         configureBindings();
     }

@@ -108,11 +108,11 @@ public class AutoRoutines {
                         Commands.sequence(
                                 DefaultRightV2.resetOdometry(), // Always reset odometry first
                                 DefaultRightV2.cmd(), //Follow the path
-                                m_drivetrain.stop().withTimeout(DRIVE_WAIT)//,
+                                m_drivetrain.stop().withTimeout(10)//,
                                 // DefaultRightV2b.cmd()
 
                         ));
-                // DefaultRightV2.atTime("Score").onTrue(ShooterCommands.shootAtCurrentTarget(m_shooter, m_indexer)); //score
+                 DefaultRightV2.atTime("Score").onTrue(FuelCommands.shootTrenchAuton(m_shooter, m_indexer, 1.5).withTimeout(10.0)); //score
                 // DefaultRightV2.atTime("Intake").onTrue(IntakeSubsystem.intakeFuel(m_shooter, m_indexer)); //score
 
 
