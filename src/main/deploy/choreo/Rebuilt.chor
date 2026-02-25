@@ -21,8 +21,8 @@
    },
    "StartL":{
     "x":{
-     "exp":"4.4 m",
-     "val":4.4
+     "exp":"3.55 m",
+     "val":3.55
     },
     "y":{
      "exp":"7.64 m",
@@ -100,16 +100,16 @@
   },
   "bumper":{
    "front":{
-    "exp":"17 in",
-    "val":0.4318
+    "exp":"17.5 in",
+    "val":0.4445
    },
    "side":{
-    "exp":"17 in",
-    "val":0.4318
+    "exp":"17.5 in",
+    "val":0.4445
    },
    "back":{
-    "exp":"17 in",
-    "val":0.4318
+    "exp":"17.5 in",
+    "val":0.4445
    }
   },
   "differentialTrackWidth":{

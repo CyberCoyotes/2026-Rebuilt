@@ -102,17 +102,19 @@ public class AutoRoutines {
         public AutoRoutine Default() {
                  final AutoRoutine routine = m_factory.newRoutine("DefaultRightV2");
                 final AutoTrajectory DefaultRightV2 = routine.trajectory("DefaultRightV2", 0);
-                // final AutoTrajectory DefaultRightV2b = routine.trajectory("DefaultRightV2", 1);
+                final AutoTrajectory DefaultRightV2b = routine.trajectory("DefaultRightV2", 1);
+                final AutoTrajectory DefaultRightV2C = routine.trajectory("DefaultRightV2", 2);
 
                 routine.active().onTrue(
                         Commands.sequence(
                                 DefaultRightV2.resetOdometry(), // Always reset odometry first
                                 DefaultRightV2.cmd(), //Follow the path
-                                m_drivetrain.stop().withTimeout(10)//,
-                                // DefaultRightV2b.cmd()
+                                m_drivetrain.stop().withTimeout(10),
+                                 DefaultRightV2b.cmd(),
+                                 DefaultRightV2C.cmd()
 
                         ));
-                 DefaultRightV2.atTime("Score").onTrue(FuelCommands.shootTrenchAuton(m_shooter, m_indexer, 1.5).withTimeout(10.0)); //score
+                 DefaultRightV2C.atTime("Score").onTrue(FuelCommands.shootTrenchAuton(m_shooter, m_indexer, 1.5).withTimeout(10.0)); //score
                 // DefaultRightV2.atTime("Intake").onTrue(IntakeSubsystem.intakeFuel(m_shooter, m_indexer)); //score
 
 
@@ -133,7 +135,7 @@ public class AutoRoutines {
                                 // Dummy2.cmd()
 
                         ));
-                Dummy.atTime("Score").onTrue(FuelCommands.shootWithSelectedPreset(m_shooter, m_indexer).withTimeout(10.0)); //score
+                Dummy.atTime("Score").onTrue(FuelCommands.shootCloseAuton(m_shooter, m_indexer, 2.0).withTimeout(10.0)); //score
                 // Dummy.atTime("Intake").onTrue(IntakeSubsystem.intakeFuel(m_shooter, m_indexer)); //score
 
 

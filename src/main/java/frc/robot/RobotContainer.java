@@ -81,7 +81,7 @@ public class RobotContainer {
         autoChooser.addRoutine("Lob", autoRoutines::Lob);
         autoChooser.addRoutine("Default(Run this one)", autoRoutines::Default);
         autoChooser.addRoutine("The Big D", autoRoutines::Dummy);
-        // ✅ Publish to NetworkTables so Elastic can display it as a ComboBox Chooser  
+        
         SmartDashboard.putData("AutoChooser", autoChooser);
         configureBindings();
 
