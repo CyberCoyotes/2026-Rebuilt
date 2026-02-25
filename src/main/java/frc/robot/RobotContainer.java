@@ -14,6 +14,7 @@ import choreo.auto.AutoFactory;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.RobotModeTriggers;
 import frc.robot.generated.TunerConstants;
@@ -143,6 +144,12 @@ public class RobotContainer {
         // No subsystem requirement — safe to press while trigger is held without interrupting a shot.
         driver.povRight().onTrue(Commands.runOnce(shooter::cyclePresetForward));
         driver.povLeft().onTrue(Commands.runOnce(shooter::cyclePresetBackward));
+
+        // TODO: Test the air popper command and tune the popper RPM and hood pose. Consider adding to intakeFuel()
+        driver.a().whileTrue(FuelCommands.runAirPopper(indexer, shooter)); 
+
+        // TODO: Test the air popper command while running the intake.
+        driver.b().whileTrue(FuelCommands.runAirPopper(indexer, shooter).alongWith(intake.intakeFuel())); 
 
         // =====================================================================
         // DRIVER CONTROLLER (Port 0) - Intake
