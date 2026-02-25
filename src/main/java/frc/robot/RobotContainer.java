@@ -11,7 +11,7 @@ import com.ctre.phoenix6.swerve.SwerveRequest;
 
 import choreo.auto.AutoChooser;
 import choreo.auto.AutoFactory;
-
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
@@ -59,7 +59,7 @@ public class RobotContainer {
     // private final LedSubsystem ledSubsystem;
     private final LedSubsystem larson;
     // private final ClimberSubsystem climber;
-
+    private final FuelCommands fuelCommands = null;
     private final AutoFactory autoFactory;
     private final AutoRoutines autoRoutines;
     private final AutoChooser autoChooser = new AutoChooser();
@@ -74,11 +74,17 @@ public class RobotContainer {
         // climber = new ClimberSubsystem();
 
         autoFactory = drivetrain.createAutoFactory();
-        autoRoutines = new AutoRoutines(autoFactory);
-
-        autoChooser.addRoutine("SimplePath", autoRoutines::simplePathAuto);
-
+        autoRoutines = new AutoRoutines(autoFactory,drivetrain,indexer, intake, shooter, fuelCommands);
+        SmartDashboard.putData(autoChooser);
+        autoChooser.addRoutine("FM", autoRoutines::FM);
+        autoChooser.addRoutine("B", autoRoutines::B);
+        autoChooser.addRoutine("Lob", autoRoutines::Lob);
+        autoChooser.addRoutine("Default(Run this one)", autoRoutines::Default);
+        autoChooser.addRoutine("The Big D", autoRoutines::Dummy);
+        // ✅ Publish to NetworkTables so Elastic can display it as a ComboBox Chooser  
+        SmartDashboard.putData("AutoChooser", autoChooser);
         configureBindings();
+
     }
 
     private void configureBindings() {
