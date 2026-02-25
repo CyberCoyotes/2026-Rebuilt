@@ -109,7 +109,7 @@ public class AutoRoutines {
                         Commands.sequence(
                                 DefaultRightV2.resetOdometry(), // Always reset odometry first
                                 DefaultRightV2.cmd(), //Follow the path
-                                m_drivetrain.stop().withTimeout(10),
+                                m_drivetrain.stop().withTimeout(3),
                                  DefaultRightV2b.cmd(),
                                  DefaultRightV2C.cmd()
 
