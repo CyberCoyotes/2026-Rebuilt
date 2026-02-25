@@ -146,10 +146,10 @@ public class RobotContainer {
         driver.povLeft().onTrue(Commands.runOnce(shooter::cyclePresetBackward));
 
         // TODO: Test the air popper command and tune the popper RPM and hood pose. Consider adding to intakeFuel()
-        driver.a().whileTrue(FuelCommands.runAirPopper(indexer, shooter)); 
+        operator.a().whileTrue(FuelCommands.runAirPopper(indexer, shooter)); 
 
         // TODO: Test the air popper command while running the intake.
-        driver.b().whileTrue(FuelCommands.runAirPopper(indexer, shooter).alongWith(intake.intakeFuel())); 
+        operator.b().whileTrue(FuelCommands.runAirPopper(indexer, shooter).alongWith(intake.intakeFuel())); 
 
         // =====================================================================
         // DRIVER CONTROLLER (Port 0) - Intake
