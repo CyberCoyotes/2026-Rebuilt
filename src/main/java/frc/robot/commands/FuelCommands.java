@@ -567,10 +567,13 @@ public class FuelCommands {
      */
 
     // Run IndexerSubsystem conveyorforward, IndexerSubsystem indexer, and ShooterSubsystem flywheel in parallel */
-    // public static Command runAirPopper(IndexerSubsystem indexer, ShooterSubsystem shooter) {
-    //     return Commands.sequence(     
-    //         Commands.run(indexer::conveyorAirPopper, indexer).alongWith(
-    //         Commands.run(indexer::indexerAirPopper, indexer).alongWith(Commands.run(shooter::shooterAirPopper, shooter) 
-    //     .withName("RunAirPopper"))));
-    // }
+public static Command runAirPopper(IndexerSubsystem indexer, ShooterSubsystem shooter) {
+    return Commands.parallel(
+        Commands.run(() -> {
+            indexer.conveyorAirPopper();
+            indexer.indexerAirPopper();
+        }, indexer),                                    // indexer required ONCE
+        Commands.run(shooter::shooterAirPopper, shooter)
+    ).withName("RunAirPopper");                         // .withName() on the outer command
+}
 }

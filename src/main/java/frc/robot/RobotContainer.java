@@ -135,7 +135,7 @@ public class RobotContainer {
         operator.y().onTrue(Commands.runOnce(() -> shooter.selectPreset(ShooterSubsystem.ShotPreset.FAR)));
         operator.rightBumper().onTrue(Commands.runOnce(() -> shooter.selectPreset(ShooterSubsystem.ShotPreset.PASS)));
         // TODO: Test the air popper command and tune the popper RPM and hood pose. Consider adding to intakeFuel()
-        // operator.a().whileTrue(FuelCommands.runAirPopper(indexer, shooter)); 
+        operator.a().whileTrue(FuelCommands.runAirPopper(indexer, shooter)); 
 
         // TODO: Test the air popper command while running the intake.
         // operator.b().whileTrue(FuelCommands.runAirPopper(indexer, shooter).alongWith(intake.intakeFuel())); 
