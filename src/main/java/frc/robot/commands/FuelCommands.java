@@ -559,4 +559,19 @@ public class FuelCommands {
     //     return Commands.runOnce(shooter::returnToStandby, shooter)
     //         .withName("ReturnToStandby");
     // }
+
+    /* 
+    * Run IndexerSubsystem convevor forward to assist with feeding into the hopper
+    * Run IndexerSubsystem indexer forward to assist with feeding into the hopper 
+    * Set ShooterSubsystem to popper preset (low RPM + hood at minimum pose) to assist with loading fuel into the hopper
+     */
+
+    // Run IndexerSubsystem conveyorforward, IndexerSubsystem indexer, and ShooterSubsystem flywheel in parallel */
+    public static Command runAirPopper(IndexerSubsystem indexer, ShooterSubsystem shooter) {
+        return Commands.parallel(     
+            Commands.run(indexer::conveyorAirPopper, indexer),
+            Commands.run(indexer::indexerAirPopper, indexer),
+            Commands.run(shooter::shooterAirPopper, shooter) 
+        ).withName("RunAirPopper");
+    }
 }
