@@ -25,11 +25,11 @@ public class VisionIOLimelight implements VisionIO {
     /**
      * @param limelightName NetworkTable name of the Limelight (e.g. "limelight-four")
      */
-public VisionIOLimelight(String limelightName) {
-    this.limelightName = limelightName;
-    LimelightHelpers.setPipelineIndex(limelightName, 0);
-    LimelightHelpers.SetIMUMode(limelightName, 0);
-}
+    public VisionIOLimelight(String limelightName) {
+        this.limelightName = limelightName;
+        LimelightHelpers.setPipelineIndex(limelightName, 0);
+        LimelightHelpers.SetIMUMode(limelightName, 0);
+    }
 
     /**
      * Sets the LL4 IMU mode.
@@ -42,27 +42,18 @@ public VisionIOLimelight(String limelightName) {
 
     @Override
     public void setRobotOrientation(double yawDegrees) {
-        System.out.println("[Vision] yaw=" + yawDegrees);
         LimelightHelpers.SetRobotOrientation(limelightName, yawDegrees, 0, 0, 0, 0, 0);
     }
 
     @Override
     public void updateInputs(VisionIOInputs inputs) {
-        // Read raw tx and target valid flag from NT — always available
         inputs.hasTarget      = LimelightHelpers.getTV(limelightName);
         inputs.txDegrees      = LimelightHelpers.getTX(limelightName);
         inputs.totalLatencyMs = LimelightHelpers.getLatency_Pipeline(limelightName)
                               + LimelightHelpers.getLatency_Capture(limelightName);
 
-        // Read MegaTag2 pose estimate
         PoseEstimate estimate = LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2(limelightName);
-        PoseEstimate mt2 = LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2(limelightName);
-        PoseEstimate mt1 = LimelightHelpers.getBotPoseEstimate_wpiBlue(limelightName);
 
-    System.out.println("[Vision] MT1=" + (mt1 == null ? "NULL" : mt1.pose) 
-                     + " MT2=" + (mt2 == null ? "NULL" : mt2.pose)
-                     + " imuMode=" + LimelightHelpers.getLimelightNTDouble(limelightName, "imumode_set")
-                     + " tagCount=" + (mt2 == null ? 0 : mt2.tagCount));
         if (estimate == null || estimate.pose == null) {
             inputs.poseValid = false;
             return;

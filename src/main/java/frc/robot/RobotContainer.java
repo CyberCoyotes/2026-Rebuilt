@@ -65,7 +65,7 @@ public class RobotContainer {
     private final IntakeSubsystem  intake;
     private final IndexerSubsystem indexer;
     private final ShooterSubsystem shooter;
-    private VisionSubsystem  vision;
+    private VisionSubsystem        vision;
     private final LedSubsystem     ledSubsystem;
     // private final ClimberSubsystem climber;
 
@@ -135,7 +135,6 @@ public class RobotContainer {
         autoRoutines = new AutoRoutines(autoFactory, drivetrain, intake, shooter, indexer, vision);
 
         // ===== Auto Choosers =====
-        // NONE is the default for all three — just add new paths to ALL_AUTO_PATHS above
         phase1Chooser.setDefaultOption(AutoRoutines.NONE, AutoRoutines.NONE);
         phase2Chooser.setDefaultOption(AutoRoutines.NONE, AutoRoutines.NONE);
         phase3Chooser.setDefaultOption(AutoRoutines.NONE, AutoRoutines.NONE);
@@ -193,16 +192,15 @@ public class RobotContainer {
         // 1kHz for smooth per-frame updates; external gyro corrects drift over time.
         // =====================================================================
         if (visionIOLimelight != null) {
-    RobotModeTriggers.disabled().whileTrue(
-        Commands.run(() -> visionIOLimelight.setIMUMode(1)).ignoringDisable(true)
-    );
+            RobotModeTriggers.disabled().whileTrue(
+                Commands.run(() -> visionIOLimelight.setIMUMode(1)).ignoringDisable(true)
+            );
 
-    new Trigger(() -> DriverStation.isTeleopEnabled() || DriverStation.isAutonomousEnabled())
-        .onTrue(Commands.runOnce(() -> visionIOLimelight.setIMUMode(4)));
-}
+            new Trigger(() -> DriverStation.isTeleopEnabled() || DriverStation.isAutonomousEnabled())
+                .onTrue(Commands.runOnce(() -> visionIOLimelight.setIMUMode(4)));
+        }
 
         // Seed drivetrain pose from selected Phase 1 auto start position when teleop begins.
-        // This ensures the robot knows roughly where it is even if vision hasn't acquired yet.
         new Trigger(() -> DriverStation.isTeleopEnabled()).onTrue(
             drivetrain.runOnce(() -> {
                 String selected = phase1Chooser.getSelected();
@@ -230,7 +228,7 @@ public class RobotContainer {
         // B: Arm pass shot
         driver.b().onTrue(ShooterCommands.armPassShot(shooter));
 
-        // X: Arm hub shot
+        // X: Arm hub shot and begin spinning up
         driver.x().onTrue(new InstantCommand(shooter::hubShot, shooter));
 
         // =====================================================================
@@ -238,20 +236,18 @@ public class RobotContainer {
         // =====================================================================
 
         Trigger hubShotArmed = new Trigger(shooter::isHubShotArmed);
-        Trigger shooterReady = new Trigger(shooter::isReady);
 
+        // RT (hub shot armed): Rotate toward hub, update RPM/hood from distance,
+        // and feed automatically once shooter is ready.
         driver.rightTrigger(0.5).and(hubShotArmed).whileTrue(
             new HubTrackingCommand(
-                drivetrain, shooter, vision,
+                drivetrain, shooter, indexer, vision,
                 () -> -driver.getLeftY() * MaxSpeed,
                 () -> -driver.getLeftX() * MaxSpeed
             )
         );
 
-        driver.rightTrigger(0.5).and(hubShotArmed).and(shooterReady).whileTrue(
-            ShooterCommands.feedOnly(indexer)
-        );
-
+        // RT (standard shot): Close or pass shot at currently armed preset.
         driver.rightTrigger(0.5).and(hubShotArmed.negate()).whileTrue(
             ShooterCommands.shootAtCurrentTarget(shooter, indexer)
         );
@@ -260,12 +256,19 @@ public class RobotContainer {
         // DRIVER CONTROLLER (Port 0) - Intake
         // =====================================================================
 
+        // Left Trigger: Extend slides, run roller, and slowly spin shooter/indexer
+        // at IDLE_RPM while held. On release, shooter returns to SPINUP and the
+        // previously armed preset is preserved.
         driver.leftTrigger(0.5).whileTrue(
             intake.intakeFuel()
                 .alongWith(shooter.intakeModeCommand())
         );
 
+        // Left Bumper: Retract intake and slowly reverse roller while held.
         driver.leftBumper().whileTrue(intake.retractAndReverseRollerCommand());
+
+        // Right Bumper: Run indexer and conveyor to pull game pieces through the hopper.
+        driver.rightBumper().whileTrue(indexer.intakeCommand());
 
         // =====================================================================
         // DRIVER CONTROLLER (Port 0) - Commented out (TODO: enable as needed)

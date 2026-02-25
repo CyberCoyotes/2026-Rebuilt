@@ -8,6 +8,8 @@ import edu.wpi.first.networktables.IntegerPublisher;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.networktables.StringPublisher;
+import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import frc.robot.subsystems.indexer.IndexerIO.IndexerIOInputs;
@@ -171,6 +173,20 @@ public class IndexerSubsystem extends SubsystemBase {
      */
     public void stop() {
         io.stop();
+    }
+
+    // ========== Commands ==========
+
+    /**
+     * Runs the indexer and conveyor forward while held.
+     * Use during intake to pull game pieces through the hopper.
+     * Bind to Right Bumper with whileTrue().
+     */
+    public Command intakeCommand() {
+        return Commands.startEnd(
+            () -> { indexerForward(); conveyorForward(); },
+            () -> { indexerStop();    conveyorStop();    },
+            this);
     }
 
     // ========== Sensor Methods ==========

@@ -7,12 +7,13 @@ import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.wpilibj2.command.Command;
 
 import frc.robot.subsystems.CommandSwerveDrivetrain;
+import frc.robot.subsystems.indexer.IndexerSubsystem;
 import frc.robot.subsystems.shooter.ShooterSubsystem;
 import frc.robot.subsystems.vision.VisionSubsystem;
 
 public class HubTrackingCommand extends Command {
 
-    private static final double ROT_kP             = 0.10;  // TODO: Tune
+    private static final double ROT_kP             = 0.15;  // TODO: Tune
     private static final double ROT_kI             = 0.00;
     private static final double ROT_kD             = 0.00;
     private static final double ROT_MAX_OUTPUT     = 3.0;   // rad/s
@@ -21,22 +22,25 @@ public class HubTrackingCommand extends Command {
 
     private final CommandSwerveDrivetrain           drivetrain;
     private final ShooterSubsystem                  shooter;
+    private final IndexerSubsystem                  indexer;
     private final VisionSubsystem                   vision;
     private final java.util.function.DoubleSupplier vx;
     private final java.util.function.DoubleSupplier vy;
 
-    private final PIDController                     pid;
-    private final SwerveRequest.FieldCentric        request;
+    private final PIDController              pid;
+    private final SwerveRequest.FieldCentric request;
 
     public HubTrackingCommand(
             CommandSwerveDrivetrain drivetrain,
             ShooterSubsystem shooter,
+            IndexerSubsystem indexer,
             VisionSubsystem vision,
             java.util.function.DoubleSupplier vx,
             java.util.function.DoubleSupplier vy) {
 
         this.drivetrain = drivetrain;
         this.shooter    = shooter;
+        this.indexer    = indexer;
         this.vision     = vision;
         this.vx         = vx;
         this.vy         = vy;
@@ -50,7 +54,7 @@ public class HubTrackingCommand extends Command {
             .withDeadband(0.0)
             .withDriveRequestType(DriveRequestType.OpenLoopVoltage);
 
-        addRequirements(drivetrain, shooter);
+        addRequirements(drivetrain, shooter, indexer);
     }
 
     @Override
@@ -68,7 +72,7 @@ public class HubTrackingCommand extends Command {
             shooter.updateFromDistance(dist);
         }
 
-        // getAngleToHub() returns the signed error in degrees — positive means robot needs to rotate CCW
+        // Rotate toward hub
         double angle = vision.getAngleToHub();
         double rot   = pid.calculate(angle);
         rot = Math.max(-ROT_MAX_OUTPUT, Math.min(ROT_MAX_OUTPUT, rot));
@@ -79,10 +83,21 @@ public class HubTrackingCommand extends Command {
                 .withVelocityY(cap(vy.getAsDouble()))
                 .withRotationalRate(rot)
         );
+
+        // Feed once shooter is ready — stop if it drops out of tolerance
+        if (shooter.isReady()) {
+            indexer.indexerForward();
+            indexer.conveyorForward();
+        } else {
+            indexer.indexerStop();
+            indexer.conveyorStop();
+        }
     }
 
     @Override
     public void end(boolean interrupted) {
+        indexer.indexerStop();
+        indexer.conveyorStop();
         shooter.returnToIdle();
         pid.reset();
         drivetrain.setControl(new SwerveRequest.Idle());

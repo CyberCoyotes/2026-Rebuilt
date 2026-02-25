@@ -12,7 +12,6 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import org.littletonrobotics.junction.Logger;
 
-import java.util.function.Consumer;
 import java.util.function.Supplier;
 
 /**
@@ -24,7 +23,7 @@ import java.util.function.Supplier;
  *      SwerveDrivePoseEstimator via the poseConsumer callback.
  *   3. On the FIRST valid pose estimate, performs a hard resetPose() via resetPoseCallback
  *      so the robot snaps to its real field position instead of blending from field center.
- *   4. Exposes getDistanceToHub() and getAngleToHub() so AlignToHubCommand and
+ *   4. Exposes getDistanceToHub() and getAngleToHub() so HubTrackingCommand and
  *      future commands can aim purely from robot pose without touching raw camera data.
  *
  * WIRING (in RobotContainer):
@@ -40,7 +39,7 @@ import java.util.function.Supplier;
  *   Estimates are rejected if:
  *     - tagCount < MIN_TAG_COUNT
  *     - avgTagDistance > MAX_DISTANCE_METERS
- *     - The estimated position is outside the WPILib field boundary (negative or implausibly large)
+ *     - The estimated position is outside the WPILib field boundary
  */
 public class VisionSubsystem extends SubsystemBase {
 
@@ -76,30 +75,27 @@ public class VisionSubsystem extends SubsystemBase {
     // NetworkTables publishers
     // -------------------------------------------------------------------------
 
-    private final NetworkTable        visionTable;
-    private final BooleanPublisher    poseValidPublisher;
-    private final BooleanPublisher    hasTargetPublisher;
-    private final DoublePublisher     distanceToHubPublisher;
-    private final DoublePublisher     angleToHubPublisher;
-    private final DoublePublisher     tagCountPublisher;
-    private final DoublePublisher     avgTagDistPublisher;
-    private final DoublePublisher     latencyPublisher;
-    private final StringPublisher     estimatedPosePublisher;
+    private final NetworkTable     visionTable;
+    private final BooleanPublisher poseValidPublisher;
+    private final BooleanPublisher hasTargetPublisher;
+    private final DoublePublisher  distanceToHubPublisher;
+    private final DoublePublisher  angleToHubPublisher;
+    private final DoublePublisher  tagCountPublisher;
+    private final DoublePublisher  avgTagDistPublisher;
+    private final DoublePublisher  latencyPublisher;
+    private final StringPublisher  estimatedPosePublisher;
 
     // -------------------------------------------------------------------------
     // State
     // -------------------------------------------------------------------------
 
-    private Pose2d lastAcceptedPose = new Pose2d();
-    private int    acceptedCount    = 0;
-    private int    rejectedCount    = 0;
-
-    /** Tracks whether we've done the initial hard pose reset from vision. */
-    private boolean hasResetPose = false;
+    private Pose2d  lastAcceptedPose = new Pose2d();
+    private int     acceptedCount    = 0;
+    private int     rejectedCount    = 0;
+    private boolean hasResetPose     = false;
 
     // -------------------------------------------------------------------------
     // Functional interface for pose consumer
-    // Matches SwerveDrivePoseEstimator.addVisionMeasurement signature.
     // -------------------------------------------------------------------------
 
     @FunctionalInterface
@@ -127,23 +123,23 @@ public class VisionSubsystem extends SubsystemBase {
             Supplier<Pose2d> poseSupplier,
             Supplier<Double> yawSupplier) {
 
-        this.io                 = io;
-        this.poseConsumer       = poseConsumer;
-        this.resetPoseCallback  = resetPoseCallback;
-        this.poseSupplier       = poseSupplier;
-        this.yawSupplier        = yawSupplier;
+        this.io                = io;
+        this.poseConsumer      = poseConsumer;
+        this.resetPoseCallback = resetPoseCallback;
+        this.poseSupplier      = poseSupplier;
+        this.yawSupplier       = yawSupplier;
 
         NetworkTableInstance inst = NetworkTableInstance.getDefault();
         visionTable = inst.getTable("Vision");
 
-        poseValidPublisher      = visionTable.getBooleanTopic("PoseValid").publish();
-        hasTargetPublisher      = visionTable.getBooleanTopic("HasTarget").publish();
-        distanceToHubPublisher  = visionTable.getDoubleTopic("DistanceToHub_m").publish();
-        angleToHubPublisher     = visionTable.getDoubleTopic("AngleToHub_deg").publish();
-        tagCountPublisher       = visionTable.getDoubleTopic("TagCount").publish();
-        avgTagDistPublisher     = visionTable.getDoubleTopic("AvgTagDist_m").publish();
-        latencyPublisher        = visionTable.getDoubleTopic("TotalLatency_ms").publish();
-        estimatedPosePublisher  = visionTable.getStringTopic("EstimatedPose").publish();
+        poseValidPublisher     = visionTable.getBooleanTopic("PoseValid").publish();
+        hasTargetPublisher     = visionTable.getBooleanTopic("HasTarget").publish();
+        distanceToHubPublisher = visionTable.getDoubleTopic("DistanceToHub_m").publish();
+        angleToHubPublisher    = visionTable.getDoubleTopic("AngleToHub_deg").publish();
+        tagCountPublisher      = visionTable.getDoubleTopic("TagCount").publish();
+        avgTagDistPublisher    = visionTable.getDoubleTopic("AvgTagDist_m").publish();
+        latencyPublisher       = visionTable.getDoubleTopic("TotalLatency_ms").publish();
+        estimatedPosePublisher = visionTable.getStringTopic("EstimatedPose").publish();
 
         io.setPipeline(Constants.Vision.APRILTAG_PIPELINE);
     }
@@ -154,22 +150,14 @@ public class VisionSubsystem extends SubsystemBase {
 
     @Override
     public void periodic() {
-        // Step 1 — send current yaw to Limelight BEFORE reading pose estimate
         io.setRobotOrientation(yawSupplier.get());
-
-        // Step 2 — read inputs
         io.updateInputs(inputs);
-        Logger.processInputs("Vision", inputs);
 
-        // Step 3 — validate and submit pose estimate
         if (inputs.poseValid && isEstimateAcceptable()) {
-            // On first valid sighting, hard-reset the pose instead of blending
-            // against the wrong starting position (field center default).
             if (!hasResetPose) {
                 lastAcceptedPose = inputs.estimatedPose;
                 resetPoseCallback.run();
                 hasResetPose = true;
-                System.out.println("[Vision] Hard pose reset to: " + inputs.estimatedPose);
             }
 
             poseConsumer.accept(
@@ -183,7 +171,6 @@ public class VisionSubsystem extends SubsystemBase {
             rejectedCount++;
         }
 
-        // Step 4 — publish telemetry
         publishTelemetry();
     }
 
@@ -192,13 +179,9 @@ public class VisionSubsystem extends SubsystemBase {
     // -------------------------------------------------------------------------
 
     private boolean isEstimateAcceptable() {
-        // Reject if not enough tags
         if (inputs.tagCount < Constants.Vision.MIN_TAG_COUNT) return false;
-
-        // Reject if tags are too far away to be accurate
         if (inputs.avgTagDistance > Constants.Vision.MAX_DISTANCE_METERS) return false;
 
-        // Reject if estimated pose is outside field boundaries
         double x = inputs.estimatedPose.getX();
         double y = inputs.estimatedPose.getY();
         if (x < 0 || x > FIELD_LENGTH_M || y < 0 || y > FIELD_WIDTH_M) return false;
@@ -216,10 +199,8 @@ public class VisionSubsystem extends SubsystemBase {
 
         double xyStdDev;
         if (inputs.tagCount >= 2) {
-            // Multiple tags — very high confidence
             xyStdDev = 0.3;
         } else {
-            // Single tag — confidence decreases with distance
             xyStdDev = 0.5 + (inputs.avgTagDistance * 0.1);
         }
 
@@ -235,9 +216,7 @@ public class VisionSubsystem extends SubsystemBase {
 
     /**
      * Returns the straight-line distance from the current robot pose to the
-     * center of the hub in meters.
-     *
-     * Returns -1.0 if no valid pose is available yet.
+     * center of the hub in meters. Returns -1.0 if no valid pose is available.
      */
     public double getDistanceToHub() {
         Pose2d pose = poseSupplier.get();
@@ -246,23 +225,14 @@ public class VisionSubsystem extends SubsystemBase {
     }
 
     /**
-     * Returns the field-relative angle from the robot to the hub center in degrees.
-     * 0° = facing the hub directly. Positive = hub is to the left, negative = right.
-     *
-     * This is the angle the robot needs to rotate to face the hub, accounting for
-     * its current heading. Use this in AlignToHubCommand instead of Limelight tx.
-     *
-     * Returns 0.0 if no valid pose is available.
+     * Returns the signed angle error in degrees the robot needs to rotate to face the hub.
+     * Positive = hub is to the left, negative = right. Returns 0.0 if no pose available.
      */
     public double getAngleToHub() {
         Pose2d pose = poseSupplier.get();
-        System.out.println("DEBUG getAngleToHub pose=" + pose);
         if (pose == null) return 0.0;
 
-        Translation2d toHub = Constants.Vision.HUB_CENTER_BLUE
-                .minus(pose.getTranslation());
-
-        // Angle from robot's current heading to the direction of the hub
+        Translation2d toHub     = Constants.Vision.HUB_CENTER_BLUE.minus(pose.getTranslation());
         Rotation2d angleToHub   = new Rotation2d(toHub.getX(), toHub.getY());
         Rotation2d currentAngle = pose.getRotation();
 
@@ -270,16 +240,14 @@ public class VisionSubsystem extends SubsystemBase {
     }
 
     /**
-     * Returns true if the vision system has accepted at least one pose estimate
-     * since the robot was enabled. Useful for gating hub-targeting commands.
+     * Returns true if the vision system has accepted at least one pose estimate.
      */
     public boolean hasPose() {
         return acceptedCount > 0;
     }
 
     /**
-     * Returns the last accepted robot pose from vision.
-     * Check hasPose() before relying on this.
+     * Returns the last accepted robot pose from vision. Check hasPose() before relying on this.
      */
     public Pose2d getLastAcceptedPose() {
         return lastAcceptedPose;
@@ -287,7 +255,6 @@ public class VisionSubsystem extends SubsystemBase {
 
     /**
      * Returns true if the Limelight currently sees any target.
-     * Used as a fallback check when pose is unavailable.
      */
     public boolean hasTarget() {
         return inputs.hasTarget;
@@ -319,11 +286,11 @@ public class VisionSubsystem extends SubsystemBase {
                 : "invalid"
         );
 
-        Logger.recordOutput("Vision/AcceptedCount",  acceptedCount);
-        Logger.recordOutput("Vision/RejectedCount",  rejectedCount);
-        Logger.recordOutput("Vision/HasResetPose",   hasResetPose);
-        Logger.recordOutput("Vision/DistanceToHub",  getDistanceToHub());
-        Logger.recordOutput("Vision/AngleToHub",     getAngleToHub());
+        Logger.recordOutput("Vision/AcceptedCount",    acceptedCount);
+        Logger.recordOutput("Vision/RejectedCount",    rejectedCount);
+        Logger.recordOutput("Vision/HasResetPose",     hasResetPose);
+        Logger.recordOutput("Vision/DistanceToHub",    getDistanceToHub());
+        Logger.recordOutput("Vision/AngleToHub",       getAngleToHub());
         Logger.recordOutput("Vision/LastAcceptedPose", lastAcceptedPose);
     }
 }

@@ -22,36 +22,35 @@ public class Robot extends LoggedRobot {
 
     private final RobotContainer m_robotContainer;
 
-    /* log and replay timestamp and joystick data */
-    private final HootAutoReplay m_timeAndJoystickReplay = new HootAutoReplay()
-        .withTimestampReplay()
-        .withJoystickReplay();
-
     /**
      * Set to true to enable AdvantageKit logging and replay features.
-     * This is separate from the Logger features, which are still active when this is false.
-     *
-     * TODO Toggle on/off for testing
+     * TODO: Toggle on before competition.
      */
     public static final boolean ENABLE_ADVANTAGEKIT = false;
 
+    // Only instantiated when AdvantageKit is enabled — used for timestamp and joystick replay.
+    private final HootAutoReplay m_timeAndJoystickReplay;
+
     public Robot() {
-
-        Logger.recordMetadata("ProjectName", "2026 Rebuilt");
-
         if (ENABLE_ADVANTAGEKIT) {
+            Logger.recordMetadata("ProjectName", "2026 Rebuilt");
 
             if (isReal()) {
-                Logger.addDataReceiver(new WPILOGWriter()); // Log to a USB stick ("/U/logs")
-                Logger.addDataReceiver(new NT4Publisher()); // Publish data to NetworkTables
+                Logger.addDataReceiver(new WPILOGWriter());
+                Logger.addDataReceiver(new NT4Publisher());
             } else {
-                setUseTiming(false); // Run as fast as possible
+                setUseTiming(false);
                 String logPath = LogFileUtil.findReplayLog();
                 Logger.setReplaySource(new WPILOGReader(logPath));
                 Logger.addDataReceiver(new WPILOGWriter(LogFileUtil.addPathSuffix(logPath, "_sim")));
             }
 
             Logger.start();
+            m_timeAndJoystickReplay = new HootAutoReplay()
+                .withTimestampReplay()
+                .withJoystickReplay();
+        } else {
+            m_timeAndJoystickReplay = null;
         }
 
         m_robotContainer = new RobotContainer();
@@ -66,16 +65,12 @@ public class Robot extends LoggedRobot {
         CommandScheduler.getInstance().run();
 
         if (ENABLE_ADVANTAGEKIT) {
-            Logger.recordOutput("Robot/BatteryVoltage", RobotController.getBatteryVoltage());
-            Logger.recordOutput("Robot/BrownedOut", RobotController.isBrownedOut());
+            Logger.recordOutput("Robot/BatteryVoltage",    RobotController.getBatteryVoltage());
+            Logger.recordOutput("Robot/BrownedOut",        RobotController.isBrownedOut());
             Logger.recordOutput("Robot/CANBusUtilization", RobotController.getCANStatus().percentBusUtilization);
         }
 
-        // Update game data telemetry (polls FMS for scoring shift data)
         m_robotContainer.updateGameData();
-
-        // Vision is handled entirely by VisionSubsystem via VisionIOLimelight.
-        // Do not call LimelightHelpers directly here.
     }
 
     @Override
