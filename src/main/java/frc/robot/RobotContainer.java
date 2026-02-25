@@ -75,7 +75,7 @@ public class RobotContainer {
 
         autoFactory = drivetrain.createAutoFactory();
         autoRoutines = new AutoRoutines(autoFactory,drivetrain,indexer, intake, shooter, fuelCommands);
-
+        SmartDashboard.putData(autoChooser);
         autoChooser.addRoutine("FM", autoRoutines::FM);
         autoChooser.addRoutine("B", autoRoutines::B);
         autoChooser.addRoutine("Lob", autoRoutines::Lob);
@@ -84,6 +84,7 @@ public class RobotContainer {
         // ✅ Publish to NetworkTables so Elastic can display it as a ComboBox Chooser  
         SmartDashboard.putData("AutoChooser", autoChooser);
         configureBindings();
+
     }
 
     private void configureBindings() {
