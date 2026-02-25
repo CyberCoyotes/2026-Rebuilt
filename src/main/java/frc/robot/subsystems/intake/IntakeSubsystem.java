@@ -35,7 +35,7 @@ public class IntakeSubsystem extends SubsystemBase {
     static final double SLIDE_MIN_POSITION = 0.0;
     static final double SLIDE_MAX_POSITION = 44.454;
 
-    static final double ROLLER_VOLTS = 6.0;
+    static final double ROLLER_VOLTS = 7.0;
 
     // ==== Elastic Dashboard Publishers ====
     // Driver-awareness data: state string, slide position, and at-target booleans.
