@@ -467,6 +467,15 @@ public class ShooterSubsystem extends SubsystemBase {
     }
 
     /**
+     * Directly selects a specific preset and arms it silently.
+     * The selection sticks until another preset is chosen.
+     */
+    public void selectPreset(ShotPreset preset) {
+        selectedPreset = preset;
+        armSelectedPreset();
+    }
+
+    /**
      * Advances to the next preset in the cycle order:
      * Close → Tower → Trench → Pass → Far → Close
      * Arms the new preset silently so it's ready when RT is pressed.
