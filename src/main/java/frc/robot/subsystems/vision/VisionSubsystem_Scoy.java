@@ -47,11 +47,11 @@ import org.littletonrobotics.junction.Logger;
  *     indexer.feed();
  * }
  */
-public class VisionSubsystem extends SubsystemBase {
+public class VisionSubsystem_Scoy extends SubsystemBase {
 
     // ===== Hardware Interface =====
-    private final VisionIO io;
-    private final VisionIO.VisionIOInputs inputs = new VisionIO.VisionIOInputs();
+    private final VisionIO_Scoy io;
+    private final VisionIO_Scoy.VisionIOInputs inputs = new VisionIO_Scoy.VisionIOInputs();
 
     // ===== NetworkTables Publishers for Elastic Dashboard =====
     private final NetworkTable visionTable;
@@ -100,7 +100,7 @@ public class VisionSubsystem extends SubsystemBase {
      *
      * @param io The VisionIO hardware interface implementation
      */
-    public VisionSubsystem(VisionIO io) {
+    public VisionSubsystem_Scoy(VisionIO_Scoy io) {
         this.io = io;
 
         // Initialize NetworkTables publishers for Elastic dashboard
@@ -119,7 +119,7 @@ public class VisionSubsystem extends SubsystemBase {
         latencyPublisher = visionTable.getDoubleTopic("TotalLatency_ms").publish();
 
         // Initialize Limelight to known state
-        io.setLEDMode(VisionIO.LEDMode.PIPELINE_DEFAULT);
+        io.setLEDMode(VisionIO_Scoy.LEDMode.PIPELINE_DEFAULT);
         io.setPipeline(Constants.Vision.APRILTAG_PIPELINE);
     }
 
@@ -407,7 +407,7 @@ public class VisionSubsystem extends SubsystemBase {
      *
      * @param mode LED mode to set
      */
-    public void setLEDMode(VisionIO.LEDMode mode) {
+    public void setLEDMode(VisionIO_Scoy.LEDMode mode) {
         io.setLEDMode(mode);
     }
 

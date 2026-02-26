@@ -29,7 +29,7 @@ import edu.wpi.first.math.util.Units;
  * - tl: Pipeline latency (ms)
  * - cl: Capture latency (ms)
  */
-public class VisionIOLimelight implements VisionIO {
+public class VisionIOLimelight_Scoy implements VisionIO_Scoy {
 
     // ===== NetworkTable Entries =====
     private final NetworkTable limelightTable;
@@ -49,7 +49,7 @@ public class VisionIOLimelight implements VisionIO {
      *
      * @param limelightName The NetworkTable name of the Limelight (e.g., "limelight", "limelight-front")
      */
-    public VisionIOLimelight(String limelightName) {
+    public VisionIOLimelight_Scoy(String limelightName) {
         // Get the Limelight's NetworkTable
         limelightTable = NetworkTableInstance.getDefault().getTable(limelightName);
 

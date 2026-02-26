@@ -19,7 +19,7 @@ import org.littletonrobotics.junction.inputs.LoggableInputs;
  * - Testability: Mock vision data for testing without hardware
  * - AdvantageKit integration: Clean logging and replay
  */
-public interface VisionIO {
+public interface VisionIO_Scoy {
 
     /**
      * Updates the vision inputs with the latest data from the camera.

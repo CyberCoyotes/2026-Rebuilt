@@ -6,7 +6,7 @@ import com.ctre.phoenix6.swerve.SwerveRequest;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
-import frc.robot.subsystems.vision.VisionSubsystem;
+import frc.robot.subsystems.vision.VisionSubsystem_Scoy;
 
 import java.util.function.DoubleSupplier;
 
@@ -61,7 +61,7 @@ public class AlignToHubCommand extends Command {
 
     // ===== Hardware =====
     private final CommandSwerveDrivetrain drivetrain;
-    private final VisionSubsystem vision;
+    private final VisionSubsystem_Scoy vision;
     private final DoubleSupplier translationX;
     private final DoubleSupplier translationY;
 
@@ -71,7 +71,7 @@ public class AlignToHubCommand extends Command {
 
     public AlignToHubCommand(
             CommandSwerveDrivetrain drivetrain,
-            VisionSubsystem vision,
+            VisionSubsystem_Scoy vision,
             DoubleSupplier translationX,
             DoubleSupplier translationY) {
 

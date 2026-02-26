@@ -26,8 +26,8 @@ import frc.robot.subsystems.intake.IntakeIOHardware;
 import frc.robot.subsystems.shooter.ShooterIOHardware;
 import frc.robot.subsystems.shooter.ShooterSubsystem;
 import frc.robot.subsystems.led.LedSubsystem;
-import frc.robot.subsystems.vision.VisionIOLimelight;
-import frc.robot.subsystems.vision.VisionSubsystem;
+import frc.robot.subsystems.vision.VisionIOLimelight_Scoy;
+import frc.robot.subsystems.vision.VisionSubsystem_Scoy;
 
 @SuppressWarnings("unused") // Suppress warnings for unused right now
 
@@ -55,7 +55,7 @@ public class RobotContainer {
     private final IntakeSubsystem intake;
     private final IndexerSubsystem indexer;
     private final ShooterSubsystem shooter;
-    private final VisionSubsystem vision;
+    private final VisionSubsystem_Scoy vision;
     // private final LedSubsystem ledSubsystem;
     private final LedSubsystem larson;
     // private final ClimberSubsystem climber;
@@ -68,7 +68,7 @@ public class RobotContainer {
         intake = new IntakeSubsystem(new IntakeIOHardware());
         indexer = new IndexerSubsystem(new IndexerIOHardware());
         shooter = new ShooterSubsystem(new ShooterIOHardware());
-        vision = new VisionSubsystem(new VisionIOLimelight(Constants.Vision.LIMELIGHT4_NAME));
+        vision = new VisionSubsystem_Scoy(new VisionIOLimelight_Scoy(Constants.Vision.LIMELIGHT4_NAME));
 
         larson = new LedSubsystem();
         // climber = new ClimberSubsystem();

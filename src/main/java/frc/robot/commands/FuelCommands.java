@@ -9,7 +9,7 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import frc.robot.Constants;
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
-import frc.robot.subsystems.vision.VisionSubsystem;
+import frc.robot.subsystems.vision.VisionSubsystem_Scoy;
 import frc.robot.subsystems.indexer.IndexerSubsystem;
 import frc.robot.subsystems.shooter.ShooterSubsystem;
 import frc.robot.subsystems.shooter.ShooterSubsystem.ShotPreset;
@@ -365,7 +365,7 @@ public class FuelCommands {
      * @param vision The vision subsystem
      * @return Command that uses vision for aiming
      */
-    public static Command visionShot(ShooterSubsystem shooter, VisionSubsystem vision) {
+    public static Command visionShot(ShooterSubsystem shooter, VisionSubsystem_Scoy vision) {
         return Commands.sequence(
             Commands.runOnce(() -> {
                 double distance = vision.getDistanceToTargetMeters();
@@ -384,7 +384,7 @@ public class FuelCommands {
      * @param vision The vision subsystem
      * @return Command that continuously tracks target
      */
-    public static Command trackTarget(ShooterSubsystem shooter, VisionSubsystem vision) {
+    public static Command trackTarget(ShooterSubsystem shooter, VisionSubsystem_Scoy vision) {
         return Commands.run(() -> {
             if (vision.hasTarget()) {
                 double distance = vision.getDistanceToTargetMeters();
@@ -425,7 +425,7 @@ public class FuelCommands {
      * @param indexer The indexer subsystem
      * @return Vision-based shooting sequence
      */
-    public static Command visionShootSequence(ShooterSubsystem shooter, VisionSubsystem vision,
+    public static Command visionShootSequence(ShooterSubsystem shooter, VisionSubsystem_Scoy vision,
                                               IndexerSubsystem indexer) {
         return Commands.sequence(
             Commands.waitUntil(vision::hasTarget).withTimeout(1.0),
@@ -471,7 +471,7 @@ public class FuelCommands {
      */
     public static Command visionAlignAndShoot(
             ShooterSubsystem shooter,
-            VisionSubsystem vision,
+            VisionSubsystem_Scoy vision,
             IndexerSubsystem indexer,
             CommandSwerveDrivetrain drivetrain,
             DoubleSupplier xSupplier,
