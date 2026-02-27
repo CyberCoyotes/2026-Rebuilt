@@ -2,6 +2,8 @@ package frc.robot;
 
 import com.ctre.phoenix6.CANBus;
 
+import edu.wpi.first.math.geometry.Translation2d;
+
 public final class Constants {
   private Constants() {}
 
@@ -179,6 +181,8 @@ public final class Constants {
      * Default: 3.0 rad/s (~172°/s). Reduce if the robot swings too aggressively.
      */
     public static final double MAX_ALIGNMENT_ROTATION_RAD_PER_SEC = 3.0;
+    public static final Translation2d HUB_CENTER_BLUE = null;
+    public static final int MIN_TAG_COUNT = 0;
   }
 
   // =========================================================
