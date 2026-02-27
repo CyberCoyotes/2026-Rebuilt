@@ -1,14 +1,14 @@
 //LimelightHelpers v1.10 (REQUIRES LLOS 2024.9.1 OR LATER)
 
-package frc.robot.subsystems.vision;
+package frc.robot.subsystems.vision.Archived;
 
 import edu.wpi.first.networktables.DoubleArrayEntry;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.networktables.TimestampedDoubleArray;
-import frc.robot.subsystems.vision.LimelightHelpers_Scoy.LimelightResults;
-import frc.robot.subsystems.vision.LimelightHelpers_Scoy.PoseEstimate;
+import frc.robot.subsystems.vision.Archived.LimelightHelpers_Scoy.LimelightResults;
+import frc.robot.subsystems.vision.Archived.LimelightHelpers_Scoy.PoseEstimate;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;

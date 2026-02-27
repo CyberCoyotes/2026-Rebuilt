@@ -6,7 +6,7 @@ import com.ctre.phoenix6.swerve.SwerveRequest;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
-import frc.robot.subsystems.vision.VisionSubsystem_Scoy;
+import frc.robot.subsystems.vision.Archived.VisionSubsystem_Scoy;
 
 import java.util.function.DoubleSupplier;
 
