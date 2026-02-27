@@ -162,7 +162,7 @@ public final class Constants {
     /** Time in seconds before considering target "lost" after losing sight */
     public static final double TARGET_TIMEOUT_SECONDS = 0.5;
 
-    // ── Vision-driven drivetrain rotation ─────────────────────────────────────
+    // == Vision-driven drivetrain rotation ====
     /**
      * Proportional gain for rotational alignment: (rad/s output) per (degree of tx error).
      *

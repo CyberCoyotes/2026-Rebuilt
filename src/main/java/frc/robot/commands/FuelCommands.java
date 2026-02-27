@@ -167,9 +167,24 @@ public class FuelCommands {
      */
     public static Command shootTrenchAuton(ShooterSubsystem shooter, IndexerSubsystem indexer,
                                            double feedSeconds) {
-        return shootPresetAuton(shooter, indexer, ShotPreset.TRENCH, feedSeconds, false)
+        return shootPresetAuton(
+            //
+            shooter, // 
+            indexer, 
+            ShotPreset.TRENCH, 
+            feedSeconds, false) // waitForReady = false for now — rely on timeout until we have a game-piece sensor
             .withName("ShootTrenchAuton");
     }
+
+    public static Command shootTrenchAuton_two(ShooterSubsystem shooter, IndexerSubsystem indexer,
+                                           double feedSeconds) {
+        return Commands.sequence(
+                Commands.runOnce(() -> {
+                shooter.setTargetVelocity(ShooterSubsystem.TRENCH_RPM);
+                shooter.setTargetHoodPose(ShooterSubsystem.TRENCH_HOOD);
+                shooter.prepareToShoot();
+            }, shooter));
+    } // end of command shootTrenchAuton_two
 
     /**
      * Autonomous: shoot using the CLOSE preset.
