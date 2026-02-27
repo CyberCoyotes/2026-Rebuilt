@@ -557,18 +557,9 @@ public class FuelCommands {
     // AUTONOMOUS SHOOTING COMMANDS
     // ========================================================================
     public static class Auto {
-        public static Command shoot() {
-            return Commands.runOnce(() -> {
-                // shooter.setTargetVelocity(ShooterSubsystem.CLOSE_RPM);
-                // shooter.setTargetHoodPose(ShooterSubsystem.CLOSE_HOOD);
-                // shooter.prepareToShoot();
-            });
-        }
-
         /**
          * Autonomous: shoot using the TRENCH preset.
-         * Ends after {@code feedSeconds} of feed time (timeout).
-         *
+         * Less verbose for other auton shooting presets*
          * @param shooter     The shooter subsystem
          * @param indexer     The indexer subsystem
          * @param feedSeconds How long to run the indexer/conveyor after ready
@@ -583,6 +574,7 @@ public class FuelCommands {
                         shooter.prepareToShoot();
                     }, shooter),
                     Commands.waitUntil(shooter::isReady),//.withTimeout(3.0),
+                    
                     // Feed until chute goes quiet for 2s (with safety timeout)
                     indexer.feed().until(indexer::donePassingFuel)
                     /* This is likely redundant with the feed().until() end condition, but it's a good safety net in case of sensor issues or unexpected game piece behavior.
@@ -595,7 +587,7 @@ public class FuelCommands {
 
         } // end of command shooting from the Trench position
 
-        public static Command shootClose(ShooterSubsystem shooter, IndexerSubsystem indexer,
+        public static Command shootHub(ShooterSubsystem shooter, IndexerSubsystem indexer,
                 double feedSeconds) {
             return Commands.sequence(
                     Commands.runOnce(() -> {
@@ -636,7 +628,7 @@ public class FuelCommands {
             });
         } // end of command
 
-        public static Command shootFar(ShooterSubsystem shooter, IndexerSubsystem indexer,
+        public static Command shootCorner(ShooterSubsystem shooter, IndexerSubsystem indexer,
                 double feedSeconds) {
             return Commands.sequence(
                     Commands.runOnce(() -> {
