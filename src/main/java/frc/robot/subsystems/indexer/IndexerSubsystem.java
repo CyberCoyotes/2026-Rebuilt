@@ -109,7 +109,9 @@ public class IndexerSubsystem extends SubsystemBase {
     private final IntegerPublisher hopperCountPublisher;
     private final StringPublisher hopperAFillLevelPublisher;
     private final StringPublisher hopperBFillLevelPublisher;
-    private final StringPublisher chuteFillLevelPublisher;
+    private final BooleanPublisher chuteDetectedPublisher;
+    private final IntegerPublisher chuteCountPublisher;
+
     // Raw distance from each CANrange — useful during threshold tuning without
     // needing AdvantageScope open; displayed on the Indexer Elastic tab.
     private final DoublePublisher hopperADistancePublisher;
@@ -124,11 +126,12 @@ public class IndexerSubsystem extends SubsystemBase {
 
         hopperAPublisher          = indexerTable.getBooleanTopic("HopperA/Detected").publish();
         hopperBPublisher          = indexerTable.getBooleanTopic("HopperB/Detected").publish();
-        hopperCountPublisher      = indexerTable.getIntegerTopic("HopperCount").publish();
         hopperAFillLevelPublisher = indexerTable.getStringTopic("HopperA/FillLevel").publish();
         hopperBFillLevelPublisher = indexerTable.getStringTopic("HopperB/FillLevel").publish();
         hopperADistancePublisher  = indexerTable.getDoubleTopic("HopperA/Distance_m").publish();
         hopperBDistancePublisher  = indexerTable.getDoubleTopic("HopperB/Distance_m").publish();
+        chuteDetectedPublisher    = indexerTable.getBooleanTopic("Chute/Detected").publish();
+        chuteCountPublisher       = indexerTable.getIntegerTopic("Chute/Count").publish();
     }
 
     // ==== Periodic ============================================================
@@ -162,6 +165,8 @@ public class IndexerSubsystem extends SubsystemBase {
         // at each sensor to determine the correct ProximityThreshold value.
         hopperADistancePublisher.set(inputs.hopperADistanceMeters);
         hopperBDistancePublisher.set(inputs.hopperBDistanceMeters);
+        chuteDetectedPublisher.set(inputs.chuteDetected);
+        chuteCountPublisher.set(inputs.chuteCount);
     }
 
     // ==== State ===============================================================
