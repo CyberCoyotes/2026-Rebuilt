@@ -315,7 +315,7 @@ public class IntakeSubsystem extends SubsystemBase {
     /* Incremental slide retraction */
     // Slide — incremental retract by 2 rotations, clamped to min position
     public void retractSlidesIncremental() {
-        double target = Math.max(inputs.slidePositionRotations - 8.0, SLIDE_MIN_POSITION);
+        double target = Math.max(inputs.slidePositionRotations - 15.0, SLIDE_MIN_POSITION);
         io.setSlidePosition(target);
     }
 
