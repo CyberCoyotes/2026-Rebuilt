@@ -128,27 +128,21 @@ public class RobotContainer {
         // Face buttons select and latch preset (selection sticks after button released).
         // A = CLOSE, B = TRENCH, X = TOWER, Y = FAR
         // Right Bumper = PASS
+
+
+        // =====================================================================
+        // OPERATOR CONTROLLER (Port 1)
+        // =====================================================================
         operator.a().onTrue(Commands.runOnce(() -> shooter.selectPreset(ShooterSubsystem.ShotPreset.CLOSE)));
         operator.b().onTrue(Commands.runOnce(() -> shooter.selectPreset(ShooterSubsystem.ShotPreset.TRENCH)));
         operator.x().onTrue(Commands.runOnce(() -> shooter.selectPreset(ShooterSubsystem.ShotPreset.TOWER)));
         operator.y().onTrue(Commands.runOnce(() -> shooter.selectPreset(ShooterSubsystem.ShotPreset.FAR)));
         operator.rightBumper().onTrue(Commands.runOnce(() -> shooter.selectPreset(ShooterSubsystem.ShotPreset.PASS)));
 
-        // =====================================================================
-        // OPERATOR CONTROLLER (Port 1)
-        // =====================================================================
-
-        // Left Trigger: Extend slides and run roller while held.
-        // TODO Check if this is proper way to call the command `intakeFuel()` from IntakeSubsytem
-        driver.leftTrigger(0.5).whileTrue(intake.intakeFuel());
-
-        // Left Bumper: Retract slides immediately.
-        driver.leftBumper().whileTrue(intake.compressFuelIncremental()); // TODO: Test
-
-        // TODO: Test the air popper command and tune the popper RPM and hood pose. Consider adding to intakeFuel() 
+        // TODO Experimental features to test
+        // driver.leftBumper().whileTrue(intake.compressFuelIncremental());
         operator.leftTrigger(0.5).whileTrue(FuelCommands.runAirPopper(indexer, shooter, intake));
         operator.leftBumper().whileTrue(FuelCommands.runAirPopperTest(indexer, shooter));
-
 
     }
 
