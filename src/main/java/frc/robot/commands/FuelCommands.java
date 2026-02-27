@@ -166,8 +166,6 @@ public class FuelCommands {
         }).withName("ShootPresetAuton[" + preset.label + "]");
     }
 
-
-
     /**
      * Full shoot sequence using the preset currently selected via POV left/right
      * cycling.
@@ -555,9 +553,9 @@ public class FuelCommands {
     // }, indexer); // .withName() on the outer command
     // }
 
-    //========================================================================
+    // ========================================================================
     // AUTONOMOUS SHOOTING COMMANDS
-    //========================================================================
+    // ========================================================================
     public static class Auto {
         public static Command shoot() {
             return Commands.runOnce(() -> {
@@ -567,97 +565,96 @@ public class FuelCommands {
             });
         }
 
+        /**
+         * Autonomous: shoot using the TRENCH preset.
+         * Ends after {@code feedSeconds} of feed time (timeout).
+         *
+         * @param shooter     The shooter subsystem
+         * @param indexer     The indexer subsystem
+         * @param feedSeconds How long to run the indexer/conveyor after ready
+         * @return Autonomous TRENCH shoot command
+         */
+        public static Command shootTrench(ShooterSubsystem shooter, IndexerSubsystem indexer,
+                double feedSeconds) {
+            return Commands.sequence(
+                    Commands.runOnce(() -> {
+                        shooter.setTargetVelocity(ShooterSubsystem.TRENCH_RPM);
+                        shooter.setTargetHoodPose(ShooterSubsystem.TRENCH_HOOD);
+                        shooter.prepareToShoot();
+                    }, shooter),
+                    Commands.waitUntil(shooter::isReady),//.withTimeout(3.0),
+                    // Feed until chute goes quiet for 2s (with safety timeout)
+                    indexer.feed().until(indexer::donePassingFuel)
+                    /* This is likely redundant with the feed().until() end condition, but it's a good safety net in case of sensor issues or unexpected game piece behavior.
+                    .finallyDo(() -> {
+                        indexer.indexerStop();
+                        indexer.conveyorStop();
+                        shooter.setIdle();
+                    })*/
+                ).withName("ShootTrenchAuton");
 
-    /**
-     * Autonomous: shoot using the TRENCH preset.
-     * Ends after {@code feedSeconds} of feed time (timeout).
-     *
-     * @param shooter     The shooter subsystem
-     * @param indexer     The indexer subsystem
-     * @param feedSeconds How long to run the indexer/conveyor after ready
-     * @return Autonomous TRENCH shoot command
-     */
-    public static Command shootTrench(ShooterSubsystem shooter, IndexerSubsystem indexer,
-            double feedSeconds) {
-        return Commands.sequence(
-                Commands.runOnce(() -> {
-                    shooter.setTargetVelocity(ShooterSubsystem.TRENCH_RPM);
-                    shooter.setTargetHoodPose(ShooterSubsystem.TRENCH_HOOD);
-                    shooter.prepareToShoot();
-                }, shooter),
-                Commands.waitUntil(shooter::isReady).withTimeout(3.0),
-                Commands.run(() -> {
-                    indexer.indexerForward();
-                    indexer.conveyorForward();
-                }, indexer).withTimeout(feedSeconds) // primary end trigger: timeout
-        ).finallyDo(() -> {
-            indexer.indexerStop();
-            indexer.conveyorStop();
-            shooter.setIdle();
-        });
+        } // end of command shooting from the Trench position
 
-    } // end of command shootTrenchPose
+        public static Command shootClose(ShooterSubsystem shooter, IndexerSubsystem indexer,
+                double feedSeconds) {
+            return Commands.sequence(
+                    Commands.runOnce(() -> {
+                        shooter.setTargetVelocity(ShooterSubsystem.CLOSE_RPM);
+                        shooter.setTargetHoodPose(ShooterSubsystem.CLOSE_HOOD);
+                        shooter.prepareToShoot();
+                    }, shooter),
+                    Commands.waitUntil(shooter::isReady).withTimeout(3.0),
+                    Commands.run(() -> {
+                        indexer.indexerForward();
+                        indexer.conveyorForward();
+                    }, indexer).withTimeout(feedSeconds) // primary end trigger: timeout
+            ).finallyDo(() -> {
+                indexer.indexerStop();
+                indexer.conveyorStop();
+                shooter.setIdle();
+            });
 
-    public static Command shootClose(ShooterSubsystem shooter, IndexerSubsystem indexer,
-            double feedSeconds) {
-        return Commands.sequence(
-                Commands.runOnce(() -> {
-                    shooter.setTargetVelocity(ShooterSubsystem.CLOSE_RPM);
-                    shooter.setTargetHoodPose(ShooterSubsystem.CLOSE_HOOD);
-                    shooter.prepareToShoot();
-                }, shooter),
-                Commands.waitUntil(shooter::isReady).withTimeout(3.0),
-                Commands.run(() -> {
-                    indexer.indexerForward();
-                    indexer.conveyorForward();
-                }, indexer).withTimeout(feedSeconds) // primary end trigger: timeout
-        ).finallyDo(() -> {
-            indexer.indexerStop();
-            indexer.conveyorStop();
-            shooter.setIdle();
-        });
+        } // end of command
 
-    } // end of command
+        public static Command shootTower(ShooterSubsystem shooter, IndexerSubsystem indexer,
+                double feedSeconds) {
+            return Commands.sequence(
+                    Commands.runOnce(() -> {
+                        shooter.setTargetVelocity(ShooterSubsystem.TOWER_RPM);
+                        shooter.setTargetHoodPose(ShooterSubsystem.TOWER_HOOD);
+                        shooter.prepareToShoot();
+                    }, shooter),
+                    Commands.waitUntil(shooter::isReady).withTimeout(3.0),
+                    Commands.run(() -> {
+                        indexer.indexerForward();
+                        indexer.conveyorForward();
+                    }, indexer).withTimeout(feedSeconds) // primary end trigger: timeout
+            ).finallyDo(() -> {
+                indexer.indexerStop();
+                indexer.conveyorStop();
+                shooter.setIdle();
+            });
+        } // end of command
 
-    public static Command shootTower(ShooterSubsystem shooter, IndexerSubsystem indexer,
-            double feedSeconds) {
-        return Commands.sequence(
-                Commands.runOnce(() -> {
-                    shooter.setTargetVelocity(ShooterSubsystem.TOWER_RPM);
-                    shooter.setTargetHoodPose(ShooterSubsystem.TOWER_HOOD);
-                    shooter.prepareToShoot();
-                }, shooter),
-                Commands.waitUntil(shooter::isReady).withTimeout(3.0),
-                Commands.run(() -> {
-                    indexer.indexerForward();
-                    indexer.conveyorForward();
-                }, indexer).withTimeout(feedSeconds) // primary end trigger: timeout
-        ).finallyDo(() -> {
-            indexer.indexerStop();
-            indexer.conveyorStop();
-            shooter.setIdle();
-        });
-    } // end of command
-
-    public static Command shootFar(ShooterSubsystem shooter, IndexerSubsystem indexer,
-            double feedSeconds) {
-        return Commands.sequence(
-                Commands.runOnce(() -> {
-                    shooter.setTargetVelocity(ShooterSubsystem.FAR_RPM);
-                    shooter.setTargetHoodPose(ShooterSubsystem.FAR_HOOD);
-                    shooter.prepareToShoot();
-                }, shooter),
-                Commands.waitUntil(shooter::isReady).withTimeout(3.0),
-                Commands.run(() -> {
-                    indexer.indexerForward();
-                    indexer.conveyorForward();
-                }, indexer).withTimeout(feedSeconds) // primary end trigger: timeout
-        ).finallyDo(() -> {
-            indexer.indexerStop();
-            indexer.conveyorStop();
-            shooter.setIdle();
-        });
-    } // end of command
+        public static Command shootFar(ShooterSubsystem shooter, IndexerSubsystem indexer,
+                double feedSeconds) {
+            return Commands.sequence(
+                    Commands.runOnce(() -> {
+                        shooter.setTargetVelocity(ShooterSubsystem.FAR_RPM);
+                        shooter.setTargetHoodPose(ShooterSubsystem.FAR_HOOD);
+                        shooter.prepareToShoot();
+                    }, shooter),
+                    Commands.waitUntil(shooter::isReady).withTimeout(3.0),
+                    Commands.run(() -> {
+                        indexer.indexerForward();
+                        indexer.conveyorForward();
+                    }, indexer).withTimeout(feedSeconds) // primary end trigger: timeout
+            ).finallyDo(() -> {
+                indexer.indexerStop();
+                indexer.conveyorStop();
+                shooter.setIdle();
+            });
+        } // end of command
 
     } // end of class Auto
 

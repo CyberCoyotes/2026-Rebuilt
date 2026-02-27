@@ -100,13 +100,31 @@ public class IndexerSubsystem extends SubsystemBase {
     public static final double HOPPER_B_MIN_DISTANCE = 0.02; // TODO: Tune experimentally
     public static final double HOPPER_B_MAX_DISTANCE = 0.50; // TODO: Tune experimentally
 
+        // ===============================
+        // CHUTE / FUEL TRACKING
+        // ===============================
+
+        private static final double CHUTE_MAX_DISTANCE = 0.48; // meters
+        public static final double CHUTE_MIN_DISTANCE    = 0.02; // TODO: Tune experimentally
+        private static final double CHUTE_TOLERANCE = 0.05;    // 5%
+        private static final double FUEL_CLEAR_TIME = 2.0;     // seconds
+
+        private boolean isFuelDetected = false;
+        private boolean wasFuelDetected = false;
+
+        private double lastDetectionTimestamp = -1.0;
+        private double secondsSinceLastDetection = Double.POSITIVE_INFINITY;
+
+
     // ==== Elastic Dashboard Publishers ========================================
     private final NetworkTable indexerTable;
     private final BooleanPublisher hopperAPublisher;
     private final BooleanPublisher hopperBPublisher;
-    private final IntegerPublisher hopperCountPublisher;
     private final StringPublisher hopperAFillLevelPublisher;
     private final StringPublisher hopperBFillLevelPublisher;
+    private final BooleanPublisher chuteDetectedPublisher;
+    private final IntegerPublisher chuteCountPublisher;
+
     // Raw distance from each CANrange — useful during threshold tuning without
     // needing AdvantageScope open; displayed on the Indexer Elastic tab.
     private final DoublePublisher hopperADistancePublisher;
@@ -121,17 +139,50 @@ public class IndexerSubsystem extends SubsystemBase {
 
         hopperAPublisher          = indexerTable.getBooleanTopic("HopperA/Detected").publish();
         hopperBPublisher          = indexerTable.getBooleanTopic("HopperB/Detected").publish();
-        hopperCountPublisher      = indexerTable.getIntegerTopic("HopperCount").publish();
         hopperAFillLevelPublisher = indexerTable.getStringTopic("HopperA/FillLevel").publish();
         hopperBFillLevelPublisher = indexerTable.getStringTopic("HopperB/FillLevel").publish();
         hopperADistancePublisher  = indexerTable.getDoubleTopic("HopperA/Distance_m").publish();
         hopperBDistancePublisher  = indexerTable.getDoubleTopic("HopperB/Distance_m").publish();
+        chuteDetectedPublisher    = indexerTable.getBooleanTopic("Chute/Detected").publish();
+        chuteCountPublisher       = indexerTable.getIntegerTopic("Chute/Count").publish();
     }
 
     // ==== Periodic ============================================================
     @Override
     public void periodic() {
         io.updateInputs(inputs);
+
+  
+
+        double now = edu.wpi.first.wpilibj.Timer.getFPGATimestamp();
+
+        // --- Distance-based detection with hysteresis ---
+        double lowerThreshold = CHUTE_MAX_DISTANCE * (1.0 - CHUTE_TOLERANCE);
+        double upperThreshold = CHUTE_MAX_DISTANCE * (1.0 + CHUTE_TOLERANCE);
+
+        if (!isFuelDetected) {
+            // Only trigger when clearly below threshold
+            if (inputs.chuteDistanceMeters < lowerThreshold) {
+                isFuelDetected = true;
+            }
+        } else {
+            // Stay detected until clearly above threshold
+            if (inputs.chuteDistanceMeters > upperThreshold) {
+                isFuelDetected = false;
+            }
+        }
+
+        // --- Update last detection time ---
+        if (isFuelDetected) {
+            lastDetectionTimestamp = now;
+        }
+
+        if (lastDetectionTimestamp >= 0) {
+            secondsSinceLastDetection = now - lastDetectionTimestamp;
+        } else {
+            secondsSinceLastDetection = Double.POSITIVE_INFINITY;
+        }
+
 
         // processInputs() logs the raw IO layer — motor signals and sensor readings.
         // These appear in AdvantageScope under "Indexer/".
@@ -141,9 +192,12 @@ public class IndexerSubsystem extends SubsystemBase {
         // makes on top of raw data. Hoot can't see these; AK can.
         Logger.recordOutput("Indexer/State", currentState.name());
         Logger.recordOutput("Indexer/IsHopperFull", isHopperFull());
-        Logger.recordOutput("Indexer/HopperCount", getHopperGamePieceCount());
         Logger.recordOutput("Indexer/HopperA/FillLevel", getHopperAFillLevel().name());
         Logger.recordOutput("Indexer/HopperB/FillLevel", getHopperBFillLevel().name());
+        Logger.recordOutput("Chute/IsFuelDetected", isFuelDetected);
+        Logger.recordOutput("Chute/SecondsSinceLastDetection", secondsSinceLastDetection);
+        Logger.recordOutput("Chute/DonePassingFuel", donePassingFuel());
+        Logger.recordOutput("Chute/DistanceMeters", inputs.chuteDistanceMeters);
 
         publishTelemetry();
     }
@@ -151,17 +205,15 @@ public class IndexerSubsystem extends SubsystemBase {
     private void publishTelemetry() {
         hopperAPublisher.set(inputs.hopperADetected);
         hopperBPublisher.set(inputs.hopperBDetected);
-        hopperCountPublisher.set(getHopperGamePieceCount());
         hopperAFillLevelPublisher.set(getHopperAFillLevel().name());
         hopperBFillLevelPublisher.set(getHopperBFillLevel().name());
-        // Raw distance in meters — lets you tune the threshold from Elastic
-        // without opening AdvantageScope. Watch these with/without a game piece
-        // at each sensor to determine the correct ProximityThreshold value.
         hopperADistancePublisher.set(inputs.hopperADistanceMeters);
         hopperBDistancePublisher.set(inputs.hopperBDistanceMeters);
+        chuteDetectedPublisher.set(inputs.chuteDetected);
+        // chuteDistancePublisher.set(inputs.chuteDistanceMeters);
     }
 
-    // ==== State ===============================================================
+    // ==== State =======================================================================
     private void setState(IndexerState state) {
         this.currentState = state;
     }
@@ -170,7 +222,7 @@ public class IndexerSubsystem extends SubsystemBase {
         return currentState;
     }
 
-    // ==== Motor Control =======================================================
+    // ==== Motor Control ==============================================================
     public void conveyorForward() {
         io.setConveyorMotor(CONVEYOR_FORWARD_VOLTAGE);
     }
@@ -235,16 +287,6 @@ public class IndexerSubsystem extends SubsystemBase {
     /** Returns true if both hopper positions A and B are filled. */
     public boolean isHopperFull() {
         return inputs.hopperADetected && inputs.hopperBDetected;
-    }
-
-    /** Returns the number of game pieces detected in the hopper (0, 1, or 2). */
-    public int getHopperGamePieceCount() {
-        int count = 0;
-        if (inputs.hopperADetected)
-            count++;
-        if (inputs.hopperBDetected)
-            count++;
-        return count;
     }
 
     // ==== Hopper Fill Level ===================================================
@@ -321,6 +363,18 @@ public class IndexerSubsystem extends SubsystemBase {
         if (fillRatio >= 0.25)
             return HopperFillLevel.QUARTER_FULL;
         return HopperFillLevel.EMPTY;
+    }
+
+    public boolean isFuelDetected() {
+    return isFuelDetected;
+    }
+
+    public double getSecondsSinceLastDetection() {
+        return secondsSinceLastDetection;
+    }
+
+    public boolean donePassingFuel() {
+        return !isFuelDetected && secondsSinceLastDetection >= FUEL_CLEAR_TIME;
     }
 
     // ==== Command Factories ===================================================
