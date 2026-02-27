@@ -12,6 +12,7 @@ import edu.wpi.first.networktables.StringPublisher;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.Constants;
 
 public class IntakeSubsystem extends SubsystemBase {
 
@@ -30,10 +31,10 @@ public class IntakeSubsystem extends SubsystemBase {
     private RollerState rollerState = RollerState.STOPPED;
 
     // ==== Intake Constants ====
-    static final double SLIDE_RETRACTED_POSITION = 0.0;
-    static final double SLIDE_EXTENDED_POSITION = 44.40;
-    static final double SLIDE_MIN_POSITION = 0.0;
-    static final double SLIDE_MAX_POSITION = 44.454;
+    //static final double SLIDE_RETRACTED_POSITION = 0.0;
+    //static final double SLIDE_EXTENDED_POSITION = 44.40;
+    //static final double SLIDE_MIN_POSITION = 0.0;
+    //static final double SLIDE_MAX_POSITION = 44.454;
 
     static final double ROLLER_VOLTS = 8.5;
 
@@ -83,12 +84,12 @@ public class IntakeSubsystem extends SubsystemBase {
 
     /** True when slide is within tolerance of the extended setpoint. */
     public boolean isSlideFullyExtended() {
-        return Math.abs(inputs.slidePositionRotations - SLIDE_EXTENDED_POSITION) < 0.05;
+        return Math.abs(inputs.slidePositionRotations - Constants.Intake.SLIDE_EXTENDED_POSITION) < 0.05;
     }
 
     /** True when slide is within tolerance of the retracted setpoint. */
     public boolean isSlideFullyRetracted() {
-        return Math.abs(inputs.slidePositionRotations - SLIDE_RETRACTED_POSITION) < 0.05;
+        return Math.abs(inputs.slidePositionRotations - Constants.Intake.SLIDE_RETRACTED_POSITION) < 0.05;
     }
 
     public String getIntakeState() {
@@ -124,16 +125,16 @@ public class IntakeSubsystem extends SubsystemBase {
 
     // Slide — MotionMagic position control (motor holds position after command)
     public void extendSlides() {
-        io.setSlidePosition(SLIDE_EXTENDED_POSITION);
+        io.setSlidePosition(Constants.Intake.SLIDE_EXTENDED_POSITION);
         // intakeState
     }
 
     public void retractSlides() {
-        io.setSlidePosition(SLIDE_RETRACTED_POSITION);
+        io.setSlidePosition(Constants.Intake.SLIDE_RETRACTED_POSITION);
     }
 
     public void retractSlidesSlow() {
-        io.setSlidePositionSlow(SLIDE_RETRACTED_POSITION);
+        io.setSlidePositionSlow(Constants.Intake.SLIDE_RETRACTED_POSITION);
 
     }
 
@@ -315,7 +316,7 @@ public class IntakeSubsystem extends SubsystemBase {
     /* Incremental slide retraction */
     // Slide — incremental retract by 2 rotations, clamped to min position
     public void retractSlidesIncremental() {
-        double target = Math.max(inputs.slidePositionRotations - 15.0, SLIDE_MIN_POSITION);
+        double target = Math.max(inputs.slidePositionRotations - 15.0, Constants.Intake.SLIDE_MIN_POSITION);
         io.setSlidePosition(target);
     }
 

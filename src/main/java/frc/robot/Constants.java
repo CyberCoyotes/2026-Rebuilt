@@ -40,6 +40,11 @@ public final class Constants {
     /** Time of Flight sensor - CANrange, confirms fuel presence */
     public static final int INTAKE_SENSOR_ID = 41;
 
+    //=== Constants =====================
+    public static final double SLIDE_RETRACTED_POSITION = 0.0;
+    public static final double SLIDE_EXTENDED_POSITION = 44.40;
+    public static final double SLIDE_MIN_POSITION = 0.0;
+    public static final double SLIDE_MAX_POSITION = 44.454;
   }
 
   // =========================================================
@@ -71,7 +76,7 @@ public final class Constants {
     public static final double INDEXER_FORWARD_VOLTAGE = 4.0;
     public static final double INDEXER_REVERSE_VOLTAGE = -4.0;
     public static final double INDEXER_POPPER_VOLTAGE = 3.0;
-    
+
     //=== Hopper Fill Level Distance Constants ===========
     // MIN = distance (meters) when hopper is packed full (piece right at sensor).
     // MAX = distance (meters) when hopper is completely empty (far wall or
