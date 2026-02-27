@@ -285,16 +285,6 @@ public class IndexerSubsystem extends SubsystemBase {
         return inputs.hopperADetected && inputs.hopperBDetected;
     }
 
-    /** Returns the number of game pieces detected in the hopper (0, 1, or 2). */
-    public int getHopperGamePieceCount() {
-        int count = 0;
-        if (inputs.hopperADetected)
-            count++;
-        if (inputs.hopperBDetected)
-            count++;
-        return count;
-    }
-
     // ==== Hopper Fill Level ===================================================
 
     /**
