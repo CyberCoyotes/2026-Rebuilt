@@ -125,11 +125,6 @@ public class RobotContainer {
         //     )
         // );
 
-        // Face buttons select and latch preset (selection sticks after button released).
-        // A = CLOSE, B = TRENCH, X = TOWER, Y = FAR
-        // Right Bumper = PASS
-
-
         // =====================================================================
         // OPERATOR CONTROLLER (Port 1)
         // =====================================================================
