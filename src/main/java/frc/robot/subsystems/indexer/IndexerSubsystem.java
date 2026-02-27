@@ -99,6 +99,8 @@ public class IndexerSubsystem extends SubsystemBase {
     public static final double HOPPER_A_MAX_DISTANCE = 0.50; // TODO: Tune experimentally
     public static final double HOPPER_B_MIN_DISTANCE = 0.02; // TODO: Tune experimentally
     public static final double HOPPER_B_MAX_DISTANCE = 0.50; // TODO: Tune experimentally
+    public static final double CHUTE_MIN_DISTANCE    = 0.02; // TODO: Tune experimentally
+    public static final double CHUTE_MAX_DISTANCE    = 0.50; // TODO: Tune experimentally
 
     // ==== Elastic Dashboard Publishers ========================================
     private final NetworkTable indexerTable;
@@ -107,6 +109,7 @@ public class IndexerSubsystem extends SubsystemBase {
     private final IntegerPublisher hopperCountPublisher;
     private final StringPublisher hopperAFillLevelPublisher;
     private final StringPublisher hopperBFillLevelPublisher;
+    private final StringPublisher chuteFillLevelPublisher;
     // Raw distance from each CANrange — useful during threshold tuning without
     // needing AdvantageScope open; displayed on the Indexer Elastic tab.
     private final DoublePublisher hopperADistancePublisher;
