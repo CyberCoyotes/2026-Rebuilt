@@ -48,13 +48,13 @@ public class ShooterSubsystem extends SubsystemBase {
 
     /** TODO tune RPMs for flywheel without excessive current draw
      * Add an end of line comment `Tuned` when each is verified */
-    private static final double POPPER_RPM  = 800; // TODO: Tune
-    private static final double STANDBY_RPM = 1000; //
+    public static final double POPPER_RPM  = 800; // TODO: Tune
+    public static final double STANDBY_RPM = 1000; //
     public static final double CLOSE_RPM   = 2750; //
-    private static final double TOWER_RPM   = 3200; // TODO: Tune was 3100, 4.42
-    private static final double TRENCH_RPM  = 3200; // TODO: Tune
-    private static final double FAR_RPM     = 3800; // TODO: Tune was 4000 + 5.5 worked
-    private static final double PASS_RPM    = 4000; //
+    public static final double TOWER_RPM   = 3200; // TODO: Tune was 3100, 4.42
+    public static final double TRENCH_RPM  = 3200; // TODO: Tune
+    public static final double FAR_RPM     = 3800; // TODO: Tune was 4000 + 5.5 worked
+    public static final double PASS_RPM    = 4000; //
 
     /** Reverse RPM for jam clearing. Only reached through eject(), which gates on EJECT_MAX_ENTRY_RPM. */
     private static final double EJECT_RPM = -1500;
@@ -352,7 +352,7 @@ public class ShooterSubsystem extends SubsystemBase {
     /**
      * Silently sets popper shot targets. No motor movement until intake trigger is pressed.
      */
-    public void shooterAirPopper() {
+    public void setAirPopper() {
         targetFlywheelMotorRPM = POPPER_RPM;
         targetHoodPoseRot = POPPER_HOOD;
     }
