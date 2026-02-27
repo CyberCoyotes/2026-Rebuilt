@@ -216,11 +216,32 @@ public class FuelCommands {
      * @param feedSeconds How long to run the indexer/conveyor after ready
      * @return Autonomous CLOSE shoot command
      */
-    public static Command shootCloseAuton(ShooterSubsystem shooter, IndexerSubsystem indexer,
+    // public static Command shootCloseAuton(ShooterSubsystem shooter, IndexerSubsystem indexer,
+    //         double feedSeconds) {
+    //     return shootPresetAuton(shooter, indexer, ShotPreset.CLOSE, feedSeconds, false)
+    //             .withName("ShootCloseAuton");
+    // }
+
+     public static Command shootCloseAuton(ShooterSubsystem shooter, IndexerSubsystem indexer,
             double feedSeconds) {
-        return shootPresetAuton(shooter, indexer, ShotPreset.CLOSE, feedSeconds, false)
-                .withName("ShootCloseAuton");
-    }
+        return Commands.sequence(
+                Commands.runOnce(() -> {
+                    shooter.setTargetVelocity(ShooterSubsystem.CLOSE_RPM);
+                    shooter.setTargetHoodPose(ShooterSubsystem.CLOSE_HOOD);
+                    shooter.prepareToShoot();
+                }, shooter),
+                Commands.waitUntil(shooter::isReady).withTimeout(3.0),
+                Commands.run(() -> {
+                    indexer.indexerForward();
+                    indexer.conveyorForward();
+                }, indexer).withTimeout(feedSeconds) // primary end trigger: timeout
+        ).finallyDo(() -> {
+            indexer.indexerStop();
+            indexer.conveyorStop();
+            shooter.setIdle();
+        });
+
+    } // end of command shootTrenchAuton_two
 
     /**
      * Autonomous: shoot using the TOWER preset.

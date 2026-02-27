@@ -76,12 +76,11 @@ public class RobotContainer {
         autoFactory = drivetrain.createAutoFactory();
         autoRoutines = new AutoRoutines(autoFactory,drivetrain,indexer, intake, shooter, fuelCommands);
         SmartDashboard.putData(autoChooser);
-        autoChooser.addRoutine("FM", autoRoutines::FM);
-        autoChooser.addRoutine("B", autoRoutines::B);
+        autoChooser.addRoutine("Four meters", autoRoutines::FM);
         autoChooser.addRoutine("Lob", autoRoutines::Lob);
-        autoChooser.addRoutine("Default(Run this one)", autoRoutines::Default);
-        autoChooser.addRoutine("The Big D", autoRoutines::Dummy);
-        // ✅ Publish to NetworkTables so Elastic can display it as a ComboBox Chooser  
+        autoChooser.addRoutine("StartRight goes to middle", autoRoutines::StartRMid);
+        autoChooser.addRoutine("Test(center shot)", autoRoutines::TestRoutine);
+        
         SmartDashboard.putData("AutoChooser", autoChooser);
         configureBindings();
 

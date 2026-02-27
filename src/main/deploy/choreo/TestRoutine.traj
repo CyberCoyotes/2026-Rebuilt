@@ -1,5 +1,5 @@
 {
- "name":"Dummy",
+ "name":"TestRoutine",
  "version":3,
  "snapshot":{
   "waypoints":[
@@ -15,7 +15,7 @@
  },
  "params":{
   "waypoints":[
-    {"x":{"exp":"3.55 m", "val":3.55}, "y":{"exp":"4.009917259216309 m", "val":4.009917259216309}, "heading":{"exp":"0 deg", "val":0.0}, "intervals":9, "split":false, "fixTranslation":true, "fixHeading":true, "overrideIntervals":false},
+    {"x":{"exp":"Close.x", "val":3.55}, "y":{"exp":"Close.y", "val":4.009917259216309}, "heading":{"exp":"Close.heading", "val":0.0}, "intervals":9, "split":false, "fixTranslation":true, "fixHeading":true, "overrideIntervals":false},
     {"x":{"exp":"3.05 m", "val":3.05}, "y":{"exp":"4.009917259216309 m", "val":4.009917259216309}, "heading":{"exp":"0 deg", "val":0.0}, "intervals":19, "split":true, "fixTranslation":true, "fixHeading":true, "overrideIntervals":false},
     {"x":{"exp":"2.55 m", "val":2.55}, "y":{"exp":"1.5203896760940552 m", "val":1.5203896760940552}, "heading":{"exp":"0 deg", "val":0.0}, "intervals":40, "split":false, "fixTranslation":true, "fixHeading":true, "overrideIntervals":false}],
   "constraints":[
@@ -46,9 +46,9 @@
    "tmax":1.2,
    "cof":1.0,
    "bumper":{
-    "front":0.4318,
-    "side":0.4318,
-    "back":0.4318
+    "front":0.4445,
+    "side":0.4445,
+    "back":0.4445
    },
    "differentialTrackWidth":0.5588
   },
