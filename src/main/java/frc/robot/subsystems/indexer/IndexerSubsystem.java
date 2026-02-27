@@ -152,20 +152,7 @@ public class IndexerSubsystem extends SubsystemBase {
     public void periodic() {
         io.updateInputs(inputs);
 
-        // processInputs() logs the raw IO layer — motor signals and sensor readings.
-        // These appear in AdvantageScope under "Indexer/".
-        Logger.processInputs("Indexer", inputs);
-
-        // recordOutput() logs computed/derived values — the decisions the subsystem
-        // makes on top of raw data. Hoot can't see these; AK can.
-        Logger.recordOutput("Indexer/State", currentState.name());
-        Logger.recordOutput("Indexer/IsHopperFull", isHopperFull());
-        Logger.recordOutput("Indexer/HopperA/FillLevel", getHopperAFillLevel().name());
-        Logger.recordOutput("Indexer/HopperB/FillLevel", getHopperBFillLevel().name());
-        Logger.recordOutput("Chute/IsFuelDetected", isFuelDetected);
-        Logger.recordOutput("Chute/SecondsSinceLastDetection", secondsSinceLastDetection);
-        Logger.recordOutput("Chute/DonePassingFuel", donePassingFuel());
-        Logger.recordOutput("Chute/DistanceMeters", inputs.chuteDistanceMeters);
+  
 
         double now = edu.wpi.first.wpilibj.Timer.getFPGATimestamp();
 
@@ -195,6 +182,23 @@ public class IndexerSubsystem extends SubsystemBase {
         } else {
             secondsSinceLastDetection = Double.POSITIVE_INFINITY;
         }
+
+
+        // processInputs() logs the raw IO layer — motor signals and sensor readings.
+        // These appear in AdvantageScope under "Indexer/".
+        Logger.processInputs("Indexer", inputs);
+
+        // recordOutput() logs computed/derived values — the decisions the subsystem
+        // makes on top of raw data. Hoot can't see these; AK can.
+        Logger.recordOutput("Indexer/State", currentState.name());
+        Logger.recordOutput("Indexer/IsHopperFull", isHopperFull());
+        Logger.recordOutput("Indexer/HopperA/FillLevel", getHopperAFillLevel().name());
+        Logger.recordOutput("Indexer/HopperB/FillLevel", getHopperBFillLevel().name());
+        Logger.recordOutput("Chute/IsFuelDetected", isFuelDetected);
+        Logger.recordOutput("Chute/SecondsSinceLastDetection", secondsSinceLastDetection);
+        Logger.recordOutput("Chute/DonePassingFuel", donePassingFuel());
+        Logger.recordOutput("Chute/DistanceMeters", inputs.chuteDistanceMeters);
+
         publishTelemetry();
     }
 
