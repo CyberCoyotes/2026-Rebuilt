@@ -79,7 +79,7 @@ public class RobotContainer {
         autoChooser.addRoutine("Four meters", autoRoutines::FM);
         autoChooser.addRoutine("Lob", autoRoutines::Lob);
         autoChooser.addRoutine("StartRight goes to middle", autoRoutines::StartRMid);
-        autoChooser.addRoutine("Test(center shot)", autoRoutines::TestRountine);
+        autoChooser.addRoutine("Test(center shot)", autoRoutines::TestRoutine);
         
         SmartDashboard.putData("AutoChooser", autoChooser);
         configureBindings();

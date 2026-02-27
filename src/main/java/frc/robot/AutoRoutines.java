@@ -103,7 +103,7 @@ public class AutoRoutines {
                 //DefaultRightV2.atTime("Load").onTrue(m_intakeCommands.intake());
                 return routine;
         }
-        public AutoRoutine TestRountine() {
+        public AutoRoutine TestRoutine() {
                  final AutoRoutine routine = m_factory.newRoutine("TestRoutine");
                 final AutoTrajectory TestRoutine = routine.trajectory("TestRoutine", 0);
                 final AutoTrajectory TestRountine2 = routine.trajectory("TestRoutine", 1);
