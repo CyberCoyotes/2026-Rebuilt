@@ -586,17 +586,22 @@ public class FuelCommands {
                     shooter.prepareToShoot();
                 }, shooter),
                 Commands.waitUntil(shooter::isReady).withTimeout(3.0),
-                Commands.run(() -> {
-                    indexer.indexerForward();
-                    indexer.conveyorForward();
-                }, indexer).withTimeout(feedSeconds) // primary end trigger: timeout
-        ).finallyDo(() -> {
+                Commands.startEnd(
+                    indexer::feed,
+                    () -> {
+                        indexer.indexerStop();
+                        indexer.conveyorStop();
+                    },
+                    indexer)
+                .until(indexer::donePassingFuel)
+                .withTimeout(4.0)
+        ).finallyDo(() -> { // In theory this should not be needed
             indexer.indexerStop();
             indexer.conveyorStop();
             shooter.setIdle();
         });
 
-    } // end of command shootTrenchPose
+    } // end of command shooting from the Trench position
 
     public static Command shootClose(ShooterSubsystem shooter, IndexerSubsystem indexer,
             double feedSeconds) {
