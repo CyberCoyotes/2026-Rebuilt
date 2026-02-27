@@ -352,7 +352,7 @@ public class ShooterSubsystem extends SubsystemBase {
     /**
      * Silently sets popper shot targets. No motor movement until intake trigger is pressed.
      */
-    public void shooterAirPopper() {
+    public void setAirPopper() {
         targetFlywheelMotorRPM = POPPER_RPM;
         targetHoodPoseRot = POPPER_HOOD;
     }
