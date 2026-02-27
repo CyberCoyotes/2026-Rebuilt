@@ -48,12 +48,13 @@ public class ShooterSubsystem extends SubsystemBase {
 
     /** TODO tune RPMs for flywheel without excessive current draw
      * Add an end of line comment `Tuned` when each is verified */
-    private static final double STANDBY_RPM = 2240; //
+    public static final double POPPER_RPM  = 800; // TODO: Tune
+    public static final double STANDBY_RPM = 1000; //
     public static final double CLOSE_RPM   = 2750; //
-    private static final double TOWER_RPM   = 3200; // TODO: Tune was 3100, 4.42
-    private static final double TRENCH_RPM  = 3200; // TODO: Tune
-    private static final double FAR_RPM     = 3000; //
-    private static final double PASS_RPM    = 4000; //
+    public static final double TOWER_RPM   = 3200; // TODO: Tune was 3100, 4.42
+    public static final double TRENCH_RPM  = 3200; // TODO: Tune
+    public static final double FAR_RPM     = 3800; // TODO: Tune was 4000 + 5.5 worked
+    public static final double PASS_RPM    = 4000; //
 
     /** Reverse RPM for jam clearing. Only reached through eject(), which gates on EJECT_MAX_ENTRY_RPM. */
     private static final double EJECT_RPM = -1500;
@@ -71,10 +72,11 @@ public class ShooterSubsystem extends SubsystemBase {
      * Consider using WCP Encoder
      * Add an end of line comment `Tuned` when each is verified */
     public static final double CLOSE_HOOD  = 0.00; //
+    public static final double POPPER_HOOD  = 8.42; // TODO: Tune
     public static final double TOWER_HOOD  = 4.30; //
-    public static final double TRENCH_HOOD = 4.30; //
-    public static final double PASS_HOOD   = 5.50; //
-    public static final double FAR_HOOD    = 6.00; //
+    public static final double TRENCH_HOOD = 4.30; // TODO: Tune
+    public static final double FAR_HOOD    = 5.50; // TODO: Tune was 4000 + 5.5 worked
+    public static final double PASS_HOOD   = 7.00; //
 
      // --- Testing Increments ---
     public static final double HOOD_TEST_INCREMENT         = 0.2;
@@ -94,7 +96,8 @@ public class ShooterSubsystem extends SubsystemBase {
         TOWER  ("Tower",   TOWER_RPM,  TOWER_HOOD),
         TRENCH ("Trench",  TRENCH_RPM, TRENCH_HOOD),
         PASS   ("Pass",    PASS_RPM,   PASS_HOOD),
-        FAR    ("Far",     FAR_RPM,    FAR_HOOD);
+        FAR    ("Far",     FAR_RPM,    FAR_HOOD),
+        POPPER ("Popper", POPPER_RPM, POPPER_HOOD); // TODO: Tune
 
         public final String label;
         public final double rpm;
@@ -184,7 +187,8 @@ public class ShooterSubsystem extends SubsystemBase {
         STANDBY, // Flywheel spinning at STANDBY_RPM; ready to ramp to target on demand
         READY,   // Flywheel and hood at preset targets, ready to shoot
         PASS,    // Passing shot at PASS_RPM, hood at PASS_HOOD
-        EJECT    // Jam clearing: flywheel at EJECT_RPM (reverse), hood at MIN_POSE — velocity-gated
+        EJECT,   // Jam clearing: flywheel at EJECT_RPM (reverse), hood at MIN_POSE — velocity-gated
+        POPPER   // Popper mode: flywheel and hood at minimum pose for assisting with fuel loading
     }
 
     // ==== Periodic ====
@@ -232,6 +236,8 @@ public class ShooterSubsystem extends SubsystemBase {
                 break;
             case EJECT:
                 break;
+            case POPPER:
+                break;
         }
     }
 
@@ -269,6 +275,10 @@ public class ShooterSubsystem extends SubsystemBase {
                 // io.setFlywheelVelocity(EJECT_RPM);
                 commandFlywheelVelocity(EJECT_RPM); // Routes to the active control mode (VelocityVoltage or VelocityTorqueCurrentFOC)
                 io.setHoodPose(MIN_HOOD_POSE_ROT);
+                break;
+            case POPPER:
+                commandFlywheelVelocity(POPPER_RPM);
+                io.setHoodPose(POPPER_HOOD);
                 break;
         }
     }
@@ -337,6 +347,14 @@ public class ShooterSubsystem extends SubsystemBase {
     public void setPassShotPreset() {
         targetFlywheelMotorRPM = PASS_RPM;
         targetHoodPoseRot = PASS_HOOD;
+    }
+
+    /**
+     * Silently sets popper shot targets. No motor movement until intake trigger is pressed.
+     */
+    public void setAirPopper() {
+        targetFlywheelMotorRPM = POPPER_RPM;
+        targetHoodPoseRot = POPPER_HOOD;
     }
 
     // ===== Target Setters =====
@@ -464,6 +482,15 @@ public class ShooterSubsystem extends SubsystemBase {
     /** Returns the currently selected test preset. */
     public ShotPreset getSelectedPreset() {
         return selectedPreset;
+    }
+
+    /**
+     * Directly selects a specific preset and arms it silently.
+     * The selection sticks until another preset is chosen.
+     */
+    public void selectPreset(ShotPreset preset) {
+        selectedPreset = preset;
+        armSelectedPreset();
     }
 
     /**

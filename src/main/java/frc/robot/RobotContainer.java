@@ -116,32 +116,34 @@ public class RobotContainer {
         driver.rightTrigger(0.5).whileTrue(
             FuelCommands.shootWithSelectedPreset(shooter, indexer)
         );
-        // Right Trigger: Vision-aligned shot.
-        //
-        // While held:
-        //   - Starts spinning at the current POV-selected preset immediately.
-        //   - If a hub AprilTag is visible: continuously updates RPM + hood from
-        //     the distance lookup table and drives rotation to center the tag.
-        //   - If no hub tag is visible: holds current preset, no rotation override.
-        //   - Fires indexer/conveyor as soon as vision is aligned AND shooter is ready.
-        //   - Driver left stick still controls translation freely throughout.
-        //
-        // Cycle the fallback preset with POV Left / POV Right before or during hold.
-        // Active preset name is published to Shooter/SelectedPreset on NetworkTables.
-        driver.rightTrigger(0.5).and(driver.a()).whileTrue(
-            FuelCommands.visionAlignAndShoot(
-                shooter, vision, indexer, drivetrain,
-                () -> -driver.getLeftY() * MaxSpeed,
-                () -> -driver.getLeftX() * MaxSpeed
-            )
-        );
+        // Right Trigger + Vision: Commented out — vision shot disabled for now.
+        // driver.rightTrigger(0.5).and(driver.a()).whileTrue(
+        //     FuelCommands.visionAlignAndShoot(
+        //         shooter, vision, indexer, drivetrain,
+        //         () -> -driver.getLeftY() * MaxSpeed,
+        //         () -> -driver.getLeftX() * MaxSpeed
+        //     )
+        // );
 
-        // POV Right: Cycle to next preset (Close → Tower → Trench → Pass → Far → Close).
-        // POV Left:  Cycle to previous preset (Close → Far → Pass → Trench → Tower → Close).
-        // Selected preset is published to Shooter/SelectedPreset on NetworkTables / Elastic.
-        // No subsystem requirement — safe to press while trigger is held without interrupting a shot.
-        driver.povRight().onTrue(Commands.runOnce(shooter::cyclePresetForward));
-        driver.povLeft().onTrue(Commands.runOnce(shooter::cyclePresetBackward));
+        // Face buttons select and latch preset (selection sticks after button released).
+        // A = CLOSE, B = TRENCH, X = TOWER, Y = FAR
+        // Right Bumper = PASS
+        operator.a().onTrue(Commands.runOnce(() -> shooter.selectPreset(ShooterSubsystem.ShotPreset.CLOSE)));
+        operator.b().onTrue(Commands.runOnce(() -> shooter.selectPreset(ShooterSubsystem.ShotPreset.TRENCH)));
+        operator.x().onTrue(Commands.runOnce(() -> shooter.selectPreset(ShooterSubsystem.ShotPreset.TOWER)));
+        operator.y().onTrue(Commands.runOnce(() -> shooter.selectPreset(ShooterSubsystem.ShotPreset.FAR)));
+        operator.rightBumper().onTrue(Commands.runOnce(() -> shooter.selectPreset(ShooterSubsystem.ShotPreset.PASS)));
+        // TODO: Test the air popper command and tune the popper RPM and hood pose. Consider adding to intakeFuel()
+        // driver.y().whileTrue(FuelCommands.runAirPopper(indexer, shooter)); 
+
+        // TODO: Test the autonomous shooting command
+        // It should shoot fuel for 4 seconds
+        driver.a().onTrue(FuelCommands.shootTrenchAuton(shooter, indexer, 4));
+        driver.b().onTrue(FuelCommands.shootTrenchAuton_two(shooter, indexer, 4));
+        
+
+        // TODO: Test the air popper command while running the intake.
+        // operator.b().whileTrue(FuelCommands.runAirPopper(indexer, shooter).alongWith(intake.intakeFuel())); 
 
         // =====================================================================
         // DRIVER CONTROLLER (Port 0) - Intake

@@ -35,7 +35,7 @@ public class IntakeSubsystem extends SubsystemBase {
     static final double SLIDE_MIN_POSITION = 0.0;
     static final double SLIDE_MAX_POSITION = 44.454;
 
-    static final double ROLLER_VOLTS = 6.0;
+    static final double ROLLER_VOLTS = 8.5;
 
     // ==== Elastic Dashboard Publishers ====
     // Driver-awareness data: state string, slide position, and at-target booleans.
@@ -315,7 +315,7 @@ public class IntakeSubsystem extends SubsystemBase {
     /* Incremental slide retraction */
     // Slide — incremental retract by 2 rotations, clamped to min position
     public void retractSlidesIncremental() {
-        double target = Math.max(inputs.slidePositionRotations - 8.0, SLIDE_MIN_POSITION);
+        double target = Math.max(inputs.slidePositionRotations - 15.0, SLIDE_MIN_POSITION);
         io.setSlidePosition(target);
     }
 

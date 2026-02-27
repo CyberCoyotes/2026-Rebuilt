@@ -74,10 +74,14 @@ public class IndexerSubsystem extends SubsystemBase {
     // ==== Voltage Constants ===================================================
     // Kept here (alongside the commands that use them) so students can find
     // and tune these without hunting through a separate Constants file.
-    public static final double CONVEYOR_FORWARD_VOLTAGE = 4.0; // TODO: Tune
+    public static final double CONVEYOR_FORWARD_VOLTAGE = 4.0; 
     public static final double CONVEYOR_REVERSE_VOLTAGE = -4.0;
-    public static final double INDEXER_FORWARD_VOLTAGE = 4.0; // TODO: Tune
+    public static final double CONVEYOR_POPPER_VOLTAGE = 3.0; 
+
+    public static final double INDEXER_FORWARD_VOLTAGE = 4.0;
     public static final double INDEXER_REVERSE_VOLTAGE = -4.0;
+    public static final double INDEXER_POPPER_VOLTAGE = 3.0;
+
 
     // ==== Hopper Fill Level Distance Constants ================================
     // MIN = distance (meters) when hopper is packed full (piece right at sensor).
@@ -175,6 +179,10 @@ public class IndexerSubsystem extends SubsystemBase {
         io.setConveyorMotor(CONVEYOR_REVERSE_VOLTAGE);
     }
 
+    public void conveyorAirPopper() {
+        io.setConveyorMotor(CONVEYOR_POPPER_VOLTAGE);
+    }
+
     public void conveyorStop() {
         io.setConveyorMotor(0.0);
     }
@@ -185,6 +193,10 @@ public class IndexerSubsystem extends SubsystemBase {
 
     public void indexerReverse() {
         io.setIndexerMotor(INDEXER_REVERSE_VOLTAGE);
+    }
+
+    public void indexerAirPopper() {
+        io.setIndexerMotor(INDEXER_POPPER_VOLTAGE);
     }
 
     public void indexerStop() {

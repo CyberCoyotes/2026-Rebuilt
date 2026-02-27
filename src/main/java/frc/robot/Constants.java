@@ -109,15 +109,28 @@ public final class Constants {
     public static final int APRILTAG_PIPELINE = 0;
     public static final int GAME_PIECE_PIPELINE = 1; // Optional: for note/game piece detection
 
-    // Camera mounting (ADJUST THESE FOR YOUR ROBOT!)
+    // =========================================================
+    // Camera mounting
+    // =========================================================
+
     /** Height of Limelight lens from floor in meters */
-    public static final double CAMERA_HEIGHT_METERS = 0.5;  // TODO: Measure actual height
+    // 19.25 inches = 0.489 meters
+    public static final double CAMERA_HEIGHT_METERS = 0.489;
+
+    // Camera is on the back of robot from center reference
+    // -9.5 inches = 0.2413 meters
+    public static final double CAMERA_BACK_OFFSET_METERS = 0.2413;
+
+    // Camera is mounted left of center
+    // -10.0 inches = 0.0762 meters
+    public static final double CAMERA_LEFT_OFFSET_METERS = 0.0762;
 
     /** Angle of camera from horizontal in degrees (positive = tilted up) */
+    // 25 degrees is a common starting point for angled vision setups, but should be measured for accuracy.
     public static final double CAMERA_ANGLE_DEGREES = 25.0;  // TODO: Measure actual angle
 
-    // Target heights
     /** Height of AprilTag center from floor in meters */
+    //
     public static final double APRILTAG_HEIGHT_METERS = 1.45;  // TODO: Update for 2026 game
 
     // Alignment tolerances
@@ -149,7 +162,7 @@ public final class Constants {
     /** Time in seconds before considering target "lost" after losing sight */
     public static final double TARGET_TIMEOUT_SECONDS = 0.5;
 
-    // ── Vision-driven drivetrain rotation ─────────────────────────────────────
+    // == Vision-driven drivetrain rotation ====
     /**
      * Proportional gain for rotational alignment: (rad/s output) per (degree of tx error).
      *
