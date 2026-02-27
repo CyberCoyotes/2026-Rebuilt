@@ -11,6 +11,7 @@ import edu.wpi.first.networktables.StringPublisher;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.Constants;
 
 public class IndexerSubsystem extends SubsystemBase {
 
@@ -74,13 +75,13 @@ public class IndexerSubsystem extends SubsystemBase {
     // ==== Voltage Constants ===================================================
     // Kept here (alongside the commands that use them) so students can find
     // and tune these without hunting through a separate Constants file.
-    public static final double CONVEYOR_FORWARD_VOLTAGE = 4.0; 
-    public static final double CONVEYOR_REVERSE_VOLTAGE = -4.0;
-    public static final double CONVEYOR_POPPER_VOLTAGE = 3.0; 
+    // public static final double CONVEYOR_FORWARD_VOLTAGE = 4.0; 
+    // public static final double CONVEYOR_REVERSE_VOLTAGE = -4.0;
+    // public static final double CONVEYOR_POPPER_VOLTAGE = 3.0; 
 
-    public static final double INDEXER_FORWARD_VOLTAGE = 4.0;
-    public static final double INDEXER_REVERSE_VOLTAGE = -4.0;
-    public static final double INDEXER_POPPER_VOLTAGE = 3.0;
+   // public static final double INDEXER_FORWARD_VOLTAGE = 4.0;
+   // public static final double INDEXER_REVERSE_VOLTAGE = -4.0;
+    // public static final double INDEXER_POPPER_VOLTAGE = 3.0;
 
 
     // ==== Hopper Fill Level Distance Constants ================================
@@ -95,10 +96,10 @@ public class IndexerSubsystem extends SubsystemBase {
     // 4. Update the constants below and rebuild.
     //
     // Sensors A and B may differ slightly if they're mounted at different depths.
-    public static final double HOPPER_A_MIN_DISTANCE = 0.02; // TODO: Tune experimentally
-    public static final double HOPPER_A_MAX_DISTANCE = 0.50; // TODO: Tune experimentally
-    public static final double HOPPER_B_MIN_DISTANCE = 0.02; // TODO: Tune experimentally
-    public static final double HOPPER_B_MAX_DISTANCE = 0.50; // TODO: Tune experimentally
+  //  public static final double HOPPER_A_MIN_DISTANCE = 0.02; // TODO: Tune experimentally
+  //  public static final double HOPPER_A_MAX_DISTANCE = 0.50; // TODO: Tune experimentally
+  //  public static final double HOPPER_B_MIN_DISTANCE = 0.02; // TODO: Tune experimentally
+   // public static final double HOPPER_B_MAX_DISTANCE = 0.50; // TODO: Tune experimentally
 
     // ==== Elastic Dashboard Publishers ========================================
     private final NetworkTable indexerTable;
@@ -172,15 +173,15 @@ public class IndexerSubsystem extends SubsystemBase {
 
     // ==== Motor Control =======================================================
     public void conveyorForward() {
-        io.setConveyorMotor(CONVEYOR_FORWARD_VOLTAGE);
+        io.setConveyorMotor(Constants.Indexer.CONVEYOR_FORWARD_VOLTAGE);
     }
 
     public void conveyorReverse() {
-        io.setConveyorMotor(CONVEYOR_REVERSE_VOLTAGE);
+        io.setConveyorMotor(Constants.Indexer.CONVEYOR_REVERSE_VOLTAGE);
     }
 
     public void conveyorAirPopper() {
-        io.setConveyorMotor(CONVEYOR_POPPER_VOLTAGE);
+        io.setConveyorMotor(Constants.Indexer.CONVEYOR_POPPER_VOLTAGE);
     }
 
     public void conveyorStop() {
@@ -188,15 +189,15 @@ public class IndexerSubsystem extends SubsystemBase {
     }
 
     public void indexerForward() {
-        io.setIndexerMotor(INDEXER_FORWARD_VOLTAGE);
+        io.setIndexerMotor(Constants.Indexer.INDEXER_FORWARD_VOLTAGE);
     }
 
     public void indexerReverse() {
-        io.setIndexerMotor(INDEXER_REVERSE_VOLTAGE);
+        io.setIndexerMotor(Constants.Indexer.INDEXER_REVERSE_VOLTAGE);
     }
 
     public void indexerAirPopper() {
-        io.setIndexerMotor(INDEXER_POPPER_VOLTAGE);
+        io.setIndexerMotor(Constants.Indexer.INDEXER_POPPER_VOLTAGE);
     }
 
     public void indexerStop() {
@@ -258,8 +259,8 @@ public class IndexerSubsystem extends SubsystemBase {
     public HopperFillLevel getHopperAFillLevel() {
         return calculateFillLevel(
                 inputs.hopperADistanceMeters,
-                HOPPER_A_MIN_DISTANCE,
-                HOPPER_A_MAX_DISTANCE);
+                Constants.Indexer.HOPPER_A_MIN_DISTANCE,
+                Constants.Indexer.HOPPER_A_MAX_DISTANCE);
     }
 
     /**
@@ -271,8 +272,8 @@ public class IndexerSubsystem extends SubsystemBase {
     public HopperFillLevel getHopperBFillLevel() {
         return calculateFillLevel(
                 inputs.hopperBDistanceMeters,
-                HOPPER_B_MIN_DISTANCE,
-                HOPPER_B_MAX_DISTANCE);
+                Constants.Indexer.HOPPER_B_MIN_DISTANCE,
+                Constants.Indexer.HOPPER_B_MAX_DISTANCE);
     }
 
     /**

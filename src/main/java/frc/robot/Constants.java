@@ -39,6 +39,7 @@ public final class Constants {
 
     /** Time of Flight sensor - CANrange, confirms fuel presence */
     public static final int INTAKE_SENSOR_ID = 41;
+
   }
 
   // =========================================================
@@ -61,6 +62,33 @@ public final class Constants {
 
     /** Time of Flight sensor B - Detects distance -> "fullness" of hopper */
     public static final int HOPPER_B_TOF_ID = 44;
+
+    //=== Voltage Constants =====================
+    public static final double CONVEYOR_FORWARD_VOLTAGE = 4.0;
+    public static final double CONVEYOR_REVERSE_VOLTAGE = -4.0;
+    public static final double CONVEYOR_POPPER_VOLTAGE = 3.0;
+
+    public static final double INDEXER_FORWARD_VOLTAGE = 4.0;
+    public static final double INDEXER_REVERSE_VOLTAGE = -4.0;
+    public static final double INDEXER_POPPER_VOLTAGE = 3.0;
+    
+    //=== Hopper Fill Level Distance Constants ===========
+    // MIN = distance (meters) when hopper is packed full (piece right at sensor).
+    // MAX = distance (meters) when hopper is completely empty (far wall or
+    // nothing).
+    //
+    // HOW TO TUNE THESE:
+    // 1. Watch hopperA/BDistanceMeters live in AdvantageScope or Phoenix Tuner X.
+    // 2. Fill the hopper completely → record the distance. That's MIN.
+    // 3. Empty the hopper completely → record the distance. That's MAX.
+    // 4. Update the constants below and rebuild.
+    //
+    // Sensors A and B may differ slightly if they're mounted at different depths.
+    public static final double HOPPER_A_MIN_DISTANCE = 0.02; // TODO: Tune experimentally
+    public static final double HOPPER_A_MAX_DISTANCE = 0.50; // TODO: Tune experimentally
+    public static final double HOPPER_B_MIN_DISTANCE = 0.02; // TODO: Tune experimentally
+    public static final double HOPPER_B_MAX_DISTANCE = 0.50; // TODO: Tune experimentally
+
   }
 
   // =========================================================
