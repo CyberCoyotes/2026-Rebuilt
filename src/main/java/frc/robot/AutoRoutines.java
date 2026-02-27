@@ -95,7 +95,7 @@ public class AutoRoutines {
                                  StartRMid3.cmd()
 
                         ));
-                 StartRMid.atTime("Shoot").onTrue(FuelCommands.shootTrenchAuton(m_shooter, m_indexer, 1.5).withTimeout(10.0)); //score
+                 StartRMid.atTime("Shoot").onTrue(FuelCommands.Auto.shootTrench(m_shooter, m_indexer, 3)); //score
                 // DefaultRightV2.atTime("Intake").onTrue(IntakeSubsystem.intakeFuel(m_shooter, m_indexer)); //score
 
 
@@ -116,7 +116,7 @@ public class AutoRoutines {
                                 // TestRountine2.cmd()
 
                         ));
-                TestRoutine.atTime("Shoot").onTrue(FuelCommands.shootCloseAuton(m_shooter, m_indexer, 3.0)); //score
+                TestRoutine.atTime("Shoot").onTrue(FuelCommands.Auto.shootClose(m_shooter, m_indexer, 3.0)); //score
                 // Dummy.atTime("Intake").onTrue(IntakeSubsystem.intakeFuel(m_shooter, m_indexer)); //score
 
 
