@@ -272,6 +272,7 @@ public class VisionSubsystem extends SubsystemBase {
     // Telemetry
     // -------------------------------------------------------------------------
 
+<<<<<<< Updated upstream
     private void publishTelemetry() {
         poseValidPublisher.set(inputs.poseValid && isEstimateAcceptable());
         hasTargetPublisher.set(inputs.hasTarget);
@@ -279,6 +280,231 @@ public class VisionSubsystem extends SubsystemBase {
         angleToHubPublisher.set(getAngleToHub());
         tagCountPublisher.set(inputs.tagCount);
         avgTagDistPublisher.set(inputs.avgTagDistance);
+=======
+    /**
+     * Returns true if the currently visible tag is a hub target for the active alliance.
+     *
+     * Defaults to blue alliance if DriverStation has not yet reported alliance color
+     * (e.g., during pre-match or practice mode without FMS).
+     *
+     * NOTE: Hub tag ID ranges must be verified against the 2026 game manual.
+     * Blue: Constants.Vision.BLUE_HUB_MIN/MAX_TAG_ID
+     * Red:  Constants.Vision.RED_HUB_MIN/MAX_TAG_ID
+     */
+    public boolean isHubTarget() {
+        int id = inputs.tagId;
+        if (id < 0) return false;
+
+        var alliance = DriverStation.getAlliance();
+        if (alliance.isPresent() && alliance.get() == DriverStation.Alliance.Red) {
+            return id >= Constants.Vision.RED_HUB_MIN_TAG_ID
+                && id <= Constants.Vision.RED_HUB_MAX_TAG_ID;
+        }
+        // Default / blue alliance
+        return id >= Constants.Vision.BLUE_HUB_MIN_TAG_ID
+            && id <= Constants.Vision.BLUE_HUB_MAX_TAG_ID;
+    }
+
+    /**
+     * Returns true when vision data is safe to use for shooter parameter updates.
+     *
+     * True when:
+     *   - An active hub target is locked (TARGET_ACQUIRED or ALIGNED), OR
+     *   - We just lost a hub target and are in the grace period (LOST_TARGET with valid last-known distance)
+     *
+     * False when no target has ever been seen or the grace period has expired.
+     */
+    public boolean isUsableForShooting() {
+        if (currentState == AlignmentState.LOST_TARGET) {
+            // Grace period: use last-known distance rather than resetting the shooter
+            return lastKnownDistance > 0.1;
+        }
+        return hasTarget() && isHubTarget() && getDistanceToTargetMeters() > 0.1;
+    }
+
+    // =========================================================================
+    // PUBLIC API - Calculated Values for Shooter
+    // =========================================================================
+
+    /**
+     * Calculates distance to target in meters using camera geometry.
+     *
+     * Uses the formula: distance = (targetHeight - cameraHeight) / tan(cameraAngle + ty)
+     *
+     * For LOST_TARGET state, returns last known distance for smooth transitions.
+     *
+     * @return Distance to target in meters, or 0 if no target
+     */
+    public double getDistanceToTargetMeters() {
+        if (currentState == AlignmentState.NO_TARGET) {
+            return 0.0;
+        }
+
+        if (currentState == AlignmentState.LOST_TARGET) {
+            return lastKnownDistance; // Use last known value during grace period
+        }
+
+        return calculateDistance();
+    }
+
+    /**
+     * Internal distance calculation from camera geometry.
+     */
+    private double calculateDistance() {
+        double heightDiff = Constants.Vision.APRILTAG_HEIGHT_METERS -
+                          Constants.Vision.CAMERA_HEIGHT_METERS;
+
+        double verticalAngleDegrees = Units.radiansToDegrees(inputs.verticalAngleRadians);
+        double angleToTarget = Constants.Vision.CAMERA_ANGLE_DEGREES + verticalAngleDegrees;
+
+        return Math.abs(heightDiff / Math.tan(Math.toRadians(angleToTarget)));
+    }
+
+    /**
+     * Gets distance to target in centimeters (for compatibility with older code).
+     *
+     * @return Distance in centimeters
+     */
+    public double getDistanceToTargetCM() {
+        return getDistanceToTargetMeters() * 100.0;
+    }
+
+    // =========================================================================
+    // PUBLIC API - Angle Values for Drivetrain Alignment
+    // =========================================================================
+
+    /**
+     * Gets horizontal angle to target in degrees.
+     *
+     * Positive = target is to the right
+     * Negative = target is to the left
+     *
+     * For LOST_TARGET state, returns last known angle for smooth transitions.
+     *
+     * @return Horizontal angle in degrees, or 0 if no target
+     */
+    public double getHorizontalAngleDegrees() {
+        if (currentState == AlignmentState.NO_TARGET) {
+            return 0.0;
+        }
+
+        if (currentState == AlignmentState.LOST_TARGET) {
+            return lastKnownHorizontalAngle; // Use last known value
+        }
+
+        return Units.radiansToDegrees(inputs.horizontalAngleRadians);
+    }
+
+    /**
+     * Gets horizontal angle to target in radians.
+     *
+     * @return Horizontal angle in radians
+     */
+    public double getHorizontalAngleRadians() {
+        return Units.degreesToRadians(getHorizontalAngleDegrees());
+    }
+
+    /**
+     * Gets vertical angle to target in degrees.
+     *
+     * @return Vertical angle in degrees
+     */
+    public double getVerticalAngleDegrees() {
+        return Units.radiansToDegrees(inputs.verticalAngleRadians);
+    }
+
+    // =========================================================================
+    // PUBLIC API - Camera Control
+    // =========================================================================
+
+    /**
+     * Sets the active vision pipeline.
+     *
+     * @param pipelineIndex Pipeline index (0-9)
+     */
+    public void setPipeline(int pipelineIndex) {
+        io.setPipeline(pipelineIndex);
+    }
+
+    /**
+     * Sets the LED mode.
+     *
+     * @param mode LED mode to set
+     */
+    public void setLEDMode(VisionIO.LEDMode mode) {
+        io.setLEDMode(mode);
+    }
+
+    // =========================================================================
+    // MEGATAG2 - Robot Pose Estimation
+    // =========================================================================
+
+    /**
+     * Pushes the current robot yaw to the Limelight for MegaTag2 localization.
+     * MUST be called every loop before the drivetrain reads getMegaTag2Pose().
+     * Call this from RobotContainer using a telemetry hook on the drivetrain.
+     *
+     * @param yawDegrees Current robot yaw in degrees from the drivetrain gyro
+     */
+    public void setRobotOrientation(double yawDegrees) {
+        io.setRobotOrientation(yawDegrees);
+    }
+
+    /**
+     * Returns true if MegaTag2 produced a valid pose estimate this cycle.
+     * Always check this before calling getMegaTag2Pose().
+     */
+    public boolean hasMegaTag2Estimate() {
+        return inputs.megaTag2TagCount > 0;
+    }
+
+    /**
+     * Gets the MegaTag2 pose estimate as a Pose2d in WPILib Blue field coordinates.
+     * Check hasMegaTag2Estimate() before calling this.
+     */
+    public edu.wpi.first.math.geometry.Pose2d getMegaTag2Pose() {
+        return new edu.wpi.first.math.geometry.Pose2d(
+            inputs.megaTag2Pose[0],
+            inputs.megaTag2Pose[1],
+            new edu.wpi.first.math.geometry.Rotation2d(inputs.megaTag2Pose[2])
+        );
+    }
+
+    /**
+     * Gets the timestamp of the MegaTag2 estimate in FPGA seconds.
+     * Pass this directly to addVisionMeasurement() — the drivetrain handles conversion.
+     */
+    public double getMegaTag2Timestamp() {
+        return inputs.megaTag2TimestampSeconds;
+    }
+
+    /**
+     * Gets the average distance to tags used in the MegaTag2 estimate.
+     * Use this to scale your vision standard deviations — trust less at greater distances.
+     */
+    public double getMegaTag2AvgTagDist() {
+        return inputs.megaTag2AvgTagDist;
+    }
+
+    // =========================================================================
+    // TELEMETRY
+    // =========================================================================
+    
+    /**
+     * Logs comprehensive telemetry to NetworkTables (for Elastic) and AdvantageKit.
+     */
+    private void logTelemetry() {
+        // Publish to NetworkTables for Elastic dashboard
+        statePublisher.set(currentState.name());
+        hasTargetPublisher.set(hasTarget());
+        isAlignedPublisher.set(isAligned());
+        tagIdPublisher.set(getTagId());
+        targetAreaPublisher.set(inputs.targetArea);
+        distanceMetersPublisher.set(getDistanceToTargetMeters());
+        distanceCmPublisher.set(getDistanceToTargetCM());
+        horizontalAnglePublisher.set(getHorizontalAngleDegrees());
+        verticalAnglePublisher.set(getVerticalAngleDegrees());
+>>>>>>> Stashed changes
         latencyPublisher.set(inputs.totalLatencyMs);
         estimatedPosePublisher.set(
             inputs.poseValid

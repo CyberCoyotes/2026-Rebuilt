@@ -18,6 +18,8 @@ import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.RobotModeTriggers;
 import frc.robot.generated.TunerConstants;
 import frc.robot.commands.FuelCommands;
+import frc.robot.commands.SnapToHubCommand;
+import frc.robot.commands.AutoHubShootCommand;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
 import frc.robot.subsystems.indexer.IndexerSubsystem;
 import frc.robot.subsystems.intake.IntakeSubsystem;
@@ -100,6 +102,15 @@ public class RobotContainer {
             )
         );
 
+        driver.povDown().whileTrue(
+            new SnapToHubCommand(
+                drivetrain,
+                vision,
+                () -> -driver.getLeftY() * MaxSpeed,
+                () -> -driver.getLeftX() * MaxSpeed
+            )
+        );
+
         final var idle = new SwerveRequest.Idle();
         RobotModeTriggers.disabled().whileTrue(
             drivetrain.applyRequest(() -> idle).ignoringDisable(true)
@@ -109,6 +120,34 @@ public class RobotContainer {
         driver.start().onTrue(drivetrain.runOnce(drivetrain::seedFieldCentric));
 
         drivetrain.registerTelemetry(logger::telemeterize);
+
+        // ===== MegaTag2 Vision Pose Estimation =====
+        // The telemetry callback runs every odometry loop (~250Hz on CANivore),
+        // so this is the right place to both push orientation and consume the pose.
+        drivetrain.registerTelemetry(state -> {
+            // 1. Give the Limelight the current gyro yaw so MegaTag2 can use it
+            vision.setRobotOrientation(state.Pose.getRotation().getDegrees());
+
+            // 2. If we have a valid estimate, feed it to the pose estimator
+            if (vision.hasMegaTag2Estimate()) {
+                double dist = vision.getMegaTag2AvgTagDist();
+
+                // Trust scales quadratically with distance.
+                // At 1m: xyStd = 0.5. At 3m: xyStd = 4.5.
+                // Increase the multiplier (0.5) if vision is jerking the pose around.
+                double xyStdDev = 0.5 * dist * dist;
+
+                // Don't correct rotation — MegaTag2 derives it from YOUR gyro,
+                // so feeding it back would create a feedback loop.
+                double rotStdDev = 9999999.0;
+
+                drivetrain.addVisionMeasurement(
+                    vision.getMegaTag2Pose(),
+                    vision.getMegaTag2Timestamp(),
+                    edu.wpi.first.math.VecBuilder.fill(xyStdDev, xyStdDev, rotStdDev)
+                );
+            }
+        });
 
         // =====================================================================
         // DRIVER CONTROLLER (Port 0) - Shooter
@@ -126,6 +165,7 @@ public class RobotContainer {
         //     )
         // );
 
+<<<<<<< Updated upstream
         // Face buttons select and latch preset (selection sticks after button released).
         // A = CLOSE, B = TRENCH, X = TOWER, Y = FAR
         // Right Bumper = PASS
@@ -139,6 +179,28 @@ public class RobotContainer {
 
         // TODO: Test the air popper command while running the intake.
         // operator.b().whileTrue(FuelCommands.runAirPopper(indexer, shooter).alongWith(intake.intakeFuel())); 
+=======
+        // X Button: Full auto hub shot — snaps to hub, interpolates RPM + hood from distance,
+        // feeds only when aligned AND shooter is ready.
+        driver.x().whileTrue(new AutoHubShootCommand(
+            drivetrain,
+            vision,
+            shooter,
+            indexer,
+            () -> -driver.getLeftY() * MaxSpeed,
+            () -> -driver.getLeftX() * MaxSpeed
+        ));
+
+        // POV Right: Cycle to next preset (Close → Tower → Trench → Pass → Far → Close).
+        // POV Left:  Cycle to previous preset (Close → Far → Pass → Trench → Tower → Close).
+
+        // POV Right: Cycle to next preset (Close → Tower → Trench → Pass → Far → Close).
+        // POV Left:  Cycle to previous preset (Close → Far → Pass → Trench → Tower → Close).
+        // Selected preset is published to Shooter/SelectedPreset on NetworkTables / Elastic.
+        // No subsystem requirement — safe to press while trigger is held without interrupting a shot.
+        driver.povRight().onTrue(Commands.runOnce(shooter::cyclePresetForward));
+        driver.povLeft().onTrue(Commands.runOnce(shooter::cyclePresetBackward));
+>>>>>>> Stashed changes
 
         // =====================================================================
         // DRIVER CONTROLLER (Port 0) - Intake
