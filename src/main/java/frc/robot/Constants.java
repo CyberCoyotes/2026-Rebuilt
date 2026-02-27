@@ -116,6 +116,47 @@ public final class Constants {
 
     /** WCP ThroughBore Encoder powered by CANcoder for measuring hood position */
     public static final int HOOD_POSE_ENCODER_ID = 46;
+
+    //=== Constants ===
+    //Flywheel
+    public static final double MAX_FLYWHEEL_RPM = 6380.0;
+    public static final double IDLE_RPM = 0;
+
+    /** TODO tune RPMs for flywheel without excessive current draw
+     * Add an end of line comment `Tuned` when each is verified */
+    public static final double POPPER_RPM  = 800; // TODO: Tune
+    public static final double STANDBY_RPM = 1000; //
+    public static final double CLOSE_RPM   = 2750; //
+    public static final double TOWER_RPM   = 3200; // TODO: Tune was 3100, 4.42
+    public static final double TRENCH_RPM  = 3200; // TODO: Tune
+    public static final double FAR_RPM     = 3800; // TODO: Tune was 4000 + 5.5 worked
+    public static final double PASS_RPM    = 4000; //
+
+    /** Reverse RPM for jam clearing. Only reached through eject(), which gates on EJECT_MAX_ENTRY_RPM. */
+    public static final double EJECT_RPM = -1500;
+    /** Maximum forward flywheel RPM at which EJECT is safe to enter. Prevents violent reversal. */
+    public static final double EJECT_MAX_ENTRY_RPM = 500.0;
+
+    public static final double FLYWHEEL_TOLERANCE_PERCENT = 0.10; // TODO Consider a tighter tolerance than 10%
+
+     // --- Hood (Kraken rotational positions) ---
+    public static final double MIN_HOOD_POSE_ROT  = 0.0;  // Mechanical limit, validate in configs limit
+    public static final double MAX_HOOD_POSE_ROT  = 9.14; // Mechanical limit, validate in configs limit
+    public static final double HOOD_POSE_TOLERANCE = 0.25; // TODO Tune tolerance based on testing — consider a tighter tolerance than 0.25 rotations
+
+    /** TODO tune Hood rotation position values from Kraken encoder for each shot
+     * Consider using WCP Encoder
+     * Add an end of line comment `Tuned` when each is verified */
+    public static final double CLOSE_HOOD  = 0.00; //
+    public static final double POPPER_HOOD  = 8.42; // TODO: Tune
+    public static final double TOWER_HOOD  = 4.30; //
+    public static final double TRENCH_HOOD = 4.30; // TODO: Tune
+    public static final double FAR_HOOD    = 5.50; // TODO: Tune was 4000 + 5.5 worked
+    public static final double PASS_HOOD   = 7.00; //
+
+     // --- Testing Increments ---
+     public static final double HOOD_TEST_INCREMENT         = 0.2;
+     public static final double FLYWHEEL_TEST_INCREMENT_RPM = 100.0;
   }
 
   // =========================================================
