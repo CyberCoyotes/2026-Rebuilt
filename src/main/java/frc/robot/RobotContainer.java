@@ -17,7 +17,10 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.RobotModeTriggers;
 import frc.robot.generated.TunerConstants;
+<<<<<<< HEAD
 import frc.robot.commands.AutoHubShootCommand;
+=======
+>>>>>>> parent of d00b6cc (Added all vision code back into system, tables talking with LL4 OK)
 import frc.robot.commands.FuelCommands;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
 import frc.robot.subsystems.indexer.IndexerSubsystem;
@@ -135,6 +138,7 @@ public class RobotContainer {
             FuelCommands.shootWithSelectedPreset(shooter, indexer)
         );
 
+<<<<<<< HEAD
         // X Button: Full auto hub shot — snaps to hub, interpolates RPM + hood from distance,
         // feeds only when aligned AND shooter is ready.
         driver.x().whileTrue(new AutoHubShootCommand(
@@ -150,6 +154,21 @@ public class RobotContainer {
         // POV Left:  Cycle to previous preset.
         driver.povRight().onTrue(Commands.runOnce(shooter::cyclePresetForward));
         driver.povLeft().onTrue(Commands.runOnce(shooter::cyclePresetBackward));
+=======
+        // Face buttons select and latch preset (selection sticks after button released).
+        // A = CLOSE, B = TRENCH, X = TOWER, Y = FAR
+        // Right Bumper = PASS
+        operator.a().onTrue(Commands.runOnce(() -> shooter.selectPreset(ShooterSubsystem.ShotPreset.CLOSE)));
+        operator.b().onTrue(Commands.runOnce(() -> shooter.selectPreset(ShooterSubsystem.ShotPreset.TRENCH)));
+        operator.x().onTrue(Commands.runOnce(() -> shooter.selectPreset(ShooterSubsystem.ShotPreset.TOWER)));
+        operator.y().onTrue(Commands.runOnce(() -> shooter.selectPreset(ShooterSubsystem.ShotPreset.FAR)));
+        operator.rightBumper().onTrue(Commands.runOnce(() -> shooter.selectPreset(ShooterSubsystem.ShotPreset.PASS)));
+        // TODO: Test the air popper command and tune the popper RPM and hood pose. Consider adding to intakeFuel()
+        operator.a().whileTrue(FuelCommands.runAirPopper(indexer, shooter)); 
+
+        // TODO: Test the air popper command while running the intake.
+        // operator.b().whileTrue(FuelCommands.runAirPopper(indexer, shooter).alongWith(intake.intakeFuel())); 
+>>>>>>> parent of d00b6cc (Added all vision code back into system, tables talking with LL4 OK)
 
         // =====================================================================
         // DRIVER CONTROLLER (Port 0) - Intake
