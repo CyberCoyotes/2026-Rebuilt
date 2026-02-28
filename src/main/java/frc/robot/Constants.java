@@ -38,7 +38,13 @@ public final class Constants {
     // public static final int INTAKE_SLIDE_B__MOTOR_ID = 22; // Not needed
 
     /** Time of Flight sensor - CANrange, confirms fuel presence */
-    // public static final int INTAKE_SENSOR_ID = 41;
+    public static final int INTAKE_SENSOR_ID = 41;
+
+    //=== Constants =====================
+    public static final double SLIDE_RETRACTED_POSITION = 0.0;
+    public static final double SLIDE_EXTENDED_POSITION = 44.40;
+    public static final double SLIDE_MIN_POSITION = 0.0;
+    public static final double SLIDE_MAX_POSITION = 44.454;
   }
 
   // =========================================================
@@ -59,6 +65,33 @@ public final class Constants {
     /** CANrange Time of Flight sensor A - Detects distance -> "fullness" of hopper */
     public static final int HOPPER_A_TOF_ID = 43;
     public static final int HOPPER_B_TOF_ID = 44;
+
+    //=== Voltage Constants =====================
+    public static final double CONVEYOR_FORWARD_VOLTAGE = 4.0;
+    public static final double CONVEYOR_REVERSE_VOLTAGE = -4.0;
+    public static final double CONVEYOR_POPPER_VOLTAGE = 3.0;
+
+    public static final double INDEXER_FORWARD_VOLTAGE = 4.0;
+    public static final double INDEXER_REVERSE_VOLTAGE = -4.0;
+    public static final double INDEXER_POPPER_VOLTAGE = 3.0;
+
+    //=== Hopper Fill Level Distance Constants ===========
+    // MIN = distance (meters) when hopper is packed full (piece right at sensor).
+    // MAX = distance (meters) when hopper is completely empty (far wall or
+    // nothing).
+    //
+    // HOW TO TUNE THESE:
+    // 1. Watch hopperA/BDistanceMeters live in AdvantageScope or Phoenix Tuner X.
+    // 2. Fill the hopper completely → record the distance. That's MIN.
+    // 3. Empty the hopper completely → record the distance. That's MAX.
+    // 4. Update the constants below and rebuild.
+    //
+    // Sensors A and B may differ slightly if they're mounted at different depths.
+    public static final double HOPPER_A_MIN_DISTANCE = 0.02; // TODO: Tune experimentally
+    public static final double HOPPER_A_MAX_DISTANCE = 0.50; // TODO: Tune experimentally
+    public static final double HOPPER_B_MIN_DISTANCE = 0.02; // TODO: Tune experimentally
+    public static final double HOPPER_B_MAX_DISTANCE = 0.50; // TODO: Tune experimentally
+
   }
 
   // =========================================================
@@ -81,6 +114,47 @@ public final class Constants {
 
     /** WCP ThroughBore Encoder powered by CANcoder for measuring hood position */
     public static final int HOOD_POSE_ENCODER_ID = 46;
+
+    //=== Constants ===
+    //Flywheel
+    public static final double MAX_FLYWHEEL_RPM = 6380.0;
+    public static final double IDLE_RPM = 0;
+
+    /** TODO tune RPMs for flywheel without excessive current draw
+     * Add an end of line comment `Tuned` when each is verified */
+    public static final double POPPER_RPM  = 800; // TODO: Tune
+    public static final double STANDBY_RPM = 1000; //
+    public static final double CLOSE_RPM   = 2750; //
+    public static final double TOWER_RPM   = 3200; // TODO: Tune was 3100, 4.42
+    public static final double TRENCH_RPM  = 3200; // TODO: Tune
+    public static final double FAR_RPM     = 3800; // TODO: Tune was 4000 + 5.5 worked
+    public static final double PASS_RPM    = 4000; //
+
+    /** Reverse RPM for jam clearing. Only reached through eject(), which gates on EJECT_MAX_ENTRY_RPM. */
+    public static final double EJECT_RPM = -1500;
+    /** Maximum forward flywheel RPM at which EJECT is safe to enter. Prevents violent reversal. */
+    public static final double EJECT_MAX_ENTRY_RPM = 500.0;
+
+    public static final double FLYWHEEL_TOLERANCE_PERCENT = 0.10; // TODO Consider a tighter tolerance than 10%
+
+     // --- Hood (Kraken rotational positions) ---
+    public static final double MIN_HOOD_POSE_ROT  = 0.0;  // Mechanical limit, validate in configs limit
+    public static final double MAX_HOOD_POSE_ROT  = 9.14; // Mechanical limit, validate in configs limit
+    public static final double HOOD_POSE_TOLERANCE = 0.25; // TODO Tune tolerance based on testing — consider a tighter tolerance than 0.25 rotations
+
+    /** TODO tune Hood rotation position values from Kraken encoder for each shot
+     * Consider using WCP Encoder
+     * Add an end of line comment `Tuned` when each is verified */
+    public static final double CLOSE_HOOD  = 0.00; //
+    public static final double POPPER_HOOD  = 8.42; // TODO: Tune
+    public static final double TOWER_HOOD  = 4.30; //
+    public static final double TRENCH_HOOD = 4.30; // TODO: Tune
+    public static final double FAR_HOOD    = 5.50; // TODO: Tune was 4000 + 5.5 worked
+    public static final double PASS_HOOD   = 7.00; //
+
+     // --- Testing Increments ---
+     public static final double HOOD_TEST_INCREMENT         = 0.2;
+     public static final double FLYWHEEL_TEST_INCREMENT_RPM = 100.0;
   }
 
   // =========================================================
