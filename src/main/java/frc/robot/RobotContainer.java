@@ -114,8 +114,12 @@ public class RobotContainer {
         // =====================================================================
 
         driver.rightTrigger(0.5).whileTrue(
-            FuelCommands.shootWithSelectedPreset(shooter, indexer)
-        );
+            FuelCommands.shootWithSelectedPreset(shooter, indexer));
+        driver.rightBumper().whileTrue(FuelCommands.shootWithSelectedPreset(shooter, indexer)); // command that makes a pass preset shot
+        driver.leftTrigger(0.5).whileTrue(intake.intakeFuel());
+
+        driver.leftBumper().whileTrue(intake.compressFuelIncremental());
+
         // Right Trigger + Vision: Commented out — vision shot disabled for now.
         // driver.rightTrigger(0.5).and(driver.a()).whileTrue(
         //     FuelCommands.visionAlignAndShoot(
@@ -125,31 +129,25 @@ public class RobotContainer {
         //     )
         // );
 
-        // Face buttons select and latch preset (selection sticks after button released).
-        // A = CLOSE, B = TRENCH, X = TOWER, Y = FAR
-        // Right Bumper = PASS
+
+        // =====================================================================
+        // OPERATOR CONTROLLER (Port 1)
+        // =====================================================================
+        
+        operator.rightTrigger().whileTrue(FuelCommands.runAirPopper(indexer, shooter, intake).alongWith(intake.intakeFuel())); 
+        operator.rightBumper().onTrue(Commands.runOnce(() -> shooter.selectPreset(ShooterSubsystem.ShotPreset.PASS)));
+
+        operator.leftTrigger().whileTrue(FuelCommands.runAirPopper(indexer, shooter, intake).alongWith(intake.intakeFuel())); 
+        operator.leftBumper().onTrue(Commands.runOnce(() -> shooter.selectPreset(ShooterSubsystem.ShotPreset.PASS)));
+        
         operator.a().onTrue(Commands.runOnce(() -> shooter.selectPreset(ShooterSubsystem.ShotPreset.CLOSE)));
         operator.b().onTrue(Commands.runOnce(() -> shooter.selectPreset(ShooterSubsystem.ShotPreset.TRENCH)));
         operator.x().onTrue(Commands.runOnce(() -> shooter.selectPreset(ShooterSubsystem.ShotPreset.TOWER)));
         operator.y().onTrue(Commands.runOnce(() -> shooter.selectPreset(ShooterSubsystem.ShotPreset.FAR)));
-        operator.rightBumper().onTrue(Commands.runOnce(() -> shooter.selectPreset(ShooterSubsystem.ShotPreset.PASS)));
-        // TODO: Test the air popper command and tune the popper RPM and hood pose. Consider adding to intakeFuel()
-        // driver.y().whileTrue(FuelCommands.runAirPopper(indexer, shooter)); 
 
-        // TODO: Test the air popper command while running the intake.
-        // operator.b().whileTrue(FuelCommands.runAirPopper(indexer, shooter).alongWith(intake.intakeFuel())); 
-
-        // =====================================================================
-        // DRIVER CONTROLLER (Port 0) - Intake
-        // =====================================================================
-
-        // Left Trigger: Extend slides and run roller while held.
-        // TODO Check if this is proper way to call the command `intakeFuel()` from IntakeSubsytem
-        driver.leftTrigger(0.5).whileTrue(intake.intakeFuel());
-
-        // Left Bumper: Retract slides immediately.
-        driver.leftBumper().whileTrue(intake.compressFuelIncremental()); // TODO: Test
-
+        operator.povUp().whileTrue(null); // incremental extend climber command to be added when climber is ready
+        operator.povDown().whileTrue(null); // incremental retract climber command to be added when climber is ready
+                
     }
 
     public Command getAutonomousCommand() {
