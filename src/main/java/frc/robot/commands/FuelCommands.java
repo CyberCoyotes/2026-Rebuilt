@@ -581,8 +581,8 @@ public class FuelCommands {
             double feedSeconds) {
         return Commands.sequence(
                 Commands.runOnce(() -> {
-                    shooter.setTargetVelocity(ShooterSubsystem.TRENCH_RPM);
-                    shooter.setTargetHoodPose(ShooterSubsystem.TRENCH_HOOD);
+                    shooter.setTargetVelocity(Constants.Shooter.TRENCH_RPM);
+                    shooter.setTargetHoodPose(Constants.Shooter.TRENCH_HOOD);
                     shooter.prepareToShoot();
                 }, shooter),
                 Commands.waitUntil(shooter::isReady).withTimeout(3.0),
@@ -602,8 +602,8 @@ public class FuelCommands {
             double feedSeconds) {
         return Commands.sequence(
                 Commands.runOnce(() -> {
-                    shooter.setTargetVelocity(ShooterSubsystem.CLOSE_RPM);
-                    shooter.setTargetHoodPose(ShooterSubsystem.CLOSE_HOOD);
+                    shooter.setTargetVelocity(Constants.Shooter.CLOSE_RPM);
+                    shooter.setTargetHoodPose(Constants.Shooter.CLOSE_HOOD);
                     shooter.prepareToShoot();
                 }, shooter),
                 Commands.waitUntil(shooter::isReady).withTimeout(3.0),
@@ -623,8 +623,8 @@ public class FuelCommands {
             double feedSeconds) {
         return Commands.sequence(
                 Commands.runOnce(() -> {
-                    shooter.setTargetVelocity(ShooterSubsystem.TOWER_RPM);
-                    shooter.setTargetHoodPose(ShooterSubsystem.TOWER_HOOD);
+                    shooter.setTargetVelocity(Constants.Shooter.TOWER_RPM);
+                    shooter.setTargetHoodPose(Constants.Shooter.TOWER_HOOD);
                     shooter.prepareToShoot();
                 }, shooter),
                 Commands.waitUntil(shooter::isReady).withTimeout(3.0),
@@ -643,8 +643,8 @@ public class FuelCommands {
             double feedSeconds) {
         return Commands.sequence(
                 Commands.runOnce(() -> {
-                    shooter.setTargetVelocity(ShooterSubsystem.FAR_RPM);
-                    shooter.setTargetHoodPose(ShooterSubsystem.FAR_HOOD);
+                    shooter.setTargetVelocity(Constants.Shooter.FAR_RPM);
+                    shooter.setTargetHoodPose(Constants.Shooter.FAR_HOOD);
                     shooter.prepareToShoot();
                 }, shooter),
                 Commands.waitUntil(shooter::isReady).withTimeout(3.0),
