@@ -543,7 +543,29 @@ public class FuelCommands {
             shooter.setIdle();
         });
     } // end of command
-
+ public static Command shootTren(ShooterSubsystem shooter, IndexerSubsystem indexer,
+                double feedSeconds) {
+            return Commands.sequence(
+                    Commands.runOnce(() -> {
+                        shooter.setTargetVelocity(Constants.Shooter.TRENCH_RPM);
+                        shooter.setTargetHoodPose(Constants.Shooter.TRENCH_HOOD);
+                        shooter.prepareToShoot();
+                    }, shooter),
+                    Commands.waitUntil(shooter::isReady).withTimeout(3.0),
+                    Commands.run(() -> {
+                        indexer.indexerForward();
+                        indexer.conveyorForward();
+                    }, indexer).withTimeout(feedSeconds), // primary end trigger: timeout
+                    // Feed until chute goes quiet for 2s (with safety timeout)
+                    indexer.feed().until(indexer::donePassingFuel)
+                    // This is likely redundant with the feed().until() end condition, but it's a
+                    // good safety net in case of sensor issues or unexpected game piece behavior.
+            ).finallyDo(() -> {
+                indexer.indexerStop();
+                indexer.conveyorStop();
+                shooter.setIdle();
+            }).withName("ShootTrenchAuton");
+        }
 } // end of class Auto
 
 } // end of class FuelCommands

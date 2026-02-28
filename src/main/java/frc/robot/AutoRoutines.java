@@ -90,13 +90,13 @@ public class AutoRoutines {
                         Commands.sequence(
                                 StartRMid.resetOdometry(), // Always reset odometry first
                                 StartRMid.cmd(), //Follow the path
-                                m_drivetrain.stop().withTimeout(3),
+                                // m_drivetrain.stop().withTimeout(3),
                                  StartRMid2.cmd(),
-                                 StartRMid3.cmd()
+                                StartRMid3.cmd()
 
                         ));
                  StartRMid.atTime("Shoot").onTrue(FuelCommands.Auto.shootTrench(m_shooter, m_indexer, 3)); //score
-                // DefaultRightV2.atTime("Intake").onTrue(IntakeSubsystem.intakeFuel(m_shooter, m_indexer)); //score
+                //  StartRMid.atTime("Intake").onTrue(m_intake.intakeFuelAuton(3)); //score
 
 
                 // Consider using m_commandGroups.autoIntakeCoral(m_indexerCommands, m_shooterCommands,/*m_wrist*/);
@@ -112,11 +112,31 @@ public class AutoRoutines {
                         Commands.sequence(
                                 TestRoutine.resetOdometry(), // Always reset odometry first
                                 TestRoutine.cmd(), //Follow the path
-                                m_drivetrain.stop().withTimeout(10.0)//,
-                                // TestRountine2.cmd()
+                                m_drivetrain.stop().withTimeout(10.0),
+                                TestRountine2.cmd()
 
                         ));
                 TestRoutine.atTime("Shoot").onTrue(FuelCommands.Auto.shootHub(m_shooter, m_indexer, 3.0)); //score
+                // Dummy.atTime("Intake").onTrue(IntakeSubsystem.intakeFuel(m_shooter, m_indexer)); //score
+
+
+                // Consider using m_commandGroups.autoIntakeCoral(m_indexerCommands, m_shooterCommands,/*m_wrist*/);
+                return routine;
+        }
+         public AutoRoutine TestRoutineR() {
+                 final AutoRoutine routine = m_factory.newRoutine("TestRoutineR");
+                final AutoTrajectory TestRoutineR = routine.trajectory("TestRoutineR", 0);
+                final AutoTrajectory TestRountineR2 = routine.trajectory("TestRoutineR", 1);
+
+                routine.active().onTrue(
+                        Commands.sequence(
+                                TestRoutineR.resetOdometry(), // Always reset odometry first
+                                TestRoutineR.cmd(), //Follow the path
+                                m_drivetrain.stop().withTimeout(10.0),
+                                TestRountineR2.cmd()
+
+                        ));
+                TestRoutineR.atTime("Shoot").onTrue(FuelCommands.Auto.shootTren(m_shooter, m_indexer, 3.0)); //score
                 // Dummy.atTime("Intake").onTrue(IntakeSubsystem.intakeFuel(m_shooter, m_indexer)); //score
 
 

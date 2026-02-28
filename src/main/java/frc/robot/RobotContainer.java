@@ -80,6 +80,7 @@ public class RobotContainer {
         autoChooser.addRoutine("Lob", autoRoutines::Lob);
         autoChooser.addRoutine("StartRight goes to middle", autoRoutines::StartRMid);
         autoChooser.addRoutine("Test(center shot)", autoRoutines::TestRoutine);
+        autoChooser.addRoutine("Test(Right shot)", autoRoutines::TestRoutineR);
         
         SmartDashboard.putData("AutoChooser", autoChooser);
         configureBindings();
@@ -115,7 +116,7 @@ public class RobotContainer {
 
         driver.rightTrigger(0.5).whileTrue(
             FuelCommands.shootWithSelectedPreset(shooter, indexer));
-            
+
         driver.rightBumper().whileTrue(FuelCommands.shootWithSelectedPreset(shooter, indexer)); // command that makes a pass preset shot
         
         driver.leftTrigger(0.5).whileTrue(intake.intakeFuel());
