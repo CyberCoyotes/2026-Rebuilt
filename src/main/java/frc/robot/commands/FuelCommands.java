@@ -11,7 +11,6 @@ import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
 import frc.robot.subsystems.vision.VisionSubsystem;
 import frc.robot.subsystems.indexer.IndexerSubsystem;
-import frc.robot.subsystems.intake.IntakeSubsystem;
 import frc.robot.subsystems.shooter.ShooterSubsystem;
 import frc.robot.subsystems.shooter.ShooterSubsystem.ShotPreset;
 
@@ -327,53 +326,6 @@ public class FuelCommands {
         ).withName("EjectShooter");
     }
 
-     /**
-     * Air popper assist _without_ intake.
-     *
-     * Holds the shooter at POPPER preset while feeding the indexer/conveyor.
-     * Use when an intake command is already being scheduled elsewhere.
-     */
-    public static Command runAirPopperTest(IndexerSubsystem indexer, ShooterSubsystem shooter) {
-        return Commands.sequence(
-                Commands.runOnce(() -> {
-                    shooter.setAirPopper();
-                    shooter.prepareToShoot();
-                }, shooter),
-                Commands.deadline(
-                        indexer.feed(),
-                        Commands.run(() -> {
-                        }, shooter))).finallyDo(() -> {
-                            indexer.indexerStop();
-                            indexer.conveyorStop();
-                            shooter.setIdle();
-                        }).withName("RunAirPopper");
-    }
-
-    /**
-     * Air popper assist with intake.
-     *
-     * While held: runs intake + indexer feed while shooter stays in POPPER preset.
-     */
-    public static Command runAirPopper(IndexerSubsystem indexer, ShooterSubsystem shooter,
-            IntakeSubsystem intake) {
-        return Commands.sequence(
-                Commands.runOnce(() -> {
-                    shooter.setAirPopper();
-                    shooter.prepareToShoot();
-                }, shooter),
-                Commands.deadline(
-                        Commands.parallel(
-                                intake.intakeFuel(),
-                                indexer.feed()),
-                        Commands.run(() -> {
-                        }, shooter))).finallyDo(() -> {
-                            indexer.indexerStop();
-                            indexer.conveyorStop();
-                            shooter.setIdle();
-                        }).withName("RunAirPopperWithIntake");
-    }
-
-
     /**
      * Creates a command to shoot using vision-based distance calculation.
      *
@@ -580,31 +532,28 @@ public class FuelCommands {
     // .withName("ReturnToStandby");
     // }
 
+    /*
+     * Run IndexerSubsystem convevor forward to assist with feeding into the hopper
+     * Run IndexerSubsystem indexer forward to assist with feeding into the hopper
+     * Set ShooterSubsystem to popper preset (low RPM + hood at minimum pose) to
+     * assist with loading fuel into the hopper
+     */
+
+    // Run IndexerSubsystem conveyorforward, IndexerSubsystem indexer, and
+    // ShooterSubsystem flywheel in parallel */
+    // public static Command runAirPopper(IndexerSubsystem indexer, ShooterSubsystem
+    // shooter) {
+    // return Commands.runOnce(() -> {
+    // shooter.setAirPopper();
+    // shooter.prepareToShoot();
+    // } shooter),
+    // Commands.waitUntil(shooter::isReady),
 
     // Commands.run(() -> {indexer.feed();
     // }, indexer); // .withName() on the outer command
     // }
-    public static Command shootTrench(ShooterSubsystem shooter, IndexerSubsystem indexer,
-            double feedSeconds) {
-        return Commands.sequence(
-                Commands.runOnce(() -> {
-                    shooter.setTargetVelocity(ShooterSubsystem.TRENCH_RPM);
-                    shooter.setTargetHoodPose(ShooterSubsystem.TRENCH_HOOD);
-                    shooter.prepareToShoot();
-                }, shooter),
-                Commands.waitUntil(shooter::isReady).withTimeout(3.0),
-                Commands.run(() -> {
-                    indexer.indexerForward();
-                    indexer.conveyorForward();
-                }, indexer).withTimeout(feedSeconds) // primary end trigger: timeout
-        ).finallyDo(() -> {
-            indexer.indexerStop();
-            indexer.conveyorStop();
-            shooter.setIdle();
-        });
 
-    } // end of command shootTrenchPose
-    //========================================================================
+    // ========================================================================
     // AUTONOMOUS SHOOTING COMMANDS
     // ========================================================================
     public static class Auto {
