@@ -48,11 +48,15 @@ public class ShooterIOHardware implements ShooterIO {
     /** Config for Motor A (leader) — runs velocity closed-loop with PID and ramp. */
     // TODO: Dial in competition current limits and ramps
     static TalonFXConfiguration test() {
+
       TalonFXConfiguration config = leader();
 
-      config.CurrentLimits.SupplyCurrentLimit = 60.0;
+      // On 2/27 was set at 60
+      config.CurrentLimits.SupplyCurrentLimit = 45.0; // TODO: Tune Flywheel supply current limit for testing.
       config.CurrentLimits.SupplyCurrentLimitEnable = true;
-      config.CurrentLimits.StatorCurrentLimit = 120.0;
+
+      // On 2/27 was set at 120
+      config.CurrentLimits.StatorCurrentLimit = 90.0; // TODO: Tune Flywheel stator current limit for testing.
       config.CurrentLimits.StatorCurrentLimitEnable = true;
       config.ClosedLoopRamps.VoltageClosedLoopRampPeriod = 0.5;
 
@@ -72,9 +76,9 @@ public class ShooterIOHardware implements ShooterIO {
       config.MotorOutput.NeutralMode = NeutralModeValue.Coast;
       config.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
 
-      config.CurrentLimits.SupplyCurrentLimit = 60.0;
+      config.CurrentLimits.SupplyCurrentLimit = 45.0;
       config.CurrentLimits.SupplyCurrentLimitEnable = true;
-      config.CurrentLimits.StatorCurrentLimit = 120.0;
+      config.CurrentLimits.StatorCurrentLimit = 90.0;
       config.CurrentLimits.StatorCurrentLimitEnable = true;
 
       // No ramp period — leader controls the ramp, followers just mirror output
@@ -94,12 +98,12 @@ public class ShooterIOHardware implements ShooterIO {
       config.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
 
       // Slot 0 — VelocityVoltage gains (kP in Volts/RPS)
-      config.Slot0.kP = 0.12; // TODO: Tune
-      config.Slot0.kV = 0.12; // TODO: Tune
+      config.Slot0.kP = 0.12; // TODO: Tune kP
+      config.Slot0.kV = 0.12; // TODO: Tune kV
 
       // Slot 1 — VelocityTorqueCurrentFOC gains (kP in Amps/RPS — different units, retune separately)
-      config.Slot1.kP = 5.0;  // TODO: Tune — starting point for torque current; units are Amps not Volts
-      config.Slot1.kV = 0.12; // TODO: Tune
+      config.Slot1.kP = 5.0;  // TODO: Tune kP starting point for torque current; units are Amps not Volts
+      config.Slot1.kV = 0.12; // TODO: Tune kV
 
       return config;
     }
@@ -124,13 +128,13 @@ public class ShooterIOHardware implements ShooterIO {
       config.CurrentLimits.SupplyCurrentLimitEnable = true;
 
       // Position PID — Slot 0
-      config.Slot0.kP = 1.0;  // TODO: Tune
-      config.Slot0.kI = 0.75; // TODO: Tune
-      config.Slot0.kD = 0.0;
+      config.Slot0.kP = 1.00;  // TODO: Tune kP
+      config.Slot0.kI = 0.75; // TODO: Tune kI
+      config.Slot0.kD = 0.00;  // TODO: Tune kD
 
       // Soft limits — enable after travel range is confirmed
       config.SoftwareLimitSwitch.ForwardSoftLimitEnable = true;
-      config.SoftwareLimitSwitch.ForwardSoftLimitThreshold = 9.15; // raw units
+      config.SoftwareLimitSwitch.ForwardSoftLimitThreshold = 9.15; // Raw rotational units
       config.SoftwareLimitSwitch.ReverseSoftLimitEnable = true;
       config.SoftwareLimitSwitch.ReverseSoftLimitThreshold = 0.0;
 
