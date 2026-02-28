@@ -12,7 +12,7 @@ import frc.robot.subsystems.CommandSwerveDrivetrain;
 import frc.robot.subsystems.indexer.IndexerSubsystem;
 import frc.robot.subsystems.shooter.ShooterSubsystem;
 import frc.robot.subsystems.shooter.ShooterSubsystem.ShotPreset;
-import frc.robot.subsystems.vision.Archived.VisionSubsystem_Scoy;
+import frc.robot.subsystems.vision.VisionSubsystem;
 
 import java.util.function.DoubleSupplier;
 
@@ -26,9 +26,8 @@ import static edu.wpi.first.units.Units.MetersPerSecond;
  *
  * Current Test Shot Flow:
  * - Select a preset with POV left/right (sets target RPM + hood, but does not move yet)
- * - Driver holds shoot trigger;flywheel ramps to target, hood moves, waits until ready, feeds
- * - Driver releases trigger; returns to IDLE (TODO: STANDBY once spin logic validated)
- *
+ * - Driver holds shoot trigger; flywheel ramps to target, hood moves, waits until ready, feeds
+ * - Driver releases trigger; returns to IDLE
  */
 public class FuelCommands {
 
@@ -37,13 +36,13 @@ public class FuelCommands {
     // =========================================================================
 
     /**
-     * Shoots at whatever preset is currently armed (set by A/X/B).
+     * Shoots at whatever preset is currently armed (set by POV cycling).
      *
      * Behavior:
      * - Transitions shooter to READY — flywheel ramps to target RPM, hood moves to target angle
      * - Waits until both flywheel and hood are at target (isReady())
      * - Runs indexer and conveyor to feed the game piece
-     * - On button release, stops indexer and returns shooter to SPINUP at IDLE_RPM
+     * - On button release, stops indexer and returns shooter to IDLE
      *
      * Use with whileTrue() on the shoot trigger.
      *
@@ -62,12 +61,12 @@ public class FuelCommands {
         ).finallyDo(() -> {
             indexer.indexerStop();
             indexer.conveyorStop();
-            shooter.setIdle(); // Stop all flywheel motors on trigger release
+            shooter.setIdle();
         }).withName("ShootAtCurrentTarget");
     }
 
     // =========================================================================
-    // PRESET SHOOT COMMANDS (pseudo-superstructure — requires shooter + indexer)
+    // PRESET SHOOT COMMANDS
     // =========================================================================
 
     /**
@@ -78,7 +77,7 @@ public class FuelCommands {
      *   2. Calls prepareToShoot() — flywheel ramps up, hood moves to target
      *   3. Waits until both are at target (isReady()), with a 3-second safety timeout
      *   4. Runs indexer and conveyor forward to feed the game piece
-     *   5. On trigger release (whileTrue interrupt): stops indexer/conveyor, returns shooter to standby
+     *   5. On trigger release (whileTrue interrupt): stops indexer/conveyor, returns shooter to idle
      *
      * Use with whileTrue() on the shoot trigger.
      *
@@ -104,15 +103,12 @@ public class FuelCommands {
         ).finallyDo(() -> {
             indexer.indexerStop();
             indexer.conveyorStop();
-            shooter.setIdle(); // Stop all flywheel motors on trigger release
+            shooter.setIdle();
         }).withName("ShootWithPreset[" + rpm + "rpm]");
     }
 
     /**
      * Autonomous-friendly preset shoot command using a named ShotPreset enum value.
-     *
-     * Ends via timeout (primary) — the {@code waitForReady} flag is reserved for future
-     * use once sensor-based game-piece detection is available.
      *
      * Flow:
      *   1. Arms the given preset (RPM + hood) silently
@@ -121,18 +117,11 @@ public class FuelCommands {
      *   4. Runs indexer and conveyor for {@code feedSeconds} to deliver the game piece
      *   5. Stops indexer/conveyor and returns shooter to idle
      *
-     * Typical auton usage:
-     * <pre>
-     *   FuelCommands.shootPresetAuton(shooter, indexer, ShotPreset.TRENCH, 1.0)
-     * </pre>
-     *
      * @param shooter      The shooter subsystem
      * @param indexer      The indexer subsystem
      * @param preset       The named shot preset (TRENCH, CLOSE, TOWER, …)
-     * @param feedSeconds  How long to run the indexer/conveyor after ready; acts as the
-     *                     end trigger (timeout). Tune per game-piece count needed.
-     * @param waitForReady Reserved for future use — when true, will gate the feed on a
-     *                     game-piece sensor rather than a timer. Pass {@code false} for now.
+     * @param feedSeconds  How long to run the indexer/conveyor after ready
+     * @param waitForReady Reserved for future use — pass {@code false} for now
      * @return Complete autonomous shoot sequence
      */
     public static Command shootPresetAuton(ShooterSubsystem shooter, IndexerSubsystem indexer,
@@ -148,7 +137,7 @@ public class FuelCommands {
             Commands.run(() -> {
                 indexer.indexerForward();
                 indexer.conveyorForward();
-            }, indexer).withTimeout(feedSeconds) // primary end trigger: timeout
+            }, indexer).withTimeout(feedSeconds)
         ).finallyDo(() -> {
             indexer.indexerStop();
             indexer.conveyorStop();
@@ -158,7 +147,6 @@ public class FuelCommands {
 
     /**
      * Autonomous: shoot using the TRENCH preset.
-     * Ends after {@code feedSeconds} of feed time (timeout).
      *
      * @param shooter     The shooter subsystem
      * @param indexer     The indexer subsystem
@@ -173,7 +161,6 @@ public class FuelCommands {
 
     /**
      * Autonomous: shoot using the CLOSE preset.
-     * Ends after {@code feedSeconds} of feed time (timeout).
      *
      * @param shooter     The shooter subsystem
      * @param indexer     The indexer subsystem
@@ -188,7 +175,6 @@ public class FuelCommands {
 
     /**
      * Autonomous: shoot using the TOWER preset.
-     * Ends after {@code feedSeconds} of feed time (timeout).
      *
      * @param shooter     The shooter subsystem
      * @param indexer     The indexer subsystem
@@ -203,20 +189,16 @@ public class FuelCommands {
 
     /**
      * Full shoot sequence using the preset currently selected via POV left/right cycling.
-     * Defaults to the CLOSE preset (Close RPM + Close hood) on robot startup.
+     * Defaults to the CLOSE preset on robot startup.
      *
-     * This is the primary driver RT command — a pseudo-superstructure command that
-     * coordinates shooter and indexer in a single command.
+     * This is the primary driver RT command.
      *
      * Flow:
      *   1. Arms the selected preset (RPM + hood) silently
      *   2. Calls prepareToShoot() — flywheel ramps up, hood moves to target
      *   3. Waits until both are at target (isReady()), with a 3-second safety timeout
      *   4. Runs indexer and conveyor forward to feed the game piece
-     *   5. On trigger release (whileTrue interrupt): stops indexer/conveyor, returns to standby
-     *
-     * Cycle the selected preset with POV left/right on the driver controller.
-     * The active preset name is published to Shooter/SelectedPreset on NetworkTables for Elastic.
+     *   5. On trigger release: stops indexer/conveyor, returns to idle
      *
      * Use with whileTrue() on the shoot trigger.
      *
@@ -238,19 +220,16 @@ public class FuelCommands {
         ).finallyDo(() -> {
             indexer.indexerStop();
             indexer.conveyorStop();
-            shooter.setIdle(); // Stop all flywheel motors on trigger release
+            shooter.setIdle();
         }).withName("ShootWithSelectedPreset");
     }
 
     // =========================================================================
-    // SILENT PRESET COMMANDS (A / X / B)
+    // SILENT PRESET COMMANDS (POV left/right)
     // =========================================================================
-    // These only update the target RPM and hood angle.
-    // No motors move until the shoot trigger is pressed.
 
     /**
-     * Silently arms close shot targets (CLOSE_SHOT_RPM + CLOSE_SHOT_HOOD).
-     * No motor movement. Use with onTrue().
+     * Silently arms close shot targets. No motor movement. Use with onTrue().
      *
      * @param shooter The shooter subsystem
      * @return Command that silently sets close shot targets
@@ -261,8 +240,7 @@ public class FuelCommands {
     }
 
     /**
-     * Silently arms far shot targets (FAR_SHOT_RPM + FAR_SHOT_HOOD).
-     * No motor movement. Use with onTrue().
+     * Silently arms far shot targets. No motor movement. Use with onTrue().
      *
      * @param shooter The shooter subsystem
      * @return Command that silently sets far shot targets
@@ -273,8 +251,7 @@ public class FuelCommands {
     }
 
     /**
-     * Silently arms pass shot targets (PASS_SHOT_RPM + PASS_SHOT_HOOD).
-     * No motor movement. Use with onTrue().
+     * Silently arms pass shot targets. No motor movement. Use with onTrue().
      *
      * @param shooter The shooter subsystem
      * @return Command that silently sets pass shot targets
@@ -290,9 +267,8 @@ public class FuelCommands {
 
     /**
      * Increases the target hood pose by the provided increment.
-     * If shooter is already in READY state, hood moves immediately.
      *
-     * @param shooter The shooter subsystem
+     * @param shooter   The shooter subsystem
      * @param increment Rotations to increase (positive value expected)
      * @return Command that adjusts target hood pose upward
      */
@@ -303,9 +279,8 @@ public class FuelCommands {
 
     /**
      * Decreases the target hood pose by the provided increment.
-     * If shooter is already in READY state, hood moves immediately.
      *
-     * @param shooter The shooter subsystem
+     * @param shooter   The shooter subsystem
      * @param increment Rotations to decrease (positive value expected)
      * @return Command that adjusts target hood pose downward
      */
@@ -319,11 +294,11 @@ public class FuelCommands {
     // =========================================================================
 
     /**
-     * Creates a command to increase target flywheel RPM by the provided increment.
+     * Increases target flywheel RPM by the provided increment.
      *
-     * @param shooter The shooter subsystem
+     * @param shooter      The shooter subsystem
      * @param incrementRPM RPM delta to apply
-     * @return Command that adjusts target flywheel velocity
+     * @return Command that adjusts target flywheel velocity upward
      */
     public static Command increaseTargetVelocity(ShooterSubsystem shooter, double incrementRPM) {
         return Commands.runOnce(() -> shooter.adjustTargetVelocity(Math.abs(incrementRPM)), shooter)
@@ -331,11 +306,11 @@ public class FuelCommands {
     }
 
     /**
-     * Creates a command to decrease target flywheel RPM by the provided increment.
+     * Decreases target flywheel RPM by the provided increment.
      *
-     * @param shooter The shooter subsystem
+     * @param shooter      The shooter subsystem
      * @param decrementRPM RPM delta to apply
-     * @return Command that adjusts target flywheel velocity
+     * @return Command that adjusts target flywheel velocity downward
      */
     public static Command decreaseTargetVelocity(ShooterSubsystem shooter, double decrementRPM) {
         return Commands.runOnce(() -> shooter.adjustTargetVelocity(-Math.abs(decrementRPM)), shooter)
@@ -343,10 +318,9 @@ public class FuelCommands {
     }
 
     /**
-     * Creates a command to eject jammed game pieces.
-     * Reverses flywheel for a duration then returns to SPINUP.
+     * Ejects jammed game pieces by reversing the flywheel for a duration.
      *
-     * @param shooter The shooter subsystem
+     * @param shooter         The shooter subsystem
      * @param durationSeconds How long to eject
      * @return Command that ejects then returns to idle
      */
@@ -354,124 +328,37 @@ public class FuelCommands {
         return Commands.sequence(
             Commands.runOnce(shooter::eject, shooter),
             Commands.waitSeconds(durationSeconds)
-            // Commands.runOnce(shooter::returnToStandby, shooter) // TODO: Do not use right now **EXPERIMENTAL**
         ).withName("EjectShooter");
     }
 
-    /**
-     * Creates a command to shoot using vision-based distance calculation.
-     *
-     * @param shooter The shooter subsystem
-     * @param vision The vision subsystem
-     * @return Command that uses vision for aiming
-     */
-    public static Command visionShot(ShooterSubsystem shooter, VisionSubsystem_Scoy vision) {
-        return Commands.sequence(
-            Commands.runOnce(() -> {
-                double distance = vision.getDistanceToTargetMeters();
-                shooter.updateFromDistance(distance);
-                shooter.prepareToShoot();
-            }, shooter, vision),
-            Commands.waitUntil(shooter::isReady)
-        ).withTimeout(3.0)
-         .withName("VisionShot");
-    }
-
-    /**
-     * Creates a command to continuously update shooter based on vision.
-     *
-     * @param shooter The shooter subsystem
-     * @param vision The vision subsystem
-     * @return Command that continuously tracks target
-     */
-    public static Command trackTarget(ShooterSubsystem shooter, VisionSubsystem_Scoy vision) {
-        return Commands.run(() -> {
-            if (vision.hasTarget()) {
-                double distance = vision.getDistanceToTargetMeters();
-                shooter.updateFromDistance(distance);
-            }
-        }, shooter, vision)
-        .withName("TrackTarget");
-    }
-
-    /**
-     * Creates a complete shoot sequence with indexer coordination.
-     *
-     * @param shooter The shooter subsystem
-     * @param indexer The indexer subsystem
-     * @param velocityRPM Target flywheel velocity
-     * @param hoodAngleDegrees Target hood angle
-     * @return Complete shooting sequence
-     */
-    public static Command shootSequence(ShooterSubsystem shooter, IndexerSubsystem indexer,
-                                        double velocityRPM, double hoodAngleDegrees) {
-        return Commands.sequence(
-            Commands.runOnce(() -> {
-                shooter.setTargetVelocity(velocityRPM);
-                shooter.setTargetHoodPose(hoodAngleDegrees);
-                shooter.prepareToShoot();
-            }, shooter),
-            Commands.waitUntil(shooter::isReady).withTimeout(3.0)
-            // IndexerCommands.feedTimed(indexer, 0.5), // FIXME to use the IndexerSubsystem's feed method instead of a command from IndexerCommands
-            // Commands.runOnce(shooter::returnToStandby, shooter) // TODO: Do not use right now **EXPERIMENTAL**
-        ).withName("ShootSequence");
-    }
-
-    /**
-     * Creates a vision-based shoot sequence with indexer coordination.
-     *
-     * @param shooter The shooter subsystem
-     * @param vision The vision subsystem
-     * @param indexer The indexer subsystem
-     * @return Vision-based shooting sequence
-     */
-    public static Command visionShootSequence(ShooterSubsystem shooter, VisionSubsystem_Scoy vision,
-                                              IndexerSubsystem indexer) {
-        return Commands.sequence(
-            Commands.waitUntil(vision::hasTarget).withTimeout(1.0),
-            visionShot(shooter, vision)
-            // IndexerCommands.feedTimed(indexer, 0.5), // FIXME to use the IndexerSubsystem's feed method instead of a command from IndexerCommands
-            // Commands.runOnce(shooter::returnToStandby, shooter)
-        ).withName("VisionShootSequence");
-    }
-
     // =========================================================================
-    // VISION ALIGN AND SHOOT (primary match command)
+    // VISION ALIGN AND SHOOT
     // =========================================================================
 
     /**
-     * Combined vision-targeting and shooting command. Intended as the primary RT binding.
+     * Combined vision-targeting and shooting command. Intended as the primary RT binding
+     * when vision alignment is desired.
      *
      * Behavior (all while trigger held):
      *   1. Arms the current POV-selected preset immediately as a fallback baseline.
-     *   2. Continuously looks for the nearest hub AprilTag (alliance-aware).
-     *   3. If a hub tag is visible (or in grace period): updates flywheel RPM and
-     *      hood position from the distance interpolation table every cycle.
-     *   4. Overrides drivetrain rotation with a P-controller on tx (horizontal angle),
-     *      while still allowing the driver to translate freely with the left stick.
-     *   5. Fires the indexer and conveyor as soon as vision reports aligned AND
-     *      shooter reports ready.  Stops feeding if either condition is lost.
-     *   6. On trigger release: stops indexer, conveyor, and shooter.
+     *   2. Continuously updates flywheel RPM and hood from the distance-to-hub table every cycle.
+     *   3. Overrides drivetrain rotation using getAngleToHub() (pose-based, no raw tx needed).
+     *   4. Fires the indexer and conveyor as soon as the robot is aligned AND shooter is ready.
+     *   5. On trigger release: stops indexer, conveyor, and shooter.
      *
-     * Subsystem requirements: shooter, vision, indexer, drivetrain
-     *   → interrupts the default drive command for the duration of the trigger hold.
+     * Subsystem requirements: shooter, vision, indexer, drivetrain.
      *
-     * Tuning handles:
-     *   - Constants.Vision.ROTATIONAL_KP            (rotation aggressiveness)
-     *   - Constants.Vision.MAX_ALIGNMENT_ROTATION_RAD_PER_SEC  (rotation clamp)
-     *   - ShooterSubsystem FLYWHEEL_RPM_MAP / HOOD_ROT_MAP     (shooter params)
-     *   See TUNING.md for the step-by-step procedure.
-     *
-     * @param shooter     Shooter subsystem
-     * @param vision      Vision subsystem
-     * @param indexer     Indexer subsystem
-     * @param drivetrain  Swerve drivetrain
-     * @param xSupplier   Driver left-Y velocity in m/s (already scaled by MaxSpeed)
-     * @param ySupplier   Driver left-X velocity in m/s (already scaled by MaxSpeed)
+     * @param shooter    Shooter subsystem
+     * @param vision     Vision subsystem
+     * @param indexer    Indexer subsystem
+     * @param drivetrain Swerve drivetrain
+     * @param xSupplier  Driver left-Y velocity in m/s (already scaled by MaxSpeed)
+     * @param ySupplier  Driver left-X velocity in m/s (already scaled by MaxSpeed)
+     * @return Vision align and shoot command
      */
     public static Command visionAlignAndShoot(
             ShooterSubsystem shooter,
-            VisionSubsystem_Scoy vision,
+            VisionSubsystem vision,
             IndexerSubsystem indexer,
             CommandSwerveDrivetrain drivetrain,
             DoubleSupplier xSupplier,
@@ -479,31 +366,26 @@ public class FuelCommands {
 
         final double maxSpeed = 0.5 * TunerConstants.kSpeedAt12Volts.in(MetersPerSecond);
 
-        // Created once; reused every execute cycle.
-        // FieldCentric: driver controls X/Y translation, vision controls rotation.
         final SwerveRequest.FieldCentric alignRequest = new SwerveRequest.FieldCentric()
                 .withDeadband(maxSpeed * 0.15)
                 .withDriveRequestType(DriveRequestType.OpenLoopVoltage);
 
         return Commands.run(() -> {
 
-            // ── 1. Shooter: update from vision or hold current targets ─────────
-            if (vision.isUsableForShooting()) {
-                // Live-update RPM + hood from distance table (also pushes to hardware
-                // if already in READY state — see ShooterSubsystem.updateFromDistance)
-                shooter.updateFromDistance(vision.getDistanceToTargetMeters());
+            // ── 1. Shooter: update from pose-based distance ───────────────────
+            double dist = vision.getDistanceToHub();
+            if (dist > 0) {
+                shooter.updateFromDistance(dist);
             }
-            // Keep commanding READY every cycle — setState() no-ops if already there
             if (shooter.getState() != ShooterSubsystem.ShooterState.READY) {
                 shooter.prepareToShoot();
             }
 
-            // ── 2. Drivetrain: driver translation + vision rotation ────────────
-            // tx returns 0.0 when NO_TARGET, so rotation correction drops to zero
-            // automatically when the camera has nothing to track.
-            double txDeg = vision.getHorizontalAngleDegrees();
+            // ── 2. Drivetrain: driver translation + pose-based rotation ───────
+            // getAngleToHub() returns signed degrees; positive = hub is to the left
+            double angleErrorDeg = vision.getAngleToHub();
             double rotRate = MathUtil.clamp(
-                    txDeg * Constants.Vision.ROTATIONAL_KP,
+                    angleErrorDeg * Constants.Vision.ROTATIONAL_KP,
                     -Constants.Vision.MAX_ALIGNMENT_ROTATION_RAD_PER_SEC,
                      Constants.Vision.MAX_ALIGNMENT_ROTATION_RAD_PER_SEC);
 
@@ -513,8 +395,9 @@ public class FuelCommands {
                             .withVelocityY(ySupplier.getAsDouble())
                             .withRotationalRate(rotRate));
 
-            // ── 3. Feed: only when both conditions met ─────────────────────────
-            if (vision.isAligned() && shooter.isReady()) {
+            // ── 3. Feed: only when aligned and shooter is ready ───────────────
+            boolean aligned = Math.abs(angleErrorDeg) < Constants.Vision.ALIGNMENT_TOLERANCE_DEGREES;
+            if (aligned && shooter.isReady()) {
                 indexer.indexerForward();
                 indexer.conveyorForward();
             } else {
@@ -524,8 +407,8 @@ public class FuelCommands {
 
         }, shooter, vision, indexer, drivetrain)
         .beforeStarting(Commands.runOnce(() -> {
-            shooter.armSelectedPreset(); // Spin up to the POV-selected preset immediately
-            shooter.prepareToShoot();    // Enter READY state — don't wait for alignment
+            shooter.armSelectedPreset();
+            shooter.prepareToShoot();
         }, shooter))
         .finallyDo(() -> {
             indexer.indexerStop();
@@ -536,7 +419,7 @@ public class FuelCommands {
     }
 
     /**
-     * Creates a command that waits until shooter is ready.
+     * Waits until the shooter reports ready, with a 3-second timeout.
      *
      * @param shooter The shooter subsystem
      * @return Command that waits for shooter ready state
@@ -547,33 +430,25 @@ public class FuelCommands {
             .withName("WaitForShooterReady");
     }
 
+    // =========================================================================
+    // AIR POPPER
+    // =========================================================================
+
     /**
-     * Creates a command to return shooter to SPINUP at STANDBY_RPM.
+     * Runs the conveyor, indexer, and flywheel simultaneously in air-popper mode
+     * to assist with loading fuel into the hopper.
      *
+     * @param indexer The indexer subsystem
      * @param shooter The shooter subsystem
-     * @return Command that returns shooter to standby spinning state
+     * @return Command that runs all three mechanisms in air-popper mode
      */
-
-     /** TODO: Do not use right now _EXPERIMENTAL_ */
-    // public static Command returnToStandby(ShooterSubsystem shooter) {
-    //     return Commands.runOnce(shooter::returnToStandby, shooter)
-    //         .withName("ReturnToStandby");
-    // }
-
-    /* 
-    * Run IndexerSubsystem convevor forward to assist with feeding into the hopper
-    * Run IndexerSubsystem indexer forward to assist with feeding into the hopper 
-    * Set ShooterSubsystem to popper preset (low RPM + hood at minimum pose) to assist with loading fuel into the hopper
-     */
-
-    // Run IndexerSubsystem conveyorforward, IndexerSubsystem indexer, and ShooterSubsystem flywheel in parallel */
-public static Command runAirPopper(IndexerSubsystem indexer, ShooterSubsystem shooter) {
-    return Commands.parallel(
-        Commands.run(() -> {
-            indexer.conveyorAirPopper();
-            indexer.indexerAirPopper();
-        }, indexer),                                    // indexer required ONCE
-        Commands.run(shooter::shooterAirPopper, shooter)
-    ).withName("RunAirPopper");                         // .withName() on the outer command
-}
+    public static Command runAirPopper(IndexerSubsystem indexer, ShooterSubsystem shooter) {
+        return Commands.parallel(
+            Commands.run(() -> {
+                indexer.conveyorAirPopper();
+                indexer.indexerAirPopper();
+            }, indexer),
+            Commands.run(shooter::shooterAirPopper, shooter)
+        ).withName("RunAirPopper");
+    }
 }

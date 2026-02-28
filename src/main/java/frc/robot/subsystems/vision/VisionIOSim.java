@@ -39,6 +39,7 @@ import frc.robot.Constants;
  *             ? visionIOSim
  *             : new VisionIOLimelight(Constants.Vision.LIMELIGHT4_NAME),
  *         drivetrain::addVisionMeasurement,
+ *         () -> drivetrain.resetPoseToVision(vision.getLastAcceptedPose()),
  *         () -> drivetrain.getState().Pose,
  *         () -> drivetrain.getState().RawHeading.getDegrees()
  *     );
@@ -79,7 +80,7 @@ public class VisionIOSim implements VisionIO {
     // State
     // -------------------------------------------------------------------------
 
-    // Default starting pose — robot near the middle of the field facing the hub
+    /** Default starting pose — robot near the middle of the field facing the hub */
     private Pose2d simRobotPose = new Pose2d(8.0, 4.0, new Rotation2d());
 
     // -------------------------------------------------------------------------
@@ -99,7 +100,7 @@ public class VisionIOSim implements VisionIO {
 
     @Override
     public void updateInputs(VisionIOInputs inputs) {
-        Translation2d hubCenter = Constants.Vision.HUB_CENTER_BLUE; // Add to Constants.Vision
+        Translation2d hubCenter = Constants.Vision.HUB_CENTER_BLUE;
         Translation2d robotPos  = simRobotPose.getTranslation();
 
         // Distance from robot to hub center
@@ -123,10 +124,12 @@ public class VisionIOSim implements VisionIO {
         inputs.totalLatencyMs = SIM_LATENCY_MS;
 
         if (!canSee) {
-            inputs.hasTarget = false;
-            inputs.poseValid = false;
-            inputs.txDegrees = 0.0;
-            inputs.tagCount  = 0;
+            inputs.hasTarget  = false;
+            inputs.poseValid  = false;
+            inputs.txDegrees  = 0.0;
+            inputs.tagCount   = 0;
+            inputs.megaTag2TagCount = 0;
+            inputs.megaTag2Pose     = new double[3];
             return;
         }
 
@@ -137,13 +140,28 @@ public class VisionIOSim implements VisionIO {
         // Simulate pose estimate with noise
         double noisyX = simRobotPose.getX() + gaussianNoise(POSE_NOISE_METERS);
         double noisyY = simRobotPose.getY() + gaussianNoise(POSE_NOISE_METERS);
+        int    tags   = distanceToHub < 2.5 ? 2 : 1;
+        double ts     = Timer.getFPGATimestamp() - (SIM_LATENCY_MS / 1000.0);
 
+        Pose2d noisyPose = new Pose2d(noisyX, noisyY, simRobotPose.getRotation());
+
+        // Fill standard pose fields
         inputs.poseValid        = true;
-        inputs.estimatedPose    = new Pose2d(noisyX, noisyY, simRobotPose.getRotation());
-        inputs.timestampSeconds = Timer.getFPGATimestamp() - (SIM_LATENCY_MS / 1000.0);
-        inputs.tagCount         = distanceToHub < 2.5 ? 2 : 1;
+        inputs.estimatedPose    = noisyPose;
+        inputs.timestampSeconds = ts;
+        inputs.tagCount         = tags;
         inputs.avgTagDistance   = distanceToHub;
         inputs.avgTagArea       = Math.min(100.0, 5.0 / (distanceToHub * distanceToHub));
+
+        // Fill MegaTag2 fields (mirrors the pose — sim doesn't distinguish MT1 vs MT2)
+        inputs.megaTag2Pose = new double[]{
+            noisyPose.getX(),
+            noisyPose.getY(),
+            noisyPose.getRotation().getRadians()
+        };
+        inputs.megaTag2TimestampSeconds = ts;
+        inputs.megaTag2TagCount         = tags;
+        inputs.megaTag2AvgTagDist       = distanceToHub;
     }
 
     @Override
