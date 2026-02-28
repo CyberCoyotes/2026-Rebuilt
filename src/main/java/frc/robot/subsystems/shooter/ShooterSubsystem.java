@@ -29,7 +29,7 @@ import frc.robot.Constants;
  * 3. Driver holds shoot trigger — transitions to READY, hood moves, waits until up to speed, feeds
  * 4. Driver releases trigger — returns to IDLE (TODO: change to STANDBY once spin logic validated)
  *
- * FAR SHOT FLOW (X + RT): [NOT YET ACTIVE — isFarShotArmed disabled]
+ * FAR SHOT FLOW (X + RT): [NOT YET ACTIVE — isFarShotSelected disabled]
  * - X silently arms far shot
  * - RT routes to FarShotCommand instead of shootAtCurrentTarget
  * - FarShotCommand continuously updates hood position via updateHoodForDistance()
@@ -43,21 +43,21 @@ import frc.robot.Constants;
 public class ShooterSubsystem extends SubsystemBase {
 
     // =========================================================================
-    // SHOT PRESETS (for cycling via POV left/right)
+    // SHOT PRESETS
     // =========================================================================
 
     /**
      * Named shot presets that can be selected via POV left/right on the driver controller.
-     * The selected preset is armed silently and fired on the right trigger.
+     * The selected preset is set silently and fired on the right trigger.
      * Published to NetworkTables as Shooter/SelectedPreset for Elastic display.
      */
     public enum ShotPreset {
-        CLOSE  ("Close",   Constants.Shooter.CLOSE_RPM,  Constants.Shooter.CLOSE_HOOD),
-        TOWER  ("Tower",   Constants.Shooter.TOWER_RPM,  Constants.Shooter.TOWER_HOOD),
-        TRENCH ("Trench",  Constants.Shooter.TRENCH_RPM, Constants.Shooter.TRENCH_HOOD),
-        PASS   ("Pass",    Constants.Shooter.PASS_RPM,   Constants.Shooter.PASS_HOOD),
-        FAR    ("Far",     Constants.Shooter.FAR_RPM,    Constants.Shooter.FAR_HOOD),
-        POPPER ("Popper",  Constants.Shooter.POPPER_RPM, Constants.Shooter.POPPER_HOOD); // TODO: Tune
+        CLOSE  ("Close",   CLOSE_RPM,  CLOSE_HOOD),
+        TOWER  ("Tower",   TOWER_RPM,  TOWER_HOOD),
+        TRENCH ("Trench",  TRENCH_RPM, TRENCH_HOOD),
+        PASS   ("Pass",    PASS_RPM,   PASS_HOOD),
+        FAR    ("Corner",     FAR_RPM,    FAR_HOOD),
+        POPPER ("Popper", POPPER_RPM, POPPER_HOOD);
 
         public final String label;
         public final double rpm;
@@ -434,7 +434,7 @@ public class ShooterSubsystem extends SubsystemBase {
      * Arms the currently selected test preset silently (RPM + hood).
      * No motor movement until shoot trigger is pressed.
      */
-    public void armSelectedPreset() {
+    public void setSelectedPreset() {
         targetFlywheelMotorRPM = selectedPreset.rpm;
         targetHoodPoseRot      = selectedPreset.hood;
     }
@@ -450,7 +450,7 @@ public class ShooterSubsystem extends SubsystemBase {
      */
     public void selectPreset(ShotPreset preset) {
         selectedPreset = preset;
-        armSelectedPreset();
+        setSelectedPreset();
     }
 
     /**
@@ -460,7 +460,7 @@ public class ShooterSubsystem extends SubsystemBase {
      */
     public void cyclePresetForward() {
         selectedPreset = PRESETS[(selectedPreset.ordinal() + 1) % PRESETS.length];
-        armSelectedPreset();
+        setSelectedPreset();
     }
 
     /**
@@ -470,11 +470,11 @@ public class ShooterSubsystem extends SubsystemBase {
      */
     public void cyclePresetBackward() {
         selectedPreset = PRESETS[(selectedPreset.ordinal() - 1 + PRESETS.length) % PRESETS.length];
-        armSelectedPreset();
+        setSelectedPreset();
     }
 
     /** Returns true if the FAR preset is currently selected (used to gate FarShotCommand). */
-    public boolean isFarShotArmed() {
+    public boolean isFarShotSelected() {
         return selectedPreset == ShotPreset.FAR;
     }
 
