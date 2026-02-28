@@ -30,7 +30,7 @@ public class IntakeSubsystem extends SubsystemBase {
 
     private RollerState rollerState = RollerState.STOPPED;
 
-    static final double ROLLER_VOLTS = 8.5;
+    static final double ROLLER_VOLTS = 7.0; // 8.5 was too much
 
     // ==== Elastic Dashboard Publishers ====
     // Driver-awareness data: state string, slide position, and at-target booleans.

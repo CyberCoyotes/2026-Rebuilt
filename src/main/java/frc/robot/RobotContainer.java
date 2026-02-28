@@ -115,11 +115,10 @@ public class RobotContainer {
 
         driver.rightTrigger(0.5).whileTrue(
             FuelCommands.shootWithSelectedPreset(shooter, indexer));
+            
         driver.rightBumper().whileTrue(FuelCommands.shootWithSelectedPreset(shooter, indexer)); // command that makes a pass preset shot
         
-        // driver.leftTrigger(0.5).whileTrue(intake.intakeFuel());
-        driver.leftTrigger().whileTrue(FuelCommands.runAirPopper(indexer, shooter, intake)); 
-
+        driver.leftTrigger(0.5).whileTrue(intake.intakeFuel());
         driver.leftBumper().whileTrue(intake.compressFuelIncremental());
 
         // Right Trigger + Vision: Commented out — vision shot disabled for now.
@@ -139,11 +138,12 @@ public class RobotContainer {
         // operator.rightTrigger().whileTrue(FuelCommands.runAirPopper(indexer, shooter, intake)); 
         // operator.rightBumper().onTrue(Commands.runOnce(() -> shooter.selectPreset(ShooterSubsystem.ShotPreset.PASS)));
 
+        
         operator.leftTrigger().whileTrue(FuelCommands.runAirPopper(indexer, shooter, intake)); 
         operator.leftBumper().onTrue(Commands.runOnce(() -> shooter.selectPreset(ShooterSubsystem.ShotPreset.PASS)));
         
-        operator.a().onTrue(Commands.runOnce(() -> shooter.selectPreset(ShooterSubsystem.ShotPreset.CLOSE)));
-        operator.b().onTrue(Commands.runOnce(() -> shooter.selectPreset(ShooterSubsystem.ShotPreset.TRENCH)));
+        operator.b().onTrue(Commands.runOnce(() -> shooter.selectPreset(ShooterSubsystem.ShotPreset.CLOSE)));
+        operator.a().onTrue(Commands.runOnce(() -> shooter.selectPreset(ShooterSubsystem.ShotPreset.TRENCH)));
         operator.x().onTrue(Commands.runOnce(() -> shooter.selectPreset(ShooterSubsystem.ShotPreset.TOWER)));
         operator.y().onTrue(Commands.runOnce(() -> shooter.selectPreset(ShooterSubsystem.ShotPreset.FAR)));
 
