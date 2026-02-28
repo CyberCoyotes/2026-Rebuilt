@@ -287,13 +287,6 @@ public class IntakeSubsystem extends SubsystemBase {
      *   operator.leftBumper().whileTrue(intake.compressFuel(2.0, false));
      * </pre>
      *
-     * Typical auton usage (parallel with a shoot command):
-     * <pre>
-     *   Commands.parallel(
-     *       intake.compressFuel(2.0, false),
-     *       FuelCommands.shootTrenchAuton(shooter, indexer, 1.5)
-     *   )
-     * </pre>
      *
      * @param timeoutSeconds  How long to run; acts as the primary end trigger.
      *                        ~2.0 s is a good starting point to match slide travel time.

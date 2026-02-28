@@ -50,7 +50,8 @@ public class ShooterSubsystem extends SubsystemBase {
      * Add an end of line comment `Tuned` when each is verified */
     
     // 800 was too much
-    public static final double POPPER_RPM  = 500; // TODO: Tune Popper
+    // 500 was not enough -- self feeding
+    public static final double POPPER_RPM  = 600; // TODO: Tune Popper
     public static final double STANDBY_RPM = 1000; // TODO: Tune STANDBY
     public static final double CLOSE_RPM   = 2750; // TUNED
     public static final double TOWER_RPM   = 3200; // TODO: Tune was 3100, 4.42
@@ -74,7 +75,7 @@ public class ShooterSubsystem extends SubsystemBase {
      * Consider using WCP Encoder
      * Add an end of line comment `Tuned` when each is verified */
     public static final double CLOSE_HOOD  = 0.00; // TUNED
-    public static final double POPPER_HOOD  = 8.42; // TODO: Tune
+    public static final double POPPER_HOOD  = 8.24; // TODO: Tune // was using 8.42
     public static final double TOWER_HOOD  = 4.30; // TUNED
     public static final double TRENCH_HOOD = 4.30; // TODO: Tune
     public static final double FAR_HOOD    = 5.50; // TODO: Tune was 4000 + 5.5 worked

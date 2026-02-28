@@ -116,7 +116,9 @@ public class RobotContainer {
         driver.rightTrigger(0.5).whileTrue(
             FuelCommands.shootWithSelectedPreset(shooter, indexer));
         driver.rightBumper().whileTrue(FuelCommands.shootWithSelectedPreset(shooter, indexer)); // command that makes a pass preset shot
-        driver.leftTrigger(0.5).whileTrue(intake.intakeFuel());
+        
+        // driver.leftTrigger(0.5).whileTrue(intake.intakeFuel());
+        driver.leftTrigger().whileTrue(FuelCommands.runAirPopper(indexer, shooter, intake)); 
 
         driver.leftBumper().whileTrue(intake.compressFuelIncremental());
 
@@ -134,10 +136,10 @@ public class RobotContainer {
         // OPERATOR CONTROLLER (Port 1)
         // =====================================================================
         
-        operator.rightTrigger().whileTrue(FuelCommands.runAirPopper(indexer, shooter, intake).alongWith(intake.intakeFuel())); 
-        operator.rightBumper().onTrue(Commands.runOnce(() -> shooter.selectPreset(ShooterSubsystem.ShotPreset.PASS)));
+        // operator.rightTrigger().whileTrue(FuelCommands.runAirPopper(indexer, shooter, intake)); 
+        // operator.rightBumper().onTrue(Commands.runOnce(() -> shooter.selectPreset(ShooterSubsystem.ShotPreset.PASS)));
 
-        operator.leftTrigger().whileTrue(FuelCommands.runAirPopper(indexer, shooter, intake).alongWith(intake.intakeFuel())); 
+        operator.leftTrigger().whileTrue(FuelCommands.runAirPopper(indexer, shooter, intake)); 
         operator.leftBumper().onTrue(Commands.runOnce(() -> shooter.selectPreset(ShooterSubsystem.ShotPreset.PASS)));
         
         operator.a().onTrue(Commands.runOnce(() -> shooter.selectPreset(ShooterSubsystem.ShotPreset.CLOSE)));
@@ -145,8 +147,8 @@ public class RobotContainer {
         operator.x().onTrue(Commands.runOnce(() -> shooter.selectPreset(ShooterSubsystem.ShotPreset.TOWER)));
         operator.y().onTrue(Commands.runOnce(() -> shooter.selectPreset(ShooterSubsystem.ShotPreset.FAR)));
 
-        operator.povUp().whileTrue(null); // incremental extend climber command to be added when climber is ready
-        operator.povDown().whileTrue(null); // incremental retract climber command to be added when climber is ready
+        // operator.povUp().whileTrue(null); // incremental extend climber command to be added when climber is ready
+        // operator.povDown().whileTrue(null); // incremental retract climber command to be added when climber is ready
                 
     }
 

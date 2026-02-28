@@ -223,7 +223,7 @@ public class FuelCommands {
                     shooter.prepareToShoot();
                 }, shooter),
                 Commands.deadline(
-                        Commands.parallel(
+                        Commands.deadline( // parallel is NOT OK here!
                                 intake.intakeFuel(),
                                 indexer.feed()),
                         Commands.run(() -> {
