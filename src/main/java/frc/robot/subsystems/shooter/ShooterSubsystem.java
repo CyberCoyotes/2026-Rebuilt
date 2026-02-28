@@ -28,7 +28,7 @@ import frc.robot.subsystems.shooter.ShooterIO.ShooterIOInputs;
  * 3. Driver holds shoot trigger — transitions to READY, hood moves, waits until up to speed, feeds
  * 4. Driver releases trigger — returns to IDLE (TODO: change to STANDBY once spin logic validated)
  *
- * FAR SHOT FLOW (X + RT): [NOT YET ACTIVE — isFarShotArmed disabled]
+ * FAR SHOT FLOW (X + RT): [NOT YET ACTIVE — isFarShotSelected disabled]
  * - X silently arms far shot
  * - RT routes to FarShotCommand instead of shootAtCurrentTarget
  * - FarShotCommand continuously updates hood position via updateHoodForDistance()
@@ -48,9 +48,11 @@ public class ShooterSubsystem extends SubsystemBase {
 
     /** TODO tune RPMs for flywheel without excessive current draw
      * Add an end of line comment `Tuned` when each is verified */
-    public static final double POPPER_RPM  = 800; // TODO: Tune
-    public static final double STANDBY_RPM = 1000; //
-    public static final double CLOSE_RPM   = 2750; //
+    
+    // 800 was too much
+    public static final double POPPER_RPM  = 500; // TODO: Tune Popper
+    public static final double STANDBY_RPM = 1000; // TODO: Tune STANDBY
+    public static final double CLOSE_RPM   = 2750; // TUNED
     public static final double TOWER_RPM   = 3200; // TODO: Tune was 3100, 4.42
     public static final double TRENCH_RPM  = 3200; // TODO: Tune
     public static final double FAR_RPM     = 3800; // TODO: Tune was 4000 + 5.5 worked
@@ -71,9 +73,9 @@ public class ShooterSubsystem extends SubsystemBase {
     /** TODO tune Hood rotation position values from Kraken encoder for each shot
      * Consider using WCP Encoder
      * Add an end of line comment `Tuned` when each is verified */
-    public static final double CLOSE_HOOD  = 0.00; //
+    public static final double CLOSE_HOOD  = 0.00; // TUNED
     public static final double POPPER_HOOD  = 8.42; // TODO: Tune
-    public static final double TOWER_HOOD  = 4.30; //
+    public static final double TOWER_HOOD  = 4.30; // TUNED
     public static final double TRENCH_HOOD = 4.30; // TODO: Tune
     public static final double FAR_HOOD    = 5.50; // TODO: Tune was 4000 + 5.5 worked
     public static final double PASS_HOOD   = 7.00; //
@@ -83,12 +85,12 @@ public class ShooterSubsystem extends SubsystemBase {
     public static final double FLYWHEEL_TEST_INCREMENT_RPM = 100.0;
 
     // =========================================================================
-    // SHOT PRESETS (for cycling via POV left/right)
+    // SHOT PRESETS
     // =========================================================================
 
     /**
      * Named shot presets that can be selected via POV left/right on the driver controller.
-     * The selected preset is armed silently and fired on the right trigger.
+     * The selected preset is set silently and fired on the right trigger.
      * Published to NetworkTables as Shooter/SelectedPreset for Elastic display.
      */
     public enum ShotPreset {
@@ -96,8 +98,8 @@ public class ShooterSubsystem extends SubsystemBase {
         TOWER  ("Tower",   TOWER_RPM,  TOWER_HOOD),
         TRENCH ("Trench",  TRENCH_RPM, TRENCH_HOOD),
         PASS   ("Pass",    PASS_RPM,   PASS_HOOD),
-        FAR    ("Far",     FAR_RPM,    FAR_HOOD),
-        POPPER ("Popper", POPPER_RPM, POPPER_HOOD); // TODO: Tune
+        FAR    ("Corner",     FAR_RPM,    FAR_HOOD),
+        POPPER ("Popper", POPPER_RPM, POPPER_HOOD);
 
         public final String label;
         public final double rpm;
@@ -474,7 +476,7 @@ public class ShooterSubsystem extends SubsystemBase {
      * Arms the currently selected test preset silently (RPM + hood).
      * No motor movement until shoot trigger is pressed.
      */
-    public void armSelectedPreset() {
+    public void setSelectedPreset() {
         targetFlywheelMotorRPM = selectedPreset.rpm;
         targetHoodPoseRot      = selectedPreset.hood;
     }
@@ -490,7 +492,7 @@ public class ShooterSubsystem extends SubsystemBase {
      */
     public void selectPreset(ShotPreset preset) {
         selectedPreset = preset;
-        armSelectedPreset();
+        setSelectedPreset();
     }
 
     /**
@@ -500,7 +502,7 @@ public class ShooterSubsystem extends SubsystemBase {
      */
     public void cyclePresetForward() {
         selectedPreset = PRESETS[(selectedPreset.ordinal() + 1) % PRESETS.length];
-        armSelectedPreset();
+        setSelectedPreset();
     }
 
     /**
@@ -510,11 +512,11 @@ public class ShooterSubsystem extends SubsystemBase {
      */
     public void cyclePresetBackward() {
         selectedPreset = PRESETS[(selectedPreset.ordinal() - 1 + PRESETS.length) % PRESETS.length];
-        armSelectedPreset();
+        setSelectedPreset();
     }
 
     /** Returns true if the FAR preset is currently selected (used to gate FarShotCommand). */
-    public boolean isFarShotArmed() {
+    public boolean isFarShotSelected() {
         return selectedPreset == ShotPreset.FAR;
     }
 

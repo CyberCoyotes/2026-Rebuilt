@@ -116,7 +116,7 @@ public class AutoRoutines {
                                 // TestRountine2.cmd()
 
                         ));
-                TestRoutine.atTime("Shoot").onTrue(FuelCommands.Auto.shootClose(m_shooter, m_indexer, 3.0)); //score
+                TestRoutine.atTime("Shoot").onTrue(FuelCommands.Auto.shootHub(m_shooter, m_indexer, 3.0)); //score
                 // Dummy.atTime("Intake").onTrue(IntakeSubsystem.intakeFuel(m_shooter, m_indexer)); //score
 
 
