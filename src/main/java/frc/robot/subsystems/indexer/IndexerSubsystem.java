@@ -72,6 +72,11 @@ public class IndexerSubsystem extends SubsystemBase {
     // ==== State ===============================================================
     private IndexerState currentState = IndexerState.IDLE;
 
+            private boolean isFuelDetected = false;
+        private boolean wasFuelDetected = false;
+
+        private double lastDetectionTimestamp = -1.0;
+        private double secondsSinceLastDetection = Double.POSITIVE_INFINITY;
     // ==== Elastic Dashboard Publishers ========================================
     private final NetworkTable indexerTable;
     private final BooleanPublisher hopperAPublisher;
@@ -113,8 +118,8 @@ public class IndexerSubsystem extends SubsystemBase {
         double now = edu.wpi.first.wpilibj.Timer.getFPGATimestamp();
 
         // --- Distance-based detection with hysteresis ---
-        double lowerThreshold = CHUTE_MAX_DISTANCE * (1.0 - CHUTE_TOLERANCE);
-        double upperThreshold = CHUTE_MAX_DISTANCE * (1.0 + CHUTE_TOLERANCE);
+        double lowerThreshold = Constants.Indexer.CHUTE_MAX_DISTANCE * (1.0 - Constants.Indexer.CHUTE_TOLERANCE);
+        double upperThreshold = Constants.Indexer.CHUTE_MAX_DISTANCE * (1.0 + Constants.Indexer.CHUTE_TOLERANCE);
 
         if (!isFuelDetected) {
             // Only trigger when clearly below threshold
@@ -330,7 +335,7 @@ public class IndexerSubsystem extends SubsystemBase {
     }
 
     public boolean donePassingFuel() {
-        return !isFuelDetected && secondsSinceLastDetection >= FUEL_CLEAR_TIME;
+        return !isFuelDetected && secondsSinceLastDetection >= Constants.Indexer.FUEL_CLEAR_TIME;
     }
 
     // ==== Command Factories ===================================================
