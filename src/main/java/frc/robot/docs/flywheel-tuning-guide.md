@@ -1,4 +1,4 @@
-# FRC Flywheel Tuning Guide & Testing Protocol
+# Flywheel Tuning Guide & Testing Protocol
 
 Team-Focused, Match-Ready Procedure for CTRE Kraken / Phoenix 6 Systems
 
