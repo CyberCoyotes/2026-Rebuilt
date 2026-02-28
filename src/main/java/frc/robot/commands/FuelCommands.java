@@ -447,6 +447,20 @@ public class FuelCommands {
      * @param vision  The vision subsystem
      * @return Command that continuously tracks target
      */
+
+
+
+    public static Command trackTarget(ShooterSubsystem shooter, VisionSubsystem vision) {
+        return Commands.run(() -> {
+            if (vision.hasTarget()) {
+                double distance = vision.getDistanceToTargetMeters();
+                shooter.updateFromDistance(distance);
+            }
+        }, shooter, vision)
+                .withName("TrackTarget");
+    }
+
+    public static class Auto {
     public static Command shootTrench(ShooterSubsystem shooter, IndexerSubsystem indexer,
             double feedSeconds) {
         return Commands.sequence(
@@ -466,48 +480,28 @@ public class FuelCommands {
             shooter.setIdle();
         });
     }
-
-    public static Command trackTarget(ShooterSubsystem shooter, VisionSubsystem vision) {
-        return Commands.run(() -> {
-            if (vision.hasTarget()) {
-                double distance = vision.getDistanceToTargetMeters();
-                shooter.updateFromDistance(distance);
-            }
-        }, shooter, vision)
-                .withName("TrackTarget");
-    }
-
-    public static Command shootClose(ShooterSubsystem shooter, IndexerSubsystem indexer,
-            double feedSeconds) {
-        return Commands.sequence(
-                Commands.runOnce(() -> {
-                    shooter.setTargetVelocity(Constants.Shooter.CLOSE_RPM);
-                    shooter.setTargetHoodPose(Constants.Shooter.CLOSE_HOOD);
-                    shooter.prepareToShoot();
-                }, shooter),
-                Commands.waitUntil(shooter::isReady).withTimeout(3.0),
-                Commands.run(() -> {
-                    indexer.indexerForward();
-                    indexer.conveyorForward();
-                }, indexer).withTimeout(feedSeconds) // primary end trigger: timeout
-        ).finallyDo(() -> {
-            indexer.indexerStop();
-            indexer.conveyorStop();
-            shooter.setIdle();
-        });
-
+        public static Command shootHub(ShooterSubsystem shooter, IndexerSubsystem indexer,
+                double feedSeconds) {
+            return Commands.sequence(
+                    Commands.runOnce(() -> {
+                        shooter.setTargetVelocity(Constants.Shooter.CLOSE_RPM);
+                        shooter.setTargetHoodPose(Constants.Shooter.CLOSE_HOOD);
+                        shooter.prepareToShoot();
+                    }, shooter),
+                    Commands.waitUntil(shooter::isReady).withTimeout(3.0),
+                    Commands.run(() -> {
+                        indexer.indexerForward();
+                        indexer.conveyorForward();
+                    }, indexer).withTimeout(feedSeconds), // primary end trigger: timeout
                     // Feed until chute goes quiet for 2s (with safety timeout)
                     indexer.feed().until(indexer::donePassingFuel)
-            /*
-             * This is likely redundant with the feed().until() end condition, but it's a
-             * good safety net in case of sensor issues or unexpected game piece behavior.
-             * .finallyDo(() -> {
-             * indexer.indexerStop();
-             * indexer.conveyorStop();
-             * shooter.setIdle();
-             * })
-             */
-            .withName("ShootTrenchAuton");
+                    // This is likely redundant with the feed().until() end condition, but it's a
+                    // good safety net in case of sensor issues or unexpected game piece behavior.
+            ).finallyDo(() -> {
+                indexer.indexerStop();
+                indexer.conveyorStop();
+                shooter.setIdle();
+            }).withName("ShootTrenchAuton");
         }
 
     public static Command shootTower(ShooterSubsystem shooter, IndexerSubsystem indexer,

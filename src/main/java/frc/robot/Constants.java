@@ -92,6 +92,11 @@ public final class Constants {
     public static final double HOPPER_B_MIN_DISTANCE = 0.02; // TODO: Tune experimentally
     public static final double HOPPER_B_MAX_DISTANCE = 0.50; // TODO: Tune experimentally
 
+    public static final double CHUTE_MAX_DISTANCE = 0.50; // TODO: Tune experimentally
+    public static final double CHUTE_TOLERANCE = 0.05;
+
+    public static final double FUEL_CLEAR_TIME = 2.0;
+
   }
 
   // =========================================================
