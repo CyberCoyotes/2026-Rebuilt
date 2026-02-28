@@ -1,10 +1,8 @@
-# Flywheel Tuning Guide & Testing Protocol
+## Flywheel Tuning Guide & Testing Protocol
 
 Team-Focused, Match-Ready Procedure for CTRE Kraken / Phoenix 6 Systems
 
-------------------------------------------------------------------------
-
-## Objective
+### Objective
 
 Develop a flywheel system that: - Spins up quickly - Recovers rapidly
 after each shot - Maintains consistent exit velocity late in match -
@@ -14,9 +12,8 @@ This guide assumes: - VelocityVoltage control mode - FOC enabled (Pro
 license) - Multi-motor flywheel (e.g., 3 Krakens) - Command-based Java
 framework
 
-------------------------------------------------------------------------
 
-# SECTION 1 --- Required Signals to Log
+## SECTION 1 --- Required Signals to Log
 
 From Lead Flywheel Motor:
 
@@ -27,9 +24,7 @@ DeviceTemp
 Recommended: - Shot event boolean (IndexerFeeding or ShotRequested) -
 Battery voltage (RoboRIO or PDH)
 
-------------------------------------------------------------------------
-
-# SECTION 2 --- Baseline Configuration
+## SECTION 2 --- Baseline Configuration
 
 Control Mode: VelocityVoltage.withEnableFOC(true)
 
@@ -39,9 +34,7 @@ Initial Current Limits (per motor): - Stator: 90A continuous, 120A peak
 Initial Gains (starting point only): - kP: modest (avoid oscillation) -
 kV: calculated from free speed - kA: small or zero initially
 
-------------------------------------------------------------------------
-
-# SECTION 3 --- Spin-Up Test (No Ball)
+## SECTION 3 --- Spin-Up Test (No Ball)
 
 Procedure: 1. Spin to target RPM. 2. Verify stable hold for 3 seconds.
 3. Record: - Steady-state error - Holding current - Voltage used
@@ -51,9 +44,7 @@ Expected: - Error \< ±50 RPM - Stable current - No oscillation
 If unstable: - Reduce kP If slow to reach target: - Increase stator
 limit slightly - Increase acceleration allowance
 
-------------------------------------------------------------------------
-
-# SECTION 4 --- Single Shot Impact Test
+## SECTION 4 --- Single Shot Impact Test
 
 Procedure: 1. Reach stable target RPM. 2. Fire one ball. 3. Measure: -
 RPM dip magnitude - Recovery time - Current spike
@@ -66,9 +57,7 @@ mechanical slip
 If recovery slow: - Increase kV slightly - Verify supply current not
 limiting
 
-------------------------------------------------------------------------
-
-# SECTION 5 --- Rapid Fire Test
+## SECTION 5 --- Rapid Fire Test
 
 Procedure: 1. Fire 3--5 balls spaced closely. 2. Log pre-shot RPM for
 each.
@@ -79,9 +68,7 @@ If later shots are softer: - Add ready-stable gating (150--250 ms) -
 Prevent feeding until RPM within tolerance - Consider slight target RPM
 bump during feed window
 
-------------------------------------------------------------------------
-
-# SECTION 6 --- End-of-Match Simulation
+## SECTION 6 --- End-of-Match Simulation
 
 Procedure: 1. Drive aggressively for 60 seconds. 2. Immediately fire 5
 balls. 3. Compare first shot vs last shot.
@@ -92,9 +79,7 @@ rise - Supply voltage sag
 If degradation observed: - Lower supply peak slightly - Improve gating -
 Verify cooling - Check belt tension and wheel grip
 
-------------------------------------------------------------------------
-
-# SECTION 7 --- Advanced Shot Gating Logic
+## SECTION 7 --- Advanced Shot Gating Logic
 
 Feed ONLY when: - Velocity within tolerance - ClosedLoopError small -
 Stable for minimum duration (150--250 ms)
@@ -103,9 +88,7 @@ Optional: Lockout feed for 150--250 ms after shot unless RPM recovered.
 
 This prevents panic-feeding late match.
 
-------------------------------------------------------------------------
-
-# SECTION 8 --- Data Interpretation Guide
+## SECTION 8 --- Data Interpretation Guide
 
 Voltage Sag but No Brownout: Normal. Adjust supply limit if severe.
 
@@ -116,9 +99,7 @@ ClosedLoopError Remains High: Increase kP or stator peak.
 
 Same RPM but Softer Shot: Mechanical slip or feed timing issue.
 
-------------------------------------------------------------------------
-
-# SECTION 9 --- Final Validation Checklist
+## SECTION 9 --- Final Validation Checklist
 
 Before competition:
 
@@ -129,9 +110,7 @@ Before competition:
 -   Temperature stable under repeated fire
 -   Drivers confirm shot consistency
 
-------------------------------------------------------------------------
-
-# Summary
+## Summary
 
 Most late-match softness is caused by: - Feeding before recovery -
 Conservative tuning - Thermal drift - Mechanical slip
