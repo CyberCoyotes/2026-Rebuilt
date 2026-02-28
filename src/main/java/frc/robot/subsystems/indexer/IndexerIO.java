@@ -68,6 +68,17 @@ public interface IndexerIO {
 
         /** True if a game piece is detected at hopper position B. */
         public boolean hopperBDetected = false;
+
+        // ===== Chute CANrange =====
+        /**
+         * Raw distance from Chute CANrange in meters.
+         * Watch this in AdvantageScope when tuning CHUTE_MAX_DISTANCE or the sensor's
+         * ProximityThreshold/Hysteresis in IndexerIOHardware.
+         */
+        public double chuteDistanceMeters = 0.0;
+
+        /** True if a game piece is detected in the indexer→shooter chute. */
+        public boolean chuteDetected = false;
     }
 
     /**
