@@ -32,40 +32,51 @@ import edu.wpi.first.wpilibj.DriverStation;
  */
 public class GameDataTelemetry {
 
-  // ========================================================================
-    // SHIFT TELEMETRY EXPANSION PLAN (PSEUDOCODE ONLY - NOT ACTIVE CODE)
-    // ------------------------------------------------------------------------
-    // Place this block here (class scope, near publishers/state) when you
-    // implement shift-aware Elastic telemetry.
-    //
-    // 1) Add new publishers under /GameData (or /ShiftData):
-    //    - MatchTimeSec (double)
-    //    - CurrentShift (int)
-    //    - CurrentShiftColor (string: "RED" / "BLUE" / "UNKNOWN")
-    //    - IsRedShift (boolean)
-    //    - IsBlueShift (boolean)
-    //
-    // 2) Add shift constants (fill with official game timing):
-    //    - SHIFT_2_START_SEC
-    //    - SHIFT_3_START_SEC
-    //    - SHIFT_4_START_SEC
-    //
-    // 3) Add helper methods:
-    //    - computeShiftNumber(matchTimeSec)
-    //    - computeShiftColor(inactiveFirstAlliance, shiftNumber)
-    //
-    // 4) In update():
-    //    - Read matchTime = DriverStation.getMatchTime()
-    //    - Compute current shift from time
-    //    - Determine active color by shift and winner
-    //      (winner active in shifts 2 & 4; other alliance active in 1 & 3)
-    //    - Publish all shift topics for Elastic widgets
-    //
-    // 5) For "assume blue won auton" testing mode:
-    //    - Optionally force inactiveFirstAlliance = BLUE during bring-up
-    //    - Keep clearly marked as temporary test behavior
     // ========================================================================
+    // SHIFT/FMS TELEMETRY REFERENCE IMPLEMENTATION (COMMENTED OUT ON PURPOSE)
+    // ------------------------------------------------------------------------
+    // WHY THIS BLOCK EXISTS:
+    // - This is a "copy-when-ready" guide for implementing shift-aware telemetry.
+    // - Everything stays commented so current robot behavior is unchanged.
+    // - Future developers can uncomment in stages and keep a clean review diff.
+    //
+    // WHAT THIS FEATURE WOULD PUBLISH TO ELASTIC:
+    //   /GameData/MatchTimeSec        (double)  -> match time from FMS/DS
+    //   /GameData/CurrentShift        (int)     -> 1..4
+    //   /GameData/CurrentShiftColor   (string)  -> "RED" / "BLUE" / "UNKNOWN"
+    //   /GameData/IsRedShift          (boolean) -> true when RED is active shift
+    //   /GameData/IsBlueShift         (boolean) -> true when BLUE is active shift
+    //
+    // GAME LOGIC ASSUMPTION USED:
+    // - Winning auto alliance is active in shifts 2 and 4.
+    // - Other alliance is active in shifts 1 and 3.
+    // - If winner unknown, color is "UNKNOWN" and both booleans false.
+    //
+    // HOW TO ENABLE LATER (SAFE ORDER):
+    // 1) Uncomment imports for DoublePublisher / IntegerPublisher.
+    // 2) Uncomment field declarations for shift publishers.
+    // 3) Uncomment constructor publisher initialization.
+    // 4) Uncomment update() local vars + compute calls.
+    // 5) Uncomment publishState(...) params and write calls.
+    // 6) Uncomment helper methods + shift timing constants.
+    // 7) Test in sim, then DS practice mode, then field.
+    // ------------------------------------------------------------------------
 
+    // ------------------------------------------------------------------------
+    // [IMPORTS TO ADD WHEN ENABLING]
+    // import edu.wpi.first.networktables.DoublePublisher;
+    // import edu.wpi.first.networktables.IntegerPublisher;
+    // ------------------------------------------------------------------------
+
+    // ------------------------------------------------------------------------
+    // [SHIFT TIMING CONSTANTS - FILL FROM GAME MANUAL]
+    // NOTE: These are placeholders. Replace with official boundaries (seconds
+    // remaining) that define where shifts transition in your match timeline.
+    //
+    // private static final double SHIFT_2_START_SEC = 90.0;
+    // private static final double SHIFT_3_START_SEC = 60.0;
+    // private static final double SHIFT_4_START_SEC = 30.0;
+    // ------------------------------------------------------------------------
 
     /** Represents which alliance's goal goes inactive first */
     public enum InactiveAlliance {
@@ -80,13 +91,15 @@ public class GameDataTelemetry {
     private final BooleanPublisher isBluePublisher;
     private final BooleanPublisher dataReceivedPublisher;
 
-// [PSEUDOCODE INSERT LOCATION]
-    // Add shift publishers here when implementing:
+    // ------------------------------------------------------------------------
+    // [SHIFT PUBLISHERS - UNCOMMENT TO ENABLE]
+    // Keep these with the other publisher fields at class scope.
     // private final DoublePublisher matchTimePublisher;
     // private final IntegerPublisher currentShiftPublisher;
     // private final StringPublisher currentShiftColorPublisher;
     // private final BooleanPublisher isRedShiftPublisher;
     // private final BooleanPublisher isBlueShiftPublisher;
+    // ------------------------------------------------------------------------
 
     private InactiveAlliance inactiveFirstAlliance = InactiveAlliance.NONE;
     private boolean dataReceived = false;
@@ -100,13 +113,15 @@ public class GameDataTelemetry {
         isBluePublisher = gameDataTable.getBooleanTopic("IsBlue").publish();
         dataReceivedPublisher = gameDataTable.getBooleanTopic("DataReceived").publish();
 
-        // [PSEUDOCODE INSERT LOCATION - CONSTRUCTOR]
-        // Initialize shift publishers here:
+        // --------------------------------------------------------------------
+        // [CONSTRUCTOR STEP - UNCOMMENT TO ENABLE SHIFT TOPICS]
+        // Create publishers once, exactly like other NetworkTables publishers.
         // matchTimePublisher = gameDataTable.getDoubleTopic("MatchTimeSec").publish();
         // currentShiftPublisher = gameDataTable.getIntegerTopic("CurrentShift").publish();
         // currentShiftColorPublisher = gameDataTable.getStringTopic("CurrentShiftColor").publish();
         // isRedShiftPublisher = gameDataTable.getBooleanTopic("IsRedShift").publish();
         // isBlueShiftPublisher = gameDataTable.getBooleanTopic("IsBlueShift").publish();
+        // --------------------------------------------------------------------
 
         // Initialize with default values
         update();
@@ -120,9 +135,12 @@ public class GameDataTelemetry {
      * Until then, getGameSpecificMessage() returns an empty string.
      */
     public void update() {
-        // [PSEUDOCODE INSERT LOCATION - START OF UPDATE]
+        // --------------------------------------------------------------------
+        // [UPDATE STEP 1 - READ TIME + COMPUTE SHIFT NUMBER]
+        // DriverStation.getMatchTime() is the current match time remaining.
         // double matchTimeSec = DriverStation.getMatchTime();
         // int shiftNumber = computeShiftNumber(matchTimeSec);
+        // --------------------------------------------------------------------
 
         // Only poll if we haven't received data yet (data doesn't change during a match)
         if (!dataReceived) {
@@ -145,9 +163,21 @@ public class GameDataTelemetry {
             }
         }
 
-        // [PSEUDOCODE INSERT LOCATION - AFTER GAME DATA PARSE]
+        // --------------------------------------------------------------------
+        // [UPDATE STEP 2 - MAP WINNER + SHIFT TO ACTIVE COLOR]
+        // If data not received yet, this should produce "UNKNOWN".
         // String shiftColor = computeShiftColor(inactiveFirstAlliance, shiftNumber);
-        // publishShiftState(matchTimeSec, shiftNumber, shiftColor);
+        //
+        // OPTIONAL TEST OVERRIDE (bring-up only):
+        // inactiveFirstAlliance = InactiveAlliance.BLUE;
+        // dataReceived = true;
+        // shiftColor = computeShiftColor(inactiveFirstAlliance, shiftNumber);
+        // --------------------------------------------------------------------
+
+        // Publish current state to NetworkTables
+        // NOTE: when enabling shift telemetry, pass local values into publishState.
+        // publishState(matchTimeSec, shiftNumber, shiftColor);
+        // return;
 
         // Publish current state to NetworkTables
         publishState();
@@ -156,6 +186,9 @@ public class GameDataTelemetry {
     /**
      * Publishes the current game data state to NetworkTables.
      */
+    // ------------------------------------------------------------------------
+    // Current active method. Keep this signature until you are ready to enable
+    // shift telemetry. Then migrate to the overloaded version below.
     private void publishState() {
         // Publish string representation
         switch (inactiveFirstAlliance) {
@@ -175,15 +208,41 @@ public class GameDataTelemetry {
         isBluePublisher.set(inactiveFirstAlliance == InactiveAlliance.BLUE);
         dataReceivedPublisher.set(dataReceived);
 
-        // [PSEUDOCODE INSERT LOCATION - SHIFT PUBLISH]
+        // --------------------------------------------------------------------
+        // [SHIFT PUBLISH STEP - ENABLE WHEN READY]
         // matchTimePublisher.set(matchTimeSec);
         // currentShiftPublisher.set(shiftNumber);
         // currentShiftColorPublisher.set(shiftColor);
         // isRedShiftPublisher.set("RED".equals(shiftColor));
         // isBlueShiftPublisher.set("BLUE".equals(shiftColor));
+        // --------------------------------------------------------------------
+
     }
 
-    // [PSEUDOCODE INSERT LOCATION - HELPER METHODS]
+    // ------------------------------------------------------------------------
+    // [FULL COMMENTED REFERENCE - ENABLE IN STAGES]
+    //
+    // 1) Overload publishState to include shift fields:
+    // private void publishState(double matchTimeSec, int shiftNumber, String shiftColor) {
+    //     // Existing values
+    //     switch (inactiveFirstAlliance) {
+    //         case RED:  inactiveAlliancePublisher.set("R"); break;
+    //         case BLUE: inactiveAlliancePublisher.set("B"); break;
+    //         default:   inactiveAlliancePublisher.set("NONE"); break;
+    //     }
+    //     isRedPublisher.set(inactiveFirstAlliance == InactiveAlliance.RED);
+    //     isBluePublisher.set(inactiveFirstAlliance == InactiveAlliance.BLUE);
+    //     dataReceivedPublisher.set(dataReceived);
+    //
+    //     // New shift values
+    //     matchTimePublisher.set(matchTimeSec);
+    //     currentShiftPublisher.set(shiftNumber);
+    //     currentShiftColorPublisher.set(shiftColor);
+    //     isRedShiftPublisher.set("RED".equals(shiftColor));
+    //     isBlueShiftPublisher.set("BLUE".equals(shiftColor));
+    // }
+    //
+    // 2) Compute shift from current match time:
     // private int computeShiftNumber(double matchTimeSec) {
     //     if (matchTimeSec > SHIFT_2_START_SEC) return 1;
     //     if (matchTimeSec > SHIFT_3_START_SEC) return 2;
@@ -191,10 +250,10 @@ public class GameDataTelemetry {
     //     return 4;
     // }
     //
+    // 3) Compute active alliance color from winner + shift index:
     // private String computeShiftColor(InactiveAlliance winner, int shiftNumber) {
     //     if (winner == InactiveAlliance.NONE) return "UNKNOWN";
     //
-    //     // Winner alliance is active in shifts 2 and 4.
     //     boolean winnerActive = (shiftNumber == 2 || shiftNumber == 4);
     //
     //     if (winner == InactiveAlliance.BLUE) {
@@ -202,6 +261,7 @@ public class GameDataTelemetry {
     //     }
     //     return winnerActive ? "RED" : "BLUE";
     // }
+    // ------------------------------------------------------------------------
 
     /**
      * Returns which alliance's goal goes inactive first.
@@ -228,24 +288,3 @@ public class GameDataTelemetry {
      */
     public boolean isRedInactiveFirst() {
         return inactiveFirstAlliance == InactiveAlliance.RED;
-    }
-
-    /**
-     * Returns whether Blue alliance's goal goes inactive first.
-     *
-     * @return true if Blue goal inactive first, false otherwise (including if no data)
-     */
-    public boolean isBlueInactiveFirst() {
-        return inactiveFirstAlliance == InactiveAlliance.BLUE;
-    }
-
-    /**
-     * Resets the game data state. Call this at the start of a new match if needed.
-     * Typically not required as data persists for the duration of a match.
-     */
-    public void reset() {
-        inactiveFirstAlliance = InactiveAlliance.NONE;
-        dataReceived = false;
-        publishState();
-    }
-}
