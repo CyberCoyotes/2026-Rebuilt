@@ -40,13 +40,6 @@ public class ShooterIOHardware implements ShooterIO {
   // ── Flywheel Configuration ─────────────────────────────────────────────────
   private static class FlywheelConfig {
 
-    static TalonFXConfiguration competition() {
-      TalonFXConfiguration config = leader();
-      return config;
-    }
-
-    /** Config for Motor A (leader) — runs velocity closed-loop with PID and ramp. */
-    // TODO: Dial in competition current limits and ramps
     static TalonFXConfiguration test() {
 
       TalonFXConfiguration config = leader();
@@ -58,7 +51,7 @@ public class ShooterIOHardware implements ShooterIO {
       // On 2/27 was set at 120
       config.CurrentLimits.StatorCurrentLimit = 90.0; // TODO: Tune Flywheel stator current limit for testing.
       config.CurrentLimits.StatorCurrentLimitEnable = true;
-      config.ClosedLoopRamps.VoltageClosedLoopRampPeriod = 0.5;
+      config.ClosedLoopRamps.VoltageClosedLoopRampPeriod = 0.25;
 
       return config;
     }
@@ -98,12 +91,8 @@ public class ShooterIOHardware implements ShooterIO {
       config.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
 
       // Slot 0 — VelocityVoltage gains (kP in Volts/RPS)
-      config.Slot0.kP = 0.12; // TODO: Tune kP
+      config.Slot0.kP = 0.00; // TODO: Tune kP
       config.Slot0.kV = 0.12; // TODO: Tune kV
-
-      // Slot 1 — VelocityTorqueCurrentFOC gains (kP in Amps/RPS — different units, retune separately)
-      config.Slot1.kP = 5.0;  // TODO: Tune kP starting point for torque current; units are Amps not Volts
-      config.Slot1.kV = 0.12; // TODO: Tune kV
 
       return config;
     }
