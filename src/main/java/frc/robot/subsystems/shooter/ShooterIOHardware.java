@@ -40,22 +40,6 @@ public class ShooterIOHardware implements ShooterIO {
   // ── Flywheel Configuration ─────────────────────────────────────────────────
   private static class FlywheelConfig {
 
-    static TalonFXConfiguration test() {
-
-      TalonFXConfiguration config = leader();
-
-      // On 2/27 was set at 60
-      config.CurrentLimits.SupplyCurrentLimit = 45.0; // TODO: Tune Flywheel supply current limit for testing.
-      config.CurrentLimits.SupplyCurrentLimitEnable = true;
-
-      // On 2/27 was set at 120
-      config.CurrentLimits.StatorCurrentLimit = 90.0; // TODO: Tune Flywheel stator current limit for testing.
-      config.CurrentLimits.StatorCurrentLimitEnable = true;
-      config.ClosedLoopRamps.VoltageClosedLoopRampPeriod = 0.25;
-
-      return config;
-    }
-
     /**
      * Config for Motors B and C (followers).
      * Followers must NOT have a ramp period — the leader owns the ramp.
@@ -86,6 +70,15 @@ public class ShooterIOHardware implements ShooterIO {
 
     private static TalonFXConfiguration leader() {
       TalonFXConfiguration config = new TalonFXConfiguration();
+
+      // On 2/27 was set at 60
+      config.CurrentLimits.SupplyCurrentLimit = 45.0; // TODO: Tune Flywheel supply current limit for testing.
+      config.CurrentLimits.SupplyCurrentLimitEnable = true;
+
+      // On 2/27 was set at 120
+      config.CurrentLimits.StatorCurrentLimit = 90.0; // TODO: Tune Flywheel stator current limit for testing.
+      config.CurrentLimits.StatorCurrentLimitEnable = true;
+      config.ClosedLoopRamps.VoltageClosedLoopRampPeriod = 0.25;
 
       config.MotorOutput.NeutralMode = NeutralModeValue.Coast;
       config.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
@@ -170,7 +163,7 @@ public class ShooterIOHardware implements ShooterIO {
     hoodEncoder.getConfigurator().apply(encoderConfig);
 
     // Apply motor configs — B and C use a separate follower config (no ramp, no PID)
-    flywheelMotorA.getConfigurator().apply(FlywheelConfig.test());
+    flywheelMotorA.getConfigurator().apply(FlywheelConfig.leader());
     flywheelMotorB.getConfigurator().apply(FlywheelConfig.follower());
     flywheelMotorC.getConfigurator().apply(FlywheelConfig.follower());
     hoodMotor.getConfigurator().apply(HoodConfig.hood());

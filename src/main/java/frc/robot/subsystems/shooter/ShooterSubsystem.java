@@ -33,8 +33,6 @@ import frc.robot.Constants;
  * - RT routes to FarShotCommand instead of shootAtCurrentTarget
  * - FarShotCommand continuously updates hood position via updateHoodForDistance()
  *
- * @see Constants.Shooter for hardware configuration
- * @author @Isaak3
  */
 
 @SuppressWarnings("unused") // Unused methods are intentional for future use and testing
