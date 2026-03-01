@@ -84,8 +84,9 @@ public class ShooterIOHardware implements ShooterIO {
       config.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
 
       // Slot 0 — VelocityVoltage gains (kP in Volts/RPS)
-      config.Slot0.kP = 0.05; // TODO: Tune kP — Phase 2 start
-      config.Slot0.kV = 0.126; // TODO: Tune kV — was 0.12, +5% to close ~160 RPM steady-state error at 3300 RPM
+      // Tuned 2026-03-01: kV=0.126 → ±30 RPM steady-state at 3300 RPM, 7V draw, no oscillation
+      config.Slot0.kP = 0.05;
+      config.Slot0.kV = 0.126;
 
       return config;
     }
