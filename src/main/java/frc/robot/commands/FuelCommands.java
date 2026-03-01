@@ -460,6 +460,7 @@ public class FuelCommands {
     }
 
     public static class Auto {
+
     public static Command shootTrench(ShooterSubsystem shooter, IndexerSubsystem indexer,
             double feedSeconds) {
         return Commands.sequence(
@@ -468,16 +469,19 @@ public class FuelCommands {
                     shooter.setTargetHoodPose(Constants.Shooter.TRENCH_HOOD);
                     shooter.prepareToShoot();
                 }, shooter),
-                Commands.waitUntil(shooter::isReady).withTimeout(3.0),
+                // Longer timeout for trench shot so I can see if the shooter is ACTUALLY ready or if its just the timeout
+                Commands.waitUntil(shooter::isReady).withTimeout(6.0),
+                
                 Commands.run(() -> {
                     indexer.indexerForward();
                     indexer.conveyorForward();
-                }, indexer).withTimeout(feedSeconds) // primary end trigger: timeout
+                }, indexer).withTimeout(feedSeconds), // primary end trigger: timeout
+                indexer.feed().until(indexer::donePassingFuel)
         ).finallyDo(() -> {
             indexer.indexerStop();
             indexer.conveyorStop();
             shooter.setIdle();
-        });
+        }).withName("ShootTrenchAuton");
     }
         public static Command shootHub(ShooterSubsystem shooter, IndexerSubsystem indexer,
                 double feedSeconds) {
@@ -500,7 +504,7 @@ public class FuelCommands {
                 indexer.indexerStop();
                 indexer.conveyorStop();
                 shooter.setIdle();
-            }).withName("ShootTrenchAuton");
+            }).withName("ShootHubAuton");
         }
 
     public static Command shootTower(ShooterSubsystem shooter, IndexerSubsystem indexer,
@@ -515,12 +519,13 @@ public class FuelCommands {
                 Commands.run(() -> {
                     indexer.indexerForward();
                     indexer.conveyorForward();
-                }, indexer).withTimeout(feedSeconds) // primary end trigger: timeout
+                }, indexer).withTimeout(feedSeconds), // primary end trigger: timeout
+                indexer.feed().until(indexer::donePassingFuel)
         ).finallyDo(() -> {
             indexer.indexerStop();
             indexer.conveyorStop();
             shooter.setIdle();
-        });
+        }).withName("ShootTowerAuton");
     } // end of command
 
     public static Command shootFar(ShooterSubsystem shooter, IndexerSubsystem indexer,
@@ -535,12 +540,13 @@ public class FuelCommands {
                 Commands.run(() -> {
                     indexer.indexerForward();
                     indexer.conveyorForward();
-                }, indexer).withTimeout(feedSeconds) // primary end trigger: timeout
+                }, indexer).withTimeout(feedSeconds), // primary end trigger: timeout
+                indexer.feed().until(indexer::donePassingFuel)
         ).finallyDo(() -> {
             indexer.indexerStop();
             indexer.conveyorStop();
             shooter.setIdle();
-        });
+        }).withName("ShootFarAuton");
     } // end of command
  public static Command shootTren(ShooterSubsystem shooter, IndexerSubsystem indexer,
                 double feedSeconds) {
