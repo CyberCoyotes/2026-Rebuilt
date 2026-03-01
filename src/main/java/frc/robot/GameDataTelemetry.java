@@ -32,6 +32,41 @@ import edu.wpi.first.wpilibj.DriverStation;
  */
 public class GameDataTelemetry {
 
+  // ========================================================================
+    // SHIFT TELEMETRY EXPANSION PLAN (PSEUDOCODE ONLY - NOT ACTIVE CODE)
+    // ------------------------------------------------------------------------
+    // Place this block here (class scope, near publishers/state) when you
+    // implement shift-aware Elastic telemetry.
+    //
+    // 1) Add new publishers under /GameData (or /ShiftData):
+    //    - MatchTimeSec (double)
+    //    - CurrentShift (int)
+    //    - CurrentShiftColor (string: "RED" / "BLUE" / "UNKNOWN")
+    //    - IsRedShift (boolean)
+    //    - IsBlueShift (boolean)
+    //
+    // 2) Add shift constants (fill with official game timing):
+    //    - SHIFT_2_START_SEC
+    //    - SHIFT_3_START_SEC
+    //    - SHIFT_4_START_SEC
+    //
+    // 3) Add helper methods:
+    //    - computeShiftNumber(matchTimeSec)
+    //    - computeShiftColor(inactiveFirstAlliance, shiftNumber)
+    //
+    // 4) In update():
+    //    - Read matchTime = DriverStation.getMatchTime()
+    //    - Compute current shift from time
+    //    - Determine active color by shift and winner
+    //      (winner active in shifts 2 & 4; other alliance active in 1 & 3)
+    //    - Publish all shift topics for Elastic widgets
+    //
+    // 5) For "assume blue won auton" testing mode:
+    //    - Optionally force inactiveFirstAlliance = BLUE during bring-up
+    //    - Keep clearly marked as temporary test behavior
+    // ========================================================================
+
+
     /** Represents which alliance's goal goes inactive first */
     public enum InactiveAlliance {
         NONE,  // Data not yet received
@@ -45,6 +80,14 @@ public class GameDataTelemetry {
     private final BooleanPublisher isBluePublisher;
     private final BooleanPublisher dataReceivedPublisher;
 
+// [PSEUDOCODE INSERT LOCATION]
+    // Add shift publishers here when implementing:
+    // private final DoublePublisher matchTimePublisher;
+    // private final IntegerPublisher currentShiftPublisher;
+    // private final StringPublisher currentShiftColorPublisher;
+    // private final BooleanPublisher isRedShiftPublisher;
+    // private final BooleanPublisher isBlueShiftPublisher;
+
     private InactiveAlliance inactiveFirstAlliance = InactiveAlliance.NONE;
     private boolean dataReceived = false;
 
@@ -56,6 +99,14 @@ public class GameDataTelemetry {
         isRedPublisher = gameDataTable.getBooleanTopic("IsRed").publish();
         isBluePublisher = gameDataTable.getBooleanTopic("IsBlue").publish();
         dataReceivedPublisher = gameDataTable.getBooleanTopic("DataReceived").publish();
+
+        // [PSEUDOCODE INSERT LOCATION - CONSTRUCTOR]
+        // Initialize shift publishers here:
+        // matchTimePublisher = gameDataTable.getDoubleTopic("MatchTimeSec").publish();
+        // currentShiftPublisher = gameDataTable.getIntegerTopic("CurrentShift").publish();
+        // currentShiftColorPublisher = gameDataTable.getStringTopic("CurrentShiftColor").publish();
+        // isRedShiftPublisher = gameDataTable.getBooleanTopic("IsRedShift").publish();
+        // isBlueShiftPublisher = gameDataTable.getBooleanTopic("IsBlueShift").publish();
 
         // Initialize with default values
         update();
@@ -69,6 +120,10 @@ public class GameDataTelemetry {
      * Until then, getGameSpecificMessage() returns an empty string.
      */
     public void update() {
+        // [PSEUDOCODE INSERT LOCATION - START OF UPDATE]
+        // double matchTimeSec = DriverStation.getMatchTime();
+        // int shiftNumber = computeShiftNumber(matchTimeSec);
+
         // Only poll if we haven't received data yet (data doesn't change during a match)
         if (!dataReceived) {
             String gameData = DriverStation.getGameSpecificMessage();
@@ -89,6 +144,10 @@ public class GameDataTelemetry {
                 }
             }
         }
+
+        // [PSEUDOCODE INSERT LOCATION - AFTER GAME DATA PARSE]
+        // String shiftColor = computeShiftColor(inactiveFirstAlliance, shiftNumber);
+        // publishShiftState(matchTimeSec, shiftNumber, shiftColor);
 
         // Publish current state to NetworkTables
         publishState();
@@ -115,7 +174,34 @@ public class GameDataTelemetry {
         isRedPublisher.set(inactiveFirstAlliance == InactiveAlliance.RED);
         isBluePublisher.set(inactiveFirstAlliance == InactiveAlliance.BLUE);
         dataReceivedPublisher.set(dataReceived);
+
+        // [PSEUDOCODE INSERT LOCATION - SHIFT PUBLISH]
+        // matchTimePublisher.set(matchTimeSec);
+        // currentShiftPublisher.set(shiftNumber);
+        // currentShiftColorPublisher.set(shiftColor);
+        // isRedShiftPublisher.set("RED".equals(shiftColor));
+        // isBlueShiftPublisher.set("BLUE".equals(shiftColor));
     }
+
+    // [PSEUDOCODE INSERT LOCATION - HELPER METHODS]
+    // private int computeShiftNumber(double matchTimeSec) {
+    //     if (matchTimeSec > SHIFT_2_START_SEC) return 1;
+    //     if (matchTimeSec > SHIFT_3_START_SEC) return 2;
+    //     if (matchTimeSec > SHIFT_4_START_SEC) return 3;
+    //     return 4;
+    // }
+    //
+    // private String computeShiftColor(InactiveAlliance winner, int shiftNumber) {
+    //     if (winner == InactiveAlliance.NONE) return "UNKNOWN";
+    //
+    //     // Winner alliance is active in shifts 2 and 4.
+    //     boolean winnerActive = (shiftNumber == 2 || shiftNumber == 4);
+    //
+    //     if (winner == InactiveAlliance.BLUE) {
+    //         return winnerActive ? "BLUE" : "RED";
+    //     }
+    //     return winnerActive ? "RED" : "BLUE";
+    // }
 
     /**
      * Returns which alliance's goal goes inactive first.
