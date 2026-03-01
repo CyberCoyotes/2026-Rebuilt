@@ -192,35 +192,37 @@ public class ShooterIOHardware implements ShooterIO {
     hoodPosition           = hoodMotor.getPosition();
     hoodEncoderAbsPosition = hoodEncoder.getAbsolutePosition();
 
-    // 50Hz — control loop needs fresh velocity and position every cycle
-    BaseStatusSignal.setUpdateFrequencyForAll(
-        50.0,
-        flywheelAVelocity,
-        hoodPosition
-    );
-
-    // 10Hz — encoder health check; fast enough to catch a disconnect safely
-    BaseStatusSignal.setUpdateFrequencyForAll(
-        10.0,
-        hoodEncoderAbsPosition
-    );
-
-    // Disable all status frames not explicitly configured above
+    // Disable all status frames not explicitly configured below.
+    // optimizeBusUtilization() suppresses ALL status frames — setUpdateFrequency
+    // calls MUST come AFTER this call, otherwise they get cleared.
     flywheelMotorA.optimizeBusUtilization();
     flywheelMotorB.optimizeBusUtilization();
     flywheelMotorC.optimizeBusUtilization();
     hoodMotor.optimizeBusUtilization();
     hoodEncoder.optimizeBusUtilization();
 
-    /* optimizeBusUtilization() suppresses ALL status frames on Motor A, including
-     * the DutyCycle and MotorVoltage output signals that B and C need to follow.
-     * Without these signals, followers lose sync — causing orange LEDs and the
-     * whump-whump noise. Explicitly re-enable them at 100Hz on the leader AFTER
-     * optimizing, so followers always have a fresh output value to mirror. */
+    // 100Hz — DutyCycle and MotorVoltage must be re-enabled on Motor A so
+    // followers B and C can mirror output. Without these, followers lose sync,
+    // causing orange LEDs and the whump-whump noise.
     BaseStatusSignal.setUpdateFrequencyForAll(
         100.0,
         flywheelMotorA.getDutyCycle(),
         flywheelAMotorVoltage
+    );
+
+    // 50Hz — control loop needs fresh velocity and position every cycle.
+    // Must be set AFTER optimizeBusUtilization() or it will be cleared.
+    BaseStatusSignal.setUpdateFrequencyForAll(
+        50.0,
+        flywheelAVelocity,
+        hoodPosition
+    );
+
+    // 10Hz — encoder health check; fast enough to catch a disconnect safely.
+    // Must be set AFTER optimizeBusUtilization() or it will be cleared.
+    BaseStatusSignal.setUpdateFrequencyForAll(
+        10.0,
+        hoodEncoderAbsPosition
     );
 
     /* Followers MUST be set AFTER optimizeBusUtilization()
