@@ -116,9 +116,8 @@ public class RobotContainer {
 
         driver.rightTrigger(0.5).whileTrue(
             FuelCommands.shootWithSelectedPreset(shooter, indexer));
+        driver.rightBumper().whileTrue(shooter.tuneFlywheelCommand(3300));
 
-        driver.rightBumper().whileTrue(FuelCommands.shootWithSelectedPreset(shooter, indexer)); // command that makes a pass preset shot
-        
         driver.leftTrigger(0.5).whileTrue(intake.intakeFuel());
         driver.leftBumper().whileTrue(intake.compressFuelIncremental());
 
