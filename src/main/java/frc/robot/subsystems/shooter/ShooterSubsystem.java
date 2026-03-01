@@ -15,19 +15,18 @@ import frc.robot.subsystems.shooter.ShooterIO.ShooterIOInputs;
 import frc.robot.Constants;
 
 /**
- * THESE COMMENTS ARE ALL FROM EXPERIMENTAL AND SHOULD NOT DRIVE FUNCTIONALITY OF THE SHOOTER SUBSYSTEM. 
  * STATE MACHINE:
- * - IDLE: All motors off, hood at home position (not used during match)
- * - STANDBY: Flywheel spinning at STANDBY_RPM — always active during match
+ * - IDLE: All motors off, hood at home position
+ * - STANDBY: Reserved for future pre-rev use — not active, flywheel command is commented out
  * - READY: Flywheel and hood at preset targets, ready to shoot
  * - PASS: Passing shot at PASS_RPM, hood at PASS_HOOD
  * - EJECT: Flywheel reverse at EJECT_RPM for clearing jams — velocity-gated
+ * - POPPER: Low-speed mode for assisted fuel loading
  *
  * SHOT FLOW:
- * 1. Shooter enabled — spinup() called, flywheel spins to STANDBY_RPM
- * 2. Driver presses a preset button (A/X/B) — silently sets target RPM and hood position
- * 3. Driver holds shoot trigger — transitions to READY, hood moves, waits until up to speed, feeds
- * 4. Driver releases trigger — returns to IDLE (TODO: change to STANDBY once spin logic validated)
+ * 1. Driver presses a preset button — silently sets target RPM and hood position
+ * 2. Driver holds shoot trigger — transitions to READY, hood moves, waits until up to speed, feeds
+ * 3. Driver releases trigger — returns to IDLE
  *
  * FAR SHOT FLOW (X + RT): [NOT YET ACTIVE — isFarShotSelected disabled]
  * - X silently arms far shot
