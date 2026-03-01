@@ -248,7 +248,7 @@ public final class Constants {
      *   - Too high → oscillates left/right around the target
      * See TUNING.md §5 for step-by-step procedure.
      */
-    public static final double ROTATIONAL_KP = 0.06;
+    public static final double ROTATIONAL_KP = 0.12;
 
     /**
      * Maximum rotational rate the vision command will apply to the drivetrain (rad/s).

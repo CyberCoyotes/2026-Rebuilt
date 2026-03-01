@@ -18,6 +18,7 @@ import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.RobotModeTriggers;
 import frc.robot.generated.TunerConstants;
 import frc.robot.commands.FuelCommands;
+import frc.robot.commands.FarShotCommand;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
 import frc.robot.subsystems.indexer.IndexerSubsystem;
 import frc.robot.subsystems.intake.IntakeSubsystem;
@@ -48,7 +49,7 @@ public class RobotContainer {
 
     // ===== Controllers =====
     private final CommandXboxController driver = new CommandXboxController(0);
-    private final CommandXboxController operator = new CommandXboxController(1);
+    // Operator controller removed for single-controller testing
 
     // ===== Subsystems =====
     public final CommandSwerveDrivetrain drivetrain = TunerConstants.createDrivetrain();
@@ -74,21 +75,23 @@ public class RobotContainer {
         // climber = new ClimberSubsystem();
 
         autoFactory = drivetrain.createAutoFactory();
-        autoRoutines = new AutoRoutines(autoFactory,drivetrain,indexer, intake, shooter, fuelCommands);
+        autoRoutines = new AutoRoutines(autoFactory, drivetrain, indexer, intake, shooter, fuelCommands);
         SmartDashboard.putData(autoChooser);
         autoChooser.addRoutine("Four meters", autoRoutines::FM);
         autoChooser.addRoutine("Lob", autoRoutines::Lob);
         autoChooser.addRoutine("StartRight goes to middle", autoRoutines::StartRMid);
         autoChooser.addRoutine("Test(center shot)", autoRoutines::TestRoutine);
-        
-        SmartDashboard.putData("AutoChooser", autoChooser);
-        configureBindings();
 
+        SmartDashboard.putData("AutoChooser", autoChooser);
+        // Keep flywheel spinning at STANDBY_RPM when no other command is running
+        shooter.setDefaultCommand(Commands.run(shooter::returnToStandby, shooter));
+
+        configureBindings();
     }
 
     private void configureBindings() {
         // =====================================================================
-        // DRIVER CONTROLLER (Port 0) - Drivetrain
+        // DRIVING - Left stick translate, right stick rotate
         // =====================================================================
 
         drivetrain.setDefaultCommand(
@@ -110,46 +113,41 @@ public class RobotContainer {
         drivetrain.registerTelemetry(logger::telemeterize);
 
         // =====================================================================
-        // DRIVER CONTROLLER (Port 0) - Shooter
+        // INTAKE
+        // LT: Intake fuel
+        // RB: Retract intake
         // =====================================================================
 
-        driver.rightTrigger(0.5).whileTrue(
-            FuelCommands.shootWithSelectedPreset(shooter, indexer));
-        driver.rightBumper().whileTrue(FuelCommands.shootWithSelectedPreset(shooter, indexer)); // command that makes a pass preset shot
-        
-        // driver.leftTrigger(0.5).whileTrue(intake.intakeFuel());
-        driver.leftTrigger().whileTrue(FuelCommands.runAirPopper(indexer, shooter, intake)); 
-
+        driver.leftTrigger().whileTrue(intake.intakeFuel());
         driver.leftBumper().whileTrue(intake.compressFuelIncremental());
 
-        // Right Trigger + Vision: Commented out — vision shot disabled for now.
-        // driver.rightTrigger(0.5).and(driver.a()).whileTrue(
-        //     FuelCommands.visionAlignAndShoot(
-        //         shooter, vision, indexer, drivetrain,
-        //         () -> -driver.getLeftY() * MaxSpeed,
-        //         () -> -driver.getLeftX() * MaxSpeed
-        //     )
-        // );
+        // =====================================================================
+        // SHOOTER
+        // RT: Shoot with selected preset
+        // =====================================================================
 
+        // RT: Shoot — routes to FarShotCommand if FAR preset is selected, otherwise uses selected preset
+        driver.rightTrigger(0.5).whileTrue(
+            Commands.either(
+                new FarShotCommand(shooter, indexer, drivetrain,
+                    () -> -driver.getLeftY() * MaxSpeed,
+                    () -> -driver.getLeftX() * MaxSpeed),
+                FuelCommands.shootWithSelectedPreset(shooter, indexer),
+                shooter::isFarShotSelected
+            )
+        );
 
         // =====================================================================
-        // OPERATOR CONTROLLER (Port 1)
+        // PRESETS
+        // A: Close Shot
+        // X: Far Shot (pose-based, auto-rotates to hub, activates on RT)
+        // B: Passing Shot (command TBD)
         // =====================================================================
-        
-        // operator.rightTrigger().whileTrue(FuelCommands.runAirPopper(indexer, shooter, intake)); 
-        // operator.rightBumper().onTrue(Commands.runOnce(() -> shooter.selectPreset(ShooterSubsystem.ShotPreset.PASS)));
 
-        operator.leftTrigger().whileTrue(FuelCommands.runAirPopper(indexer, shooter, intake)); 
-        operator.leftBumper().onTrue(Commands.runOnce(() -> shooter.selectPreset(ShooterSubsystem.ShotPreset.PASS)));
-        
-        operator.a().onTrue(Commands.runOnce(() -> shooter.selectPreset(ShooterSubsystem.ShotPreset.CLOSE)));
-        operator.b().onTrue(Commands.runOnce(() -> shooter.selectPreset(ShooterSubsystem.ShotPreset.TRENCH)));
-        operator.x().onTrue(Commands.runOnce(() -> shooter.selectPreset(ShooterSubsystem.ShotPreset.TOWER)));
-        operator.y().onTrue(Commands.runOnce(() -> shooter.selectPreset(ShooterSubsystem.ShotPreset.FAR)));
+        driver.a().onTrue(Commands.runOnce(() -> shooter.selectPreset(ShooterSubsystem.ShotPreset.CLOSE)));
+        driver.x().onTrue(Commands.runOnce(() -> shooter.selectPreset(ShooterSubsystem.ShotPreset.FAR)));
+        driver.b().onTrue(Commands.runOnce(() -> shooter.selectPreset(ShooterSubsystem.ShotPreset.PASS)));    // TODO: Replace with Passing Shot preset
 
-        // operator.povUp().whileTrue(null); // incremental extend climber command to be added when climber is ready
-        // operator.povDown().whileTrue(null); // incremental retract climber command to be added when climber is ready
-                
     }
 
     public Command getAutonomousCommand() {

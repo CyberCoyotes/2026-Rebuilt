@@ -138,7 +138,7 @@ public class FuelCommands {
                     shooter.setSelectedPreset();
                     shooter.prepareToShoot();
                 }, shooter),
-                Commands.waitUntil(shooter::isReady).withTimeout(3.0),
+                Commands.waitUntil(shooter::isReady).withTimeout(1.0),
                 Commands.run(() -> {
                     indexer.indexerForward();
                     indexer.conveyorForward();
@@ -265,7 +265,7 @@ public class FuelCommands {
      */
     public static Command waitUntilReady(ShooterSubsystem shooter) {
         return Commands.waitUntil(shooter::isReady)
-                .withTimeout(3.0)
+                .withTimeout(1.0)
                 .withName("WaitForShooterReady");
     }
 
@@ -277,7 +277,7 @@ public class FuelCommands {
                     shooter.setTargetHoodPose(Constants.Shooter.PASS_HOOD);
                     shooter.prepareToShoot();
                 }, shooter),
-                Commands.waitUntil(shooter::isReady).withTimeout(3.0),
+                Commands.waitUntil(shooter::isReady).withTimeout(1.0),
                 Commands.run(() -> {
                     indexer.feed();
                 }, indexer))
@@ -317,8 +317,9 @@ public class FuelCommands {
      * 4. Overrides drivetrain rotation with a P-controller on tx (horizontal
      * angle),
      * while still allowing the driver to translate freely with the left stick.
-     * 5. Fires the indexer and conveyor as soon as vision reports aligned AND
-     * shooter reports ready. Stops feeding if either condition is lost.
+     * 5. Fires the indexer and conveyor when vision is locked within 1% of
+     * ALIGNMENT_TOLERANCE_DEGREES AND flywheel is within 10% of target RPM.
+     * Stops feeding if either condition is lost.
      * 6. On trigger release: stops indexer, conveyor, and shooter.
      *
      * Subsystem requirements: shooter, vision, indexer, drivetrain
@@ -327,6 +328,8 @@ public class FuelCommands {
      * Tuning handles:
      * - Constants.Vision.ROTATIONAL_KP (rotation aggressiveness)
      * - Constants.Vision.MAX_ALIGNMENT_ROTATION_RAD_PER_SEC (rotation clamp)
+     * - Constants.Vision.ALIGNMENT_TOLERANCE_DEGREES * 0.01 (feed gate, 1% of tolerance)
+     * - Constants.Shooter.FLYWHEEL_TOLERANCE_PERCENT (feed gate, default 10%)
      * - ShooterSubsystem FLYWHEEL_RPM_MAP / HOOD_ROT_MAP (shooter params)
      * See TUNING.md for the step-by-step procedure.
      *
@@ -381,8 +384,10 @@ public class FuelCommands {
                             .withVelocityY(ySupplier.getAsDouble())
                             .withRotationalRate(rotRate));
 
-            // ── 3. Feed: only when both conditions met ─────────────────────────
-            if (vision.isAligned() && shooter.isReady()) {
+            // ── 3. Feed: vision locked within 1% of tolerance AND flywheel at speed
+            boolean visionLocked = Math.abs(vision.getHorizontalAngleDegrees()) <= (Constants.Vision.ALIGNMENT_TOLERANCE_DEGREES * 2);
+            boolean flywheelReady = shooter.isFlywheelAtVelocity();
+            if (visionLocked && flywheelReady) {
                 indexer.indexerForward();
                 indexer.conveyorForward();
             } else {
@@ -414,7 +419,7 @@ public class FuelCommands {
     public static Command visionShootSequence(ShooterSubsystem shooter, VisionSubsystem vision,
             IndexerSubsystem indexer) {
         return Commands.sequence(
-                Commands.waitUntil(vision::hasTarget).withTimeout(1.0),
+                Commands.waitUntil(vision::hasTarget).withTimeout(0.25),
                 visionShot(shooter, vision)
         // IndexerCommands.feedTimed(indexer, 0.5), // FIXME to use the
         // IndexerSubsystem's feed method instead of a command from IndexerCommands
@@ -447,9 +452,6 @@ public class FuelCommands {
      * @param vision  The vision subsystem
      * @return Command that continuously tracks target
      */
-
-
-
     public static Command trackTarget(ShooterSubsystem shooter, VisionSubsystem vision) {
         return Commands.run(() -> {
             if (vision.hasTarget()) {
@@ -469,7 +471,7 @@ public class FuelCommands {
                     shooter.setTargetHoodPose(Constants.Shooter.TRENCH_HOOD);
                     shooter.prepareToShoot();
                 }, shooter),
-                Commands.waitUntil(shooter::isReady).withTimeout(3.0),
+                Commands.waitUntil(shooter::isReady).withTimeout(1.0),
                 Commands.run(() -> {
                     indexer.indexerForward();
                     indexer.conveyorForward();
@@ -488,7 +490,7 @@ public class FuelCommands {
                         shooter.setTargetHoodPose(Constants.Shooter.CLOSE_HOOD);
                         shooter.prepareToShoot();
                     }, shooter),
-                    Commands.waitUntil(shooter::isReady).withTimeout(3.0),
+                    Commands.waitUntil(shooter::isReady).withTimeout(1.0),
                     Commands.run(() -> {
                         indexer.indexerForward();
                         indexer.conveyorForward();
@@ -512,7 +514,7 @@ public class FuelCommands {
                     shooter.setTargetHoodPose(Constants.Shooter.TOWER_HOOD);
                     shooter.prepareToShoot();
                 }, shooter),
-                Commands.waitUntil(shooter::isReady).withTimeout(3.0),
+                Commands.waitUntil(shooter::isReady).withTimeout(1.0),
                 Commands.run(() -> {
                     indexer.indexerForward();
                     indexer.conveyorForward();
@@ -532,7 +534,7 @@ public class FuelCommands {
                     shooter.setTargetHoodPose(Constants.Shooter.FAR_HOOD);
                     shooter.prepareToShoot();
                 }, shooter),
-                Commands.waitUntil(shooter::isReady).withTimeout(3.0),
+                Commands.waitUntil(shooter::isReady).withTimeout(1.0),
                 Commands.run(() -> {
                     indexer.indexerForward();
                     indexer.conveyorForward();

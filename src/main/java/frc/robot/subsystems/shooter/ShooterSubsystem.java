@@ -15,7 +15,6 @@ import frc.robot.subsystems.shooter.ShooterIO.ShooterIOInputs;
 import frc.robot.Constants;
 
 /**
- * THESE COMMENTS ARE ALL FROM EXPERIMENTAL AND SHOULD NOT DRIVE FUNCTIONALITY OF THE SHOOTER SUBSYSTEM. 
  * STATE MACHINE:
  * - IDLE: All motors off, hood at home position (not used during match)
  * - STANDBY: Flywheel spinning at STANDBY_RPM — always active during match
@@ -24,12 +23,12 @@ import frc.robot.Constants;
  * - EJECT: Flywheel reverse at EJECT_RPM for clearing jams — velocity-gated
  *
  * SHOT FLOW:
- * 1. Shooter enabled — spinup() called, flywheel spins to STANDBY_RPM
+ * 1. Shooter enabled — enters STANDBY, flywheel spins to STANDBY_RPM
  * 2. Driver presses a preset button (A/X/B) — silently sets target RPM and hood position
  * 3. Driver holds shoot trigger — transitions to READY, hood moves, waits until up to speed, feeds
- * 4. Driver releases trigger — returns to IDLE (TODO: change to STANDBY once spin logic validated)
+ * 4. Driver releases trigger — returns to STANDBY
  *
- * FAR SHOT FLOW (X + RT): [NOT YET ACTIVE — isFarShotSelected disabled]
+ * FAR SHOT FLOW (X + RT):
  * - X silently arms far shot
  * - RT routes to FarShotCommand instead of shootAtCurrentTarget
  * - FarShotCommand continuously updates hood position via updateHoodForDistance()
@@ -47,7 +46,7 @@ public class ShooterSubsystem extends SubsystemBase {
     // =========================================================================
 
     /**
-     * Named shot presets that can be selected via POV left/right on the driver controller.
+     * Named shot presets that can be selected via button on the driver controller.
      * The selected preset is set silently and fired on the right trigger.
      * Published to NetworkTables as Shooter/SelectedPreset for Elastic display.
      */
@@ -76,7 +75,7 @@ public class ShooterSubsystem extends SubsystemBase {
     private final ShooterIO io;
     private final ShooterIOInputs inputs = new ShooterIOInputs();
 
-    // ==== TODO Control Mode Toggle ====
+    // ==== Control Mode Toggle ====
     /**
      * When true, flywheel uses VelocityTorqueCurrentFOC (Slot 1 gains).
      * When false, uses VelocityVoltage with FOC enabled (Slot 0 gains) — default.
@@ -102,7 +101,7 @@ public class ShooterSubsystem extends SubsystemBase {
     private final DoublePublisher  throughBorePositionPublisher;
     private final BooleanPublisher throughBoreConnectedPublisher;
     private final StringPublisher  selectedPresetPublisher;
-    private final BooleanPublisher torqueFOCPublisher; // TODO Test VelocityTorqueCurrentFOC on flywheel — compare to VelocityVoltage with FOC, see if it improves acceleration or stability. Publish active control mode for visibility on dashboard.
+    private final BooleanPublisher torqueFOCPublisher;
 
 
     // ==== State ====
@@ -136,9 +135,7 @@ public class ShooterSubsystem extends SubsystemBase {
         throughBorePositionPublisher  = shooterTable.getDoubleTopic("ThroughBorePosition").publish();
         throughBoreConnectedPublisher = shooterTable.getBooleanTopic("ThroughBoreConnected").publish();
         selectedPresetPublisher       = shooterTable.getStringTopic("SelectedPreset").publish();
-        // TODO Test VelocityTorqueCurrentFOC on flywheel — compare to VelocityVoltage with FOC, see if it improves acceleration or stability. Publish active control mode for visibility on dashboard.
         torqueFOCPublisher = shooterTable.getBooleanTopic("UsingTorqueFOC").publish();
-
     }
 
     // ==== State Machine ====
@@ -178,8 +175,6 @@ public class ShooterSubsystem extends SubsystemBase {
         throughBorePositionPublisher.set(inputs.hoodThroughBorePositionRotations);
         throughBoreConnectedPublisher.set(inputs.hoodThroughBoreConnected);
         selectedPresetPublisher.set(selectedPreset.label);
-
-        // TODO Test VelocityTorqueCurrentFOC on flywheel — compare to VelocityVoltage with FOC, see if it improves acceleration or stability. Publish active control mode for visibility on dashboard.
         torqueFOCPublisher.set(useTorqueFOC);
     }
 
@@ -215,27 +210,25 @@ public class ShooterSubsystem extends SubsystemBase {
                 break;
 
             case STANDBY:
-                // io.setFlywheelVelocity(STANDBY_RPM); // TODO: Do not use right now **EXPERIMENTAL**
+                commandFlywheelVelocity(Constants.Shooter.STANDBY_RPM);
                 io.setHoodPose(Constants.Shooter.MIN_HOOD_POSE_ROT);
                 break;
 
             case READY:
-                // io.setFlywheelVelocity(targetFlywheelMotorRPM);
-                commandFlywheelVelocity(targetFlywheelMotorRPM); // Routes to the active control mode (VelocityVoltage or VelocityTorqueCurrentFOC)
+                commandFlywheelVelocity(targetFlywheelMotorRPM);
                 io.setHoodPose(targetHoodPoseRot);
                 break;
 
             case PASS:
-                // io.setFlywheelVelocity(PASS_RPM);
-                commandFlywheelVelocity(Constants.Shooter.PASS_RPM); // Routes to the active control mode (VelocityVoltage or VelocityTorqueCurrentFOC)
+                commandFlywheelVelocity(Constants.Shooter.PASS_RPM);
                 io.setHoodPose(Constants.Shooter.PASS_HOOD);
                 break;
 
             case EJECT:
-                // io.setFlywheelVelocity(EJECT_RPM);
-                commandFlywheelVelocity(Constants.Shooter.EJECT_RPM); // Routes to the active control mode (VelocityVoltage or VelocityTorqueCurrentFOC)
+                commandFlywheelVelocity(Constants.Shooter.EJECT_RPM);
                 io.setHoodPose(Constants.Shooter.MIN_HOOD_POSE_ROT);
                 break;
+
             case POPPER:
                 commandFlywheelVelocity(Constants.Shooter.POPPER_RPM);
                 io.setHoodPose(Constants.Shooter.POPPER_HOOD);
@@ -247,17 +240,17 @@ public class ShooterSubsystem extends SubsystemBase {
     // PUBLIC COMMAND METHODS
     // =========================================================================
 
-    /** Full stop. Not used during normal match play — call returnToStandby() after a shot instead. */
+    /** Full stop. Not used during normal match play. */
     public void setIdle() {
         setState(ShooterState.IDLE);
     }
 
     /**
-     * Called after a shot is complete to reset the shooter.
-     * TODO: Do not use right now **EXPERIMENTAL**
+     * Returns shooter to STANDBY — flywheel idles at STANDBY_RPM, hood returns home.
+     * Call this after a shot is complete instead of setIdle().
      */
     public void returnToStandby() {
-        setState(ShooterState.IDLE);
+        setState(ShooterState.STANDBY);
     }
 
     /**
@@ -285,33 +278,25 @@ public class ShooterSubsystem extends SubsystemBase {
 
     // ===== Silent Preset Setters =====
 
-    /**
-     * Silently sets close shot targets. No motor movement until shoot trigger is pressed.
-     */
+    /** Silently sets close shot targets. No motor movement until shoot trigger is pressed. */
     public void setCloseShotPreset() {
         targetFlywheelMotorRPM = Constants.Shooter.CLOSE_RPM;
         targetHoodPoseRot = Constants.Shooter.CLOSE_HOOD;
     }
 
-    /**
-     * Silently sets far shot targets. No motor movement until shoot trigger is pressed.
-     */
+    /** Silently sets far shot targets. No motor movement until shoot trigger is pressed. */
     public void setFarShotPreset() {
         targetFlywheelMotorRPM = Constants.Shooter.FAR_RPM;
         targetHoodPoseRot = Constants.Shooter.FAR_HOOD;
     }
 
-    /**
-     * Silently sets pass shot targets. No motor movement until shoot trigger is pressed.
-     */
+    /** Silently sets pass shot targets. No motor movement until shoot trigger is pressed. */
     public void setPassShotPreset() {
         targetFlywheelMotorRPM = Constants.Shooter.PASS_RPM;
         targetHoodPoseRot = Constants.Shooter.PASS_HOOD;
     }
 
-    /**
-     * Silently sets popper shot targets. No motor movement until intake trigger is pressed.
-     */
+    /** Silently sets popper shot targets. No motor movement until intake trigger is pressed. */
     public void setAirPopper() {
         targetFlywheelMotorRPM = Constants.Shooter.POPPER_RPM;
         targetHoodPoseRot = Constants.Shooter.POPPER_HOOD;
@@ -324,9 +309,7 @@ public class ShooterSubsystem extends SubsystemBase {
         targetFlywheelMotorRPM = Math.min(Math.abs(rpm), Constants.Shooter.MAX_FLYWHEEL_RPM);
     }
 
-    /**
-     * Sets target hood pose in rotations. Clamped to valid range. Does NOT change state.
-     */
+    /** Sets target hood pose in rotations. Clamped to valid range. Does NOT change state. */
     public void setTargetHoodPose(double rotations) {
         targetHoodPoseRot = Math.max(Constants.Shooter.MIN_HOOD_POSE_ROT, Math.min(Constants.Shooter.MAX_HOOD_POSE_ROT, rotations));
     }
@@ -396,11 +379,6 @@ public class ShooterSubsystem extends SubsystemBase {
 
     // ── Commands ───────────────────────────────────────────────────────────────
 
-    /** Spins up flywheel to pre-rev speed. */
-    // public Command spinUpCommand() {
-    //     return Commands.runOnce(this::spinup, this).withName("SpinUp");
-    // }
-
     /** Returns shooter to idle. */
     public Command idleCommand() {
         return Commands.runOnce(this::setIdle, this).withName("ShooterIdle");
@@ -427,11 +405,11 @@ public class ShooterSubsystem extends SubsystemBase {
     }
 
     // =========================================================================
-    // PRESET CYCLING (POV left/right in RobotContainer)
+    // PRESET CYCLING
     // =========================================================================
 
     /**
-     * Arms the currently selected test preset silently (RPM + hood).
+     * Arms the currently selected preset silently (RPM + hood).
      * No motor movement until shoot trigger is pressed.
      */
     public void setSelectedPreset() {
@@ -439,7 +417,7 @@ public class ShooterSubsystem extends SubsystemBase {
         targetHoodPoseRot      = selectedPreset.hood;
     }
 
-    /** Returns the currently selected test preset. */
+    /** Returns the currently selected preset. */
     public ShotPreset getSelectedPreset() {
         return selectedPreset;
     }
@@ -454,8 +432,7 @@ public class ShooterSubsystem extends SubsystemBase {
     }
 
     /**
-     * Advances to the next preset in the cycle order:
-     * Close → Tower → Trench → Pass → Far → Close
+     * Advances to the next preset in the cycle order.
      * Arms the new preset silently so it's ready when RT is pressed.
      */
     public void cyclePresetForward() {
@@ -464,8 +441,7 @@ public class ShooterSubsystem extends SubsystemBase {
     }
 
     /**
-     * Moves to the previous preset in the cycle order:
-     * Close → Far → Pass → Trench → Tower → Close
+     * Moves to the previous preset in the cycle order.
      * Arms the new preset silently so it's ready when RT is pressed.
      */
     public void cyclePresetBackward() {
@@ -488,47 +464,23 @@ public class ShooterSubsystem extends SubsystemBase {
      *
      * InterpolatingDoubleTreeMap linearly interpolates between measured points and
      * clamps to the nearest endpoint outside the measured range.
-     *
-     * HOW TO FILL IN: See TUNING.md §4 for the full measurement procedure.
-     *   1. Place robot at each distance with a tape measure.
-     *   2. Enable, hold RT, watch Vision/Distance_m on Elastic to confirm distance reads correctly.
-     *   3. Manually command a shot (use POV preset cycling as a baseline).
-     *   4. Adjust RPM/hood until shots land center target.
-     *   5. Record values here, rebuild, repeat at next distance.
-     *
-     * Distances below 1.0 m and above 6.0 m are clamped to the nearest endpoint.
-     * Add or remove rows as the shot envelope changes.
      */
     private static final InterpolatingDoubleTreeMap FLYWHEEL_RPM_MAP = new InterpolatingDoubleTreeMap();
     private static final InterpolatingDoubleTreeMap HOOD_ROT_MAP     = new InterpolatingDoubleTreeMap();
 
     static {
         // ── Flywheel RPM vs. distance ──────────────────────────────────────────
-        // TODO: Replace each value with a measured result (see TUNING.md §4)
         FLYWHEEL_RPM_MAP.put(1.0, 2750.0); // TODO: tune
-        FLYWHEEL_RPM_MAP.put(2.0, 2900.0); // TODO: tune
-        FLYWHEEL_RPM_MAP.put(3.0, 3100.0); // TODO: tune
-        FLYWHEEL_RPM_MAP.put(4.0, 3200.0); // TODO: tune
-        FLYWHEEL_RPM_MAP.put(5.0, 3300.0); // TODO: tune
-        FLYWHEEL_RPM_MAP.put(6.0, 3400.0); // TODO: tune  (hw max ~6380 RPM)
+        FLYWHEEL_RPM_MAP.put(6.0, 4250.0); // TODO: tune  (hw max ~6380 RPM)
 
         // ── Hood position (rotations) vs. distance ────────────────────────────
-        // TODO: Replace each value with a measured result (see TUNING.md §4)
         HOOD_ROT_MAP.put(1.0, 0.00); // TODO: tune  (0.0 = fully up / close)
-        HOOD_ROT_MAP.put(2.0, 1.50); // TODO: tune
-        HOOD_ROT_MAP.put(3.0, 3.00); // TODO: tune
-        HOOD_ROT_MAP.put(4.0, 4.30); // TODO: tune
-        HOOD_ROT_MAP.put(5.0, 5.50); // TODO: tune
         HOOD_ROT_MAP.put(6.0, 6.00); // TODO: tune  (hw max ~9.14 rot)
     }
 
     /**
      * Updates shooter targets from the interpolation maps for the given distance.
-     *
-     * If the shooter is already in READY state the new targets are pushed to
-     * hardware immediately, enabling continuous live tracking while the trigger
-     * is held.  If not yet in READY, the targets are stored and applied when
-     * prepareToShoot() is called.
+     * If already in READY state, pushes new targets to hardware immediately.
      *
      * @param distanceMeters Measured distance to hub tag in meters (floor distance)
      */
@@ -537,7 +489,6 @@ public class ShooterSubsystem extends SubsystemBase {
         setTargetVelocity(FLYWHEEL_RPM_MAP.get(dist));
         setTargetHoodPose(HOOD_ROT_MAP.get(dist));
 
-        // Push to hardware immediately if already spinning — keeps tracking live
         if (currentState == ShooterState.READY) {
             commandFlywheelVelocity(targetFlywheelMotorRPM);
             io.setHoodPose(targetHoodPoseRot);
@@ -545,13 +496,6 @@ public class ShooterSubsystem extends SubsystemBase {
     }
 
     // ==== LEGACY / CONVENIENCE SHIMS ====
-    // These combine steps that are intentionally separate in the normal shot flow.
-    // Prefer setCloseShotPreset() / setFarShotPreset() + prepareToShoot() at the call site.
-
-    /** Used by spinUpCommand(). Transitions to STANDBY. */
-    // public void spinup() {
-    //     setState(ShooterState.STANDBY);
-    // }
 
     /** @deprecated Bypasses the silent-preset + shoot-trigger split. Use setCloseShotPreset() instead. */
     @Deprecated
@@ -567,7 +511,7 @@ public class ShooterSubsystem extends SubsystemBase {
         prepareToShoot();
     }
 
-    /** TODO Test VelocityTorqueCurrentFOC on flywheel — compare to VelocityVoltage with FOC, see if it improves acceleration or stability.
+    /**
      * Routes flywheel velocity command to the active control mode.
      * Toggle useTorqueFOC to switch between VelocityVoltage and VelocityTorqueCurrentFOC.
      */
@@ -580,9 +524,9 @@ public class ShooterSubsystem extends SubsystemBase {
     }
 
     public Command toggleControlModeCommand() {
-    return Commands.runOnce(() -> {
-        useTorqueFOC = !useTorqueFOC;
-        System.out.println("[Shooter] Control mode: " + (useTorqueFOC ? "TorqueCurrentFOC (Slot 1)" : "VelocityVoltage (Slot 0)"));
-    }, this).withName("ToggleFlywheelControlMode");
-}
+        return Commands.runOnce(() -> {
+            useTorqueFOC = !useTorqueFOC;
+            System.out.println("[Shooter] Control mode: " + (useTorqueFOC ? "TorqueCurrentFOC (Slot 1)" : "VelocityVoltage (Slot 0)"));
+        }, this).withName("ToggleFlywheelControlMode");
+    }
 }
