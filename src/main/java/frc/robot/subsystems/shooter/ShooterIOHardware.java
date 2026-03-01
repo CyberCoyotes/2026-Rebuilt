@@ -85,7 +85,7 @@ public class ShooterIOHardware implements ShooterIO {
 
       // Slot 0 — VelocityVoltage gains (kP in Volts/RPS)
       config.Slot0.kP = 0.00; // TODO: Tune kP
-      config.Slot0.kV = 0.12; // TODO: Tune kV
+      config.Slot0.kV = 0.126; // TODO: Tune kV — was 0.12, +5% to close ~160 RPM steady-state error at 3300 RPM
 
       return config;
     }
