@@ -469,14 +469,8 @@ public class FuelCommands {
                     shooter.setTargetHoodPose(Constants.Shooter.TRENCH_HOOD);
                     shooter.prepareToShoot();
                 }, shooter),
-                // Longer timeout for trench shot so I can see if the shooter is ACTUALLY ready or if its just the timeout
                 Commands.waitUntil(shooter::isReady).withTimeout(6.0),
-                
-                Commands.run(() -> {
-                    indexer.indexerForward();
-                    indexer.conveyorForward();
-                }, indexer).withTimeout(feedSeconds), // primary end trigger: timeout
-                indexer.feed().until(indexer::donePassingFuel).withTimeout(2.0)
+                indexer.feed().until(indexer::donePassingFuel).withTimeout(feedSeconds)
         ).finallyDo(() -> {
             indexer.indexerStop();
             indexer.conveyorStop();
@@ -491,15 +485,8 @@ public class FuelCommands {
                         shooter.setTargetHoodPose(Constants.Shooter.CLOSE_HOOD);
                         shooter.prepareToShoot();
                     }, shooter),
-                    Commands.waitUntil(shooter::isReady).withTimeout(3.0),
-                    Commands.run(() -> {
-                        indexer.indexerForward();
-                        indexer.conveyorForward();
-                    }, indexer).withTimeout(feedSeconds), // primary end trigger: timeout
-                    // Feed until chute goes quiet for 2s (with safety timeout)
-                    indexer.feed().until(indexer::donePassingFuel).withTimeout(2.0)
-                    // This is likely redundant with the feed().until() end condition, but it's a
-                    // good safety net in case of sensor issues or unexpected game piece behavior.
+                    Commands.waitUntil(shooter::isReady).withTimeout(6.0),
+                    indexer.feed().until(indexer::donePassingFuel).withTimeout(feedSeconds)
             ).finallyDo(() -> {
                 indexer.indexerStop();
                 indexer.conveyorStop();
@@ -515,12 +502,8 @@ public class FuelCommands {
                     shooter.setTargetHoodPose(Constants.Shooter.TOWER_HOOD);
                     shooter.prepareToShoot();
                 }, shooter),
-                Commands.waitUntil(shooter::isReady).withTimeout(3.0),
-                Commands.run(() -> {
-                    indexer.indexerForward();
-                    indexer.conveyorForward();
-                }, indexer).withTimeout(feedSeconds), // primary end trigger: timeout
-                indexer.feed().until(indexer::donePassingFuel).withTimeout(2.0)
+                Commands.waitUntil(shooter::isReady).withTimeout(6.0),
+                indexer.feed().until(indexer::donePassingFuel).withTimeout(feedSeconds)
         ).finallyDo(() -> {
             indexer.indexerStop();
             indexer.conveyorStop();
@@ -536,12 +519,8 @@ public class FuelCommands {
                     shooter.setTargetHoodPose(Constants.Shooter.FAR_HOOD);
                     shooter.prepareToShoot();
                 }, shooter),
-                Commands.waitUntil(shooter::isReady).withTimeout(3.0),
-                Commands.run(() -> {
-                    indexer.indexerForward();
-                    indexer.conveyorForward();
-                }, indexer).withTimeout(feedSeconds), // primary end trigger: timeout
-                indexer.feed().until(indexer::donePassingFuel).withTimeout(2.0)
+                Commands.waitUntil(shooter::isReady).withTimeout(6.0),
+                indexer.feed().until(indexer::donePassingFuel).withTimeout(feedSeconds)
         ).finallyDo(() -> {
             indexer.indexerStop();
             indexer.conveyorStop();
@@ -556,15 +535,8 @@ public class FuelCommands {
                         shooter.setTargetHoodPose(Constants.Shooter.TRENCH_HOOD);
                         shooter.prepareToShoot();
                     }, shooter),
-                    Commands.waitUntil(shooter::isReady).withTimeout(3.0),
-                    Commands.run(() -> {
-                        indexer.indexerForward();
-                        indexer.conveyorForward();
-                    }, indexer).withTimeout(feedSeconds), // primary end trigger: timeout
-                    // Feed until chute goes quiet for 2s (with safety timeout)
-                    indexer.feed().until(indexer::donePassingFuel).withTimeout(2.0)
-                    // This is likely redundant with the feed().until() end condition, but it's a
-                    // good safety net in case of sensor issues or unexpected game piece behavior.
+                    Commands.waitUntil(shooter::isReady).withTimeout(6.0),
+                    indexer.feed().until(indexer::donePassingFuel).withTimeout(feedSeconds)
             ).finallyDo(() -> {
                 indexer.indexerStop();
                 indexer.conveyorStop();
