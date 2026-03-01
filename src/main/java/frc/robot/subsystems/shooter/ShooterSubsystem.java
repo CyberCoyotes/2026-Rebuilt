@@ -190,12 +190,22 @@ public class ShooterSubsystem extends SubsystemBase {
             case STANDBY:
                 break;
             case READY:
+                // Re-issue every cycle so any silent target change (setTargetVelocity, updateFromDistance)
+                // takes effect immediately, and so the TalonFX recovers automatically if it
+                // drops its setpoint due to a transient fault or CAN dropout.
+                commandFlywheelVelocity(targetFlywheelMotorRPM);
+                io.setHoodPose(targetHoodPoseRot);
                 break;
             case PASS:
+                commandFlywheelVelocity(Constants.Shooter.PASS_RPM);
+                io.setHoodPose(Constants.Shooter.PASS_HOOD);
                 break;
             case EJECT:
+                commandFlywheelVelocity(Constants.Shooter.EJECT_RPM);
                 break;
             case POPPER:
+                commandFlywheelVelocity(Constants.Shooter.POPPER_RPM);
+                io.setHoodPose(Constants.Shooter.POPPER_HOOD);
                 break;
         }
     }
@@ -246,14 +256,14 @@ public class ShooterSubsystem extends SubsystemBase {
     // PUBLIC COMMAND METHODS
     // =========================================================================
 
-    /** Full stop. Not used during normal match play — call returnToStandby() after a shot instead. */
+    /** Full stop — stops flywheels and returns hood to home. */
     public void setIdle() {
         setState(ShooterState.IDLE);
     }
 
     /**
-     * Called after a shot is complete to reset the shooter.
-     * TODO: Do not use right now **EXPERIMENTAL**
+     * Resets shooter after a shot. Currently routes to IDLE because STANDBY
+     * (pre-rev) is not yet active. Update this when STANDBY spin logic is validated.
      */
     public void returnToStandby() {
         setState(ShooterState.IDLE);

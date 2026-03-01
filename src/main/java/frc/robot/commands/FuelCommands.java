@@ -43,7 +43,7 @@ public class FuelCommands {
     public static Command shootAtCurrentTarget(ShooterSubsystem shooter, IndexerSubsystem indexer) {
         return Commands.sequence(
                 Commands.runOnce(shooter::prepareToShoot, shooter),
-                Commands.waitUntil(shooter::isReady).withTimeout(1.0),
+                Commands.waitUntil(shooter::isReady).withTimeout(3.0),
                 Commands.run(() -> {
                     indexer.indexerForward();
                     indexer.conveyorForward();
@@ -269,8 +269,7 @@ public class FuelCommands {
                 .withName("WaitForShooterReady");
     }
 
-    public static Command shootPass(
-            ShooterSubsystem shooter, IndexerSubsystem indexer, double rpm, double hood) {
+    public static Command shootPass(ShooterSubsystem shooter, IndexerSubsystem indexer) {
         return Commands.sequence(
                 Commands.runOnce(() -> {
                     shooter.setTargetVelocity(Constants.Shooter.PASS_RPM);
@@ -436,7 +435,7 @@ public class FuelCommands {
                     shooter.updateFromDistance(distance);
                     shooter.prepareToShoot();
                 }, shooter, vision),
-                Commands.waitUntil(shooter::isReady)).withTimeout(3.0)
+                Commands.waitUntil(shooter::isReady).withTimeout(3.0))
                 .withName("VisionShot");
     }
 
