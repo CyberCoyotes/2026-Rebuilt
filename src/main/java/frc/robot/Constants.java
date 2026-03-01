@@ -105,13 +105,13 @@ public final class Constants {
   public static final class Shooter {
     private Shooter() {}
 
-    /** Flywheel A motor - Falcon 500 with TalonFX controller (leader) */
+    /** Flywheel A motor - Kraken X60 with TalonFX controller (leader) */
     public static final int FLYWHEEL_A_MOTOR_ID = 25;
 
-    /** Flywheel B motor - Falcon 500 with TalonFX controller (follower of A) */
+    /** Flywheel B motor - Kraken X60 with TalonFX controller (follower of A) */
     public static final int FLYWHEEL_B_MOTOR_ID = 26;
 
-    /** Flywheel C motor - Falcon 500 with TalonFX controller (follower of A) */
+    /** Flywheel C motor - Kraken X60 with TalonFX controller (follower of A) */
     public static final int FLYWHEEL_C_MOTOR_ID = 27;
 
     /** Hood motor - Minion with TalonFXS controller, adjusts shot angle */
@@ -122,7 +122,7 @@ public final class Constants {
 
     //=== Constants ===
     //Flywheel
-    public static final double MAX_FLYWHEEL_RPM = 6380.0;
+    public static final double MAX_FLYWHEEL_RPM = 6000.0; // Kraken X60 free speed (6380 was Falcon 500 — verify against actual motor)
     public static final double IDLE_RPM = 0;
 
     /** TODO tune RPMs for flywheel without excessive current draw
