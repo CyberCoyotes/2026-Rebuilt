@@ -162,10 +162,8 @@ public class ShooterIOHardware implements ShooterIO {
 
   // === Status Signals =====
   private final StatusSignal<?> flywheelAVelocity;
+  private final StatusSignal<?> flywheelAMotorVoltage; // applied volts — also re-enabled at 100Hz for follower sync
   private final StatusSignal<?> hoodPosition;
-
-  // === Status Signals =====
-  // Current/voltage diagnostics are handled by CTRE Hoot logs, not read here.
   private final StatusSignal<?> hoodEncoderAbsPosition;
 
   public ShooterIOHardware() {
@@ -189,8 +187,9 @@ public class ShooterIOHardware implements ShooterIO {
     hoodMotor.getConfigurator().apply(HoodConfig.hood());
 
     // Cache status signal references
-    flywheelAVelocity     = flywheelMotorA.getVelocity();
-    hoodPosition          = hoodMotor.getPosition();
+    flywheelAVelocity      = flywheelMotorA.getVelocity();
+    flywheelAMotorVoltage  = flywheelMotorA.getMotorVoltage();
+    hoodPosition           = hoodMotor.getPosition();
     hoodEncoderAbsPosition = hoodEncoder.getAbsolutePosition();
 
     // 50Hz — control loop needs fresh velocity and position every cycle
@@ -221,7 +220,7 @@ public class ShooterIOHardware implements ShooterIO {
     BaseStatusSignal.setUpdateFrequencyForAll(
         100.0,
         flywheelMotorA.getDutyCycle(),
-        flywheelMotorA.getMotorVoltage()
+        flywheelAMotorVoltage
     );
 
     /* Followers MUST be set AFTER optimizeBusUtilization()
@@ -240,10 +239,13 @@ public class ShooterIOHardware implements ShooterIO {
    */
   @Override
   public void updateInputs(ShooterIOInputs inputs) {
+    BaseStatusSignal.refreshAll(flywheelAVelocity, flywheelAMotorVoltage, hoodPosition);
+
     // Flywheel — A is leader, B/C follow, so reading A is sufficient
     double motorRPS = flywheelAVelocity.getValueAsDouble();
     inputs.flywheelLeaderMotorRPS = motorRPS;
     inputs.flywheelLeaderMotorRPM = rpsToRPM(motorRPS);
+    inputs.flywheelAppliedVolts   = flywheelAMotorVoltage.getValueAsDouble();
 
     // Hood position — needed every cycle for closed-loop control
     inputs.hoodPositionRotations = hoodPosition.getValueAsDouble();

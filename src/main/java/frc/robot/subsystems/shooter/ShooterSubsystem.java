@@ -578,6 +578,29 @@ public class ShooterSubsystem extends SubsystemBase {
         }
     }
 
+    /**
+     * Tuning only: spins flywheel to a fixed RPM with no timeout, no indexer, no hood movement.
+     * Use this to characterize kV and kP in isolation — watch FlywheelRPM, FlywheelError,
+     * and FlywheelAppliedVolts on the dashboard.
+     *
+     * Hold the bound button to spin; release to stop.
+     *
+     * @param rpm Target flywheel RPM
+     */
+    public Command tuneFlywheelCommand(double rpm) {
+        return Commands.startEnd(
+            () -> {
+                targetFlywheelMotorRPM = rpm;
+                commandFlywheelVelocity(rpm);
+            },
+            () -> {
+                io.stopFlywheels();
+                targetFlywheelMotorRPM = 0.0;
+            },
+            this
+        ).withName("TuneFlywheelRPM");
+    }
+
     public Command toggleControlModeCommand() {
     return Commands.runOnce(() -> {
         useTorqueFOC = !useTorqueFOC;
