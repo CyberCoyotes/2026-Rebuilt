@@ -460,6 +460,7 @@ public class FuelCommands {
     }
 
     public static class Auto {
+
     public static Command shootTrench(ShooterSubsystem shooter, IndexerSubsystem indexer,
             double feedSeconds) {
         return Commands.sequence(
@@ -468,7 +469,9 @@ public class FuelCommands {
                     shooter.setTargetHoodPose(Constants.Shooter.TRENCH_HOOD);
                     shooter.prepareToShoot();
                 }, shooter),
-                Commands.waitUntil(shooter::isReady).withTimeout(3.0),
+                // Longer timeout for trench shot so I can see if the shooter is ACTUALLY ready or if its just the timeout
+                Commands.waitUntil(shooter::isReady).withTimeout(6.0),
+                
                 Commands.run(() -> {
                     indexer.indexerForward();
                     indexer.conveyorForward();
