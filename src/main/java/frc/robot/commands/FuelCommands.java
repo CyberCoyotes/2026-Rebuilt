@@ -476,7 +476,7 @@ public class FuelCommands {
                     indexer.indexerForward();
                     indexer.conveyorForward();
                 }, indexer).withTimeout(feedSeconds), // primary end trigger: timeout
-                indexer.feed().until(indexer::donePassingFuel)
+                indexer.feed().until(indexer::donePassingFuel).withTimeout(2.0)
         ).finallyDo(() -> {
             indexer.indexerStop();
             indexer.conveyorStop();
@@ -497,7 +497,7 @@ public class FuelCommands {
                         indexer.conveyorForward();
                     }, indexer).withTimeout(feedSeconds), // primary end trigger: timeout
                     // Feed until chute goes quiet for 2s (with safety timeout)
-                    indexer.feed().until(indexer::donePassingFuel)
+                    indexer.feed().until(indexer::donePassingFuel).withTimeout(2.0)
                     // This is likely redundant with the feed().until() end condition, but it's a
                     // good safety net in case of sensor issues or unexpected game piece behavior.
             ).finallyDo(() -> {
@@ -520,7 +520,7 @@ public class FuelCommands {
                     indexer.indexerForward();
                     indexer.conveyorForward();
                 }, indexer).withTimeout(feedSeconds), // primary end trigger: timeout
-                indexer.feed().until(indexer::donePassingFuel)
+                indexer.feed().until(indexer::donePassingFuel).withTimeout(2.0)
         ).finallyDo(() -> {
             indexer.indexerStop();
             indexer.conveyorStop();
@@ -541,7 +541,7 @@ public class FuelCommands {
                     indexer.indexerForward();
                     indexer.conveyorForward();
                 }, indexer).withTimeout(feedSeconds), // primary end trigger: timeout
-                indexer.feed().until(indexer::donePassingFuel)
+                indexer.feed().until(indexer::donePassingFuel).withTimeout(2.0)
         ).finallyDo(() -> {
             indexer.indexerStop();
             indexer.conveyorStop();
@@ -562,7 +562,7 @@ public class FuelCommands {
                         indexer.conveyorForward();
                     }, indexer).withTimeout(feedSeconds), // primary end trigger: timeout
                     // Feed until chute goes quiet for 2s (with safety timeout)
-                    indexer.feed().until(indexer::donePassingFuel)
+                    indexer.feed().until(indexer::donePassingFuel).withTimeout(2.0)
                     // This is likely redundant with the feed().until() end condition, but it's a
                     // good safety net in case of sensor issues or unexpected game piece behavior.
             ).finallyDo(() -> {
