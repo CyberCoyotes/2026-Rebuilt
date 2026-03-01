@@ -1,125 +1,216 @@
-## Flywheel Tuning Guide & Testing Protocol
+# Flywheel Tuning Guide & Protocol
 
-Team-Focused, Match-Ready Procedure for CTRE Kraken / Phoenix 6 Systems
+**For:** CyberCoyotes 4829 — 2026-Rebuilt
+**Hardware:** 3x Kraken X60 (TalonFX, IDs 25/26/27), VelocityVoltage Slot 0
+**Control Mode:** VelocityVoltage (no CANivore required)
 
-### Objective
+Work through the sections in order. Each phase depends on the previous one being correct.
 
-Develop a flywheel system that: - Spins up quickly - Recovers rapidly
-after each shot - Maintains consistent exit velocity late in match -
-Avoids brownouts or current-induced performance decay
+---
 
-This guide assumes: - VelocityVoltage control mode - FOC enabled (Pro
-license) - Multi-motor flywheel (e.g., 3 Krakens) - Command-based Java
-framework
+## Dashboard Values You Will Use
 
+| Elastic Widget | NT Key | What It Tells You |
+|---|---|---|
+| Flywheel RPM | `Shooter/FlywheelRPM` | Actual motor RPM right now |
+| Target RPM | `Shooter/TargetFlywheelRPM` | What the code is asking for |
+| Flywheel Error | `Shooter/FlywheelError` | target − actual (goal: near 0) |
+| Applied Volts | `Shooter/FlywheelAppliedVolts` | Voltage sent to motor (max ~12 V) |
+| Is Ready | `Shooter/IsReady` | Green = ready to feed a ball |
+| State | `Shooter/State` | IDLE / READY / PASS / EJECT |
 
-## SECTION 1 --- Required Signals to Log
+---
 
-From Lead Flywheel Motor:
+## Before You Start
 
-Required: - RotorVelocity - ClosedLoopError (velocity) - SupplyCurrent -
-StatorCurrent - MotorVoltage (or Applied Output) - SupplyVoltage -
-DeviceTemp
+**Code files you will edit:**
+- Gains → `src/main/java/frc/robot/subsystems/shooter/ShooterIOHardware.java` (lines 94–109, `Slot0`)
+- RPM presets → `src/main/java/frc/robot/Constants.java` (lines 105–163, `Shooter` class)
+- Tuning command → `src/main/java/frc/robot/RobotContainer.java` (line 119)
 
-Recommended: - Shot event boolean (IndexerFeeding or ShotRequested) -
-Battery voltage (RoboRIO or PDH)
+**How to spin the flywheel for tuning:**
+Hold **Right Bumper** → flywheel spins at the RPM set in `tuneFlywheelCommand(3300)`.
+Release **Right Bumper** → flywheel stops.
+Change the number in `tuneFlywheelCommand()` to test different RPMs and redeploy.
 
-## SECTION 2 --- Baseline Configuration
+**Safety:** Robot must be on the ground with bumpers on. Never tune with a ball in the chamber until Phase 4.
 
-Control Mode: VelocityVoltage.withEnableFOC(true)
+---
 
-Initial Current Limits (per motor): - Stator: 90A continuous, 120A peak
-(0.3--0.5s) - Supply: 45A continuous, 60A peak (0.3--0.5s)
+## Phase 1 — kV (Feedforward) Tuning
 
-Initial Gains (starting point only): - kP: modest (avoid oscillation) -
-kV: calculated from free speed - kA: small or zero initially
+**What kV does:** Provides the baseline voltage needed to spin at a given speed. Get this right first so kP has less work to do.
 
-## SECTION 3 --- Spin-Up Test (No Ball)
+**Goal:** With kP = 0, `FlywheelRPM` reaches close to `TargetFlywheelRPM` at steady state.
 
-Procedure: 1. Spin to target RPM. 2. Verify stable hold for 3 seconds.
-3. Record: - Steady-state error - Holding current - Voltage used
+### Steps
 
-Expected: - Error \< ±50 RPM - Stable current - No oscillation
+1. In `ShooterIOHardware.java` Slot0, set:
+   ```java
+   config.Slot0.kP = 0.0;   // Zero out for now
+   config.Slot0.kV = 0.12;  // Starting point
+   ```
+2. Deploy. Enable. Hold Right Bumper (spins at 3300 RPM).
+3. Wait 3–4 seconds for speed to settle.
+4. Read `FlywheelRPM` and `FlywheelError` on dashboard.
 
-If unstable: - Reduce kP If slow to reach target: - Increase stator
-limit slightly - Increase acceleration allowance
+| What You See | What To Do |
+|---|---|
+| `FlywheelRPM` < 3300, `FlywheelError` positive | Increase `kV` by 0.005 |
+| `FlywheelRPM` > 3300, `FlywheelError` negative | Decrease `kV` by 0.005 |
+| `FlywheelAppliedVolts` already at 11–12 V | System is saturated; lower target RPM first |
 
-## SECTION 4 --- Single Shot Impact Test
+5. Redeploy after each change. Repeat until `FlywheelError` stays within **±200 RPM** at steady state.
+6. Record your kV: **kV = ______**
 
-Procedure: 1. Reach stable target RPM. 2. Fire one ball. 3. Measure: -
-RPM dip magnitude - Recovery time - Current spike
+**Typical Kraken X60 range in voltage mode: kV ≈ 0.110 – 0.130 V/RPS**
 
-Targets: - RPM dip ideally \< 10% - Recovery \< 300 ms
+---
 
-If dip too large: - Increase stator peak - Slightly increase kP - Check
-mechanical slip
+## Phase 2 — kP (Proportional) Tuning
 
-If recovery slow: - Increase kV slightly - Verify supply current not
-limiting
+**What kP does:** Corrects the remaining error that kV alone cannot fix. Too low = slow/inaccurate. Too high = oscillation (RPM bouncing).
 
-## SECTION 5 --- Rapid Fire Test
+**Goal:** `FlywheelError` drops to < ±100 RPM with no oscillation.
 
-Procedure: 1. Fire 3--5 balls spaced closely. 2. Log pre-shot RPM for
-each.
+### Steps
 
-Goal: Pre-shot RPM should remain consistent.
+1. With the kV value locked from Phase 1, set:
+   ```java
+   config.Slot0.kP = 0.05;  // Start low
+   ```
+2. Deploy. Enable. Hold Right Bumper.
+3. Watch `FlywheelError` after settling (~3 seconds):
+   - Still >100 RPM error → increase `kP` by `0.02`
+   - RPM hunting (goes up, overshoots, comes back, repeats) → **oscillation — back off kP by 20%**
+4. Repeat until `FlywheelError` stays < **±100 RPM** without hunting.
 
-If later shots are softer: - Add ready-stable gating (150--250 ms) -
-Prevent feeding until RPM within tolerance - Consider slight target RPM
-bump during feed window
+**Oscillation check:** Watch `FlywheelRPM` for at least 5 seconds. If it oscillates rhythmically (sawtooth pattern), kP is too high.
 
-## SECTION 6 --- End-of-Match Simulation
+5. Record your kP: **kP = ______**
 
-Procedure: 1. Drive aggressively for 60 seconds. 2. Immediately fire 5
-balls. 3. Compare first shot vs last shot.
+**Typical range: kP ≈ 0.05 – 0.20 V/RPS**
 
-Check: - Pre-shot RPM consistency - Recovery time drift - Temperature
-rise - Supply voltage sag
+---
 
-If degradation observed: - Lower supply peak slightly - Improve gating -
-Verify cooling - Check belt tension and wheel grip
+## Phase 3 — Ready Check Validation
 
-## SECTION 7 --- Advanced Shot Gating Logic
+**What this checks:** The `IsReady` flag controls when the indexer can fire. Verify it triggers at the right time.
 
-Feed ONLY when: - Velocity within tolerance - ClosedLoopError small -
-Stable for minimum duration (150--250 ms)
+Current tolerance: **±10%** of target RPM
+`Constants.java` line: `FLYWHEEL_TOLERANCE_PERCENT = 0.10`
 
-Optional: Lockout feed for 150--250 ms after shot unless RPM recovered.
+### Steps
 
-This prevents panic-feeding late match.
+1. Deploy with Phase 1–2 gains.
+2. Hold Right Bumper (3300 RPM target).
+3. Watch `Shooter/IsReady` on dashboard — it should turn **true within 1–2 seconds**.
 
-## SECTION 8 --- Data Interpretation Guide
+| Problem | Fix |
+|---|---|
+| `IsReady` never goes true even at target RPM | Check `FlywheelError` is actually < 330 (10% of 3300); if yes, check NT key name |
+| `IsReady` goes true immediately before flywheel spins up | Tolerance is too loose; change to `0.05` (5%) in Constants.java |
+| `IsReady` takes > 3 seconds | Gains are too weak; increase kV or kP slightly |
 
-Voltage Sag but No Brownout: Normal. Adjust supply limit if severe.
+**Acceptable:** `IsReady = true` within 1.5 seconds of spinning up to steady state.
 
-High Stator Current but Slow Recovery: Possible belt slip or
-conservative acceleration.
+---
 
-ClosedLoopError Remains High: Increase kP or stator peak.
+## Phase 4 — Preset RPM Validation
 
-Same RPM but Softer Shot: Mechanical slip or feed timing issue.
+**What this does:** Verifies each shot preset RPM actually scores consistently.
 
-## SECTION 9 --- Final Validation Checklist
+### Procedure (repeat for each preset below)
 
-Before competition:
+1. Change `tuneFlywheelCommand(TARGET_RPM)` in `RobotContainer.java` line 119 to the preset RPM.
+2. Deploy. Hold Right Bumper. Wait for steady state.
+3. Confirm `FlywheelRPM` ≈ `TargetFlywheelRPM` and `FlywheelError` < 150.
+4. Hold trigger to enter READY state → manually feed a ball → observe scoring.
+5. Adjust RPM in `Constants.java` and repeat until 3 of 3 shots score.
 
--   10 consecutive shots consistent
--   Recovery time stable
--   No CAN faults
--   No brownout flags
--   Temperature stable under repeated fire
--   Drivers confirm shot consistency
+### RPM Presets to Validate
 
-## Summary
+| Preset | RPM Constant | Current Value | Tuned Value | Notes |
+|---|---|---|---|---|
+| CLOSE | `CLOSE_RPM` | 2750 | | Best starting point |
+| TOWER | `TOWER_RPM` | 3200 | | TODO in code |
+| TRENCH | `TRENCH_RPM` | 3200 | | TODO in code |
+| FAR | `FAR_RPM` | 3800 | | Was 4000, reduced |
+| PASS | `PASS_RPM` | 4000 | | |
 
-Most late-match softness is caused by: - Feeding before recovery -
-Conservative tuning - Thermal drift - Mechanical slip
+**Tip:** Tune CLOSE first (shortest distance, most forgiving). Use it to verify the complete shot sequence before moving to longer distances.
 
-Electrical brownouts are rarely the true cause if drivetrain behaves
-normally.
+**Shot adjustment guide:**
+- Ball lands **short / hits low**: increase RPM by 100–200
+- Ball lands **long / hits high**: decrease RPM by 100–200
+- Ball lands consistently off-center: check hood angle (see `TUNING.md`)
 
-Tune with data. Enforce recovery. Protect your battery. Trust the logs.
+---
 
-------------------------------------------------------------------------
+## Phase 5 — Vision Interpolation Table
 
-End of Guide.
+**What this does:** Sets the RPM and hood angle the robot uses at each measured distance when using `visionAlignAndShoot()`.
+
+Located in `ShooterSubsystem.java` lines 493–514.
+
+### Procedure
+
+1. Use `Vision/Distance_m` on Elastic to confirm measured distance (see `TUNING.md §3` for distance calibration).
+2. Park robot at exactly **1.0 m, 2.0 m, 3.0 m, 4.0 m, 5.0 m, 6.0 m** from hub tag.
+3. At each distance, use Phase 4 procedure to find the RPM that scores consistently.
+4. Update `FLYWHEEL_RPM_MAP.put(distance, tunedRPM)` in `ShooterSubsystem.java`.
+
+### Tuning Log
+
+| Distance (m) | Tuned RPM | Hood (rot) | Confirmed Scoring | Notes |
+|---|---|---|---|---|
+| 1.0 | | | ☐ | |
+| 2.0 | | | ☐ | |
+| 3.0 | | | ☐ | |
+| 4.0 | | | ☐ | |
+| 5.0 | | | ☐ | |
+| 6.0 | | | ☐ | |
+
+**Tips:**
+- Tune 1.0 m and 6.0 m endpoints first — interpolation fills in the middle.
+- If all distances are biased (all long or all short), recheck camera angle in `Constants.Vision` before adjusting every RPM.
+- Mark each confirmed row with `// Tuned` comment in code.
+
+---
+
+## Final Validation Checklist
+
+Before locking in gains for competition:
+
+- [ ] `FlywheelError` < ±100 RPM at steady state for all preset RPMs
+- [ ] `FlywheelAppliedVolts` stays below 11 V at all tested RPMs (not saturating)
+- [ ] `Shooter/IsReady` goes true within 1.5 seconds of reaching target
+- [ ] No oscillation (RPM hunting) visible in `FlywheelRPM` over 5+ seconds
+- [ ] Each preset scores 3 of 3 practice shots before locking in
+- [ ] Post-shot RPM dip < 10% and recovery < 300 ms (watch during rapid-fire)
+- [ ] `EJECT_RPM` (-1500) clears jams without back-feeding
+- [ ] kP and kV values recorded in this file:
+
+```
+// Final tuned gains — update when changed
+Slot0.kV = ______
+Slot0.kP = ______
+Date tuned: __________
+```
+
+---
+
+## Quick Reference: Gain Effects
+
+| Symptom | Likely Cause | Fix |
+|---|---|---|
+| High steady-state error, kP = 0 | kV too low | Increase kV |
+| RPM oscillates (sawtooth) | kP too high | Reduce kP by 20% |
+| Good steady-state but slow rise | kV or kP too low | Increase kV first, then kP |
+| `AppliedVolts` maxed (11–12 V) | Target RPM too high OR current limit too low | Lower RPM target or raise stator limit |
+| RPM drops a lot after each shot | Needs higher kP or higher stator peak limit | Increase kP by 0.02; or raise `StatorCurrentLimit` |
+| Shots short even at correct RPM | Mechanical slip, hood angle, or ball grip issue | Check hood and wheel grip before changing RPM |
+
+---
+
+*See also: `TUNING.md` for full vision + hood tuning protocol.*
