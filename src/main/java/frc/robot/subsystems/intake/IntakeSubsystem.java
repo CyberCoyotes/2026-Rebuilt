@@ -13,6 +13,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
+import frc.robot.Constants.Intake;
 
 public class IntakeSubsystem extends SubsystemBase {
 
@@ -30,7 +31,7 @@ public class IntakeSubsystem extends SubsystemBase {
 
     private RollerState rollerState = RollerState.STOPPED;
 
-    static final double ROLLER_VOLTS = 8.5;
+    static final double ROLLER_VOLTS = 7.0; // 8.5 was too much
 
     // ==== Elastic Dashboard Publishers ====
     // Driver-awareness data: state string, slide position, and at-target booleans.
@@ -224,22 +225,14 @@ public class IntakeSubsystem extends SubsystemBase {
      *   Call {@link #stopFuel()} or {@link #retractSlidesCmd()} afterward if needed.
      *
      * Typical auton usage:
-     * <pre>
-     *   intake.intakeFuelAuton(2.0, false)
-     * </pre>
-     *
-     * @param timeoutSeconds How long to run the roller; acts as the end trigger (timeout).
-     *                       Tune per path segment length or expected ball count.
-     * @param waitForSensor  Reserved for future use — when true, will end early on a
-     *                       game-piece sensor trigger rather than relying solely on the
-     *                       timer. Pass {@code false} for now.
+     * 
      * @return Autonomous intake command
      */
-    public Command intakeFuelAuton(double timeoutSeconds, boolean waitForSensor) {
+    public Command intakeFuelAuton(double timeout) {
         return Commands.sequence(
                 extendSlidesCmd(),
-                Commands.startEnd(this::runRoller, this::stopRoller, this)
-                        .withTimeout(timeoutSeconds) // primary end trigger: timeout
+                Commands.run(this::runRoller, this)
+                        .withTimeout(timeout) // primary end trigger: timeout
         ).withName("IntakeFuelAuton");
     }
 
