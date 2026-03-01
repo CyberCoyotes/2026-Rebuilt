@@ -228,11 +228,11 @@ public class IntakeSubsystem extends SubsystemBase {
      * 
      * @return Autonomous intake command
      */
-    public Command intakeFuelAuton(double timeout) {
+    public Command intakeFuelAuton(double intakeTimeout) {
         return Commands.sequence(
                 extendSlidesCmd(),
                 Commands.run(this::runRoller, this)
-                        .withTimeout(timeout) // primary end trigger: timeout
+                        .withTimeout(intakeTimeout) // primary end trigger: timeout
         ).withName("IntakeFuelAuton");
     }
 
