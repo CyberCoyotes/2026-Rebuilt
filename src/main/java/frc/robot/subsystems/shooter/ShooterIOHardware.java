@@ -146,6 +146,9 @@ public class ShooterIOHardware implements ShooterIO {
   // === Status Signals =====
   private final StatusSignal<?> flywheelAVelocity;
   private final StatusSignal<?> flywheelAMotorVoltage; // applied volts — also re-enabled at 100Hz for follower sync
+  private final StatusSignal<?> flywheelATempCelsius;
+  private final StatusSignal<?> flywheelBTempCelsius;
+  private final StatusSignal<?> flywheelCTempCelsius;
   private final StatusSignal<?> hoodPosition;
   private final StatusSignal<?> hoodEncoderAbsPosition;
 
@@ -172,6 +175,9 @@ public class ShooterIOHardware implements ShooterIO {
     // Cache status signal references
     flywheelAVelocity      = flywheelMotorA.getVelocity();
     flywheelAMotorVoltage  = flywheelMotorA.getMotorVoltage();
+    flywheelATempCelsius   = flywheelMotorA.getDeviceTemp();
+    flywheelBTempCelsius   = flywheelMotorB.getDeviceTemp();
+    flywheelCTempCelsius   = flywheelMotorC.getDeviceTemp();
     hoodPosition           = hoodMotor.getPosition();
     hoodEncoderAbsPosition = hoodEncoder.getAbsolutePosition();
 
@@ -205,6 +211,9 @@ public class ShooterIOHardware implements ShooterIO {
     // Must be set AFTER optimizeBusUtilization() or it will be cleared.
     BaseStatusSignal.setUpdateFrequencyForAll(
         10.0,
+        flywheelATempCelsius,
+        flywheelBTempCelsius,
+        flywheelCTempCelsius,
         hoodEncoderAbsPosition
     );
 
@@ -216,6 +225,15 @@ public class ShooterIOHardware implements ShooterIO {
 
     // Initialize hood to known zero position
     hoodMotor.setPosition(0.0);
+  }
+
+  @Override
+  public void updateSlowInputs(ShooterIOInputs inputs) {
+    BaseStatusSignal.refreshAll(flywheelATempCelsius, flywheelBTempCelsius, flywheelCTempCelsius);
+
+    inputs.flywheelMaxTempCelsius = Math.max(
+        flywheelATempCelsius.getValueAsDouble(),
+        Math.max(flywheelBTempCelsius.getValueAsDouble(), flywheelCTempCelsius.getValueAsDouble()));
   }
 
   /**
