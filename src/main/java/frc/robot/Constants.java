@@ -10,7 +10,7 @@ public final class Constants {
   public static final CANBus RIO_CANBUS = CANBus.roboRIO("rio"); // native rio bus
 
   // =========================================================
-  // Drive / Swerve
+  // Drive / Swerve These are in TunerConstants.java since they're generated with the Phoenix Tuner app
   // =========================================================
   // CAN ID Allocation:
   //   1-12  Drivetrain (drive motors, steer motors, CANcoders) — TunerConstants.java
