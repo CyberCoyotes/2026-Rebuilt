@@ -114,9 +114,8 @@ public class RobotContainer {
         // DRIVER CONTROLLER (Port 0) - Shooter
         // =====================================================================
 
-        driver.rightTrigger(0.5).whileTrue(
-            FuelCommands.shootWithSelectedPreset(shooter, indexer));
-        driver.rightBumper().whileTrue(shooter.tuneFlywheelCommand(3300));
+        driver.rightTrigger(0.5).whileTrue(FuelCommands.shootWithSelectedPreset(shooter, indexer));
+        driver.rightBumper().whileTrue(FuelCommands.shootPass(shooter, indexer));
 
         driver.leftTrigger(0.5).whileTrue(intake.intakeFuel());
         driver.leftBumper().whileTrue(intake.compressFuelIncremental());
@@ -135,15 +134,11 @@ public class RobotContainer {
         // OPERATOR CONTROLLER (Port 1)
         // =====================================================================
         
-        // operator.rightTrigger().whileTrue(FuelCommands.runAirPopper(indexer, shooter, intake)); 
-        // operator.rightBumper().onTrue(Commands.runOnce(() -> shooter.selectPreset(ShooterSubsystem.ShotPreset.PASS)));
-
-        
         operator.leftTrigger().whileTrue(FuelCommands.runAirPopper(indexer, shooter, intake)); 
         operator.leftBumper().onTrue(Commands.runOnce(() -> shooter.selectPreset(ShooterSubsystem.ShotPreset.PASS)));
-        
-        operator.b().onTrue(Commands.runOnce(() -> shooter.selectPreset(ShooterSubsystem.ShotPreset.CLOSE)));
+
         operator.a().onTrue(Commands.runOnce(() -> shooter.selectPreset(ShooterSubsystem.ShotPreset.TRENCH)));
+        operator.b().onTrue(Commands.runOnce(() -> shooter.selectPreset(ShooterSubsystem.ShotPreset.CLOSE)));
         operator.x().onTrue(Commands.runOnce(() -> shooter.selectPreset(ShooterSubsystem.ShotPreset.TOWER)));
         operator.y().onTrue(Commands.runOnce(() -> shooter.selectPreset(ShooterSubsystem.ShotPreset.FAR)));
 
