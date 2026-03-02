@@ -40,7 +40,9 @@ public class IndexerIOHardware implements IndexerIO {
      * at each sensor, then set the threshold to ~50% between the piece-present
      * and piece-absent readings.
      */
+
     private static final double TOF_DETECTION_THRESHOLD_METERS = 0.15; // ~6 inches
+
 
     // == Motor Configuration ======
     // Config builders are private static methods so students can find and tune
@@ -105,13 +107,15 @@ private static CANrangeConfiguration chuteCANrangeConfig() {
     CANrangeConfiguration configChute = new CANrangeConfiguration();
 
     // Sensor trips "detected" when distance drops below this value
-    configChute.ProximityParams.ProximityThreshold = TOF_DETECTION_THRESHOLD_METERS;
+    configChute.ProximityParams.ProximityThreshold = Constants.Indexer.CHUTE_DETECTION_THRESHOLD_METERS;
+
     // Prevents chattering when a piece sits right at the threshold.
     // Sensor won't un-detect until distance rises ~2.5cm above the threshold.
     configChute.ProximityParams.ProximityHysteresis = 0.025; // meters — TODO: Tune
 
     // Narrow the FOV to reduce false positives from hopper walls.
     // Full range is ±6.75° each axis. Reduce if you see spurious detections.
+
     configChute.FovParams.FOVRangeX = 6.75; // degrees — TODO: Tune down if needed
     configChute.FovParams.FOVRangeY = 6.75; // degrees — TODO: Tune down if needed
 

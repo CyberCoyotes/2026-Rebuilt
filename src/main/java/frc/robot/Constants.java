@@ -93,6 +93,10 @@ public final class Constants {
     public static final double HOPPER_B_MAX_DISTANCE = 0.50; // TODO: Tune experimentally
 
     public static final double CHUTE_MAX_DISTANCE = 0.50; // TODO: Tune experimentally
+    public static final double CHUTE_MIN_DISTANCE = 0.02; // TODO: Tune experimentally
+    
+    // Chute detection threshold: distance below which we consider a piece to be present at the chute.
+    public static final double CHUTE_DETECTION_THRESHOLD_METERS = 0.40; // 
     public static final double CHUTE_TOLERANCE = 0.05;
 
     public static final double FUEL_CLEAR_TIME = 2.0;
