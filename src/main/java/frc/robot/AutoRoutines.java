@@ -22,12 +22,10 @@ public class AutoRoutines {
     private final ShooterSubsystem m_shooter;
     private final FuelCommands m_fuelCommands;
    // private final VisionSubsystem m_vision;
-
-  //  private final LedSubsystem m_ledSubsystem;
+//  private final LedSubsystem m_ledSubsystem;
 
     // How long to wait after driving before doing something else
     private final double DRIVE_WAIT = 1.0; // Cut 2.0 -> 1.0 or less 
-
     private final double SCORE_WAIT = 1.0; // Cut 2.0 -> 1.0 or less 
 
     public AutoRoutines(AutoFactory factory, CommandSwerveDrivetrain drivetrain,/* , ClimberSubsystem climber,*/
@@ -54,9 +52,9 @@ public class AutoRoutines {
                                // FM2.cmd()
 
                         ));
+                // Routine Events
                 //.atTime("Score").onTrue(m_indexerCommands.autoScore()); //score
 
-                // Consider using m_commandGroups.autoIntakeCoral(m_indexerCommands, m_shooterCommands,/*m_wrist*/);
                 // .atTime("Load").onTrue(m_intakeCommands.intake());
                 return routine;
         }
@@ -73,6 +71,7 @@ public class AutoRoutines {
                                // Lob2.cmd()
 
                         ));
+                // Routine Events
                 // Lob.atTime("Shoot").onTrue(ShooterCommands.shootAtCurrentTarget(m_shooter, m_indexer)); //score
 
                 // Consider using m_commandGroups.autoIntakeCoral(m_indexerCommands, m_shooterCommands,/*m_wrist*/);
@@ -95,11 +94,12 @@ public class AutoRoutines {
                                 StartRMid3.cmd()
 
                         ));
-                 StartRMid.atTime("Shoot").onTrue(FuelCommands.Auto.shootTrench(m_shooter, m_indexer, 3)); //score
-                //  StartRMid.atTime("Intake").onTrue(m_intake.intakeFuelAuton(3)); //score
+                // Routine Events
+                StartRMid.atTime("Intake").onTrue(m_intake.intakeFuelAuton(3)); 
 
+                StartRMid2.atTime("Shoot").onTrue(FuelCommands.Auto.shootTrench(m_shooter, m_indexer, 3)); //FIXME: Check segement number
+                // Stay in a line! Color in the lines
 
-                // Consider using m_commandGroups.autoIntakeCoral(m_indexerCommands, m_shooterCommands,/*m_wrist*/);
                 //DefaultRightV2.atTime("Load").onTrue(m_intakeCommands.intake());
                 return routine;
         }
@@ -116,11 +116,11 @@ public class AutoRoutines {
                                 TestRountine2.cmd()
 
                         ));
+                // Routine Events
+
                 TestRoutine.atTime("Shoot").onTrue(FuelCommands.Auto.shootHub(m_shooter, m_indexer, 3.0)); //score
                 // Dummy.atTime("Intake").onTrue(IntakeSubsystem.intakeFuel(m_shooter, m_indexer)); //score
 
-
-                // Consider using m_commandGroups.autoIntakeCoral(m_indexerCommands, m_shooterCommands,/*m_wrist*/);
                 return routine;
         }
          public AutoRoutine TestRoutineR() {
@@ -136,11 +136,10 @@ public class AutoRoutines {
                                 TestRountineR2.cmd()
 
                         ));
+                // Routine Events
                 TestRoutineR.atTime("Shoot").onTrue(FuelCommands.Auto.shootTren(m_shooter, m_indexer, 3.0)); //score
                 // Dummy.atTime("Intake").onTrue(IntakeSubsystem.intakeFuel(m_shooter, m_indexer)); //score
 
-
-                // Consider using m_commandGroups.autoIntakeCoral(m_indexerCommands, m_shooterCommands,/*m_wrist*/);
                 return routine;
         }
 }
