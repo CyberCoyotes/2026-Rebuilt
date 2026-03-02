@@ -33,8 +33,6 @@ import frc.robot.Constants;
  * - RT routes to FarShotCommand instead of shootAtCurrentTarget
  * - FarShotCommand continuously updates hood position via updateHoodForDistance()
  *
- * @see Constants.Shooter for hardware configuration
- * @author @Isaak3
  */
 
 @SuppressWarnings("unused") // Unused methods are intentional for future use and testing
@@ -75,16 +73,6 @@ public class ShooterSubsystem extends SubsystemBase {
     private final ShooterIO io;
     private final ShooterIOInputs inputs = new ShooterIOInputs();
 
-    // ==== TODO Control Mode Toggle ====
-    /**
-     * When true, flywheel uses VelocityTorqueCurrentFOC (Slot 1 gains).
-     * When false, uses VelocityVoltage with FOC enabled (Slot 0 gains) — default.
-     *
-     * NOTE: TorqueCurrentFOC requires CAN FD. On RIO CAN this flag should stay false
-     * until flywheel motors are moved to CANivore.
-     */
-    private boolean useTorqueFOC = false;
-
     // ==== Dashboard Publishers (NetworkTables) ====
     private final NetworkTable shooterTable;
     private final StringPublisher  statePublisher;
@@ -101,8 +89,6 @@ public class ShooterSubsystem extends SubsystemBase {
     private final DoublePublisher  throughBorePositionPublisher;
     private final BooleanPublisher throughBoreConnectedPublisher;
     private final StringPublisher  selectedPresetPublisher;
-    private final BooleanPublisher torqueFOCPublisher; // TODO Test VelocityTorqueCurrentFOC on flywheel — compare to VelocityVoltage with FOC, see if it improves acceleration or stability. Publish active control mode for visibility on dashboard.
-
 
     // ==== State ====
     private ShooterState currentState     = ShooterState.IDLE;
@@ -135,9 +121,6 @@ public class ShooterSubsystem extends SubsystemBase {
         throughBorePositionPublisher  = shooterTable.getDoubleTopic("ThroughBorePosition").publish();
         throughBoreConnectedPublisher = shooterTable.getBooleanTopic("ThroughBoreConnected").publish();
         selectedPresetPublisher       = shooterTable.getStringTopic("SelectedPreset").publish();
-        // TODO Test VelocityTorqueCurrentFOC on flywheel — compare to VelocityVoltage with FOC, see if it improves acceleration or stability. Publish active control mode for visibility on dashboard.
-        torqueFOCPublisher = shooterTable.getBooleanTopic("UsingTorqueFOC").publish();
-
     }
 
     // ==== State Machine ====
@@ -177,9 +160,6 @@ public class ShooterSubsystem extends SubsystemBase {
         throughBorePositionPublisher.set(inputs.hoodThroughBorePositionRotations);
         throughBoreConnectedPublisher.set(inputs.hoodThroughBoreConnected);
         selectedPresetPublisher.set(selectedPreset.label);
-
-        // TODO Test VelocityTorqueCurrentFOC on flywheel — compare to VelocityVoltage with FOC, see if it improves acceleration or stability. Publish active control mode for visibility on dashboard.
-        torqueFOCPublisher.set(useTorqueFOC);
     }
 
     // =====STATE MACHINE=====
@@ -576,16 +556,11 @@ public class ShooterSubsystem extends SubsystemBase {
         prepareToShoot();
     }
 
-    /** TODO Test VelocityTorqueCurrentFOC on flywheel — compare to VelocityVoltage with FOC, see if it improves acceleration or stability.
+    /**
      * Routes flywheel velocity command to the active control mode.
-     * Toggle useTorqueFOC to switch between VelocityVoltage and VelocityTorqueCurrentFOC.
      */
     private void commandFlywheelVelocity(double rpm) {
-        if (useTorqueFOC) {
-            io.setFlywheelVelocityTorqueFOC(rpm);
-        } else {
             io.setFlywheelVelocity(rpm);
-        }
     }
 
     /**
@@ -611,10 +586,4 @@ public class ShooterSubsystem extends SubsystemBase {
         ).withName("TuneFlywheelRPM");
     }
 
-    public Command toggleControlModeCommand() {
-    return Commands.runOnce(() -> {
-        useTorqueFOC = !useTorqueFOC;
-        System.out.println("[Shooter] Control mode: " + (useTorqueFOC ? "TorqueCurrentFOC (Slot 1)" : "VelocityVoltage (Slot 0)"));
-    }, this).withName("ToggleFlywheelControlMode");
-}
 }
