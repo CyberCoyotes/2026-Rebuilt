@@ -15,6 +15,8 @@ import com.ctre.phoenix6.hardware.CANdle;
 import com.ctre.phoenix6.signals.LarsonBounceValue;
 import com.ctre.phoenix6.signals.RGBWColor;
 
+@SuppressWarnings("unused") // Suppress warnings for unused right now
+
 /**
  * Subsystem that controls an addressable LED strip using a CANdle.
  */

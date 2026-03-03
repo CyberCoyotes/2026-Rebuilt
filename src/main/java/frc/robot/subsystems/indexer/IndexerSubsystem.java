@@ -13,6 +13,8 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 
+@SuppressWarnings("unused") // Suppress warnings for unused right now
+
 public class IndexerSubsystem extends SubsystemBase {
 
     // ==== Indexer State =======================================================

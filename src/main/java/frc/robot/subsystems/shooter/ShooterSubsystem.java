@@ -386,15 +386,10 @@ public class ShooterSubsystem extends SubsystemBase {
 
     /** Returns true if total flywheel current is too high. */
     public boolean isOverCurrent() {
-        return inputs.flywheelCurrentAmps > 150.0; // TODO: Tune threshold
+        return inputs.flywheelCurrentAmps > 150.0;
     }
 
-    // ── Commands ───────────────────────────────────────────────────────────────
-
-    /** Spins up flywheel to pre-rev speed. */
-    // public Command spinUpCommand() {
-    //     return Commands.runOnce(this::spinup, this).withName("SpinUp");
-    // }
+    // ==== Commands ==========================
 
     /** Returns shooter to idle. */
     public Command idleCommand() {
@@ -498,23 +493,23 @@ public class ShooterSubsystem extends SubsystemBase {
     private static final InterpolatingDoubleTreeMap HOOD_ROT_MAP     = new InterpolatingDoubleTreeMap();
 
     static {
-        // ── Flywheel RPM vs. distance ──────────────────────────────────────────
+        // ==== Flywheel RPM vs. distance =================================
         // TODO: Replace each value with a measured result (see TUNING.md §4)
-        FLYWHEEL_RPM_MAP.put(1.0, 2750.0); // TODO: tune
-        FLYWHEEL_RPM_MAP.put(2.0, 2900.0); // TODO: tune
-        FLYWHEEL_RPM_MAP.put(3.0, 3100.0); // TODO: tune
-        FLYWHEEL_RPM_MAP.put(4.0, 3200.0); // TODO: tune
-        FLYWHEEL_RPM_MAP.put(5.0, 3300.0); // TODO: tune
-        FLYWHEEL_RPM_MAP.put(6.0, 3400.0); // TODO: tune  (hw max ~6380 RPM)
+        FLYWHEEL_RPM_MAP.put(1.0, 2750.0);
+        FLYWHEEL_RPM_MAP.put(2.0, 2900.0); 
+        FLYWHEEL_RPM_MAP.put(3.0, 3100.0); 
+        FLYWHEEL_RPM_MAP.put(4.0, 3200.0); 
+        FLYWHEEL_RPM_MAP.put(5.0, 3300.0); 
+        FLYWHEEL_RPM_MAP.put(6.0, 3400.0);
 
-        // ── Hood position (rotations) vs. distance ────────────────────────────
+        // ==== Hood position (rotations) vs. distance =================================
         // TODO: Replace each value with a measured result (see TUNING.md §4)
-        HOOD_ROT_MAP.put(1.0, 0.00); // TODO: tune  (0.0 = fully up / close)
-        HOOD_ROT_MAP.put(2.0, 1.50); // TODO: tune
-        HOOD_ROT_MAP.put(3.0, 3.00); // TODO: tune
-        HOOD_ROT_MAP.put(4.0, 4.30); // TODO: tune
-        HOOD_ROT_MAP.put(5.0, 5.50); // TODO: tune
-        HOOD_ROT_MAP.put(6.0, 6.00); // TODO: tune  (hw max ~9.14 rot)
+        HOOD_ROT_MAP.put(1.0, 0.00); 
+        HOOD_ROT_MAP.put(2.0, 1.50); 
+        HOOD_ROT_MAP.put(3.0, 3.00); 
+        HOOD_ROT_MAP.put(4.0, 4.30); 
+        HOOD_ROT_MAP.put(5.0, 5.50); 
+        HOOD_ROT_MAP.put(6.0, 6.00);
     }
 
     /**
