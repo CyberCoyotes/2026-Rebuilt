@@ -131,7 +131,7 @@ public final class Constants {
 
     /** TODO tune RPMs for flywheel without excessive current draw
      * Add an end of line comment `Tuned` when each is verified */
-    public static final double POPPER_RPM  = 800; // TODO: Tune
+    public static final double POPPER_RPM  = 650; // TODO: 800 was just a little too much
     public static final double STANDBY_RPM = 1000; //
     public static final double CLOSE_RPM   = 2750; //
     public static final double TOWER_RPM   = 3200; // TODO: Tune was 3100, 4.42

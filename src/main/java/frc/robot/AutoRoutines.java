@@ -82,22 +82,22 @@ public class AutoRoutines {
         public AutoRoutine StartRMid() {
                  final AutoRoutine routine = m_factory.newRoutine("StartRMid");
                 final AutoTrajectory StartRMid = routine.trajectory("StartRMid", 0);
-                final AutoTrajectory StartRMid2 = routine.trajectory("StartRMid", 1);
-                final AutoTrajectory StartRMid3 = routine.trajectory("StartRMid", 2);
+                // final AutoTrajectory StartRMid2 = routine.trajectory("StartRMid", 1);
+                // final AutoTrajectory StartRMid3 = routine.trajectory("StartRMid", 2);
 
                 routine.active().onTrue(
                         Commands.sequence(
                                 StartRMid.resetOdometry(), // Always reset odometry first
-                                StartRMid.cmd(), //Follow the path
+                                StartRMid.cmd() //Follow the path
                                 // m_drivetrain.stop().withTimeout(3),
-                                 StartRMid2.cmd(),
-                                StartRMid3.cmd()
+                                //  StartRMid2.cmd(),
+                                // StartRMid3.cmd()
 
                         ));
                 // Routine Events
                 StartRMid.atTime("Intake").onTrue(m_intake.intakeFuelAuton(3)); 
 
-                StartRMid2.atTime("Shoot").onTrue(FuelCommands.Auto.shootTrench(m_shooter, m_indexer, 3)); //FIXME: Check segement number
+                StartRMid.atTime("Shoot").onTrue(FuelCommands.Auto.shootTrench(m_shooter, m_indexer, 6)); //FIXME: Check segement number
                 // Stay in a line! Color in the lines
 
                 //DefaultRightV2.atTime("Load").onTrue(m_intakeCommands.intake());

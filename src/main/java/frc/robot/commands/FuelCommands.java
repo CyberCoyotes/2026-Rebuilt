@@ -469,8 +469,8 @@ public class FuelCommands {
                     shooter.setTargetHoodPose(Constants.Shooter.TRENCH_HOOD);
                     shooter.prepareToShoot();
                 }, shooter),
-                Commands.waitUntil(shooter::isReady).withTimeout(6.0),
-                indexer.feed().until(indexer::donePassingFuel).withTimeout(feedSeconds)
+                Commands.waitUntil(shooter::isReady), // removed timeout
+                indexer.feed().withTimeout(feedSeconds) // removed sensor time
         ).finallyDo(() -> {
             indexer.indexerStop();
             indexer.conveyorStop();
