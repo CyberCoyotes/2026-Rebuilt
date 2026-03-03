@@ -485,8 +485,10 @@ public class FuelCommands {
                         shooter.setTargetHoodPose(Constants.Shooter.CLOSE_HOOD);
                         shooter.prepareToShoot();
                     }, shooter),
-                    Commands.waitUntil(shooter::isReady).withTimeout(6.0),
-                    indexer.feed().until(indexer::donePassingFuel).withTimeout(feedSeconds)
+                    Commands.waitUntil(shooter::isReady).withTimeout(6.0), // remove timeout
+                    
+                    // remove indexer::donePassingFuel for now
+                    indexer.feed().withTimeout(feedSeconds) 
             ).finallyDo(() -> {
                 indexer.indexerStop();
                 indexer.conveyorStop();
