@@ -13,7 +13,6 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
-import frc.robot.Constants.Intake;
 
 public class IntakeSubsystem extends SubsystemBase {
 
@@ -316,5 +315,12 @@ public class IntakeSubsystem extends SubsystemBase {
                 this)
                 .withName("CompressFuelIncremental");
     }
+
+
+    /*
+    * Retract slides to a set positional at first (see retractSlidesIncrementalCmd) while running the indexer roller
+    * Retract slides the remaining distance at the slow speed using DynamicMotionMagic until fully retracted, while continuing to run the roller
+    * This should also be used with FuelCommands and shooting the flywheel
+    */
 
 } // end of class

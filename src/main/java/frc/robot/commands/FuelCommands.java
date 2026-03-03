@@ -447,8 +447,6 @@ public class FuelCommands {
      * @return Command that continuously tracks target
      */
 
-
-
     public static Command trackTarget(ShooterSubsystem shooter, VisionSubsystem vision) {
         return Commands.run(() -> {
             if (vision.hasTarget()) {
@@ -461,22 +459,25 @@ public class FuelCommands {
 
     public static class Auto {
 
-    public static Command shootTrench(ShooterSubsystem shooter, IndexerSubsystem indexer,
-            double feedSeconds) {
-        return Commands.sequence(
-                Commands.runOnce(() -> {
-                    shooter.setTargetVelocity(Constants.Shooter.TRENCH_RPM);
-                    shooter.setTargetHoodPose(Constants.Shooter.TRENCH_HOOD);
-                    shooter.prepareToShoot();
-                }, shooter),
-                Commands.waitUntil(shooter::isReady), // removed timeout
-                indexer.feed().withTimeout(feedSeconds) // removed sensor time
-        ).finallyDo(() -> {
-            indexer.indexerStop();
-            indexer.conveyorStop();
-            shooter.setIdle();
-        }).withName("ShootTrenchAuton");
-    }
+        /* Autonomous shooting command */
+        public static Command shootTrench(ShooterSubsystem shooter, IndexerSubsystem indexer,
+                double feedSeconds) {
+            return Commands.sequence(
+                    Commands.runOnce(() -> {
+                        shooter.setTargetVelocity(Constants.Shooter.TRENCH_RPM);
+                        shooter.setTargetHoodPose(Constants.Shooter.TRENCH_HOOD);
+                        shooter.prepareToShoot();
+                    }, shooter),
+                    Commands.waitUntil(shooter::isReady), // removed timeout
+                    indexer.feed().withTimeout(feedSeconds) // removed sensor time
+            ).finallyDo(() -> {
+                indexer.indexerStop();
+                indexer.conveyorStop();
+                shooter.setIdle();
+            }).withName("ShootTrenchAuton");
+        }
+
+        /* Autonomous shooting command */
         public static Command shootHub(ShooterSubsystem shooter, IndexerSubsystem indexer,
                 double feedSeconds) {
             return Commands.sequence(
@@ -486,50 +487,51 @@ public class FuelCommands {
                         shooter.prepareToShoot();
                     }, shooter),
                     Commands.waitUntil(shooter::isReady).withTimeout(6.0), // remove timeout
-                    
+
                     // remove indexer::donePassingFuel for now
-                    indexer.feed().withTimeout(feedSeconds) 
-            ).finallyDo(() -> {
-                indexer.indexerStop();
-                indexer.conveyorStop();
-                shooter.setIdle();
-            }).withName("ShootHubAuton");
+                    indexer.feed().withTimeout(feedSeconds)).finallyDo(() -> {
+                        indexer.indexerStop();
+                        indexer.conveyorStop();
+                        shooter.setIdle();
+                    }).withName("ShootHubAuton");
         }
 
-    public static Command shootTower(ShooterSubsystem shooter, IndexerSubsystem indexer,
-            double feedSeconds) {
-        return Commands.sequence(
-                Commands.runOnce(() -> {
-                    shooter.setTargetVelocity(Constants.Shooter.TOWER_RPM);
-                    shooter.setTargetHoodPose(Constants.Shooter.TOWER_HOOD);
-                    shooter.prepareToShoot();
-                }, shooter),
-                Commands.waitUntil(shooter::isReady).withTimeout(6.0),
-                indexer.feed().until(indexer::donePassingFuel).withTimeout(feedSeconds)
-        ).finallyDo(() -> {
-            indexer.indexerStop();
-            indexer.conveyorStop();
-            shooter.setIdle();
-        }).withName("ShootTowerAuton");
-    } // end of command
+        /* Autonomous shooting command */
+        public static Command shootTower(ShooterSubsystem shooter, IndexerSubsystem indexer,
+                double feedSeconds) {
+            return Commands.sequence(
+                    Commands.runOnce(() -> {
+                        shooter.setTargetVelocity(Constants.Shooter.TOWER_RPM);
+                        shooter.setTargetHoodPose(Constants.Shooter.TOWER_HOOD);
+                        shooter.prepareToShoot();
+                    }, shooter),
+                    Commands.waitUntil(shooter::isReady).withTimeout(6.0),
+                    indexer.feed().until(indexer::donePassingFuel).withTimeout(feedSeconds)).finallyDo(() -> {
+                        indexer.indexerStop();
+                        indexer.conveyorStop();
+                        shooter.setIdle();
+                    }).withName("ShootTowerAuton");
+        } // end of command
+        /* Autonomous shooting command */
 
-    public static Command shootFar(ShooterSubsystem shooter, IndexerSubsystem indexer,
-            double feedSeconds) {
-        return Commands.sequence(
-                Commands.runOnce(() -> {
-                    shooter.setTargetVelocity(Constants.Shooter.FAR_RPM);
-                    shooter.setTargetHoodPose(Constants.Shooter.FAR_HOOD);
-                    shooter.prepareToShoot();
-                }, shooter),
-                Commands.waitUntil(shooter::isReady).withTimeout(6.0),
-                indexer.feed().until(indexer::donePassingFuel).withTimeout(feedSeconds)
-        ).finallyDo(() -> {
-            indexer.indexerStop();
-            indexer.conveyorStop();
-            shooter.setIdle();
-        }).withName("ShootFarAuton");
-    } // end of command
- public static Command shootTren(ShooterSubsystem shooter, IndexerSubsystem indexer,
+        public static Command shootFar(ShooterSubsystem shooter, IndexerSubsystem indexer,
+                double feedSeconds) {
+            return Commands.sequence(
+                    Commands.runOnce(() -> {
+                        shooter.setTargetVelocity(Constants.Shooter.FAR_RPM);
+                        shooter.setTargetHoodPose(Constants.Shooter.FAR_HOOD);
+                        shooter.prepareToShoot();
+                    }, shooter),
+                    Commands.waitUntil(shooter::isReady).withTimeout(6.0),
+                    indexer.feed().until(indexer::donePassingFuel).withTimeout(feedSeconds)).finallyDo(() -> {
+                        indexer.indexerStop();
+                        indexer.conveyorStop();
+                        shooter.setIdle();
+                    }).withName("ShootFarAuton");
+        } // end of command
+
+        /* Autonomous shooting command */
+        public static Command shootTren(ShooterSubsystem shooter, IndexerSubsystem indexer,
                 double feedSeconds) {
             return Commands.sequence(
                     Commands.runOnce(() -> {
@@ -538,13 +540,12 @@ public class FuelCommands {
                         shooter.prepareToShoot();
                     }, shooter),
                     Commands.waitUntil(shooter::isReady).withTimeout(6.0),
-                    indexer.feed().until(indexer::donePassingFuel).withTimeout(feedSeconds)
-            ).finallyDo(() -> {
-                indexer.indexerStop();
-                indexer.conveyorStop();
-                shooter.setIdle();
-            }).withName("ShootTrenchAuton");
+                    indexer.feed().until(indexer::donePassingFuel).withTimeout(feedSeconds)).finallyDo(() -> {
+                        indexer.indexerStop();
+                        indexer.conveyorStop();
+                        shooter.setIdle();
+                    }).withName("ShootTrenchAuton");
         }
-} // end of class Auto
+    } // end of class Auto
 
 } // end of class FuelCommands
