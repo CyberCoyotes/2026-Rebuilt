@@ -460,6 +460,7 @@ public class FuelCommands {
     public static class Auto {
 
         /* Autonomous shooting command */
+        /* FIXME Trench is the working "Test" command for autonomous. Others should be updated after its working properly */
         public static Command shootTrench(ShooterSubsystem shooter, IndexerSubsystem indexer,
                 double feedSeconds) {
             return Commands.sequence(
@@ -486,7 +487,7 @@ public class FuelCommands {
                         shooter.setTargetHoodPose(Constants.Shooter.CLOSE_HOOD);
                         shooter.prepareToShoot();
                     }, shooter),
-                    Commands.waitUntil(shooter::isReady).withTimeout(6.0), // remove timeout
+                    Commands.waitUntil(shooter::isReady), // remove timeout
 
                     // remove indexer::donePassingFuel for now
                     indexer.feed().withTimeout(feedSeconds)).finallyDo(() -> {
