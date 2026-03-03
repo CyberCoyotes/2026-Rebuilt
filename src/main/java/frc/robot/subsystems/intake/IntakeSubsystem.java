@@ -233,6 +233,7 @@ public class IntakeSubsystem extends SubsystemBase {
                 extendSlidesCmd(),
                 Commands.run(this::runRoller, this)
                         .withTimeout(intakeTimeout) // primary end trigger: timeout
+                        .finallyDo(this::stopRoller)
         ).withName("IntakeFuelAuton");
     }
 
