@@ -103,6 +103,30 @@ public class AutoRoutines {
                 //DefaultRightV2.atTime("Load").onTrue(m_intakeCommands.intake());
                 return routine;
         }
+                public AutoRoutine StartLMid() {
+                 final AutoRoutine routine = m_factory.newRoutine("StartLMid");
+                final AutoTrajectory StartLMid = routine.trajectory("StartLMid", 0);
+                // final AutoTrajectory StartLMid2 = routine.trajectory("StartRMid", 1);
+                // final AutoTrajectory StartLMid3 = routine.trajectory("StartRMid", 2);
+
+                routine.active().onTrue(
+                        Commands.sequence(
+                                StartLMid.resetOdometry(), // Always reset odometry first
+                                StartLMid.cmd() //Follow the path
+                                // m_drivetrain.stop().withTimeout(3),
+                                //  StartRMid2.cmd(),
+                                // StartRMid3.cmd()
+
+                        ));
+                // Routine Events
+                StartLMid.atTime("Intake").onTrue(m_intake.intakeFuelAuton(3)); 
+
+                StartLMid.atTime("Shoot").onTrue(FuelCommands.Auto.shootTrench(m_shooter, m_indexer, 6)); //FIXME: Check segement number
+                // Stay in a line! Color in the lines
+
+                //DefaultRightV2.atTime("Load").onTrue(m_intakeCommands.intake());
+                return routine;
+        }
         public AutoRoutine TestRoutine() {
                  final AutoRoutine routine = m_factory.newRoutine("TestRoutine");
                 final AutoTrajectory TestRoutine = routine.trajectory("TestRoutine", 0);
