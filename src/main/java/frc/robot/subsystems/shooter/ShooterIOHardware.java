@@ -111,9 +111,11 @@ public class ShooterIOHardware implements ShooterIO {
       config.CurrentLimits.SupplyCurrentLimitEnable = true;
 
       // Position PID — Slot 0
-      config.Slot0.kP = 1.00;  // TODO: Tune kP
-      config.Slot0.kI = 0.75; // TODO: Tune kI
-      config.Slot0.kD = 0.00;  // TODO: Tune kD
+      // Tuned 2026-03-01: 
+      // kP=1.0, kI=0.75 → no steady-state error at 9.15 rotations, acceptable oscillation, no overshoot
+      config.Slot0.kP = 1.00; 
+      config.Slot0.kI = 0.75;
+      config.Slot0.kD = 0.00;
 
       // Soft limits — enable after travel range is confirmed
       config.SoftwareLimitSwitch.ForwardSoftLimitEnable = true;

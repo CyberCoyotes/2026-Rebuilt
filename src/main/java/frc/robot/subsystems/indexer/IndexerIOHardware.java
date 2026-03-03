@@ -93,12 +93,12 @@ private static CANrangeConfiguration hopperCANrangeConfig() {
 
     // Prevents chattering when a piece sits right at the threshold.
     // Sensor won't un-detect until distance rises ~2.5cm above the threshold.
-    configHopper.ProximityParams.ProximityHysteresis = 0.025; // meters — TODO: Tune
+    configHopper.ProximityParams.ProximityHysteresis = 0.025;
 
     // Narrow the FOV to reduce false positives from hopper walls.
     // Full range is ±6.75° each axis. Reduce if you see spurious detections.
-    configHopper.FovParams.FOVRangeX = 6.75; // degrees — TODO: Tune down if needed
-    configHopper.FovParams.FOVRangeY = 6.75; // degrees — TODO: Tune down if needed
+    configHopper.FovParams.FOVRangeX = 6.75; 
+    configHopper.FovParams.FOVRangeY = 6.75;
 
     return configHopper;
 }
@@ -111,13 +111,13 @@ private static CANrangeConfiguration chuteCANrangeConfig() {
 
     // Prevents chattering when a piece sits right at the threshold.
     // Sensor won't un-detect until distance rises ~2.5cm above the threshold.
-    configChute.ProximityParams.ProximityHysteresis = 0.025; // meters — TODO: Tune
+    configChute.ProximityParams.ProximityHysteresis = 0.025; // meters — TODO: Tune Chute tolerance
 
     // Narrow the FOV to reduce false positives from hopper walls.
     // Full range is ±6.75° each axis. Reduce if you see spurious detections.
 
-    configChute.FovParams.FOVRangeX = 6.75; // degrees — TODO: Tune down if needed
-    configChute.FovParams.FOVRangeY = 6.75; // degrees — TODO: Tune down if needed
+    configChute.FovParams.FOVRangeX = 6.75; // degrees — TODO: Tune chute FOV
+    configChute.FovParams.FOVRangeY = 6.75; // degrees — TODO: Tune chute FOV
 
     return configChute;
 }

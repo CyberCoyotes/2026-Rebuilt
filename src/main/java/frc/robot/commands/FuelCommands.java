@@ -92,6 +92,32 @@ public class FuelCommands {
                 }).withName("ShootWithPreset[" + rpm + "rpm]");
     }
 
+    /**
+     * Shoots at the given RPM/hood preset while simultaneously retracting the
+     * intake slides (two-phase) and running the intake roller.
+     *
+     * The shooter+indexer sequence is the deadline — slide retraction runs in
+     * parallel and is cancelled when the shot completes or the trigger is released.
+     * The intake roller is always stopped on exit via the intake command's finallyDo.
+     *
+     * Use wherever {@link #shootWithPreset} is used when slides need to retract
+     * during the shot (e.g. after intaking from the trench).
+     *
+     * @param shooter The shooter subsystem
+     * @param indexer The indexer subsystem
+     * @param intake  The intake subsystem
+     * @param rpm     Target flywheel velocity in RPM
+     * @param hood    Target hood position in rotations
+     * @return Deadline command: shoot sequence (deadline) + slide retract in parallel
+     */
+    public static Command shootWithSlideRetract(ShooterSubsystem shooter, IndexerSubsystem indexer,
+            IntakeSubsystem intake, double rpm, double hood) {
+        return Commands.deadline(
+                shootWithPreset(shooter, indexer, rpm, hood),
+                intake.retractSlidesWithRollerCmd())
+                .withName("ShootWithSlideRetract[" + rpm + "rpm]");
+    }
+
     // Template for the using ShotPresets in Auton
     public static Command shootPresetAuton(ShooterSubsystem shooter, IndexerSubsystem indexer,
             ShotPreset preset, double feedSeconds,
@@ -476,6 +502,28 @@ public class FuelCommands {
                 indexer.conveyorStop();
                 shooter.setIdle();
             }).withName("ShootTrenchAuton");
+        }
+
+        /**
+         * Autonomous: shoot at trench preset while retracting intake slides (two-phase)
+         * and running the intake roller concurrently.
+         *
+         * The shoot sequence ({@link #shootTrench}) is the deadline — slide retraction
+         * is cancelled when feeding completes. Safe to compose with path-following or
+         * other parallel commands in auton.
+         *
+         * @param shooter     The shooter subsystem
+         * @param indexer     The indexer subsystem
+         * @param intake      The intake subsystem
+         * @param feedSeconds How long to run the indexer/conveyor after ready
+         * @return Deadline command: shootTrench (deadline) + slide retract in parallel
+         */
+        public static Command shootTrenchWithSlideRetract(ShooterSubsystem shooter,
+                IndexerSubsystem indexer, IntakeSubsystem intake, double feedSeconds) {
+            return Commands.deadline(
+                    shootTrench(shooter, indexer, feedSeconds),
+                    intake.retractSlidesWithRollerCmd())
+                    .withName("ShootTrenchWithSlideRetract");
         }
 
         /* Autonomous shooting command */

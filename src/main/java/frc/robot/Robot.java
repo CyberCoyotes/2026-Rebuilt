@@ -20,6 +20,8 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import frc.robot.subsystems.vision.LimelightHelpers;
 
+@SuppressWarnings("unused") // Suppress warnings for unused right now
+
 public class Robot extends LoggedRobot {
     private Command m_autonomousCommand;
 

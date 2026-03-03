@@ -71,13 +71,14 @@ public class IntakeIOHardware implements IntakeIO {
             config.SoftwareLimitSwitch.ReverseSoftLimitEnable = true;
             config.SoftwareLimitSwitch.ReverseSoftLimitThreshold = 0.0;
 
-            config.Slot0.kP = 2.0; // TODO: Tune
+            /* Tune PID values for position control of the Slide motor */
+            config.Slot0.kP = 2.0;
             config.Slot0.kI = 0.0;
             config.Slot0.kD = 0.0;
 
-            // MotionMagic profile
-            config.MotionMagic.MotionMagicCruiseVelocity = 363;//960; // TODO: Tune
-            config.MotionMagic.MotionMagicAcceleration = 363;   // TODO: Tune
+            /* MotionMagic profile - TODO: Tune the MotionMagic parameters for smooth and responsive slide movement. */
+            config.MotionMagic.MotionMagicCruiseVelocity = 363; // 960;
+            config.MotionMagic.MotionMagicAcceleration = 363;
             config.MotionMagic.MotionMagicJerk = 0;
 
             return config;

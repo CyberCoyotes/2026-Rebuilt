@@ -317,10 +317,47 @@ public class IntakeSubsystem extends SubsystemBase {
     }
 
 
-    /*
-    * Retract slides to a set positional at first (see retractSlidesIncrementalCmd) while running the indexer roller
-    * Retract slides the remaining distance at the slow speed using DynamicMotionMagic until fully retracted, while continuing to run the roller
-    * This should also be used with FuelCommands and shooting the flywheel
-    */
+    /**
+     * Two-phase slide retraction while running the roller.
+     *
+     * Phase 1 (runOnce): Retracts 15 rotations from the current position via
+     * MotionMagic — the same jump as one manual tap of retractSlidesIncrementalCmd.
+     * The roller starts here and stays on.
+     *
+     * Phase 2 (continuous): Uses DynamicMotionMagic to slowly finish retracting
+     * to {@code SLIDE_RETRACTED_POSITION} (0.0), re-commanded every cycle, until
+     * {@link #isSlideFullyRetracted()} is true.
+     *
+     * The roller is stopped in {@code finallyDo} so any deadline interruption
+     * (e.g. shooter sequence finishing) still cleans up properly.
+     *
+     * Intended use: run inside a {@code Commands.deadline()} where the
+     * shooter+indexer sequence is the deadline. The slide retracts and roller
+     * keeps spinning in parallel until the shot completes.
+     *
+     * <pre>
+     *   Commands.deadline(
+     *       FuelCommands.shootWithPreset(shooter, indexer, rpm, hood),
+     *       intake.retractSlidesWithRollerCmd()
+     *   );
+     * </pre>
+     *
+     * Also works in auton alongside {@code FuelCommands.Auto.shootTrench()}.
+     */
+    public Command retractSlidesWithRollerCmd() {
+        return Commands.sequence(
+                // Phase 1: fast initial jump back 15 rotations (same as one manual tap)
+                Commands.runOnce(() -> {
+                    retractSlidesIncremental();
+                    runRoller();
+                }, this),
+                // Phase 2: DynamicMotionMagic slowly to 0.0, re-commanded every cycle
+                Commands.run(() -> {
+                    retractSlidesSlow();
+                    runRoller();
+                }, this).until(this::isSlideFullyRetracted))
+                .finallyDo(() -> stopRoller())
+                .withName("RetractSlidesWithRoller");
+    }
 
 } // end of class
