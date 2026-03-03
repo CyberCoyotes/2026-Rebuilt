@@ -135,7 +135,8 @@ public class RobotContainer {
         // =====================================================================
         
         operator.leftTrigger().whileTrue(FuelCommands.runAirPopper(indexer, shooter, intake)); 
-        operator.leftBumper().onTrue(Commands.runOnce(() -> shooter.selectPreset(ShooterSubsystem.ShotPreset.PASS)));
+        // TODO: Test the Command retractSlidesWithRollerCmd() from IntakeSubSystem
+        operator.leftBumper().whileTrue(intake.retractSlidesWithRollerCmd());
 
         operator.a().onTrue(Commands.runOnce(() -> shooter.selectPreset(ShooterSubsystem.ShotPreset.TRENCH)));
         operator.b().onTrue(Commands.runOnce(() -> shooter.selectPreset(ShooterSubsystem.ShotPreset.CLOSE)));
@@ -147,9 +148,6 @@ public class RobotContainer {
 
         // TODO: Test this new shoot + retract command and tune the slide retract time
         operator.rightTrigger().whileTrue(FuelCommands.Auto.shootTrenchWithSlideRetract(shooter, indexer, intake, 3));
-        
-        // TODO: Test the Command retractSlidesWithRollerCmd() from IntakeSubSystem
-        operator.rightBumper().whileTrue(intake.retractSlidesWithRollerCmd());
                 
     }
 
