@@ -18,6 +18,7 @@ import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.RobotModeTriggers;
 import frc.robot.generated.TunerConstants;
 import frc.robot.commands.FuelCommands;
+import frc.robot.commands.VisionShootCommand;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
 import frc.robot.subsystems.indexer.IndexerSubsystem;
 import frc.robot.subsystems.intake.IntakeSubsystem;
@@ -114,7 +115,16 @@ public class RobotContainer {
         // DRIVER CONTROLLER (Port 0) - Shooter
         // =====================================================================
 
-        driver.rightTrigger(0.5).whileTrue(FuelCommands.shootWithSelectedPreset(shooter, indexer));
+        driver.rightTrigger(0.5).whileTrue(
+            Commands.either(
+                new VisionShootCommand(shooter, indexer, drivetrain,
+                    () -> -driver.getLeftY() * MaxSpeed,
+                    () -> -driver.getLeftX() * MaxSpeed),
+                FuelCommands.shootWithSelectedPreset(shooter, indexer),
+                shooter::isFarShotSelected
+            )
+        );
+        
         driver.rightBumper().whileTrue(FuelCommands.shootPass(shooter, indexer));
 
         driver.leftTrigger(0.5).whileTrue(intake.intakeFuel());
