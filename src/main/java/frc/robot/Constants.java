@@ -207,9 +207,6 @@ public final class Constants {
     // 25 degrees is a common starting point for angled vision setups, but should be measured for accuracy.
     public static final double CAMERA_ANGLE_DEGREES = 25.0;  // TODO: Measure actual angle
 
-    /** Height of AprilTag center from floor in meters */
-    public static final double APRILTAG_HEIGHT_METERS = 1.45;  // TODO: Update for 2026 game
-
     // Alignment tolerances
     /** Tolerance for horizontal alignment in degrees */
     public static final double ALIGNMENT_TOLERANCE_DEGREES = 2.0;

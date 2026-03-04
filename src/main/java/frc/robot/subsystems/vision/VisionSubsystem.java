@@ -147,11 +147,9 @@ public class VisionSubsystem extends SubsystemBase {
     private void updateAlignmentState() {
         previousState = currentState;
 
-        if (inputs.hasTargets && isTargetValid()) {
+        if (inputs.hasTargets) {
             lastTargetSeenTime = Timer.getFPGATimestamp();
 
-            // Cache last known good values for LOST_TARGET grace period
-            lastKnownDistance = calculateDistance();
             lastKnownHorizontalAngle = Units.radiansToDegrees(inputs.horizontalAngleRadians);
 
             if (isWithinAlignmentTolerance()) {
@@ -178,35 +176,10 @@ public class VisionSubsystem extends SubsystemBase {
         }
     }
 
-    /** Returns true if the current tag ID and target area pass basic sanity checks. */
-    private boolean isTargetValid() {
-        if (inputs.tagId < Constants.Vision.MIN_VALID_TAG_ID ||
-                inputs.tagId > Constants.Vision.MAX_VALID_TAG_ID) {
-            return false;
-        }
-        if (inputs.targetArea < Constants.Vision.MIN_TARGET_AREA_PERCENT) {
-            return false;
-        }
-        double distance = calculateDistance();
-        return distance >= 0.1 && distance <= Constants.Vision.MAX_DISTANCE_METERS;
-    }
-
     /** Returns true if horizontal tx error is within the shooting tolerance. */
     private boolean isWithinAlignmentTolerance() {
         return Math.abs(Units.radiansToDegrees(inputs.horizontalAngleRadians))
                 <= Constants.Vision.ALIGNMENT_TOLERANCE_DEGREES;
-    }
-
-    /**
-     * Calculates distance to target using camera geometry.
-     * distance = (tagHeight - cameraHeight) / tan(cameraAngle + ty)
-     */
-    private double calculateDistance() {
-        double heightDiff = Constants.Vision.APRILTAG_HEIGHT_METERS
-                          - Constants.Vision.CAMERA_HEIGHT_METERS;
-        double angleToTarget = Constants.Vision.CAMERA_ANGLE_DEGREES
-                             + Units.radiansToDegrees(inputs.verticalAngleRadians);
-        return Math.abs(heightDiff / Math.tan(Math.toRadians(angleToTarget)));
     }
 
 
@@ -249,44 +222,6 @@ public class VisionSubsystem extends SubsystemBase {
      */
     public int getTagId() {
         return inputs.tagId;
-    }
-
-    /**
-     * Returns true if the currently visible tag is a hub target for the active alliance.
-     *
-     * Defaults to blue alliance if DriverStation has not yet reported alliance color
-     * (e.g., during pre-match or practice mode without FMS).
-     *
-     * NOTE: Hub tag ID ranges must be verified against the 2026 game manual.
-     * Blue: Constants.Vision.BLUE_HUB_MIN/MAX_TAG_ID
-     * Red:  Constants.Vision.RED_HUB_MIN/MAX_TAG_ID
-     */
-
-
-    // =========================================================================
-    // PUBLIC API - Calculated Values for Shooter
-    // =========================================================================
-
-    /**
-     * Calculates distance to target in meters using camera geometry.
-     * Uses the formula: distance = (targetHeight - cameraHeight) / tan(cameraAngle + ty)
-     * For LOST_TARGET state, returns last known distance for smooth transitions.
-     *
-     * @return Distance to target in meters, or 0 if no target
-     */
-    public double getDistanceToTargetMeters() {
-        if (currentState == AlignmentState.NO_TARGET) {
-            return 0.0;
-        }
-        if (currentState == AlignmentState.LOST_TARGET) {
-            return lastKnownDistance;
-        }
-        return calculateDistance();
-    }
-
-    /** Returns distance in centimeters (convenience wrapper). */
-    public double getDistanceToTargetCM() {
-        return getDistanceToTargetMeters() * 100.0;
     }
 
 
@@ -370,8 +305,6 @@ public class VisionSubsystem extends SubsystemBase {
         isAlignedPublisher.set(isAligned());
         tagIdPublisher.set(getTagId());
         targetAreaPublisher.set(inputs.targetArea);
-        distanceMetersPublisher.set(getDistanceToTargetMeters());
-        distanceCmPublisher.set(getDistanceToTargetCM());
         horizontalAnglePublisher.set(getHorizontalAngleDegrees());
         verticalAnglePublisher.set(getVerticalAngleDegrees());
         latencyPublisher.set(inputs.totalLatencyMs);
