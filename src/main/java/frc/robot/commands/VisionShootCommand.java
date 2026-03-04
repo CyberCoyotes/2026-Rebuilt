@@ -6,6 +6,8 @@ import com.ctre.phoenix6.swerve.SwerveRequest;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.networktables.DoublePublisher;
+import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
 import frc.robot.subsystems.indexer.IndexerSubsystem;
@@ -74,6 +76,28 @@ public class VisionShootCommand extends Command {
             .withDriveRequestType(DriveRequestType.OpenLoopVoltage);
 
     // =========================================================================
+    // Diagnostics — published to NT so direction-snap issues can be debugged
+    // on the field via Elastic/Shuffleboard.
+    // Key: if rotRate sign is opposite to the desired turn direction, negate
+    // headingErrorDeg (i.e. swap the subtraction order in headingErrorDeg).
+    // =========================================================================
+    private final DoublePublisher ntAngleToHub =
+            NetworkTableInstance.getDefault()
+                    .getTable("VisionShoot").getDoubleTopic("angleToHub_deg").publish();
+    private final DoublePublisher ntCurrentHeading =
+            NetworkTableInstance.getDefault()
+                    .getTable("VisionShoot").getDoubleTopic("currentHeading_deg").publish();
+    private final DoublePublisher ntHeadingError =
+            NetworkTableInstance.getDefault()
+                    .getTable("VisionShoot").getDoubleTopic("headingError_deg").publish();
+    private final DoublePublisher ntRotRate =
+            NetworkTableInstance.getDefault()
+                    .getTable("VisionShoot").getDoubleTopic("rotRate_radps").publish();
+    private final DoublePublisher ntDistance =
+            NetworkTableInstance.getDefault()
+                    .getTable("VisionShoot").getDoubleTopic("distanceToHub_m").publish();
+
+    // =========================================================================
     // Constructor
     // =========================================================================
 
@@ -134,6 +158,17 @@ public class VisionShootCommand extends Command {
                 headingErrorDeg * ROTATIONAL_KP,
                 -MAX_ROT_RAD_PER_SEC,
                 MAX_ROT_RAD_PER_SEC);
+
+        // Publish diagnostics — use Elastic/Shuffleboard to verify direction snap:
+        // • angleToHub and currentHeading should both be sensible field-frame angles
+        // • headingError positive → robot should rotate CCW (left from driver view)
+        // • rotRate positive → CCW in CTRE FieldCentric; if robot turns the WRONG way,
+        //   negate rotRate and file a note in TUNING.md
+        ntAngleToHub.set(angleToHubDeg);
+        ntCurrentHeading.set(currentHeadingDeg);
+        ntHeadingError.set(headingErrorDeg);
+        ntRotRate.set(rotRate);
+        ntDistance.set(distance);
 
         drivetrain.setControl(
                 alignRequest
