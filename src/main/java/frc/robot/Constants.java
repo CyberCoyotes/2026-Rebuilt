@@ -163,9 +163,6 @@ public final class Constants {
     public static final double FAR_HOOD    = 5.50; // 
     public static final double PASS_HOOD   = 7.00; //
 
-     // --- Testing Increments ---
-     public static final double HOOD_INCREMENT_TEST         = 0.2;
-     public static final double FLYWHEEL_TEST_INCREMENT_RPM = 100.0;
   }
 
   // =========================================================
