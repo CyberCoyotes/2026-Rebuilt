@@ -115,16 +115,24 @@ public class RobotContainer {
         // DRIVER CONTROLLER (Port 0) - Shooter
         // =====================================================================
 
-        driver.rightTrigger(0.5).whileTrue(
-            Commands.either(
-                new VisionShootCommand(shooter, indexer, drivetrain,
-                    () -> -driver.getLeftY() * MaxSpeed,
-                    () -> -driver.getLeftX() * MaxSpeed),
-                FuelCommands.shootWithSelectedPreset(shooter, indexer),
-                shooter::isFarShotSelected
-            )
-        );
-        
+        // Operator holds a face button to override with a named preset.
+        // Driver RT alone fires VisionShootCommand (default — auto-aims by distance).
+        var anyPresetHeld = operator.a().or(operator.b()).or(operator.x()).or(operator.y());
+
+        driver.rightTrigger(0.5).and(operator.a()).whileTrue(
+            FuelCommands.shootWithPreset(shooter, indexer, ShooterSubsystem.ShotPreset.TRENCH));
+        driver.rightTrigger(0.5).and(operator.b()).whileTrue(
+            FuelCommands.shootWithPreset(shooter, indexer, ShooterSubsystem.ShotPreset.CLOSE));
+        driver.rightTrigger(0.5).and(operator.x()).whileTrue(
+            FuelCommands.shootWithPreset(shooter, indexer, ShooterSubsystem.ShotPreset.TOWER));
+        driver.rightTrigger(0.5).and(operator.y()).whileTrue(
+            FuelCommands.shootWithPreset(shooter, indexer, ShooterSubsystem.ShotPreset.FAR));
+
+        driver.rightTrigger(0.5).and(anyPresetHeld.negate()).whileTrue(
+            new VisionShootCommand(shooter, indexer, drivetrain,
+                () -> -driver.getLeftY() * MaxSpeed,
+                () -> -driver.getLeftX() * MaxSpeed));
+
         driver.rightBumper().whileTrue(FuelCommands.shootPass(shooter, indexer));
 
         driver.leftTrigger(0.5).whileTrue(intake.intakeFuel());
@@ -133,15 +141,21 @@ public class RobotContainer {
         // =====================================================================
         // OPERATOR CONTROLLER (Port 1)
         // =====================================================================
-        
-        operator.leftTrigger().whileTrue(FuelCommands.runAirPopper(indexer, shooter, intake)); 
+
+        operator.leftTrigger().whileTrue(FuelCommands.runAirPopper(indexer, shooter, intake));
         // TODO: Test the Command retractSlidesWithRollerCmd() from IntakeSubSystem
         operator.leftBumper().whileTrue(intake.retractSlidesWithRollerCmd());
 
-        operator.a().onTrue(Commands.runOnce(() -> shooter.selectPreset(ShooterSubsystem.ShotPreset.TRENCH)));
-        operator.b().onTrue(Commands.runOnce(() -> shooter.selectPreset(ShooterSubsystem.ShotPreset.CLOSE)));
-        operator.x().onTrue(Commands.runOnce(() -> shooter.selectPreset(ShooterSubsystem.ShotPreset.TOWER)));
-        operator.y().onTrue(Commands.runOnce(() -> shooter.selectPreset(ShooterSubsystem.ShotPreset.FAR)));
+        // Show preset label on Elastic while operator holds the button (no trigger required).
+        // Reverts to "Vision" when the button is released.
+        operator.a().onTrue(Commands.runOnce(() -> shooter.setDisplayPreset(ShooterSubsystem.ShotPreset.TRENCH)));
+        operator.a().onFalse(Commands.runOnce(shooter::clearDisplayPreset));
+        operator.b().onTrue(Commands.runOnce(() -> shooter.setDisplayPreset(ShooterSubsystem.ShotPreset.CLOSE)));
+        operator.b().onFalse(Commands.runOnce(shooter::clearDisplayPreset));
+        operator.x().onTrue(Commands.runOnce(() -> shooter.setDisplayPreset(ShooterSubsystem.ShotPreset.TOWER)));
+        operator.x().onFalse(Commands.runOnce(shooter::clearDisplayPreset));
+        operator.y().onTrue(Commands.runOnce(() -> shooter.setDisplayPreset(ShooterSubsystem.ShotPreset.FAR)));
+        operator.y().onFalse(Commands.runOnce(shooter::clearDisplayPreset));
 
         // operator.povUp().whileTrue(null); // incremental extend climber command to be added when climber is ready
         // operator.povDown().whileTrue(null); // incremental retract climber command to be added when climber is ready

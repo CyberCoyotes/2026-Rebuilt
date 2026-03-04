@@ -24,14 +24,10 @@ import frc.robot.Constants;
  * - POPPER: Low-speed mode for assisted fuel loading
  *
  * SHOT FLOW:
- * 1. Driver presses a preset button — silently sets target RPM and hood position
- * 2. Driver holds shoot trigger — transitions to READY, hood moves, waits until up to speed, feeds
- * 3. Driver releases trigger — returns to IDLE
- *
- * FAR SHOT FLOW (X + RT): [NOT YET ACTIVE — isFarShotSelected disabled]
- * - X silently arms far shot
- * - RT routes to FarShotCommand instead of shootAtCurrentTarget
- * - FarShotCommand continuously updates hood position via updateHoodForDistance()
+ * - Driver RT alone → VisionShootCommand (default, auto-aims from distance)
+ * - Operator holds A/B/X/Y + Driver RT → fires the corresponding named preset
+ * - Operator holding a button shows the preset label on Elastic for sanity check
+ *   (no trigger required to see the display)
  *
  */
 
@@ -67,8 +63,6 @@ public class ShooterSubsystem extends SubsystemBase {
         }
     }
 
-    private static final ShotPreset[] PRESETS = ShotPreset.values();
-
     // ==== Hardware Interface ====
     private final ShooterIO io;
     private final ShooterIOInputs inputs = new ShooterIOInputs();
@@ -94,7 +88,7 @@ public class ShooterSubsystem extends SubsystemBase {
 
     // ==== State ====
     private ShooterState currentState     = ShooterState.IDLE;
-    private ShotPreset   selectedPreset   = ShotPreset.CLOSE;
+    private ShotPreset   displayPreset    = null; // null = Vision mode (no operator button held)
     private String currentStateString     = ShooterState.IDLE.toString();
     private double targetFlywheelMotorRPM = 0.0;
     private double targetHoodPoseRot      = 0.0;
@@ -165,7 +159,7 @@ public class ShooterSubsystem extends SubsystemBase {
         flywheelAtRpmPublisher.set(isFlywheelAtVelocity());
         throughBorePositionPublisher.set(inputs.hoodThroughBorePositionRotations);
         throughBoreConnectedPublisher.set(inputs.hoodThroughBoreConnected);
-        selectedPresetPublisher.set(selectedPreset.label);
+        selectedPresetPublisher.set(displayPreset != null ? displayPreset.label : "Vision");
     }
 
     // =====STATE MACHINE=====
@@ -278,30 +272,19 @@ public class ShooterSubsystem extends SubsystemBase {
         setState(ShooterState.EJECT);
     }
 
-    // ===== Silent Preset Setters =====
+    // ===== Display Preset (Elastic dashboard sanity check) =====
 
     /**
-     * Silently sets close shot targets. No motor movement until shoot trigger is pressed.
+     * Called when operator holds a preset button — shows the preset label on Elastic.
+     * Does NOT change shooter state or target RPM/hood. Driver trigger still required to fire.
      */
-    public void setCloseShotPreset() {
-        targetFlywheelMotorRPM = Constants.Shooter.CLOSE_RPM;
-        targetHoodPoseRot = Constants.Shooter.CLOSE_HOOD;
+    public void setDisplayPreset(ShotPreset preset) {
+        displayPreset = preset;
     }
 
-    /**
-     * Silently sets far shot targets. No motor movement until shoot trigger is pressed.
-     */
-    public void setFarShotPreset() {
-        targetFlywheelMotorRPM = Constants.Shooter.FAR_RPM;
-        targetHoodPoseRot = Constants.Shooter.FAR_HOOD;
-    }
-
-    /**
-     * Silently sets pass shot targets. No motor movement until shoot trigger is pressed.
-     */
-    public void setPassShotPreset() {
-        targetFlywheelMotorRPM = Constants.Shooter.PASS_RPM;
-        targetHoodPoseRot = Constants.Shooter.PASS_HOOD;
+    /** Called when operator releases the preset button — reverts display to "Vision". */
+    public void clearDisplayPreset() {
+        displayPreset = null;
     }
 
     /**
@@ -416,58 +399,6 @@ public class ShooterSubsystem extends SubsystemBase {
         return targetHoodPoseRot;
     }
 
-    // =========================================================================
-    // PRESET CYCLING (POV left/right in RobotContainer)
-    // =========================================================================
-
-    /**
-     * Arms the currently selected test preset silently (RPM + hood).
-     * No motor movement until shoot trigger is pressed.
-     */
-    public void setSelectedPreset() {
-        targetFlywheelMotorRPM = selectedPreset.rpm;
-        targetHoodPoseRot      = selectedPreset.hood;
-    }
-
-    /** Returns the currently selected test preset. */
-    public ShotPreset getSelectedPreset() {
-        return selectedPreset;
-    }
-
-    /**
-     * Directly selects a specific preset and arms it silently.
-     * The selection sticks until another preset is chosen.
-     */
-    public void selectPreset(ShotPreset preset) {
-        selectedPreset = preset;
-        setSelectedPreset();
-    }
-
-    /**
-     * Advances to the next preset in the cycle order:
-     * Close → Tower → Trench → Pass → Far → Close
-     * Arms the new preset silently so it's ready when RT is pressed.
-     */
-    public void cyclePresetForward() {
-        selectedPreset = PRESETS[(selectedPreset.ordinal() + 1) % PRESETS.length];
-        setSelectedPreset();
-    }
-
-    /**
-     * Moves to the previous preset in the cycle order:
-     * Close → Far → Pass → Trench → Tower → Close
-     * Arms the new preset silently so it's ready when RT is pressed.
-     */
-    public void cyclePresetBackward() {
-        selectedPreset = PRESETS[(selectedPreset.ordinal() - 1 + PRESETS.length) % PRESETS.length];
-        setSelectedPreset();
-    }
-
-    /** Returns true if the FAR preset is currently selected (used to gate FarShotCommand). */
-    public boolean isFarShotSelected() {
-        return selectedPreset == ShotPreset.FAR;
-    }
-
     // ==== Vision Lookup Tables ====
 
     /**
@@ -532,29 +463,6 @@ public class ShooterSubsystem extends SubsystemBase {
             commandFlywheelVelocity(targetFlywheelMotorRPM);
             io.setHoodPose(targetHoodPoseRot);
         }
-    }
-
-    // ==== LEGACY / CONVENIENCE SHIMS ====
-    // These combine steps that are intentionally separate in the normal shot flow.
-    // Prefer setCloseShotPreset() / setFarShotPreset() + prepareToShoot() at the call site.
-
-    /** Used by spinUpCommand(). Transitions to STANDBY. */
-    // public void spinup() {
-    //     setState(ShooterState.STANDBY);
-    // }
-
-    /** @deprecated Bypasses the silent-preset + shoot-trigger split. Use setCloseShotPreset() instead. */
-    @Deprecated
-    public void closeShot() {
-        setCloseShotPreset();
-        prepareToShoot();
-    }
-
-    /** @deprecated Bypasses the silent-preset + shoot-trigger split. Use setFarShotPreset() instead. */
-    @Deprecated
-    public void farShot() {
-        setFarShotPreset();
-        prepareToShoot();
     }
 
     /**
