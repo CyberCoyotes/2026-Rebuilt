@@ -172,7 +172,6 @@ public final class Constants {
   // Climber
   // =========================================================
   public static final class Climber {
-    private Climber() {}
 
     /** Climber motor A - Kraken X60 with TalonFX controller */
     public static final int CLIMB_MOTOR_ID = 30;
@@ -182,7 +181,6 @@ public final class Constants {
   // Vision / Limelight
   // =========================================================
   public static final class Vision {
-    private Vision() {}
 
     // Camera configuration
     public static final String LIMELIGHT3_NAME = "limelight-three";
@@ -260,6 +258,26 @@ public final class Constants {
     public static final double MAX_ALIGNMENT_ROTATION_RAD_PER_SEC = 3.0;
     public static final Translation2d HUB_CENTER_BLUE = null;
     public static final int MIN_TAG_COUNT = 0;
+
+        /** Max rotation rate applied to drivetrain (rad/s) 
+     * TODO Tune the max rotation rate as needed. 
+     * This limits how fast the robot will turn to face the hub, which can help prevent overshooting and oscillation. 
+     *  Start with a moderate value and adjust based on how the robot responds during testing.
+     **/
+    public static final double MAX_ROT_RAD_PER_SEC = 3.0; 
+
+        /** Alignment tolerance in degrees — indexer only feeds within this window 
+     * TODO: Tune the alignment tolerance as needed.
+     * A smaller tolerance means the robot must be more precisely aligned to feed, 
+     * which can reduce the likelihood of feeding balls when not perfectly aligned.
+    */
+    public static final double ALIGNMENT_TOLERANCE_DEG = 0.5;
+
+        // =========================================================================
+    // Distance clamp bounds (must match ShooterSubsystem map range)
+    // =========================================================================
+    public static final double MIN_DISTANCE_M = 0.5;
+    public static final double MAX_DISTANCE_M = 4.0;
   }
 
   // =========================================================

@@ -10,6 +10,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
 import frc.robot.subsystems.indexer.IndexerSubsystem;
 import frc.robot.subsystems.shooter.ShooterSubsystem;
+import frc.robot.Constants;
 
 import java.util.function.DoubleSupplier;
 
@@ -33,33 +34,6 @@ public class VisionShootCommand extends Command {
     // Hub field coordinates (field-relative, meters)
     // =========================================================================
     private static final Translation2d HUB_POSITION = new Translation2d(4.625, 4.025);
-
-    // =========================================================================
-    // Distance clamp bounds (must match ShooterSubsystem map range)
-    // =========================================================================
-    private static final double MIN_DISTANCE_M = 0.5;
-    private static final double MAX_DISTANCE_M = 4.0;
-
-    // =========================================================================
-    // Rotation controller tuning
-    // =========================================================================
-    /** Proportional gain: (rad/s output) per (degree of heading error) */
-    private static final double ROTATIONAL_KP = 0.06; // TODO: Tune the vision kP as needed. 
-    // Start with a low value and increase until the robot turns smoothly to face the hub without oscillation.
-    
-    /** Max rotation rate applied to drivetrain (rad/s) 
-     * TODO Tune the max rotation rate as needed. 
-     * This limits how fast the robot will turn to face the hub, which can help prevent overshooting and oscillation. 
-     *  Start with a moderate value and adjust based on how the robot responds during testing.
-     **/
-    private static final double MAX_ROT_RAD_PER_SEC = 3.0; 
-    
-    /** Alignment tolerance in degrees — indexer only feeds within this window 
-     * TODO: Tune the alignment tolerance as needed.
-     * A smaller tolerance means the robot must be more precisely aligned to feed, 
-     * which can reduce the likelihood of feeding balls when not perfectly aligned.
-    */
-    private static final double ALIGNMENT_TOLERANCE_DEG = 0.5; // 
     
     // =========================================================================
     // Dependencies
@@ -131,9 +105,9 @@ public class VisionShootCommand extends Command {
 
         // ==== 3. Apply rotation correction, driver controls translation
         double rotRate = MathUtil.clamp(
-                headingErrorDeg * ROTATIONAL_KP,
-                -MAX_ROT_RAD_PER_SEC,
-                MAX_ROT_RAD_PER_SEC);
+                headingErrorDeg * Constants.Vision.ROTATIONAL_KP,
+                -Constants.Vision.MAX_ROT_RAD_PER_SEC,
+                Constants.Vision.MAX_ROT_RAD_PER_SEC);
 
         drivetrain.setControl(
                 alignRequest
@@ -142,7 +116,7 @@ public class VisionShootCommand extends Command {
                         .withRotationalRate(rotRate));
 
         // ==== 4. Feed when aligned — isReady() gate removed
-        boolean aligned = Math.abs(headingErrorDeg) <= ALIGNMENT_TOLERANCE_DEG;
+        boolean aligned = Math.abs(headingErrorDeg) <= Constants.Vision.ALIGNMENT_TOLERANCE_DEG;
         if (aligned) {
             indexer.indexerForward();
             indexer.conveyorForward();
@@ -173,7 +147,7 @@ public class VisionShootCommand extends Command {
         double dx = HUB_POSITION.getX() - pose.getX();
         double dy = HUB_POSITION.getY() - pose.getY();
         double raw = Math.sqrt(dx * dx + dy * dy);
-        return MathUtil.clamp(raw, MIN_DISTANCE_M, MAX_DISTANCE_M);
+        return MathUtil.clamp(raw, Constants.Vision.MIN_DISTANCE_M, Constants.Vision.MAX_DISTANCE_M);
     }
 
     /** Returns the field-relative angle (degrees) the robot needs to face to point at the hub. */
