@@ -356,6 +356,9 @@ public class FuelCommands {
      * @param ySupplier  Driver left-X velocity in m/s (already scaled by MaxSpeed)
      * @return Vision align and shoot command
      */
+
+// FIXME
+/* 
     public static Command visionAlignAndShoot(
             ShooterSubsystem shooter,
             VisionSubsystem vision,
@@ -370,6 +373,7 @@ public class FuelCommands {
                 .withDeadband(maxSpeed * 0.15)
                 .withDriveRequestType(DriveRequestType.OpenLoopVoltage);
 
+   
         return Commands.run(() -> {
 
             // ── 1. Shooter: update from pose-based distance ───────────────────
@@ -416,7 +420,9 @@ public class FuelCommands {
             shooter.setIdle();
         })
         .withName("VisionAlignAndShoot");
+
     }
+*/
 
     /**
      * Waits until the shooter reports ready, with a 3-second timeout.

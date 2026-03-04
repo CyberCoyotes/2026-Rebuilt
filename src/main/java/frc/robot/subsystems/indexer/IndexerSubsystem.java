@@ -66,7 +66,7 @@ public class IndexerSubsystem extends SubsystemBase {
     // This subclass implements LoggableInputs, which is what Logger.processInputs()
     // needs to write fields to the AdvantageKit log. Using plain IndexerIOInputs
     // here would silently skip all indexer data in AdvantageScope.
-    private final IndexerIOInputsAutoLogged inputs = new IndexerIOInputsAutoLogged();
+    // private final IndexerIOInputsAutoLogged inputs = new IndexerIOInputsAutoLogged();
 
     // ==== State ===============================================================
     private IndexerState currentState = IndexerState.IDLE;
@@ -135,7 +135,7 @@ public class IndexerSubsystem extends SubsystemBase {
 
         // processInputs() logs the raw IO layer — motor signals and sensor readings.
         // These appear in AdvantageScope under "Indexer/".
-        Logger.processInputs("Indexer", inputs);
+        // Logger.processInputs("Indexer", inputs);
 
         // recordOutput() logs computed/derived values — the decisions the subsystem
         // makes on top of raw data. Hoot can't see these; AK can.

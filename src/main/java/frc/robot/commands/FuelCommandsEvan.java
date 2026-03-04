@@ -26,7 +26,7 @@ import static edu.wpi.first.units.Units.MetersPerSecond;
  * Using a factory pattern keeps command creation centralized and reusable.
  * 
  */
-public class FuelCommands {
+public class FuelCommandsEvan {
 
     // =========================================================================
     // PRIMARY SHOOT COMMANDS
