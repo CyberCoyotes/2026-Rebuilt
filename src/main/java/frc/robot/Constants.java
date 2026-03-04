@@ -198,23 +198,19 @@ public final class Constants {
 
     /** Height of Limelight lens from floor in meters */
     // 19.25 inches = 0.489 meters
-    // public static final double CAMERA_HEIGHT_METERS = 0.489;
+    public static final double CAMERA_HEIGHT_METERS = 0.489;
 
     // Camera is on the back of robot from center reference
     // -9.5 inches = 0.2413 meters
-    // public static final double CAMERA_BACK_OFFSET_METERS = 0.2413;
+    public static final double CAMERA_BACK_OFFSET_METERS = 0.2413;
 
     // Camera is mounted left of center
     // -10.0 inches = 0.0762 meters
-    // public static final double CAMERA_LEFT_OFFSET_METERS = 0.0762;
+    public static final double CAMERA_LEFT_OFFSET_METERS = 0.0762;
 
     /** Angle of camera from horizontal in degrees (positive = tilted up) */
     // 25 degrees is a common starting point for angled vision setups, but should be measured for accuracy.
-    // public static final double CAMERA_ANGLE_DEGREES = 25.0;  // TODO: Measure actual angle
-
-    /** Height of AprilTag center from floor in meters */
-    //
-    // public static final double APRILTAG_HEIGHT_METERS = 1.45;  // TODO: Update for 2026 game
+    public static final double CAMERA_ANGLE_DEGREES = 25.0;  // TODO: Measure actual angle
 
     // Alignment tolerances
     /** Tolerance for horizontal alignment in degrees */
@@ -243,7 +239,7 @@ public final class Constants {
 
     // State tracking
     // /** Time in seconds before considering target "lost" after losing sight */
-    // public static final double TARGET_TIMEOUT_SECONDS = 0.5;
+    public static final double TARGET_TIMEOUT_SECONDS = 0.5;
 
     // == Vision-driven drivetrain rotation ====
     /**

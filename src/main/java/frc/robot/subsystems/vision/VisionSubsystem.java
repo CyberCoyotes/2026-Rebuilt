@@ -152,7 +152,6 @@ public class VisionSubsystem extends SubsystemBase {
             lastTargetSeenTime = Timer.getFPGATimestamp();
 
             // Update last known good values
-            lastKnownDistance = calculateDistance();
             lastKnownHorizontalAngle = getHorizontalAngleDegrees();
 
             // Check if we're aligned
@@ -184,37 +183,6 @@ public class VisionSubsystem extends SubsystemBase {
         }
     }
 
-    /**
-     * Checks if the current target is valid (correct tag ID, reasonable distance, etc.)
-     */
-    private boolean isTargetValid() {
-        // Check tag ID is in valid range
-        if (inputs.tagId < Constants.Vision.MIN_VALID_TAG_ID ||
-            inputs.tagId > Constants.Vision.MAX_VALID_TAG_ID) {
-            return false;
-        }
-
-        // Check target area is reasonable (not too small = too far)
-        if (inputs.targetArea < Constants.Vision.MIN_TARGET_AREA_PERCENT) {
-            return false;
-        }
-
-        // Check calculated distance is reasonable
-        double distance = calculateDistance();
-        if (distance > Constants.Vision.MAX_DISTANCE_METERS || distance < 0.1) {
-            return false;
-        }
-
-        return true;
-    }
-
-    /**
-     * Checks if robot is aligned within tolerance for shooting.
-     */
-    private boolean isWithinAlignmentTolerance() {
-        double horizontalError = Math.abs(getHorizontalAngleDegrees());
-        return horizontalError <= Constants.Vision.ALIGNMENT_TOLERANCE_DEGREES;
-    }
 
     // =========================================================================
     // PUBLIC API - State Queries
@@ -267,36 +235,7 @@ public class VisionSubsystem extends SubsystemBase {
      * Blue: Constants.Vision.BLUE_HUB_MIN/MAX_TAG_ID
      * Red:  Constants.Vision.RED_HUB_MIN/MAX_TAG_ID
      */
-    public boolean isHubTarget() {
-        int id = inputs.tagId;
-        if (id < 0) return false;
 
-        var alliance = DriverStation.getAlliance();
-        if (alliance.isPresent() && alliance.get() == DriverStation.Alliance.Red) {
-            return id >= Constants.Vision.RED_HUB_MIN_TAG_ID
-                && id <= Constants.Vision.RED_HUB_MAX_TAG_ID;
-        }
-        // Default / blue alliance
-        return id >= Constants.Vision.BLUE_HUB_MIN_TAG_ID
-            && id <= Constants.Vision.BLUE_HUB_MAX_TAG_ID;
-    }
-
-    /**
-     * Returns true when vision data is safe to use for shooter parameter updates.
-     *
-     * True when:
-     *   - An active hub target is locked (TARGET_ACQUIRED or ALIGNED), OR
-     *   - We just lost a hub target and are in the grace period (LOST_TARGET with valid last-known distance)
-     *
-     * False when no target has ever been seen or the grace period has expired.
-     */
-    public boolean isUsableForShooting() {
-        if (currentState == AlignmentState.LOST_TARGET) {
-            // Grace period: use last-known distance rather than resetting the shooter
-            return lastKnownDistance > 0.1;
-        }
-        return hasTarget() && isHubTarget() && getDistanceToTargetMeters() > 0.1;
-    }
 
     // =========================================================================
     // PUBLIC API - Calculated Values for Shooter
@@ -311,39 +250,18 @@ public class VisionSubsystem extends SubsystemBase {
      *
      * @return Distance to target in meters, or 0 if no target
      */
-    public double getDistanceToTargetMeters() {
-        if (currentState == AlignmentState.NO_TARGET) {
-            return 0.0;
-        }
+    // public double getDistanceToTargetMeters() {
+    //     if (currentState == AlignmentState.NO_TARGET) {
+    //         return 0.0;
+    //     }
 
-        if (currentState == AlignmentState.LOST_TARGET) {
-            return lastKnownDistance; // Use last known value during grace period
-        }
+    //     if (currentState == AlignmentState.LOST_TARGET) {
+    //         return lastKnownDistance; // Use last known value during grace period
+    //     }
 
-        return calculateDistance();
-    }
+    //     return calculateDistance();
+    // }
 
-    /**
-     * Internal distance calculation from camera geometry.
-     */
-    private double calculateDistance() {
-        double heightDiff = Constants.Vision.APRILTAG_HEIGHT_METERS -
-                          Constants.Vision.CAMERA_HEIGHT_METERS;
-
-        double verticalAngleDegrees = Units.radiansToDegrees(inputs.verticalAngleRadians);
-        double angleToTarget = Constants.Vision.CAMERA_ANGLE_DEGREES + verticalAngleDegrees;
-
-        return Math.abs(heightDiff / Math.tan(Math.toRadians(angleToTarget)));
-    }
-
-    /**
-     * Gets distance to target in centimeters (for compatibility with older code).
-     *
-     * @return Distance in centimeters
-     */
-    public double getDistanceToTargetCM() {
-        return getDistanceToTargetMeters() * 100.0;
-    }
 
     // =========================================================================
     // PUBLIC API - Angle Values for Drivetrain Alignment
@@ -425,17 +343,8 @@ public class VisionSubsystem extends SubsystemBase {
         isAlignedPublisher.set(isAligned());
         tagIdPublisher.set(getTagId());
         targetAreaPublisher.set(inputs.targetArea);
-        distanceMetersPublisher.set(getDistanceToTargetMeters());
-        distanceCmPublisher.set(getDistanceToTargetCM());
         horizontalAnglePublisher.set(getHorizontalAngleDegrees());
         verticalAnglePublisher.set(getVerticalAngleDegrees());
         latencyPublisher.set(inputs.totalLatencyMs);
-
-        // AdvantageKit logging (unchanged)
-        // Logger.recordOutput("Vision/State", currentState.name());
-        // Logger.recordOutput("Vision/HasTarget", hasTarget());
-        // Logger.recordOutput("Vision/IsAligned", isAligned());
-        // Logger.recordOutput("Vision/Distance_m", getDistanceToTargetMeters());
-        // Logger.recordOutput("Vision/HorizontalAngle_deg", getHorizontalAngleDegrees());
     }
 }

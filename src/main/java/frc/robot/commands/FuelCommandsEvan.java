@@ -288,200 +288,27 @@ public class FuelCommandsEvan {
                 }).withName("ShootPass");
     }
 
-    /**
-     * Creates a command to return shooter to SPINUP at STANDBY_RPM.
-     *
-     * @param shooter The shooter subsystem
-     * @return Command that returns shooter to standby spinning state
-     */
-
-    /** TODO: Do not use right now _EXPERIMENTAL_ */
-    // public static Command returnToStandby(ShooterSubsystem shooter) {
-    // return Commands.runOnce(shooter::returnToStandby, shooter)
-    // .withName("ReturnToStandby");
-    // }
-
-    // =========================================================================
-    // VISION ALIGN AND SHOOT (primary match command)
-    // =========================================================================
-
-    /**
-     * Combined vision-targeting and shooting command. Intended as the primary RT
-     * binding.
-     *
-     * Behavior (all while trigger held):
-     * 1. Arms the current POV-selected preset immediately as a fallback baseline.
-     * 2. Continuously looks for the nearest hub AprilTag (alliance-aware).
-     * 3. If a hub tag is visible (or in grace period): updates flywheel RPM and
-     * hood position from the distance interpolation table every cycle.
-     * 4. Overrides drivetrain rotation with a P-controller on tx (horizontal
-     * angle),
-     * while still allowing the driver to translate freely with the left stick.
-     * 5. Fires the indexer and conveyor when vision is locked within 1% of
-     * ALIGNMENT_TOLERANCE_DEGREES AND flywheel is within 10% of target RPM.
-     * Stops feeding if either condition is lost.
-     * 6. On trigger release: stops indexer, conveyor, and shooter.
-     *
-     * Subsystem requirements: shooter, vision, indexer, drivetrain
-     * → interrupts the default drive command for the duration of the trigger hold.
-     *
-     * Tuning handles:
-     * - Constants.Vision.ROTATIONAL_KP (rotation aggressiveness)
-     * - Constants.Vision.MAX_ALIGNMENT_ROTATION_RAD_PER_SEC (rotation clamp)
-     * - Constants.Vision.ALIGNMENT_TOLERANCE_DEGREES * 0.01 (feed gate, 1% of tolerance)
-     * - Constants.Shooter.FLYWHEEL_TOLERANCE_PERCENT (feed gate, default 10%)
-     * - ShooterSubsystem FLYWHEEL_RPM_MAP / HOOD_ROT_MAP (shooter params)
-     * See TUNING.md for the step-by-step procedure.
-     *
-     * @param shooter    Shooter subsystem
-     * @param vision     Vision subsystem
-     * @param indexer    Indexer subsystem
-     * @param drivetrain Swerve drivetrain
-     * @param xSupplier  Driver left-Y velocity in m/s (already scaled by MaxSpeed)
-     * @param ySupplier  Driver left-X velocity in m/s (already scaled by MaxSpeed)
-     */
-    public static Command visionAlignAndShoot(
-            ShooterSubsystem shooter,
-            VisionSubsystem vision,
-            IndexerSubsystem indexer,
-            CommandSwerveDrivetrain drivetrain,
-            DoubleSupplier xSupplier,
-            DoubleSupplier ySupplier) {
-
-        final double maxSpeed = 0.5 * TunerConstants.kSpeedAt12Volts.in(MetersPerSecond);
-
-        // Created once; reused every execute cycle.
-        // FieldCentric: driver controls X/Y translation, vision controls rotation.
-        final SwerveRequest.FieldCentric alignRequest = new SwerveRequest.FieldCentric()
-                .withDeadband(maxSpeed * 0.15)
-                .withDriveRequestType(DriveRequestType.OpenLoopVoltage);
-
-        return Commands.run(() -> {
-
-            // ── 1. Shooter: update from vision or hold current targets ─────────
-            if (vision.isUsableForShooting()) {
-                // Live-update RPM + hood from distance table (also pushes to hardware
-                // if already in READY state — see ShooterSubsystem.updateFromDistance)
-                shooter.updateFromDistance(vision.getDistanceToTargetMeters());
-            }
-            // Keep commanding READY every cycle — setState() no-ops if already there
-            if (shooter.getState() != ShooterSubsystem.ShooterState.READY) {
-                shooter.prepareToShoot();
-            }
-
-            // ── 2. Drivetrain: driver translation + vision rotation ────────────
-            // tx returns 0.0 when NO_TARGET, so rotation correction drops to zero
-            // automatically when the camera has nothing to track.
-            double txDeg = vision.getHorizontalAngleDegrees();
-            double rotRate = MathUtil.clamp(
-                    txDeg * Constants.Vision.ROTATIONAL_KP,
-                    -Constants.Vision.MAX_ALIGNMENT_ROTATION_RAD_PER_SEC,
-                    Constants.Vision.MAX_ALIGNMENT_ROTATION_RAD_PER_SEC);
-
-            drivetrain.setControl(
-                    alignRequest
-                            .withVelocityX(xSupplier.getAsDouble())
-                            .withVelocityY(ySupplier.getAsDouble())
-                            .withRotationalRate(rotRate));
-
-            // ── 3. Feed: vision locked within 1% of tolerance AND flywheel at speed
-            boolean visionLocked = Math.abs(vision.getHorizontalAngleDegrees()) <= (Constants.Vision.ALIGNMENT_TOLERANCE_DEGREES * 2);
-            boolean flywheelReady = shooter.isFlywheelAtVelocity();
-            if (visionLocked && flywheelReady) {
-                indexer.indexerForward();
-                indexer.conveyorForward();
-            } else {
+    public static class Auto {
+        public static Command shootTrench(ShooterSubsystem shooter, IndexerSubsystem indexer,
+                double feedSeconds) {
+            return Commands.sequence(
+                    Commands.runOnce(() -> {
+                        shooter.setTargetVelocity(Constants.Shooter.TRENCH_RPM);
+                        shooter.setTargetHoodPose(Constants.Shooter.TRENCH_HOOD);
+                        shooter.prepareToShoot();
+                    }, shooter),
+                    Commands.waitUntil(shooter::isReady).withTimeout(1.0),
+                    Commands.run(() -> {
+                        indexer.indexerForward();
+                        indexer.conveyorForward();
+                    }, indexer).withTimeout(feedSeconds) // primary end trigger: timeout
+            ).finallyDo(() -> {
                 indexer.indexerStop();
                 indexer.conveyorStop();
-            }
+                shooter.setIdle();
+            });
+        }
 
-        }, shooter, vision, indexer, drivetrain)
-                .beforeStarting(Commands.runOnce(() -> {
-                    shooter.setSelectedPreset(); // Spin up to the POV-selected preset immediately
-                    shooter.prepareToShoot(); // Enter READY state — don't wait for alignment
-                }, shooter))
-                .finallyDo(() -> {
-                    indexer.indexerStop();
-                    indexer.conveyorStop();
-                    shooter.setIdle();
-                })
-                .withName("VisionAlignAndShoot");
-    }
-
-    /**
-     * Creates a vision-based shoot sequence with indexer coordination.
-     *
-     * @param shooter The shooter subsystem
-     * @param vision  The vision subsystem
-     * @param indexer The indexer subsystem
-     * @return Vision-based shooting sequence
-     */
-    public static Command visionShootSequence(ShooterSubsystem shooter, VisionSubsystem vision,
-            IndexerSubsystem indexer) {
-        return Commands.sequence(
-                Commands.waitUntil(vision::hasTarget).withTimeout(0.25),
-                visionShot(shooter, vision)
-        // IndexerCommands.feedTimed(indexer, 0.5), // FIXME to use the
-        // IndexerSubsystem's feed method instead of a command from IndexerCommands
-        // Commands.runOnce(shooter::returnToStandby, shooter)
-        ).withName("VisionShootSequence");
-    }
-
-    /**
-     * Creates a command to shoot using vision-based distance calculation.
-     *
-     * @param shooter The shooter subsystem
-     * @param vision  The vision subsystem
-     * @return Command that uses vision for aiming
-     */
-    public static Command visionShot(ShooterSubsystem shooter, VisionSubsystem vision) {
-        return Commands.sequence(
-                Commands.runOnce(() -> {
-                    double distance = vision.getDistanceToTargetMeters();
-                    shooter.updateFromDistance(distance);
-                    shooter.prepareToShoot();
-                }, shooter, vision),
-                Commands.waitUntil(shooter::isReady)).withTimeout(3.0)
-                .withName("VisionShot");
-    }
-
-    /**
-     * Creates a command to continuously update shooter based on vision.
-     *
-     * @param shooter The shooter subsystem
-     * @param vision  The vision subsystem
-     * @return Command that continuously tracks target
-     */
-    public static Command trackTarget(ShooterSubsystem shooter, VisionSubsystem vision) {
-        return Commands.run(() -> {
-            if (vision.hasTarget()) {
-                double distance = vision.getDistanceToTargetMeters();
-                shooter.updateFromDistance(distance);
-            }
-        }, shooter, vision)
-                .withName("TrackTarget");
-    }
-
-    public static class Auto {
-    public static Command shootTrench(ShooterSubsystem shooter, IndexerSubsystem indexer,
-            double feedSeconds) {
-        return Commands.sequence(
-                Commands.runOnce(() -> {
-                    shooter.setTargetVelocity(Constants.Shooter.TRENCH_RPM);
-                    shooter.setTargetHoodPose(Constants.Shooter.TRENCH_HOOD);
-                    shooter.prepareToShoot();
-                }, shooter),
-                Commands.waitUntil(shooter::isReady).withTimeout(1.0),
-                Commands.run(() -> {
-                    indexer.indexerForward();
-                    indexer.conveyorForward();
-                }, indexer).withTimeout(feedSeconds) // primary end trigger: timeout
-        ).finallyDo(() -> {
-            indexer.indexerStop();
-            indexer.conveyorStop();
-            shooter.setIdle();
-        });
-    }
         public static Command shootHub(ShooterSubsystem shooter, IndexerSubsystem indexer,
                 double feedSeconds) {
             return Commands.sequence(
@@ -497,8 +324,8 @@ public class FuelCommandsEvan {
                     }, indexer).withTimeout(feedSeconds), // primary end trigger: timeout
                     // Feed until chute goes quiet for 2s (with safety timeout)
                     indexer.feed().until(indexer::donePassingFuel)
-                    // This is likely redundant with the feed().until() end condition, but it's a
-                    // good safety net in case of sensor issues or unexpected game piece behavior.
+            // This is likely redundant with the feed().until() end condition, but it's a
+            // good safety net in case of sensor issues or unexpected game piece behavior.
             ).finallyDo(() -> {
                 indexer.indexerStop();
                 indexer.conveyorStop();
@@ -506,46 +333,46 @@ public class FuelCommandsEvan {
             }).withName("ShootTrenchAuton");
         }
 
-    public static Command shootTower(ShooterSubsystem shooter, IndexerSubsystem indexer,
-            double feedSeconds) {
-        return Commands.sequence(
-                Commands.runOnce(() -> {
-                    shooter.setTargetVelocity(Constants.Shooter.TOWER_RPM);
-                    shooter.setTargetHoodPose(Constants.Shooter.TOWER_HOOD);
-                    shooter.prepareToShoot();
-                }, shooter),
-                Commands.waitUntil(shooter::isReady).withTimeout(1.0),
-                Commands.run(() -> {
-                    indexer.indexerForward();
-                    indexer.conveyorForward();
-                }, indexer).withTimeout(feedSeconds) // primary end trigger: timeout
-        ).finallyDo(() -> {
-            indexer.indexerStop();
-            indexer.conveyorStop();
-            shooter.setIdle();
-        });
-    } // end of command
+        public static Command shootTower(ShooterSubsystem shooter, IndexerSubsystem indexer,
+                double feedSeconds) {
+            return Commands.sequence(
+                    Commands.runOnce(() -> {
+                        shooter.setTargetVelocity(Constants.Shooter.TOWER_RPM);
+                        shooter.setTargetHoodPose(Constants.Shooter.TOWER_HOOD);
+                        shooter.prepareToShoot();
+                    }, shooter),
+                    Commands.waitUntil(shooter::isReady).withTimeout(1.0),
+                    Commands.run(() -> {
+                        indexer.indexerForward();
+                        indexer.conveyorForward();
+                    }, indexer).withTimeout(feedSeconds) // primary end trigger: timeout
+            ).finallyDo(() -> {
+                indexer.indexerStop();
+                indexer.conveyorStop();
+                shooter.setIdle();
+            });
+        } // end of command
 
-    public static Command shootFar(ShooterSubsystem shooter, IndexerSubsystem indexer,
-            double feedSeconds) {
-        return Commands.sequence(
-                Commands.runOnce(() -> {
-                    shooter.setTargetVelocity(Constants.Shooter.FAR_RPM);
-                    shooter.setTargetHoodPose(Constants.Shooter.FAR_HOOD);
-                    shooter.prepareToShoot();
-                }, shooter),
-                Commands.waitUntil(shooter::isReady).withTimeout(1.0),
-                Commands.run(() -> {
-                    indexer.indexerForward();
-                    indexer.conveyorForward();
-                }, indexer).withTimeout(feedSeconds) // primary end trigger: timeout
-        ).finallyDo(() -> {
-            indexer.indexerStop();
-            indexer.conveyorStop();
-            shooter.setIdle();
-        });
-    } // end of command
+        public static Command shootFar(ShooterSubsystem shooter, IndexerSubsystem indexer,
+                double feedSeconds) {
+            return Commands.sequence(
+                    Commands.runOnce(() -> {
+                        shooter.setTargetVelocity(Constants.Shooter.FAR_RPM);
+                        shooter.setTargetHoodPose(Constants.Shooter.FAR_HOOD);
+                        shooter.prepareToShoot();
+                    }, shooter),
+                    Commands.waitUntil(shooter::isReady).withTimeout(1.0),
+                    Commands.run(() -> {
+                        indexer.indexerForward();
+                        indexer.conveyorForward();
+                    }, indexer).withTimeout(feedSeconds) // primary end trigger: timeout
+            ).finallyDo(() -> {
+                indexer.indexerStop();
+                indexer.conveyorStop();
+                shooter.setIdle();
+            });
+        } // end of command
 
-} // end of class Auto
+    } // end of class Auto
 
 } // end of class FuelCommands
