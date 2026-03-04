@@ -144,7 +144,7 @@ public class RobotContainer {
         // operator.povUp().whileTrue(null); // incremental extend climber command to be added when climber is ready
         // operator.povDown().whileTrue(null); // incremental retract climber command to be added when climber is ready
 
-        // TODO: Test this new shoot + retract command and tune the slide retract time
+        // TODO: Test this new shoot + retract command and tune the slide retract time 
         operator.rightTrigger().whileTrue(FuelCommands.Auto.shootTrenchWithSlideRetract(shooter, indexer, intake, 3));
                 
     }
