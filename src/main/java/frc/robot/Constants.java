@@ -135,7 +135,7 @@ public final class Constants {
      * Add an end of line comment `Tuned` when each is verified */
     public static final double POPPER_RPM  = 650; // TODO: 800 was just a little too much
     public static final double STANDBY_RPM = 1000; //
-    public static final double CLOSE_RPM   = 2750; //
+    public static final double CLOSE_RPM   = 2650; // TODO: Tune was 2600, 0
     public static final double TOWER_RPM   = 3200; // TODO: Tune was 3100, 4.42
     public static final double TRENCH_RPM  = 3200; // TODO: Tune
     public static final double FAR_RPM     = 3800; // TODO: Tune was 4000 + 5.5 worked
@@ -156,15 +156,15 @@ public final class Constants {
     /** TODO tune Hood rotation position values from Kraken encoder for each shot
      * Consider using WCP Encoder
      * Add an end of line comment `Tuned` when each is verified */
-    public static final double CLOSE_HOOD  = 0.00; //
-    public static final double POPPER_HOOD  = 8.42; // TODO: Tune
-    public static final double TOWER_HOOD  = 4.30; //
-    public static final double TRENCH_HOOD = 4.30; // TODO: Tune
-    public static final double FAR_HOOD    = 5.50; // TODO: Tune was 4000 + 5.5 worked
+    public static final double CLOSE_HOOD  = 0.00; // 
+    public static final double POPPER_HOOD  = 8.42; // 
+    public static final double TOWER_HOOD  = 4.30; // 
+    public static final double TRENCH_HOOD = 4.30; // 
+    public static final double FAR_HOOD    = 5.50; // 
     public static final double PASS_HOOD   = 7.00; //
 
      // --- Testing Increments ---
-     public static final double HOOD_TEST_INCREMENT         = 0.2;
+     public static final double HOOD_INCREMENT_TEST         = 0.2;
      public static final double FLYWHEEL_TEST_INCREMENT_RPM = 100.0;
   }
 
@@ -284,7 +284,6 @@ public final class Constants {
   // LEDs
   // =========================================================
   public static final class Led {
-    private Led() {}
 
     /** CANdle device ID */
     public static final int CANDLE_ID = 15;
