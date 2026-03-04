@@ -120,16 +120,6 @@ public class RobotContainer {
         driver.leftTrigger(0.5).whileTrue(intake.intakeFuel());
         driver.leftBumper().whileTrue(intake.compressFuelIncremental());
 
-        // Right Trigger + Vision: Commented out — vision shot disabled for now.
-        // driver.rightTrigger(0.5).and(driver.a()).whileTrue(
-        //     FuelCommands.visionAlignAndShoot(
-        //         shooter, vision, indexer, drivetrain,
-        //         () -> -driver.getLeftY() * MaxSpeed,
-        //         () -> -driver.getLeftX() * MaxSpeed
-        //     )
-        // );
-
-
         // =====================================================================
         // OPERATOR CONTROLLER (Port 1)
         // =====================================================================
