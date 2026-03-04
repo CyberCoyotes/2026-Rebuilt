@@ -95,7 +95,7 @@ public class AutoRoutines {
 
                         ));
                 // Routine Events
-                StartRMid.atTime("Intake").onTrue(m_intake.intakeFuelAuton(3)); 
+                StartRMid.atTime("Intake").onTrue(m_intake.intakeFuelAuton(10)); 
 
                 StartRMid.atTime("Shoot").onTrue(FuelCommands.Auto.shootTrench(m_shooter, m_indexer, 6)); //FIXME: Check segement number
                 // Stay in a line! Color in the lines
@@ -119,7 +119,7 @@ public class AutoRoutines {
 
                         ));
                 // Routine Events
-                StartLMid.atTime("Intake").onTrue(m_intake.intakeFuelAuton(3)); 
+                StartLMid.atTime("Intake").onTrue(m_intake.intakeFuelAuton(10)); 
 
                 StartLMid.atTime("Shoot").onTrue(FuelCommands.Auto.shootTrench(m_shooter, m_indexer, 6)); //FIXME: Check segement number
                 // Stay in a line! Color in the lines
@@ -147,22 +147,20 @@ public class AutoRoutines {
 
                 return routine;
         }
-         public AutoRoutine TestRoutineR() {
-                 final AutoRoutine routine = m_factory.newRoutine("TestRoutineR");
-                final AutoTrajectory TestRoutineR = routine.trajectory("TestRoutineR", 0);
-                final AutoTrajectory TestRountineR2 = routine.trajectory("TestRoutineR", 1);
+         public AutoRoutine MidDepot() {
+                 final AutoRoutine routine = m_factory.newRoutine("MidDepot");
+                final AutoTrajectory MidDepot = routine.trajectory("MidDepot", 0);
 
                 routine.active().onTrue(
                         Commands.sequence(
-                                TestRoutineR.resetOdometry(), // Always reset odometry first
-                                TestRoutineR.cmd(), //Follow the path
-                                m_drivetrain.stop().withTimeout(10.0),
-                                TestRountineR2.cmd()
+                                MidDepot.resetOdometry(), // Always reset odometry first
+                                MidDepot.cmd() //Follow the path
 
                         ));
                 // Routine Events
-                TestRoutineR.atTime("Shoot").onTrue(FuelCommands.Auto.shootTren(m_shooter, m_indexer, 3.0)); //score
-                // Dummy.atTime("Intake").onTrue(IntakeSubsystem.intakeFuel(m_shooter, m_indexer)); //score
+                MidDepot.atTime("Intake").onTrue(m_intake.intakeFuelAuton(10)); 
+                MidDepot.atTime("Shoot").onTrue(FuelCommands.Auto.shootFar(m_shooter, m_indexer, 6)); //score
+               
 
                 return routine;
         }

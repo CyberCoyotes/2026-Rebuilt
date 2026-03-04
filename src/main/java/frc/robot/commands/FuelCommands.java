@@ -595,6 +595,7 @@ public class FuelCommands {
                         shooter.setIdle();
                     }).withName("ShootTrenchAuton");
         }
-    } // end of class Auto
+    } 
+    // end of class Auto
 
 } // end of class FuelCommands
