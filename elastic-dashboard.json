@@ -1335,6 +1335,37 @@
                   "data_type": "double",
                   "show_submit_button": false
                 }
+              },
+              {
+                "title": "Flywheel Temp (°C)",
+                "x": 0.0,
+                "y": 0.0,
+                "width": 192.0,
+                "height": 64.0,
+                "type": "Text Display",
+                "properties": {
+                  "topic": "/Shooter/FlywheelMaxTempCelsius",
+                  "period": 0.06,
+                  "data_type": "double",
+                  "show_submit_button": false
+                }
+              },
+              {
+                "title": "Flywheel At RPM",
+                "x": 0.0,
+                "y": 0.0,
+                "width": 128.0,
+                "height": 128.0,
+                "type": "Boolean Box",
+                "properties": {
+                  "topic": "/Shooter/FlywheelAtRPM",
+                  "period": 0.06,
+                  "data_type": "boolean",
+                  "true_color": 4278255360,
+                  "false_color": 4294944000,
+                  "true_icon": "None",
+                  "false_icon": "None"
+                }
               }
             ]
           },

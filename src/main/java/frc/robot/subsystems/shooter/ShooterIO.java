@@ -53,6 +53,9 @@ public interface ShooterIO {
         /** Flywheel supply current in amps */
         public double flywheelCurrentAmps = 0.0;
 
+        /** Max flywheel motor temperature in Celsius across motors A/B/C */
+        public double flywheelMaxTempCelsius = 0.0;
+
         /** Hood applied voltage */
         public double hoodAppliedVolts = 0.0;
 

@@ -11,6 +11,9 @@ import edu.wpi.first.networktables.StringPublisher;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.Constants;
+
+@SuppressWarnings("unused") // Suppress warnings for unused right now
 
 public class IndexerSubsystem extends SubsystemBase {
 
@@ -71,42 +74,20 @@ public class IndexerSubsystem extends SubsystemBase {
     // ==== State ===============================================================
     private IndexerState currentState = IndexerState.IDLE;
 
-    // ==== Voltage Constants ===================================================
-    // Kept here (alongside the commands that use them) so students can find
-    // and tune these without hunting through a separate Constants file.
-    public static final double CONVEYOR_FORWARD_VOLTAGE = 4.0; 
-    public static final double CONVEYOR_REVERSE_VOLTAGE = -4.0;
-    public static final double CONVEYOR_POPPER_VOLTAGE = 3.0; 
+            private boolean isFuelDetected = false;
+        private boolean wasFuelDetected = false;
 
-    public static final double INDEXER_FORWARD_VOLTAGE = 4.0;
-    public static final double INDEXER_REVERSE_VOLTAGE = -4.0;
-    public static final double INDEXER_POPPER_VOLTAGE = 3.0;
-
-
-    // ==== Hopper Fill Level Distance Constants ================================
-    // MIN = distance (meters) when hopper is packed full (piece right at sensor).
-    // MAX = distance (meters) when hopper is completely empty (far wall or
-    // nothing).
-    //
-    // HOW TO TUNE THESE:
-    // 1. Watch hopperA/BDistanceMeters live in AdvantageScope or Phoenix Tuner X.
-    // 2. Fill the hopper completely → record the distance. That's MIN.
-    // 3. Empty the hopper completely → record the distance. That's MAX.
-    // 4. Update the constants below and rebuild.
-    //
-    // Sensors A and B may differ slightly if they're mounted at different depths.
-    public static final double HOPPER_A_MIN_DISTANCE = 0.02; // TODO: Tune experimentally
-    public static final double HOPPER_A_MAX_DISTANCE = 0.50; // TODO: Tune experimentally
-    public static final double HOPPER_B_MIN_DISTANCE = 0.02; // TODO: Tune experimentally
-    public static final double HOPPER_B_MAX_DISTANCE = 0.50; // TODO: Tune experimentally
-
+        private double lastDetectionTimestamp = -1.0;
+        private double secondsSinceLastDetection = Double.POSITIVE_INFINITY;
     // ==== Elastic Dashboard Publishers ========================================
     private final NetworkTable indexerTable;
     private final BooleanPublisher hopperAPublisher;
     private final BooleanPublisher hopperBPublisher;
-    private final IntegerPublisher hopperCountPublisher;
     private final StringPublisher hopperAFillLevelPublisher;
     private final StringPublisher hopperBFillLevelPublisher;
+    private final BooleanPublisher chuteDetectedPublisher;
+    private final IntegerPublisher chuteCountPublisher;
+
     // Raw distance from each CANrange — useful during threshold tuning without
     // needing AdvantageScope open; displayed on the Indexer Elastic tab.
     private final DoublePublisher hopperADistancePublisher;
@@ -121,17 +102,50 @@ public class IndexerSubsystem extends SubsystemBase {
 
         hopperAPublisher          = indexerTable.getBooleanTopic("HopperA/Detected").publish();
         hopperBPublisher          = indexerTable.getBooleanTopic("HopperB/Detected").publish();
-        hopperCountPublisher      = indexerTable.getIntegerTopic("HopperCount").publish();
         hopperAFillLevelPublisher = indexerTable.getStringTopic("HopperA/FillLevel").publish();
         hopperBFillLevelPublisher = indexerTable.getStringTopic("HopperB/FillLevel").publish();
         hopperADistancePublisher  = indexerTable.getDoubleTopic("HopperA/Distance_m").publish();
         hopperBDistancePublisher  = indexerTable.getDoubleTopic("HopperB/Distance_m").publish();
+        chuteDetectedPublisher    = indexerTable.getBooleanTopic("Chute/Detected").publish();
+        chuteCountPublisher       = indexerTable.getIntegerTopic("Chute/Count").publish();
     }
 
     // ==== Periodic ============================================================
     @Override
     public void periodic() {
         io.updateInputs(inputs);
+
+  
+
+        double now = edu.wpi.first.wpilibj.Timer.getFPGATimestamp();
+
+        // --- Distance-based detection with hysteresis ---
+        double lowerThreshold = Constants.Indexer.CHUTE_MAX_DISTANCE * (1.0 - Constants.Indexer.CHUTE_TOLERANCE);
+        double upperThreshold = Constants.Indexer.CHUTE_MAX_DISTANCE * (1.0 + Constants.Indexer.CHUTE_TOLERANCE);
+
+        if (!isFuelDetected) {
+            // Only trigger when clearly below threshold
+            if (inputs.chuteDistanceMeters < lowerThreshold) {
+                isFuelDetected = true;
+            }
+        } else {
+            // Stay detected until clearly above threshold
+            if (inputs.chuteDistanceMeters > upperThreshold) {
+                isFuelDetected = false;
+            }
+        }
+
+        // --- Update last detection time ---
+        if (isFuelDetected) {
+            lastDetectionTimestamp = now;
+        }
+
+        if (lastDetectionTimestamp >= 0) {
+            secondsSinceLastDetection = now - lastDetectionTimestamp;
+        } else {
+            secondsSinceLastDetection = Double.POSITIVE_INFINITY;
+        }
+
 
         // processInputs() logs the raw IO layer — motor signals and sensor readings.
         // These appear in AdvantageScope under "Indexer/".
@@ -141,9 +155,12 @@ public class IndexerSubsystem extends SubsystemBase {
         // makes on top of raw data. Hoot can't see these; AK can.
         Logger.recordOutput("Indexer/State", currentState.name());
         Logger.recordOutput("Indexer/IsHopperFull", isHopperFull());
-        Logger.recordOutput("Indexer/HopperCount", getHopperGamePieceCount());
         Logger.recordOutput("Indexer/HopperA/FillLevel", getHopperAFillLevel().name());
         Logger.recordOutput("Indexer/HopperB/FillLevel", getHopperBFillLevel().name());
+        Logger.recordOutput("Chute/IsFuelDetected", isFuelDetected);
+        Logger.recordOutput("Chute/SecondsSinceLastDetection", secondsSinceLastDetection);
+        Logger.recordOutput("Chute/DonePassingFuel", donePassingFuel());
+        Logger.recordOutput("Chute/DistanceMeters", inputs.chuteDistanceMeters);
 
         publishTelemetry();
     }
@@ -151,17 +168,15 @@ public class IndexerSubsystem extends SubsystemBase {
     private void publishTelemetry() {
         hopperAPublisher.set(inputs.hopperADetected);
         hopperBPublisher.set(inputs.hopperBDetected);
-        hopperCountPublisher.set(getHopperGamePieceCount());
         hopperAFillLevelPublisher.set(getHopperAFillLevel().name());
         hopperBFillLevelPublisher.set(getHopperBFillLevel().name());
-        // Raw distance in meters — lets you tune the threshold from Elastic
-        // without opening AdvantageScope. Watch these with/without a game piece
-        // at each sensor to determine the correct ProximityThreshold value.
         hopperADistancePublisher.set(inputs.hopperADistanceMeters);
         hopperBDistancePublisher.set(inputs.hopperBDistanceMeters);
+        chuteDetectedPublisher.set(inputs.chuteDetected);
+        // chuteDistancePublisher.set(inputs.chuteDistanceMeters);
     }
 
-    // ==== State ===============================================================
+    // ==== State =======================================================================
     private void setState(IndexerState state) {
         this.currentState = state;
     }
@@ -170,17 +185,17 @@ public class IndexerSubsystem extends SubsystemBase {
         return currentState;
     }
 
-    // ==== Motor Control =======================================================
+    // ==== Motor Control ==============================================================
     public void conveyorForward() {
-        io.setConveyorMotor(CONVEYOR_FORWARD_VOLTAGE);
+        io.setConveyorMotor(Constants.Indexer.CONVEYOR_FORWARD_VOLTAGE);
     }
 
     public void conveyorReverse() {
-        io.setConveyorMotor(CONVEYOR_REVERSE_VOLTAGE);
+        io.setConveyorMotor(Constants.Indexer.CONVEYOR_REVERSE_VOLTAGE);
     }
 
     public void conveyorAirPopper() {
-        io.setConveyorMotor(CONVEYOR_POPPER_VOLTAGE);
+        io.setConveyorMotor(Constants.Indexer.CONVEYOR_POPPER_VOLTAGE);
     }
 
     public void conveyorStop() {
@@ -188,15 +203,15 @@ public class IndexerSubsystem extends SubsystemBase {
     }
 
     public void indexerForward() {
-        io.setIndexerMotor(INDEXER_FORWARD_VOLTAGE);
+        io.setIndexerMotor(Constants.Indexer.INDEXER_FORWARD_VOLTAGE);
     }
 
     public void indexerReverse() {
-        io.setIndexerMotor(INDEXER_REVERSE_VOLTAGE);
+        io.setIndexerMotor(Constants.Indexer.INDEXER_REVERSE_VOLTAGE);
     }
 
     public void indexerAirPopper() {
-        io.setIndexerMotor(INDEXER_POPPER_VOLTAGE);
+        io.setIndexerMotor(Constants.Indexer.INDEXER_POPPER_VOLTAGE);
     }
 
     public void indexerStop() {
@@ -237,16 +252,6 @@ public class IndexerSubsystem extends SubsystemBase {
         return inputs.hopperADetected && inputs.hopperBDetected;
     }
 
-    /** Returns the number of game pieces detected in the hopper (0, 1, or 2). */
-    public int getHopperGamePieceCount() {
-        int count = 0;
-        if (inputs.hopperADetected)
-            count++;
-        if (inputs.hopperBDetected)
-            count++;
-        return count;
-    }
-
     // ==== Hopper Fill Level ===================================================
 
     /**
@@ -258,8 +263,8 @@ public class IndexerSubsystem extends SubsystemBase {
     public HopperFillLevel getHopperAFillLevel() {
         return calculateFillLevel(
                 inputs.hopperADistanceMeters,
-                HOPPER_A_MIN_DISTANCE,
-                HOPPER_A_MAX_DISTANCE);
+                Constants.Indexer.HOPPER_A_MIN_DISTANCE,
+                Constants.Indexer.HOPPER_A_MAX_DISTANCE);
     }
 
     /**
@@ -271,8 +276,8 @@ public class IndexerSubsystem extends SubsystemBase {
     public HopperFillLevel getHopperBFillLevel() {
         return calculateFillLevel(
                 inputs.hopperBDistanceMeters,
-                HOPPER_B_MIN_DISTANCE,
-                HOPPER_B_MAX_DISTANCE);
+                Constants.Indexer.HOPPER_B_MIN_DISTANCE,
+                Constants.Indexer.HOPPER_B_MAX_DISTANCE);
     }
 
     /**
@@ -321,6 +326,18 @@ public class IndexerSubsystem extends SubsystemBase {
         if (fillRatio >= 0.25)
             return HopperFillLevel.QUARTER_FULL;
         return HopperFillLevel.EMPTY;
+    }
+
+    public boolean isFuelDetected() {
+    return isFuelDetected;
+    }
+
+    public double getSecondsSinceLastDetection() {
+        return secondsSinceLastDetection;
+    }
+
+    public boolean donePassingFuel() {
+        return !isFuelDetected && secondsSinceLastDetection >= Constants.Indexer.FUEL_CLEAR_TIME;
     }
 
     // ==== Command Factories ===================================================

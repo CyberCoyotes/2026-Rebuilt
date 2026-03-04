@@ -12,7 +12,7 @@ public final class Constants {
   public static final CANBus RIO_CANBUS = CANBus.roboRIO("rio"); // native rio bus
 
   // =========================================================
-  // Drive / Swerve
+  // Drive / Swerve These are in TunerConstants.java since they're generated with the Phoenix Tuner app
   // =========================================================
   // CAN ID Allocation:
   //   1-12  Drivetrain (drive motors, steer motors, CANcoders) — TunerConstants.java
@@ -41,6 +41,12 @@ public final class Constants {
 
     /** Time of Flight sensor - CANrange, confirms fuel presence */
     public static final int INTAKE_SENSOR_ID = 41;
+
+    //=== Constants =====================
+    public static final double SLIDE_RETRACTED_POSITION = 0.0;
+    public static final double SLIDE_EXTENDED_POSITION = 44.40;
+    public static final double SLIDE_MIN_POSITION = 0.0;
+    public static final double SLIDE_MAX_POSITION = 44.454;
   }
 
   // =========================================================
@@ -55,14 +61,48 @@ public final class Constants {
     /** Conveyor motor - Minion with TalonFXS controller, moves pieces along hopper */
     public static final int CONVEYOR_MOTOR_ID = 24;
 
-    /** Time of Flight sensor detects presence of fuel at indexer egress to shooter (optional) */
-    public static final int INDEXER_SENSOR_ID = 42;
+    /** CANrange Time of Flight sensor detects presence of fuel at indexer egress to shooter (optional) */
+    public static final int CHUTE_TOF_ID = 42;
 
-    /** Time of Flight sensor A - Detects distance -> "fullness" of hopper */
+    /** CANrange Time of Flight sensor A - Detects distance -> "fullness" of hopper */
     public static final int HOPPER_A_TOF_ID = 43;
-
-    /** Time of Flight sensor B - Detects distance -> "fullness" of hopper */
     public static final int HOPPER_B_TOF_ID = 44;
+
+    //=== Voltage Constants =====================
+    public static final double CONVEYOR_FORWARD_VOLTAGE = 4.0;
+    public static final double CONVEYOR_REVERSE_VOLTAGE = -4.0;
+    public static final double CONVEYOR_POPPER_VOLTAGE = 3.0;
+
+    public static final double INDEXER_FORWARD_VOLTAGE = 4.0;
+    public static final double INDEXER_REVERSE_VOLTAGE = -4.0;
+    public static final double INDEXER_POPPER_VOLTAGE = 3.0;
+
+    //=== Hopper Fill Level Distance Constants ===========
+    // MIN = distance (meters) when hopper is packed full (piece right at sensor).
+    // MAX = distance (meters) when hopper is completely empty (far wall or
+    // nothing).
+    //
+    // HOW TO TUNE THESE:
+    // 1. Watch hopperA/BDistanceMeters live in AdvantageScope or Phoenix Tuner X.
+    // 2. Fill the hopper completely → record the distance. That's MIN.
+    // 3. Empty the hopper completely → record the distance. That's MAX.
+    // 4. Update the constants below and rebuild.
+    //
+    // Sensors A and B may differ slightly if they're mounted at different depths.
+    public static final double HOPPER_A_MIN_DISTANCE = 0.02; // TODO: Tune experimentally
+    public static final double HOPPER_A_MAX_DISTANCE = 0.50; // TODO: Tune experimentally
+    public static final double HOPPER_B_MIN_DISTANCE = 0.02; // TODO: Tune experimentally
+    public static final double HOPPER_B_MAX_DISTANCE = 0.50; // TODO: Tune experimentally
+
+    public static final double CHUTE_MAX_DISTANCE = 0.50; // TODO: Tune experimentally
+    public static final double CHUTE_MIN_DISTANCE = 0.02; // TODO: Tune experimentally
+    
+    // Chute detection threshold: distance below which we consider a piece to be present at the chute.
+    public static final double CHUTE_DETECTION_THRESHOLD_METERS = 0.40; // 
+    public static final double CHUTE_TOLERANCE = 0.05;
+
+    public static final double FUEL_CLEAR_TIME = 2.0;
+
   }
 
   // =========================================================
@@ -71,13 +111,13 @@ public final class Constants {
   public static final class Shooter {
     private Shooter() {}
 
-    /** Flywheel A motor - Falcon 500 with TalonFX controller (leader) */
+    /** Flywheel A motor - Kraken X60 with TalonFX controller (leader) */
     public static final int FLYWHEEL_A_MOTOR_ID = 25;
 
-    /** Flywheel B motor - Falcon 500 with TalonFX controller (follower of A) */
+    /** Flywheel B motor - Kraken X60 with TalonFX controller (follower of A) */
     public static final int FLYWHEEL_B_MOTOR_ID = 26;
 
-    /** Flywheel C motor - Falcon 500 with TalonFX controller (follower of A) */
+    /** Flywheel C motor - Kraken X60 with TalonFX controller (follower of A) */
     public static final int FLYWHEEL_C_MOTOR_ID = 27;
 
     /** Hood motor - Minion with TalonFXS controller, adjusts shot angle */
@@ -85,6 +125,47 @@ public final class Constants {
 
     /** WCP ThroughBore Encoder powered by CANcoder for measuring hood position */
     public static final int HOOD_POSE_ENCODER_ID = 46;
+
+    //=== Constants ===
+    //Flywheel
+    public static final double MAX_FLYWHEEL_RPM = 6000.0; // Kraken X60 free speed (6380 was Falcon 500 — verify against actual motor)
+    public static final double IDLE_RPM = 0;
+
+    /** TODO tune RPMs for flywheel without excessive current draw
+     * Add an end of line comment `Tuned` when each is verified */
+    public static final double POPPER_RPM  = 650; // TODO: 800 was just a little too much
+    public static final double STANDBY_RPM = 1000; //
+    public static final double CLOSE_RPM   = 2750; //
+    public static final double TOWER_RPM   = 3200; // TODO: Tune was 3100, 4.42
+    public static final double TRENCH_RPM  = 3200; // TODO: Tune
+    public static final double FAR_RPM     = 3800; // TODO: Tune was 4000 + 5.5 worked
+    public static final double PASS_RPM    = 4000; //
+
+    /** Reverse RPM for jam clearing. Only reached through eject(), which gates on EJECT_MAX_ENTRY_RPM. */
+    public static final double EJECT_RPM = -1500;
+    /** Maximum forward flywheel RPM at which EJECT is safe to enter. Prevents violent reversal. */
+    public static final double EJECT_MAX_ENTRY_RPM = 500.0;
+
+    public static final double FLYWHEEL_TOLERANCE_PERCENT = 0.03; // Tightened from 0.10 — measured steady-state variance ±30 RPM at 3300; 3% = ±99 RPM (~3× variance)
+
+     // --- Hood (Kraken rotational positions) ---
+    public static final double MIN_HOOD_POSE_ROT  = 0.0;  // Mechanical limit, validate in configs limit
+    public static final double MAX_HOOD_POSE_ROT  = 9.14; // Mechanical limit, validate in configs limit
+    public static final double HOOD_POSE_TOLERANCE = 0.25; // TODO Tune tolerance based on testing — consider a tighter tolerance than 0.25 rotations
+
+    /** TODO tune Hood rotation position values from Kraken encoder for each shot
+     * Consider using WCP Encoder
+     * Add an end of line comment `Tuned` when each is verified */
+    public static final double CLOSE_HOOD  = 0.00; //
+    public static final double POPPER_HOOD  = 8.42; // TODO: Tune
+    public static final double TOWER_HOOD  = 4.30; //
+    public static final double TRENCH_HOOD = 4.30; // TODO: Tune
+    public static final double FAR_HOOD    = 5.50; // TODO: Tune was 4000 + 5.5 worked
+    public static final double PASS_HOOD   = 7.00; //
+
+     // --- Testing Increments ---
+     public static final double HOOD_TEST_INCREMENT         = 0.2;
+     public static final double FLYWHEEL_TEST_INCREMENT_RPM = 100.0;
   }
 
   // =========================================================
@@ -164,7 +245,7 @@ public final class Constants {
     /** Time in seconds before considering target "lost" after losing sight */
     public static final double TARGET_TIMEOUT_SECONDS = 0.5;
 
-    // ── Vision-driven drivetrain rotation ─────────────────────────────────────
+    // == Vision-driven drivetrain rotation ====
     /**
      * Proportional gain for rotational alignment: (rad/s output) per (degree of tx error).
      *

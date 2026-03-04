@@ -22,12 +22,10 @@ public class AutoRoutines {
     private final ShooterSubsystem m_shooter;
     private final FuelCommands m_fuelCommands;
    // private final VisionSubsystem m_vision;
-
-  //  private final LedSubsystem m_ledSubsystem;
+//  private final LedSubsystem m_ledSubsystem;
 
     // How long to wait after driving before doing something else
     private final double DRIVE_WAIT = 1.0; // Cut 2.0 -> 1.0 or less 
-
     private final double SCORE_WAIT = 1.0; // Cut 2.0 -> 1.0 or less 
 
     public AutoRoutines(AutoFactory factory, CommandSwerveDrivetrain drivetrain,/* , ClimberSubsystem climber,*/
@@ -54,28 +52,9 @@ public class AutoRoutines {
                                // FM2.cmd()
 
                         ));
+                // Routine Events
                 //.atTime("Score").onTrue(m_indexerCommands.autoScore()); //score
 
-                // Consider using m_commandGroups.autoIntakeCoral(m_indexerCommands, m_shooterCommands,/*m_wrist*/);
-                // .atTime("Load").onTrue(m_intakeCommands.intake());
-                return routine;
-        }
-         public AutoRoutine B() {
-                 final AutoRoutine routine = m_factory.newRoutine("Basic");
-                final AutoTrajectory B = routine.trajectory("Basic", 0);
-               // final AutoTrajectory B2 = routine.trajectory("Basic", 1);
-
-                routine.active().onTrue(
-                        Commands.sequence(
-                                B.resetOdometry(), // Always reset odometry first
-                                B.cmd()//, // Follow the path
-                                //m_drivetrain.stop().withTimeout(DRIVE_WAIT),
-                               // FM2.cmd()
-
-                        ));
-                //.atTime("Score").onTrue(m_indexerCommands.autoScore()); //score
-
-                // Consider using m_commandGroups.autoIntakeCoral(m_indexerCommands, m_shooterCommands,/*m_wrist*/);
                 // .atTime("Load").onTrue(m_intakeCommands.intake());
                 return routine;
         }
@@ -92,52 +71,75 @@ public class AutoRoutines {
                                // Lob2.cmd()
 
                         ));
-                // Lob.atTime("Score").onTrue(ShooterCommands.shootAtCurrentTarget(m_shooter, m_indexer)); //score
+                // Routine Events
+                // Lob.atTime("Shoot").onTrue(ShooterCommands.shootAtCurrentTarget(m_shooter, m_indexer)); //score
 
                 // Consider using m_commandGroups.autoIntakeCoral(m_indexerCommands, m_shooterCommands,/*m_wrist*/);
                 //   Lob2.atTime("Load").onTrue(m_intakeCommands.intake());
                 return routine;
         }
 
-        public AutoRoutine Default() {
-                 final AutoRoutine routine = m_factory.newRoutine("DefaultRightV2");
-                final AutoTrajectory DefaultRightV2 = routine.trajectory("DefaultRightV2", 0);
-                // final AutoTrajectory DefaultRightV2b = routine.trajectory("DefaultRightV2", 1);
+        public AutoRoutine StartRMid() {
+                 final AutoRoutine routine = m_factory.newRoutine("StartRMid");
+                final AutoTrajectory StartRMid = routine.trajectory("StartRMid", 0);
+                // final AutoTrajectory StartRMid2 = routine.trajectory("StartRMid", 1);
+                // final AutoTrajectory StartRMid3 = routine.trajectory("StartRMid", 2);
 
                 routine.active().onTrue(
                         Commands.sequence(
-                                DefaultRightV2.resetOdometry(), // Always reset odometry first
-                                DefaultRightV2.cmd(), //Follow the path
-                                m_drivetrain.stop().withTimeout(10)//,
-                                // DefaultRightV2b.cmd()
+                                StartRMid.resetOdometry(), // Always reset odometry first
+                                StartRMid.cmd() //Follow the path
+                                // m_drivetrain.stop().withTimeout(3),
+                                //  StartRMid2.cmd(),
+                                // StartRMid3.cmd()
 
                         ));
-                 DefaultRightV2.atTime("Score").onTrue(FuelCommands.shootTrenchAuton(m_shooter, m_indexer, 1.5).withTimeout(10.0)); //score
-                // DefaultRightV2.atTime("Intake").onTrue(IntakeSubsystem.intakeFuel(m_shooter, m_indexer)); //score
+                // Routine Events
+                StartRMid.atTime("Intake").onTrue(m_intake.intakeFuelAuton(3)); 
 
+                StartRMid.atTime("Shoot").onTrue(FuelCommands.Auto.shootTrench(m_shooter, m_indexer, 6)); //FIXME: Check segement number
+                // Stay in a line! Color in the lines
 
-                // Consider using m_commandGroups.autoIntakeCoral(m_indexerCommands, m_shooterCommands,/*m_wrist*/);
                 //DefaultRightV2.atTime("Load").onTrue(m_intakeCommands.intake());
                 return routine;
         }
-        public AutoRoutine Dummy() {
-                 final AutoRoutine routine = m_factory.newRoutine("Dummy");
-                final AutoTrajectory Dummy = routine.trajectory("Dummy", 0);
-                final AutoTrajectory Dummy2 = routine.trajectory("Dummy", 1);
+        public AutoRoutine TestRoutine() {
+                 final AutoRoutine routine = m_factory.newRoutine("TestRoutine");
+                final AutoTrajectory TestRoutine = routine.trajectory("TestRoutine", 0);
+                final AutoTrajectory TestRountine2 = routine.trajectory("TestRoutine", 1);
 
                 routine.active().onTrue(
                         Commands.sequence(
-                                Dummy.resetOdometry(), // Always reset odometry first
-                                Dummy.cmd(), //Follow the path
-                                m_drivetrain.stop().withTimeout(10.0)//,
-                                // Dummy2.cmd()
+                                TestRoutine.resetOdometry(), // Always reset odometry first
+                                TestRoutine.cmd(), //Follow the path
+                                m_drivetrain.stop().withTimeout(10.0),
+                                TestRountine2.cmd()
 
                         ));
-                Dummy.atTime("Score").onTrue(FuelCommands.shootWithSelectedPreset(m_shooter, m_indexer).withTimeout(10.0)); //score
+                // Routine Events
+
+                TestRoutine.atTime("Shoot").onTrue(FuelCommands.Auto.shootHub(m_shooter, m_indexer, 3.0)); //score
                 // Dummy.atTime("Intake").onTrue(IntakeSubsystem.intakeFuel(m_shooter, m_indexer)); //score
 
+                return routine;
+        }
+         public AutoRoutine TestRoutineR() {
+                 final AutoRoutine routine = m_factory.newRoutine("TestRoutineR");
+                final AutoTrajectory TestRoutineR = routine.trajectory("TestRoutineR", 0);
+                final AutoTrajectory TestRountineR2 = routine.trajectory("TestRoutineR", 1);
 
-                // Consider using m_commandGroups.autoIntakeCoral(m_indexerCommands, m_shooterCommands,/*m_wrist*/);
+                routine.active().onTrue(
+                        Commands.sequence(
+                                TestRoutineR.resetOdometry(), // Always reset odometry first
+                                TestRoutineR.cmd(), //Follow the path
+                                m_drivetrain.stop().withTimeout(10.0),
+                                TestRountineR2.cmd()
+
+                        ));
+                // Routine Events
+                TestRoutineR.atTime("Shoot").onTrue(FuelCommands.Auto.shootTren(m_shooter, m_indexer, 3.0)); //score
+                // Dummy.atTime("Intake").onTrue(IntakeSubsystem.intakeFuel(m_shooter, m_indexer)); //score
+
                 return routine;
         }
 }
