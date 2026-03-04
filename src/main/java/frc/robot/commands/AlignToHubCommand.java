@@ -42,7 +42,7 @@ public class AlignToHubCommand extends Command {
     private static final int MAX_HUB_TAG_ID = 27;
 
     /** PID gains for rotation alignment */
-    private static final double kP = 0.05; // TODO: Tune
+    private static final double kP = 0.15; // TODO: Tune
     private static final double kI = 0.0;
     private static final double kD = 0.001;
 
@@ -54,10 +54,10 @@ public class AlignToHubCommand extends Command {
     private static final double MIN_ROTATION_OUTPUT = 1.25; // TODO: Tune
 
     /** Maximum rotation rate (rad/s) */
-    private static final double MAX_ROTATION_RATE = 4.0; // TODO: Tune
+    private static final double MAX_ROTATION_RATE = 8.0; // TODO: Tune
 
     /** Deadband — within this many degrees of tx, no correction applied */
-    private static final double ALIGN_TOLERANCE_DEGREES = 1.5;
+    private static final double ALIGN_TOLERANCE_DEGREES = 1.0;
 
     // ===== Hardware =====
     private final CommandSwerveDrivetrain drivetrain;

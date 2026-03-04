@@ -38,13 +38,13 @@ public class FarShotCommand extends Command {
     // Distance clamp bounds (must match ShooterSubsystem map range)
     // =========================================================================
     private static final double MIN_DISTANCE_M = 0.5;
-    private static final double MAX_DISTANCE_M = 4.0;
+    private static final double MAX_DISTANCE_M = 6.0;
 
     // =========================================================================
     // Rotation controller tuning
     // =========================================================================
     /** Proportional gain: (rad/s output) per (degree of heading error) */
-    private static final double ROTATIONAL_KP = 0.06;
+    private static final double ROTATIONAL_KP = 0.09;
     /** Max rotation rate applied to drivetrain (rad/s) */
     private static final double MAX_ROT_RAD_PER_SEC = 3.0;
     /** Alignment tolerance in degrees — indexer only feeds within this window */

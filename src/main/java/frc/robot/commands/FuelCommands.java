@@ -384,9 +384,10 @@ public class FuelCommands {
                             .withVelocityY(ySupplier.getAsDouble())
                             .withRotationalRate(rotRate));
 
-            // ── 3. Feed: vision locked within 1% of tolerance AND flywheel at speed
-            boolean visionLocked = Math.abs(vision.getHorizontalAngleDegrees()) <= (Constants.Vision.ALIGNMENT_TOLERANCE_DEGREES * 2);
-            boolean flywheelReady = shooter.isFlywheelAtVelocity();
+            // ── 3. Feed: Separating the tolerances between being ready and actually running the indexer
+            boolean visionLocked = Math.abs(vision.getHorizontalAngleDegrees()) <= (Constants.Vision.ALIGNMENT_TOLERANCE_DEGREES * 50); // 20° window (This number, either axis, L or R)
+            boolean flywheelReady = Math.abs(shooter.getCurrentVelocityRPM() - shooter.getTargetVelocityRPM())
+                    < shooter.getTargetVelocityRPM() * 1.00;
             if (visionLocked && flywheelReady) {
                 indexer.indexerForward();
                 indexer.conveyorForward();

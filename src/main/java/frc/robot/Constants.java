@@ -140,7 +140,7 @@ public final class Constants {
     /** Maximum forward flywheel RPM at which EJECT is safe to enter. Prevents violent reversal. */
     public static final double EJECT_MAX_ENTRY_RPM = 500.0;
 
-    public static final double FLYWHEEL_TOLERANCE_PERCENT = 0.10; // TODO Consider a tighter tolerance than 10%
+    public static final double FLYWHEEL_TOLERANCE_PERCENT = 0.03; // TODO Consider a tighter tolerance than 10%
 
      // --- Hood (Kraken rotational positions) ---
     public static final double MIN_HOOD_POSE_ROT  = 0.0;  // Mechanical limit, validate in configs limit
