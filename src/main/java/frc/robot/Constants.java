@@ -210,21 +210,24 @@ public final class Constants {
     // 25 degrees is a common starting point for angled vision setups, but should be measured for accuracy.
     public static final double CAMERA_ANGLE_DEGREES = 25.0;  // TODO: Measure actual angle
 
+    /** Height of AprilTag center from floor in meters */
+    public static final double APRILTAG_HEIGHT_METERS = 1.45;  // TODO: Update for 2026 game
+
     // Alignment tolerances
     /** Tolerance for horizontal alignment in degrees */
-    // public static final double ALIGNMENT_TOLERANCE_DEGREES = 2.0;
+    public static final double ALIGNMENT_TOLERANCE_DEGREES = 2.0;
 
     /** Minimum target area to consider target valid (prevents false positives) */
-    // public static final double MIN_TARGET_AREA_PERCENT = 0.1;
+    public static final double MIN_TARGET_AREA_PERCENT = 0.1;
 
     /** Maximum distance to trust vision measurement in meters */
-    // public static final double MAX_DISTANCE_METERS = 8.0;
+    public static final double MAX_DISTANCE_METERS = 8.0;
 
     // Valid tag IDs
     // NOTE: MIN/MAX here are used for general target validation in VisionSubsystem.
     // AlignToHubCommand uses its own tighter filter (tags 23-28) for hub-specific alignment.
-    // public static final int MIN_VALID_TAG_ID = 1;
-    // public static final int MAX_VALID_TAG_ID = 28; // Fixed: was -1, which rejected all tags
+    public static final int MIN_VALID_TAG_ID = 1;
+    public static final int MAX_VALID_TAG_ID = 28;
 
     // Blue hub AprilTag IDs
     // public static final int BLUE_HUB_MIN_TAG_ID = 23;
@@ -236,7 +239,6 @@ public final class Constants {
     // public static final int RED_HUB_MAX_TAG_ID = 6;
 
     // State tracking
-    // /** Time in seconds before considering target "lost" after losing sight */
     public static final double TARGET_TIMEOUT_SECONDS = 0.5;
 
     // == Vision-driven drivetrain rotation ====
