@@ -130,7 +130,7 @@ public class VisionSubsystem extends SubsystemBase {
         Logger.processInputs("Vision", inputs);
 
         // Update state machine
-        updateAlignmentState();
+        // updateAlignmentState();
 
         // Log telemetry
         logTelemetry();
@@ -144,44 +144,11 @@ public class VisionSubsystem extends SubsystemBase {
      * Updates the alignment state based on current vision data.
      * Called automatically in periodic().
      */
-    private void updateAlignmentState() {
-        previousState = currentState;
+    // private void updateAlignmentState() {
+    //     previousState = currentState;
 
-        if (inputs.hasTargets && isTargetValid()) {
-            // We have a valid target
-            lastTargetSeenTime = Timer.getFPGATimestamp();
-
-            // Update last known good values
-            lastKnownHorizontalAngle = getHorizontalAngleDegrees();
-
-            // Check if we're aligned
-            if (isWithinAlignmentTolerance()) {
-                currentState = AlignmentState.ALIGNED;
-            } else {
-                currentState = AlignmentState.TARGET_ACQUIRED;
-            }
-        } else {
-            // No valid target
-            double timeSinceLastTarget = Timer.getFPGATimestamp() - lastTargetSeenTime;
-
-            if (timeSinceLastTarget < Constants.Vision.TARGET_TIMEOUT_SECONDS &&
-                previousState != AlignmentState.NO_TARGET) {
-                // Grace period: use last known values
-                currentState = AlignmentState.LOST_TARGET;
-            } else {
-                // Definitely lost target
-                currentState = AlignmentState.NO_TARGET;
-                lastKnownDistance = 0.0;
-                lastKnownHorizontalAngle = 0.0;
-            }
-        }
-
-        // Log state transitions
-        if (currentState != previousState) {
-            Logger.recordOutput("Vision/StateTransition",
-                previousState.name() + " -> " + currentState.name());
-        }
-    }
+        
+    // }
 
 
     // =========================================================================

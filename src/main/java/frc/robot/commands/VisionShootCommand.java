@@ -27,7 +27,7 @@ import java.util.function.DoubleSupplier;
  * RPM and hood interpolation is handled by ShooterSubsystem.updateFromDistance()
  * using the FLYWHEEL_RPM_MAP and HOOD_ROT_MAP tables defined there.
  */
-public class FarShotCommand extends Command {
+public class VisionShootCommand extends Command {
 
     // =========================================================================
     // Hub field coordinates (field-relative, meters)
@@ -73,7 +73,7 @@ public class FarShotCommand extends Command {
      * @param xSupplier  Driver left-Y velocity in m/s (already scaled by MaxSpeed)
      * @param ySupplier  Driver left-X velocity in m/s (already scaled by MaxSpeed)
      */
-    public FarShotCommand(
+    public VisionShootCommand(
             ShooterSubsystem shooter,
             IndexerSubsystem indexer,
             CommandSwerveDrivetrain drivetrain,

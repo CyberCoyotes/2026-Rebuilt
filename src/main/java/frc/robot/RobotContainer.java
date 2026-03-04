@@ -17,7 +17,7 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.RobotModeTriggers;
 import frc.robot.generated.TunerConstants;
-import frc.robot.commands.FarShotCommand;
+import frc.robot.commands.VisionShootCommand;
 import frc.robot.commands.FuelCommands;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
 import frc.robot.subsystems.indexer.IndexerSubsystem;
@@ -130,7 +130,7 @@ public class RobotContainer {
         
         driver.rightTrigger(0.5).whileTrue(
             Commands.either(
-                new FarShotCommand(shooter, indexer, drivetrain,
+                new VisionShootCommand(shooter, indexer, drivetrain,
                     () -> -driver.getLeftY() * MaxSpeed,
                     () -> -driver.getLeftX() * MaxSpeed),
                 FuelCommands.shootWithSelectedPreset(shooter, indexer),
