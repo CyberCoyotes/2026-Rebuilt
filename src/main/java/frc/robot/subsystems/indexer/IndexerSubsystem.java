@@ -69,7 +69,7 @@ public class IndexerSubsystem extends SubsystemBase {
     // This subclass implements LoggableInputs, which is what Logger.processInputs()
     // needs to write fields to the AdvantageKit log. Using plain IndexerIOInputs
     // here would silently skip all indexer data in AdvantageScope.
-    // private final IndexerIOInputsAutoLogged inputs = new IndexerIOInputsAutoLogged();
+    private final IndexerIOInputsAutoLogged inputs = new IndexerIOInputsAutoLogged();
 
     // ==== State ===============================================================
     private IndexerState currentState = IndexerState.IDLE;

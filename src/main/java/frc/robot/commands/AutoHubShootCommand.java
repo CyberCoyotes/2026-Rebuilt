@@ -92,7 +92,7 @@ public class AutoHubShootCommand extends Command {
     @Override
     public void execute() {
         // ── 1. Shooter: update RPM + hood from pose-based distance ───────────
-        double dist = vision.getDistanceToHub();
+        double dist = vision.getDistanceToTargetMeters();
         if (dist > 0) {
             shooter.updateFromDistance(dist);
         }
@@ -101,7 +101,7 @@ public class AutoHubShootCommand extends Command {
         }
 
         // ── 2. Drivetrain: driver translation + pose-based rotation ──────────
-        double angleErrorDeg = vision.getAngleToHub();
+        double angleErrorDeg = vision.getHorizontalAngleDegrees();
         double rot = pid.calculate(angleErrorDeg);
         rot = Math.max(-ROT_MAX_OUTPUT, Math.min(ROT_MAX_OUTPUT, rot));
 
