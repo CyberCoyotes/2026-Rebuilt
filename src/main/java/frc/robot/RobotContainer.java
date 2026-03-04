@@ -17,6 +17,7 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.RobotModeTriggers;
 import frc.robot.generated.TunerConstants;
+import frc.robot.commands.FarShotCommand;
 import frc.robot.commands.FuelCommands;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
 import frc.robot.subsystems.indexer.IndexerSubsystem;
@@ -114,29 +115,28 @@ public class RobotContainer {
         // DRIVER CONTROLLER (Port 0) - Shooter
         // =====================================================================
 
-        driver.rightTrigger(0.5).whileTrue(FuelCommands.shootWithSelectedPreset(shooter, indexer));
+        // driver.rightTrigger(0.5).whileTrue(FuelCommands.shootWithSelectedPreset(shooter, indexer));
         driver.rightBumper().whileTrue(FuelCommands.shootPass(shooter, indexer));
+        
+        driver.x().onTrue(Commands.runOnce(() -> shooter.selectPreset(ShooterSubsystem.ShotPreset.FAR)));
 
         driver.leftTrigger(0.5).whileTrue(intake.intakeFuel());
         driver.leftBumper().whileTrue(intake.compressFuelIncremental());
-
-        // Right Trigger + Vision: Commented out — vision shot disabled for now.
-        // driver.rightTrigger(0.5).and(driver.a()).whileTrue(
-        //     FuelCommands.visionAlignAndShoot(
-        //         shooter, vision, indexer, drivetrain,
-        //         () -> -driver.getLeftY() * MaxSpeed,
-        //         () -> -driver.getLeftX() * MaxSpeed
-        //     )
-        // );
 
 
         // =====================================================================
         // OPERATOR CONTROLLER (Port 1)
         // =====================================================================
         
-        operator.leftTrigger().whileTrue(FuelCommands.runAirPopper(indexer, shooter, intake)); 
-        // TODO: Test the Command retractSlidesWithRollerCmd() from IntakeSubSystem
-        operator.leftBumper().whileTrue(intake.retractSlidesWithRollerCmd());
+        driver.rightTrigger(0.5).whileTrue(
+            Commands.either(
+                new FarShotCommand(shooter, indexer, drivetrain,
+                    () -> -driver.getLeftY() * MaxSpeed,
+                    () -> -driver.getLeftX() * MaxSpeed),
+                FuelCommands.shootWithSelectedPreset(shooter, indexer),
+                shooter::isFarShotSelected
+            )
+        );
 
         operator.a().onTrue(Commands.runOnce(() -> shooter.selectPreset(ShooterSubsystem.ShotPreset.TRENCH)));
         operator.b().onTrue(Commands.runOnce(() -> shooter.selectPreset(ShooterSubsystem.ShotPreset.CLOSE)));
