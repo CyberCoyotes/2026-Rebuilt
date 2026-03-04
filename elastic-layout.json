@@ -311,20 +311,7 @@
                   "show_submit_button": false
                 }
               },
-              {
-                "title": "Hopper Count",
-                "x": 0.0,
-                "y": 0.0,
-                "width": 128.0,
-                "height": 64.0,
-                "type": "Text Display",
-                "properties": {
-                  "topic": "/Indexer/HopperCount",
-                  "period": 0.06,
-                  "data_type": "double",
-                  "show_submit_button": false
-                }
-              },
+              
               {
                 "title": "Intake Jammed",
                 "x": 0.0,
@@ -695,23 +682,7 @@
                   "show_submit_button": false
                 }
               },
-              {
-                "title": "Hopper Full",
-                "x": 0.0,
-                "y": 0.0,
-                "width": 128.0,
-                "height": 64.0,
-                "type": "Boolean Box",
-                "properties": {
-                  "topic": "/Indexer/HopperFull",
-                  "period": 0.06,
-                  "data_type": "boolean",
-                  "true_color": 4278255360,
-                  "false_color": 4281545523,
-                  "true_icon": "None",
-                  "false_icon": "None"
-                }
-              },
+    
               {
                 "title": "Intake Jammed",
                 "x": 0.0,
@@ -1170,23 +1141,7 @@
                   "false_icon": "None"
                 }
               },
-              {
-                "title": "Hopper B",
-                "x": 0.0,
-                "y": 0.0,
-                "width": 64.0,
-                "height": 64.0,
-                "type": "Boolean Box",
-                "properties": {
-                  "topic": "/Indexer/HopperB/Detected",
-                  "period": 0.06,
-                  "data_type": "boolean",
-                  "true_color": 4294956800,
-                  "false_color": 4281545523,
-                  "true_icon": "None",
-                  "false_icon": "None"
-                }
-              },
+          
               {
                 "title": "Conveyor RPS",
                 "x": 0.0,

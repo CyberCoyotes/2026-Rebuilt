@@ -36,7 +36,6 @@ public class IndexerIOHardware implements IndexerIO {
     /**
      * Distance in meters below which a CANrange reports "detected".
      * This value is pushed to both sensors via CANrangeConfiguration.
-     * To tune: watch hopperA/BDistanceMeters in AdvantageScope with a game piece
      * at each sensor, then set the threshold to ~50% between the piece-present
      * and piece-absent readings.
      */
@@ -85,24 +84,6 @@ public class IndexerIOHardware implements IndexerIO {
         return config;
     }
 
-private static CANrangeConfiguration hopperCANrangeConfig() {
-    CANrangeConfiguration configHopper = new CANrangeConfiguration();
-
-    // Sensor trips "detected" when distance drops below this value
-    configHopper.ProximityParams.ProximityThreshold = TOF_DETECTION_THRESHOLD_METERS;
-
-    // Prevents chattering when a piece sits right at the threshold.
-    // Sensor won't un-detect until distance rises ~2.5cm above the threshold.
-    configHopper.ProximityParams.ProximityHysteresis = 0.025;
-
-    // Narrow the FOV to reduce false positives from hopper walls.
-    // Full range is ±6.75° each axis. Reduce if you see spurious detections.
-    configHopper.FovParams.FOVRangeX = 6.75; 
-    configHopper.FovParams.FOVRangeY = 6.75;
-
-    return configHopper;
-}
-
 private static CANrangeConfiguration chuteCANrangeConfig() {
     CANrangeConfiguration configChute = new CANrangeConfiguration();
 
@@ -124,8 +105,6 @@ private static CANrangeConfiguration chuteCANrangeConfig() {
     // ── Hardware ───────────────────────────────────────────────────────────────
     private final TalonFXS conveyorMotor;
     private final TalonFX  indexerMotor;
-    private final CANrange hopperAToF;
-    private final CANrange hopperBToF;
     private final CANrange chuteToF;
 
     // ── Control Requests ───────────────────────────────────────────────────────
@@ -140,21 +119,15 @@ private static CANrangeConfiguration chuteCANrangeConfig() {
     private final StatusSignal<?> indexerCurrent;
 
     // CANrange distance signals at 50 Hz — raw meters, logged for threshold tuning
-    private final StatusSignal<?> hopperADistance;
-    private final StatusSignal<?> hopperBDistance;
     private final StatusSignal<?> chuteDistance;
 
     // CANrange detection signals at 50 Hz — boolean result of onboard threshold compare
-    private final StatusSignal<Boolean> hopperAIsDetected;
-    private final StatusSignal<Boolean> hopperBIsDetected;
     private final StatusSignal<Boolean> chuteIsDetected;
 
     // ── Constructor ────────────────────────────────────────────────────────────
     public IndexerIOHardware() {
         conveyorMotor = new TalonFXS(Constants.Indexer.CONVEYOR_MOTOR_ID, Constants.RIO_CANBUS);
-        indexerMotor  = new TalonFX(Constants.Indexer.INDEXER_MOTOR_ID, Constants.RIO_CANBUS);
-        hopperAToF    = new CANrange(Constants.Indexer.HOPPER_A_TOF_ID, Constants.RIO_CANBUS);
-        hopperBToF    = new CANrange(Constants.Indexer.HOPPER_B_TOF_ID, Constants.RIO_CANBUS);
+        indexerMotor  = new TalonFX(Constants.Indexer.INDEXER_MOTOR_ID, Constants.RIO_CANBUS);        
         chuteToF      = new CANrange(Constants.Indexer.CHUTE_TOF_ID, Constants.RIO_CANBUS);
 
         // Apply configurations with error checking.
@@ -163,8 +136,6 @@ private static CANrangeConfiguration chuteCANrangeConfig() {
         // current limits or direction. The warning below makes that visible.
         applyConfig("Conveyor",  () -> conveyorMotor.getConfigurator().apply(conveyorConfig()));
         applyConfig("Indexer",   () -> indexerMotor.getConfigurator().apply(indexerConfig()));
-        applyConfig("HopperA ToF", () -> hopperAToF.getConfigurator().apply(hopperCANrangeConfig()));
-        applyConfig("HopperB ToF", () -> hopperBToF.getConfigurator().apply(hopperCANrangeConfig()));
         applyConfig("Chute ToF", () -> chuteToF.getConfigurator().apply(chuteCANrangeConfig()));
 
         // Cache signal references after apply() so handles are clean
@@ -172,26 +143,18 @@ private static CANrangeConfiguration chuteCANrangeConfig() {
         conveyorCurrent    = conveyorMotor.getSupplyCurrent();
         indexerVelocity    = indexerMotor.getVelocity();
         indexerCurrent     = indexerMotor.getSupplyCurrent();
-        hopperADistance    = hopperAToF.getDistance();
-        hopperBDistance    = hopperBToF.getDistance();
         chuteDistance      = chuteToF.getDistance();
-        hopperAIsDetected  = hopperAToF.getIsDetected();
-        hopperBIsDetected  = hopperBToF.getIsDetected();
         chuteIsDetected    = chuteToF.getIsDetected();
 
         BaseStatusSignal.setUpdateFrequencyForAll(
             50.0,
             conveyorVelocity, conveyorCurrent,
             indexerVelocity,  indexerCurrent,
-            hopperADistance,  hopperAIsDetected,
-            hopperBDistance,  hopperBIsDetected,
             chuteDistance,    chuteIsDetected
         );
 
         conveyorMotor.optimizeBusUtilization();
         indexerMotor.optimizeBusUtilization();
-        hopperAToF.optimizeBusUtilization();
-        hopperBToF.optimizeBusUtilization();
         chuteToF.optimizeBusUtilization();
     }
 
@@ -218,8 +181,6 @@ private static CANrangeConfiguration chuteCANrangeConfig() {
         BaseStatusSignal.refreshAll(
             conveyorVelocity, conveyorCurrent,
             indexerVelocity,  indexerCurrent,
-            hopperADistance,  hopperAIsDetected,
-            hopperBDistance,  hopperBIsDetected,
             chuteDistance,    chuteIsDetected
         );
 
@@ -230,10 +191,6 @@ private static CANrangeConfiguration chuteCANrangeConfig() {
         inputs.indexerCurrentAmps  = indexerCurrent.getValueAsDouble();
 
         // CANrange data — distance for logging, getIsDetected() for game piece logic
-        inputs.hopperADistanceMeters = hopperADistance.getValueAsDouble();
-        inputs.hopperADetected       = hopperAIsDetected.getValue();
-        inputs.hopperBDistanceMeters = hopperBDistance.getValueAsDouble();
-        inputs.hopperBDetected       = hopperBIsDetected.getValue();
         inputs.chuteDistanceMeters   = chuteDistance.getValueAsDouble();
         inputs.chuteDetected         = chuteIsDetected.getValue();
     }

@@ -47,8 +47,6 @@ A central location for motors, motor controllers, sensors, and CAN devices for q
 | Sensor | Type | Qty | Purpose |
 |--------|------|-----|---------|
 | Indexer Exit | CANrange ToF | 1 | Detects fuel at indexer exit |
-| Hopper Top | CANrange ToF | 3 | (A, B, C) Detects hopper fullness |
-
 ---
 
 ## Shooter
