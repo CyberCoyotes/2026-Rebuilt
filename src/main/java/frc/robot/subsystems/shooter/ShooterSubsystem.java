@@ -157,8 +157,6 @@ public class ShooterSubsystem extends SubsystemBase {
         flywheelVoltsPublisher.set(inputs.flywheelAppliedVolts);
         flywheelTempPublisher.set(inputs.flywheelMaxTempCelsius);
         flywheelAtRpmPublisher.set(isFlywheelAtVelocity());
-        throughBorePositionPublisher.set(inputs.hoodThroughBorePositionRotations);
-        throughBoreConnectedPublisher.set(inputs.hoodThroughBoreConnected);
         selectedPresetPublisher.set(displayPreset != null ? displayPreset.label : "Vision");
     }
 
