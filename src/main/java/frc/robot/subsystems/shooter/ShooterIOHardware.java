@@ -132,7 +132,7 @@ public class ShooterIOHardware implements ShooterIO {
   private final TalonFX flywheelMotorB;
   private final TalonFX flywheelMotorC;
   private final TalonFXS hoodMotor;
-  private final CANcoder hoodEncoder;
+  // private final CANcoder hoodEncoder;
 
   // === Control Requests =====`1
   private final VelocityVoltage flywheelVelocityRequest = new VelocityVoltage(0.0).withEnableFOC(false);
@@ -152,21 +152,21 @@ public class ShooterIOHardware implements ShooterIO {
   private final StatusSignal<?> flywheelBTempCelsius;
   private final StatusSignal<?> flywheelCTempCelsius;
   private final StatusSignal<?> hoodPosition;
-  private final StatusSignal<?> hoodEncoderAbsPosition;
+  // private final StatusSignal<?> hoodEncoderAbsPosition;
 
   public ShooterIOHardware() {
     flywheelMotorA = new TalonFX(Constants.Shooter.FLYWHEEL_A_MOTOR_ID, Constants.RIO_CANBUS);
     flywheelMotorB = new TalonFX(Constants.Shooter.FLYWHEEL_B_MOTOR_ID, Constants.RIO_CANBUS);
     flywheelMotorC = new TalonFX(Constants.Shooter.FLYWHEEL_C_MOTOR_ID, Constants.RIO_CANBUS);
     hoodMotor      = new TalonFXS(Constants.Shooter.HOOD_MOTOR_ID, Constants.RIO_CANBUS);
-    hoodEncoder    = new CANcoder(Constants.Shooter.HOOD_POSE_ENCODER_ID, Constants.RIO_CANBUS);
+    // hoodEncoder    = new CANcoder(Constants.Shooter.HOOD_POSE_ENCODER_ID, Constants.RIO_CANBUS);
 
     // Through Bore CANcoder config
     var encoderConfig = new CANcoderConfiguration();
     encoderConfig.MagnetSensor.AbsoluteSensorDiscontinuityPoint = 1.0;
     encoderConfig.MagnetSensor.SensorDirection = SensorDirectionValue.CounterClockwise_Positive;
     encoderConfig.MagnetSensor.MagnetOffset = 0.0;
-    hoodEncoder.getConfigurator().apply(encoderConfig);
+    // hoodEncoder.getConfigurator().apply(encoderConfig);
 
     // Apply motor configs — B and C use a separate follower config (no ramp, no PID)
     flywheelMotorA.getConfigurator().apply(FlywheelConfig.leader());
@@ -181,7 +181,7 @@ public class ShooterIOHardware implements ShooterIO {
     flywheelBTempCelsius   = flywheelMotorB.getDeviceTemp();
     flywheelCTempCelsius   = flywheelMotorC.getDeviceTemp();
     hoodPosition           = hoodMotor.getPosition();
-    hoodEncoderAbsPosition = hoodEncoder.getAbsolutePosition();
+    // hoodEncoderAbsPosition = hoodEncoder.getAbsolutePosition();
 
     // Disable all status frames not explicitly configured below.
     // optimizeBusUtilization() suppresses ALL status frames — setUpdateFrequency
@@ -190,7 +190,7 @@ public class ShooterIOHardware implements ShooterIO {
     flywheelMotorB.optimizeBusUtilization();
     flywheelMotorC.optimizeBusUtilization();
     hoodMotor.optimizeBusUtilization();
-    hoodEncoder.optimizeBusUtilization();
+    // hoodEncoder.optimizeBusUtilization();
 
     // 100Hz — DutyCycle and MotorVoltage must be re-enabled on Motor A so
     // followers B and C can mirror output. Without these, followers lose sync,
@@ -215,8 +215,8 @@ public class ShooterIOHardware implements ShooterIO {
         10.0,
         flywheelATempCelsius,
         flywheelBTempCelsius,
-        flywheelCTempCelsius,
-        hoodEncoderAbsPosition
+        flywheelCTempCelsius
+        // hoodEncoderAbsPosition
     );
 
     /* Followers MUST be set AFTER optimizeBusUtilization()
@@ -255,8 +255,6 @@ public class ShooterIOHardware implements ShooterIO {
     // Hood position — needed every cycle for closed-loop control
     inputs.hoodPositionRotations = hoodPosition.getValueAsDouble();
 
-    // Encoder health — if this goes false mid-match, subsystem can fault safely
-    inputs.hoodThroughBoreConnected = hoodEncoderAbsPosition.getStatus() == StatusCode.OK;
   }
 
   @Override

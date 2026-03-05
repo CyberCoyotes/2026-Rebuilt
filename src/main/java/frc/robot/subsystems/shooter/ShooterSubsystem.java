@@ -82,8 +82,6 @@ public class ShooterSubsystem extends SubsystemBase {
     private final DoublePublisher  flywheelVoltsPublisher;
     private final DoublePublisher  flywheelTempPublisher;
     private final BooleanPublisher flywheelAtRpmPublisher;
-    private final DoublePublisher  throughBorePositionPublisher;
-    private final BooleanPublisher throughBoreConnectedPublisher;
     private final StringPublisher  selectedPresetPublisher;
 
     // ==== State ====
@@ -116,8 +114,6 @@ public class ShooterSubsystem extends SubsystemBase {
         flywheelVoltsPublisher       = shooterTable.getDoubleTopic("FlywheelAppliedVolts").publish();
         flywheelTempPublisher        = shooterTable.getDoubleTopic("FlywheelMaxTempCelsius").publish();
         flywheelAtRpmPublisher       = shooterTable.getBooleanTopic("FlywheelAtRPM").publish();
-        throughBorePositionPublisher  = shooterTable.getDoubleTopic("ThroughBorePosition").publish();
-        throughBoreConnectedPublisher = shooterTable.getBooleanTopic("ThroughBoreConnected").publish();
         selectedPresetPublisher       = shooterTable.getStringTopic("SelectedPreset").publish();
     }
 
@@ -157,8 +153,6 @@ public class ShooterSubsystem extends SubsystemBase {
         flywheelVoltsPublisher.set(inputs.flywheelAppliedVolts);
         flywheelTempPublisher.set(inputs.flywheelMaxTempCelsius);
         flywheelAtRpmPublisher.set(isFlywheelAtVelocity());
-        throughBorePositionPublisher.set(inputs.hoodThroughBorePositionRotations);
-        throughBoreConnectedPublisher.set(inputs.hoodThroughBoreConnected);
         selectedPresetPublisher.set(displayPreset != null ? displayPreset.label : "Vision");
     }
 

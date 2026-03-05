@@ -113,9 +113,6 @@ public final class Constants {
     /** Hood motor - Minion with TalonFXS controller, adjusts shot angle */
     public static final int HOOD_MOTOR_ID = 28;
 
-    /** WCP ThroughBore Encoder powered by CANcoder for measuring hood position */
-    public static final int HOOD_POSE_ENCODER_ID = 46;
-
     // === Constants ===
     // Flywheel
     public static final double MAX_FLYWHEEL_RPM = 6000.0; // Kraken X60 free speed (6380 was Falcon 500 — verify against

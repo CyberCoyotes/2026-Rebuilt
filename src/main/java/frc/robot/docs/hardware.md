@@ -62,7 +62,6 @@ A central location for motors, motor controllers, sensors, and CAN devices for q
 - **Motor:** Minion  
 - **Gearbox:** Cycloidal  
 - **Reduction:** 23:1  
-- **Position Feedback:** WCP ThroughBore Encoder  
 - **Control Mode:** Closed-loop position using external encoder  
 - **Note:** Motor-integrated sensor not used for hood positioning
 
@@ -114,9 +113,8 @@ A central location for motors, motor controllers, sensors, and CAN devices for q
 
 | Sensor Type | Count | Subsystems |
 |-------------|-------|------------|
-| CANrange ToF | 5 | Intake (1), Indexer (1), Hopper (3) |
+| CANrange ToF | 1 | Indexer (1) |
 | CANcoder | 4 | Swerve azimuth |
-| CANcoder (ThroughBore) | 1 | Shooter hood |
 | Pigeon 2 | 1 | Navigation |
 | Limelight | 2 | Vision |
 
@@ -223,6 +221,5 @@ The following required loads **do not fit** on a single Mini PDH:
 
 - Intake uses 2 motors total (1 rotator + 1 slide motor)
 - Shooter flywheels are leader–follower and mechanically belted
-- Hood uses external ThroughBore encoder for accurate position control 
 - Hopper conveyor uses Minion + TalonFXS
 - Swerve runs entirely on CANivore for performance isolation
