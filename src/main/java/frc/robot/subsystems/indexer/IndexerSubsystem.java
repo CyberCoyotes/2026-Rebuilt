@@ -32,35 +32,6 @@ public class IndexerSubsystem extends SubsystemBase {
         EJECTING
     }
 
-    // ==== Hopper Fill Level ===================================================
-    /**
-     * HopperFillLevel — Describes how full the hopper is at a given sensor
-     * position.
-     *
-     * Each level maps to a percentage of the usable hopper depth measured by a
-     * CANrange sensor. Smaller distance = more full (pieces are closer to sensor).
-     *
-     * How the math works:
-     * fillRatio = 1.0 - ((distance - MIN) / (MAX - MIN))
-     *
-     * Example with MIN=0.02m and MAX=0.40m, piece 10cm away:
-     * fillRatio = 1.0 - ((0.10 - 0.02) / (0.40 - 0.02)) = 1.0 - 0.21 = 0.79 →
-     * THREE_QUARTERS_FULL
-     *
-     * Threshold table (tune MIN/MAX constants experimentally):
-     * fillRatio >= 0.90 → FULL (≤ 10% depth remaining)
-     * fillRatio >= 0.75 → THREE_QUARTERS_FULL
-     * fillRatio >= 0.50 → HALF_FULL
-     * fillRatio >= 0.25 → QUARTER_FULL
-     * fillRatio < 0.25 → EMPTY (≥ 75% depth remaining)
-     */
-    public enum HopperFillLevel {
-        EMPTY,
-        QUARTER_FULL,
-        HALF_FULL,
-        THREE_QUARTERS_FULL,
-        FULL
-    }
 
     // ==== IO Layer ============================================================
     private final IndexerIO io;
@@ -81,17 +52,8 @@ public class IndexerSubsystem extends SubsystemBase {
         private double secondsSinceLastDetection = Double.POSITIVE_INFINITY;
     // ==== Elastic Dashboard Publishers ========================================
     private final NetworkTable indexerTable;
-    private final BooleanPublisher hopperAPublisher;
-    private final BooleanPublisher hopperBPublisher;
-    private final StringPublisher hopperAFillLevelPublisher;
-    private final StringPublisher hopperBFillLevelPublisher;
     private final BooleanPublisher chuteDetectedPublisher;
     private final IntegerPublisher chuteCountPublisher;
-
-    // Raw distance from each CANrange — useful during threshold tuning without
-    // needing AdvantageScope open; displayed on the Indexer Elastic tab.
-    private final DoublePublisher hopperADistancePublisher;
-    private final DoublePublisher hopperBDistancePublisher;
 
     // ==== Constructor =========================================================
     public IndexerSubsystem(IndexerIO io) {
@@ -99,13 +61,6 @@ public class IndexerSubsystem extends SubsystemBase {
 
         NetworkTableInstance inst = NetworkTableInstance.getDefault();
         indexerTable = inst.getTable("Indexer");
-
-        hopperAPublisher          = indexerTable.getBooleanTopic("HopperA/Detected").publish();
-        hopperBPublisher          = indexerTable.getBooleanTopic("HopperB/Detected").publish();
-        hopperAFillLevelPublisher = indexerTable.getStringTopic("HopperA/FillLevel").publish();
-        hopperBFillLevelPublisher = indexerTable.getStringTopic("HopperB/FillLevel").publish();
-        hopperADistancePublisher  = indexerTable.getDoubleTopic("HopperA/Distance_m").publish();
-        hopperBDistancePublisher  = indexerTable.getDoubleTopic("HopperB/Distance_m").publish();
         chuteDetectedPublisher    = indexerTable.getBooleanTopic("Chute/Detected").publish();
         chuteCountPublisher       = indexerTable.getIntegerTopic("Chute/Count").publish();
     }
@@ -154,9 +109,6 @@ public class IndexerSubsystem extends SubsystemBase {
         // recordOutput() logs computed/derived values — the decisions the subsystem
         // makes on top of raw data. Hoot can't see these; AK can.
         Logger.recordOutput("Indexer/State", currentState.name());
-        Logger.recordOutput("Indexer/IsHopperFull", isHopperFull());
-        Logger.recordOutput("Indexer/HopperA/FillLevel", getHopperAFillLevel().name());
-        Logger.recordOutput("Indexer/HopperB/FillLevel", getHopperBFillLevel().name());
         Logger.recordOutput("Chute/IsFuelDetected", isFuelDetected);
         Logger.recordOutput("Chute/SecondsSinceLastDetection", secondsSinceLastDetection);
         Logger.recordOutput("Chute/DonePassingFuel", donePassingFuel());
@@ -166,12 +118,6 @@ public class IndexerSubsystem extends SubsystemBase {
     }
 
     private void publishTelemetry() {
-        hopperAPublisher.set(inputs.hopperADetected);
-        hopperBPublisher.set(inputs.hopperBDetected);
-        hopperAFillLevelPublisher.set(getHopperAFillLevel().name());
-        hopperBFillLevelPublisher.set(getHopperBFillLevel().name());
-        hopperADistancePublisher.set(inputs.hopperADistanceMeters);
-        hopperBDistancePublisher.set(inputs.hopperBDistanceMeters);
         chuteDetectedPublisher.set(inputs.chuteDetected);
         // chuteDistancePublisher.set(inputs.chuteDistanceMeters);
     }
@@ -230,104 +176,7 @@ public class IndexerSubsystem extends SubsystemBase {
         io.setIndexerMotor(volts);
     }
 
-    // ==== Sensor Queries ======================================================
-
-    /** Returns true if a game piece is detected at hopper position A (front). */
-    public boolean isGamePieceAtHopperA() {
-        return inputs.hopperADetected;
-    }
-
-    /** Returns true if a game piece is detected at hopper position B (back). */
-    public boolean isGamePieceAtHopperB() {
-        return inputs.hopperBDetected;
-    }
-
-    /** Returns true if either hopper position has a game piece. */
-    public boolean isGamePieceInHopper() {
-        return inputs.hopperADetected || inputs.hopperBDetected;
-    }
-
-    /** Returns true if both hopper positions A and B are filled. */
-    public boolean isHopperFull() {
-        return inputs.hopperADetected && inputs.hopperBDetected;
-    }
-
-    // ==== Hopper Fill Level ===================================================
-
-    /**
-     * Returns how full hopper position A is based on raw CANrange distance.
-     *
-     * Delegates to the shared helper so the math lives in one place.
-     * Tune HOPPER_A_MIN/MAX_DISTANCE constants to match your physical hopper.
-     */
-    public HopperFillLevel getHopperAFillLevel() {
-        return calculateFillLevel(
-                inputs.hopperADistanceMeters,
-                Constants.Indexer.HOPPER_A_MIN_DISTANCE,
-                Constants.Indexer.HOPPER_A_MAX_DISTANCE);
-    }
-
-    /**
-     * Returns how full hopper position B is based on raw CANrange distance.
-     *
-     * Delegates to the shared helper so the math lives in one place.
-     * Tune HOPPER_B_MIN/MAX_DISTANCE constants to match your physical hopper.
-     */
-    public HopperFillLevel getHopperBFillLevel() {
-        return calculateFillLevel(
-                inputs.hopperBDistanceMeters,
-                Constants.Indexer.HOPPER_B_MIN_DISTANCE,
-                Constants.Indexer.HOPPER_B_MAX_DISTANCE);
-    }
-
-    /**
-     * Converts a raw CANrange distance into a HopperFillLevel bucket.
-     *
-     * This is a private static helper — it only does math on the numbers
-     * you hand it, with no access to subsystem state. That keeps the logic
-     * easy to understand, test, and reuse for both sensors.
-     *
-     * Fill ratio formula:
-     * fillRatio = 1.0 - clamp((distance - min) / (max - min), 0.0, 1.0)
-     *
-     * A fillRatio of 1.0 means pieces are right at the sensor (packed full).
-     * A fillRatio of 0.0 means the sensor sees the far wall (completely empty).
-     *
-     * @param distanceMeters Raw CANrange reading (meters)
-     * @param minDistance    Distance when hopper is completely full (meters)
-     * @param maxDistance    Distance when hopper is completely empty (meters)
-     * @return The appropriate HopperFillLevel bucket
-     */
-    private static HopperFillLevel calculateFillLevel(
-            double distanceMeters,
-            double minDistance,
-            double maxDistance) {
-
-        // Guard: if min and max are the same the constants aren't tuned yet.
-        // Return EMPTY so the robot fails safe rather than doing weird math.
-        if (maxDistance <= minDistance) {
-            return HopperFillLevel.EMPTY;
-        }
-
-        // Normalize distance to a 0.0–1.0 fill ratio.
-        // clamp() ensures values outside the calibrated range stay within bounds.
-        double raw = (distanceMeters - minDistance) / (maxDistance - minDistance);
-        double clamped = Math.max(0.0, Math.min(1.0, raw));
-        double fillRatio = 1.0 - clamped; // Invert: closer = more full
-
-        // Map fill ratio to enum bucket.
-        // Read top-to-bottom: most full wins.
-        if (fillRatio >= 0.90)
-            return HopperFillLevel.FULL;
-        if (fillRatio >= 0.75)
-            return HopperFillLevel.THREE_QUARTERS_FULL;
-        if (fillRatio >= 0.50)
-            return HopperFillLevel.HALF_FULL;
-        if (fillRatio >= 0.25)
-            return HopperFillLevel.QUARTER_FULL;
-        return HopperFillLevel.EMPTY;
-    }
-
+    // ==== Sensor Queries ==================================
     public boolean isFuelDetected() {
     return isFuelDetected;
     }

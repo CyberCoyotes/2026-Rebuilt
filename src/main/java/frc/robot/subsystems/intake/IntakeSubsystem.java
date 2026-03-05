@@ -183,6 +183,16 @@ public class IntakeSubsystem extends SubsystemBase {
                 .withName("RetractSlides");
     }
 
+        /**
+     * Retracts slides to the MotionMagic setpoint.
+     * Runs once — motor holds position automatically.
+     */
+    public Command retractSlidesStacked() {
+        return Commands.runOnce(this::retractSlides, this)
+                .withName("RetractSlides");
+    }
+
+
     public Command retractSlidesSlowCmd() {
         return Commands.runOnce(this::retractSlidesSlow, this)
                 .withName("RetractSlidesSlow");
@@ -314,6 +324,19 @@ public class IntakeSubsystem extends SubsystemBase {
                 this::stopRoller,
                 this)
                 .withName("CompressFuelIncremental");
+    }
+
+    // TODO Test this out
+     /**
+     * Retracts slides to the MotionMagic setpoint.
+     * Runs once — motor holds position automatically.
+     */
+    public Command retractSlidesStack() {
+        return Commands.sequence(
+                Commands.runOnce(this::retractSlides, this),
+                Commands.waitSeconds(0.4),
+                Commands.runOnce(this::retractSlides, this))
+                .withName("RetractSlidesStack");
     }
 
 

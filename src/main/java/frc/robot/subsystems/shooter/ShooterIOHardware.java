@@ -134,8 +134,8 @@ public class ShooterIOHardware implements ShooterIO {
   private final TalonFXS hoodMotor;
   private final CANcoder hoodEncoder;
 
-  // === Control Requests =====
-  private final VelocityVoltage flywheelVelocityRequest = new VelocityVoltage(0.0).withEnableFOC(true);
+  // === Control Requests =====`1
+  private final VelocityVoltage flywheelVelocityRequest = new VelocityVoltage(0.0).withEnableFOC(false);
 
   // TODO: Test VelocityTorqueCurrentFOC on flywheel — compare to VelocityVoltage with FOC, see if it improves acceleration or stability. 
   // Requires CAN FD (CANivore bus) for proper performance, but can be tested on RIO CAN for comparison purposes before flywheel motors are moved.
