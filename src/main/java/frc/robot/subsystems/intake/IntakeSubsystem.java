@@ -335,13 +335,13 @@ public class IntakeSubsystem extends SubsystemBase {
      */
     public Command retractSlidesStack() {
         return Commands.sequence(
+                Commands.runOnce(this::retractSlides, this),
                 Commands.waitSeconds(1),
                 Commands.runOnce(this::retractSlides, this),
                 Commands.waitSeconds(1),
                 Commands.runOnce(this::retractSlides, this),
                 Commands.waitSeconds(1),
                 Commands.runOnce(this::retractSlides, this))
-
                 .withName("RetractSlidesStack");
     }
 

@@ -4,6 +4,11 @@ import com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType;
 import com.ctre.phoenix6.swerve.SwerveRequest;
 
 import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.networktables.DoublePublisher;
+import edu.wpi.first.networktables.NetworkTable;
+import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import frc.robot.Constants;
@@ -82,9 +87,7 @@ public class FuelCommands {
                     shooter.prepareToShoot();
                 }, shooter),
                 Commands.waitUntil(shooter::isReady).withTimeout(3.0),
-                Commands.run(() -> {
-                    indexer.feed();
-                }, indexer))
+                indexer.feed())
                 .finallyDo(() -> {
                     indexer.indexerStop();
                     indexer.conveyorStop();
@@ -243,9 +246,7 @@ public class FuelCommands {
                     shooter.prepareToShoot();
                 }, shooter),
                 Commands.waitUntil(shooter::isReady).withTimeout(3.0),
-                Commands.run(() -> {
-                    indexer.feed();
-                }, indexer))
+                indexer.feed())
                 .finallyDo(() -> {
                     indexer.indexerStop();
                     indexer.conveyorStop();
@@ -267,7 +268,113 @@ public class FuelCommands {
     // }
 
     // =========================================================================
-    // VISION ALIGN AND SHOOT (primary match command)
+    // POSE ALIGN AND SHOOT (primary match command — replaces VisionShootCommand)
+    // =========================================================================
+
+    /**
+     * Pose-based hub alignment and shoot command.
+     *
+     * Replaces VisionShootCommand as a reusable factory method.
+     *
+     * Behavior (while trigger held):
+     * 1. Computes robot-to-hub distance and bearing from drivetrain odometry.
+     * 2. Calls updateFromDistance() every loop — keeps RPM and hood live-tracking.
+     * 3. Drives rotation toward hub via a P-controller; driver controls translation.
+     * 4. Feeds indexer once aligned within ALIGNMENT_TOLERANCE_DEGREES AND shooter isReady().
+     * 5. On release: stops indexer, conveyor, returns shooter to idle.
+     *
+     * Feed tolerance fix: uses ALIGNMENT_TOLERANCE_DEGREES (2.0°) not ALIGNMENT_TOLERANCE_DEG
+     * (0.5°). A P-only controller always has steady-state error; 0.5° was unreachable.
+     *
+     * @param shooter    Shooter subsystem
+     * @param indexer    Indexer subsystem
+     * @param drivetrain Swerve drivetrain (provides field pose via odometry/AprilTag fusion)
+     * @param xSupplier  Driver left-Y velocity in m/s (scaled by MaxSpeed)
+     * @param ySupplier  Driver left-X velocity in m/s (scaled by MaxSpeed)
+     */
+    public static Command poseAlignAndShoot(
+            ShooterSubsystem shooter,
+            IndexerSubsystem indexer,
+            CommandSwerveDrivetrain drivetrain,
+            DoubleSupplier xSupplier,
+            DoubleSupplier ySupplier) {
+
+        final Translation2d HUB = new Translation2d(4.625, 4.025);
+
+        final SwerveRequest.FieldCentric alignRequest = new SwerveRequest.FieldCentric()
+                .withDriveRequestType(DriveRequestType.OpenLoopVoltage);
+
+        // NT diagnostics — created once per factory call (whileTrue caches the command object)
+        final NetworkTable visionTable = NetworkTableInstance.getDefault().getTable("VisionShoot");
+        final DoublePublisher ntAngleToHub     = visionTable.getDoubleTopic("angleToHub_deg").publish();
+        final DoublePublisher ntCurrentHeading = visionTable.getDoubleTopic("currentHeading_deg").publish();
+        final DoublePublisher ntHeadingError   = visionTable.getDoubleTopic("headingError_deg").publish();
+        final DoublePublisher ntRotRate        = visionTable.getDoubleTopic("rotRate_radps").publish();
+        final DoublePublisher ntDistance       = visionTable.getDoubleTopic("distanceToHub_m").publish();
+
+        return Commands.run(() -> {
+            Pose2d pose = drivetrain.getState().Pose;
+
+            // 1. Distance → update shooter targets live
+            double dx = HUB.getX() - pose.getX();
+            double dy = HUB.getY() - pose.getY();
+            double distance = MathUtil.clamp(
+                    Math.hypot(dx, dy),
+                    Constants.Vision.MIN_DISTANCE_M,
+                    Constants.Vision.MAX_DISTANCE_M);
+
+            shooter.updateFromDistance(distance);
+            if (shooter.getState() != ShooterSubsystem.ShooterState.READY) {
+                shooter.prepareToShoot();
+            }
+
+            // 2. Heading error to hub (normalized to [-180, 180])
+            double angleToHubDeg     = Math.toDegrees(Math.atan2(dy, dx));
+            double currentHeadingDeg = pose.getRotation().getDegrees();
+            double headingErrorDeg   = angleToHubDeg - currentHeadingDeg;
+            while (headingErrorDeg >  180) headingErrorDeg -= 360;
+            while (headingErrorDeg < -180) headingErrorDeg += 360;
+
+            // 3. Rotation correction
+            double rotRate = MathUtil.clamp(
+                    headingErrorDeg * Constants.Vision.ROTATIONAL_KP,
+                    -Constants.Vision.MAX_ALIGNMENT_ROTATION_RAD_PER_SEC,
+                    Constants.Vision.MAX_ALIGNMENT_ROTATION_RAD_PER_SEC);
+
+            ntAngleToHub.set(angleToHubDeg);
+            ntCurrentHeading.set(currentHeadingDeg);
+            ntHeadingError.set(headingErrorDeg);
+            ntRotRate.set(rotRate);
+            ntDistance.set(distance);
+
+            drivetrain.setControl(
+                    alignRequest
+                            .withVelocityX(xSupplier.getAsDouble())
+                            .withVelocityY(ySupplier.getAsDouble())
+                            .withRotationalRate(rotRate));
+
+            // 4. Feed: aligned within 2° AND flywheel/hood settled
+            boolean aligned = Math.abs(headingErrorDeg) <= Constants.Vision.ALIGNMENT_TOLERANCE_DEGREES;
+            if (aligned && shooter.isReady()) {
+                indexer.conveyorForward();
+                indexer.indexerForward();
+            } else {
+                indexer.indexerStop();
+                indexer.conveyorStop();
+            }
+
+        }, shooter, indexer, drivetrain)
+                .beforeStarting(Commands.runOnce(shooter::prepareToShoot, shooter))
+                .finallyDo(() -> {
+                    indexer.indexerStop();
+                    indexer.conveyorStop();
+                    shooter.setIdle();
+                })
+                .withName("PoseAlignAndShoot");
+    }
+
+    // =========================================================================
+    // VISION ALIGN AND SHOOT (limelight tx — secondary/fallback)
     // =========================================================================
 
     /**

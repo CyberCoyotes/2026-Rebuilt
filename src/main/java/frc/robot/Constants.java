@@ -142,7 +142,7 @@ public final class Constants {
      */
     public static final double EJECT_MAX_ENTRY_RPM = 500.0;
 
-    public static final double FLYWHEEL_TOLERANCE_PERCENT = 0.03; // Tightened from 0.10 — measured steady-state
+    public static final double FLYWHEEL_TOLERANCE_PERCENT = 0.05; // Tightened from 0.10 — measured steady-state
                                                                   // variance ±30 RPM at 3300; 3% = ±99 RPM (~3×
                                                                   // variance)
 
@@ -222,7 +222,7 @@ public final class Constants {
 
     // Alignment tolerances
     /** Tolerance for horizontal alignment in degrees */
-    public static final double ALIGNMENT_TOLERANCE_DEGREES = 2.0;
+    public static final double ALIGNMENT_TOLERANCE_DEGREES = 1.0; // was 2
 
     /** Minimum target area to consider target valid (prevents false positives) */
     public static final double MIN_TARGET_AREA_PERCENT = 0.1;
