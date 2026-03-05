@@ -12,6 +12,7 @@ import edu.wpi.first.networktables.StringPublisher;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import edu.wpi.first.wpilibj2.command.WaitCommand;
 import frc.robot.Constants;
 
 public class IntakeSubsystem extends SubsystemBase {
@@ -327,7 +328,7 @@ public class IntakeSubsystem extends SubsystemBase {
                 .withName("CompressFuelIncremental");
     }
 
-    // ====== RETRACT SLIDES STACK ======
+    // ====== RETRAC SLIDES STACK ======
     /*
      * Retracts slides using a set number of rotations to get balls into the shooter
      * Runs once — motor holds position automatically.
@@ -388,4 +389,23 @@ public class IntakeSubsystem extends SubsystemBase {
                 .withName("RetractSlidesWithRoller");
     }
 
+
+    // ====== TEST COMMANDS ======
+public Command testFunctionality(){
+    return Commands.sequence(
+        intakeRollerTimer(2),
+        new WaitCommand(1),
+        reverseIntakeRoller().withTimeout(2),
+
+        extendSlidesCmd(),
+        new WaitCommand (1),
+        retractSlidesCmd(),
+        new WaitCommand(2),
+
+        extendSlidesCmd(),
+        new WaitCommand(1),
+        retractSlidesSlowCmd(),
+        intakeFuel().withTimeout(3)
+);
+}
 } // end of class
