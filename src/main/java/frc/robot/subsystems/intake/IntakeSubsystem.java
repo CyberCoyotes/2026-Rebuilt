@@ -327,19 +327,23 @@ public class IntakeSubsystem extends SubsystemBase {
                 .withName("CompressFuelIncremental");
     }
 
-    // TODO Test this out
-     /**
-     * Retracts slides to the MotionMagic setpoint.
+    // ====== RETRACT SLIDES STACK ======
+    /*
+     * Retracts slides using a set number of rotations to get balls into the shooter
      * Runs once — motor holds position automatically.
+     * 
      */
     public Command retractSlidesStack() {
         return Commands.sequence(
+                Commands.waitSeconds(1),
                 Commands.runOnce(this::retractSlides, this),
-                Commands.waitSeconds(0.4),
+                Commands.waitSeconds(1),
+                Commands.runOnce(this::retractSlides, this),
+                Commands.waitSeconds(1),
                 Commands.runOnce(this::retractSlides, this))
+
                 .withName("RetractSlidesStack");
     }
-
 
     /**
      * Two-phase slide retraction while running the roller.
