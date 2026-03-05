@@ -141,77 +141,17 @@ public class FuelCommands {
     }
 
     /**
-     * Full shoot sequence using the preset selected via button input
-     * Defaults to the CLOSE preset (Close RPM + Close hood) on robot startup.
-     *
-     * Flow:
-     * Button selects a RPM & hood preset silently
-     * Shooter trigger behavior:
-     * Calls `prepareToShoot()` — flywheel ramps up, hood moves to target
-     * Waits until both are at target (isReady()), with a 3-second safety timeout
-     * Calls `feed()` - runs indexer and conveyor forward to move game piece toward
-     * the flywheel
-     * On trigger release (whileTrue interrupt): stops indexer/conveyor, returns
-     * shooter
+     * Convenience overload — shoots using a {@link ShotPreset} enum value.
      *
      * @param shooter The shooter subsystem
      * @param indexer The indexer subsystem
-     * @return Complete preset shoot command using the currently selected preset
+     * @param preset  The named preset to use
+     * @return Complete preset shoot command
      */
-    public static Command shootWithSelectedPreset(ShooterSubsystem shooter, IndexerSubsystem indexer) {
-        return Commands.sequence(
-                Commands.runOnce(() -> {
-                    shooter.setSelectedPreset();
-                    shooter.prepareToShoot();
-                }, shooter),
-                Commands.waitUntil(shooter::isReady).withTimeout(3.0),
-                Commands.run(() -> {
-                    indexer.indexerForward();
-                    indexer.conveyorForward();
-                }, indexer)).finallyDo(() -> {
-                    indexer.indexerStop();
-                    indexer.conveyorStop();
-                    shooter.setIdle(); // Stop all flywheel motors on trigger release
-                }).withName("ShootWithSelectedPreset");
-    }
-
-    // =========================================================================
-    // SILENT PRESET COMMANDS
-    // =========================================================================
-    // These update the target RPM and hood angle, silently without calling
-    // prepareToShoot() or changing the shooter's state.
-
-    /**
-     * Silently selects close shot targets (CLOSE_SHOT_RPM + CLOSE_SHOT_HOOD).
-     *
-     * @param shooter The shooter subsystem
-     * @return Command that silently sets close shot targets
-     */
-    public static Command setCloseShot(ShooterSubsystem shooter) {
-        return Commands.runOnce(shooter::setCloseShotPreset, shooter)
-                .withName("SetCloseShot");
-    }
-
-    /**
-     * Silently arms far shot targets (FAR_SHOT_RPM + FAR_SHOT_HOOD).
-     *
-     * @param shooter The shooter subsystem
-     * @return Command that silently sets far shot targets
-     */
-    public static Command setFarShot(ShooterSubsystem shooter) {
-        return Commands.runOnce(shooter::setFarShotPreset, shooter)
-                .withName("SetFarShot");
-    }
-
-    /**
-     * Silently se pass shot targets (PASS_SHOT_RPM + PASS_SHOT_HOOD).
-     *
-     * @param shooter The shooter subsystem
-     * @return Command that silently sets pass shot targets
-     */
-    public static Command setPassShot(ShooterSubsystem shooter) {
-        return Commands.runOnce(shooter::setPassShotPreset, shooter)
-                .withName("SetPassShot");
+    public static Command shootWithPreset(ShooterSubsystem shooter, IndexerSubsystem indexer,
+            ShotPreset preset) {
+        return shootWithPreset(shooter, indexer, preset.rpm, preset.hood)
+                .withName("ShootWithPreset[" + preset.label + "]");
     }
 
     /**
@@ -417,7 +357,6 @@ public class FuelCommands {
 
         }, shooter, vision, indexer, drivetrain)
                 .beforeStarting(Commands.runOnce(() -> {
-                    shooter.setSelectedPreset(); // Spin up to the POV-selected preset immediately
                     shooter.prepareToShoot(); // Enter READY state — don't wait for alignment
                 }, shooter))
                 .finallyDo(() -> {
