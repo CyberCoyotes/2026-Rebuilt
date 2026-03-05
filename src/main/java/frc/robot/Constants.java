@@ -213,6 +213,9 @@ public final class Constants {
     private Vision() {
     }
 
+
+
+
     // Camera configuration
     public static final String LIMELIGHT3_NAME = "limelight-three";
     public static final String LIMELIGHT4_NAME = "limelight-four";
@@ -300,6 +303,8 @@ public final class Constants {
     public static final double MAX_ROT_RAD_PER_SEC = 3.0;
     public static final double MIN_DISTANCE_M = 0.5;
     public static final double MAX_DISTANCE_M = 4.0;
+
+    public static final double LEAD_COMPENSATION_DEG_PER_MPS = 1.0; // Shoot-On-The-Move angle/velocity compensation. Tune to make the bot compensate perunit of felocity. Start with small changes.
   }
 
   // =========================================================

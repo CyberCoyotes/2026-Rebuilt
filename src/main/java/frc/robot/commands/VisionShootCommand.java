@@ -122,11 +122,26 @@ public class VisionShootCommand extends Command {
             shooter.prepareToShoot();
         }
 
-        // ==== 2. Calculate heading error to hub
-        double angleToHubDeg = getAngleToHubDeg(pose);
-        double currentHeadingDeg = pose.getRotation().getDegrees();
-        double headingErrorDeg = normalizeAngle(angleToHubDeg - currentHeadingDeg);
+      // ==== 2. Calculate heading error to hub with velocity lead compensation
+double angleToHubDeg = getAngleToHubDeg(pose);
 
+// Get field-relative robot velocity (m/s)
+var speeds = drivetrain.getState().Speeds;
+double vx = speeds.vxMetersPerSecond;
+double vy = speeds.vyMetersPerSecond;
+
+// Project velocity onto the axis perpendicular to the robot-to-hub vector
+// This isolates only the lateral component — movement toward/away from hub doesn't affect aim
+double dx = HUB_POSITION.getX() - pose.getX();
+double dy = HUB_POSITION.getY() - pose.getY();
+double hubAngleRad = Math.atan2(dy, dx);
+double lateralVelocity = -vx * Math.sin(hubAngleRad) + vy * Math.cos(hubAngleRad);
+
+// Offset the aim point by lateral speed * tuning constant (degrees per m/s)
+double leadOffsetDeg = lateralVelocity * Constants.Vision.LEAD_COMPENSATION_DEG_PER_MPS;
+
+double currentHeadingDeg = pose.getRotation().getDegrees();
+double headingErrorDeg = normalizeAngle((angleToHubDeg + leadOffsetDeg) - currentHeadingDeg);
         // ==== 3. Apply rotation correction, driver controls translation
         double rotRate = MathUtil.clamp(
                 headingErrorDeg * Constants.Vision.ROTATIONAL_KP,
