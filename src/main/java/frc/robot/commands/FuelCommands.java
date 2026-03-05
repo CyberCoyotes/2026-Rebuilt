@@ -360,8 +360,7 @@ public class FuelCommands {
             // 4. Feed: aligned within 2° AND flywheel/hood settled
             boolean aligned = Math.abs(headingErrorDeg) <= Constants.Vision.ALIGNMENT_TOLERANCE_DEGREES;
             if (aligned && shooter.isReady()) {
-                indexer.indexerForward();
-                indexer.conveyorForward();
+                indexer.feed();
             } else {
                 indexer.indexerStop();
                 indexer.conveyorStop();
