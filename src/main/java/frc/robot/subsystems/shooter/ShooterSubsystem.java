@@ -427,11 +427,11 @@ public class ShooterSubsystem extends SubsystemBase {
         // ==== Flywheel RPM vs. distance =================================
         // TODO: Replace each value with a measured result (see TUNING.md §4)
         FLYWHEEL_RPM_MAP.put(1.0, 2750.0);
-        FLYWHEEL_RPM_MAP.put(2.0, 2900.0); 
-        FLYWHEEL_RPM_MAP.put(3.0, 3100.0); 
-        FLYWHEEL_RPM_MAP.put(4.0, 3200.0); 
-        FLYWHEEL_RPM_MAP.put(5.0, 3300.0); 
-        FLYWHEEL_RPM_MAP.put(6.0, 3400.0);
+        // FLYWHEEL_RPM_MAP.put(2.0, 2900.0); 
+        // FLYWHEEL_RPM_MAP.put(3.0, 3100.0); 
+        // FLYWHEEL_RPM_MAP.put(4.0, 3200.0); 
+        // FLYWHEEL_RPM_MAP.put(5.0, 3300.0); 
+        FLYWHEEL_RPM_MAP.put(6.0, 4000.0);
 
         // ==== Hood position (rotations) vs. distance =================================
         // TODO: Replace each value with a measured result (see TUNING.md §4)
@@ -454,7 +454,7 @@ public class ShooterSubsystem extends SubsystemBase {
      * @param distanceMeters Measured distance to hub tag in meters (floor distance)
      */
     public void updateFromDistance(double distanceMeters) {
-        double dist = Math.max(1.0, Math.min(6.0, distanceMeters));
+        double dist = Math.max(1.0, Math.min(8.0, distanceMeters)); // bumped to 8
         setTargetVelocity(FLYWHEEL_RPM_MAP.get(dist));
         setTargetHoodPose(HOOD_ROT_MAP.get(dist));
 

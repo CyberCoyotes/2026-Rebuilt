@@ -118,13 +118,14 @@ public class RobotContainer {
         // Driver RT alone fires poseAlignAndShoot (default — auto-aims from odometry pose).
         var anyPresetHeld = operator.a().or(operator.b()).or(operator.x()).or(operator.y());
 
-        driver.rightTrigger(0.5).and(operator.a()).whileTrue(
+
+        driver.rightTrigger(0.5).and(driver.a()).whileTrue(
             FuelCommands.shootWithPreset(shooter, indexer, ShooterSubsystem.ShotPreset.TRENCH));
-        driver.rightTrigger(0.5).and(operator.b()).whileTrue(
+        driver.rightTrigger(0.5).and(driver.b()).whileTrue(
             FuelCommands.shootWithPreset(shooter, indexer, ShooterSubsystem.ShotPreset.CLOSE));
-        driver.rightTrigger(0.5).and(operator.x()).whileTrue(
+        driver.rightTrigger(0.5).and(driver.x()).whileTrue(
             FuelCommands.shootWithPreset(shooter, indexer, ShooterSubsystem.ShotPreset.TOWER));
-        driver.rightTrigger(0.5).and(operator.y()).whileTrue(
+        driver.rightTrigger(0.5).and(driver.y()).whileTrue(
             FuelCommands.shootWithPreset(shooter, indexer, ShooterSubsystem.ShotPreset.FAR));
 
         driver.rightTrigger(0.5).and(anyPresetHeld.negate()).whileTrue(
@@ -135,6 +136,8 @@ public class RobotContainer {
 
         driver.leftTrigger(0.5).whileTrue(intake.intakeFuel());
         driver.leftBumper().whileTrue(intake.retractSlidesStack());
+        
+        driver.povDown().onTrue(intake.retractSlidesCmd());
 
         // driver.leftBumper().whileTrue(intake.compressFuelIncremental()); // Default
 
