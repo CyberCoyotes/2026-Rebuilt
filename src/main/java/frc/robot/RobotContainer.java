@@ -135,8 +135,9 @@ public class RobotContainer {
         // =====================================================================
         
         operator.leftTrigger().whileTrue(FuelCommands.runAirPopper(indexer, shooter, intake)); 
-        // TODO: Test the Command retractSlidesWithRollerCmd() from IntakeSubSystem
-        operator.leftBumper().whileTrue(intake.retractSlidesWithRollerCmd());
+        
+        // TODO: Test the Command compressFuelStack
+        operator.leftBumper().whileTrue(intake.retractSlidesStack()); // retract slides with fuel stacked command
 
         operator.a().onTrue(Commands.runOnce(() -> shooter.selectPreset(ShooterSubsystem.ShotPreset.TRENCH)));
         operator.b().onTrue(Commands.runOnce(() -> shooter.selectPreset(ShooterSubsystem.ShotPreset.CLOSE)));

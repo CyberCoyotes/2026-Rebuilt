@@ -183,14 +183,15 @@ public class IntakeSubsystem extends SubsystemBase {
                 .withName("RetractSlides");
     }
 
-        /**
+    /**
      * Retracts slides to the MotionMagic setpoint.
      * Runs once — motor holds position automatically.
+     * didn't work last time.
      */
-    public Command retractSlidesStacked() {
-        return Commands.runOnce(this::retractSlides, this)
-                .withName("RetractSlides");
-    }
+    // public Command retractSlidesStacked() {
+    //     return Commands.runOnce(this::retractSlides, this)
+    //             .withName("RetractSlides");
+    // }
 
 
     public Command retractSlidesSlowCmd() {
