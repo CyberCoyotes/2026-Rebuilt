@@ -255,8 +255,6 @@ public class ShooterIOHardware implements ShooterIO {
     // Hood position — needed every cycle for closed-loop control
     inputs.hoodPositionRotations = hoodPosition.getValueAsDouble();
 
-    // Encoder health — if this goes false mid-match, subsystem can fault safely
-    // inputs.hoodThroughBoreConnected = hoodEncoderAbsPosition.getStatus() == StatusCode.OK;
   }
 
   @Override

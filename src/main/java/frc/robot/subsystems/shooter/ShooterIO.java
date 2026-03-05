@@ -64,16 +64,6 @@ public interface ShooterIO {
 
         /** Hood angle in degrees (approximate, derived from rotations) */
         public double hoodAngleDegrees = 0.0;
-
-        // ===== WCP ThroughBore Encoder (slow — secondary feedback via CANcoder) =====
-        /** Hood absolute position from ThroughBore encoder in rotations (0.0 to 1.0) */
-        // public double hoodThroughBorePositionRotations = 0.0;
-
-        /** Hood absolute position from ThroughBore encoder in degrees */
-        // public double hoodThroughBorePositionDegrees = 0.0;
-
-        /** Whether the ThroughBore encoder (CANcoder) is connected */
-        // public boolean hoodThroughBoreConnected = false;
     }
 
     /**
