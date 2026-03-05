@@ -18,7 +18,6 @@ import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.RobotModeTriggers;
 import frc.robot.generated.TunerConstants;
 import frc.robot.commands.FuelCommands;
-import frc.robot.commands.VisionShootCommand;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
 import frc.robot.subsystems.indexer.IndexerSubsystem;
 import frc.robot.subsystems.intake.IntakeSubsystem;
@@ -116,7 +115,7 @@ public class RobotContainer {
         // =====================================================================
 
         // Operator holds a face button to override with a named preset.
-        // Driver RT alone fires VisionShootCommand (default — auto-aims by distance).
+        // Driver RT alone fires poseAlignAndShoot (default — auto-aims from odometry pose).
         var anyPresetHeld = operator.a().or(operator.b()).or(operator.x()).or(operator.y());
 
         driver.rightTrigger(0.5).and(operator.a()).whileTrue(
@@ -129,7 +128,7 @@ public class RobotContainer {
             FuelCommands.shootWithPreset(shooter, indexer, ShooterSubsystem.ShotPreset.FAR));
 
         driver.rightTrigger(0.5).and(anyPresetHeld.negate()).whileTrue(
-            new VisionShootCommand(shooter, indexer, drivetrain,
+            FuelCommands.poseAlignAndShoot(shooter, indexer, drivetrain,
                 () -> -driver.getLeftY() * MaxSpeed,
                 () -> -driver.getLeftX() * MaxSpeed));
         driver.rightBumper().whileTrue(FuelCommands.shootPass(shooter, indexer));
