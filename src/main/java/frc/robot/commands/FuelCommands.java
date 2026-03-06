@@ -20,6 +20,7 @@ import frc.robot.subsystems.intake.IntakeSubsystem;
 import frc.robot.subsystems.shooter.ShooterSubsystem;
 import frc.robot.subsystems.shooter.ShooterSubsystem.ShotPreset;
 
+
 import java.util.function.DoubleSupplier;
 
 import static edu.wpi.first.units.Units.MetersPerSecond;
@@ -317,6 +318,7 @@ public class FuelCommands {
         final DoublePublisher ntHeadingError   = visionTable.getDoubleTopic("headingError_deg").publish();
         final DoublePublisher ntRotRate        = visionTable.getDoubleTopic("rotRate_radps").publish();
         final DoublePublisher ntDistance       = visionTable.getDoubleTopic("distanceToHub_m").publish();
+        final DoublePublisher ntLeadOffset     = visionTable.getDoubleTopic("leadOffset_deg").publish();
 
         return Commands.run(() -> {
             Pose2d pose = drivetrain.getState().Pose;
@@ -334,12 +336,23 @@ public class FuelCommands {
                 shooter.prepareToShoot();
             }
 
-            // 2. Heading error to hub (normalized to [-180, 180])
-            double angleToHubDeg     = Math.toDegrees(Math.atan2(dy, dx));
+            // 2. Apply velocity offset for movement
+            double angleToHubDeg = Math.toDegrees(Math.atan2(dy, dx));
+
+            // Velocity lead compensation — offsets aim opposite to lateral movement
+            var speeds = drivetrain.getState().Speeds;
+            double vx = speeds.vxMetersPerSecond;
+            double vy = speeds.vyMetersPerSecond;
+            double hubAngleRad = Math.atan2(dy, dx);
+            double lateralVelocity = -vx * Math.sin(hubAngleRad) + vy * Math.cos(hubAngleRad);
+            double leadOffsetDeg = -lateralVelocity * Constants.Vision.LEAD_COMPENSATION_DEG_PER_MPS;
+
             double currentHeadingDeg = pose.getRotation().getDegrees();
-            double headingErrorDeg   = angleToHubDeg - currentHeadingDeg;
+            double headingErrorDeg   = angleToHubDeg + leadOffsetDeg - currentHeadingDeg;
             while (headingErrorDeg >  180) headingErrorDeg -= 360;
             while (headingErrorDeg < -180) headingErrorDeg += 360;
+
+            ntLeadOffset.set(leadOffsetDeg);
 
             // 3. Rotation correction
             double rotRate = MathUtil.clamp(
@@ -355,8 +368,8 @@ public class FuelCommands {
 
             drivetrain.setControl(
                     alignRequest
-                            .withVelocityX(xSupplier.getAsDouble())
-                            .withVelocityY(ySupplier.getAsDouble())
+                            .withVelocityX(xSupplier.getAsDouble() *.33) //Setting max drive speed to 33% when Auto Shooting
+                            .withVelocityY(ySupplier.getAsDouble() *.33)
                             .withRotationalRate(rotRate));
 
             // 4. Feed: aligned within 2° AND flywheel/hood settled
