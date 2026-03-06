@@ -193,8 +193,7 @@ public class FuelCommands {
             IntakeSubsystem intake) {
         return Commands.sequence(
                 Commands.runOnce(() -> {
-                    shooter.setAirPopper();
-                    shooter.prepareToShoot();
+                    shooter.setAirPopper(); // enters ShooterState.POPPER — vision cannot override
                 }, shooter),
                 Commands.deadline(
                         Commands.deadline( // parallel is NOT OK here!
@@ -245,11 +244,9 @@ public class FuelCommands {
     public static Command shootPass(ShooterSubsystem shooter, IndexerSubsystem indexer) {
         return Commands.sequence(
                 Commands.runOnce(() -> {
-                    shooter.setTargetVelocity(Constants.Shooter.PASS_RPM);
-                    shooter.setTargetHoodPose(Constants.Shooter.PASS_HOOD);
-                    shooter.prepareToShoot();
+                    shooter.pass(); // enters ShooterState.PASS — vision cannot override
                 }, shooter),
-                Commands.waitUntil(shooter::isReady).withTimeout(3.0),
+                Commands.waitUntil(shooter::isPassReady).withTimeout(3.0),
                 Commands.run(() -> {
     indexer.conveyorForward();
     indexer.indexerForward();

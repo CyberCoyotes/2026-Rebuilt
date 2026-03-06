@@ -282,11 +282,10 @@ public class ShooterSubsystem extends SubsystemBase {
     }
 
     /**
-     * Silently sets popper shot targets. No motor movement until intake trigger is pressed.
+     * Enters POPPER state directly — vision/distance updates cannot override this.
      */
     public void setAirPopper() {
-        targetFlywheelMotorRPM = Constants.Shooter.POPPER_RPM;
-        targetHoodPoseRot = Constants.Shooter.POPPER_HOOD;
+        setState(ShooterState.POPPER);
     }
 
     // ===== Target Setters =====
@@ -442,6 +441,12 @@ public class ShooterSubsystem extends SubsystemBase {
      * @param distanceMeters Measured distance to hub tag in meters (floor distance)
      */
     public void updateFromDistance(double distanceMeters) {
+        // Never let vision override dedicated shot modes
+        if (currentState == ShooterState.POPPER
+                || currentState == ShooterState.EJECT
+                || currentState == ShooterState.PASS) {
+            return;
+        }
         double dist = Math.max(1.0, Math.min(8.0, distanceMeters)); // bumped to 8
         setTargetVelocity(FLYWHEEL_RPM_MAP.get(dist));
         setTargetHoodPose(HOOD_ROT_MAP.get(dist));
