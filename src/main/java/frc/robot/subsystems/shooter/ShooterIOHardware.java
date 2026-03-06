@@ -78,15 +78,16 @@ public class ShooterIOHardware implements ShooterIO {
       // On 2/27 was set at 120
       config.CurrentLimits.StatorCurrentLimit = 90.0; // TODO: Tune Flywheel stator current limit for testing.
       config.CurrentLimits.StatorCurrentLimitEnable = true;
-      config.ClosedLoopRamps.VoltageClosedLoopRampPeriod = 0.25;
+      config.ClosedLoopRamps.VoltageClosedLoopRampPeriod = 0.10;
 
       config.MotorOutput.NeutralMode = NeutralModeValue.Coast;
       config.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
 
       // Slot 0 — VelocityVoltage gains (kP in Volts/RPS)
       // Tuned 2026-03-01: kV=0.126 → ±30 RPM steady-state at 3300 RPM, 7V draw, no oscillation
-      config.Slot0.kP = 0.05;
-      config.Slot0.kV = 0.119;
+      config.Slot0.kP = 0.15;
+      config.Slot0.kV = 0.119; // don't touch — well tuned
+      config.Slot0.kD = 0.001;
 
       return config;
     }

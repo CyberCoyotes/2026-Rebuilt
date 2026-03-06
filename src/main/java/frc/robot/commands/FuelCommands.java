@@ -368,8 +368,8 @@ public class FuelCommands {
 
             drivetrain.setControl(
                     alignRequest
-                            .withVelocityX(xSupplier.getAsDouble() *.33) //Setting max drive speed to 33% when Auto Shooting
-                            .withVelocityY(ySupplier.getAsDouble() *.33)
+                            .withVelocityX(xSupplier.getAsDouble() *.40) //Setting max drive speed to 40% when Auto Shooting
+                            .withVelocityY(ySupplier.getAsDouble() *.40)
                             .withRotationalRate(rotRate));
 
             // 4. Feed: aligned within 2° AND flywheel/hood settled

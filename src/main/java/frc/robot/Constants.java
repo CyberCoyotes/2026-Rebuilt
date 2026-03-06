@@ -275,7 +275,7 @@ public final class Constants {
     public static final double MIN_DISTANCE_M = 0.5;
     public static final double MAX_DISTANCE_M = 4.0;
 
-    public static final double LEAD_COMPENSATION_DEG_PER_MPS = 30; // Tune up from 0 — 50 degrees of aim offset per m/s of lateral velocity
+    public static final double LEAD_COMPENSATION_DEG_PER_MPS = 32.5; // Tune up from 0 — 50 degrees of aim offset per m/s of lateral velocity
 
   }
 
