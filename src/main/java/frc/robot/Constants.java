@@ -74,11 +74,11 @@ public final class Constants {
     public static final int CHUTE_TOF_ID = 42;
 
     //=== Voltage Constants =====================
-    public static final double CONVEYOR_FORWARD_VOLTAGE = 4.0;
+    public static final double CONVEYOR_FORWARD_VOLTAGE = 6.0;
     public static final double CONVEYOR_REVERSE_VOLTAGE = -4.0;
     public static final double CONVEYOR_POPPER_VOLTAGE = 3.0;
 
-    public static final double INDEXER_FORWARD_VOLTAGE = 4.0;
+    public static final double INDEXER_FORWARD_VOLTAGE = 6.0;
     public static final double INDEXER_REVERSE_VOLTAGE = -4.0;
     public static final double INDEXER_POPPER_VOLTAGE = 3.0;
 
@@ -260,7 +260,7 @@ public final class Constants {
      * - Too high → oscillates left/right around the target
      * See TUNING.md §5 for step-by-step procedure.
      */
-    public static final double ROTATIONAL_KP = 0.06;
+    public static final double ROTATIONAL_KP = 0.10;
 
     /**
      * Maximum rotational rate the vision command will apply to the drivetrain
@@ -268,7 +268,7 @@ public final class Constants {
      * Prevents violent snap when tx error is large on first acquisition.
      * Default: 3.0 rad/s (~172°/s). Reduce if the robot swings too aggressively.
      */
-    public static final double MAX_ALIGNMENT_ROTATION_RAD_PER_SEC = 3.0;
+    public static final double MAX_ALIGNMENT_ROTATION_RAD_PER_SEC = 5.0;
 
     public static final double ALIGNMENT_TOLERANCE_DEG = 0.5;
     public static final double MAX_ROT_RAD_PER_SEC = 3.0;
