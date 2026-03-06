@@ -87,7 +87,10 @@ public class FuelCommands {
                     shooter.prepareToShoot();
                 }, shooter),
                 Commands.waitUntil(shooter::isReady).withTimeout(3.0),
-                indexer.feed())
+                Commands.run(() -> {
+                indexer.conveyorForward();
+                indexer.indexerForward();
+                }, indexer))
                 .finallyDo(() -> {
                     indexer.indexerStop();
                     indexer.conveyorStop();
@@ -246,7 +249,10 @@ public class FuelCommands {
                     shooter.prepareToShoot();
                 }, shooter),
                 Commands.waitUntil(shooter::isReady).withTimeout(3.0),
-                indexer.feed())
+                Commands.run(() -> {
+    indexer.conveyorForward();
+    indexer.indexerForward();
+}, indexer))
                 .finallyDo(() -> {
                     indexer.indexerStop();
                     indexer.conveyorStop();
@@ -354,8 +360,7 @@ public class FuelCommands {
                             .withRotationalRate(rotRate));
 
             // 4. Feed: aligned within 2° AND flywheel/hood settled
-            boolean aligned = Math.abs(headingErrorDeg) <= Constants.Vision.ALIGNMENT_TOLERANCE_DEGREES;
-            if (aligned && shooter.isReady()) {
+            if (shooter.isReady()) {
                 indexer.conveyorForward();
                 indexer.indexerForward();
             } else {
