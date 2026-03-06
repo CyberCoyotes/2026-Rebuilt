@@ -273,9 +273,9 @@ public final class Constants {
     public static final double ALIGNMENT_TOLERANCE_DEG = 0.5;
     public static final double MAX_ROT_RAD_PER_SEC = 3.0;
     public static final double MIN_DISTANCE_M = 0.5;
-    public static final double MAX_DISTANCE_M = 4.0;
+    public static final double MAX_DISTANCE_M = 8.0;
 
-    public static final double LEAD_COMPENSATION_DEG_PER_MPS = 32.5; // Tune up from 0 — 50 degrees of aim offset per m/s of lateral velocity
+    public static final double LEAD_COMPENSATION_DEG_PER_MPS = 40; // Tune up from 0 — 50 degrees of aim offset per m/s of lateral velocity
 
   }
 
