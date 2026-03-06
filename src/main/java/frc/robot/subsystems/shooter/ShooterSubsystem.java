@@ -420,21 +420,15 @@ public class ShooterSubsystem extends SubsystemBase {
     static {
         // ==== Flywheel RPM vs. distance =================================
         // TODO: Replace each value with a measured result (see TUNING.md §4)
-        FLYWHEEL_RPM_MAP.put(1.0, 2700.0);
-        // FLYWHEEL_RPM_MAP.put(2.0, 2900.0); 
-        // FLYWHEEL_RPM_MAP.put(3.0, 3100.0); 
-        // FLYWHEEL_RPM_MAP.put(4.0, 3200.0); 
-        // FLYWHEEL_RPM_MAP.put(5.0, 3300.0); 
-        FLYWHEEL_RPM_MAP.put(6.0, 4000.0);
+        FLYWHEEL_RPM_MAP.put(1.5, 2700.0);
+        FLYWHEEL_RPM_MAP.put(3.55, 3200.0); 
+        FLYWHEEL_RPM_MAP.put(5.5, 3800.0);
 
         // ==== Hood position (rotations) vs. distance =================================
         // TODO: Replace each value with a measured result (see TUNING.md §4)
-        HOOD_ROT_MAP.put(1.0, 0.00); 
-        // HOOD_ROT_MAP.put(2.0, 1.50); 
-        // HOOD_ROT_MAP.put(3.0, 3.00); 
-        // HOOD_ROT_MAP.put(4.0, 4.30); 
-        // HOOD_ROT_MAP.put(5.0, 5.50); 
-        HOOD_ROT_MAP.put(6.0, 6.00);
+        HOOD_ROT_MAP.put(1.5, 0.00); 
+        HOOD_ROT_MAP.put(3.55, 4.30); 
+        HOOD_ROT_MAP.put(5.5, 5.50);
     }
 
     /**
