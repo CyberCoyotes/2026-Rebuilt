@@ -130,7 +130,7 @@ public final class Constants {
     public static final double TOWER_RPM = 3200; // TODO: Tune was 3100, 4.42
     public static final double TRENCH_RPM = 3200; // TODO: Tune
     public static final double FAR_RPM = 3800; // TODO: Tune was 4000 + 5.5 worked
-    public static final double PASS_RPM = 3200; //
+    public static final double PASS_RPM = 3200; // TODO: Tune was 4000 + 7.00 and too much, 3200 is a starting point
 
     /**
      * Reverse RPM for jam clearing. Only reached through eject(), which gates on
@@ -250,7 +250,7 @@ public final class Constants {
     // Red hub is the field-length mirror of blue: x = 17.548 - 4.625 = 12.923
     // TODO: verify exact coordinates against 2026 field layout JSON if shooting accuracy needs improvement
     public static final Translation2d BLUE_HUB_LOCATION = new Translation2d(4.625, 4.025);
-    public static final Translation2d RED_HUB_LOCATION  = new Translation2d(12.923, 4.025);
+    public static final Translation2d RED_HUB_LOCATION  = new Translation2d(11.923, 4.025);
 
     // State tracking
     /** Time in seconds before considering target "lost" after losing sight */
