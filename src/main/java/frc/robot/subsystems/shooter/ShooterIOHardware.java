@@ -108,38 +108,13 @@ public class ShooterIOHardware implements ShooterIO {
 
       config.CurrentLimits.SupplyCurrentLimit = 30.0;
       config.CurrentLimits.SupplyCurrentLimitEnable = true;
-      config.CurrentLimits.StatorCurrentLimit = 20.0;
-      config.CurrentLimits.StatorCurrentLimitEnable = true;
 
-      config.MotionMagic.MotionMagicCruiseVelocity = 3.0;  // rot/s — conservative start
-      config.MotionMagic.MotionMagicAcceleration = 6.0;     // rot/s²
-
-      // Previous Position PID — Slot 0
+      // Position PID — Slot 0
       // Tuned 2026-03-01: 
       // kP=1.0, kI=0.75 → no steady-state error at 9.15 rotations, acceptable oscillation, no overshoot
-      // config.Slot0.kP = 1.00; 
-      // config.Slot0.kI = 0.75;
-      // config.Slot0.kD = 0.00;
-      // config.Slot0.kP = 1.00;
-      // config.Slot0.kI = 0.10; // Drop significantly — was winding up
-      // config.Slot0.kD = 0.05; // Add some dampening for disturbances
-
-      /* TODO: Tuning Sequence for the Hood
-       * With MotionMagic in place and all gains at zero, your session order is:
-       * 1. MotionMagic profile first — command hood to 9.15 rotations with all gains zero. It won't get there, but watch how the velocity profile shapes up in Tuner
-       * 2. kP — increase in 0.1 increments until it reliably reaches target. Stop before oscillation
-       * 3. kD — only if you see overshoot. Start at kP × 0.1
-       * 4. kS — only if it stalls before moving. Bump 0.1 at a time
-       * 5. kG — only if gravity is pulling the hood off position at rest
-       *
-       * Given your 4V cap and good gearing, guess is kP = 0.3 gets you 90% of the way there.
-       */
-
-      config.Slot0.kS = 0.0; // Add last
-      config.Slot0.kG = 0.0; // Only if gravity matters
-      config.Slot0.kP = 0.3; // Tune first
-      config.Slot0.kD = 0.0; // Tune second
-      config.Slot0.kI = 0.0; // Leave dead
+      config.Slot0.kP = 1.00; 
+      config.Slot0.kI = 0.75;
+      config.Slot0.kD = 0.00;
 
       // Soft limits — enable after travel range is confirmed
       config.SoftwareLimitSwitch.ForwardSoftLimitEnable = true;
@@ -161,7 +136,9 @@ public class ShooterIOHardware implements ShooterIO {
   // === Control Requests =====`1
   private final VelocityVoltage flywheelVelocityRequest = new VelocityVoltage(0.0).withEnableFOC(false);
   
-private final MotionMagicVoltage hoodPositionRequest = new MotionMagicVoltage(0.0);
+  // private final MotionMagicVoltage hoodPositionRequest = new MotionMagicVoltage(0.0);
+  private final PositionVoltage hoodPositionRequest = new PositionVoltage(0.0);
+
   // private final VoltageOut hoodVoltageRequest = new VoltageOut(0.0);
 
 
