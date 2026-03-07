@@ -137,7 +137,7 @@ public class ShooterIOHardware implements ShooterIO {
 
       config.Slot0.kS = 0.0; // Add last
       config.Slot0.kG = 0.0; // Only if gravity matters
-      config.Slot0.kP = 0.0; // Tune first
+      config.Slot0.kP = 0.3; // Tune first
       config.Slot0.kD = 0.0; // Tune second
       config.Slot0.kI = 0.0; // Leave dead
 
