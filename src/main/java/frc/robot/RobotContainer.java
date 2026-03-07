@@ -123,15 +123,25 @@ public class RobotContainer {
         driver.rightBumper().whileTrue(FuelCommands.shootPass(shooter, indexer));
 
         driver.leftTrigger(0.5).whileTrue(intake.intakeFuel());
-        driver.leftBumper().whileTrue(intake.retractSlidesStack());
+        driver.leftBumper().whileTrue(intake.compressFuelIncremental());
 
         driver.povDown().onTrue(intake.retractSlidesCmd());
 
-        // driver.leftBumper().whileTrue(intake.compressFuelIncremental()); // Default
 
         // =====================================================================
         // OPERATOR CONTROLLER (Port 1)
         // =====================================================================
+        var anyPresetHeld = operator.a().or(operator.b()).or(operator.x()).or(operator.y()); 
+        
+        operator.rightTrigger(0.5).and(operator.a()).whileTrue(
+            FuelCommands.shootWithPreset(shooter, indexer, ShooterSubsystem.ShotPreset.TRENCH));
+        operator.rightTrigger(0.5).and(operator.b()).whileTrue(
+            FuelCommands.shootWithPreset(shooter, indexer, ShooterSubsystem.ShotPreset.CLOSE));
+        operator.rightTrigger(0.5).and(operator.x()).whileTrue(
+            FuelCommands.shootWithPreset(shooter, indexer, ShooterSubsystem.ShotPreset.TOWER));
+        operator.rightTrigger(0.5).and(operator.y()).whileTrue(
+            FuelCommands.shootWithPreset(shooter, indexer, ShooterSubsystem.ShotPreset.FAR));
+
         operator.rightBumper().whileTrue(FuelCommands.shootPass(shooter, indexer));
 
         operator.leftTrigger().whileTrue(FuelCommands.runAirPopper(indexer, shooter, intake));
@@ -142,16 +152,6 @@ public class RobotContainer {
         // operator.povDown().whileTrue(null); // incremental retract climber command to be added when climber is ready
 
         // Operator holds a face button to override with a named preset.
-        var anyPresetHeld = operator.a().or(operator.b()).or(operator.x()).or(operator.y()); // operator for now
-
-        operator.rightTrigger(0.5).and(operator.a()).whileTrue(
-            FuelCommands.shootWithPreset(shooter, indexer, ShooterSubsystem.ShotPreset.TRENCH));
-        operator.rightTrigger(0.5).and(operator.b()).whileTrue(
-            FuelCommands.shootWithPreset(shooter, indexer, ShooterSubsystem.ShotPreset.CLOSE));
-        operator.rightTrigger(0.5).and(operator.x()).whileTrue(
-            FuelCommands.shootWithPreset(shooter, indexer, ShooterSubsystem.ShotPreset.TOWER));
-        operator.rightTrigger(0.5).and(operator.y()).whileTrue(
-            FuelCommands.shootWithPreset(shooter, indexer, ShooterSubsystem.ShotPreset.FAR));
 
     }
 
