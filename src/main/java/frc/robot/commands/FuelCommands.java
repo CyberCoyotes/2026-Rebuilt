@@ -6,6 +6,7 @@ import com.ctre.phoenix6.swerve.SwerveRequest;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.networktables.DoublePublisher;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
@@ -33,6 +34,14 @@ import static edu.wpi.first.units.Units.MetersPerSecond;
  * 
  */
 public class FuelCommands {
+
+    /** Returns the hub center for the current alliance (defaults to blue if FMS not connected). */
+    private static Translation2d getHubLocation() {
+        return DriverStation.getAlliance()
+                .filter(a -> a == DriverStation.Alliance.Red)
+                .map(a -> Constants.Vision.RED_HUB_LOCATION)
+                .orElse(Constants.Vision.BLUE_HUB_LOCATION);
+    }
 
     // =========================================================================
     // PRIMARY SHOOT COMMANDS
@@ -306,8 +315,6 @@ public class FuelCommands {
             DoubleSupplier xSupplier,
             DoubleSupplier ySupplier) {
 
-        final Translation2d HUB = new Translation2d(4.625, 4.025);
-
         final SwerveRequest.FieldCentric alignRequest = new SwerveRequest.FieldCentric()
                 .withDriveRequestType(DriveRequestType.OpenLoopVoltage);
 
@@ -321,11 +328,12 @@ public class FuelCommands {
         final DoublePublisher ntLeadOffset     = visionTable.getDoubleTopic("leadOffset_deg").publish();
 
         return Commands.run(() -> {
+            Translation2d hub = getHubLocation();
             Pose2d pose = drivetrain.getState().Pose;
 
             // 1. Distance → update shooter targets live
-            double dx = HUB.getX() - pose.getX();
-            double dy = HUB.getY() - pose.getY();
+            double dx = hub.getX() - pose.getX();
+            double dy = hub.getY() - pose.getY();
             double distance = MathUtil.clamp(
                     Math.hypot(dx, dy),
                     Constants.Vision.MIN_DISTANCE_M,
@@ -575,8 +583,6 @@ public class FuelCommands {
                 CommandSwerveDrivetrain drivetrain,
                 double feedSeconds) {
 
-            final Translation2d HUB = new Translation2d(4.625, 4.025);
-
             final SwerveRequest.FieldCentric alignRequest = new SwerveRequest.FieldCentric()
                     .withDriveRequestType(DriveRequestType.OpenLoopVoltage);
 
@@ -584,9 +590,10 @@ public class FuelCommands {
                     // Phase 1: Spin up + rotate to hub simultaneously
                     Commands.deadline(
                             Commands.waitUntil(() -> {
+                                Translation2d hub = getHubLocation();
                                 Pose2d pose = drivetrain.getState().Pose;
-                                double dx = HUB.getX() - pose.getX();
-                                double dy = HUB.getY() - pose.getY();
+                                double dx = hub.getX() - pose.getX();
+                                double dy = hub.getY() - pose.getY();
                                 double headingError = Math.toDegrees(Math.atan2(dy, dx))
                                         - pose.getRotation().getDegrees();
                                 while (headingError >  180) headingError -= 360;
@@ -595,9 +602,10 @@ public class FuelCommands {
                                         && shooter.isReady();
                             }).withTimeout(3.0),
                             Commands.run(() -> {
+                                Translation2d hub = getHubLocation();
                                 Pose2d pose = drivetrain.getState().Pose;
-                                double dx = HUB.getX() - pose.getX();
-                                double dy = HUB.getY() - pose.getY();
+                                double dx = hub.getX() - pose.getX();
+                                double dy = hub.getY() - pose.getY();
                                 double distance = MathUtil.clamp(
                                         Math.hypot(dx, dy),
                                         Constants.Vision.MIN_DISTANCE_M,
