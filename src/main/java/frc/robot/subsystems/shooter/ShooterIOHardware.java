@@ -7,10 +7,10 @@ import com.ctre.phoenix6.configs.CANcoderConfiguration;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.configs.TalonFXSConfiguration;
 import com.ctre.phoenix6.controls.Follower;
+import com.ctre.phoenix6.controls.MotionMagicVoltage;
 import com.ctre.phoenix6.controls.PositionVoltage;
 import com.ctre.phoenix6.controls.VelocityVoltage;
 import com.ctre.phoenix6.controls.VoltageOut;
-import com.ctre.phoenix6.hardware.CANcoder;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.hardware.TalonFXS;
 import com.ctre.phoenix6.signals.InvertedValue;
@@ -18,8 +18,6 @@ import com.ctre.phoenix6.signals.MotorAlignmentValue;
 import com.ctre.phoenix6.signals.MotorArrangementValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 import com.ctre.phoenix6.signals.SensorDirectionValue;
-
-import com.ctre.phoenix6.controls.VelocityTorqueCurrentFOC; // Testing
 
 import frc.robot.Constants;
 
@@ -93,7 +91,7 @@ public class ShooterIOHardware implements ShooterIO {
     }
   }
 
-  // ── Hood Configuration ─────────────────────────────────────────────────────
+  // ==== Hood Configuration ======
   private static class HoodConfig {
 
     static TalonFXSConfiguration hood() {
@@ -110,13 +108,38 @@ public class ShooterIOHardware implements ShooterIO {
 
       config.CurrentLimits.SupplyCurrentLimit = 30.0;
       config.CurrentLimits.SupplyCurrentLimitEnable = true;
+      config.CurrentLimits.StatorCurrentLimit = 20.0;
+      config.CurrentLimits.StatorCurrentLimitEnable = true;
 
-      // Position PID — Slot 0
+      config.MotionMagic.MotionMagicCruiseVelocity = 3.0;  // rot/s — conservative start
+      config.MotionMagic.MotionMagicAcceleration = 6.0;     // rot/s²
+
+      // Previous Position PID — Slot 0
       // Tuned 2026-03-01: 
       // kP=1.0, kI=0.75 → no steady-state error at 9.15 rotations, acceptable oscillation, no overshoot
-      config.Slot0.kP = 1.00; 
-      config.Slot0.kI = 0.75;
-      config.Slot0.kD = 0.00;
+      // config.Slot0.kP = 1.00; 
+      // config.Slot0.kI = 0.75;
+      // config.Slot0.kD = 0.00;
+      // config.Slot0.kP = 1.00;
+      // config.Slot0.kI = 0.10; // Drop significantly — was winding up
+      // config.Slot0.kD = 0.05; // Add some dampening for disturbances
+
+      /* TODO: Tuning Sequence for the Hood
+       * With MotionMagic in place and all gains at zero, your session order is:
+       * 1. MotionMagic profile first — command hood to 9.15 rotations with all gains zero. It won't get there, but watch how the velocity profile shapes up in Tuner
+       * 2. kP — increase in 0.1 increments until it reliably reaches target. Stop before oscillation
+       * 3. kD — only if you see overshoot. Start at kP × 0.1
+       * 4. kS — only if it stalls before moving. Bump 0.1 at a time
+       * 5. kG — only if gravity is pulling the hood off position at rest
+       *
+       * Given your 4V cap and good gearing, guess is kP = 0.3 gets you 90% of the way there.
+       */
+
+      config.Slot0.kS = 0.0; // Add last
+      config.Slot0.kG = 0.0; // Only if gravity matters
+      config.Slot0.kP = 0.0; // Tune first
+      config.Slot0.kD = 0.0; // Tune second
+      config.Slot0.kI = 0.0; // Leave dead
 
       // Soft limits — enable after travel range is confirmed
       config.SoftwareLimitSwitch.ForwardSoftLimitEnable = true;
@@ -137,13 +160,9 @@ public class ShooterIOHardware implements ShooterIO {
 
   // === Control Requests =====`1
   private final VelocityVoltage flywheelVelocityRequest = new VelocityVoltage(0.0).withEnableFOC(false);
-
-  // TODO: Test VelocityTorqueCurrentFOC on flywheel — compare to VelocityVoltage with FOC, see if it improves acceleration or stability. 
-  // Requires CAN FD (CANivore bus) for proper performance, but can be tested on RIO CAN for comparison purposes before flywheel motors are moved.
-  private final VelocityTorqueCurrentFOC flywheelTorqueRequest = new VelocityTorqueCurrentFOC(0.0);
   
-  private final PositionVoltage hoodPositionRequest = new PositionVoltage(0.0);
-  private final VoltageOut hoodVoltageRequest = new VoltageOut(0.0);
+private final MotionMagicVoltage hoodPositionRequest = new MotionMagicVoltage(0.0);
+  // private final VoltageOut hoodVoltageRequest = new VoltageOut(0.0);
 
 
   // === Status Signals =====
@@ -153,21 +172,12 @@ public class ShooterIOHardware implements ShooterIO {
   private final StatusSignal<?> flywheelBTempCelsius;
   private final StatusSignal<?> flywheelCTempCelsius;
   private final StatusSignal<?> hoodPosition;
-  // private final StatusSignal<?> hoodEncoderAbsPosition;
 
   public ShooterIOHardware() {
     flywheelMotorA = new TalonFX(Constants.Shooter.FLYWHEEL_A_MOTOR_ID, Constants.RIO_CANBUS);
     flywheelMotorB = new TalonFX(Constants.Shooter.FLYWHEEL_B_MOTOR_ID, Constants.RIO_CANBUS);
     flywheelMotorC = new TalonFX(Constants.Shooter.FLYWHEEL_C_MOTOR_ID, Constants.RIO_CANBUS);
     hoodMotor      = new TalonFXS(Constants.Shooter.HOOD_MOTOR_ID, Constants.RIO_CANBUS);
-    // hoodEncoder    = new CANcoder(Constants.Shooter.HOOD_POSE_ENCODER_ID, Constants.RIO_CANBUS);
-
-    // Through Bore CANcoder config
-    var encoderConfig = new CANcoderConfiguration();
-    encoderConfig.MagnetSensor.AbsoluteSensorDiscontinuityPoint = 1.0;
-    encoderConfig.MagnetSensor.SensorDirection = SensorDirectionValue.CounterClockwise_Positive;
-    encoderConfig.MagnetSensor.MagnetOffset = 0.0;
-    // hoodEncoder.getConfigurator().apply(encoderConfig);
 
     // Apply motor configs — B and C use a separate follower config (no ramp, no PID)
     flywheelMotorA.getConfigurator().apply(FlywheelConfig.leader());
@@ -182,7 +192,6 @@ public class ShooterIOHardware implements ShooterIO {
     flywheelBTempCelsius   = flywheelMotorB.getDeviceTemp();
     flywheelCTempCelsius   = flywheelMotorC.getDeviceTemp();
     hoodPosition           = hoodMotor.getPosition();
-    // hoodEncoderAbsPosition = hoodEncoder.getAbsolutePosition();
 
     // Disable all status frames not explicitly configured below.
     // optimizeBusUtilization() suppresses ALL status frames — setUpdateFrequency
@@ -191,7 +200,6 @@ public class ShooterIOHardware implements ShooterIO {
     flywheelMotorB.optimizeBusUtilization();
     flywheelMotorC.optimizeBusUtilization();
     hoodMotor.optimizeBusUtilization();
-    // hoodEncoder.optimizeBusUtilization();
 
     // 100Hz — DutyCycle and MotorVoltage must be re-enabled on Motor A so
     // followers B and C can mirror output. Without these, followers lose sync,
@@ -217,7 +225,6 @@ public class ShooterIOHardware implements ShooterIO {
         flywheelATempCelsius,
         flywheelBTempCelsius,
         flywheelCTempCelsius
-        // hoodEncoderAbsPosition
     );
 
     /* Followers MUST be set AFTER optimizeBusUtilization()
@@ -271,8 +278,11 @@ public class ShooterIOHardware implements ShooterIO {
     flywheelMotorA.stopMotor();
     flywheelMotorB.stopMotor();
     flywheelMotorC.stopMotor();
+    
     // Re-establish follower after stopping so they're ready for the next shot.
-    flywheelMotorB.setControl(new Follower(Constants.Shooter.FLYWHEEL_A_MOTOR_ID, MotorAlignmentValue.Aligned)); // TODO I question if this is necessary — does the follower control link persist through a stopMotor() call? If not, this is required to prevent desync. If it does persist, this is redundant but harmless.
+    // stopMotor() send NeutralOut which overrides the Follower request, 
+    // so we need to reset the followers after stopping.
+    flywheelMotorB.setControl(new Follower(Constants.Shooter.FLYWHEEL_A_MOTOR_ID, MotorAlignmentValue.Aligned)); 
     flywheelMotorC.setControl(new Follower(Constants.Shooter.FLYWHEEL_A_MOTOR_ID, MotorAlignmentValue.Aligned));
   }
 
@@ -281,10 +291,10 @@ public class ShooterIOHardware implements ShooterIO {
     hoodMotor.setControl(hoodPositionRequest.withPosition(rawPosition));
   }
 
-  @Override
-  public void setHoodVoltage(double volts) {
-    hoodMotor.setControl(hoodVoltageRequest.withOutput(volts));
-  }
+  // @Override
+  // public void setHoodVoltage(double volts) {
+  //   hoodMotor.setControl(hoodVoltageRequest.withOutput(volts));
+  // }
 
   @Override
   public void stop() {
@@ -301,13 +311,6 @@ public class ShooterIOHardware implements ShooterIO {
 
   private double rpmToRPS(double rpm) {
     return rpm / 60.0;
-  }
-
-  @Override
-  public void setFlywheelVelocityTorqueFOC(double rpm) {
-      double motorRPS = rpmToRPS(rpm);
-      // .withSlot(1) selects the TorqueCurrentFOC-specific PID gains
-      flywheelMotorA.setControl(flywheelTorqueRequest.withVelocity(motorRPS).withSlot(1));
   }
 
 }
