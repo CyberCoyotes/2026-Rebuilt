@@ -549,6 +549,86 @@ public class FuelCommands {
 
     public static class Auto {
 
+        /**
+         * Autonomous pose-aligned shoot command.
+         *
+         * Replaces fixed-preset auton shots where the robot needs to rotate to face
+         * the hub before firing. Uses the same odometry-based heading math as
+         * {@link FuelCommands#poseAlignAndShoot} but with no driver translation input.
+         *
+         * Sequence:
+         * 1. Spins up shooter from pose distance while rotating toward hub.
+         * 2. Waits until heading error ≤ ALIGNMENT_TOLERANCE_DEGREES AND shooter isReady()
+         *    (3-second timeout — fires anyway if alignment cannot be reached in time).
+         * 3. Feeds the indexer for {@code feedSeconds}.
+         * 4. Returns shooter to idle and stops indexer/conveyor.
+         *
+         * @param shooter     Shooter subsystem
+         * @param indexer     Indexer subsystem
+         * @param drivetrain  Swerve drivetrain (provides field pose)
+         * @param feedSeconds How long to run the indexer/conveyor after aligned and ready
+         * @return Autonomous align-and-shoot command
+         */
+        public static Command autoAlignAndShoot(
+                ShooterSubsystem shooter,
+                IndexerSubsystem indexer,
+                CommandSwerveDrivetrain drivetrain,
+                double feedSeconds) {
+
+            final Translation2d HUB = new Translation2d(4.625, 4.025);
+
+            final SwerveRequest.FieldCentric alignRequest = new SwerveRequest.FieldCentric()
+                    .withDriveRequestType(DriveRequestType.OpenLoopVoltage);
+
+            return Commands.sequence(
+                    // Phase 1: Spin up + rotate to hub simultaneously
+                    Commands.deadline(
+                            Commands.waitUntil(() -> {
+                                Pose2d pose = drivetrain.getState().Pose;
+                                double dx = HUB.getX() - pose.getX();
+                                double dy = HUB.getY() - pose.getY();
+                                double headingError = Math.toDegrees(Math.atan2(dy, dx))
+                                        - pose.getRotation().getDegrees();
+                                while (headingError >  180) headingError -= 360;
+                                while (headingError < -180) headingError += 360;
+                                return Math.abs(headingError) <= Constants.Vision.ALIGNMENT_TOLERANCE_DEGREES
+                                        && shooter.isReady();
+                            }).withTimeout(3.0),
+                            Commands.run(() -> {
+                                Pose2d pose = drivetrain.getState().Pose;
+                                double dx = HUB.getX() - pose.getX();
+                                double dy = HUB.getY() - pose.getY();
+                                double distance = MathUtil.clamp(
+                                        Math.hypot(dx, dy),
+                                        Constants.Vision.MIN_DISTANCE_M,
+                                        Constants.Vision.MAX_DISTANCE_M);
+                                shooter.updateFromDistance(distance);
+                                if (shooter.getState() != ShooterSubsystem.ShooterState.READY) {
+                                    shooter.prepareToShoot();
+                                }
+                                double headingError = Math.toDegrees(Math.atan2(dy, dx))
+                                        - pose.getRotation().getDegrees();
+                                while (headingError >  180) headingError -= 360;
+                                while (headingError < -180) headingError += 360;
+                                double rotRate = MathUtil.clamp(
+                                        headingError * Constants.Vision.ROTATIONAL_KP,
+                                        -Constants.Vision.MAX_ALIGNMENT_ROTATION_RAD_PER_SEC,
+                                        Constants.Vision.MAX_ALIGNMENT_ROTATION_RAD_PER_SEC);
+                                drivetrain.setControl(
+                                        alignRequest
+                                                .withVelocityX(0)
+                                                .withVelocityY(0)
+                                                .withRotationalRate(rotRate));
+                            }, shooter, drivetrain)),
+                    // Phase 2: Feed
+                    indexer.feed().withTimeout(feedSeconds))
+                    .finallyDo(() -> {
+                        indexer.indexerStop();
+                        indexer.conveyorStop();
+                        shooter.setIdle();
+                    }).withName("AutoAlignAndShoot");
+        }
+
         /* Autonomous shooting command */
         /* FIXME Trench is the working "Test" command for autonomous. Others should be updated after its working properly */
         public static Command shootTrench(ShooterSubsystem shooter, IndexerSubsystem indexer,
