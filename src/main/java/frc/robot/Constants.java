@@ -1,6 +1,7 @@
 package frc.robot;
 
 import com.ctre.phoenix6.CANBus;
+import edu.wpi.first.math.geometry.Translation2d;
 
 public final class Constants {
   private Constants() {
@@ -232,19 +233,24 @@ public final class Constants {
 
     // Valid tag IDs
     // NOTE: MIN/MAX here are used for general target validation in VisionSubsystem.
-    // AlignToHubCommand uses its own tighter filter (tags 23-28) for hub-specific
-    // alignment.
+    // Hub-specific filtering uses BLUE_HUB_TAG_IDS / RED_HUB_TAG_IDS arrays below.
     public static final int MIN_VALID_TAG_ID = 1;
     public static final int MAX_VALID_TAG_ID = 28; // Fixed: was -1, which rejected all tags
 
-    // Blue hub AprilTag IDs
-    public static final int BLUE_HUB_MIN_TAG_ID = 23;
-    public static final int BLUE_HUB_MAX_TAG_ID = 28;
+    // Blue hub AprilTag IDs (2026 field layout — all 8 hub faces)
+    // Layout: 18/27 (top chute), 19/20 (sides), 26/25 (sides), 21/24 (bottom chute)
+    public static final int[] BLUE_HUB_TAG_IDS = {18, 19, 20, 21, 24, 25, 26, 27};
 
-    // Red hub AprilTag IDs
-    // TODO: Verify these against the 2026 game manual / WPILib field layout JSON
-    public static final int RED_HUB_MIN_TAG_ID = 1;
-    public static final int RED_HUB_MAX_TAG_ID = 6;
+    // Red hub AprilTag IDs (2026 field layout — all 8 hub faces)
+    // Layout: 8/5 (top chute), 9/10 (sides), 4/3 (sides), 11/2 (bottom chute)
+    public static final int[] RED_HUB_TAG_IDS = {2, 3, 4, 5, 8, 9, 10, 11};
+
+    // Hub center positions in WPILib blue-origin field coordinates (meters).
+    // Used by poseAlignAndShoot / autoAlignAndShoot for odometry-based aiming.
+    // Red hub is the field-length mirror of blue: x = 17.548 - 4.625 = 12.923
+    // TODO: verify exact coordinates against 2026 field layout JSON if shooting accuracy needs improvement
+    public static final Translation2d BLUE_HUB_LOCATION = new Translation2d(4.625, 4.025);
+    public static final Translation2d RED_HUB_LOCATION  = new Translation2d(12.923, 4.025);
 
     // State tracking
     /** Time in seconds before considering target "lost" after losing sight */

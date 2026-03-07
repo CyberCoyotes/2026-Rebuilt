@@ -260,25 +260,28 @@ public class VisionSubsystem extends SubsystemBase {
     /**
      * Returns true if the currently visible tag is a hub target for the active alliance.
      *
-     * Defaults to blue alliance if DriverStation has not yet reported alliance color
-     * (e.g., during pre-match or practice mode without FMS).
+     * Reads alliance color from FMS via DriverStation.getAlliance().
+     * Defaults to blue alliance if FMS has not yet reported (e.g., practice without FMS).
      *
-     * NOTE: Hub tag ID ranges must be verified against the 2026 game manual.
-     * Blue: Constants.Vision.BLUE_HUB_MIN/MAX_TAG_ID
-     * Red:  Constants.Vision.RED_HUB_MIN/MAX_TAG_ID
+     * Blue hub tags: {18, 19, 20, 21, 24, 25, 26, 27}
+     * Red hub tags:  {2, 3, 4, 5, 8, 9, 10, 11}
      */
     public boolean isHubTarget() {
         int id = inputs.tagId;
         if (id < 0) return false;
 
+        int[] hubTags;
         var alliance = DriverStation.getAlliance();
         if (alliance.isPresent() && alliance.get() == DriverStation.Alliance.Red) {
-            return id >= Constants.Vision.RED_HUB_MIN_TAG_ID
-                && id <= Constants.Vision.RED_HUB_MAX_TAG_ID;
+            hubTags = Constants.Vision.RED_HUB_TAG_IDS;
+        } else {
+            hubTags = Constants.Vision.BLUE_HUB_TAG_IDS;
         }
-        // Default / blue alliance
-        return id >= Constants.Vision.BLUE_HUB_MIN_TAG_ID
-            && id <= Constants.Vision.BLUE_HUB_MAX_TAG_ID;
+
+        for (int hubTag : hubTags) {
+            if (id == hubTag) return true;
+        }
+        return false;
     }
 
     /**
