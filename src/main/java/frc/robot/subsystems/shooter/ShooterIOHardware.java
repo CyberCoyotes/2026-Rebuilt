@@ -10,7 +10,6 @@ import com.ctre.phoenix6.controls.Follower;
 import com.ctre.phoenix6.controls.PositionVoltage;
 import com.ctre.phoenix6.controls.VelocityVoltage;
 import com.ctre.phoenix6.controls.VoltageOut;
-import com.ctre.phoenix6.hardware.CANcoder;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.hardware.TalonFXS;
 import com.ctre.phoenix6.signals.InvertedValue;
@@ -18,8 +17,6 @@ import com.ctre.phoenix6.signals.MotorAlignmentValue;
 import com.ctre.phoenix6.signals.MotorArrangementValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 import com.ctre.phoenix6.signals.SensorDirectionValue;
-
-import com.ctre.phoenix6.controls.VelocityTorqueCurrentFOC; // Testing
 
 import frc.robot.Constants;
 
@@ -110,13 +107,25 @@ public class ShooterIOHardware implements ShooterIO {
 
       config.CurrentLimits.SupplyCurrentLimit = 30.0;
       config.CurrentLimits.SupplyCurrentLimitEnable = true;
+      config.CurrentLimits.StatorCurrentLimit = 20.0;
+      config.CurrentLimits.StatorCurrentLimitEnable = true;
 
-      // Position PID — Slot 0
+      // Previous Position PID — Slot 0
       // Tuned 2026-03-01: 
       // kP=1.0, kI=0.75 → no steady-state error at 9.15 rotations, acceptable oscillation, no overshoot
-      config.Slot0.kP = 1.00; 
-      config.Slot0.kI = 0.75;
-      config.Slot0.kD = 0.00;
+      // config.Slot0.kP = 1.00; 
+      // config.Slot0.kI = 0.75;
+      // config.Slot0.kD = 0.00;
+      // config.Slot0.kP = 1.00;
+      // config.Slot0.kI = 0.10; // Drop significantly — was winding up
+      // config.Slot0.kD = 0.05; // Add some dampening for disturbances
+
+      // TODO: Tune hood PID gains — start with kP, then add kD if needed. Keep kI low to prevent windup and overshoot, especially since hood is a slow mechanism that doesn't need aggressive correction.
+      config.Slot0.kS = 0.0; // Add last
+      config.Slot0.kG = 0.0; // Only if gravity matters
+      config.Slot0.kP = 0.0; // Tune first
+      config.Slot0.kD = 0.0; // Tune second
+      config.Slot0.kI = 0.0; // Leave dead
 
       // Soft limits — enable after travel range is confirmed
       config.SoftwareLimitSwitch.ForwardSoftLimitEnable = true;
@@ -137,10 +146,6 @@ public class ShooterIOHardware implements ShooterIO {
 
   // === Control Requests =====`1
   private final VelocityVoltage flywheelVelocityRequest = new VelocityVoltage(0.0).withEnableFOC(false);
-
-  // TODO: Test VelocityTorqueCurrentFOC on flywheel — compare to VelocityVoltage with FOC, see if it improves acceleration or stability. 
-  // Requires CAN FD (CANivore bus) for proper performance, but can be tested on RIO CAN for comparison purposes before flywheel motors are moved.
-  private final VelocityTorqueCurrentFOC flywheelTorqueRequest = new VelocityTorqueCurrentFOC(0.0);
   
   private final PositionVoltage hoodPositionRequest = new PositionVoltage(0.0);
   private final VoltageOut hoodVoltageRequest = new VoltageOut(0.0);
@@ -301,13 +306,6 @@ public class ShooterIOHardware implements ShooterIO {
 
   private double rpmToRPS(double rpm) {
     return rpm / 60.0;
-  }
-
-  @Override
-  public void setFlywheelVelocityTorqueFOC(double rpm) {
-      double motorRPS = rpmToRPS(rpm);
-      // .withSlot(1) selects the TorqueCurrentFOC-specific PID gains
-      flywheelMotorA.setControl(flywheelTorqueRequest.withVelocity(motorRPS).withSlot(1));
   }
 
 }
