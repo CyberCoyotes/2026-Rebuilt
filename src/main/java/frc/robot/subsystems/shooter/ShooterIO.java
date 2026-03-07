@@ -64,16 +64,6 @@ public interface ShooterIO {
 
         /** Hood angle in degrees (approximate, derived from rotations) */
         public double hoodAngleDegrees = 0.0;
-
-        // ===== WCP ThroughBore Encoder (slow — secondary feedback via CANcoder) =====
-        /** Hood absolute position from ThroughBore encoder in rotations (0.0 to 1.0) */
-        public double hoodThroughBorePositionRotations = 0.0;
-
-        /** Hood absolute position from ThroughBore encoder in degrees */
-        public double hoodThroughBorePositionDegrees = 0.0;
-
-        /** Whether the ThroughBore encoder (CANcoder) is connected */
-        public boolean hoodThroughBoreConnected = false;
     }
 
     /**
@@ -88,8 +78,6 @@ public interface ShooterIO {
     /**
      * Updates diagnostic inputs from hardware.
      * Called at 10Hz (every 5th cycle) by ShooterSubsystem.
-     * Refreshes slow signals: currents, hood voltage, ThroughBore encoder.
-     *
      * WHY SEPARATE? These signals are set to 10Hz update rate on the CAN bus,
      * so refreshing them every 20ms just reads stale cached values and wastes
      * JNI calls. Matching our read rate to the CAN update rate is cleaner.

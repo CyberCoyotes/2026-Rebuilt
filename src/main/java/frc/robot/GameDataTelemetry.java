@@ -7,36 +7,41 @@ import edu.wpi.first.networktables.StringPublisher;
 import edu.wpi.first.wpilibj.DriverStation;
 
 /**
- * GameDataTelemetry - Accesses FMS game data and publishes scoring shift information to NetworkTables.
+ * Reads FMS game data and publishes it to NetworkTables for the Elastic dashboard.
  *
- * In the 2026 game, the first goal to go inactive is determined by the alliance that scores more
- * Fuel in Auto. The field transmits this as a single character ('R' or 'B') approximately 3 seconds
- * after Auto ends.
+ * In the 2026 game, the alliance that scores more Fuel in Auto determines which
+ * goal goes inactive first. The field sends 'R' or 'B' ~3 seconds after Auto ends.
  *
- * USAGE:
- * 1. Create instance in RobotContainer
- * 2. Call update() in robotPeriodic() to continuously poll for game data
- * 3. Use getInactiveFirstAlliance() to access the data programmatically
+ * NetworkTables (/GameData/):
+ *   InactiveFirstAlliance  (string)  - "R", "B", or "NONE"
+ *   IsRed                  (boolean) - true if Red goal goes inactive first
+ *   IsBlue                 (boolean) - true if Blue goal goes inactive first
+ *   DataReceived           (boolean) - true once FMS has sent valid data
+ *   ActiveHub              (string)  - "RED", "BLUE", or "UNKNOWN"
+ *   IsRedHubActive         (boolean) - true when Red hub is currently active
+ *   IsBlueHubActive        (boolean) - true when Blue hub is currently active
  *
- * NETWORKTABLES STRUCTURE:
- * /GameData/
- *   - InactiveFirstAlliance (string) - 'R', 'B', or 'NONE' (not yet received)
- *   - IsRed (boolean) - true if Red alliance's goal goes inactive first
- *   - IsBlue (boolean) - true if Blue alliance's goal goes inactive first
- *   - DataReceived (boolean) - true once valid game data has been received
+ * Dashboard widgets:
+ *   - Boolean Box on IsRedHubActive  (color red)  -> lights up when Red hub is active
+ *   - Boolean Box on IsBlueHubActive (color blue) -> lights up when Blue hub is active
+ *   - Text Display on ActiveHub -> shows "RED" or "BLUE"
  *
- * DASHBOARD USAGE:
- * - Use IsRed with a Boolean Box (red color when true) to show Red indicator
- * - Use IsBlue with a Boolean Box (blue color when true) to show Blue indicator
- * - Both will be false until data is received from FMS (~3 seconds after Auto)
+ * Shift logic (winner = InactiveFirstAlliance):
+ *   Shifts 1 & 3 -> opposite alliance hub active
+ *   Shifts 2 & 4 -> winner's hub active
  */
 public class GameDataTelemetry {
 
-    /** Represents which alliance's goal goes inactive first */
+    // NOTE: Fill these in from the game manual before competition.
+    // These are seconds REMAINING in the match (DriverStation.getMatchTime() counts down).
+    private static final double SHIFT_2_START_SEC = 90.0;
+    private static final double SHIFT_3_START_SEC = 60.0;
+    private static final double SHIFT_4_START_SEC = 30.0;
+
     public enum InactiveAlliance {
-        NONE,  // Data not yet received
-        RED,   // Red alliance goal inactive first (active in Shifts 2 and 4)
-        BLUE   // Blue alliance goal inactive first (active in Shifts 2 and 4)
+        NONE,
+        RED,
+        BLUE
     }
 
     private final NetworkTable gameDataTable;
@@ -44,6 +49,9 @@ public class GameDataTelemetry {
     private final BooleanPublisher isRedPublisher;
     private final BooleanPublisher isBluePublisher;
     private final BooleanPublisher dataReceivedPublisher;
+    private final StringPublisher activeHubPublisher;
+    private final BooleanPublisher isRedHubActivePublisher;
+    private final BooleanPublisher isBlueHubActivePublisher;
 
     private InactiveAlliance inactiveFirstAlliance = InactiveAlliance.NONE;
     private boolean dataReceived = false;
@@ -56,20 +64,25 @@ public class GameDataTelemetry {
         isRedPublisher = gameDataTable.getBooleanTopic("IsRed").publish();
         isBluePublisher = gameDataTable.getBooleanTopic("IsBlue").publish();
         dataReceivedPublisher = gameDataTable.getBooleanTopic("DataReceived").publish();
+        activeHubPublisher = gameDataTable.getStringTopic("ActiveHub").publish();
+        isRedHubActivePublisher = gameDataTable.getBooleanTopic("IsRedHubActive").publish();
+        isBlueHubActivePublisher = gameDataTable.getBooleanTopic("IsBlueHubActive").publish();
 
-        // Initialize with default values
         update();
     }
 
     /**
-     * Polls for game data from FMS and publishes to NetworkTables.
-     * Call this in robotPeriodic() to continuously check for game data.
-     *
-     * Data becomes available approximately 3 seconds after Auto ends.
-     * Until then, getGameSpecificMessage() returns an empty string.
+     * Polls FMS for game data and publishes to NetworkTables.
+     * Call this in robotPeriodic(). Data arrives ~3 seconds after Auto ends.
      */
     public void update() {
-        // Only poll if we haven't received data yet (data doesn't change during a match)
+
+        
+        // vvv CANCEL FOR COMPETITION - remove these two lines before competing vvv
+        // inactiveFirstAlliance = InactiveAlliance.BLUE;
+        // dataReceived = true;
+        // ^^^ CANCEL FOR COMPETITION ^^^
+
         if (!dataReceived) {
             String gameData = DriverStation.getGameSpecificMessage();
 
@@ -84,21 +97,19 @@ public class GameDataTelemetry {
                         dataReceived = true;
                         break;
                     default:
-                        // Corrupt data - keep waiting
+                        // Unrecognized character - keep waiting
                         break;
                 }
             }
         }
 
-        // Publish current state to NetworkTables
-        publishState();
+        int shift = computeShift(DriverStation.getMatchTime());
+        String activeHub = computeActiveHub(shift);
+
+        publishState(activeHub);
     }
 
-    /**
-     * Publishes the current game data state to NetworkTables.
-     */
-    private void publishState() {
-        // Publish string representation
+    private void publishState(String activeHub) {
         switch (inactiveFirstAlliance) {
             case RED:
                 inactiveAlliancePublisher.set("R");
@@ -111,55 +122,59 @@ public class GameDataTelemetry {
                 break;
         }
 
-        // Publish boolean flags for dashboard indicators
         isRedPublisher.set(inactiveFirstAlliance == InactiveAlliance.RED);
         isBluePublisher.set(inactiveFirstAlliance == InactiveAlliance.BLUE);
         dataReceivedPublisher.set(dataReceived);
+
+        activeHubPublisher.set(activeHub);
+        isRedHubActivePublisher.set("RED".equals(activeHub));
+        isBlueHubActivePublisher.set("BLUE".equals(activeHub));
     }
 
     /**
-     * Returns which alliance's goal goes inactive first.
-     *
-     * @return The alliance whose goal is inactive first, or NONE if data not yet received
+     * Returns the current shift number (1-4) based on seconds remaining.
+     * Returns 0 if match time is unavailable.
      */
+    private int computeShift(double matchTimeSec) {
+        if (matchTimeSec < 0) return 0;
+        if (matchTimeSec > SHIFT_2_START_SEC) return 1;
+        if (matchTimeSec > SHIFT_3_START_SEC) return 2;
+        if (matchTimeSec > SHIFT_4_START_SEC) return 3;
+        return 4;
+    }
+
+    /**
+     * Returns which hub is currently active based on who won auto and the current shift.
+     * The winner's hub is active in shifts 2 and 4; the other alliance in shifts 1 and 3.
+     */
+    private String computeActiveHub(int shift) {
+        if (inactiveFirstAlliance == InactiveAlliance.NONE || shift == 0) return "UNKNOWN";
+
+        boolean winnerActive = (shift == 2 || shift == 4);
+
+        if (inactiveFirstAlliance == InactiveAlliance.BLUE) {
+            return winnerActive ? "BLUE" : "RED";
+        }
+        return winnerActive ? "RED" : "BLUE";
+    }
+
+    /** Returns which alliance's goal goes inactive first, or NONE if not yet received. */
     public InactiveAlliance getInactiveFirstAlliance() {
         return inactiveFirstAlliance;
     }
 
-    /**
-     * Returns whether valid game data has been received from FMS.
-     *
-     * @return true if game data has been received
-     */
+    /** Returns true once valid game data has been received from FMS. */
     public boolean isDataReceived() {
         return dataReceived;
     }
 
-    /**
-     * Returns whether Red alliance's goal goes inactive first.
-     *
-     * @return true if Red goal inactive first, false otherwise (including if no data)
-     */
+    /** Returns true if Red alliance's goal goes inactive first. */
     public boolean isRedInactiveFirst() {
         return inactiveFirstAlliance == InactiveAlliance.RED;
     }
 
-    /**
-     * Returns whether Blue alliance's goal goes inactive first.
-     *
-     * @return true if Blue goal inactive first, false otherwise (including if no data)
-     */
+    /** Returns true if Blue alliance's goal goes inactive first. */
     public boolean isBlueInactiveFirst() {
         return inactiveFirstAlliance == InactiveAlliance.BLUE;
-    }
-
-    /**
-     * Resets the game data state. Call this at the start of a new match if needed.
-     * Typically not required as data persists for the duration of a match.
-     */
-    public void reset() {
-        inactiveFirstAlliance = InactiveAlliance.NONE;
-        dataReceived = false;
-        publishState();
     }
 }

@@ -115,41 +115,45 @@ public class RobotContainer {
         // DRIVER CONTROLLER (Port 0) - Shooter
         // =====================================================================
 
-        driver.rightTrigger(0.5).whileTrue(FuelCommands.shootWithSelectedPreset(shooter, indexer));
+        
+        driver.rightTrigger(0.5).whileTrue(
+            FuelCommands.poseAlignAndShoot(shooter, indexer, drivetrain,
+                () -> -driver.getLeftY() * MaxSpeed,
+                () -> -driver.getLeftX() * MaxSpeed)); 
+        
         driver.rightBumper().whileTrue(FuelCommands.shootPass(shooter, indexer));
 
         driver.leftTrigger(0.5).whileTrue(intake.intakeFuel());
         driver.leftBumper().whileTrue(intake.compressFuelIncremental());
 
-        // Right Trigger + Vision: Commented out — vision shot disabled for now.
-        // driver.rightTrigger(0.5).and(driver.a()).whileTrue(
-        //     FuelCommands.visionAlignAndShoot(
-        //         shooter, vision, indexer, drivetrain,
-        //         () -> -driver.getLeftY() * MaxSpeed,
-        //         () -> -driver.getLeftX() * MaxSpeed
-        //     )
-        // );
+        driver.povDown().onTrue(intake.retractSlidesCmd());
 
 
         // =====================================================================
         // OPERATOR CONTROLLER (Port 1)
         // =====================================================================
+        var anyPresetHeld = operator.a().or(operator.b()).or(operator.x()).or(operator.y()); 
         
-        operator.leftTrigger().whileTrue(FuelCommands.runAirPopper(indexer, shooter, intake)); 
-        // TODO: Test the Command retractSlidesWithRollerCmd() from IntakeSubSystem
-        operator.leftBumper().whileTrue(intake.retractSlidesWithRollerCmd());
+        operator.rightTrigger(0.5).and(operator.a()).whileTrue(
+            FuelCommands.shootWithPreset(shooter, indexer, ShooterSubsystem.ShotPreset.TRENCH));
+        operator.rightTrigger(0.5).and(operator.b()).whileTrue(
+            FuelCommands.shootWithPreset(shooter, indexer, ShooterSubsystem.ShotPreset.CLOSE));
+        operator.rightTrigger(0.5).and(operator.x()).whileTrue(
+            FuelCommands.shootWithPreset(shooter, indexer, ShooterSubsystem.ShotPreset.TOWER));
+        operator.rightTrigger(0.5).and(operator.y()).whileTrue(
+            FuelCommands.shootWithPreset(shooter, indexer, ShooterSubsystem.ShotPreset.FAR));
 
-        operator.a().onTrue(Commands.runOnce(() -> shooter.selectPreset(ShooterSubsystem.ShotPreset.TRENCH)));
-        operator.b().onTrue(Commands.runOnce(() -> shooter.selectPreset(ShooterSubsystem.ShotPreset.CLOSE)));
-        operator.x().onTrue(Commands.runOnce(() -> shooter.selectPreset(ShooterSubsystem.ShotPreset.TOWER)));
-        operator.y().onTrue(Commands.runOnce(() -> shooter.selectPreset(ShooterSubsystem.ShotPreset.FAR)));
+        operator.rightBumper().whileTrue(FuelCommands.shootPass(shooter, indexer));
 
+        operator.leftTrigger().whileTrue(FuelCommands.runAirPopper(indexer, shooter, intake));
+        operator.leftBumper().whileTrue(intake.retractSlidesStack());
+
+    
         // operator.povUp().whileTrue(null); // incremental extend climber command to be added when climber is ready
         // operator.povDown().whileTrue(null); // incremental retract climber command to be added when climber is ready
 
-        // TODO: Test this new shoot + retract command and tune the slide retract time
-        operator.rightTrigger().whileTrue(FuelCommands.Auto.shootTrenchWithSlideRetract(shooter, indexer, intake, 3));
-                
+        // Operator holds a face button to override with a named preset.
+
     }
 
     public Command getAutonomousCommand() {
