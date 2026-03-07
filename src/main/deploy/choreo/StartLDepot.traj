@@ -23,8 +23,8 @@
   "waypoints":[
     {"x":{"exp":"StartL.x", "val":4.42}, "y":{"exp":"StartL.y", "val":7.624}, "heading":{"exp":"StartL.heading", "val":-1.5707963267948966}, "intervals":22, "split":false, "fixTranslation":true, "fixHeading":true, "overrideIntervals":false},
     {"x":{"exp":"3 m", "val":3.0}, "y":{"exp":"TrainL.y", "val":7.370805263519287}, "heading":{"exp":"-1.8029647723412898 rad", "val":-1.8029647723412896}, "intervals":29, "split":false, "fixTranslation":true, "fixHeading":true, "overrideIntervals":false},
-    {"x":{"exp":"Depot1.x", "val":2.100883960723877}, "y":{"exp":"Depot1.y", "val":6.004417419433594}, "heading":{"exp":"Depot1.heading", "val":3.141592653589793}, "intervals":19, "split":true, "fixTranslation":true, "fixHeading":true, "overrideIntervals":false},
-    {"x":{"exp":"Depot2.x", "val":0.6030095219612122}, "y":{"exp":"Depot2.y", "val":5.9719767570495605}, "heading":{"exp":"Depot2.heading", "val":3.141592653589793}, "intervals":42, "split":false, "fixTranslation":true, "fixHeading":true, "overrideIntervals":false},
+    {"x":{"exp":"Depot1.x", "val":1.583960723877}, "y":{"exp":"Depot1.y", "val":5.95}, "heading":{"exp":"Depot1.heading", "val":3.141592653589793}, "intervals":19, "split":true, "fixTranslation":true, "fixHeading":true, "overrideIntervals":false},
+    {"x":{"exp":"Depot2.x", "val":0.6030095219612122}, "y":{"exp":"Depot2.y", "val":5.95}, "heading":{"exp":"Depot2.heading", "val":3.141592653589793}, "intervals":42, "split":false, "fixTranslation":true, "fixHeading":true, "overrideIntervals":false},
     {"x":{"exp":"3 m", "val":3.0}, "y":{"exp":"TrainL.y", "val":7.370805263519287}, "heading":{"exp":"TrainL.heading", "val":-1.5707963267948966}, "intervals":16, "split":false, "fixTranslation":true, "fixHeading":true, "overrideIntervals":false},
     {"x":{"exp":"TrShotL.x", "val":4.09490966796875}, "y":{"exp":"TrShotL.y", "val":7.478931427001953}, "heading":{"exp":"TrShotL.heading", "val":-1.5350978093705543}, "intervals":35, "split":true, "fixTranslation":true, "fixHeading":true, "overrideIntervals":false}],
   "constraints":[

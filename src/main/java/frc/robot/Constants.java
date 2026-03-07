@@ -1,6 +1,7 @@
 package frc.robot;
 
 import com.ctre.phoenix6.CANBus;
+import edu.wpi.first.math.geometry.Translation2d;
 
 public final class Constants {
   private Constants() {
@@ -74,11 +75,11 @@ public final class Constants {
     public static final int CHUTE_TOF_ID = 42;
 
     //=== Voltage Constants =====================
-    public static final double CONVEYOR_FORWARD_VOLTAGE = 4.0;
+    public static final double CONVEYOR_FORWARD_VOLTAGE = 6.0;
     public static final double CONVEYOR_REVERSE_VOLTAGE = -4.0;
     public static final double CONVEYOR_POPPER_VOLTAGE = 3.0;
 
-    public static final double INDEXER_FORWARD_VOLTAGE = 4.0;
+    public static final double INDEXER_FORWARD_VOLTAGE = 6.0;
     public static final double INDEXER_REVERSE_VOLTAGE = -4.0;
     public static final double INDEXER_POPPER_VOLTAGE = 3.0;
 
@@ -124,12 +125,12 @@ public final class Constants {
      * Add an end of line comment `Tuned` when each is verified
      */
     public static final double POPPER_RPM = 650; // TODO: 800 was just a little too much
-    public static final double STANDBY_RPM = 1000; //
-    public static final double CLOSE_RPM = 2750; //
+    public static final double STANDBY_RPM = 1000; // TODO: Tune Standby RPM
+    public static final double CLOSE_RPM = 2700; // TODO: Tune was 2600, 4.42
     public static final double TOWER_RPM = 3200; // TODO: Tune was 3100, 4.42
     public static final double TRENCH_RPM = 3200; // TODO: Tune
     public static final double FAR_RPM = 3800; // TODO: Tune was 4000 + 5.5 worked
-    public static final double PASS_RPM = 4000; //
+    public static final double PASS_RPM = 3200; // TODO: Tune was 4000 + 7.00 and too much, 3200 is a starting point
 
     /**
      * Reverse RPM for jam clearing. Only reached through eject(), which gates on
@@ -142,7 +143,7 @@ public final class Constants {
      */
     public static final double EJECT_MAX_ENTRY_RPM = 500.0;
 
-    public static final double FLYWHEEL_TOLERANCE_PERCENT = 0.03; // Tightened from 0.10 — measured steady-state
+    public static final double FLYWHEEL_TOLERANCE_PERCENT = 0.05; // Tightened from 0.10 — measured steady-state
                                                                   // variance ±30 RPM at 3300; 3% = ±99 RPM (~3×
                                                                   // variance)
 
@@ -157,12 +158,12 @@ public final class Constants {
      * Consider using WCP Encoder
      * Add an end of line comment `Tuned` when each is verified
      */
-    public static final double CLOSE_HOOD = 0.00; //
-    public static final double POPPER_HOOD = 8.42; // TODO: Tune
-    public static final double TOWER_HOOD = 4.30; //
-    public static final double TRENCH_HOOD = 4.30; // TODO: Tune
-    public static final double FAR_HOOD = 5.50; // TODO: Tune was 4000 + 5.5 worked
-    public static final double PASS_HOOD = 7.00; //
+    public static final double CLOSE_HOOD = 0.00;   // Tuned and ready
+    public static final double POPPER_HOOD = 8.42;  // TODO: Tune Popper hood was 8.42
+    public static final double TOWER_HOOD = 4.30;   // TODO: Tune Tower hood
+    public static final double TRENCH_HOOD = 4.30;  // TODO: Tune Trench hood
+    public static final double FAR_HOOD = 5.50;     // TODO: Tune Far hood, was 4000 + 5.5 worked
+    public static final double PASS_HOOD = 3.00;    //TODO: Tune Pass hoodm, was 7.00 and too much
 
     // --- Testing Increments ---
     public static final double HOOD_TEST_INCREMENT = 0.2;
@@ -222,7 +223,7 @@ public final class Constants {
 
     // Alignment tolerances
     /** Tolerance for horizontal alignment in degrees */
-    public static final double ALIGNMENT_TOLERANCE_DEGREES = 2.0;
+    public static final double ALIGNMENT_TOLERANCE_DEGREES = 1.0; // was 2
 
     /** Minimum target area to consider target valid (prevents false positives) */
     public static final double MIN_TARGET_AREA_PERCENT = 0.1;
@@ -232,19 +233,24 @@ public final class Constants {
 
     // Valid tag IDs
     // NOTE: MIN/MAX here are used for general target validation in VisionSubsystem.
-    // AlignToHubCommand uses its own tighter filter (tags 23-28) for hub-specific
-    // alignment.
+    // Hub-specific filtering uses BLUE_HUB_TAG_IDS / RED_HUB_TAG_IDS arrays below.
     public static final int MIN_VALID_TAG_ID = 1;
     public static final int MAX_VALID_TAG_ID = 28; // Fixed: was -1, which rejected all tags
 
-    // Blue hub AprilTag IDs
-    public static final int BLUE_HUB_MIN_TAG_ID = 23;
-    public static final int BLUE_HUB_MAX_TAG_ID = 28;
+    // Blue hub AprilTag IDs (2026 field layout — all 8 hub faces)
+    // Layout: 18/27 (top chute), 19/20 (sides), 26/25 (sides), 21/24 (bottom chute)
+    public static final int[] BLUE_HUB_TAG_IDS = {18, 19, 20, 21, 24, 25, 26, 27};
 
-    // Red hub AprilTag IDs
-    // TODO: Verify these against the 2026 game manual / WPILib field layout JSON
-    public static final int RED_HUB_MIN_TAG_ID = 1;
-    public static final int RED_HUB_MAX_TAG_ID = 6;
+    // Red hub AprilTag IDs (2026 field layout — all 8 hub faces)
+    // Layout: 8/5 (top chute), 9/10 (sides), 4/3 (sides), 11/2 (bottom chute)
+    public static final int[] RED_HUB_TAG_IDS = {2, 3, 4, 5, 8, 9, 10, 11};
+
+    // Hub center positions in WPILib blue-origin field coordinates (meters).
+    // Used by poseAlignAndShoot / autoAlignAndShoot for odometry-based aiming.
+    // Red hub is the field-length mirror of blue: x = 17.548 - 4.625 = 12.923
+    // TODO: verify exact coordinates against 2026 field layout JSON if shooting accuracy needs improvement
+    public static final Translation2d BLUE_HUB_LOCATION = new Translation2d(4.625, 4.025);
+    public static final Translation2d RED_HUB_LOCATION  = new Translation2d(11.923, 4.025);
 
     // State tracking
     /** Time in seconds before considering target "lost" after losing sight */
@@ -260,7 +266,7 @@ public final class Constants {
      * - Too high → oscillates left/right around the target
      * See TUNING.md §5 for step-by-step procedure.
      */
-    public static final double ROTATIONAL_KP = 0.06;
+    public static final double ROTATIONAL_KP = 0.10;
 
     /**
      * Maximum rotational rate the vision command will apply to the drivetrain
@@ -268,12 +274,15 @@ public final class Constants {
      * Prevents violent snap when tx error is large on first acquisition.
      * Default: 3.0 rad/s (~172°/s). Reduce if the robot swings too aggressively.
      */
-    public static final double MAX_ALIGNMENT_ROTATION_RAD_PER_SEC = 3.0;
+    public static final double MAX_ALIGNMENT_ROTATION_RAD_PER_SEC = 5.0;
 
     public static final double ALIGNMENT_TOLERANCE_DEG = 0.5;
     public static final double MAX_ROT_RAD_PER_SEC = 3.0;
     public static final double MIN_DISTANCE_M = 0.5;
-    public static final double MAX_DISTANCE_M = 4.0;
+    public static final double MAX_DISTANCE_M = 8.0;
+
+    public static final double LEAD_COMPENSATION_DEG_PER_MPS = 40; // Tune up from 0 — 50 degrees of aim offset per m/s of lateral velocity
+
   }
 
   // =========================================================

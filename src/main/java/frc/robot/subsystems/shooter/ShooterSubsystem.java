@@ -282,11 +282,10 @@ public class ShooterSubsystem extends SubsystemBase {
     }
 
     /**
-     * Silently sets popper shot targets. No motor movement until intake trigger is pressed.
+     * Enters POPPER state directly — vision/distance updates cannot override this.
      */
     public void setAirPopper() {
-        targetFlywheelMotorRPM = Constants.Shooter.POPPER_RPM;
-        targetHoodPoseRot = Constants.Shooter.POPPER_HOOD;
+        setState(ShooterState.POPPER);
     }
 
     // ===== Target Setters =====
@@ -420,21 +419,15 @@ public class ShooterSubsystem extends SubsystemBase {
     static {
         // ==== Flywheel RPM vs. distance =================================
         // TODO: Replace each value with a measured result (see TUNING.md §4)
-        FLYWHEEL_RPM_MAP.put(1.0, 2750.0);
-        FLYWHEEL_RPM_MAP.put(2.0, 2900.0); 
-        FLYWHEEL_RPM_MAP.put(3.0, 3100.0); 
-        FLYWHEEL_RPM_MAP.put(4.0, 3200.0); 
-        FLYWHEEL_RPM_MAP.put(5.0, 3300.0); 
-        FLYWHEEL_RPM_MAP.put(6.0, 3400.0);
+        FLYWHEEL_RPM_MAP.put(1.5, 2700.0);
+        FLYWHEEL_RPM_MAP.put(3.55, 3200.0); 
+        FLYWHEEL_RPM_MAP.put(5.5, 3800.0);
 
         // ==== Hood position (rotations) vs. distance =================================
         // TODO: Replace each value with a measured result (see TUNING.md §4)
-        HOOD_ROT_MAP.put(1.0, 0.00); 
-        HOOD_ROT_MAP.put(2.0, 1.50); 
-        HOOD_ROT_MAP.put(3.0, 3.00); 
-        HOOD_ROT_MAP.put(4.0, 4.30); 
-        HOOD_ROT_MAP.put(5.0, 5.50); 
-        HOOD_ROT_MAP.put(6.0, 6.00);
+        HOOD_ROT_MAP.put(1.5, 0.00); 
+        HOOD_ROT_MAP.put(3.55, 4.30); 
+        HOOD_ROT_MAP.put(5.5, 5.50);
     }
 
     /**
@@ -448,7 +441,13 @@ public class ShooterSubsystem extends SubsystemBase {
      * @param distanceMeters Measured distance to hub tag in meters (floor distance)
      */
     public void updateFromDistance(double distanceMeters) {
-        double dist = Math.max(1.0, Math.min(6.0, distanceMeters));
+        // Never let vision override dedicated shot modes
+        if (currentState == ShooterState.POPPER
+                || currentState == ShooterState.EJECT
+                || currentState == ShooterState.PASS) {
+            return;
+        }
+        double dist = Math.max(1.0, Math.min(8.0, distanceMeters)); // bumped to 8
         setTargetVelocity(FLYWHEEL_RPM_MAP.get(dist));
         setTargetHoodPose(HOOD_ROT_MAP.get(dist));
 

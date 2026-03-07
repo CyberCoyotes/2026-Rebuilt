@@ -137,6 +137,13 @@ public class IntakeSubsystem extends SubsystemBase {
         io.stopSlide();
     }
 
+    /* Incremental slide retraction */
+    // Slide — incremental retract by 2 rotations, clamped to min position
+    public void retractSlidesIncremental() {
+        double target = Math.max(inputs.slidePositionRotations - 15.0, Constants.Intake.SLIDE_MIN_POSITION);
+        io.setSlidePosition(target);
+    }
+
     // ==== COMMAND FACTORIES ====
     // Rule: build commands from the low-level methods above, never from other
     // commands.
@@ -190,10 +197,9 @@ public class IntakeSubsystem extends SubsystemBase {
      * didn't work last time.
      */
     // public Command retractSlidesStacked() {
-    //     return Commands.runOnce(this::retractSlides, this)
-    //             .withName("RetractSlides");
+    // return Commands.runOnce(this::retractSlides, this)
+    // .withName("RetractSlides");
     // }
-
 
     public Command retractSlidesSlowCmd() {
         return Commands.runOnce(this::retractSlidesSlow, this)
@@ -229,11 +235,11 @@ public class IntakeSubsystem extends SubsystemBase {
      * future use once a game-piece sensor (e.g. hopper beam-break) is available.
      *
      * Flow:
-     *   1. Extends slides to the MotionMagic setpoint (runOnce)
-     *   2. Runs the roller for {@code timeoutSeconds} — acts as the end trigger
-     *   3. Stops the roller on completion or interrupt
-     *   Slides remain extended after the command (MotionMagic holds them).
-     *   Call {@link #stopFuel()} or {@link #retractSlidesCmd()} afterward if needed.
+     * 1. Extends slides to the MotionMagic setpoint (runOnce)
+     * 2. Runs the roller for {@code timeoutSeconds} — acts as the end trigger
+     * 3. Stops the roller on completion or interrupt
+     * Slides remain extended after the command (MotionMagic holds them).
+     * Call {@link #stopFuel()} or {@link #retractSlidesCmd()} afterward if needed.
      *
      * Typical auton usage:
      * 
@@ -244,8 +250,8 @@ public class IntakeSubsystem extends SubsystemBase {
                 extendSlidesCmd(),
                 Commands.run(this::runRoller, this)
                         .withTimeout(intakeTimeout) // primary end trigger: timeout
-                        .finallyDo(this::stopRoller)
-        ).withName("IntakeFuelAuton");
+                        .finallyDo(this::stopRoller))
+                .withName("IntakeFuelAuton");
     }
 
     /**
@@ -275,24 +281,31 @@ public class IntakeSubsystem extends SubsystemBase {
      * DynamicMotionMagic on subsequent ticks — this version avoids that gap.
      *
      * End trigger: {@code withTimeout(timeoutSeconds)} is the primary end trigger.
-     * The {@code waitForRetract} flag is reserved for future use (e.g., ending early
-     * once {@link #isSlideFullyRetracted()} returns true). Pass {@code false} for now.
+     * The {@code waitForRetract} flag is reserved for future use (e.g., ending
+     * early
+     * once {@link #isSlideFullyRetracted()} returns true). Pass {@code false} for
+     * now.
      *
      * Non-blocking: the command owns the subsystem requirement but ends on its own
      * after {@code timeoutSeconds}, making it safe to compose with other commands
      * via {@code Commands.parallel()} or as a deadline group in auton.
      *
      * Typical teleop usage (whileTrue):
+     * 
      * <pre>
-     *   operator.leftBumper().whileTrue(intake.compressFuel(2.0, false));
+     * operator.leftBumper().whileTrue(intake.compressFuel(2.0, false));
      * </pre>
      *
      *
-     * @param timeoutSeconds  How long to run; acts as the primary end trigger.
-     *                        ~2.0 s is a good starting point to match slide travel time.
-     * @param waitForRetract  Reserved for future use — when true, will end early once
-     *                        the slide is fully retracted. Pass {@code false} for now.
-     * @return Command that slowly retracts slides while running the roller, ends on timeout
+     * @param timeoutSeconds How long to run; acts as the primary end trigger.
+     *                       ~2.0 s is a good starting point to match slide travel
+     *                       time.
+     * @param waitForRetract Reserved for future use — when true, will end early
+     *                       once
+     *                       the slide is fully retracted. Pass {@code false} for
+     *                       now.
+     * @return Command that slowly retracts slides while running the roller, ends on
+     *         timeout
      */
     public Command compressFuel(double timeoutSeconds, boolean waitForRetract) {
         return Commands.run(
@@ -303,13 +316,6 @@ public class IntakeSubsystem extends SubsystemBase {
                 .withTimeout(timeoutSeconds) // primary end trigger
                 .finallyDo(() -> stopRoller())
                 .withName("CompressFuel");
-    }
-
-    /* Incremental slide retraction */
-    // Slide — incremental retract by 2 rotations, clamped to min position
-    public void retractSlidesIncremental() {
-        double target = Math.max(inputs.slidePositionRotations - 15.0, Constants.Intake.SLIDE_MIN_POSITION);
-        io.setSlidePosition(target);
     }
 
     public Command retractSlidesIncrementalCmd() {
@@ -336,13 +342,13 @@ public class IntakeSubsystem extends SubsystemBase {
      */
     public Command retractSlidesStack() {
         return Commands.sequence(
+                Commands.runOnce(this::retractSlides, this),
                 Commands.waitSeconds(1),
                 Commands.runOnce(this::retractSlides, this),
                 Commands.waitSeconds(1),
                 Commands.runOnce(this::retractSlides, this),
                 Commands.waitSeconds(1),
                 Commands.runOnce(this::retractSlides, this))
-
                 .withName("RetractSlidesStack");
     }
 
@@ -365,10 +371,9 @@ public class IntakeSubsystem extends SubsystemBase {
      * keeps spinning in parallel until the shot completes.
      *
      * <pre>
-     *   Commands.deadline(
-     *       FuelCommands.shootWithPreset(shooter, indexer, rpm, hood),
-     *       intake.retractSlidesWithRollerCmd()
-     *   );
+     * Commands.deadline(
+     *         FuelCommands.shootWithPreset(shooter, indexer, rpm, hood),
+     *         intake.retractSlidesWithRollerCmd());
      * </pre>
      *
      * Also works in auton alongside {@code FuelCommands.Auto.shootTrench()}.

@@ -18,7 +18,6 @@ import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.RobotModeTriggers;
 import frc.robot.generated.TunerConstants;
 import frc.robot.commands.FuelCommands;
-import frc.robot.commands.VisionShootCommand;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
 import frc.robot.subsystems.indexer.IndexerSubsystem;
 import frc.robot.subsystems.intake.IntakeSubsystem;
@@ -80,8 +79,9 @@ public class RobotContainer {
         autoChooser.addRoutine("Four meters", autoRoutines::FM);
         autoChooser.addRoutine("Lob", autoRoutines::Lob);
         autoChooser.addRoutine("StartRight goes to middle", autoRoutines::StartRMid);
+        autoChooser.addRoutine("StartLeft goes to middle", autoRoutines::StartLMid);
         autoChooser.addRoutine("Test(center shot)", autoRoutines::TestRoutine);
-        autoChooser.addRoutine("Test(Right shot)", autoRoutines::TestRoutineR);
+        autoChooser.addRoutine("Center Depot shot)", autoRoutines:: MidDepot);
         
         SmartDashboard.putData("AutoChooser", autoChooser);
         configureBindings();
@@ -115,54 +115,45 @@ public class RobotContainer {
         // DRIVER CONTROLLER (Port 0) - Shooter
         // =====================================================================
 
-        // Operator holds a face button to override with a named preset.
-        // Driver RT alone fires VisionShootCommand (default — auto-aims by distance).
-        var anyPresetHeld = operator.a().or(operator.b()).or(operator.x()).or(operator.y());
-
-        driver.rightTrigger(0.5).and(operator.a()).whileTrue(
-            FuelCommands.shootWithPreset(shooter, indexer, ShooterSubsystem.ShotPreset.TRENCH));
-        driver.rightTrigger(0.5).and(operator.b()).whileTrue(
-            FuelCommands.shootWithPreset(shooter, indexer, ShooterSubsystem.ShotPreset.CLOSE));
-        driver.rightTrigger(0.5).and(operator.x()).whileTrue(
-            FuelCommands.shootWithPreset(shooter, indexer, ShooterSubsystem.ShotPreset.TOWER));
-        driver.rightTrigger(0.5).and(operator.y()).whileTrue(
-            FuelCommands.shootWithPreset(shooter, indexer, ShooterSubsystem.ShotPreset.FAR));
-
-        driver.rightTrigger(0.5).and(anyPresetHeld.negate()).whileTrue(
-            new VisionShootCommand(shooter, indexer, drivetrain,
+        
+        driver.rightTrigger(0.5).whileTrue(
+            FuelCommands.poseAlignAndShoot(shooter, indexer, drivetrain,
                 () -> -driver.getLeftY() * MaxSpeed,
-                () -> -driver.getLeftX() * MaxSpeed));
+                () -> -driver.getLeftX() * MaxSpeed)); 
+        
         driver.rightBumper().whileTrue(FuelCommands.shootPass(shooter, indexer));
 
         driver.leftTrigger(0.5).whileTrue(intake.intakeFuel());
-        driver.leftBumper().whileTrue(intake.retractSlidesStack());
+        driver.leftBumper().whileTrue(intake.compressFuelIncremental());
 
-        // driver.leftBumper().whileTrue(intake.compressFuelIncremental()); // Default
+        driver.povDown().onTrue(intake.retractSlidesCmd());
+
 
         // =====================================================================
         // OPERATOR CONTROLLER (Port 1)
         // =====================================================================
+        var anyPresetHeld = operator.a().or(operator.b()).or(operator.x()).or(operator.y()); 
+        
+        operator.rightTrigger(0.5).and(operator.a()).whileTrue(
+            FuelCommands.shootWithPreset(shooter, indexer, ShooterSubsystem.ShotPreset.TRENCH));
+        operator.rightTrigger(0.5).and(operator.b()).whileTrue(
+            FuelCommands.shootWithPreset(shooter, indexer, ShooterSubsystem.ShotPreset.CLOSE));
+        operator.rightTrigger(0.5).and(operator.x()).whileTrue(
+            FuelCommands.shootWithPreset(shooter, indexer, ShooterSubsystem.ShotPreset.TOWER));
+        operator.rightTrigger(0.5).and(operator.y()).whileTrue(
+            FuelCommands.shootWithPreset(shooter, indexer, ShooterSubsystem.ShotPreset.FAR));
+
+        operator.rightBumper().whileTrue(FuelCommands.shootPass(shooter, indexer));
 
         operator.leftTrigger().whileTrue(FuelCommands.runAirPopper(indexer, shooter, intake));
-        // TODO: Test the Command retractSlidesWithRollerCmd() from IntakeSubSystem
         operator.leftBumper().whileTrue(intake.retractSlidesStack());
 
-        // Show preset label on Elastic while operator holds the button (no trigger required).
-        // Reverts to "Vision" when the button is released.
-        operator.a().onTrue(Commands.runOnce(() -> shooter.setDisplayPreset(ShooterSubsystem.ShotPreset.TRENCH)));
-            operator.a().onFalse(Commands.runOnce(shooter::clearDisplayPreset));
-        operator.b().onTrue(Commands.runOnce(() -> shooter.setDisplayPreset(ShooterSubsystem.ShotPreset.CLOSE)));
-            operator.b().onFalse(Commands.runOnce(shooter::clearDisplayPreset));
-        operator.x().onTrue(Commands.runOnce(() -> shooter.setDisplayPreset(ShooterSubsystem.ShotPreset.TOWER)));
-        operator.x().onFalse(Commands.runOnce(shooter::clearDisplayPreset));
-        operator.y().onTrue(Commands.runOnce(() -> shooter.setDisplayPreset(ShooterSubsystem.ShotPreset.FAR)));
-            operator.y().onFalse(Commands.runOnce(shooter::clearDisplayPreset));
+    
         // operator.povUp().whileTrue(null); // incremental extend climber command to be added when climber is ready
         // operator.povDown().whileTrue(null); // incremental retract climber command to be added when climber is ready
 
-        // TODO: Test this new shoot + retract command and tune the slide retract time
-        operator.rightTrigger().whileTrue(FuelCommands.Auto.shootTrenchWithSlideRetract(shooter, indexer, intake, 3));
-                
+        // Operator holds a face button to override with a named preset.
+
     }
 
     public Command getAutonomousCommand() {

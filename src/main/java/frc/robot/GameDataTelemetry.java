@@ -76,9 +76,11 @@ public class GameDataTelemetry {
      * Call this in robotPeriodic(). Data arrives ~3 seconds after Auto ends.
      */
     public void update() {
+
+        
         // vvv CANCEL FOR COMPETITION - remove these two lines before competing vvv
-        inactiveFirstAlliance = InactiveAlliance.BLUE;
-        dataReceived = true;
+        // inactiveFirstAlliance = InactiveAlliance.BLUE;
+        // dataReceived = true;
         // ^^^ CANCEL FOR COMPETITION ^^^
 
         if (!dataReceived) {
