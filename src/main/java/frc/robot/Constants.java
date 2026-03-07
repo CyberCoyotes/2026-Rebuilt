@@ -125,12 +125,12 @@ public final class Constants {
      * Add an end of line comment `Tuned` when each is verified
      */
     public static final double POPPER_RPM = 650; // TODO: 800 was just a little too much
-    public static final double STANDBY_RPM = 1000; //
-    public static final double CLOSE_RPM = 2750; //
+    public static final double STANDBY_RPM = 1000; // TODO: Tune Standby RPM
+    public static final double CLOSE_RPM = 2700; // TODO: Tune was 2600, 4.42
     public static final double TOWER_RPM = 3200; // TODO: Tune was 3100, 4.42
     public static final double TRENCH_RPM = 3200; // TODO: Tune
     public static final double FAR_RPM = 3800; // TODO: Tune was 4000 + 5.5 worked
-    public static final double PASS_RPM = 4000; //
+    public static final double PASS_RPM = 3200; //
 
     /**
      * Reverse RPM for jam clearing. Only reached through eject(), which gates on
@@ -158,12 +158,12 @@ public final class Constants {
      * Consider using WCP Encoder
      * Add an end of line comment `Tuned` when each is verified
      */
-    public static final double CLOSE_HOOD = 0.00; //
-    public static final double POPPER_HOOD = 8.42; // TODO: Tune
-    public static final double TOWER_HOOD = 4.30; //
-    public static final double TRENCH_HOOD = 4.30; // TODO: Tune
-    public static final double FAR_HOOD = 5.50; // TODO: Tune was 4000 + 5.5 worked
-    public static final double PASS_HOOD = 7.00; //
+    public static final double CLOSE_HOOD = 0.00;   // Tuned and ready
+    public static final double POPPER_HOOD = 8.42;  // TODO: Tune Popper hood was 8.42
+    public static final double TOWER_HOOD = 4.30;   // TODO: Tune Tower hood
+    public static final double TRENCH_HOOD = 4.30;  // TODO: Tune Trench hood
+    public static final double FAR_HOOD = 5.50;     // TODO: Tune Far hood, was 4000 + 5.5 worked
+    public static final double PASS_HOOD = 3.00;    //TODO: Tune Pass hoodm, was 7.00 and too much
 
     // --- Testing Increments ---
     public static final double HOOD_TEST_INCREMENT = 0.2;
