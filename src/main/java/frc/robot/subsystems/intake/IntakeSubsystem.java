@@ -375,11 +375,20 @@ public class IntakeSubsystem extends SubsystemBase {
      *
      * @param intakeTimeout How long to run the roller after extending.
      */
-    public Command intakeFuelAuton(double intakeTimeout) {
+    public Command intakeFuelTimer(double intakeTimeout) {
         return Commands.sequence(
                 extendSlidesCmd(),
                 Commands.run(this::runRoller, this)
                         .withTimeout(intakeTimeout)
+                        .finallyDo(this::stopRoller))
+                .withName("IntakeFuelAuton");
+    }
+
+    public Command intakeFuelUntil(BooleanSupplier condition) {
+        return Commands.sequence(
+                extendSlidesCmd(),
+                Commands.run(this::runRoller, this)
+                        .until(condition)
                         .finallyDo(this::stopRoller))
                 .withName("IntakeFuelAuton");
     }
@@ -394,8 +403,8 @@ public class IntakeSubsystem extends SubsystemBase {
      *                     re-commanded every cycle until isSlideFullyRetracted().
      *
      * Roller is stopped in finallyDo so any interrupt (e.g. deadline finishing)
-     * still cleans up properly.
-     *
+        * still cleans up properly.
+        *
      * Typical auton usage:
      * <pre>
      *   Commands.deadline(
@@ -403,7 +412,7 @@ public class IntakeSubsystem extends SubsystemBase {
      *       intake.retractSlidesWithRollerCmd());
      * </pre>
      */
-    public Command retractSlidesWithRollerCmd() {
+    public Command retractSlidesAuton() {
         return Commands.sequence(
                 Commands.runOnce(() -> {
                     retractSlidesIncremental();

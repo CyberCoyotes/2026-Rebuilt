@@ -95,7 +95,7 @@ public class AutoRoutines {
 
                         ));
                 // Routine Events
-                StartRMid.atTime("Intake").onTrue(m_intake.intakeFuelAuton(10)); 
+                StartRMid.atTime("Intake").onTrue(m_intake.intakeFuelTimer(10)); 
 
                 StartRMid.atTime("Shoot").onTrue(FuelCommands.Auto.shootTrench(m_shooter, m_indexer, 6)); //FIXME: Check segement number
                 // Stay in a line! Color in the lines
@@ -119,7 +119,7 @@ public class AutoRoutines {
 
                         ));
                 // Routine Events
-                StartLMid.atTime("Intake").onTrue(m_intake.intakeFuelAuton(10)); 
+                StartLMid.atTime("Intake").onTrue(m_intake.intakeFuelTimer(10)); 
 
                 StartLMid.atTime("Shoot").onTrue(FuelCommands.Auto.shootTrench(m_shooter, m_indexer, 6)); //FIXME: Check segement number
                 // Stay in a line! Color in the lines
@@ -158,7 +158,7 @@ public class AutoRoutines {
 
                         ));
                 // Routine Events
-                MidDepot.atTime("Intake").onTrue(m_intake.intakeFuelAuton(10)); 
+                MidDepot.atTime("Intake").onTrue(m_intake.intakeFuelTimer(10)); 
                 MidDepot.atTime("Shoot").onTrue(FuelCommands.Auto.shootFar(m_shooter, m_indexer, 6)); //score
                
 
