@@ -89,6 +89,7 @@ public class RobotContainer {
     }
 
     private void configureBindings() {
+
         // =====================================================================
         // DRIVER CONTROLLER (Port 0) - Drivetrain
         // =====================================================================
@@ -114,7 +115,6 @@ public class RobotContainer {
         // =====================================================================
         // DRIVER CONTROLLER (Port 0) - Shooter
         // =====================================================================
-
         
         driver.rightTrigger(0.5).whileTrue(
             FuelCommands.poseAlignAndShoot(shooter, indexer, drivetrain,
@@ -124,7 +124,7 @@ public class RobotContainer {
         driver.rightBumper().whileTrue(FuelCommands.shootPass(shooter, indexer));
 
         driver.leftTrigger(0.5).whileTrue(intake.intakeFuel());
-        driver.leftBumper().whileTrue(intake.compressFuelIncremental());
+        driver.leftBumper().whileTrue(intake.compressFuelHeld());
 
         driver.povDown().onTrue(intake.retractSlidesCmd());
 

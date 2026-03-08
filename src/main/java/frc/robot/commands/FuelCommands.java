@@ -21,7 +21,6 @@ import frc.robot.subsystems.intake.IntakeSubsystem;
 import frc.robot.subsystems.shooter.ShooterSubsystem;
 import frc.robot.subsystems.shooter.ShooterSubsystem.ShotPreset;
 
-
 import java.util.function.DoubleSupplier;
 
 import static edu.wpi.first.units.Units.MetersPerSecond;
@@ -130,7 +129,7 @@ public class FuelCommands {
             IntakeSubsystem intake, double rpm, double hood) {
         return Commands.deadline(
                 shootWithPreset(shooter, indexer, rpm, hood),
-                intake.retractSlidesWithRollerCmd())
+                intake.retractSlidesAuton())
                 .withName("ShootWithSlideRetract[" + rpm + "rpm]");
     }
 
@@ -170,28 +169,6 @@ public class FuelCommands {
                 .withName("ShootWithPreset[" + preset.label + "]");
     }
 
-    /**
-     * Air popper assist _without_ intake.
-     *
-     * Holds the shooter at POPPER preset while feeding the indexer/conveyor.
-     * Use when an intake command is already being scheduled elsewhere.
-     */
-    // public static Command runAirPopperTest(IndexerSubsystem indexer,
-    // ShooterSubsystem shooter) {
-    // return Commands.sequence(
-    // Commands.runOnce(() -> {
-    // shooter.setAirPopper();
-    // shooter.prepareToShoot();
-    // }, shooter),
-    // Commands.deadline(
-    // indexer.feed(),
-    // Commands.run(() -> {
-    // }, shooter))).finallyDo(() -> {
-    // indexer.indexerStop();
-    // indexer.conveyorStop();
-    // shooter.setIdle();
-    // }).withName("RunAirPopper");
-    // }
 
     /**
      * Air popper assist with intake.
@@ -671,7 +648,7 @@ public class FuelCommands {
                 IndexerSubsystem indexer, IntakeSubsystem intake, double feedSeconds) {
             return Commands.deadline(
                     shootTrench(shooter, indexer, feedSeconds),
-                    intake.retractSlidesWithRollerCmd())
+                    intake.retractSlidesAuton())
                     .withName("ShootTrenchWithSlideRetract");
         }
 
