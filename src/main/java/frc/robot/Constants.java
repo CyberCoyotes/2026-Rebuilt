@@ -49,6 +49,10 @@ public final class Constants {
     public static final double SLIDE_EXTENDED_POSITION = 44.40;
     public static final double SLIDE_MIN_POSITION = 0.0;
     public static final double SLIDE_MAX_POSITION = 44.454;
+
+    // TODO Tune the roller voltages
+    public static final double FORWARD_ROLLER_VOLTS = 8.0;
+    public static final double REVERSE_ROLLER_VOLTS = -8.0;
   }
 
   // =========================================================
@@ -75,17 +79,21 @@ public final class Constants {
     public static final int CHUTE_TOF_ID = 42;
 
     //=== Voltage Constants =====================
+    // TODO Tune conveyor voltages for reliable feeding
     public static final double CONVEYOR_FORWARD_VOLTAGE = 6.0;
     public static final double CONVEYOR_REVERSE_VOLTAGE = -4.0;
     public static final double CONVEYOR_POPPER_VOLTAGE = 3.0;
 
+    // TODO Tune indexer voltages for reliable feeding
     public static final double INDEXER_FORWARD_VOLTAGE = 6.0;
     public static final double INDEXER_REVERSE_VOLTAGE = -4.0;
     public static final double INDEXER_POPPER_VOLTAGE = 3.0;
 
-    public static final double CHUTE_MAX_DISTANCE = 0.50; // TODO: Tune experimentally
-    public static final double CHUTE_MIN_DISTANCE = 0.02; // TODO: Tune experimentally
-
+    // TODO Tune chute distance thresholds based on actual sensor readings with fuel present vs. absent. 
+    // These are starting points based on typical ToF sensor performance and expected geometry.
+    public static final double CHUTE_MAX_DISTANCE = 0.50;
+    public static final double CHUTE_MIN_DISTANCE = 0.02;
+    
     // Chute detection threshold: distance below which we consider a piece to be
     // present at the chute.
     public static final double CHUTE_DETECTION_THRESHOLD_METERS = 0.40; //
