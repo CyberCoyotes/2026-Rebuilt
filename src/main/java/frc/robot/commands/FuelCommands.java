@@ -127,27 +127,36 @@ public class FuelCommands {
                 .withName("ShootWithSlideRetract[" + rpm + "rpm]");
     }
 
-    // Template for the using ShotPresets in Auton
     public static Command shootPresetAuton(ShooterSubsystem shooter, IndexerSubsystem indexer,
-            ShotPreset preset, double feedSeconds,
-            boolean waitForReady) {
-        return Commands.sequence(
-                Commands.runOnce(() -> {
-                    shooter.setTargetVelocity(preset.rpm);
-                    shooter.setTargetHoodPose(preset.hood);
-                    shooter.spinUp();
-                }, shooter),
-                Commands.waitUntil(shooter::isReady).withTimeout(3.0),
-                Commands.run(() -> {
-                    indexer.indexerForward();
-                    indexer.conveyorForward();
-                }, indexer).withTimeout(feedSeconds) // primary end trigger: timeout
-        ).finallyDo(() -> {
-            indexer.indexerStop();
-            indexer.conveyorStop();
-            shooter.setIdle();
-        }).withName("ShootPresetAuton[" + preset.label + "]");
-    }
+        ShotPreset preset, double feedSeconds) {
+    return Commands.sequence(
+            Commands.runOnce(() -> {
+                shooter.setTargetVelocity(preset.rpm);
+                shooter.setTargetHoodPose(preset.hood);
+            }, shooter),
+            shooter.spinUp(),
+            Commands.waitUntil(shooter::isReady),
+            indexer.feed().withTimeout(feedSeconds)
+    ).withName("ShootPresetAuton[" + preset.label + "]");
+}
+    // // Template for the using ShotPresets in Auton
+    // public static Command shootPresetAuton(ShooterSubsystem shooter, IndexerSubsystem indexer,
+    //         ShotPreset preset, double feedSeconds,
+    //         boolean waitForReady) {
+    //     return Commands.sequence(
+    //             Commands.runOnce(() -> {
+    //                 shooter.setTargetVelocity(preset.rpm);
+    //                 shooter.setTargetHoodPose(preset.hood);
+    //                 shooter.spinUp();
+    //             }, shooter),
+    //             Commands.waitUntil(shooter::isReady), // removed timeout 3/9/26
+    //             indexer.feed() // replaced indexer.conveyorForward() + indexer.indexerForward() with feed() 
+    //     // ).finallyDo(() -> { // TODO Comment out for testing and remove for good once validated that is is not needed
+    //     //     indexer.indexerStop();
+    //     //     indexer.conveyorStop();
+    //     //     shooter.setIdle();}
+    //     ).withName("ShootPresetAuton[" + preset.label + "]");
+    // }
 
     /**
      * Convenience overload — shoots using a {@link ShotPreset} enum value.
