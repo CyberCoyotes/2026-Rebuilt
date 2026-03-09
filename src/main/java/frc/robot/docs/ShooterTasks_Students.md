@@ -50,7 +50,7 @@ Your initial shooter implementation (`ShooterSubsystemBasics.java`) has been pre
 **What to Do**:
 1. **Flywheel velocity control**:
    - Start with current kP = 0.1
-   - Command shooter to 3000 RPM using ShooterCommands.spinUp()
+   - Command shooter to 3000 RPM using FuelCommands (e.g. shootWithPreset or shootAtCurrentTarget)
    - Use Phoenix Tuner X or AdvantageScope to plot velocity vs target
    - Increase kP until oscillation, then reduce by 50%
    - Add kD if needed to reduce overshoot

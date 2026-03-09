@@ -258,9 +258,11 @@ public void periodic() {
     }
 
     /**
-     * Transitions to SPINNING_UP, ramping flywheel to target and moving hood to target angle.
+     * Transitions state machine to SPINNING_UP.
+     * Void method — safe to call inside lambdas, runOnce, and Commands.run() loops.
+     * Use spinUpCommand() when you need a scheduled Command in a sequence.
      */
-    public void spinUpToShoot() {
+    public void beginSpinUp() {
         setState(ShooterState.SPINNING_UP);
     }
 
@@ -413,11 +415,16 @@ public void periodic() {
         return targetHoodPoseRot;
     }
 
-    public Command spinUp() {
+    /**
+     * Command that holds SPINNING_UP state while scheduled and returns to IDLE on end.
+     * Use as a standalone step in a Commands.sequence() — never call this inside a lambda.
+     * For lambdas/runOnce/Commands.run(), use beginSpinUp() (void) instead.
+     */
+    public Command spinUpCommand() {
         return Commands.startEnd(
             () -> setState(ShooterState.SPINNING_UP),
             () -> setState(ShooterState.IDLE),
-            this).withName("Shooter: SpinUp");
+            this).withName("Shooter: SpinUpCommand");
     }
         // =========================================================================
     // Vision Lookup Tables
