@@ -87,12 +87,12 @@ public class FuelCommands {
                 Commands.runOnce(() -> {
                     shooter.setTargetVelocity(rpm); // Set Constants._RPM
                     shooter.setTargetHoodPose(hood); // Set Constants._HOOD
-                    shooter.spinUp();
+                    shooter.spinUpToShoot();         // void — transitions state machine to SPINNING_UP
                 }, shooter),
                 Commands.waitUntil(shooter::isReady).withTimeout(3.0),
                 Commands.run(() -> {
-                indexer.conveyorForward();
-                indexer.indexerForward();
+                    indexer.conveyorForward();
+                    indexer.indexerForward();
                 }, indexer))
                 .finallyDo(() -> {
                     indexer.indexerStop();
@@ -128,17 +128,21 @@ public class FuelCommands {
     }
 
     public static Command shootPresetAuton(ShooterSubsystem shooter, IndexerSubsystem indexer,
-        ShotPreset preset, double feedSeconds) {
-    return Commands.sequence(
-            Commands.runOnce(() -> {
-                shooter.setTargetVelocity(preset.rpm);
-                shooter.setTargetHoodPose(preset.hood);
-            }, shooter),
-            shooter.spinUp(),
-            Commands.waitUntil(shooter::isReady),
-            indexer.feed().withTimeout(feedSeconds)
-    ).withName("ShootPresetAuton[" + preset.label + "]");
-}
+            ShotPreset preset, double feedSeconds) {
+        return Commands.sequence(
+                Commands.runOnce(() -> {
+                    shooter.setTargetVelocity(preset.rpm);
+                    shooter.setTargetHoodPose(preset.hood);
+                    shooter.spinUpToShoot(); // void — transitions state machine to SPINNING_UP
+                }, shooter),
+                Commands.waitUntil(shooter::isReady),
+                indexer.feed().withTimeout(feedSeconds))
+                .finallyDo(() -> {
+                    indexer.indexerStop();
+                    indexer.conveyorStop();
+                    shooter.setIdle();
+                }).withName("ShootPresetAuton[" + preset.label + "]");
+    }
     // // Template for the using ShotPresets in Auton
     // public static Command shootPresetAuton(ShooterSubsystem shooter, IndexerSubsystem indexer,
     //         ShotPreset preset, double feedSeconds,
@@ -318,7 +322,7 @@ public class FuelCommands {
 
             shooter.updateFromDistance(distance);
             if (shooter.getState() != ShooterSubsystem.ShooterState.READY) {
-                shooter.spinUp();
+                shooter.spinUpToShoot(); // void — only transitions state; never call spinUp() (returns Command) here
             }
 
             // 2. Apply velocity offset for movement
@@ -367,7 +371,7 @@ public class FuelCommands {
             }
 
         }, shooter, indexer, drivetrain)
-                .beforeStarting(Commands.runOnce(shooter::spinUp, shooter))
+                .beforeStarting(Commands.runOnce(shooter::spinUpToShoot, shooter))
                 .finallyDo(() -> {
                     indexer.indexerStop();
                     indexer.conveyorStop();
@@ -436,9 +440,9 @@ public class FuelCommands {
                 // if already in READY state — see ShooterSubsystem.updateFromDistance)
                 shooter.updateFromDistance(vision.getDistanceToTargetMeters());
             }
-            // Keep commanding READY every cycle — setState() no-ops if already there
+            // Keep commanding SPINNING_UP every cycle until READY — setState() no-ops if already there
             if (shooter.getState() != ShooterSubsystem.ShooterState.READY) {
-                shooter.spinUp();
+                shooter.spinUpToShoot(); // void — only transitions state; never call spinUp() (returns Command) here
             }
 
             // ── 2. Drivetrain: driver translation + vision rotation ────────────
@@ -466,9 +470,7 @@ public class FuelCommands {
             }
 
         }, shooter, vision, indexer, drivetrain)
-                .beforeStarting(Commands.runOnce(() -> {
-                    shooter.spinUp(); // Enter READY state — don't wait for alignment
-                }, shooter))
+                .beforeStarting(Commands.runOnce(shooter::spinUpToShoot, shooter))
                 .finallyDo(() -> {
                     indexer.indexerStop();
                     indexer.conveyorStop();
@@ -508,7 +510,7 @@ public class FuelCommands {
                 Commands.runOnce(() -> {
                     double distance = vision.getDistanceToTargetMeters();
                     shooter.updateFromDistance(distance);
-                    shooter.spinUp();
+                    shooter.spinUpToShoot(); // void — transitions state machine to SPINNING_UP
                 }, shooter, vision),
                 Commands.waitUntil(shooter::isReady).withTimeout(3.0))
                 .withName("VisionShot");
@@ -589,7 +591,7 @@ public class FuelCommands {
                                         Constants.Vision.MAX_DISTANCE_M);
                                 shooter.updateFromDistance(distance);
                                 if (shooter.getState() != ShooterSubsystem.ShooterState.READY) {
-                                    shooter.spinUp();
+                                    shooter.spinUpToShoot(); // void — only transitions state; never call spinUp() (returns Command) here
                                 }
                                 double headingError = Math.toDegrees(Math.atan2(dy, dx))
                                         - pose.getRotation().getDegrees();
@@ -622,7 +624,7 @@ public class FuelCommands {
                     Commands.runOnce(() -> {
                         shooter.setTargetVelocity(Constants.Shooter.TRENCH_RPM);
                         shooter.setTargetHoodPose(Constants.Shooter.TRENCH_HOOD);
-                        shooter.spinUp();
+                        shooter.spinUpToShoot(); // void — transitions state machine to SPINNING_UP
                     }, shooter),
                     Commands.waitUntil(shooter::isReady), // removed timeout
                     indexer.feed().withTimeout(feedSeconds) // removed sensor time
@@ -662,7 +664,7 @@ public class FuelCommands {
                     Commands.runOnce(() -> {
                         shooter.setTargetVelocity(Constants.Shooter.CLOSE_RPM);
                         shooter.setTargetHoodPose(Constants.Shooter.CLOSE_HOOD);
-                        shooter.spinUp();
+                        shooter.spinUpToShoot(); // void — transitions state machine to SPINNING_UP
                     }, shooter),
                     Commands.waitUntil(shooter::isReady), // remove timeout
 
@@ -681,7 +683,7 @@ public class FuelCommands {
                     Commands.runOnce(() -> {
                         shooter.setTargetVelocity(Constants.Shooter.TOWER_RPM);
                         shooter.setTargetHoodPose(Constants.Shooter.TOWER_HOOD);
-                        shooter.spinUp(); //Command factory — starts the spinup process, owns lifecycle
+                        shooter.spinUpToShoot(); // void — transitions state machine to SPINNING_UP
                     }, shooter),
                     Commands.waitUntil(shooter::isReady).withTimeout(6.0),
                     indexer.feed().until(indexer::donePassingFuel).withTimeout(feedSeconds)).finallyDo(() -> {
@@ -698,7 +700,7 @@ public class FuelCommands {
                     Commands.runOnce(() -> {
                         shooter.setTargetVelocity(Constants.Shooter.FAR_RPM);
                         shooter.setTargetHoodPose(Constants.Shooter.FAR_HOOD);
-                        shooter.spinUp();
+                        shooter.spinUpToShoot(); // void — transitions state machine to SPINNING_UP
                     }, shooter),
                     Commands.waitUntil(shooter::isReady).withTimeout(6.0),
                     indexer.feed().until(indexer::donePassingFuel).withTimeout(feedSeconds)).finallyDo(() -> {
@@ -715,7 +717,7 @@ public class FuelCommands {
                     Commands.runOnce(() -> {
                         shooter.setTargetVelocity(Constants.Shooter.TRENCH_RPM);
                         shooter.setTargetHoodPose(Constants.Shooter.TRENCH_HOOD);
-                        shooter.spinUp();
+                        shooter.spinUpToShoot(); // void — transitions state machine to SPINNING_UP
                     }, shooter),
                     Commands.waitUntil(shooter::isReady).withTimeout(6.0),
                     indexer.feed().until(indexer::donePassingFuel).withTimeout(feedSeconds)).finallyDo(() -> {
