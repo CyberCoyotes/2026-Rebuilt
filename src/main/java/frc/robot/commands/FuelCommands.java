@@ -56,16 +56,10 @@ public class FuelCommands {
 
     public static Command shootAtCurrentTarget(ShooterSubsystem shooter, IndexerSubsystem indexer) {
         return Commands.sequence(
-                Commands.runOnce(shooter::prepareToShoot, shooter),
+                shooter.spinUp(),
                 Commands.waitUntil(shooter::isReady).withTimeout(3.0),
-                Commands.run(() -> {
-                    indexer.indexerForward();
-                    indexer.conveyorForward();
-                }, indexer)).finallyDo(() -> {
-                    indexer.indexerStop();
-                    indexer.conveyorStop();
-                    shooter.setIdle(); // Stop all flywheel motors on trigger release
-                }).withName("ShootAtCurrentTarget");
+                indexer.feed()
+            ).withName("ShootAtCurrentTarget");
     }
 
     /**
@@ -73,7 +67,7 @@ public class FuelCommands {
      *
      * Flow:
      * 1. Sets the given RPM + hood target silently
-     * 2. Calls prepareToShoot() — flywheel ramps up, hood moves to target
+     * 2. Calls spinUp()() — flywheel ramps up, hood moves to target
      * 3. Waits until both are at target (isReady()), with a 3-second safety timeout
      * 4. Runs indexer and conveyor forward to feed the game piece
      * 5. On trigger release (whileTrue interrupt): stops indexer/conveyor, returns
@@ -93,7 +87,7 @@ public class FuelCommands {
                 Commands.runOnce(() -> {
                     shooter.setTargetVelocity(rpm); // Set Constants._RPM
                     shooter.setTargetHoodPose(hood); // Set Constants._HOOD
-                    shooter.prepareToShoot();
+                    shooter.spinUp();
                 }, shooter),
                 Commands.waitUntil(shooter::isReady).withTimeout(3.0),
                 Commands.run(() -> {
@@ -141,7 +135,7 @@ public class FuelCommands {
                 Commands.runOnce(() -> {
                     shooter.setTargetVelocity(preset.rpm);
                     shooter.setTargetHoodPose(preset.hood);
-                    shooter.prepareToShoot();
+                    shooter.spinUp();
                 }, shooter),
                 Commands.waitUntil(shooter::isReady).withTimeout(3.0),
                 Commands.run(() -> {
@@ -315,7 +309,7 @@ public class FuelCommands {
 
             shooter.updateFromDistance(distance);
             if (shooter.getState() != ShooterSubsystem.ShooterState.READY) {
-                shooter.prepareToShoot();
+                shooter.spinUp();
             }
 
             // 2. Apply velocity offset for movement
@@ -364,7 +358,7 @@ public class FuelCommands {
             }
 
         }, shooter, indexer, drivetrain)
-                .beforeStarting(Commands.runOnce(shooter::prepareToShoot, shooter))
+                .beforeStarting(Commands.runOnce(shooter::spinUp, shooter))
                 .finallyDo(() -> {
                     indexer.indexerStop();
                     indexer.conveyorStop();
@@ -435,7 +429,7 @@ public class FuelCommands {
             }
             // Keep commanding READY every cycle — setState() no-ops if already there
             if (shooter.getState() != ShooterSubsystem.ShooterState.READY) {
-                shooter.prepareToShoot();
+                shooter.spinUp();
             }
 
             // ── 2. Drivetrain: driver translation + vision rotation ────────────
@@ -464,7 +458,7 @@ public class FuelCommands {
 
         }, shooter, vision, indexer, drivetrain)
                 .beforeStarting(Commands.runOnce(() -> {
-                    shooter.prepareToShoot(); // Enter READY state — don't wait for alignment
+                    shooter.spinUp(); // Enter READY state — don't wait for alignment
                 }, shooter))
                 .finallyDo(() -> {
                     indexer.indexerStop();
@@ -505,7 +499,7 @@ public class FuelCommands {
                 Commands.runOnce(() -> {
                     double distance = vision.getDistanceToTargetMeters();
                     shooter.updateFromDistance(distance);
-                    shooter.prepareToShoot();
+                    shooter.spinUp();
                 }, shooter, vision),
                 Commands.waitUntil(shooter::isReady).withTimeout(3.0))
                 .withName("VisionShot");
@@ -586,7 +580,7 @@ public class FuelCommands {
                                         Constants.Vision.MAX_DISTANCE_M);
                                 shooter.updateFromDistance(distance);
                                 if (shooter.getState() != ShooterSubsystem.ShooterState.READY) {
-                                    shooter.prepareToShoot();
+                                    shooter.spinUp();
                                 }
                                 double headingError = Math.toDegrees(Math.atan2(dy, dx))
                                         - pose.getRotation().getDegrees();
@@ -619,7 +613,7 @@ public class FuelCommands {
                     Commands.runOnce(() -> {
                         shooter.setTargetVelocity(Constants.Shooter.TRENCH_RPM);
                         shooter.setTargetHoodPose(Constants.Shooter.TRENCH_HOOD);
-                        shooter.prepareToShoot();
+                        shooter.spinUp();
                     }, shooter),
                     Commands.waitUntil(shooter::isReady), // removed timeout
                     indexer.feed().withTimeout(feedSeconds) // removed sensor time
@@ -659,7 +653,7 @@ public class FuelCommands {
                     Commands.runOnce(() -> {
                         shooter.setTargetVelocity(Constants.Shooter.CLOSE_RPM);
                         shooter.setTargetHoodPose(Constants.Shooter.CLOSE_HOOD);
-                        shooter.prepareToShoot();
+                        shooter.spinUp();
                     }, shooter),
                     Commands.waitUntil(shooter::isReady), // remove timeout
 
@@ -678,7 +672,7 @@ public class FuelCommands {
                     Commands.runOnce(() -> {
                         shooter.setTargetVelocity(Constants.Shooter.TOWER_RPM);
                         shooter.setTargetHoodPose(Constants.Shooter.TOWER_HOOD);
-                        shooter.prepareToShoot();
+                        shooter.spinUp(); //Command factory — starts the spinup process, owns lifecycle
                     }, shooter),
                     Commands.waitUntil(shooter::isReady).withTimeout(6.0),
                     indexer.feed().until(indexer::donePassingFuel).withTimeout(feedSeconds)).finallyDo(() -> {
@@ -695,7 +689,7 @@ public class FuelCommands {
                     Commands.runOnce(() -> {
                         shooter.setTargetVelocity(Constants.Shooter.FAR_RPM);
                         shooter.setTargetHoodPose(Constants.Shooter.FAR_HOOD);
-                        shooter.prepareToShoot();
+                        shooter.spinUp();
                     }, shooter),
                     Commands.waitUntil(shooter::isReady).withTimeout(6.0),
                     indexer.feed().until(indexer::donePassingFuel).withTimeout(feedSeconds)).finallyDo(() -> {
@@ -712,7 +706,7 @@ public class FuelCommands {
                     Commands.runOnce(() -> {
                         shooter.setTargetVelocity(Constants.Shooter.TRENCH_RPM);
                         shooter.setTargetHoodPose(Constants.Shooter.TRENCH_HOOD);
-                        shooter.prepareToShoot();
+                        shooter.spinUp();
                     }, shooter),
                     Commands.waitUntil(shooter::isReady).withTimeout(6.0),
                     indexer.feed().until(indexer::donePassingFuel).withTimeout(feedSeconds)).finallyDo(() -> {
