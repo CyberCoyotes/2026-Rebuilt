@@ -715,6 +715,7 @@ public class FuelCommands {
          * @param m_drivetrain How long to run the indexer/conveyor after aligned and ready
          * @return Autonomous align-and-shoot command
          */
+        /* 
         public static Command visionShot_version2(
                 ShooterSubsystem shooter,
                 VisionSubsystem m_vision,
@@ -774,7 +775,10 @@ public class FuelCommands {
                         shooter.setIdle();
                     }).withName("AutoAlignAndShoot");
         }
+*/
 
+        // =============================================================================
+        // 
         /* Autonomous shooting command */
         /* FIXME Trench is the working "Test" command for autonomous. Others should be updated after its working properly */
         public static Command shootTrench(ShooterSubsystem shooter, IndexerSubsystem indexer,
