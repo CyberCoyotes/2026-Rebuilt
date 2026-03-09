@@ -73,8 +73,11 @@ public class RobotContainer {
         larson = new LedSubsystem();
         // climber = new ClimberSubsystem();
 
+        // NamedCommands.registerCommand("Shoot",
+        // ShooterCommands.visionAlignAndShoot(shooter, vision, indexer, drivetrain));
+
         autoFactory = drivetrain.createAutoFactory();
-        autoRoutines = new AutoRoutines(autoFactory,drivetrain,indexer, intake, shooter, fuelCommands);
+        autoRoutines = new AutoRoutines(autoFactory,drivetrain,indexer, intake, shooter, fuelCommands, vision/*, ledSubsystem*/);
         SmartDashboard.putData(autoChooser);
         autoChooser.addRoutine("Four meters", autoRoutines::FM);
         autoChooser.addRoutine("Lob", autoRoutines::Lob);

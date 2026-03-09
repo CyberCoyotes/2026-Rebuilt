@@ -6,6 +6,7 @@ import choreo.auto.AutoTrajectory;
 import edu.wpi.first.wpilibj2.command.Commands;
 import frc.robot.subsystems.shooter.ShooterSubsystem;
 import frc.robot.commands.FuelCommands;
+import frc.robot.commands.FuelCommands.Auto;
 import frc.robot.subsystems.led.LedSubsystem;
 import frc.robot.subsystems.vision.VisionSubsystem;
 import frc.robot.subsystems.indexer.IndexerSubsystem;
@@ -21,21 +22,22 @@ public class AutoRoutines {
     private final IndexerSubsystem m_indexer;
     private final ShooterSubsystem m_shooter;
     private final FuelCommands m_fuelCommands;
-   // private final VisionSubsystem m_vision;
-//  private final LedSubsystem m_ledSubsystem;
+    private final VisionSubsystem m_vision;
+   // private final LedSubsystem m_ledSubsystem;
 
     // How long to wait after driving before doing something else
     private final double DRIVE_WAIT = 1.0; // Cut 2.0 -> 1.0 or less 
     private final double SCORE_WAIT = 1.0; // Cut 2.0 -> 1.0 or less 
 
     public AutoRoutines(AutoFactory factory, CommandSwerveDrivetrain drivetrain,/* , ClimberSubsystem climber,*/
-         IndexerSubsystem indexer,IntakeSubsystem intake, ShooterSubsystem shooter, FuelCommands fuelCommands/*, VisionSubsystem vision, LedSubsystem ledSubsystem*/) {
+         IndexerSubsystem indexer,IntakeSubsystem intake, ShooterSubsystem shooter, FuelCommands fuelCommands, VisionSubsystem vision/*, LedSubsystem ledSubsystem*/) {
         m_factory = factory;
         m_drivetrain = drivetrain;
         //m_climber = climber;
         m_indexer = indexer;
         m_intake = intake;
         m_shooter = shooter;
+        m_vision = vision;
         m_fuelCommands = fuelCommands;
     }
 
@@ -160,6 +162,44 @@ public class AutoRoutines {
                 // Routine Events
                 MidDepot.atTime("Intake").onTrue(m_intake.intakeFuelTimer(10)); 
                 MidDepot.atTime("Shoot").onTrue(FuelCommands.Auto.shootFar(m_shooter, m_indexer, 6)); //score
+               
+
+                return routine;
+        }
+
+        // ============================================================================
+        // Experimental
+        // ============================================================================
+
+        public AutoRoutine visionTest01() {
+                 final AutoRoutine routine = m_factory.newRoutine("VisionTest01");
+                final AutoTrajectory Experimental = routine.trajectory("VisionTest", 0);
+
+                routine.active().onTrue(
+                        Commands.sequence(
+                                Experimental.resetOdometry(), // Always reset odometry first
+                                Experimental.cmd() //Follow the path
+
+                        ));
+                // Routine Events
+                Experimental.atTime("Shoot").onTrue(FuelCommands.Auto.visionShot_version1(m_shooter, m_vision, m_indexer, m_drivetrain)); //score
+               
+
+                return routine;
+        }
+
+        public AutoRoutine visionTest02() {
+                 final AutoRoutine routine = m_factory.newRoutine("VisionTest02");
+                final AutoTrajectory Experimental = routine.trajectory("VisionTest", 0);
+
+                routine.active().onTrue(
+                        Commands.sequence(
+                                Experimental.resetOdometry(), // Always reset odometry first
+                                Experimental.cmd() //Follow the path
+
+                        ));
+                // Routine Events
+                Experimental.atTime("Shoot").onTrue(FuelCommands.Auto.visionShot_version2(m_shooter, m_vision, m_indexer, m_drivetrain)); //score
                
 
                 return routine;
