@@ -182,12 +182,17 @@ public class AutoRoutines {
 
                         ));
                 // Routine Events
+
+                // FIXME: I tried this with a simple auto but it kind of oscillated back and forth. I don't know if that's a vision issue or fighting with Choreo's event system.
                 // Experimental.atTime("Shoot").onTrue(FuelCommands.Auto.visionShot_version1(m_shooter, m_vision, m_indexer, m_drivetrain)); //score
-                Experimental.atTime("Shoot").onTrue(FuelCommands.poseAlignAndShoot(m_shooter, m_indexer, m_drivetrain, null, null)); //score
+                
+                // I tried using the regular vision shot and it did not work.
+                // Experimental.atTime("Shoot").onTrue(FuelCommands.poseAlignAndShoot(m_shooter, m_indexer, m_drivetrain, null, null)); //score
 
                 return routine;
         }
 
+        // FIXME This was not written correctly and I don't have time to fix it.
         // public AutoRoutine visionTest02() {
         //          final AutoRoutine routine = m_factory.newRoutine("VisionTest02");
         //         final AutoTrajectory Experimental = routine.trajectory("VisionTest", 0);
