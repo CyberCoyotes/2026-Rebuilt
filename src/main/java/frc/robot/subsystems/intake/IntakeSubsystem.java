@@ -164,6 +164,14 @@ public class IntakeSubsystem extends SubsystemBase {
     }
 
     /**
+     * Moves slide to an arbitrary position via MotionMagic. Motor holds after.
+     * Caller is responsible for clamping to valid range.
+     */
+    public void setSlidesToPosition(double position) {
+        io.setSlidePosition(position);
+    }
+
+    /**
      * Retracts slide by 15 rotations from its current position, clamped to the
      * minimum position. Used as a quick incremental jump before slow-finishing.
      */
@@ -335,6 +343,42 @@ public class IntakeSubsystem extends SubsystemBase {
                 Commands.waitSeconds(1),
                 Commands.runOnce(this::retractSlides, this))
                 .withName("RetractSlidesStack");
+    }
+
+    // =========================================================================
+    // COMMAND FACTORIES — SLIDE BOUNCE
+    // =========================================================================
+
+    /**
+     * Bounces the roller against the bumpers to agitate fuel, then drops back to
+     * the fully extended (intake) position.
+     *
+     * Slides run in reverse — higher position number = roller lower/out.
+     * Decreasing the position lifts the roller toward the bumpers.
+     *
+     * Sequence:
+     *   1. Move to SLIDE_BOUNCE_DOWN_POS (~40) → wait 500 ms  (roller near floor)
+     *   2. Move to SLIDE_BOUNCE_UP_POS   (~35) → wait 500 ms  (roller bumps up)
+     *   3. Move to SLIDE_BOUNCE_DOWN_POS (~40) → wait 500 ms
+     *   4. Move to SLIDE_BOUNCE_UP_POS   (~35) → wait 500 ms
+     *   5. Move to SLIDE_EXTENDED_POSITION (~44.4)             (return to intake position)
+     *
+     * Tune SLIDE_BOUNCE_DOWN_POS and SLIDE_BOUNCE_UP_POS in Constants.java.
+     * Usable in both teleop (whileTrue / onTrue) and autonomous sequences.
+     * MotionMagic holds each setpoint until the next runOnce fires.
+     */
+    public Command slideBounceUp() {
+        return Commands.sequence(
+                Commands.runOnce(() -> setSlidesToPosition(Constants.Intake.SLIDE_BOUNCE_DOWN_POS), this),
+                Commands.waitSeconds(0.5),
+                Commands.runOnce(() -> setSlidesToPosition(Constants.Intake.SLIDE_BOUNCE_UP_POS),   this),
+                Commands.waitSeconds(0.5),
+                Commands.runOnce(() -> setSlidesToPosition(Constants.Intake.SLIDE_BOUNCE_DOWN_POS), this),
+                Commands.waitSeconds(0.5),
+                Commands.runOnce(() -> setSlidesToPosition(Constants.Intake.SLIDE_BOUNCE_UP_POS),   this),
+                Commands.waitSeconds(0.5),
+                Commands.runOnce(() -> setSlidesToPosition(Constants.Intake.SLIDE_EXTENDED_POSITION), this))
+                .withName("SlideBounceUp");
     }
 
     // =========================================================================

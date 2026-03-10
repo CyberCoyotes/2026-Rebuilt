@@ -208,6 +208,51 @@ public class FuelCommands {
     // =========================================================================
 
     /**
+     * Agitates fuel by bouncing the intake roller against the bumpers, then shoots
+     * once the flywheel is ready.
+     *
+     * Slides run in reverse (higher position = roller lower/out). The bounce rocks
+     * the roller between SLIDE_BOUNCE_DOWN_POS (~40) and SLIDE_BOUNCE_UP_POS (~35)
+     * twice, then returns to SLIDE_EXTENDED_POSITION (~44.4) — the normal intake
+     * position — so the robot is ready to intake again after the shot.
+     *
+     * Sequence:
+     *   1. Starts shooter spin-up immediately (runs in parallel with slide bounce).
+     *   2. Runs {@link IntakeSubsystem#slideBounceUp()} — two DOWN/UP rock cycles
+     *      (~2 s total), ending at SLIDE_EXTENDED_POSITION.
+     *   3. Waits until {@code shooter.isReady()} (flywheel + hood settled),
+     *      with a 3-second safety timeout.
+     *   4. Feeds the indexer/conveyor to shoot.
+     *   5. finallyDo: stops indexer/conveyor and returns shooter to idle.
+     *
+     * The flywheel spins up during the ~2 s bounce — it is typically ready by the
+     * time the slides finish, so the waitUntil resolves immediately or very quickly.
+     *
+     * Bind to a button with whileTrue() or use inside an autonomous sequence.
+     *
+     * @param shooter The shooter subsystem
+     * @param indexer The indexer subsystem
+     * @param intake  The intake subsystem
+     * @return Command that bounces the roller to agitate fuel, then shoots
+     */
+    public static Command slideBounceAndShoot(ShooterSubsystem shooter, IndexerSubsystem indexer,
+            IntakeSubsystem intake) {
+        return Commands.sequence(
+                Commands.runOnce(shooter::beginSpinUp, shooter),
+                intake.slideBounceUp(),
+                Commands.waitUntil(shooter::isReady).withTimeout(3.0),
+                Commands.run(() -> {
+                    indexer.conveyorForward();
+                    indexer.indexerForward();
+                }, indexer))
+                .finallyDo(() -> {
+                    indexer.indexerStop();
+                    indexer.conveyorStop();
+                    shooter.setIdle();
+                }).withName("SlideBounceAndShoot");
+    }
+
+    /**
      * Creates a command to eject jammed game pieces.
      * Reverses flywheel for a duration then returns to SPINUP.
      *

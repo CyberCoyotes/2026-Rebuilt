@@ -47,8 +47,14 @@ public final class Constants {
     // === Constants =====================
     public static final double SLIDE_RETRACTED_POSITION = 0.0;
     public static final double SLIDE_EXTENDED_POSITION = 44.40;
-    public static final double SLIDE_MIN_POSITION = 0.0;
-    public static final double SLIDE_MAX_POSITION = 44.454;
+    public static final double SLIDE_MAX_POSITION = 44.454; // Mechanical limit, validate in configs limit
+    public static final double SLIDE_UP_POSITION = 39.5;
+    
+    /** Bounce DOWN: roller near fully extended — low position for bump agitation. TODO: Tune */
+    public static final double SLIDE_BOUNCE_DOWN_POS = 40.0;
+    /** Bounce UP: roller lifted ~5 rotations toward bumpers — high position for bump agitation. TODO: Tune */
+    public static final double SLIDE_BOUNCE_UP_POS   = 35.0;
+
 
     // TODO Tune the roller voltages
     public static final double FORWARD_ROLLER_VOLTS = 9.0;
