@@ -88,7 +88,7 @@ private static CANrangeConfiguration chuteCANrangeConfig() {
     CANrangeConfiguration configChute = new CANrangeConfiguration();
 
     // Sensor trips "detected" when distance drops below this value
-    configChute.ProximityParams.ProximityThreshold = Constants.Indexer.CHUTE_DETECTION_THRESHOLD_METERS;
+    configChute.ProximityParams.ProximityThreshold = Constants.Indexer.CHUTE_DETECTION_THRESHOLD;
 
     // Prevents chattering when a piece sits right at the threshold.
     // Sensor won't un-detect until distance rises ~2.5cm above the threshold.

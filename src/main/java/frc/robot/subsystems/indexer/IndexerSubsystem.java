@@ -29,7 +29,8 @@ public class IndexerSubsystem extends SubsystemBase {
     public enum IndexerState {
         IDLE,
         FEEDING,
-        EJECTING
+        EJECTING,
+        SENDING_FUEL
     }
 
 
