@@ -209,42 +209,48 @@ public class FuelCommands {
 
     /**
      * Agitates fuel by bouncing the intake roller against the bumpers, then shoots
-     * once the flywheel is ready.
+     * once the flywheel is ready — feeding and bouncing run in parallel.
      *
      * Slides run in reverse (higher position = roller lower/out). The bounce rocks
-     * the roller between SLIDE_BOUNCE_DOWN_POS (~40) and SLIDE_BOUNCE_UP_POS (~35)
-     * twice, then returns to SLIDE_EXTENDED_POSITION (~44.4) — the normal intake
-     * position — so the robot is ready to intake again after the shot.
+     * the roller between SLIDE_BOUNCE_DOWN_POS (~40) and SLIDE_BOUNCE_UP_POS (~35).
      *
      * Sequence:
-     *   1. Starts shooter spin-up immediately (runs in parallel with slide bounce).
-     *   2. Runs {@link IntakeSubsystem#slideBounceUp()} — two DOWN/UP rock cycles
-     *      (~2 s total), ending at SLIDE_EXTENDED_POSITION.
-     *   3. Waits until {@code shooter.isReady()} (flywheel + hood settled),
-     *      with a 3-second safety timeout.
-     *   4. Feeds the indexer/conveyor to shoot.
-     *   5. finallyDo: stops indexer/conveyor and returns shooter to idle.
+     *   1. Set trench preset targets and beginSpinUp (TESTING — swap preset as needed).
+     *   2. Wait until shooter.isReady() — flywheel + hood settled (3 s timeout).
+     *   3. Parallel:
+     *        A. Run conveyor + indexer forward continuously (feeds the shot).
+     *        B. Run slideBounceUp() repeatedly — keeps agitating while held.
+     *   4. finallyDo: stops indexer/conveyor and returns shooter to idle.
      *
-     * The flywheel spins up during the ~2 s bounce — it is typically ready by the
-     * time the slides finish, so the waitUntil resolves immediately or very quickly.
+     * Phase 3 runs until the command is interrupted (whileTrue trigger released).
+     * slideBounceUp().repeatedly() restarts the 2-second bounce cycle each time it
+     * finishes, so the roller keeps rocking for as long as the button is held.
      *
-     * Bind to a button with whileTrue() or use inside an autonomous sequence.
+     * Bind to a button with whileTrue().
      *
      * @param shooter The shooter subsystem
      * @param indexer The indexer subsystem
      * @param intake  The intake subsystem
-     * @return Command that bounces the roller to agitate fuel, then shoots
+     * @return Command that waits for flywheel ready, then feeds + bounces in parallel
      */
     public static Command slideBounceAndShoot(ShooterSubsystem shooter, IndexerSubsystem indexer,
             IntakeSubsystem intake) {
         return Commands.sequence(
-                Commands.runOnce(shooter::beginSpinUp, shooter),
-                intake.slideBounceUp(),
+                // Step 1: arm trench preset and spin up (TODO: swap preset before competition)
+                Commands.runOnce(() -> {
+                    shooter.setTargetVelocity(Constants.Shooter.TRENCH_RPM);
+                    shooter.setTargetHoodPose(Constants.Shooter.TRENCH_HOOD);
+                    shooter.beginSpinUp();
+                }, shooter),
+                // Step 2: wait for flywheel + hood to settle before feeding
                 Commands.waitUntil(shooter::isReady).withTimeout(3.0),
-                Commands.run(() -> {
-                    indexer.conveyorForward();
-                    indexer.indexerForward();
-                }, indexer))
+                // Step 3: feed + bounce in parallel until trigger is released
+                Commands.parallel(
+                        Commands.run(() -> {
+                            indexer.conveyorForward();
+                            indexer.indexerForward();
+                        }, indexer),
+                        intake.slideBounceUp().repeatedly()))
                 .finallyDo(() -> {
                     indexer.indexerStop();
                     indexer.conveyorStop();

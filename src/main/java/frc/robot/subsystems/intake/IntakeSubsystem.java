@@ -367,6 +367,7 @@ public class IntakeSubsystem extends SubsystemBase {
      * Usable in both teleop (whileTrue / onTrue) and autonomous sequences.
      * MotionMagic holds each setpoint until the next runOnce fires.
      */
+    // TODO Test and tune the bounce positions and timing on hardware. Current values are placeholders.
     public Command slideBounceUp() {
         return Commands.sequence(
                 Commands.runOnce(() -> setSlidesToPosition(Constants.Intake.SLIDE_BOUNCE_DOWN_POS), this),
