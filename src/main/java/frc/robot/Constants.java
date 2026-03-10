@@ -99,7 +99,7 @@ public final class Constants {
     // is present in the chute.
     public static final double FUEL_DETECTION_DISTANCE = 0.25; // ~10 inches
 
-    public static final double FUEL_CLEAR_TIME = 2.0;
+    public static final double FUEL_CLEAR_TIME = 2.0; // seconds
 
   }
 
