@@ -89,17 +89,17 @@ public final class Constants {
     public static final double INDEXER_REVERSE_VOLTAGE = -4.0;
     public static final double INDEXER_POPPER_VOLTAGE = 3.0;
 
-    // TODO Tune chute distance thresholds based on actual sensor readings with fuel present vs. absent. 
-    // These are starting points based on typical ToF sensor performance and expected geometry.
-    public static final double CHUTE_MAX_DISTANCE = 0.50;
-    public static final double CHUTE_MIN_DISTANCE = 0.02;
-    
-    // Chute detection threshold: distance below which we consider a piece to be
-    // present at the chute.
-    public static final double CHUTE_DETECTION_THRESHOLD_METERS = 0.40; //
-    public static final double CHUTE_TOLERANCE = 0.05;
+    // Physical max distance of the chute beam — 14 inches (0.36 m).
+    // Used as the CANrange ProximityThreshold so the hardware "detected" signal
+    // matches the same boundary.
+    public static final double CHUTE_MAX_DISTANCE = 0.36; // 14 inches
 
-    public static final double FUEL_CLEAR_TIME = 2.0;
+    // Software threshold for fuel detection.
+    // A fuel ball is ~6 in (0.1524 m); anything below ~10 in (0.25 m) means fuel
+    // is present in the chute.
+    public static final double FUEL_DETECTION_DISTANCE = 0.25; // ~10 inches
+
+    public static final double FUEL_CLEAR_TIME = 2.0; // seconds
 
   }
 

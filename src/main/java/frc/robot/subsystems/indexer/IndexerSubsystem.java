@@ -4,7 +4,6 @@ import org.littletonrobotics.junction.Logger;
 
 import edu.wpi.first.networktables.BooleanPublisher;
 import edu.wpi.first.networktables.DoublePublisher;
-import edu.wpi.first.networktables.IntegerPublisher;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.networktables.StringPublisher;
@@ -29,7 +28,8 @@ public class IndexerSubsystem extends SubsystemBase {
     public enum IndexerState {
         IDLE,
         FEEDING,
-        EJECTING
+        EJECTING,
+        SENDING_FUEL
     }
 
 
@@ -45,15 +45,16 @@ public class IndexerSubsystem extends SubsystemBase {
     // ==== State ===============================================================
     private IndexerState currentState = IndexerState.IDLE;
 
-            private boolean isFuelDetected = false;
-        private boolean wasFuelDetected = false;
+    private boolean isFuelDetected = false;
 
-        private double lastDetectionTimestamp = -1.0;
-        private double secondsSinceLastDetection = Double.POSITIVE_INFINITY;
+    private double lastDetectionTimestamp = -1.0;
+    private double secondsSinceLastDetection = Double.POSITIVE_INFINITY;
+
     // ==== Elastic Dashboard Publishers ========================================
     private final NetworkTable indexerTable;
     private final BooleanPublisher chuteDetectedPublisher;
-    private final IntegerPublisher chuteCountPublisher;
+    private final DoublePublisher chuteDistancePublisher;
+    private final StringPublisher fuelStatusColorPublisher;
 
     // ==== Constructor =========================================================
     public IndexerSubsystem(IndexerIO io) {
@@ -61,8 +62,9 @@ public class IndexerSubsystem extends SubsystemBase {
 
         NetworkTableInstance inst = NetworkTableInstance.getDefault();
         indexerTable = inst.getTable("Indexer");
-        chuteDetectedPublisher    = indexerTable.getBooleanTopic("Chute/Detected").publish();
-        chuteCountPublisher       = indexerTable.getIntegerTopic("Chute/Count").publish();
+        chuteDetectedPublisher   = indexerTable.getBooleanTopic("Chute/IsFuelDetected").publish();
+        chuteDistancePublisher   = indexerTable.getDoubleTopic("Chute/DistanceMeters").publish();
+        fuelStatusColorPublisher = indexerTable.getStringTopic("Chute/FuelStatus").publish();
     }
 
     // ==== Periodic ============================================================
@@ -70,25 +72,10 @@ public class IndexerSubsystem extends SubsystemBase {
     public void periodic() {
         io.updateInputs(inputs);
 
-  
-
         double now = edu.wpi.first.wpilibj.Timer.getFPGATimestamp();
 
-        // --- Distance-based detection with hysteresis ---
-        double lowerThreshold = Constants.Indexer.CHUTE_MAX_DISTANCE * (1.0 - Constants.Indexer.CHUTE_TOLERANCE);
-        double upperThreshold = Constants.Indexer.CHUTE_MAX_DISTANCE * (1.0 + Constants.Indexer.CHUTE_TOLERANCE);
-
-        if (!isFuelDetected) {
-            // Only trigger when clearly below threshold
-            if (inputs.chuteDistanceMeters < lowerThreshold) {
-                isFuelDetected = true;
-            }
-        } else {
-            // Stay detected until clearly above threshold
-            if (inputs.chuteDistanceMeters > upperThreshold) {
-                isFuelDetected = false;
-            }
-        }
+        // Fuel detected when the beam distance is shorter than the ball threshold
+        isFuelDetected = inputs.chuteDistanceMeters < Constants.Indexer.FUEL_DETECTION_DISTANCE;
 
         // --- Update last detection time ---
         if (isFuelDetected) {
@@ -118,8 +105,10 @@ public class IndexerSubsystem extends SubsystemBase {
     }
 
     private void publishTelemetry() {
-        chuteDetectedPublisher.set(inputs.chuteDetected);
-        // chuteDistancePublisher.set(inputs.chuteDistanceMeters);
+        chuteDetectedPublisher.set(isFuelDetected);
+        chuteDistancePublisher.set(inputs.chuteDistanceMeters);
+        // YELLOW = fuel present, RED = no fuel (matches Elastic Dashboard color widget)
+        fuelStatusColorPublisher.set(isFuelDetected ? "YELLOW" : "RED");
     }
 
     // ==== State =======================================================================
