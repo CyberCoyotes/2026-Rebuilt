@@ -11,6 +11,7 @@ import edu.wpi.first.networktables.StringPublisher;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import edu.wpi.first.wpilibj2.command.WaitCommand;
 import frc.robot.Constants;
 
 @SuppressWarnings("unused") // Suppress warnings for unused right now
@@ -258,4 +259,18 @@ public class IndexerSubsystem extends SubsystemBase {
             setState(IndexerState.IDLE);
         }, this).withName("StopIndexer");
     }
+
+
+    // ====== TEST COMMANDS ======
+public Command testFunctionality(){
+    return Commands.sequence(
+        Commands.run(() -> conveyorForward(), this).withTimeout(2),
+        Commands.waitSeconds(1),
+        Commands.run(() -> conveyorReverse(), this).withTimeout(2),
+        Commands.waitSeconds(2),
+        Commands.run(() -> indexerForward(), this).withTimeout(3),
+        Commands.waitSeconds(2),
+        Commands.run(() -> indexerReverse(), this).withTimeout(3)
+);
+}
 }
