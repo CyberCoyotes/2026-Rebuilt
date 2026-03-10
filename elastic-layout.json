@@ -311,7 +311,20 @@
                   "show_submit_button": false
                 }
               },
-              
+              {
+                "title": "Hopper Count",
+                "x": 0.0,
+                "y": 0.0,
+                "width": 128.0,
+                "height": 64.0,
+                "type": "Text Display",
+                "properties": {
+                  "topic": "/Indexer/HopperCount",
+                  "period": 0.06,
+                  "data_type": "double",
+                  "show_submit_button": false
+                }
+              },
               {
                 "title": "Intake Jammed",
                 "x": 0.0,
@@ -397,8 +410,8 @@
             "title": "Inactive First",
             "x": 896.0,
             "y": 0.0,
-            "width": 128.0,
-            "height": 192.0,
+            "width": 512.0,
+            "height": 256.0,
             "type": "List Layout",
             "properties": {
               "label_position": "TOP"
@@ -452,20 +465,6 @@
             },
             "children": [
               {
-                "title": "Alignment State",
-                "x": 0.0,
-                "y": 0.0,
-                "width": 192.0,
-                "height": 64.0,
-                "type": "Text Display",
-                "properties": {
-                  "topic": "/Vision/State",
-                  "period": 0.06,
-                  "data_type": "string",
-                  "show_submit_button": false
-                }
-              },
-              {
                 "title": "Ready to Shoot",
                 "x": 0.0,
                 "y": 0.0,
@@ -480,6 +479,20 @@
                   "false_color": 4294901760,
                   "true_icon": "None",
                   "false_icon": "None"
+                }
+              },
+              {
+                "title": "Alignment State",
+                "x": 0.0,
+                "y": 0.0,
+                "width": 192.0,
+                "height": 64.0,
+                "type": "Text Display",
+                "properties": {
+                  "topic": "/Vision/State",
+                  "period": 0.06,
+                  "data_type": "string",
+                  "show_submit_button": false
                 }
               },
               {
@@ -524,17 +537,20 @@
             },
             "children": [
               {
-                "title": "Selected Preset",
+                "title": "Shooter Ready",
                 "x": 0.0,
                 "y": 0.0,
-                "width": 192.0,
-                "height": 64.0,
-                "type": "Text Display",
+                "width": 128.0,
+                "height": 128.0,
+                "type": "Boolean Box",
                 "properties": {
-                  "topic": "/Shooter/SelectedPreset",
+                  "topic": "/Shooter/IsReady",
                   "period": 0.06,
-                  "data_type": "string",
-                  "show_submit_button": false
+                  "data_type": "boolean",
+                  "true_color": 4278255360,
+                  "false_color": 4294944000,
+                  "true_icon": "None",
+                  "false_icon": "None"
                 }
               },
               {
@@ -552,20 +568,17 @@
                 }
               },
               {
-                "title": "Shooter Ready",
+                "title": "Selected Preset",
                 "x": 0.0,
                 "y": 0.0,
-                "width": 128.0,
-                "height": 128.0,
-                "type": "Boolean Box",
+                "width": 192.0,
+                "height": 64.0,
+                "type": "Text Display",
                 "properties": {
-                  "topic": "/Shooter/IsReady",
+                  "topic": "/Shooter/SelectedPreset",
                   "period": 0.06,
-                  "data_type": "boolean",
-                  "true_color": 4278255360,
-                  "false_color": 4294944000,
-                  "true_icon": "None",
-                  "false_icon": "None"
+                  "data_type": "string",
+                  "show_submit_button": false
                 }
               },
               {
@@ -682,7 +695,6 @@
                   "show_submit_button": false
                 }
               },
-    
               {
                 "title": "Intake Jammed",
                 "x": 0.0,
@@ -714,17 +726,20 @@
             },
             "children": [
               {
-                "title": "Hood Position",
+                "title": "Hood At Pose",
                 "x": 0.0,
                 "y": 0.0,
-                "width": 192.0,
-                "height": 64.0,
-                "type": "Text Display",
+                "width": 128.0,
+                "height": 128.0,
+                "type": "Boolean Box",
                 "properties": {
-                  "topic": "/Shooter/HoodRotations",
+                  "topic": "/Shooter/HoodAtPose",
                   "period": 0.06,
-                  "data_type": "double",
-                  "show_submit_button": false
+                  "data_type": "boolean",
+                  "true_color": 4278255360,
+                  "false_color": 4294944000,
+                  "true_icon": "None",
+                  "false_icon": "None"
                 }
               },
               {
@@ -756,51 +771,17 @@
                 }
               },
               {
-                "title": "Hood At Pose",
-                "x": 0.0,
-                "y": 0.0,
-                "width": 128.0,
-                "height": 128.0,
-                "type": "Boolean Box",
-                "properties": {
-                  "topic": "/Shooter/HoodAtPose",
-                  "period": 0.06,
-                  "data_type": "boolean",
-                  "true_color": 4278255360,
-                  "false_color": 4294944000,
-                  "true_icon": "None",
-                  "false_icon": "None"
-                }
-              },
-              {
-                "title": "ThroughBore (rot)",
+                "title": "Hood Position",
                 "x": 0.0,
                 "y": 0.0,
                 "width": 192.0,
                 "height": 64.0,
                 "type": "Text Display",
                 "properties": {
-                  "topic": "/Shooter/ThroughBorePosition",
+                  "topic": "/Shooter/HoodRotations",
                   "period": 0.06,
                   "data_type": "double",
                   "show_submit_button": false
-                }
-              },
-              {
-                "title": "ThroughBore Connected",
-                "x": 0.0,
-                "y": 0.0,
-                "width": 128.0,
-                "height": 64.0,
-                "type": "Boolean Box",
-                "properties": {
-                  "topic": "/Shooter/ThroughBoreConnected",
-                  "period": 0.06,
-                  "data_type": "boolean",
-                  "true_color": 4278255360,
-                  "false_color": 4294901760,
-                  "true_icon": "None",
-                  "false_icon": "None"
                 }
               }
             ]
@@ -817,16 +798,16 @@
             },
             "children": [
               {
-                "title": "HoodRotations",
+                "title": "State",
                 "x": 0.0,
                 "y": 0.0,
                 "width": 128.0,
                 "height": 128.0,
                 "type": "Text Display",
                 "properties": {
-                  "topic": "/Shooter/HoodRotations",
+                  "topic": "/Shooter/State",
                   "period": 0.06,
-                  "data_type": "double",
+                  "data_type": "string",
                   "show_submit_button": false
                 }
               },
@@ -845,16 +826,16 @@
                 }
               },
               {
-                "title": "State",
+                "title": "HoodRotations",
                 "x": 0.0,
                 "y": 0.0,
                 "width": 128.0,
                 "height": 128.0,
                 "type": "Text Display",
                 "properties": {
-                  "topic": "/Shooter/State",
+                  "topic": "/Shooter/HoodRotations",
                   "period": 0.06,
-                  "data_type": "string",
+                  "data_type": "double",
                   "show_submit_button": false
                 }
               },
@@ -881,37 +862,6 @@
                 "type": "Text Display",
                 "properties": {
                   "topic": "/Shooter/TargetHoodRotations",
-                  "period": 0.06,
-                  "data_type": "double",
-                  "show_submit_button": false
-                }
-              },
-              {
-                "title": "ThroughBoreConnected",
-                "x": 0.0,
-                "y": 0.0,
-                "width": 128.0,
-                "height": 128.0,
-                "type": "Boolean Box",
-                "properties": {
-                  "topic": "/Shooter/ThroughBoreConnected",
-                  "period": 0.06,
-                  "data_type": "boolean",
-                  "true_color": 4283215696,
-                  "false_color": 4294198070,
-                  "true_icon": "None",
-                  "false_icon": "None"
-                }
-              },
-              {
-                "title": "ThroughBorePosition",
-                "x": 0.0,
-                "y": 0.0,
-                "width": 128.0,
-                "height": 128.0,
-                "type": "Text Display",
-                "properties": {
-                  "topic": "/Shooter/ThroughBorePosition",
                   "period": 0.06,
                   "data_type": "double",
                   "show_submit_button": false
@@ -957,9 +907,9 @@
         "containers": [
           {
             "title": "FlywheelAppliedVolts",
-            "x": 128.0,
+            "x": 0.0,
             "y": 128.0,
-            "width": 128.0,
+            "width": 256.0,
             "height": 128.0,
             "type": "Text Display",
             "properties": {
@@ -967,6 +917,19 @@
               "period": 0.06,
               "data_type": "double",
               "show_submit_button": false
+            }
+          },
+          {
+            "title": "AutoChooser",
+            "x": 512.0,
+            "y": 0.0,
+            "width": 384.0,
+            "height": 128.0,
+            "type": "ComboBox Chooser",
+            "properties": {
+              "topic": "/SmartDashboard/AutoChooser",
+              "period": 0.06,
+              "sort_options": false
             }
           }
         ]
@@ -1141,7 +1104,23 @@
                   "false_icon": "None"
                 }
               },
-          
+              {
+                "title": "Hopper B",
+                "x": 0.0,
+                "y": 0.0,
+                "width": 64.0,
+                "height": 64.0,
+                "type": "Boolean Box",
+                "properties": {
+                  "topic": "/Indexer/HopperB/Detected",
+                  "period": 0.06,
+                  "data_type": "boolean",
+                  "true_color": 4294956800,
+                  "false_color": 4281545523,
+                  "true_icon": "None",
+                  "false_icon": "None"
+                }
+              },
               {
                 "title": "Conveyor RPS",
                 "x": 0.0,
@@ -1393,51 +1372,8 @@
                   "true_icon": "None",
                   "false_icon": "None"
                 }
-              },
-              {
-                "title": "ThroughBore (rot)",
-                "x": 0.0,
-                "y": 0.0,
-                "width": 192.0,
-                "height": 64.0,
-                "type": "Text Display",
-                "properties": {
-                  "topic": "/Shooter/ThroughBorePosition",
-                  "period": 0.06,
-                  "data_type": "double",
-                  "show_submit_button": false
-                }
-              },
-              {
-                "title": "ThroughBore Connected",
-                "x": 0.0,
-                "y": 0.0,
-                "width": 128.0,
-                "height": 64.0,
-                "type": "Boolean Box",
-                "properties": {
-                  "topic": "/Shooter/ThroughBoreConnected",
-                  "period": 0.06,
-                  "data_type": "boolean",
-                  "true_color": 4278255360,
-                  "false_color": 4294901760,
-                  "true_icon": "None",
-                  "false_icon": "None"
-                }
               }
             ]
-          },
-          {
-            "title": "List Layout",
-            "x": 1024.0,
-            "y": 0.0,
-            "width": 256.0,
-            "height": 128.0,
-            "type": "List Layout",
-            "properties": {
-              "label_position": "TOP"
-            },
-            "children": []
           }
         ],
         "containers": []
@@ -1452,7 +1388,7 @@
             "x": 0.0,
             "y": 0.0,
             "width": 512.0,
-            "height": 256.0,
+            "height": 384.0,
             "type": "List Layout",
             "properties": {
               "label_position": "TOP"
@@ -1493,7 +1429,7 @@
             "x": 512.0,
             "y": 0.0,
             "width": 384.0,
-            "height": 256.0,
+            "height": 384.0,
             "type": "List Layout",
             "properties": {
               "label_position": "TOP"
@@ -1542,167 +1478,8 @@
     {
       "name": "Indexer",
       "grid_layout": {
-        "layouts": [
-          {
-            "title": "Hopper Sensors",
-            "x": 0.0,
-            "y": 0.0,
-            "width": 512.0,
-            "height": 384.0,
-            "type": "List Layout",
-            "properties": {
-              "label_position": "TOP"
-            },
-            "children": [
-              {
-                "title": "Hopper A Detected",
-                "x": 0.0,
-                "y": 0.0,
-                "width": 128.0,
-                "height": 128.0,
-                "type": "Boolean Box",
-                "properties": {
-                  "topic": "/Indexer/HopperA/Detected",
-                  "period": 0.06,
-                  "data_type": "boolean",
-                  "true_color": 4294956800,
-                  "false_color": 4281545523,
-                  "true_icon": "None",
-                  "false_icon": "None"
-                }
-              },
-              {
-                "title": "Hopper B Detected",
-                "x": 0.0,
-                "y": 0.0,
-                "width": 128.0,
-                "height": 128.0,
-                "type": "Boolean Box",
-                "properties": {
-                  "topic": "/Indexer/HopperB/Detected",
-                  "period": 0.06,
-                  "data_type": "boolean",
-                  "true_color": 4294956800,
-                  "false_color": 4281545523,
-                  "true_icon": "None",
-                  "false_icon": "None"
-                }
-              },
-              {
-                "title": "Hopper Count",
-                "x": 0.0,
-                "y": 0.0,
-                "width": 128.0,
-                "height": 64.0,
-                "type": "Text Display",
-                "properties": {
-                  "topic": "/Indexer/HopperCount",
-                  "period": 0.06,
-                  "data_type": "integer",
-                  "show_submit_button": false
-                }
-              },
-              {
-                "title": "Hopper A Distance (m)",
-                "x": 0.0,
-                "y": 0.0,
-                "width": 192.0,
-                "height": 64.0,
-                "type": "Text Display",
-                "properties": {
-                  "topic": "/Indexer/HopperA/Distance_m",
-                  "period": 0.06,
-                  "data_type": "double",
-                  "show_submit_button": false
-                }
-              },
-              {
-                "title": "Hopper B Distance (m)",
-                "x": 0.0,
-                "y": 0.0,
-                "width": 192.0,
-                "height": 64.0,
-                "type": "Text Display",
-                "properties": {
-                  "topic": "/Indexer/HopperB/Distance_m",
-                  "period": 0.06,
-                  "data_type": "double",
-                  "show_submit_button": false
-                }
-              }
-            ]
-          },
-          {
-            "title": "Fill Levels",
-            "x": 512.0,
-            "y": 0.0,
-            "width": 512.0,
-            "height": 384.0,
-            "type": "List Layout",
-            "properties": {
-              "label_position": "TOP"
-            },
-            "children": [
-              {
-                "title": "Hopper A Fill Level",
-                "x": 0.0,
-                "y": 0.0,
-                "width": 256.0,
-                "height": 64.0,
-                "type": "Text Display",
-                "properties": {
-                  "topic": "/Indexer/HopperA/FillLevel",
-                  "period": 0.06,
-                  "data_type": "string",
-                  "show_submit_button": false
-                }
-              },
-              {
-                "title": "Hopper B Fill Level",
-                "x": 0.0,
-                "y": 0.0,
-                "width": 256.0,
-                "height": 64.0,
-                "type": "Text Display",
-                "properties": {
-                  "topic": "/Indexer/HopperB/FillLevel",
-                  "period": 0.06,
-                  "data_type": "string",
-                  "show_submit_button": false
-                }
-              },
-              {
-                "title": "Indexer State",
-                "x": 0.0,
-                "y": 0.0,
-                "width": 192.0,
-                "height": 64.0,
-                "type": "Text Display",
-                "properties": {
-                  "topic": "/Indexer/State",
-                  "period": 0.06,
-                  "data_type": "string",
-                  "show_submit_button": false
-                }
-              }
-            ]
-          }
-        ],
-        "containers": [
-          {
-            "title": "AutoChooser",
-            "x": 1024.0,
-            "y": 0.0,
-            "width": 256.0,
-            "height": 128.0,
-            "type": "ComboBox Chooser",
-            "properties": {
-              "topic": "/SmartDashboard/AutoChooser",
-              "period": 0.06,
-              "sort_options": false
-            }
-          }
-        ]
+        "layouts": [],
+        "containers": []
       }
     }
   ]
