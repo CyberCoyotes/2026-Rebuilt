@@ -182,12 +182,15 @@ public class AutoRoutines {
 
                         ));
                 // Routine Events
-                // Experimental.atTime("Shoot").onTrue(FuelCommands.Auto.visionShot_version1(m_shooter, m_vision, m_indexer, m_drivetrain)); //score
-                Experimental.atTime("Shoot").onTrue(FuelCommands.poseAlignAndShoot(m_shooter, m_indexer, m_drivetrain, null, null)); //score
+
+                // Odometry-based align and shoot — no vision latency, no driver input, ends on its own.
+                // Place the "Shoot" event marker at the END of the trajectory segment so the path finishes before this fires.
+                Experimental.atTime("Shoot").onTrue(FuelCommands.Auto.poseAlignAndShoot(m_shooter, m_indexer, m_drivetrain, 1.0));
 
                 return routine;
         }
 
+        // FIXME This was not written correctly and I don't have time to fix it.
         // public AutoRoutine visionTest02() {
         //          final AutoRoutine routine = m_factory.newRoutine("VisionTest02");
         //         final AutoTrajectory Experimental = routine.trajectory("VisionTest", 0);
