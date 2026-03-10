@@ -51,7 +51,7 @@ public final class Constants {
     public static final double SLIDE_MAX_POSITION = 44.454;
 
     // TODO Tune the roller voltages
-    public static final double FORWARD_ROLLER_VOLTS = 8.0;
+    public static final double FORWARD_ROLLER_VOLTS = 9.0;
     public static final double REVERSE_ROLLER_VOLTS = -8.0;
   }
 
@@ -289,7 +289,7 @@ public final class Constants {
     public static final double MIN_DISTANCE_M = 0.5;
     public static final double MAX_DISTANCE_M = 8.0;
 
-    public static final double LEAD_COMPENSATION_DEG_PER_MPS = 40; // Tune up from 0 — 50 degrees of aim offset per m/s of lateral velocity
+    public static final double LEAD_COMPENSATION_DEG_PER_MPS = 10; // Tune up from 0 — 50 degrees of aim offset per m/s of lateral velocity
 
   }
 
