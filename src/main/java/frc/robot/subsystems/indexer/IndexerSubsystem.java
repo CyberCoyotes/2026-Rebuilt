@@ -46,6 +46,8 @@ public class IndexerSubsystem extends SubsystemBase {
     private IndexerState currentState = IndexerState.IDLE;
 
     private boolean isFuelDetected = false;
+    /** True once fuel has been seen at least once since last reset — guards donePassingFuel(). */
+    private boolean hasSeenFuel = false;
 
     private double lastDetectionTimestamp = -1.0;
     private double secondsSinceLastDetection = Double.POSITIVE_INFINITY;
@@ -55,6 +57,7 @@ public class IndexerSubsystem extends SubsystemBase {
     private final BooleanPublisher chuteDetectedPublisher;
     private final DoublePublisher chuteDistancePublisher;
     private final StringPublisher fuelStatusColorPublisher;
+    private final BooleanPublisher chuteEmptyPublisher;
 
     // ==== Constructor =========================================================
     public IndexerSubsystem(IndexerIO io) {
@@ -65,6 +68,7 @@ public class IndexerSubsystem extends SubsystemBase {
         chuteDetectedPublisher   = indexerTable.getBooleanTopic("Chute/IsFuelDetected").publish();
         chuteDistancePublisher   = indexerTable.getDoubleTopic("Chute/DistanceMeters").publish();
         fuelStatusColorPublisher = indexerTable.getStringTopic("Chute/FuelStatus").publish();
+        chuteEmptyPublisher      = indexerTable.getBooleanTopic("Chute/IsChuteEmpty").publish();
     }
 
     // ==== Periodic ============================================================
@@ -77,8 +81,9 @@ public class IndexerSubsystem extends SubsystemBase {
         // Fuel detected when the beam distance is shorter than the ball threshold
         isFuelDetected = inputs.chuteDistanceMeters < Constants.Indexer.FUEL_DETECTION_DISTANCE;
 
-        // --- Update last detection time ---
+        // --- Track first-ever detection and last detection time ---
         if (isFuelDetected) {
+            hasSeenFuel = true;
             lastDetectionTimestamp = now;
         }
 
@@ -98,7 +103,7 @@ public class IndexerSubsystem extends SubsystemBase {
         Logger.recordOutput("Indexer/State", currentState.name());
         Logger.recordOutput("Chute/IsFuelDetected", isFuelDetected);
         Logger.recordOutput("Chute/SecondsSinceLastDetection", secondsSinceLastDetection);
-        Logger.recordOutput("Chute/DonePassingFuel", donePassingFuel());
+        Logger.recordOutput("Chute/IsChuteEmpty", isChuteEmpty());
         Logger.recordOutput("Chute/DistanceMeters", inputs.chuteDistanceMeters);
 
         publishTelemetry();
@@ -109,6 +114,7 @@ public class IndexerSubsystem extends SubsystemBase {
         chuteDistancePublisher.set(inputs.chuteDistanceMeters);
         // YELLOW = fuel present, RED = no fuel (matches Elastic Dashboard color widget)
         fuelStatusColorPublisher.set(isFuelDetected ? "YELLOW" : "RED");
+        chuteEmptyPublisher.set(isChuteEmpty());
     }
 
     // ==== State =======================================================================
@@ -167,15 +173,34 @@ public class IndexerSubsystem extends SubsystemBase {
 
     // ==== Sensor Queries ==================================
     public boolean isFuelDetected() {
-    return isFuelDetected;
+        return isFuelDetected;
     }
 
     public double getSecondsSinceLastDetection() {
         return secondsSinceLastDetection;
     }
 
-    public boolean donePassingFuel() {
-        return !isFuelDetected && secondsSinceLastDetection >= Constants.Indexer.FUEL_CLEAR_TIME;
+    /**
+     * True when the chute is clear AND fuel was previously seen.
+     * Requires fuel to have been detected at least once (hasSeenFuel guard),
+     * then not detected for FUEL_CLEAR_TIME seconds (default 2 s).
+     *
+     * Use this in auton to know a shot is complete and it is safe to move on.
+     */
+    public boolean isChuteEmpty() {
+        return hasSeenFuel
+            && !isFuelDetected
+            && secondsSinceLastDetection >= Constants.Indexer.FUEL_CLEAR_TIME;
+    }
+
+    /**
+     * Resets chute tracking state (hasSeenFuel, lastDetectionTimestamp).
+     * Call this before each auton shot so the empty-chute check starts fresh.
+     */
+    public void resetChuteTracking() {
+        hasSeenFuel = false;
+        lastDetectionTimestamp = -1.0;
+        secondsSinceLastDetection = Double.POSITIVE_INFINITY;
     }
 
     // ==== Command Factories ===================================================
@@ -246,5 +271,29 @@ public class IndexerSubsystem extends SubsystemBase {
             stop();
             setState(IndexerState.IDLE);
         }, this).withName("StopIndexer");
+    }
+
+    /**
+     * Resets chute tracking then waits until {@link #isChuteEmpty()} returns true.
+     *
+     * Intended for auton sequences: call this after starting a shot to block until
+     * the ball has fully cleared the chute (no detection for FUEL_CLEAR_TIME seconds).
+     *
+     * <pre>
+     * Commands.sequence(
+     *     shooter.spinUp(),
+     *     indexer.feedAndWaitForEmpty(),   // feeds AND waits until chute clears
+     *     drivetrain.driveToPose(nextPose)
+     * )
+     * </pre>
+     *
+     * Pair with a timeout so a missed ball doesn't stall auton forever:
+     * {@code indexer.waitForChuteEmpty().withTimeout(3.0)}
+     */
+    public Command waitForChuteEmpty() {
+        return Commands.sequence(
+            Commands.runOnce(this::resetChuteTracking),
+            Commands.waitUntil(this::isChuteEmpty)
+        ).withName("WaitForChuteEmpty");
     }
 }
