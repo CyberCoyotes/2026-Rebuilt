@@ -311,7 +311,20 @@
                   "show_submit_button": false
                 }
               },
-              
+              {
+                "title": "Hopper Count",
+                "x": 0.0,
+                "y": 0.0,
+                "width": 128.0,
+                "height": 64.0,
+                "type": "Text Display",
+                "properties": {
+                  "topic": "/Indexer/HopperCount",
+                  "period": 0.06,
+                  "data_type": "double",
+                  "show_submit_button": false
+                }
+              },
               {
                 "title": "Intake Jammed",
                 "x": 0.0,
@@ -682,7 +695,23 @@
                   "show_submit_button": false
                 }
               },
-    
+              {
+                "title": "Hopper Full",
+                "x": 0.0,
+                "y": 0.0,
+                "width": 128.0,
+                "height": 64.0,
+                "type": "Boolean Box",
+                "properties": {
+                  "topic": "/Indexer/HopperFull",
+                  "period": 0.06,
+                  "data_type": "boolean",
+                  "true_color": 4278255360,
+                  "false_color": 4281545523,
+                  "true_icon": "None",
+                  "false_icon": "None"
+                }
+              },
               {
                 "title": "Intake Jammed",
                 "x": 0.0,
@@ -1141,7 +1170,23 @@
                   "false_icon": "None"
                 }
               },
-          
+              {
+                "title": "Hopper B",
+                "x": 0.0,
+                "y": 0.0,
+                "width": 64.0,
+                "height": 64.0,
+                "type": "Boolean Box",
+                "properties": {
+                  "topic": "/Indexer/HopperB/Detected",
+                  "period": 0.06,
+                  "data_type": "boolean",
+                  "true_color": 4294956800,
+                  "false_color": 4281545523,
+                  "true_icon": "None",
+                  "false_icon": "None"
+                }
+              },
               {
                 "title": "Conveyor RPS",
                 "x": 0.0,
@@ -1393,51 +1438,8 @@
                   "true_icon": "None",
                   "false_icon": "None"
                 }
-              },
-              {
-                "title": "ThroughBore (rot)",
-                "x": 0.0,
-                "y": 0.0,
-                "width": 192.0,
-                "height": 64.0,
-                "type": "Text Display",
-                "properties": {
-                  "topic": "/Shooter/ThroughBorePosition",
-                  "period": 0.06,
-                  "data_type": "double",
-                  "show_submit_button": false
-                }
-              },
-              {
-                "title": "ThroughBore Connected",
-                "x": 0.0,
-                "y": 0.0,
-                "width": 128.0,
-                "height": 64.0,
-                "type": "Boolean Box",
-                "properties": {
-                  "topic": "/Shooter/ThroughBoreConnected",
-                  "period": 0.06,
-                  "data_type": "boolean",
-                  "true_color": 4278255360,
-                  "false_color": 4294901760,
-                  "true_icon": "None",
-                  "false_icon": "None"
-                }
               }
             ]
-          },
-          {
-            "title": "List Layout",
-            "x": 1024.0,
-            "y": 0.0,
-            "width": 256.0,
-            "height": 128.0,
-            "type": "List Layout",
-            "properties": {
-              "label_position": "TOP"
-            },
-            "children": []
           }
         ],
         "containers": []
@@ -1452,7 +1454,7 @@
             "x": 0.0,
             "y": 0.0,
             "width": 512.0,
-            "height": 256.0,
+            "height": 384.0,
             "type": "List Layout",
             "properties": {
               "label_position": "TOP"
@@ -1493,7 +1495,7 @@
             "x": 512.0,
             "y": 0.0,
             "width": 384.0,
-            "height": 256.0,
+            "height": 384.0,
             "type": "List Layout",
             "properties": {
               "label_position": "TOP"
@@ -1542,167 +1544,8 @@
     {
       "name": "Indexer",
       "grid_layout": {
-        "layouts": [
-          {
-            "title": "Hopper Sensors",
-            "x": 0.0,
-            "y": 0.0,
-            "width": 512.0,
-            "height": 384.0,
-            "type": "List Layout",
-            "properties": {
-              "label_position": "TOP"
-            },
-            "children": [
-              {
-                "title": "Hopper A Detected",
-                "x": 0.0,
-                "y": 0.0,
-                "width": 128.0,
-                "height": 128.0,
-                "type": "Boolean Box",
-                "properties": {
-                  "topic": "/Indexer/HopperA/Detected",
-                  "period": 0.06,
-                  "data_type": "boolean",
-                  "true_color": 4294956800,
-                  "false_color": 4281545523,
-                  "true_icon": "None",
-                  "false_icon": "None"
-                }
-              },
-              {
-                "title": "Hopper B Detected",
-                "x": 0.0,
-                "y": 0.0,
-                "width": 128.0,
-                "height": 128.0,
-                "type": "Boolean Box",
-                "properties": {
-                  "topic": "/Indexer/HopperB/Detected",
-                  "period": 0.06,
-                  "data_type": "boolean",
-                  "true_color": 4294956800,
-                  "false_color": 4281545523,
-                  "true_icon": "None",
-                  "false_icon": "None"
-                }
-              },
-              {
-                "title": "Hopper Count",
-                "x": 0.0,
-                "y": 0.0,
-                "width": 128.0,
-                "height": 64.0,
-                "type": "Text Display",
-                "properties": {
-                  "topic": "/Indexer/HopperCount",
-                  "period": 0.06,
-                  "data_type": "integer",
-                  "show_submit_button": false
-                }
-              },
-              {
-                "title": "Hopper A Distance (m)",
-                "x": 0.0,
-                "y": 0.0,
-                "width": 192.0,
-                "height": 64.0,
-                "type": "Text Display",
-                "properties": {
-                  "topic": "/Indexer/HopperA/Distance_m",
-                  "period": 0.06,
-                  "data_type": "double",
-                  "show_submit_button": false
-                }
-              },
-              {
-                "title": "Hopper B Distance (m)",
-                "x": 0.0,
-                "y": 0.0,
-                "width": 192.0,
-                "height": 64.0,
-                "type": "Text Display",
-                "properties": {
-                  "topic": "/Indexer/HopperB/Distance_m",
-                  "period": 0.06,
-                  "data_type": "double",
-                  "show_submit_button": false
-                }
-              }
-            ]
-          },
-          {
-            "title": "Fill Levels",
-            "x": 512.0,
-            "y": 0.0,
-            "width": 512.0,
-            "height": 384.0,
-            "type": "List Layout",
-            "properties": {
-              "label_position": "TOP"
-            },
-            "children": [
-              {
-                "title": "Hopper A Fill Level",
-                "x": 0.0,
-                "y": 0.0,
-                "width": 256.0,
-                "height": 64.0,
-                "type": "Text Display",
-                "properties": {
-                  "topic": "/Indexer/HopperA/FillLevel",
-                  "period": 0.06,
-                  "data_type": "string",
-                  "show_submit_button": false
-                }
-              },
-              {
-                "title": "Hopper B Fill Level",
-                "x": 0.0,
-                "y": 0.0,
-                "width": 256.0,
-                "height": 64.0,
-                "type": "Text Display",
-                "properties": {
-                  "topic": "/Indexer/HopperB/FillLevel",
-                  "period": 0.06,
-                  "data_type": "string",
-                  "show_submit_button": false
-                }
-              },
-              {
-                "title": "Indexer State",
-                "x": 0.0,
-                "y": 0.0,
-                "width": 192.0,
-                "height": 64.0,
-                "type": "Text Display",
-                "properties": {
-                  "topic": "/Indexer/State",
-                  "period": 0.06,
-                  "data_type": "string",
-                  "show_submit_button": false
-                }
-              }
-            ]
-          }
-        ],
-        "containers": [
-          {
-            "title": "AutoChooser",
-            "x": 1024.0,
-            "y": 0.0,
-            "width": 256.0,
-            "height": 128.0,
-            "type": "ComboBox Chooser",
-            "properties": {
-              "topic": "/SmartDashboard/AutoChooser",
-              "period": 0.06,
-              "sort_options": false
-            }
-          }
-        ]
+        "layouts": [],
+        "containers": []
       }
     }
   ]

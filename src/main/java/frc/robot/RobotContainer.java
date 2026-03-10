@@ -79,6 +79,8 @@ public class RobotContainer {
         autoFactory = drivetrain.createAutoFactory();
         autoRoutines = new AutoRoutines(autoFactory,drivetrain,indexer, intake, shooter, fuelCommands, vision/*, ledSubsystem*/);
         SmartDashboard.putData(autoChooser);
+
+        autoChooser.addRoutine("X-Vision-X", autoRoutines::visionTest01); // TODO Testing vision
         autoChooser.addRoutine("Four meters", autoRoutines::FM);
         autoChooser.addRoutine("Lob", autoRoutines::Lob);
         autoChooser.addRoutine("StartRight goes to middle", autoRoutines::StartRMid);
