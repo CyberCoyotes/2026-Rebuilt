@@ -51,7 +51,7 @@ public final class Constants {
     public static final double SLIDE_MAX_POSITION = 44.454;
 
     // TODO Tune the roller voltages
-    public static final double FORWARD_ROLLER_VOLTS = 8.0;
+    public static final double FORWARD_ROLLER_VOLTS = 9.0;
     public static final double REVERSE_ROLLER_VOLTS = -8.0;
   }
 
