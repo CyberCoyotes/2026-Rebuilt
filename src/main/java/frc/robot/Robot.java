@@ -13,9 +13,9 @@ import org.littletonrobotics.junction.wpilog.WPILOGWriter;
 
 import com.ctre.phoenix6.HootAutoReplay;
 
+import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.RobotController;
-import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import frc.robot.subsystems.vision.LimelightHelpers;
@@ -31,12 +31,6 @@ public class Robot extends LoggedRobot {
     private final HootAutoReplay m_timeAndJoystickReplay = new HootAutoReplay()
         .withTimestampReplay()
         .withJoystickReplay();
-
-    /**
-     *
-     */
-    // Limelight integration is currently disabled. Set to true if vision processing will be used in the future.
-    private final boolean kUseLimelight =true;
 
     public Robot() {
         
@@ -63,24 +57,21 @@ public class Robot extends LoggedRobot {
         // Update game data telemetry (polls FMS for scoring shift data)
         m_robotContainer.updateGameData();
 
-        /*
-         * This example of adding Limelight is very simple and may not be sufficient for on-field use.
-         * Users typically need to provide a standard deviation that scales with the distance to target
-         * and changes with number of tags available.
-         *
-         * This example is sufficient to show that vision integration is possible, though exact implementation
-         * of how to use vision should be tuned per-robot and to the team's specification.
-         */
-        if (kUseLimelight) {
-            var driveState = m_robotContainer.drivetrain.getState();
-            double headingDeg = driveState.Pose.getRotation().getDegrees();
-            double omegaRps = Units.radiansToRotations(driveState.Speeds.omegaRadiansPerSecond);
+        // Vision pose estimation: std devs scale with distance so trust drops as tags get farther away.
+        // Theta std dev is set very high (9999999) since MegaTag2 uses the gyro for heading.
+        var driveState = m_robotContainer.drivetrain.getState();
+        double headingDeg = driveState.Pose.getRotation().getDegrees();
+        double omegaRps = Units.radiansToRotations(driveState.Speeds.omegaRadiansPerSecond);
 
-            LimelightHelpers.SetRobotOrientation(Constants.Vision.LIMELIGHT4_NAME, headingDeg, 0, 0, 0, 0, 0);
-            var llMeasurement = LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2(Constants.Vision.LIMELIGHT4_NAME);
-            if (llMeasurement != null && llMeasurement.tagCount > 0 && Math.abs(omegaRps) < 2.0) {
-                m_robotContainer.drivetrain.addVisionMeasurement(llMeasurement.pose, llMeasurement.timestampSeconds);
-            }
+        LimelightHelpers.SetRobotOrientation(Constants.Vision.LIMELIGHT4_NAME, headingDeg, 0, 0, 0, 0, 0);
+        var llMeasurement = LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2(Constants.Vision.LIMELIGHT4_NAME);
+        if (llMeasurement != null && llMeasurement.tagCount > 0 && Math.abs(omegaRps) < 2.0) {
+            double dist = llMeasurement.avgTagDist; // meters
+            double xyStdDev = 0.05 * Math.pow(dist, 2.0); // trust drops fast with distance
+            m_robotContainer.drivetrain.addVisionMeasurement(
+                    llMeasurement.pose,
+                    llMeasurement.timestampSeconds,
+                    VecBuilder.fill(xyStdDev, xyStdDev, 9999999));
         }
     }
 
