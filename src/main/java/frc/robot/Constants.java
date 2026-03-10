@@ -47,8 +47,11 @@ public final class Constants {
     // === Constants =====================
     public static final double SLIDE_RETRACTED_POSITION = 0.0;
     public static final double SLIDE_EXTENDED_POSITION = 44.40;
-    public static final double SLIDE_MIN_POSITION = 0.0;
-    public static final double SLIDE_MAX_POSITION = 44.454;
+    public static final double SLIDE_MAX_POSITION = 44.454; // Mechanical limit, validate in configs limit
+    public static final double SLIDE_UP_POSITION = 0.15;
+    public static final double SLIDE_SHOT_DOWN_POS = (SLIDE_EXTENDED_POSITION * 0.25); // Rollers off the floor, but not much
+    public static final double SLIDE_SHOT_UP_POS = (SLIDE_EXTENDED_POSITION * 0.80); // Rollers not vertical or retracted, but up enough to push the ball into feed position
+
 
     // TODO Tune the roller voltages
     public static final double FORWARD_ROLLER_VOLTS = 9.0;
