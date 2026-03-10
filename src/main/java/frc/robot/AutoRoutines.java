@@ -182,8 +182,8 @@ public class AutoRoutines {
 
                         ));
                 // Routine Events
-                Experimental.atTime("Shoot").onTrue(FuelCommands.Auto.visionShot_version1(m_shooter, m_vision, m_indexer, m_drivetrain)); //score
-               
+                // Experimental.atTime("Shoot").onTrue(FuelCommands.Auto.visionShot_version1(m_shooter, m_vision, m_indexer, m_drivetrain)); //score
+                Experimental.atTime("Shoot").onTrue(FuelCommands.poseAlignAndShoot(m_shooter, m_indexer, m_drivetrain, null, null)); //score
 
                 return routine;
         }
