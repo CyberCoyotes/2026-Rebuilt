@@ -183,11 +183,9 @@ public class AutoRoutines {
                         ));
                 // Routine Events
 
-                // FIXME: I tried this with a simple auto but it kind of oscillated back and forth. I don't know if that's a vision issue or fighting with Choreo's event system.
-                // Experimental.atTime("Shoot").onTrue(FuelCommands.Auto.visionShot_version1(m_shooter, m_vision, m_indexer, m_drivetrain)); //score
-                
-                // I tried using the regular vision shot and it did not work.
-                // Experimental.atTime("Shoot").onTrue(FuelCommands.poseAlignAndShoot(m_shooter, m_indexer, m_drivetrain, null, null)); //score
+                // Odometry-based align and shoot — no vision latency, no driver input, ends on its own.
+                // Place the "Shoot" event marker at the END of the trajectory segment so the path finishes before this fires.
+                Experimental.atTime("Shoot").onTrue(FuelCommands.Auto.poseAlignAndShoot(m_shooter, m_indexer, m_drivetrain, 1.0));
 
                 return routine;
         }
