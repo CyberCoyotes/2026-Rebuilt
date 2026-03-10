@@ -188,20 +188,20 @@ public class AutoRoutines {
                 return routine;
         }
 
-        public AutoRoutine visionTest02() {
-                 final AutoRoutine routine = m_factory.newRoutine("VisionTest02");
-                final AutoTrajectory Experimental = routine.trajectory("VisionTest", 0);
+        // public AutoRoutine visionTest02() {
+        //          final AutoRoutine routine = m_factory.newRoutine("VisionTest02");
+        //         final AutoTrajectory Experimental = routine.trajectory("VisionTest", 0);
 
-                routine.active().onTrue(
-                        Commands.sequence(
-                                Experimental.resetOdometry(), // Always reset odometry first
-                                Experimental.cmd() //Follow the path
+        //         routine.active().onTrue(
+        //                 Commands.sequence(
+        //                         Experimental.resetOdometry(), // Always reset odometry first
+        //                         Experimental.cmd() //Follow the path
 
-                        ));
-                // Routine Events
-                Experimental.atTime("Shoot").onTrue(FuelCommands.Auto.visionShot_version2(m_shooter, m_vision, m_indexer, m_drivetrain)); //score
+        //                 ));
+        //         // Routine Events
+        //         Experimental.atTime("Shoot").onTrue(FuelCommands.Auto.visionShot_version2(m_shooter, m_vision, m_indexer, m_drivetrain)); //score
                
 
-                return routine;
-        }
+        //         return routine;
+        // }
 }
