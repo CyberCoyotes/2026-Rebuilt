@@ -849,7 +849,7 @@ public class FuelCommands {
                         shooter.beginSpinUp(); // void — transitions state machine to SPINNING_UP
                     }, shooter),
                     Commands.waitUntil(shooter::isReady).withTimeout(6.0),
-                    indexer.feed().until(indexer::donePassingFuel).withTimeout(feedSeconds)).finallyDo(() -> {
+                    indexer.feed().withTimeout(feedSeconds)).finallyDo(() -> {
                         indexer.indexerStop();
                         indexer.conveyorStop();
                         shooter.setIdle();
@@ -866,7 +866,7 @@ public class FuelCommands {
                         shooter.beginSpinUp(); // void — transitions state machine to SPINNING_UP
                     }, shooter),
                     Commands.waitUntil(shooter::isReady).withTimeout(6.0),
-                    indexer.feed().until(indexer::donePassingFuel).withTimeout(feedSeconds)).finallyDo(() -> {
+                    indexer.feed().withTimeout(feedSeconds)).finallyDo(() -> {
                         indexer.indexerStop();
                         indexer.conveyorStop();
                         shooter.setIdle();
@@ -883,7 +883,7 @@ public class FuelCommands {
                         shooter.beginSpinUp(); // void — transitions state machine to SPINNING_UP
                     }, shooter),
                     Commands.waitUntil(shooter::isReady).withTimeout(6.0),
-                    indexer.feed().until(indexer::donePassingFuel).withTimeout(feedSeconds)).finallyDo(() -> {
+                    indexer.feed().withTimeout(feedSeconds)).finallyDo(() -> {
                         indexer.indexerStop();
                         indexer.conveyorStop();
                         shooter.setIdle();
