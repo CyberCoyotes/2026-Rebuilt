@@ -95,6 +95,67 @@
             ]
           },
           {
+            "title": "Active Hub",
+            "x": 384.0,
+            "y": 0.0,
+            "width": 512.0,
+            "height": 192.0,
+            "type": "List Layout",
+            "properties": {
+              "label_position": "TOP"
+            },
+            "children": [
+              {
+                "title": "Active Hub",
+                "x": 0.0,
+                "y": 0.0,
+                "width": 256.0,
+                "height": 64.0,
+                "type": "Text Display",
+                "properties": {
+                  "topic": "/GameData/ActiveHub",
+                  "period": 0.06,
+                  "data_type": "string",
+                  "show_submit_button": false
+                }
+              },
+              {
+                "title": "Red Hub Active",
+                "x": 0.0,
+                "y": 0.0,
+                "width": 128.0,
+                "height": 64.0,
+                "type": "Boolean Box",
+                "properties": {
+                  "topic": "/GameData/IsRedHubActive",
+                  "period": 0.06,
+                  "data_type": "boolean",
+                  "true_color": 4294901760,
+                  "false_color": 4281545523,
+                  "true_icon": "None",
+                  "false_icon": "None"
+                }
+              },
+              {
+                "title": "Blue Hub Active",
+                "x": 0.0,
+                "y": 0.0,
+                "width": 128.0,
+                "height": 64.0,
+                "type": "Boolean Box",
+                "properties": {
+                  "topic": "/GameData/IsBlueHubActive",
+                  "period": 0.06,
+                  "data_type": "boolean",
+                  "true_color": 4278190335,
+                  "false_color": 4281545523,
+                  "true_icon": "None",
+                  "false_icon": "None"
+                }
+              }
+            ]
+          },
+          {
             "title": "Vision",
             "x": 0.0,
             "y": 256.0,
