@@ -9,6 +9,7 @@ import edu.wpi.first.networktables.DoublePublisher;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.networktables.StringPublisher;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -381,13 +382,32 @@ public class IntakeSubsystem extends SubsystemBase {
                 Commands.runOnce(() -> setSlidesToPosition(Constants.Intake.SLIDE_EXTENDED_POSITION), this))
                 .withName("SlideBounceUp");
     }
+public Command fuelPump() {
+    Timer bounceTimer = new Timer();
+    return Commands.run(() -> {
+                runRoller();
+                if (bounceTimer.get() < 0.5) {
+                    setSlidesToPosition(Constants.Intake.SLIDE_BOUNCE_DOWN_POS);
+                } else if (bounceTimer.get() < 1.0) {
+                    setSlidesToPosition(Constants.Intake.SLIDE_BOUNCE_UP_POS);
+                } else {
+                    bounceTimer.reset();
+                }
+            }, this)
+            .beforeStarting(() -> { bounceTimer.reset(); bounceTimer.start(); })
+            .finallyDo(() -> stopRoller())
+            .withName("FuelPump");
+}
 
-    public Command fuelPump() {
-        return Commands.sequence(
-                Commands.runOnce(() -> setSlidesToPosition(Constants.Intake.SLIDE_BOUNCE_DOWN_POS), this),
-                Commands.waitSeconds(0.5)
-                .withName("FuelPump"));
-    }
+public Command fuelPumpBasic() {
+    return
+            Commands.sequence(
+                    Commands.runOnce(() -> setSlidesToPosition(Constants.Intake.SLIDE_BOUNCE_DOWN_POS), this),
+                    Commands.waitSeconds(0.5),
+                    Commands.runOnce(() -> setSlidesToPosition(Constants.Intake.SLIDE_BOUNCE_UP_POS), this),
+                    Commands.waitSeconds(0.5)
+    ).withName("FuelPump");
+}
 
     // =========================================================================
     // COMMAND FACTORIES — AUTONOMOUS

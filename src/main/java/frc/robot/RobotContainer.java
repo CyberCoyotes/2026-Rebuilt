@@ -137,7 +137,9 @@ public class RobotContainer {
         // driver.b().whileTrue(Command.run(intake.slideBounceAndShoot());
 
         driver.a().onTrue(intake.slideBounceUp());
-        driver.x().onTrue(intake.slideBounceUp());
+        driver.x().whileTrue(intake.fuelPump());
+                driver.y().whileTrue(intake.fuelPumpBasic());
+
 
 
 
