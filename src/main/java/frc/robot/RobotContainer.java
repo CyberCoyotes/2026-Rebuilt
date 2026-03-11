@@ -122,7 +122,7 @@ public class RobotContainer {
         // =====================================================================
         
         driver.rightTrigger(0.5).whileTrue(
-            FuelCommands.poseAlignAndShoot(shooter, indexer, drivetrain,
+            FuelCommands.poseAlignAndShoot(shooter, indexer, intake,drivetrain,
                 () -> -driver.getLeftY() * MaxSpeed,
                 () -> -driver.getLeftX() * MaxSpeed)); 
         

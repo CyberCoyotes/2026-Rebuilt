@@ -345,6 +345,7 @@ public class FuelCommands {
     public static Command poseAlignAndShoot(
             ShooterSubsystem shooter,
             IndexerSubsystem indexer,
+            IntakeSubsystem intake,
             CommandSwerveDrivetrain drivetrain,
             DoubleSupplier xSupplier,
             DoubleSupplier ySupplier) {
@@ -418,6 +419,7 @@ public class FuelCommands {
             if (shooter.isReady()) {
                 indexer.conveyorForward();
                 indexer.indexerForward();
+                intake.fuelPump(); // Run the fuel pump command to agitate fuel while shooting
             } else {
                 indexer.indexerStop();
                 indexer.conveyorStop();
@@ -425,6 +427,7 @@ public class FuelCommands {
 
         }, shooter, indexer, drivetrain)
                 .beforeStarting(Commands.runOnce(shooter::beginSpinUp, shooter))
+
                 .finallyDo(() -> {
                     indexer.indexerStop();
                     indexer.conveyorStop();

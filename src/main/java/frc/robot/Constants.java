@@ -144,7 +144,7 @@ public final class Constants {
     public static final double TOWER_RPM = 3200; // TODO: Tune was 3100, 4.42
     public static final double TRENCH_RPM = 3200; // TODO: Tune
     public static final double FAR_RPM = 3800; // TODO: Tune was 4000 + 5.5 worked
-    public static final double PASS_RPM = 3200; // TODO: Tune was 4000 + 7.00 and too much, 3200 is a starting point
+    public static final double PASS_RPM = 3603; // TODO: Tune was 4000 + 7.00 and too much, 3200 is a starting point
 
     /**
      * Reverse RPM for jam clearing. Only reached through eject(), which gates on
@@ -177,7 +177,7 @@ public final class Constants {
     public static final double TOWER_HOOD = 4.30;   // TODO: Tune Tower hood
     public static final double TRENCH_HOOD = 4.30;  // TODO: Tune Trench hood
     public static final double FAR_HOOD = 5.50;     // TODO: Tune Far hood, was 4000 + 5.5 worked
-    public static final double PASS_HOOD = 3.00;    //TODO: Tune Pass hoodm, was 7.00 and too much
+    public static final double PASS_HOOD = 2.00;    //TODO: Tune Pass hoodm, was 7.00 and too much
 
     // --- Testing Increments ---
     public static final double HOOD_TEST_INCREMENT = 0.2;
