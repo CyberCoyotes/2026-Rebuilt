@@ -32,11 +32,13 @@ import edu.wpi.first.wpilibj.DriverStation;
  */
 public class GameDataTelemetry {
 
-    // NOTE: Fill these in from the game manual before competition.
-    // These are seconds REMAINING in the match (DriverStation.getMatchTime() counts down).
-    private static final double SHIFT_2_START_SEC = 90.0;
-    private static final double SHIFT_3_START_SEC = 60.0;
-    private static final double SHIFT_4_START_SEC = 30.0;
+    // Seconds REMAINING in the TELEOP period (140s total) when each shift begins.
+    // Source: 2026 Game Manual Table 6-2.
+    private static final double SHIFT_1_START_SEC = 130.0; // Transition ends, Shift 1 begins
+    private static final double SHIFT_2_START_SEC = 105.0;
+    private static final double SHIFT_3_START_SEC =  80.0;
+    private static final double SHIFT_4_START_SEC =  55.0;
+    private static final double ENDGAME_START_SEC =  30.0;
 
     public enum InactiveAlliance {
         NONE,
@@ -132,15 +134,18 @@ public class GameDataTelemetry {
     }
 
     /**
-     * Returns the current shift number (1-4) based on seconds remaining.
-     * Returns 0 if match time is unavailable.
+     * Returns the current shift number (1-4) based on seconds remaining in TELEOP.
+     * Returns 0 during Transition, Endgame, or when match time is unavailable.
+     * Both hubs are active when shift == 0.
      */
     private int computeShift(double matchTimeSec) {
         if (matchTimeSec < 0) return 0;
+        if (matchTimeSec > SHIFT_1_START_SEC) return 0; // Transition — both hubs active
         if (matchTimeSec > SHIFT_2_START_SEC) return 1;
         if (matchTimeSec > SHIFT_3_START_SEC) return 2;
         if (matchTimeSec > SHIFT_4_START_SEC) return 3;
-        return 4;
+        if (matchTimeSec > ENDGAME_START_SEC) return 4;
+        return 0; // Endgame — both hubs active
     }
 
     /**

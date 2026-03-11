@@ -331,6 +331,47 @@
             ]
           },
           {
+            "title": "Match Phase",
+            "x": 768.0,
+            "y": 256.0,
+            "width": 256.0,
+            "height": 192.0,
+            "type": "List Layout",
+            "properties": {
+              "label_position": "TOP"
+            },
+            "children": [
+              {
+                "title": "Phase",
+                "x": 0.0,
+                "y": 0.0,
+                "width": 256.0,
+                "height": 96.0,
+                "type": "Text Display",
+                "properties": {
+                  "topic": "/MatchPhase/PhaseName",
+                  "period": 0.06,
+                  "data_type": "string",
+                  "show_submit_button": false
+                }
+              },
+              {
+                "title": "Next Phase In",
+                "x": 0.0,
+                "y": 0.0,
+                "width": 256.0,
+                "height": 96.0,
+                "type": "Text Display",
+                "properties": {
+                  "topic": "/MatchPhase/PhaseCountdown",
+                  "period": 0.06,
+                  "data_type": "double",
+                  "show_submit_button": false
+                }
+              }
+            ]
+          },
+          {
             "title": "Indexer/Intake",
             "x": 1024.0,
             "y": 0.0,

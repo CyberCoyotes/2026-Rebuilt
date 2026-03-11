@@ -45,6 +45,7 @@ public class RobotContainer {
 
     private final Telemetry logger = new Telemetry(MaxSpeed);
     private final GameDataTelemetry gameDataTelemetry = new GameDataTelemetry();
+    private final MatchPhaseTelemetry matchPhaseTelemetry = new MatchPhaseTelemetry();
 
     // ===== Controllers =====
     private final CommandXboxController driver = new CommandXboxController(0);
@@ -167,6 +168,7 @@ public class RobotContainer {
 
     public void updateGameData() {
         gameDataTelemetry.update();
+        matchPhaseTelemetry.update();
     }
 
     public GameDataTelemetry getGameDataTelemetry() {
