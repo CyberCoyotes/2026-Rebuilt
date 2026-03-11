@@ -208,6 +208,57 @@ public class FuelCommands {
     // =========================================================================
 
     /**
+     * Agitates fuel by bouncing the intake roller against the bumpers, then shoots
+     * once the flywheel is ready — feeding and bouncing run in parallel.
+     *
+     * Slides run in reverse (higher position = roller lower/out). The bounce rocks
+     * the roller between SLIDE_BOUNCE_DOWN_POS (~40) and SLIDE_BOUNCE_UP_POS (~35).
+     *
+     * Sequence:
+     *   1. Set trench preset targets and beginSpinUp (TESTING — swap preset as needed).
+     *   2. Wait until shooter.isReady() — flywheel + hood settled (3 s timeout).
+     *   3. Parallel:
+     *        A. Run conveyor + indexer forward continuously (feeds the shot).
+     *        B. Run slideBounceUp() repeatedly — keeps agitating while held.
+     *   4. finallyDo: stops indexer/conveyor and returns shooter to idle.
+     *
+     * Phase 3 runs until the command is interrupted (whileTrue trigger released).
+     * slideBounceUp().repeatedly() restarts the 2-second bounce cycle each time it
+     * finishes, so the roller keeps rocking for as long as the button is held.
+     *
+     * Bind to a button with whileTrue().
+     *
+     * @param shooter The shooter subsystem
+     * @param indexer The indexer subsystem
+     * @param intake  The intake subsystem
+     * @return Command that waits for flywheel ready, then feeds + bounces in parallel
+     */
+    public static Command slideBounceAndShoot(ShooterSubsystem shooter, IndexerSubsystem indexer,
+            IntakeSubsystem intake) {
+        return Commands.sequence(
+                // Step 1: arm trench preset and spin up (TODO: swap preset before competition)
+                Commands.runOnce(() -> {
+                    shooter.setTargetVelocity(Constants.Shooter.TRENCH_RPM);
+                    shooter.setTargetHoodPose(Constants.Shooter.TRENCH_HOOD);
+                    shooter.beginSpinUp();
+                }, shooter),
+                // Step 2: wait for flywheel + hood to settle before feeding
+                Commands.waitUntil(shooter::isReady).withTimeout(3.0),
+                // Step 3: feed + bounce in parallel until trigger is released
+                Commands.parallel(
+                        Commands.run(() -> {
+                            indexer.conveyorForward();
+                            indexer.indexerForward();
+                        }, indexer),
+                        intake.slideBounceUp().repeatedly()))
+                .finallyDo(() -> {
+                    indexer.indexerStop();
+                    indexer.conveyorStop();
+                    shooter.setIdle();
+                }).withName("SlideBounceAndShoot");
+    }
+
+    /**
      * Creates a command to eject jammed game pieces.
      * Reverses flywheel for a duration then returns to SPINUP.
      *
@@ -294,6 +345,7 @@ public class FuelCommands {
     public static Command poseAlignAndShoot(
             ShooterSubsystem shooter,
             IndexerSubsystem indexer,
+            IntakeSubsystem intake,
             CommandSwerveDrivetrain drivetrain,
             DoubleSupplier xSupplier,
             DoubleSupplier ySupplier) {
@@ -367,6 +419,7 @@ public class FuelCommands {
             if (shooter.isReady()) {
                 indexer.conveyorForward();
                 indexer.indexerForward();
+                intake.fuelPump(); // Run the fuel pump command to agitate fuel while shooting
             } else {
                 indexer.indexerStop();
                 indexer.conveyorStop();
@@ -374,6 +427,7 @@ public class FuelCommands {
 
         }, shooter, indexer, drivetrain)
                 .beforeStarting(Commands.runOnce(shooter::beginSpinUp, shooter))
+
                 .finallyDo(() -> {
                     indexer.indexerStop();
                     indexer.conveyorStop();

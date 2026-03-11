@@ -9,6 +9,7 @@ import edu.wpi.first.networktables.DoublePublisher;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.networktables.StringPublisher;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -161,6 +162,14 @@ public class IntakeSubsystem extends SubsystemBase {
 
     public void stopSlide() {
         io.stopSlide();
+    }
+
+    /**
+     * Moves slide to an arbitrary position via MotionMagic. Motor holds after.
+     * Caller is responsible for clamping to valid range.
+     */
+    public void setSlidesToPosition(double position) {
+        io.setSlidePosition(position);
     }
 
     /**
@@ -336,6 +345,69 @@ public class IntakeSubsystem extends SubsystemBase {
                 Commands.runOnce(this::retractSlides, this))
                 .withName("RetractSlidesStack");
     }
+
+    // =========================================================================
+    // COMMAND FACTORIES — SLIDE BOUNCE
+    // =========================================================================
+
+    /**
+     * Bounces the roller against the bumpers to agitate fuel, then drops back to
+     * the fully extended (intake) position.
+     *
+     * Slides run in reverse — higher position number = roller lower/out.
+     * Decreasing the position lifts the roller toward the bumpers.
+     *
+     * Sequence:
+     *   1. Move to SLIDE_BOUNCE_DOWN_POS (~40) → wait 500 ms  (roller near floor)
+     *   2. Move to SLIDE_BOUNCE_UP_POS   (~35) → wait 500 ms  (roller bumps up)
+     *   3. Move to SLIDE_BOUNCE_DOWN_POS (~40) → wait 500 ms
+     *   4. Move to SLIDE_BOUNCE_UP_POS   (~35) → wait 500 ms
+     *   5. Move to SLIDE_EXTENDED_POSITION (~44.4)             (return to intake position)
+     *
+     * Tune SLIDE_BOUNCE_DOWN_POS and SLIDE_BOUNCE_UP_POS in Constants.java.
+     * Usable in both teleop (whileTrue / onTrue) and autonomous sequences.
+     * MotionMagic holds each setpoint until the next runOnce fires.
+     */
+    // TODO Test and tune the bounce positions and timing on hardware. Current values are placeholders.
+    public Command slideBounceUp() {
+        return Commands.sequence(
+                Commands.runOnce(() -> setSlidesToPosition(Constants.Intake.SLIDE_BOUNCE_DOWN_POS), this),
+                Commands.waitSeconds(0.5),
+                Commands.runOnce(() -> setSlidesToPosition(Constants.Intake.SLIDE_BOUNCE_UP_POS),   this),
+                Commands.waitSeconds(0.5),
+                Commands.runOnce(() -> setSlidesToPosition(Constants.Intake.SLIDE_BOUNCE_DOWN_POS), this),
+                Commands.waitSeconds(0.5),
+                Commands.runOnce(() -> setSlidesToPosition(Constants.Intake.SLIDE_BOUNCE_UP_POS),   this),
+                Commands.waitSeconds(0.5),
+                Commands.runOnce(() -> setSlidesToPosition(Constants.Intake.SLIDE_EXTENDED_POSITION), this))
+                .withName("SlideBounceUp");
+    }
+public Command fuelPump() {
+    Timer bounceTimer = new Timer();
+    return Commands.run(() -> {
+                runRoller();
+                if (bounceTimer.get() < 0.5) {
+                    setSlidesToPosition(Constants.Intake.SLIDE_BOUNCE_DOWN_POS);
+                } else if (bounceTimer.get() < 1.0) {
+                    setSlidesToPosition(Constants.Intake.SLIDE_BOUNCE_UP_POS);
+                } else {
+                    bounceTimer.reset();
+                }
+            }, this)
+            .beforeStarting(() -> { bounceTimer.reset(); bounceTimer.start(); })
+            .finallyDo(() -> stopRoller())
+            .withName("FuelPump");
+}
+
+public Command fuelPumpBasic() {
+    return
+            Commands.sequence(
+                    Commands.runOnce(() -> setSlidesToPosition(Constants.Intake.SLIDE_BOUNCE_DOWN_POS), this),
+                    Commands.waitSeconds(0.5),
+                    Commands.runOnce(() -> setSlidesToPosition(Constants.Intake.SLIDE_BOUNCE_UP_POS), this),
+                    Commands.waitSeconds(0.5)
+    ).withName("FuelPump");
+}
 
     // =========================================================================
     // COMMAND FACTORIES — AUTONOMOUS

@@ -48,9 +48,12 @@ public final class Constants {
     public static final double SLIDE_RETRACTED_POSITION = 0.0;
     public static final double SLIDE_EXTENDED_POSITION = 44.40;
     public static final double SLIDE_MAX_POSITION = 44.454; // Mechanical limit, validate in configs limit
-    public static final double SLIDE_UP_POSITION = 0.15;
-    public static final double SLIDE_SHOT_DOWN_POS = (SLIDE_EXTENDED_POSITION * 0.25); // Rollers off the floor, but not much
-    public static final double SLIDE_SHOT_UP_POS = (SLIDE_EXTENDED_POSITION * 0.80); // Rollers not vertical or retracted, but up enough to push the ball into feed position
+    public static final double SLIDE_UP_POSITION = 39.5;
+    
+    /** Bounce DOWN: roller near fully extended — low position for bump agitation. TODO: Tune */
+    public static final double SLIDE_BOUNCE_DOWN_POS = 40.0;
+    /** Bounce UP: roller lifted ~5 rotations toward bumpers — high position for bump agitation. TODO: Tune */
+    public static final double SLIDE_BOUNCE_UP_POS   = 30.0;
 
 
     // TODO Tune the roller voltages
@@ -141,7 +144,7 @@ public final class Constants {
     public static final double TOWER_RPM = 3200; // TODO: Tune was 3100, 4.42
     public static final double TRENCH_RPM = 3200; // TODO: Tune
     public static final double FAR_RPM = 3800; // TODO: Tune was 4000 + 5.5 worked
-    public static final double PASS_RPM = 3200; // TODO: Tune was 4000 + 7.00 and too much, 3200 is a starting point
+    public static final double PASS_RPM = 3603; // TODO: Tune was 4000 + 7.00 and too much, 3200 is a starting point
 
     /**
      * Reverse RPM for jam clearing. Only reached through eject(), which gates on
@@ -174,7 +177,7 @@ public final class Constants {
     public static final double TOWER_HOOD = 4.30;   // TODO: Tune Tower hood
     public static final double TRENCH_HOOD = 4.30;  // TODO: Tune Trench hood
     public static final double FAR_HOOD = 5.50;     // TODO: Tune Far hood, was 4000 + 5.5 worked
-    public static final double PASS_HOOD = 3.00;    //TODO: Tune Pass hoodm, was 7.00 and too much
+    public static final double PASS_HOOD = 2.00;    //TODO: Tune Pass hoodm, was 7.00 and too much
 
     // --- Testing Increments ---
     public static final double HOOD_TEST_INCREMENT = 0.2;

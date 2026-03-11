@@ -122,7 +122,7 @@ public class RobotContainer {
         // =====================================================================
         
         driver.rightTrigger(0.5).whileTrue(
-            FuelCommands.poseAlignAndShoot(shooter, indexer, drivetrain,
+            FuelCommands.poseAlignAndShoot(shooter, indexer, intake,drivetrain,
                 () -> -driver.getLeftY() * MaxSpeed,
                 () -> -driver.getLeftX() * MaxSpeed)); 
         
@@ -131,7 +131,16 @@ public class RobotContainer {
         driver.leftTrigger(0.5).whileTrue(intake.intakeFuel());
         driver.leftBumper().whileTrue(intake.compressFuelHeld());
 
-        driver.povDown().onTrue(intake.retractSlidesCmd());
+        // Use the command from Intake slideBounceAndShoot()
+        // driver.y()
+
+        // driver.b().whileTrue(Command.run(intake.slideBounceAndShoot());
+
+        driver.a().onTrue(intake.slideBounceUp());
+        driver.x().whileTrue(intake.fuelPump());
+                driver.y().whileTrue(intake.fuelPumpBasic());
+
+
 
 
         // =====================================================================
@@ -139,13 +148,13 @@ public class RobotContainer {
         // =====================================================================
         var anyPresetHeld = operator.a().or(operator.b()).or(operator.x()).or(operator.y()); 
         
-        operator.rightTrigger(0.5).and(operator.a()).whileTrue(
+        operator.a().whileTrue(
             FuelCommands.shootWithPreset(shooter, indexer, ShooterSubsystem.ShotPreset.TRENCH));
-        operator.rightTrigger(0.5).and(operator.b()).whileTrue(
+        operator.b().whileTrue(
             FuelCommands.shootWithPreset(shooter, indexer, ShooterSubsystem.ShotPreset.CLOSE));
-        operator.rightTrigger(0.5).and(operator.x()).whileTrue(
+        operator.x().whileTrue(
             FuelCommands.shootWithPreset(shooter, indexer, ShooterSubsystem.ShotPreset.TOWER));
-        operator.rightTrigger(0.5).and(operator.y()).whileTrue(
+        operator.y().whileTrue(
             FuelCommands.shootWithPreset(shooter, indexer, ShooterSubsystem.ShotPreset.FAR));
 
         operator.rightBumper().whileTrue(FuelCommands.shootPass(shooter, indexer));
