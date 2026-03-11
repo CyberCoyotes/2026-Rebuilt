@@ -45,8 +45,8 @@ public final class Constants {
     public static final int INTAKE_SENSOR_ID = 41;
 
     // === Constants =====================
-    public static final double SLIDE_RETRACTED_POSITION = 0.0;
-    public static final double SLIDE_EXTENDED_POSITION = 44.40;
+    public static final double SLIDE_RETRACTED_POS = 0.0;
+    public static final double SLIDE_EXTENDED_POS = 44.40;
     public static final double SLIDE_MAX_POSITION = 44.454; // Mechanical limit, validate in configs limit
     public static final double SLIDE_UP_POSITION = 39.5;
     
