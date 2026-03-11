@@ -399,16 +399,16 @@ public class IntakeSubsystem extends SubsystemBase {
 public Command testFunctionality(){
     return Commands.sequence(
         intakeRollerTimer(2),
-        new WaitCommand(1),
+        Commands.waitSeconds(1),
         reverseIntakeRoller().withTimeout(2),
 
         extendSlidesCmd(),
-        new WaitCommand (1),
+        Commands.waitSeconds(1),
         retractSlidesCmd(),
-        new WaitCommand(2),
+        Commands.waitSeconds(1),
 
         extendSlidesCmd(),
-        new WaitCommand(1),
+        Commands.waitSeconds(1),
         retractSlidesSlowCmd(),
         intakeFuel().withTimeout(3)
 );
