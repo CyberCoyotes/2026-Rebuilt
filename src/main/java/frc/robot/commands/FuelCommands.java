@@ -251,7 +251,7 @@ public class FuelCommands {
                             indexer.conveyorForward();
                             indexer.indexerForward();
                         }, indexer),
-                        intake.slideBounceUp().repeatedly()))
+                        intake.fuelPumpBasic().repeatedly()))
                 .finallyDo(() -> {
                     indexer.indexerStop();
                     indexer.conveyorStop();

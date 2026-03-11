@@ -22,7 +22,7 @@ These are called by command factories. They do NOT return Commands.
 **What it does**: Moves slide to retracted position using the normal (fast) MotionMagic profile.
 
 **Technical details**:
-- Single call to `io.setSlidePosition(SLIDE_RETRACTED_POSITION)`
+- Single call to `io.setSlidePosition(SLIDE_RETRACTED_POS)`
 - Motor holds position after arrival via MotionMagic
 - Uses the default fast profile configured in Constants/IO layer
 
@@ -43,7 +43,7 @@ retractSlides();  // One call → motor handles the rest
 **What it does**: Moves slide to retracted position using the DynamicMotionMagic slow profile.
 
 **Technical details**:
-- Calls `io.setSlidePositionSlow(SLIDE_RETRACTED_POSITION)`
+- Calls `io.setSlidePositionSlow(SLIDE_RETRACTED_POS)`
 - **Must be called continuously** (every loop cycle) to maintain the slow profile
 - If called once and stopped, the slow profile won't stay active
 
