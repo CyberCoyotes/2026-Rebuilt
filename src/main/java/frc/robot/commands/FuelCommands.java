@@ -8,6 +8,7 @@ import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.networktables.DoublePublisher;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
@@ -362,6 +363,8 @@ public class FuelCommands {
         final DoublePublisher ntDistance       = visionTable.getDoubleTopic("distanceToHub_m").publish();
         final DoublePublisher ntLeadOffset     = visionTable.getDoubleTopic("leadOffset_deg").publish();
 
+        final Timer fuelPumpTimer = new Timer();
+
         return Commands.run(() -> {
             Translation2d hub = getHubLocation();
             Pose2d pose = drivetrain.getState().Pose;
@@ -419,18 +422,34 @@ public class FuelCommands {
             if (shooter.isReady()) {
                 indexer.conveyorForward();
                 indexer.indexerForward();
-                intake.fuelPump(); // Run the fuel pump command to agitate fuel while shooting
+                // Inline fuel pump — mirrors fuelPump() but runs inside the run loop
+                intake.runRoller();
+                double t = fuelPumpTimer.get();
+                if (t < 0.5) {
+                    intake.setSlidesToPosition(Constants.Intake.SLIDE_BOUNCE_DOWN_POS);
+                } else if (t < 1.0) {
+                    intake.setSlidesToPosition(Constants.Intake.SLIDE_BOUNCE_UP_POS);
+                } else {
+                    fuelPumpTimer.reset();
+                }
             } else {
                 indexer.indexerStop();
                 indexer.conveyorStop();
+                intake.stopRoller();
+                fuelPumpTimer.reset(); // reset so pump starts fresh when shooter becomes ready
             }
 
-        }, shooter, indexer, drivetrain)
-                .beforeStarting(Commands.runOnce(shooter::beginSpinUp, shooter))
+        }, shooter, indexer, intake, drivetrain)
+                .beforeStarting(Commands.runOnce(() -> {
+                    shooter.beginSpinUp();
+                    fuelPumpTimer.reset();
+                    fuelPumpTimer.start();
+                }, shooter))
 
                 .finallyDo(() -> {
                     indexer.indexerStop();
                     indexer.conveyorStop();
+                    intake.stopRoller();
                     shooter.setIdle();
                 })
                 .withName("PoseAlignAndShoot");
