@@ -53,7 +53,7 @@ public final class Constants {
     /** Bounce DOWN: roller near fully extended — low position for bump agitation. TODO: Tune */
     public static final double SLIDE_BOUNCE_DOWN_POS = 40.0;
     /** Bounce UP: roller lifted ~5 rotations toward bumpers — high position for bump agitation. TODO: Tune */
-    public static final double SLIDE_BOUNCE_UP_POS   = 35.0;
+    public static final double SLIDE_BOUNCE_UP_POS   = 30.0;
 
 
     // TODO Tune the roller voltages

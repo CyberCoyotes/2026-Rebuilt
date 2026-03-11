@@ -382,6 +382,13 @@ public class IntakeSubsystem extends SubsystemBase {
                 .withName("SlideBounceUp");
     }
 
+    public Command fuelPump() {
+        return Commands.sequence(
+                Commands.runOnce(() -> setSlidesToPosition(Constants.Intake.SLIDE_BOUNCE_DOWN_POS), this),
+                Commands.waitSeconds(0.5)
+                .withName("FuelPump"));
+    }
+
     // =========================================================================
     // COMMAND FACTORIES — AUTONOMOUS
     // =========================================================================
