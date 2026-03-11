@@ -126,21 +126,16 @@ public class RobotContainer {
                 () -> -driver.getLeftY() * MaxSpeed,
                 () -> -driver.getLeftX() * MaxSpeed)); 
         
-        driver.rightBumper().whileTrue(FuelCommands.shootPass(shooter, indexer));
+        driver.rightBumper().whileTrue(intake.fuelPump());
 
         driver.leftTrigger(0.5).whileTrue(intake.intakeFuel());
         driver.leftBumper().whileTrue(intake.compressFuelHeld());
 
-        // Use the command from Intake slideBounceAndShoot()
-        // driver.y()
 
         // driver.b().whileTrue(Command.run(intake.slideBounceAndShoot());
-
-        driver.x().onTrue(intake.slideBounceUp());
-        driver.a().whileTrue(intake.fuelPump());
-                driver.y().whileTrue(intake.fuelPumpBasic());
-
-
+        // driver.x().onTrue(intake.slideBounceUp());
+        driver.a().whileTrue(FuelCommands.shootPass(shooter, indexer));
+        
 
 
         // =====================================================================

@@ -400,13 +400,12 @@ public Command fuelPump() {
 }
 
 public Command fuelPumpBasic() {
-    return
-            Commands.sequence(
-                    Commands.runOnce(() -> setSlidesToPosition(Constants.Intake.SLIDE_BOUNCE_DOWN_POS), this),
-                    Commands.waitSeconds(0.5),
-                    Commands.runOnce(() -> setSlidesToPosition(Constants.Intake.SLIDE_BOUNCE_UP_POS), this),
-                    Commands.waitSeconds(0.5)
-    ).withName("FuelPump");
+    return Commands.sequence(
+            Commands.run(() -> { runRoller(); setSlidesToPosition(Constants.Intake.SLIDE_BOUNCE_DOWN_POS); }, this)
+                    .withTimeout(0.5),
+            Commands.run(() -> { runRoller(); setSlidesToPosition(Constants.Intake.SLIDE_BOUNCE_UP_POS); }, this)
+                    .withTimeout(0.5)
+    ).finallyDo(this::stopRoller).withName("FuelPumpBasic");
 }
 
     // =========================================================================
