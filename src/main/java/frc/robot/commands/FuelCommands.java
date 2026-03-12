@@ -346,7 +346,7 @@ public class FuelCommands {
     public static Command poseAlignAndShoot(
             ShooterSubsystem shooter,
             IndexerSubsystem indexer,
-            IntakeSubsystem intake,
+            // IntakeSubsystem intake,
             CommandSwerveDrivetrain drivetrain,
             DoubleSupplier xSupplier,
             DoubleSupplier ySupplier) {
@@ -423,17 +423,17 @@ public class FuelCommands {
                 indexer.conveyorForward();
                 indexer.indexerForward();
                 // Inline fuel pump — mirrors fuelPump() but runs inside the run loop
-                intake.runRoller();
+                // intake.runRoller();
                 // fuelPumpTimer used to time slide-bounce; kept ready for future tuning
-                fuelPumpTimer.get();
+                // fuelPumpTimer.get();
             } else {
                 indexer.indexerStop();
                 indexer.conveyorStop();
-                intake.stopRoller();
+                // intake.stopRoller();
                 fuelPumpTimer.reset(); // reset so pump starts fresh when shooter becomes ready
             }
 
-        }, shooter, indexer, drivetrain, intake)
+        }, shooter, indexer, drivetrain /*, intake*/)
                 .beforeStarting(Commands.runOnce(() -> {
                     shooter.beginSpinUp();
                     fuelPumpTimer.reset();
@@ -442,7 +442,7 @@ public class FuelCommands {
                 .finallyDo(() -> {
                     indexer.indexerStop();
                     indexer.conveyorStop();
-                    intake.stopRoller();
+                    // intake.stopRoller();
                     shooter.setIdle();
                 })
                 .withName("PoseAlignAndShoot");
