@@ -102,7 +102,10 @@ public class AutoRoutines {
                                 ));
                 // Routine Events
                 StartRMid.atTime("Intake").onTrue(m_intake.intakeFuelTimer(5));
+                // Option A — fixed timer:
                 // StartRMid.atTime("FuelPump").onTrue(m_intake.fuelPumpCycleAuto(2.0));
+                // Option B — sensor-gated (waits for first detection, stops when chute clears):
+                // StartRMid.atTime("FuelPump").onTrue(m_intake.fuelPumpCycleSensor(m_indexer));
 
                 // Vision Shot
                 StartRMid.atTime("Shoot").onTrue(FuelCommands.Auto. poseAlignAndShoot(m_shooter, m_indexer, m_drivetrain, 3.0));
