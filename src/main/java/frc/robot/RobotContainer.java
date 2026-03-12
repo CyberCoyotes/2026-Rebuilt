@@ -126,7 +126,7 @@ public class RobotContainer {
                 () -> -driver.getLeftY() * MaxSpeed,
                 () -> -driver.getLeftX() * MaxSpeed)); 
         
-        driver.rightBumper().whileTrue(intake.fuelPumpBasic());
+        driver.rightBumper().whileTrue(intake.fuelPumpCycle());
 
         driver.leftTrigger(0.5).whileTrue(intake.intakeFuel());
         driver.leftBumper().whileTrue(intake.compressFuelHeld());

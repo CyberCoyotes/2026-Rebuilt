@@ -69,7 +69,7 @@ public class IntakeIOHardware implements IntakeIO {
             config.SoftwareLimitSwitch.ForwardSoftLimitEnable = true;
             config.SoftwareLimitSwitch.ForwardSoftLimitThreshold = 44.25;
             config.SoftwareLimitSwitch.ReverseSoftLimitEnable = true;
-            config.SoftwareLimitSwitch.ReverseSoftLimitThreshold = 0.0;
+            config.SoftwareLimitSwitch.ReverseSoftLimitThreshold = -0.5; // Allow MotionMagic to reach and hold 0.0 without the soft limit reducing output early
 
             /* Tune PID values for position control of the Slide motor */
             config.Slot0.kP = 2.0;
