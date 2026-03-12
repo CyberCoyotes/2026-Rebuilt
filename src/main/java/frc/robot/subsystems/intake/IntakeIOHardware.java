@@ -77,7 +77,7 @@ public class IntakeIOHardware implements IntakeIO {
             config.Slot0.kD = 0.0;
             config.Slot0.kS = 0.7;
 
-            /* MotionMagic profile - TODO: Tune the MotionMagic parameters for smooth and responsive slide movement. */
+            /* MotionMagic profile */
             config.MotionMagic.MotionMagicCruiseVelocity = 363; // 960;
             config.MotionMagic.MotionMagicAcceleration = 363;
             config.MotionMagic.MotionMagicJerk = 0;
