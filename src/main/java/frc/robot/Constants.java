@@ -163,7 +163,7 @@ public final class Constants {
 
     // --- Hood (Kraken rotational positions) ---
     public static final double MIN_HOOD_POSE_ROT = 0.0; // Mechanical limit, validate in configs limit
-    public static final double MAX_HOOD_POSE_ROT = 9.14; // Mechanical limit, validate in configs limit
+    public static final double MAX_HOOD_POSE_ROT = 10.15; // Mechanical limit, validate in configs limit
     public static final double HOOD_POSE_TOLERANCE = 0.25; // TODO Tune tolerance based on testing — consider a tighter
                                                            // tolerance than 0.25 rotations
 
@@ -280,7 +280,9 @@ public final class Constants {
      * - Too high → oscillates left/right around the target
      * See TUNING.md §5 for step-by-step procedure.
      */
+    
     public static final double ROTATIONAL_KP = 0.10;
+    // started at 40; now 10;
 
     /**
      * Maximum rotational rate the vision command will apply to the drivetrain
