@@ -101,9 +101,13 @@ public class AutoRoutines {
 
                                 ));
                 // Routine Events
-                StartRMid.atTime("Intake").onTrue(m_intake.intakeFuelTimer(10));
+                StartRMid.atTime("Intake").onTrue(m_intake.intakeFuelTimer(5));
 
-                StartRMid.atTime("Shoot").onTrue(FuelCommands.Auto.shootTrench(m_shooter, m_indexer, 6)); // FIXME:
+                // Vision Shot
+                StartRMid.atTime("Shoot").onTrue(FuelCommands.Auto. poseAlignAndShoot(m_shooter, m_indexer, m_drivetrain, 3.0));
+
+                // Regular shot (no vision)
+                // StartRMid.atTime("Shoot").onTrue(FuelCommands.Auto.shootTrench(m_shooter, m_indexer, 6)); // FIXME:
                                                                                                           // Check
                                                                                                           // segement
                                                                                                           // number
@@ -184,8 +188,8 @@ public class AutoRoutines {
         // Experimental
         // ============================================================================
 
-        public AutoRoutine visionTest01() {
-                final AutoRoutine routine = m_factory.newRoutine("VisionTest01");
+        public AutoRoutine visionTest() {
+                final AutoRoutine routine = m_factory.newRoutine("VisionTest");
                 final AutoTrajectory Experimental = routine.trajectory("VisionTest", 0);
 
                 routine.active().onTrue(
@@ -201,7 +205,7 @@ public class AutoRoutines {
                 // Place the "Shoot" event marker at the END of the trajectory segment so the
                 // path finishes before this fires.
                 Experimental.atTime("Shoot")
-                                .onTrue(FuelCommands.Auto. poseAlignAndShoot(m_shooter, m_indexer, m_drivetrain, 1.0));
+                                .onTrue(FuelCommands.Auto. poseAlignAndShoot(m_shooter, m_indexer, m_drivetrain, 3.0));
 
                 return routine;
         }
