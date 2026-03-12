@@ -15,6 +15,7 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import frc.robot.Constants;
+import frc.robot.subsystems.indexer.IndexerSubsystem;
 
 public class IntakeSubsystem extends SubsystemBase {
 
@@ -395,6 +396,76 @@ public class IntakeSubsystem extends SubsystemBase {
                 .beforeStarting(cycleTimer::restart)
                 .finallyDo(this::stopRoller)
                 .withName("FuelPumpCycle");
+    }
+
+    /**
+     * Runs the fuel pump cycle (bouncing slides + roller) for a fixed duration.
+     * Ends naturally after {@code seconds}, making it safe for autonomous and
+     * Choreo event linking via {@code trajectory.atTime("FuelPump").onTrue(...)}.
+     *
+     * @param seconds How long to run the pump cycle.
+     */
+    public Command fuelPumpCycleAuto(double seconds) {
+        Timer cycleTimer = new Timer();
+        return Commands.run(() -> {
+            runRoller();
+            double t = cycleTimer.get();
+            if (t < 0.5) {
+                setSlidesToPosition(Constants.Intake.SLIDE_BOUNCE_DOWN_POS);
+            } else if (t < 1.0) {
+                setSlidesToPosition(Constants.Intake.SLIDE_BOUNCE_UP_POS);
+            } else {
+                cycleTimer.restart();
+            }
+        }, this)
+                .beforeStarting(cycleTimer::restart)
+                .withTimeout(seconds)
+                .finallyDo(this::stopRoller)
+                .withName("FuelPumpCycleAuto");
+    }
+
+    /**
+     * Sensor-gated fuel pump for autonomous / Choreo event linking.
+     *
+     * <p>Phase 1 — WAIT (no subsystem held): polls {@code indexer.isFuelDetected()}.
+     * While waiting, IntakeSubsystem is free so an {@code intakeFuelTimer} can run
+     * in parallel without conflict.
+     *
+     * <p>Phase 2 — PUMP (claims IntakeSubsystem): bounces slides + runs roller
+     * until {@code indexer.isChuteEmpty()} is true (fuel seen then gone for
+     * FUEL_CLEAR_TIME seconds).
+     *
+     * <p>A hard-stop timeout prevents the command from hanging if the sensor lies
+     * or fuel never clears.
+     *
+     * <p>Usage: {@code trajectory.atTime("FuelPump").onTrue(m_intake.fuelPumpCycleSensor(m_indexer));}
+     *
+     * @param indexer   The IndexerSubsystem that owns the chute CANrange sensor.
+     */
+    public Command fuelPumpCycleSensor(IndexerSubsystem indexer) {
+        Timer cycleTimer = new Timer();
+        return Commands.sequence(
+            // Phase 1: wait for first fuel — no subsystem required, intake can run freely
+            Commands.runOnce(indexer::resetChuteTracking),
+            Commands.waitUntil(indexer::isFuelDetected),
+            // Phase 2: pump until chute clears (or hard timeout)
+            Commands.run(() -> {
+                runRoller();
+                double t = cycleTimer.get();
+                if (t < 0.5) {
+                    setSlidesToPosition(Constants.Intake.SLIDE_BOUNCE_DOWN_POS);
+                } else if (t < 1.0) {
+                    setSlidesToPosition(Constants.Intake.SLIDE_BOUNCE_UP_POS);
+                } else {
+                    cycleTimer.restart();
+                }
+            }, this)
+                .beforeStarting(cycleTimer::restart)
+                .until(indexer::isChuteEmpty)
+                .withTimeout(10.0) // hard stop — tune or remove once reliable
+        )
+        .finallyDo(this::stopRoller)
+        .withName("FuelPumpCycleSensor");
     }
 
     // Loopable and repeatable version of fuelPump() for more manual control over timing and cycles.

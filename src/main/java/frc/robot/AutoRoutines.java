@@ -101,9 +101,18 @@ public class AutoRoutines {
 
                                 ));
                 // Routine Events
-                StartRMid.atTime("Intake").onTrue(m_intake.intakeFuelTimer(10));
+                StartRMid.atTime("Intake").onTrue(m_intake.intakeFuelTimer(5));
+                // Option A — fixed timer:
+                // StartRMid.atTime("FuelPump").onTrue(m_intake.fuelPumpCycleAuto(2.0));
+                // Option B — sensor-gated (waits for first detection, stops when chute clears):
+                // StartRMid.atTime("FuelPump").onTrue(m_intake.fuelPumpCycleSensor(m_indexer));
 
-                StartRMid.atTime("Shoot").onTrue(FuelCommands.Auto.shootTrench(m_shooter, m_indexer, 6)); // FIXME:
+                // Vision Shot
+                StartRMid.atTime("Shoot").onTrue(FuelCommands.Auto. poseAlignAndShoot(m_shooter, m_indexer, m_drivetrain, 3.0));
+                StartRMid.atTime("FuelPump").onTrue(m_intake.fuelPumpCycleSensor(m_indexer));
+
+                // Regular shot (no vision)
+                // StartRMid.atTime("Shoot").onTrue(FuelCommands.Auto.shootTrench(m_shooter, m_indexer, 6)); // FIXME:
                                                                                                           // Check
                                                                                                           // segement
                                                                                                           // number
@@ -184,8 +193,8 @@ public class AutoRoutines {
         // Experimental
         // ============================================================================
 
-        public AutoRoutine visionTest01() {
-                final AutoRoutine routine = m_factory.newRoutine("VisionTest01");
+        public AutoRoutine visionTest() {
+                final AutoRoutine routine = m_factory.newRoutine("VisionTest");
                 final AutoTrajectory Experimental = routine.trajectory("VisionTest", 0);
 
                 routine.active().onTrue(
@@ -201,26 +210,8 @@ public class AutoRoutines {
                 // Place the "Shoot" event marker at the END of the trajectory segment so the
                 // path finishes before this fires.
                 Experimental.atTime("Shoot")
-                                .onTrue(FuelCommands.Auto.poseAlignAndShoot(m_shooter, m_indexer, m_drivetrain, 1.0));
+                                .onTrue(FuelCommands.Auto. poseAlignAndShoot(m_shooter, m_indexer, m_drivetrain, 3.0));
 
                 return routine;
         }
-
-        // FIXME This was not written correctly and I don't have time to fix it.
-        // public AutoRoutine visionTest02() {
-        // final AutoRoutine routine = m_factory.newRoutine("VisionTest02");
-        // final AutoTrajectory Experimental = routine.trajectory("VisionTest", 0);
-
-        // routine.active().onTrue(
-        // Commands.sequence(
-        // Experimental.resetOdometry(), // Always reset odometry first
-        // Experimental.cmd() //Follow the path
-
-        // ));
-        // // Routine Events
-        // Experimental.atTime("Shoot").onTrue(FuelCommands.Auto.visionShot_version2(m_shooter,
-        // m_vision, m_indexer, m_drivetrain)); //score
-
-        // return routine;
-        // }
 }

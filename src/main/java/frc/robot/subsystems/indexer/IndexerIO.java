@@ -49,26 +49,6 @@ public interface IndexerIO {
         /** Indexer motor supply current in amps. Used for jam detection. */
         public double indexerCurrentAmps = 0.0;
 
-        // ===== Hopper CANrange A =====
-        /**
-         * Raw distance from CANrange A in meters.
-         * Watch this in AdvantageScope when tuning TOF_DETECTION_THRESHOLD_METERS.
-         */
-        public double hopperADistanceMeters = 0.0;
-
-        /** True if a game piece is detected at hopper position A. */
-        public boolean hopperADetected = false;
-
-        // ===== Hopper CANrange B =====
-        /**
-         * Raw distance from CANrange B in meters.
-         * Watch this in AdvantageScope when tuning TOF_DETECTION_THRESHOLD_METERS.
-         */
-        public double hopperBDistanceMeters = 0.0;
-
-        /** True if a game piece is detected at hopper position B. */
-        public boolean hopperBDetected = false;
-
         // ===== Chute CANrange =====
         /**
          * Raw distance from Chute CANrange in meters.
