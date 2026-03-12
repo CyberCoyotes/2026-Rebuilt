@@ -129,7 +129,7 @@ public class RobotContainer {
         driver.rightBumper().whileTrue(intake.fuelPumpCycle());
 
         driver.leftTrigger(0.5).whileTrue(intake.intakeFuel());
-        driver.leftBumper().whileTrue(intake.compressFuelHeld());
+        driver.leftBumper().whileTrue(intake.retractSlidesCmd());
 
         // driver.a().whileTrue(FuelCommands.fuelPump(indexer));
         
