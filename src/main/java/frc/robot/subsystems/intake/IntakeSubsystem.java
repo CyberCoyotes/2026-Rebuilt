@@ -462,7 +462,7 @@ public class IntakeSubsystem extends SubsystemBase {
             }, this)
                 .beforeStarting(cycleTimer::restart)
                 .until(indexer::isChuteEmpty)
-                .withTimeout(5.0) // hard stop — tune or remove once reliable
+                .withTimeout(10.0) // hard stop — tune or remove once reliable
         )
         .finallyDo(this::stopRoller)
         .withName("FuelPumpCycleSensor");
