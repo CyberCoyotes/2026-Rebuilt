@@ -471,8 +471,8 @@
             "title": "Inactive First",
             "x": 896.0,
             "y": 0.0,
-            "width": 512.0,
-            "height": 256.0,
+            "width": 128.0,
+            "height": 192.0,
             "type": "List Layout",
             "properties": {
               "label_position": "TOP"
@@ -526,6 +526,20 @@
             },
             "children": [
               {
+                "title": "Alignment State",
+                "x": 0.0,
+                "y": 0.0,
+                "width": 192.0,
+                "height": 64.0,
+                "type": "Text Display",
+                "properties": {
+                  "topic": "/Vision/State",
+                  "period": 0.06,
+                  "data_type": "string",
+                  "show_submit_button": false
+                }
+              },
+              {
                 "title": "Ready to Shoot",
                 "x": 0.0,
                 "y": 0.0,
@@ -540,20 +554,6 @@
                   "false_color": 4294901760,
                   "true_icon": "None",
                   "false_icon": "None"
-                }
-              },
-              {
-                "title": "Alignment State",
-                "x": 0.0,
-                "y": 0.0,
-                "width": 192.0,
-                "height": 64.0,
-                "type": "Text Display",
-                "properties": {
-                  "topic": "/Vision/State",
-                  "period": 0.06,
-                  "data_type": "string",
-                  "show_submit_button": false
                 }
               },
               {
@@ -598,20 +598,17 @@
             },
             "children": [
               {
-                "title": "Shooter Ready",
+                "title": "Selected Preset",
                 "x": 0.0,
                 "y": 0.0,
-                "width": 128.0,
-                "height": 128.0,
-                "type": "Boolean Box",
+                "width": 192.0,
+                "height": 64.0,
+                "type": "Text Display",
                 "properties": {
-                  "topic": "/Shooter/IsReady",
+                  "topic": "/Shooter/SelectedPreset",
                   "period": 0.06,
-                  "data_type": "boolean",
-                  "true_color": 4278255360,
-                  "false_color": 4294944000,
-                  "true_icon": "None",
-                  "false_icon": "None"
+                  "data_type": "string",
+                  "show_submit_button": false
                 }
               },
               {
@@ -629,17 +626,20 @@
                 }
               },
               {
-                "title": "Selected Preset",
+                "title": "Shooter Ready",
                 "x": 0.0,
                 "y": 0.0,
-                "width": 192.0,
-                "height": 64.0,
-                "type": "Text Display",
+                "width": 128.0,
+                "height": 128.0,
+                "type": "Boolean Box",
                 "properties": {
-                  "topic": "/Shooter/SelectedPreset",
+                  "topic": "/Shooter/IsReady",
                   "period": 0.06,
-                  "data_type": "string",
-                  "show_submit_button": false
+                  "data_type": "boolean",
+                  "true_color": 4278255360,
+                  "false_color": 4294944000,
+                  "true_icon": "None",
+                  "false_icon": "None"
                 }
               },
               {
@@ -757,6 +757,23 @@
                 }
               },
               {
+                "title": "Hopper Full",
+                "x": 0.0,
+                "y": 0.0,
+                "width": 128.0,
+                "height": 64.0,
+                "type": "Boolean Box",
+                "properties": {
+                  "topic": "/Indexer/HopperFull",
+                  "period": 0.06,
+                  "data_type": "boolean",
+                  "true_color": 4278255360,
+                  "false_color": 4281545523,
+                  "true_icon": "None",
+                  "false_icon": "None"
+                }
+              },
+              {
                 "title": "Intake Jammed",
                 "x": 0.0,
                 "y": 0.0,
@@ -787,20 +804,17 @@
             },
             "children": [
               {
-                "title": "Hood At Pose",
+                "title": "Hood Position",
                 "x": 0.0,
                 "y": 0.0,
-                "width": 128.0,
-                "height": 128.0,
-                "type": "Boolean Box",
+                "width": 192.0,
+                "height": 64.0,
+                "type": "Text Display",
                 "properties": {
-                  "topic": "/Shooter/HoodAtPose",
+                  "topic": "/Shooter/HoodRotations",
                   "period": 0.06,
-                  "data_type": "boolean",
-                  "true_color": 4278255360,
-                  "false_color": 4294944000,
-                  "true_icon": "None",
-                  "false_icon": "None"
+                  "data_type": "double",
+                  "show_submit_button": false
                 }
               },
               {
@@ -832,17 +846,51 @@
                 }
               },
               {
-                "title": "Hood Position",
+                "title": "Hood At Pose",
+                "x": 0.0,
+                "y": 0.0,
+                "width": 128.0,
+                "height": 128.0,
+                "type": "Boolean Box",
+                "properties": {
+                  "topic": "/Shooter/HoodAtPose",
+                  "period": 0.06,
+                  "data_type": "boolean",
+                  "true_color": 4278255360,
+                  "false_color": 4294944000,
+                  "true_icon": "None",
+                  "false_icon": "None"
+                }
+              },
+              {
+                "title": "ThroughBore (rot)",
                 "x": 0.0,
                 "y": 0.0,
                 "width": 192.0,
                 "height": 64.0,
                 "type": "Text Display",
                 "properties": {
-                  "topic": "/Shooter/HoodRotations",
+                  "topic": "/Shooter/ThroughBorePosition",
                   "period": 0.06,
                   "data_type": "double",
                   "show_submit_button": false
+                }
+              },
+              {
+                "title": "ThroughBore Connected",
+                "x": 0.0,
+                "y": 0.0,
+                "width": 128.0,
+                "height": 64.0,
+                "type": "Boolean Box",
+                "properties": {
+                  "topic": "/Shooter/ThroughBoreConnected",
+                  "period": 0.06,
+                  "data_type": "boolean",
+                  "true_color": 4278255360,
+                  "false_color": 4294901760,
+                  "true_icon": "None",
+                  "false_icon": "None"
                 }
               }
             ]
@@ -859,16 +907,16 @@
             },
             "children": [
               {
-                "title": "State",
+                "title": "HoodRotations",
                 "x": 0.0,
                 "y": 0.0,
                 "width": 128.0,
                 "height": 128.0,
                 "type": "Text Display",
                 "properties": {
-                  "topic": "/Shooter/State",
+                  "topic": "/Shooter/HoodRotations",
                   "period": 0.06,
-                  "data_type": "string",
+                  "data_type": "double",
                   "show_submit_button": false
                 }
               },
@@ -887,16 +935,16 @@
                 }
               },
               {
-                "title": "HoodRotations",
+                "title": "State",
                 "x": 0.0,
                 "y": 0.0,
                 "width": 128.0,
                 "height": 128.0,
                 "type": "Text Display",
                 "properties": {
-                  "topic": "/Shooter/HoodRotations",
+                  "topic": "/Shooter/State",
                   "period": 0.06,
-                  "data_type": "double",
+                  "data_type": "string",
                   "show_submit_button": false
                 }
               },
@@ -923,6 +971,37 @@
                 "type": "Text Display",
                 "properties": {
                   "topic": "/Shooter/TargetHoodRotations",
+                  "period": 0.06,
+                  "data_type": "double",
+                  "show_submit_button": false
+                }
+              },
+              {
+                "title": "ThroughBoreConnected",
+                "x": 0.0,
+                "y": 0.0,
+                "width": 128.0,
+                "height": 128.0,
+                "type": "Boolean Box",
+                "properties": {
+                  "topic": "/Shooter/ThroughBoreConnected",
+                  "period": 0.06,
+                  "data_type": "boolean",
+                  "true_color": 4283215696,
+                  "false_color": 4294198070,
+                  "true_icon": "None",
+                  "false_icon": "None"
+                }
+              },
+              {
+                "title": "ThroughBorePosition",
+                "x": 0.0,
+                "y": 0.0,
+                "width": 128.0,
+                "height": 128.0,
+                "type": "Text Display",
+                "properties": {
+                  "topic": "/Shooter/ThroughBorePosition",
                   "period": 0.06,
                   "data_type": "double",
                   "show_submit_button": false
@@ -968,9 +1047,9 @@
         "containers": [
           {
             "title": "FlywheelAppliedVolts",
-            "x": 0.0,
+            "x": 128.0,
             "y": 128.0,
-            "width": 256.0,
+            "width": 128.0,
             "height": 128.0,
             "type": "Text Display",
             "properties": {
@@ -978,19 +1057,6 @@
               "period": 0.06,
               "data_type": "double",
               "show_submit_button": false
-            }
-          },
-          {
-            "title": "AutoChooser",
-            "x": 512.0,
-            "y": 0.0,
-            "width": 384.0,
-            "height": 128.0,
-            "type": "ComboBox Chooser",
-            "properties": {
-              "topic": "/SmartDashboard/AutoChooser",
-              "period": 0.06,
-              "sort_options": false
             }
           }
         ]
@@ -1433,6 +1499,37 @@
                   "true_icon": "None",
                   "false_icon": "None"
                 }
+              },
+              {
+                "title": "ThroughBore (rot)",
+                "x": 0.0,
+                "y": 0.0,
+                "width": 192.0,
+                "height": 64.0,
+                "type": "Text Display",
+                "properties": {
+                  "topic": "/Shooter/ThroughBorePosition",
+                  "period": 0.06,
+                  "data_type": "double",
+                  "show_submit_button": false
+                }
+              },
+              {
+                "title": "ThroughBore Connected",
+                "x": 0.0,
+                "y": 0.0,
+                "width": 128.0,
+                "height": 64.0,
+                "type": "Boolean Box",
+                "properties": {
+                  "topic": "/Shooter/ThroughBoreConnected",
+                  "period": 0.06,
+                  "data_type": "boolean",
+                  "true_color": 4278255360,
+                  "false_color": 4294901760,
+                  "true_icon": "None",
+                  "false_icon": "None"
+                }
               }
             ]
           }
@@ -1449,7 +1546,7 @@
             "x": 0.0,
             "y": 0.0,
             "width": 512.0,
-            "height": 384.0,
+            "height": 256.0,
             "type": "List Layout",
             "properties": {
               "label_position": "TOP"
@@ -1490,7 +1587,7 @@
             "x": 512.0,
             "y": 0.0,
             "width": 384.0,
-            "height": 384.0,
+            "height": 256.0,
             "type": "List Layout",
             "properties": {
               "label_position": "TOP"
@@ -1541,10 +1638,10 @@
       "grid_layout": {
         "layouts": [
           {
-            "title": "Chute",
+            "title": "Fill Levels",
             "x": 512.0,
             "y": 0.0,
-            "width": 256.0,
+            "width": 512.0,
             "height": 384.0,
             "type": "List Layout",
             "properties": {
@@ -1552,48 +1649,17 @@
             },
             "children": [
               {
-                "title": "DistanceMeters",
+                "title": "Indexer State",
                 "x": 0.0,
                 "y": 0.0,
-                "width": 128.0,
-                "height": 128.0,
+                "width": 192.0,
+                "height": 64.0,
                 "type": "Text Display",
                 "properties": {
-                  "topic": "/Indexer/Chute/DistanceMeters",
-                  "period": 0.06,
-                  "data_type": "double",
-                  "show_submit_button": false
-                }
-              },
-              {
-                "title": "FuelStatus",
-                "x": 0.0,
-                "y": 0.0,
-                "width": 128.0,
-                "height": 128.0,
-                "type": "Text Display",
-                "properties": {
-                  "topic": "/Indexer/Chute/FuelStatus",
+                  "topic": "/Indexer/State",
                   "period": 0.06,
                   "data_type": "string",
                   "show_submit_button": false
-                }
-              },
-              {
-                "title": "IsFuelDetected",
-                "x": 0.0,
-                "y": 0.0,
-                "width": 128.0,
-                "height": 128.0,
-                "type": "Boolean Box",
-                "properties": {
-                  "topic": "/Indexer/Chute/IsFuelDetected",
-                  "period": 0.06,
-                  "data_type": "boolean",
-                  "true_color": 4283215696,
-                  "false_color": 4294198070,
-                  "true_icon": "None",
-                  "false_icon": "None"
                 }
               }
             ]
