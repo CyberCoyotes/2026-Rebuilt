@@ -25,7 +25,7 @@ import frc.robot.subsystems.indexer.IndexerIOHardware;
 import frc.robot.subsystems.intake.IntakeIOHardware;
 import frc.robot.subsystems.shooter.ShooterIOHardware;
 import frc.robot.subsystems.shooter.ShooterSubsystem;
-import frc.robot.subsystems.led.LedSubsystem;
+import frc.robot.subsystems.led.LedSubsystem_CANDLE_only;
 import frc.robot.subsystems.vision.VisionIOLimelight;
 import frc.robot.subsystems.vision.VisionSubsystem;
 
@@ -57,7 +57,7 @@ public class RobotContainer {
     private final ShooterSubsystem shooter;
     private final VisionSubsystem vision;
     // private final LedSubsystem ledSubsystem;
-    private final LedSubsystem larson;
+    private final LedSubsystem_CANDLE_only larson;
     // private final ClimberSubsystem climber;
     private final FuelCommands fuelCommands = null;
     private final AutoFactory autoFactory;
@@ -70,7 +70,7 @@ public class RobotContainer {
         shooter = new ShooterSubsystem(new ShooterIOHardware());
         vision = new VisionSubsystem(new VisionIOLimelight(Constants.Vision.LIMELIGHT4_NAME));
 
-        larson = new LedSubsystem();
+        larson = new LedSubsystem_CANDLE_only();
         // climber = new ClimberSubsystem();
 
         // NamedCommands.registerCommand("Shoot",
@@ -122,7 +122,7 @@ public class RobotContainer {
         // =====================================================================
         
         driver.rightTrigger(0.5).whileTrue(
-            FuelCommands.poseAlignAndShoot(shooter, indexer, intake,drivetrain,
+            FuelCommands.poseAlignAndShoot(shooter, indexer, /*intake,*/ drivetrain,
                 () -> -driver.getLeftY() * MaxSpeed,
                 () -> -driver.getLeftX() * MaxSpeed)); 
         
@@ -131,10 +131,7 @@ public class RobotContainer {
         driver.leftTrigger(0.5).whileTrue(intake.intakeFuel());
         driver.leftBumper().whileTrue(intake.compressFuelHeld());
 
-
-        // driver.b().whileTrue(Command.run(intake.slideBounceAndShoot());
-        // driver.x().onTrue(intake.slideBounceUp());
-        driver.a().whileTrue(FuelCommands.shootPass(shooter, indexer));
+        // driver.a().whileTrue(FuelCommands.fuelPump(indexer));
         
 
 
