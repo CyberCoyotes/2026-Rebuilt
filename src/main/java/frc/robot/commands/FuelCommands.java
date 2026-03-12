@@ -439,7 +439,7 @@ public class FuelCommands {
                 fuelPumpTimer.reset(); // reset so pump starts fresh when shooter becomes ready
             }
 
-        }, shooter, indexer, intake, drivetrain)
+        }, shooter, indexer, drivetrain)
                 .beforeStarting(Commands.runOnce(() -> {
                     shooter.beginSpinUp();
                     fuelPumpTimer.reset();
