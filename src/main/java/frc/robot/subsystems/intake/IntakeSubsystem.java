@@ -372,6 +372,31 @@ public class IntakeSubsystem extends SubsystemBase {
                 .withName("FuelPump");
     }
 
+    /**
+     * Continuously cycles the slides between SLIDE_BOUNCE_DOWN_POS and SLIDE_BOUNCE_UP_POS
+     * while running the roller, for as long as the button is held.
+     *
+     * Use with whileTrue() — the command runs indefinitely and stops cleanly on release.
+     * Replaces fuelPumpBasic().repeatedly() which had roller-stop gaps between cycles.
+     */
+    public Command fuelPumpCycle() {
+        Timer cycleTimer = new Timer();
+        return Commands.run(() -> {
+            runRoller();
+            double t = cycleTimer.get();
+            if (t < 0.5) {
+                setSlidesToPosition(Constants.Intake.SLIDE_BOUNCE_DOWN_POS);
+            } else if (t < 1.0) {
+                setSlidesToPosition(Constants.Intake.SLIDE_BOUNCE_UP_POS);
+            } else {
+                cycleTimer.restart(); // reset + start, so next cycle begins immediately
+            }
+        }, this)
+                .beforeStarting(cycleTimer::restart)
+                .finallyDo(this::stopRoller)
+                .withName("FuelPumpCycle");
+    }
+
     // Loopable and repeatable version of fuelPump() for more manual control over timing and cycles.
     public Command fuelPumpBasic() {
         return Commands.sequence(
