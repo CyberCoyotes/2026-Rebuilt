@@ -67,7 +67,7 @@ public class Robot extends LoggedRobot {
         var llMeasurement = LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2(Constants.Vision.LIMELIGHT4_NAME);
         if (llMeasurement != null && llMeasurement.tagCount > 0 && Math.abs(omegaRps) < 2.0) {
             double dist = llMeasurement.avgTagDist; // meters
-            double xyStdDev = 0.05 * Math.pow(dist, 2.0); // trust drops fast with distance
+            double xyStdDev = 0.10 * Math.pow(dist, 2.0); // trust drops fast with distance
             m_robotContainer.drivetrain.addVisionMeasurement(
                     llMeasurement.pose,
                     llMeasurement.timestampSeconds,
