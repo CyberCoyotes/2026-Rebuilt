@@ -425,13 +425,13 @@ public class FuelCommands {
                 // Inline fuel pump — mirrors fuelPump() but runs inside the run loop
                 intake.runRoller();
                 double t = fuelPumpTimer.get();
-                if (t < 0.5) {
-                    intake.setSlidesToPosition(Constants.Intake.SLIDE_BOUNCE_DOWN_POS);
-                } else if (t < 1.0) {
-                    intake.setSlidesToPosition(Constants.Intake.SLIDE_BOUNCE_UP_POS);
-                } else {
-                    fuelPumpTimer.reset();
-                }
+                // if (t < 0.5) {
+                //     intake.setSlidesToPosition(Constants.Intake.SLIDE_BOUNCE_DOWN_POS);
+                // } else if (t < 1.0) {
+                //     intake.setSlidesToPosition(Constants.Intake.SLIDE_BOUNCE_UP_POS);
+                // } else {
+                //     fuelPumpTimer.reset();
+                // }
             } else {
                 indexer.indexerStop();
                 indexer.conveyorStop();

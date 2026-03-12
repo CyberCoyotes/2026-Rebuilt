@@ -118,7 +118,7 @@ public class ShooterIOHardware implements ShooterIO {
 
       // Soft limits — enable after travel range is confirmed
       config.SoftwareLimitSwitch.ForwardSoftLimitEnable = true;
-      config.SoftwareLimitSwitch.ForwardSoftLimitThreshold = 9.15; // Raw rotational units
+      config.SoftwareLimitSwitch.ForwardSoftLimitThreshold = 10.15; // Raw rotational units
       config.SoftwareLimitSwitch.ReverseSoftLimitEnable = true;
       config.SoftwareLimitSwitch.ReverseSoftLimitThreshold = 0.0;
 
