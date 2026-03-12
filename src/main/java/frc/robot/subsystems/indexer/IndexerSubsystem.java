@@ -296,4 +296,37 @@ public class IndexerSubsystem extends SubsystemBase {
             Commands.waitUntil(this::isChuteEmpty)
         ).withName("WaitForChuteEmpty");
     }
+
+    /**
+     * Feeds conveyor + indexer until the chute sensor confirms the ball has cleared,
+     * with a hard-stop safety timeout in case the sensor misses it.
+     *
+     * <p>Won't exit early — {@link #isChuteEmpty()} requires {@code hasSeenFuel} to
+     * be true first, so the feed cannot stop until a ball has been detected at least
+     * once. Tracking is reset on start so state from a prior shot doesn't carry over.
+     *
+     * <p>Replace {@code indexer.feed().withTimeout(feedSeconds)} in auton shoot
+     * commands with this to get sensor-based completion with a timer fallback.
+     *
+     * @param safetyTimeout Hard stop in seconds — prevents auton from hanging if the
+     *                      sensor fails or the ball never reaches the chute.
+     */
+    public Command feedUntilChuteEmpty(double safetyTimeout) {
+        return Commands.sequence(
+            Commands.runOnce(this::resetChuteTracking),
+            Commands.startEnd(
+                () -> {
+                    setState(IndexerState.FEEDING);
+                    conveyorForward();
+                    indexerForward();
+                },
+                () -> {
+                    stop();
+                    setState(IndexerState.IDLE);
+                },
+                this
+            ).until(this::isChuteEmpty)
+             .withTimeout(safetyTimeout)
+        ).withName("FeedUntilChuteEmpty");
+    }
 }

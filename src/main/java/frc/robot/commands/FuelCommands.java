@@ -872,7 +872,7 @@ public class FuelCommands {
                 ShooterSubsystem shooter,
                 IndexerSubsystem indexer,
                 CommandSwerveDrivetrain drivetrain,
-                double seconds) {
+                double safetyTimeout) {
 
             final SwerveRequest.FieldCentric alignRequest = new SwerveRequest.FieldCentric()
                     .withDriveRequestType(DriveRequestType.OpenLoopVoltage);
@@ -918,8 +918,8 @@ public class FuelCommands {
                                         .withVelocityY(0)
                                         .withRotationalRate(rotRate));
                             }, shooter, drivetrain)),
-                    // Phase 2: feed
-                    indexer.feed().withTimeout(seconds)
+                    // Phase 2: feed until chute clears (safetyTimeout is the fallback)
+                    indexer.feedUntilChuteEmpty(safetyTimeout)
             ).finallyDo(() -> {
                 indexer.indexerStop();
                 indexer.conveyorStop();
@@ -932,15 +932,15 @@ public class FuelCommands {
         /* Autonomous shooting command */
         /* FIXME Trench is the working "Test" command for autonomous. Others should be updated after its working properly */
         public static Command shootTrench(ShooterSubsystem shooter, IndexerSubsystem indexer,
-                double feedSeconds) {
+                double safetyTimeout) {
             return Commands.sequence(
                     Commands.runOnce(() -> {
                         shooter.setTargetVelocity(Constants.Shooter.TRENCH_RPM);
                         shooter.setTargetHoodPose(Constants.Shooter.TRENCH_HOOD);
-                        shooter.beginSpinUp(); // void — transitions state machine to SPINNING_UP
+                        shooter.beginSpinUp();
                     }, shooter),
-                    Commands.waitUntil(shooter::isReady), // removed timeout
-                    indexer.feed().withTimeout(feedSeconds) // removed sensor time
+                    Commands.waitUntil(shooter::isReady),
+                    indexer.feedUntilChuteEmpty(safetyTimeout)
             ).finallyDo(() -> {
                 indexer.indexerStop();
                 indexer.conveyorStop();
@@ -959,30 +959,28 @@ public class FuelCommands {
          * @param shooter     The shooter subsystem
          * @param indexer     The indexer subsystem
          * @param intake      The intake subsystem
-         * @param feedSeconds How long to run the indexer/conveyor after ready
+         * @param safetyTimeout Hard stop for the feed phase if sensor doesn't trigger
          * @return Deadline command: shootTrench (deadline) + slide retract in parallel
          */
         public static Command shootTrenchWithSlideRetract(ShooterSubsystem shooter,
-                IndexerSubsystem indexer, IntakeSubsystem intake, double feedSeconds) {
+                IndexerSubsystem indexer, IntakeSubsystem intake, double safetyTimeout) {
             return Commands.deadline(
-                    shootTrench(shooter, indexer, feedSeconds),
+                    shootTrench(shooter, indexer, safetyTimeout),
                     intake.retractSlidesAuton())
                     .withName("ShootTrenchWithSlideRetract");
         }
 
         /* Autonomous shooting command */
         public static Command shootHub(ShooterSubsystem shooter, IndexerSubsystem indexer,
-                double feedSeconds) {
+                double safetyTimeout) {
             return Commands.sequence(
                     Commands.runOnce(() -> {
                         shooter.setTargetVelocity(Constants.Shooter.CLOSE_RPM);
                         shooter.setTargetHoodPose(Constants.Shooter.CLOSE_HOOD);
-                        shooter.beginSpinUp(); // void — transitions state machine to SPINNING_UP
+                        shooter.beginSpinUp();
                     }, shooter),
-                    Commands.waitUntil(shooter::isReady), // remove timeout
-
-                    // remove indexer::donePassingFuel for now
-                    indexer.feed().withTimeout(feedSeconds)).finallyDo(() -> {
+                    Commands.waitUntil(shooter::isReady),
+                    indexer.feedUntilChuteEmpty(safetyTimeout)).finallyDo(() -> {
                         indexer.indexerStop();
                         indexer.conveyorStop();
                         shooter.setIdle();
@@ -991,15 +989,15 @@ public class FuelCommands {
 
         /* Autonomous shooting command */
         public static Command shootTower(ShooterSubsystem shooter, IndexerSubsystem indexer,
-                double feedSeconds) {
+                double safetyTimeout) {
             return Commands.sequence(
                     Commands.runOnce(() -> {
                         shooter.setTargetVelocity(Constants.Shooter.TOWER_RPM);
                         shooter.setTargetHoodPose(Constants.Shooter.TOWER_HOOD);
-                        shooter.beginSpinUp(); // void — transitions state machine to SPINNING_UP
+                        shooter.beginSpinUp();
                     }, shooter),
                     Commands.waitUntil(shooter::isReady).withTimeout(6.0),
-                    indexer.feed().withTimeout(feedSeconds)).finallyDo(() -> {
+                    indexer.feedUntilChuteEmpty(safetyTimeout)).finallyDo(() -> {
                         indexer.indexerStop();
                         indexer.conveyorStop();
                         shooter.setIdle();
@@ -1008,15 +1006,15 @@ public class FuelCommands {
         /* Autonomous shooting command */
 
         public static Command shootFar(ShooterSubsystem shooter, IndexerSubsystem indexer,
-                double feedSeconds) {
+                double safetyTimeout) {
             return Commands.sequence(
                     Commands.runOnce(() -> {
                         shooter.setTargetVelocity(Constants.Shooter.FAR_RPM);
                         shooter.setTargetHoodPose(Constants.Shooter.FAR_HOOD);
-                        shooter.beginSpinUp(); // void — transitions state machine to SPINNING_UP
+                        shooter.beginSpinUp();
                     }, shooter),
                     Commands.waitUntil(shooter::isReady).withTimeout(6.0),
-                    indexer.feed().withTimeout(feedSeconds)).finallyDo(() -> {
+                    indexer.feedUntilChuteEmpty(safetyTimeout)).finallyDo(() -> {
                         indexer.indexerStop();
                         indexer.conveyorStop();
                         shooter.setIdle();
@@ -1025,15 +1023,15 @@ public class FuelCommands {
 
         /* Autonomous shooting command */
         public static Command shootTren(ShooterSubsystem shooter, IndexerSubsystem indexer,
-                double feedSeconds) {
+                double safetyTimeout) {
             return Commands.sequence(
                     Commands.runOnce(() -> {
                         shooter.setTargetVelocity(Constants.Shooter.TRENCH_RPM);
                         shooter.setTargetHoodPose(Constants.Shooter.TRENCH_HOOD);
-                        shooter.beginSpinUp(); // void — transitions state machine to SPINNING_UP
+                        shooter.beginSpinUp();
                     }, shooter),
                     Commands.waitUntil(shooter::isReady).withTimeout(6.0),
-                    indexer.feed().withTimeout(feedSeconds)).finallyDo(() -> {
+                    indexer.feedUntilChuteEmpty(safetyTimeout)).finallyDo(() -> {
                         indexer.indexerStop();
                         indexer.conveyorStop();
                         shooter.setIdle();
