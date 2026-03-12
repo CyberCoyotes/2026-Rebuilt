@@ -102,6 +102,7 @@ public class AutoRoutines {
                                 ));
                 // Routine Events
                 StartRMid.atTime("Intake").onTrue(m_intake.intakeFuelTimer(5));
+                // StartRMid.atTime("FuelPump").onTrue(m_intake.fuelPumpCycleAuto(2.0));
 
                 // Vision Shot
                 StartRMid.atTime("Shoot").onTrue(FuelCommands.Auto. poseAlignAndShoot(m_shooter, m_indexer, m_drivetrain, 3.0));

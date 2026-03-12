@@ -397,6 +397,32 @@ public class IntakeSubsystem extends SubsystemBase {
                 .withName("FuelPumpCycle");
     }
 
+    /**
+     * Runs the fuel pump cycle (bouncing slides + roller) for a fixed duration.
+     * Ends naturally after {@code seconds}, making it safe for autonomous and
+     * Choreo event linking via {@code trajectory.atTime("FuelPump").onTrue(...)}.
+     *
+     * @param seconds How long to run the pump cycle.
+     */
+    public Command fuelPumpCycleAuto(double seconds) {
+        Timer cycleTimer = new Timer();
+        return Commands.run(() -> {
+            runRoller();
+            double t = cycleTimer.get();
+            if (t < 0.5) {
+                setSlidesToPosition(Constants.Intake.SLIDE_BOUNCE_DOWN_POS);
+            } else if (t < 1.0) {
+                setSlidesToPosition(Constants.Intake.SLIDE_BOUNCE_UP_POS);
+            } else {
+                cycleTimer.restart();
+            }
+        }, this)
+                .beforeStarting(cycleTimer::restart)
+                .withTimeout(seconds)
+                .finallyDo(this::stopRoller)
+                .withName("FuelPumpCycleAuto");
+    }
+
     // Loopable and repeatable version of fuelPump() for more manual control over timing and cycles.
     public Command fuelPumpBasic() {
         return Commands.sequence(
