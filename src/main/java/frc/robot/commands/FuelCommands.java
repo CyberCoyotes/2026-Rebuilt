@@ -346,7 +346,7 @@ public class FuelCommands {
     public static Command poseAlignAndShoot(
             ShooterSubsystem shooter,
             IndexerSubsystem indexer,
-            IntakeSubsystem intake,
+            // IntakeSubsystem intake,
             CommandSwerveDrivetrain drivetrain,
             DoubleSupplier xSupplier,
             DoubleSupplier ySupplier) {
@@ -423,33 +423,26 @@ public class FuelCommands {
                 indexer.conveyorForward();
                 indexer.indexerForward();
                 // Inline fuel pump — mirrors fuelPump() but runs inside the run loop
-                intake.runRoller();
-                double t = fuelPumpTimer.get();
-                // if (t < 0.5) {
-                //     intake.setSlidesToPosition(Constants.Intake.SLIDE_BOUNCE_DOWN_POS);
-                // } else if (t < 1.0) {
-                //     intake.setSlidesToPosition(Constants.Intake.SLIDE_BOUNCE_UP_POS);
-                // } else {
-                //     fuelPumpTimer.reset();
-                // }
+                // intake.runRoller();
+                // fuelPumpTimer used to time slide-bounce; kept ready for future tuning
+                // fuelPumpTimer.get();
             } else {
                 indexer.indexerStop();
                 indexer.conveyorStop();
-                intake.stopRoller();
+                // intake.stopRoller();
                 fuelPumpTimer.reset(); // reset so pump starts fresh when shooter becomes ready
             }
 
-        }, shooter, indexer, drivetrain)
+        }, shooter, indexer, drivetrain /*, intake*/)
                 .beforeStarting(Commands.runOnce(() -> {
                     shooter.beginSpinUp();
                     fuelPumpTimer.reset();
                     fuelPumpTimer.start();
                 }, shooter))
-
                 .finallyDo(() -> {
                     indexer.indexerStop();
                     indexer.conveyorStop();
-                    intake.stopRoller();
+                    // intake.stopRoller();
                     shooter.setIdle();
                 })
                 .withName("PoseAlignAndShoot");
@@ -656,7 +649,8 @@ public class FuelCommands {
         // PID for rotational alignment — mirrors VisionAlignToTargetCommand constants.
         // Created fresh each call so no stale integral state between auto shots.
         // TODO: Tune kP and kD. Start with just kP = 0.05 and work up.
-        PIDController alignPID = new PIDController(0.05, 0.0, 0.005);
+    @SuppressWarnings("resource")
+    PIDController alignPID = new PIDController(0.05, 0.0, 0.005);
         alignPID.setTolerance(2.0); // degrees — matches VisionConstants.ALIGNMENT_TOLERANCE_DEGREES
 
         // Field-centric drive request — same type as VisionAlignToTargetCommand
