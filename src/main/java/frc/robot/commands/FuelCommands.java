@@ -872,7 +872,7 @@ public class FuelCommands {
                 ShooterSubsystem shooter,
                 IndexerSubsystem indexer,
                 CommandSwerveDrivetrain drivetrain,
-                double feedSeconds) {
+                double seconds) {
 
             final SwerveRequest.FieldCentric alignRequest = new SwerveRequest.FieldCentric()
                     .withDriveRequestType(DriveRequestType.OpenLoopVoltage);
@@ -919,7 +919,7 @@ public class FuelCommands {
                                         .withRotationalRate(rotRate));
                             }, shooter, drivetrain)),
                     // Phase 2: feed
-                    indexer.feed().withTimeout(feedSeconds)
+                    indexer.feed().withTimeout(seconds)
             ).finallyDo(() -> {
                 indexer.indexerStop();
                 indexer.conveyorStop();

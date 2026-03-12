@@ -106,6 +106,7 @@ public class AutoRoutines {
 
                 // Vision Shot
                 StartRMid.atTime("Shoot").onTrue(FuelCommands.Auto. poseAlignAndShoot(m_shooter, m_indexer, m_drivetrain, 3.0));
+                StartRMid.atTime("FuelPump").onTrue(m_intake.fuelPumpCycleAuto(3.0));
 
                 // Regular shot (no vision)
                 // StartRMid.atTime("Shoot").onTrue(FuelCommands.Auto.shootTrench(m_shooter, m_indexer, 6)); // FIXME:
