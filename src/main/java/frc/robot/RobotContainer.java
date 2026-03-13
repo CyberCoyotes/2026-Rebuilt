@@ -14,6 +14,7 @@ import choreo.auto.AutoFactory;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
+import edu.wpi.first.wpilibj2.command.button.Trigger;
 import edu.wpi.first.wpilibj2.command.button.RobotModeTriggers;
 import frc.robot.generated.TunerConstants;
 import frc.robot.commands.FuelCommands;
@@ -162,9 +163,42 @@ public class RobotContainer {
         // operator.povUp().whileTrue(null); // incremental extend climber command to be added when climber is ready
         // operator.povDown().whileTrue(null); // incremental retract climber command to be added when climber is ready
 
-        // POV cycles through LED animations
+        // POV cycles through LED animations (for testing / manual override)
         operator.povUp().onTrue(ledSub.cycleNext());
         operator.povDown().onTrue(ledSub.cyclePrev());
+
+        // =====================================================================
+        // LED STATE TRIGGERS — shooter states
+        // =====================================================================
+        new Trigger(shooter::isSpinningUp)
+            .onTrue(ledSub.showSpinningUp())
+            .onFalse(ledSub.showDefault());
+
+        new Trigger(shooter::isReady)
+            .onTrue(ledSub.showReady())
+            .onFalse(ledSub.showDefault());
+
+        // =====================================================================
+        // LED GAME TELEMETRY TRIGGERS (commented out — enable when needed)
+        // Requires: gameDataTelemetry accessible here, DriverStation import
+        // =====================================================================
+
+        // -- Robot alliance color on enable --
+        // new Trigger(() -> DriverStation.getAlliance().orElse(DriverStation.Alliance.Red) == DriverStation.Alliance.Red)
+        //     .onTrue(ledSub.showDefault()); // swap showDefault() for a showAllianceRed() if you add one
+
+        // -- Active hub: which alliance is currently in scoring mode --
+        // new Trigger(gameDataTelemetry::isRedHubActive)
+        //     .onTrue(/* ledSub.showRedHub() */null)
+        //     .onFalse(/* ledSub.showDefault() */null);
+
+        // new Trigger(gameDataTelemetry::isBlueHubActive)
+        //     .onTrue(/* ledSub.showBlueHub() */null)
+        //     .onFalse(/* ledSub.showDefault() */null);
+
+        // -- FMS data received (lights up once auto-scoring data arrives ~3s after auto) --
+        // new Trigger(gameDataTelemetry::isDataReceived)
+        //     .onTrue(/* ledSub.showAllianceColor() */null);
 
         // Operator holds a face button to override with a named preset.
 
