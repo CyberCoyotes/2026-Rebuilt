@@ -163,9 +163,8 @@ public final class Constants {
      */
     public static final double EJECT_MAX_ENTRY_RPM = 500.0;
 
-    public static final double FLYWHEEL_TOLERANCE_PERCENT = 0.05; // Tightened from 0.10 — measured steady-state
-                                                                  // variance ±30 RPM at 3300; 3% = ±99 RPM (~3×
-                                                                  // variance)
+    /* Tightened from 0.10 — measured steady-state; variance ±30 RPM at 3300; 3% = ±99 RPM (~3× variance) */
+    public static final double FLYWHEEL_TOLERANCE_PERCENT = 0.05; 
 
     // --- Hood (Kraken rotational positions) ---
     public static final double MIN_HOOD_POSE_ROT = 0.0; // Mechanical limit, validate in configs limit
