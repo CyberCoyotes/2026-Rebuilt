@@ -216,30 +216,30 @@ public class FuelCommands {
      * @param intake  The intake subsystem
      * @return Command that waits for flywheel ready, then feeds + bounces in parallel
      */
-    public static Command slideBounceAndShoot(ShooterSubsystem shooter, IndexerSubsystem indexer,
-            IntakeSubsystem intake) {
-        return Commands.sequence(
-                // Step 1: arm trench preset and spin up (TODO: swap preset before competition)
-                Commands.runOnce(() -> {
-                    shooter.setTargetVelocity(Constants.Shooter.TRENCH_RPM);
-                    shooter.setTargetHoodPose(Constants.Shooter.TRENCH_HOOD);
-                    shooter.beginSpinUp();
-                }, shooter),
-                // Step 2: wait for flywheel + hood to settle before feeding
-                Commands.waitUntil(shooter::isReady).withTimeout(3.0),
-                // Step 3: feed + bounce in parallel until trigger is released
-                Commands.parallel(
-                        Commands.run(() -> {
-                            indexer.conveyorForward();
-                            indexer.indexerForward();
-                        }, indexer),
-                        intake.fuelPumpBasic().repeatedly()))
-                .finallyDo(() -> {
-                    indexer.indexerStop();
-                    indexer.conveyorStop();
-                    shooter.setIdle();
-                }).withName("SlideBounceAndShoot");
-    }
+    // public static Command slideBounceAndShoot(ShooterSubsystem shooter, IndexerSubsystem indexer,
+    //         IntakeSubsystem intake) {
+    //     return Commands.sequence(
+    //             // Step 1: arm trench preset and spin up (TODO: swap preset before competition)
+    //             Commands.runOnce(() -> {
+    //                 shooter.setTargetVelocity(Constants.Shooter.TRENCH_RPM);
+    //                 shooter.setTargetHoodPose(Constants.Shooter.TRENCH_HOOD);
+    //                 shooter.beginSpinUp();
+    //             }, shooter),
+    //             // Step 2: wait for flywheel + hood to settle before feeding
+    //             Commands.waitUntil(shooter::isReady).withTimeout(3.0),
+    //             // Step 3: feed + bounce in parallel until trigger is released
+    //             Commands.parallel(
+    //                     Commands.run(() -> {
+    //                         indexer.conveyorForward();
+    //                         indexer.indexerForward();
+    //                     }, indexer),
+    //                     intake.fuelPumpBasic().repeatedly()))
+    //             .finallyDo(() -> {
+    //                 indexer.indexerStop();
+    //                 indexer.conveyorStop();
+    //                 shooter.setIdle();
+    //             }).withName("SlideBounceAndShoot");
+    // }
 
     /**
      * Creates a command to eject jammed game pieces.
@@ -286,19 +286,6 @@ public class FuelCommands {
                     shooter.setIdle();
                 }).withName("ShootPass");
     }
-
-    /**
-     * Creates a command to return shooter to SPINUP at STANDBY_RPM.
-     *
-     * @param shooter The shooter subsystem
-     * @return Command that returns shooter to standby spinning state
-     */
-
-    /** TODO: Do not use right now _EXPERIMENTAL_ */
-    // public static Command returnToStandby(ShooterSubsystem shooter) {
-    // return Commands.runOnce(shooter::returnToStandby, shooter)
-    // .withName("ReturnToStandby");
-    // }
 
     // =========================================================================
     // POSE ALIGN AND SHOOT (primary match command — replaces VisionShootCommand)
@@ -463,120 +450,120 @@ public class FuelCommands {
      * @param xSupplier  Driver left-Y velocity in m/s (already scaled by MaxSpeed)
      * @param ySupplier  Driver left-X velocity in m/s (already scaled by MaxSpeed)
      */
-    public static Command visionAlignAndShoot(
-            ShooterSubsystem shooter,
-            VisionSubsystem vision,
-            IndexerSubsystem indexer,
-            CommandSwerveDrivetrain drivetrain,
-            DoubleSupplier xSupplier,
-            DoubleSupplier ySupplier) {
+    // public static Command visionAlignAndShoot(
+    //         ShooterSubsystem shooter,
+    //         VisionSubsystem vision,
+    //         IndexerSubsystem indexer,
+    //         CommandSwerveDrivetrain drivetrain,
+    //         DoubleSupplier xSupplier,
+    //         DoubleSupplier ySupplier) {
 
-        final double maxSpeed = 0.5 * TunerConstants.kSpeedAt12Volts.in(MetersPerSecond);
+    //     final double maxSpeed = 0.5 * TunerConstants.kSpeedAt12Volts.in(MetersPerSecond);
 
-        // Created once; reused every execute cycle.
-        // FieldCentric: driver controls X/Y translation, vision controls rotation.
-        final SwerveRequest.FieldCentric alignRequest = new SwerveRequest.FieldCentric()
-                .withDeadband(maxSpeed * 0.15)
-                .withDriveRequestType(DriveRequestType.OpenLoopVoltage);
+    //     // Created once; reused every execute cycle.
+    //     // FieldCentric: driver controls X/Y translation, vision controls rotation.
+    //     final SwerveRequest.FieldCentric alignRequest = new SwerveRequest.FieldCentric()
+    //             .withDeadband(maxSpeed * 0.15)
+    //             .withDriveRequestType(DriveRequestType.OpenLoopVoltage);
 
-        return Commands.run(() -> {
+    //     return Commands.run(() -> {
 
-            // ── 1. Shooter: update from vision or hold current targets ─────────
-            if (vision.isUsableForShooting()) {
-                // Live-update RPM + hood from distance table (also pushes to hardware
-                // if already in READY state — see ShooterSubsystem.updateFromDistance)
-                shooter.updateFromDistance(vision.getDistanceToTargetMeters());
-            }
-            // Keep commanding SPINNING_UP every cycle until READY — setState() no-ops if already there
-            if (shooter.getState() != ShooterSubsystem.ShooterState.READY) {
-                shooter.beginSpinUp(); // void — only transitions state; never call spinUp() (returns Command) here
-            }
+    //         // ── 1. Shooter: update from vision or hold current targets ─────────
+    //         if (vision.isUsableForShooting()) {
+    //             // Live-update RPM + hood from distance table (also pushes to hardware
+    //             // if already in READY state — see ShooterSubsystem.updateFromDistance)
+    //             shooter.updateFromDistance(vision.getDistanceToTargetMeters());
+    //         }
+    //         // Keep commanding SPINNING_UP every cycle until READY — setState() no-ops if already there
+    //         if (shooter.getState() != ShooterSubsystem.ShooterState.READY) {
+    //             shooter.beginSpinUp(); // void — only transitions state; never call spinUp() (returns Command) here
+    //         }
 
-            // ── 2. Drivetrain: driver translation + vision rotation ────────────
-            // tx returns 0.0 when NO_TARGET, so rotation correction drops to zero
-            // automatically when the camera has nothing to track.
-            double txDeg = vision.getHorizontalAngleDegrees();
-            double rotRate = MathUtil.clamp(
-                    txDeg * Constants.Vision.ROTATIONAL_KP,
-                    -Constants.Vision.MAX_ALIGNMENT_ROTATION_RAD_PER_SEC,
-                    Constants.Vision.MAX_ALIGNMENT_ROTATION_RAD_PER_SEC);
+    //         // ── 2. Drivetrain: driver translation + vision rotation ────────────
+    //         // tx returns 0.0 when NO_TARGET, so rotation correction drops to zero
+    //         // automatically when the camera has nothing to track.
+    //         double txDeg = vision.getHorizontalAngleDegrees();
+    //         double rotRate = MathUtil.clamp(
+    //                 txDeg * Constants.Vision.ROTATIONAL_KP,
+    //                 -Constants.Vision.MAX_ALIGNMENT_ROTATION_RAD_PER_SEC,
+    //                 Constants.Vision.MAX_ALIGNMENT_ROTATION_RAD_PER_SEC);
 
-            drivetrain.setControl(
-                    alignRequest
-                            .withVelocityX(xSupplier.getAsDouble())
-                            .withVelocityY(ySupplier.getAsDouble())
-                            .withRotationalRate(rotRate));
+    //         drivetrain.setControl(
+    //                 alignRequest
+    //                         .withVelocityX(xSupplier.getAsDouble())
+    //                         .withVelocityY(ySupplier.getAsDouble())
+    //                         .withRotationalRate(rotRate));
 
-            // ── 3. Feed: only when both conditions met ─────────────────────────
-            if (vision.isAligned() && shooter.isReady()) {
-                indexer.indexerForward();
-                indexer.conveyorForward();
-            } else {
-                indexer.indexerStop();
-                indexer.conveyorStop();
-            }
+    //         // ── 3. Feed: only when both conditions met ─────────────────────────
+    //         if (vision.isAligned() && shooter.isReady()) {
+    //             indexer.indexerForward();
+    //             indexer.conveyorForward();
+    //         } else {
+    //             indexer.indexerStop();
+    //             indexer.conveyorStop();
+    //         }
 
-        }, shooter, vision, indexer, drivetrain)
-                .beforeStarting(Commands.runOnce(shooter::beginSpinUp, shooter))
-                .finallyDo(() -> {
-                    indexer.indexerStop();
-                    indexer.conveyorStop();
-                    shooter.setIdle();
-                })
-                .withName("VisionAlignAndShoot");
-    }
+    //     }, shooter, vision, indexer, drivetrain)
+    //             .beforeStarting(Commands.runOnce(shooter::beginSpinUp, shooter))
+    //             .finallyDo(() -> {
+    //                 indexer.indexerStop();
+    //                 indexer.conveyorStop();
+    //                 shooter.setIdle();
+    //             })
+    //             .withName("VisionAlignAndShoot");
+    // }
 
-    /**
-     * Creates a vision-based shoot sequence with indexer coordination.
-     *
-     * @param shooter The shooter subsystem
-     * @param vision  The vision subsystem
-     * @param indexer The indexer subsystem
-     * @return Vision-based shooting sequence
-     */
-    public static Command visionShootSequence(ShooterSubsystem shooter, VisionSubsystem vision,
-            IndexerSubsystem indexer) {
-        return Commands.sequence(
-                Commands.waitUntil(vision::hasTarget)/* REMOVED .withTimeout(1.0) */,
-                visionShot(shooter, vision)
-        ).withName("VisionShootSequence");
-    }
+    // /**
+    //  * Creates a vision-based shoot sequence with indexer coordination.
+    //  *
+    //  * @param shooter The shooter subsystem
+    //  * @param vision  The vision subsystem
+    //  * @param indexer The indexer subsystem
+    //  * @return Vision-based shooting sequence
+    //  */
+    // public static Command visionShootSequence(ShooterSubsystem shooter, VisionSubsystem vision,
+    //         IndexerSubsystem indexer) {
+    //     return Commands.sequence(
+    //             Commands.waitUntil(vision::hasTarget)/* REMOVED .withTimeout(1.0) */,
+    //             visionShot(shooter, vision)
+    //     ).withName("VisionShootSequence");
+    // }
 
-    /**
-     * Creates a command to shoot using vision-based distance calculation.
-     *
-     * @param shooter The shooter subsystem
-     * @param vision  The vision subsystem
-     * @return Command that uses vision for aiming
-     */
-    public static Command visionShot(ShooterSubsystem shooter, VisionSubsystem vision) {
-        return Commands.sequence(
-                Commands.runOnce(() -> {
-                    double distance = vision.getDistanceToTargetMeters();
-                    shooter.updateFromDistance(distance);
-                    shooter.beginSpinUp(); // void — transitions state machine to SPINNING_UP
-                }, shooter, vision),
-                Commands.waitUntil(shooter::isReady)/* REMOVED .withTimeout(3.0) */)
-                .withName("VisionShot");
-    }
+    // /**
+    //  * Creates a command to shoot using vision-based distance calculation.
+    //  *
+    //  * @param shooter The shooter subsystem
+    //  * @param vision  The vision subsystem
+    //  * @return Command that uses vision for aiming
+    //  */
+    // public static Command visionShot(ShooterSubsystem shooter, VisionSubsystem vision) {
+    //     return Commands.sequence(
+    //             Commands.runOnce(() -> {
+    //                 double distance = vision.getDistanceToTargetMeters();
+    //                 shooter.updateFromDistance(distance);
+    //                 shooter.beginSpinUp(); // void — transitions state machine to SPINNING_UP
+    //             }, shooter, vision),
+    //             Commands.waitUntil(shooter::isReady)/* REMOVED .withTimeout(3.0) */)
+    //             .withName("VisionShot");
+    // }
 
-    /**
-     * Creates a command to continuously update shooter based on vision.
-     *
-     * @param shooter The shooter subsystem
-     * @param vision  The vision subsystem
-     * @return Command that continuously tracks target
-     */
+    // /**
+    //  * Creates a command to continuously update shooter based on vision.
+    //  *
+    //  * @param shooter The shooter subsystem
+    //  * @param vision  The vision subsystem
+    //  * @return Command that continuously tracks target
+    //  */
 
-    public static Command trackTarget(ShooterSubsystem shooter, VisionSubsystem vision) {
-        return Commands.run(() -> {
-            if (vision.hasTarget()) {
-                double distance = vision.getDistanceToTargetMeters();
-                shooter.updateFromDistance(distance);
-            }
-        }, shooter, vision)
-                .withName("TrackTarget");
-    }
+    // public static Command trackTarget(ShooterSubsystem shooter, VisionSubsystem vision) {
+    //     return Commands.run(() -> {
+    //         if (vision.hasTarget()) {
+    //             double distance = vision.getDistanceToTargetMeters();
+    //             shooter.updateFromDistance(distance);
+    //         }
+    //     }, shooter, vision)
+    //             .withName("TrackTarget");
+    // }
 
     public static class Auto {
         // ============================================================================
@@ -619,71 +606,71 @@ public class FuelCommands {
      * @param drivetrain The drivetrain (required by the alignment branch)
      * @return Complete vision-assisted auto shoot sequence
      */
-    public static Command visionShot_version1(
-            ShooterSubsystem shooter,
-            VisionSubsystem vision,
-            IndexerSubsystem indexer,
-            CommandSwerveDrivetrain drivetrain) {
-        // PID for rotational alignment — mirrors VisionAlignToTargetCommand constants.
-        // Created fresh each call so no stale integral state between auto shots.
-        // TODO: Tune kP and kD. Start with just kP = 0.05 and work up.
-    PIDController alignPID = new PIDController(0.05, 0.0, 0.005);
-        alignPID.setTolerance(2.0); // degrees — matches VisionConstants.ALIGNMENT_TOLERANCE_DEGREES
+    // public static Command visionShot_version1(
+    //         ShooterSubsystem shooter,
+    //         VisionSubsystem vision,
+    //         IndexerSubsystem indexer,
+    //         CommandSwerveDrivetrain drivetrain) {
+    //     // PID for rotational alignment — mirrors VisionAlignToTargetCommand constants.
+    //     // Created fresh each call so no stale integral state between auto shots.
+    //     // TODO: Tune kP and kD. Start with just kP = 0.05 and work up.
+    // PIDController alignPID = new PIDController(0.05, 0.0, 0.005);
+    //     alignPID.setTolerance(2.0); // degrees — matches VisionConstants.ALIGNMENT_TOLERANCE_DEGREES
 
-        // Field-centric drive request — same type as VisionAlignToTargetCommand
-        SwerveRequest.FieldCentric driveRequest = new SwerveRequest.FieldCentric();
+    //     // Field-centric drive request — same type as VisionAlignToTargetCommand
+    //     SwerveRequest.FieldCentric driveRequest = new SwerveRequest.FieldCentric();
 
-        return Commands.sequence(
+    //     return Commands.sequence(
 
-                // ==== Phase 1: Align AND spin up at the same time =========================
-                // Using parallel() so we don't waste time doing these steps sequentially.
-                // The parallel block finishes only when BOTH branches are done.
-                Commands.parallel(
+    //             // ==== Phase 1: Align AND spin up at the same time =========================
+    //             // Using parallel() so we don't waste time doing these steps sequentially.
+    //             // The parallel block finishes only when BOTH branches are done.
+    //             Commands.parallel(
 
-                        // Branch A: Rotate robot to face the AprilTag
-                        // Mirrors the logic in reference/VisionAlignToTargetCommand.java
-                        Commands.run(() -> {
-                            if (vision.hasTarget()) {
-                                // Positive tx = target to the right → rotate counterclockwise to correct
-                                // If robot spins the wrong direction, flip the sign on rotationSpeed
-                                double tx = vision.getHorizontalAngleDegrees();
-                                double rotationSpeed = MathUtil.clamp(
-                                        -alignPID.calculate(tx, 0), // negative = correct direction for FieldCentric
-                                        -1.0, 1.0 // TODO: Tune max rotation speed (rad/s)
-                                );
-                                drivetrain.setControl(driveRequest
-                                        .withVelocityX(0)
-                                        .withVelocityY(0)
-                                        .withRotationalRate(rotationSpeed));
-                            } else {
-                                // No target — hold still and wait
-                                drivetrain.setControl(driveRequest
-                                        .withVelocityX(0)
-                                        .withVelocityY(0)
-                                        .withRotationalRate(0));
-                            }
-                        }, drivetrain)
-                                .until(vision::isAligned) // VisionSubsystem already tracks this via state machine
-                                .withTimeout(3.0), // Safety — don't spin forever if target disappears
+    //                     // Branch A: Rotate robot to face the AprilTag
+    //                     // Mirrors the logic in reference/VisionAlignToTargetCommand.java
+    //                     Commands.run(() -> {
+    //                         if (vision.hasTarget()) {
+    //                             // Positive tx = target to the right → rotate counterclockwise to correct
+    //                             // If robot spins the wrong direction, flip the sign on rotationSpeed
+    //                             double tx = vision.getHorizontalAngleDegrees();
+    //                             double rotationSpeed = MathUtil.clamp(
+    //                                     -alignPID.calculate(tx, 0), // negative = correct direction for FieldCentric
+    //                                     -1.0, 1.0 // TODO: Tune max rotation speed (rad/s)
+    //                             );
+    //                             drivetrain.setControl(driveRequest
+    //                                     .withVelocityX(0)
+    //                                     .withVelocityY(0)
+    //                                     .withRotationalRate(rotationSpeed));
+    //                         } else {
+    //                             // No target — hold still and wait
+    //                             drivetrain.setControl(driveRequest
+    //                                     .withVelocityX(0)
+    //                                     .withVelocityY(0)
+    //                                     .withRotationalRate(0));
+    //                         }
+    //                     }, drivetrain)
+    //                             .until(vision::isAligned) // VisionSubsystem already tracks this via state machine
+    //                             .withTimeout(3.0), // Safety — don't spin forever if target disappears
 
-                        // Branch B: Set shooter RPM and hood angle from vision distance, wait until
-                        // ready
-                        // Reuses the existing visionShot() factory method unchanged
-                        visionShot(shooter, vision) // already includes .withTimeout(3.0)
-                ),
+    //                     // Branch B: Set shooter RPM and hood angle from vision distance, wait until
+    //                     // ready
+    //                     // Reuses the existing visionShot() factory method unchanged
+    //                     visionShot(shooter, vision) // already includes .withTimeout(3.0)
+    //             ),
 
-                // ==== Phase 2: Both aligned and shooter ready — fire =====================
-                indexer.feedTimed( 0.5),
+    //             // ==== Phase 2: Both aligned and shooter ready — fire =====================
+    //             indexer.feedTimed( 0.5),
 
-                // ==== Phase 3: Return to idle ===========================================
-                Commands.runOnce(shooter::setIdle, shooter)
+    //             // ==== Phase 3: Return to idle ===========================================
+    //             Commands.runOnce(shooter::setIdle, shooter)
 
-        )
-                // Overall timeout = the "boolean stop" for now.
-                // Later: swap .withTimeout(5.0) for .until(hasShotBooleanSupplier)
-                .withTimeout(5.0)
-                .withName("VisionAlignAndShoot");
-    }
+    //     )
+    //             // Overall timeout = the "boolean stop" for now.
+    //             // Later: swap .withTimeout(5.0) for .until(hasShotBooleanSupplier)
+    //             .withTimeout(5.0)
+    //             .withName("VisionAlignAndShoot");
+    // }
 
     // ============================================================================
     // RobotContainer.java — add to configureNamedCommands() or wherever you
