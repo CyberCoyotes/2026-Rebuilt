@@ -54,6 +54,12 @@ public final class Constants {
     public static final double SLIDE_BOUNCE_DOWN_POS = 40.0;
     /** Bounce UP: roller lifted ~5 rotations toward bumpers — high position for bump agitation. TODO: Tune */
     public static final double SLIDE_BOUNCE_UP_POS   = 30.0;
+    /**
+     * Sensor-pump UP position: deeper inward sweep used by fuelPumpCycleSensor only.
+     * Extends farther than SLIDE_BOUNCE_UP_POS to push straggler balls into conveyor range
+     * so the chute sensor can detect them. ~half of full extension. TODO: Tune
+     */
+    public static final double SLIDE_PUMP_SENSOR_UP_POS = 22.0;
 
 
     // TODO Tune the roller voltages
