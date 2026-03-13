@@ -25,7 +25,7 @@ import frc.robot.subsystems.indexer.IndexerIOHardware;
 import frc.robot.subsystems.intake.IntakeIOHardware;
 import frc.robot.subsystems.shooter.ShooterIOHardware;
 import frc.robot.subsystems.shooter.ShooterSubsystem;
-import frc.robot.subsystems.led.LedSubsystem_CANDLE_only;
+import frc.robot.subsystems.led.LEDSubsystem;
 import frc.robot.subsystems.vision.VisionIOLimelight;
 import frc.robot.subsystems.vision.VisionSubsystem;
 
@@ -57,7 +57,7 @@ public class RobotContainer {
     private final ShooterSubsystem shooter;
     private final VisionSubsystem vision;
     // private final LedSubsystem ledSubsystem;
-    private final LedSubsystem_CANDLE_only larson;
+    private final LEDSubsystem ledSub;
     // private final ClimberSubsystem climber;
     private final FuelCommands fuelCommands = null;
     private final AutoFactory autoFactory;
@@ -70,7 +70,7 @@ public class RobotContainer {
         shooter = new ShooterSubsystem(new ShooterIOHardware());
         vision = new VisionSubsystem(new VisionIOLimelight(Constants.Vision.LIMELIGHT4_NAME));
 
-        larson = new LedSubsystem_CANDLE_only();
+        ledSub = new LEDSubsystem();
         // climber = new ClimberSubsystem();
 
         // NamedCommands.registerCommand("Shoot",
@@ -80,12 +80,9 @@ public class RobotContainer {
         autoRoutines = new AutoRoutines(autoFactory,drivetrain,indexer, intake, shooter, fuelCommands, vision/*, ledSubsystem*/);
         SmartDashboard.putData(autoChooser);
 
-        autoChooser.addRoutine("X-Vision-X", autoRoutines::visionTest); // TODO Testing vision
-        autoChooser.addRoutine("Four meters", autoRoutines::FM);
-        autoChooser.addRoutine("Lob", autoRoutines::Lob);
-        autoChooser.addRoutine("StartRight goes to middle", autoRoutines::StartRMid);
-        autoChooser.addRoutine("StartLeft goes to middle", autoRoutines::StartLMid);
-        autoChooser.addRoutine("Test(center shot)", autoRoutines::TestRoutine);
+        autoChooser.addRoutine("Rt Trench to middle", autoRoutines::StartRMid);
+        autoChooser.addRoutine("Lt Trench to middle", autoRoutines::StartLMid);
+        // autoChooser.addRoutine("Test(center shot)", autoRoutines::TestRoutine);
         autoChooser.addRoutine("Center Depot shot)", autoRoutines:: MidDepot);
         
         SmartDashboard.putData("AutoChooser", autoChooser);
