@@ -96,6 +96,32 @@ public class AutoRoutines {
                 return routine;
         }
 
+                public AutoRoutine RtTrench_Mid_Ramp_Splits() {
+                final AutoRoutine routine = m_factory.newRoutine("RtTrench_Mid_Ramp_Splits");
+                final AutoTrajectory RtTrench_Mid = routine.trajectory("RtTrench_Mid", 0);
+                final AutoTrajectory RtMid_Ramp = routine.trajectory("RtMid_Ramp", 0);
+
+                routine.active().onTrue(
+                                Commands.sequence(
+                                                RtTrench_Mid.resetOdometry(), // Always reset odometry first
+                                                RtTrench_Mid.cmd(), // Follow the path
+                                                RtMid_Ramp.cmd() // Follow the path
+
+                                ));
+                // Routine Events
+                RtTrench_Mid.atTime("Intake").onTrue(m_intake.intakeFuelTimer(5));
+                // Option A — fixed timer:
+                // RtTrench_Mid_Trench.atTime("FuelPump").onTrue(m_intake.fuelPumpCycleAuto(2.0));
+                // Option B — sensor-gated (waits for first detection, stops when chute clears):
+                // RtTrench_Mid_Trench.atTime("FuelPump").onTrue(m_intake.fuelPumpCycleSensor(m_indexer));
+                // Vision Shot
+                RtMid_Ramp.atTime("Shoot")
+                                .onTrue(FuelCommands.Auto.poseAlignAndShoot(m_shooter, m_indexer, m_drivetrain, 6.0));
+                RtMid_Ramp.atTime("FuelPump").onTrue(m_intake.fuelPumpCycleSensor(m_indexer));
+
+                return routine;
+        }
+
         public AutoRoutine RtTrench_Mid_Ramp() {
                 final AutoRoutine routine = m_factory.newRoutine("RtTrench_Mid_Ramp");
                 final AutoTrajectory RtTrench_Mid_Ramp = routine.trajectory("RtTrench_Mid_Ramp", 0);

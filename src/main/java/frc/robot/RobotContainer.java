@@ -79,6 +79,7 @@ public class RobotContainer {
         autoChooser.addRoutine("Rt Trench-Mid-Ramp", autoRoutines::RtTrench_Mid_Ramp);
         autoChooser.addRoutine("Center Depot shot)", autoRoutines:: MidDepot);
         autoChooser.addRoutine("Rt Trench-Mid-Trench (Split)", autoRoutines::RtTrench_Mid_Trench_Splits);
+        autoChooser.addRoutine("Rt Trench-Mid-Ramp (Split)", autoRoutines::RtTrench_Mid_Ramp_Splits);
         
         SmartDashboard.putData("AutoChooser", autoChooser);
         configureBindings();
