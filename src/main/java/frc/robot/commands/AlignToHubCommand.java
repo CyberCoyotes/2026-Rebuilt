@@ -10,6 +10,10 @@ import frc.robot.subsystems.vision.VisionSubsystem;
 
 import java.util.function.DoubleSupplier;
 
+// [UNBOUND - ENTIRE CLASS UNUSED] AlignToHubCommand is never instantiated in RobotContainer
+// or AutoRoutines. poseAlignAndShoot handles rotation inline via its P-controller.
+// Also note: isHubTag() here only covers Blue tags (18-27); Red hub tags are not handled.
+// Keep for reference or future use as a standalone align-only binding.
 /**
  * AlignToHubCommand - Rotates the robot to face the blue hub AprilTags.
  *

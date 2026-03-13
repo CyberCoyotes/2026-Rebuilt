@@ -211,7 +211,7 @@ public final class Constants {
     public static final int GAME_PIECE_PIPELINE = 1; // Optional: for note/game piece detection
 
     // =========================================================
-    // Camera mounting
+    // Camera mounting - Primarily Documentation Purposes
     // =========================================================
 
     /** Height of Limelight lens from floor in meters */
@@ -229,11 +229,7 @@ public final class Constants {
     /** Angle of camera from horizontal in degrees (positive = tilted up) */
     // 25 degrees is a common starting point for angled vision setups, but should be
     // measured for accuracy.
-    public static final double CAMERA_ANGLE_DEGREES = 25.0; // TODO: Measure actual angle
-
-    /** Height of AprilTag center from floor in meters */
-    //
-    public static final double APRILTAG_HEIGHT_METERS = 1.45; // TODO: Update for 2026 game
+    public static final double CAMERA_ANGLE_DEGREES = 15.5;
 
     // Alignment tolerances
     /** Tolerance for horizontal alignment in degrees */
@@ -280,9 +276,9 @@ public final class Constants {
      * - Too high → oscillates left/right around the target
      * See TUNING.md §5 for step-by-step procedure.
      */
-    
-    public static final double ROTATIONAL_KP = 0.10;
+
     // started at 40; now 10;
+    public static final double ROTATIONAL_KP = 0.10;
 
     /**
      * Maximum rotational rate the vision command will apply to the drivetrain

@@ -10,6 +10,7 @@ import com.ctre.phoenix6.CANBus;
 import com.ctre.phoenix6.controls.FireAnimation;
 import com.ctre.phoenix6.controls.LarsonAnimation;
 import com.ctre.phoenix6.controls.RainbowAnimation;
+import com.ctre.phoenix6.controls.SolidColor;
 import com.ctre.phoenix6.hardware.CANdle;
 import com.ctre.phoenix6.signals.AnimationDirectionValue;
 import com.ctre.phoenix6.signals.LarsonBounceValue;
@@ -25,15 +26,15 @@ public class LEDSubsystem extends SubsystemBase {
     private final LarsonAnimation m_slot0Animation = new LarsonAnimation(0, 30)
         .withSlot(0)
         .withColor(new RGBWColor(255, 19, 8, 0))
-        .withSize(1)
+        .withSize(1) 
         .withBounceMode(LarsonBounceValue.Front)
-        .withFrameRate(Hertz.of(25));
+        .withFrameRate(Hertz.of(25)); // Speed of the animation, in frames per second
 
     private final RainbowAnimation m_slot1Animation = new RainbowAnimation(0, 20)
         .withSlot(0)
         .withBrightness(1)
         .withDirection(AnimationDirectionValue.Forward)
-        .withFrameRate(Hertz.of(100));
+        .withFrameRate(Hertz.of(100)); 
 
     private final FireAnimation m_slot2Animation = new FireAnimation(0, 30)
         .withSlot(0)
@@ -43,8 +44,8 @@ public class LEDSubsystem extends SubsystemBase {
         .withCooling(0.3)
         .withFrameRate(Hertz.of(60));
 
-    // private final SolidColor[] m_colors = new SolidColor[] {
-    // };
+    private final SolidColor[] m_colors = new SolidColor[] {
+    };
 
     public LEDSubsystem() {
         setDefaultCommand(updateLEDs());
@@ -57,12 +58,12 @@ public class LEDSubsystem extends SubsystemBase {
      */
     public Command updateLEDs() {
         return run(() -> {
-            // for (var solidColor : m_colors) {
-            //     m_candle.setControl(solidColor);
-            // }
+            for (var solidColor : m_colors) {
+                m_candle.setControl(solidColor);
+            }
+            m_candle.setControl(m_slot0Animation);
             m_candle.setControl(m_slot1Animation);
             m_candle.setControl(m_slot2Animation);
-            m_candle.setControl(m_slot0Animation);
         });
     }
 }

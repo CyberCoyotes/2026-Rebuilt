@@ -426,6 +426,9 @@ public class FuelCommands {
 
     // =========================================================================
     // VISION ALIGN AND SHOOT (limelight tx — secondary/fallback)
+    // [UNBOUND] visionAlignAndShoot, visionShootSequence, visionShot, trackTarget
+    // None of these are wired to a button in RobotContainer. poseAlignAndShoot
+    // (odometry-based) is the active shooting command on driver.rightTrigger().
     // =========================================================================
 
     /**
@@ -587,6 +590,8 @@ public class FuelCommands {
     //   import frc.robot.subsystems.CommandSwerveDrivetrain;
     // ============================================================================
 
+    // [UNBOUND] visionShot_version1 — not registered in AutoRoutines or autoChooser.
+    // All active auto routines use Auto.poseAlignAndShoot instead.
     /**
      * Vision align and shoot sequence — designed for Choreo autonomous event
      * markers.
