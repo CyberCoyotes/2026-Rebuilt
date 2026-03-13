@@ -13,7 +13,6 @@ import choreo.auto.AutoChooser;
 import choreo.auto.AutoFactory;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.RobotModeTriggers;
 import frc.robot.generated.TunerConstants;
@@ -25,11 +24,9 @@ import frc.robot.subsystems.indexer.IndexerIOHardware;
 import frc.robot.subsystems.intake.IntakeIOHardware;
 import frc.robot.subsystems.shooter.ShooterIOHardware;
 import frc.robot.subsystems.shooter.ShooterSubsystem;
-import frc.robot.subsystems.led.LedSubsystem_CANDLE_only;
+import frc.robot.subsystems.led.LEDSubsystem;
 import frc.robot.subsystems.vision.VisionIOLimelight;
 import frc.robot.subsystems.vision.VisionSubsystem;
-
-@SuppressWarnings("unused") // Suppress warnings for unused right now
 
 public class RobotContainer {
     private double MaxSpeed = 0.5 * TunerConstants.kSpeedAt12Volts.in(MetersPerSecond);
@@ -57,7 +54,7 @@ public class RobotContainer {
     private final ShooterSubsystem shooter;
     private final VisionSubsystem vision;
     // private final LedSubsystem ledSubsystem;
-    private final LedSubsystem_CANDLE_only larson;
+    private final LEDSubsystem ledSub;
     // private final ClimberSubsystem climber;
     private final FuelCommands fuelCommands = null;
     private final AutoFactory autoFactory;
@@ -70,7 +67,7 @@ public class RobotContainer {
         shooter = new ShooterSubsystem(new ShooterIOHardware());
         vision = new VisionSubsystem(new VisionIOLimelight(Constants.Vision.LIMELIGHT4_NAME));
 
-        larson = new LedSubsystem_CANDLE_only();
+        ledSub = new LEDSubsystem();
         // climber = new ClimberSubsystem();
 
         // NamedCommands.registerCommand("Shoot",
@@ -80,13 +77,17 @@ public class RobotContainer {
         autoRoutines = new AutoRoutines(autoFactory,drivetrain,indexer, intake, shooter, fuelCommands, vision/*, ledSubsystem*/);
         SmartDashboard.putData(autoChooser);
 
-        autoChooser.addRoutine("X-Vision-X", autoRoutines::visionTest); // TODO Testing vision
-        autoChooser.addRoutine("Four meters", autoRoutines::FM);
-        autoChooser.addRoutine("Lob", autoRoutines::Lob);
-        autoChooser.addRoutine("StartRight goes to middle", autoRoutines::StartRMid);
-        autoChooser.addRoutine("StartLeft goes to middle", autoRoutines::StartLMid);
-        autoChooser.addRoutine("Test(center shot)", autoRoutines::TestRoutine);
+        autoChooser.addRoutine("Rt Trench-Mid-Trench", autoRoutines::RtTrench_Mid_Trench);
+        autoChooser.addRoutine("Rt Trench-Mid-Ramp", autoRoutines::RtTrench_Mid_Ramp);
+        
+        autoChooser.addRoutine("Lt Trench-Mid-Trench", autoRoutines::LtTrench_Mid_Trench);
+        autoChooser.addRoutine("Rt Trench-Mid-Ramp", autoRoutines::RtTrench_Mid_Ramp);
+
+
         autoChooser.addRoutine("Center Depot shot)", autoRoutines:: MidDepot);
+
+        autoChooser.addRoutine("Rt Trench-Mid-Trench (Split)", autoRoutines::RtTrench_Mid_Trench_Splits);
+
         
         SmartDashboard.putData("AutoChooser", autoChooser);
         configureBindings();
@@ -126,10 +127,13 @@ public class RobotContainer {
                 () -> -driver.getLeftY() * MaxSpeed,
                 () -> -driver.getLeftX() * MaxSpeed)); 
         
+        // Hold on and it will cycle back and forth
         driver.rightBumper().whileTrue(intake.fuelPumpCycle());
 
         driver.leftTrigger(0.5).whileTrue(intake.intakeFuel());
-        driver.leftBumper().whileTrue(intake.retractSlidesCmd());
+
+        // Prese once it will retract fully
+        driver.leftBumper().onTrue(intake.retractSlidesCmd());
 
         // driver.a().whileTrue(FuelCommands.fuelPump(indexer));
         
@@ -138,7 +142,7 @@ public class RobotContainer {
         // =====================================================================
         // OPERATOR CONTROLLER (Port 1)
         // =====================================================================
-        var anyPresetHeld = operator.a().or(operator.b()).or(operator.x()).or(operator.y()); 
+        // var anyPresetHeld = operator.a().or(operator.b()).or(operator.x()).or(operator.y()); 
         
         operator.a().whileTrue(
             FuelCommands.shootWithPreset(shooter, indexer, ShooterSubsystem.ShotPreset.TRENCH));
