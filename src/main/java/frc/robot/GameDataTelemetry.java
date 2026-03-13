@@ -55,6 +55,7 @@ public class GameDataTelemetry {
 
     private InactiveAlliance inactiveFirstAlliance = InactiveAlliance.NONE;
     private boolean dataReceived = false;
+    private String activeHub = "UNKNOWN";
 
     public GameDataTelemetry() {
         NetworkTableInstance inst = NetworkTableInstance.getDefault();
@@ -104,7 +105,7 @@ public class GameDataTelemetry {
         }
 
         int shift = computeShift(DriverStation.getMatchTime());
-        String activeHub = computeActiveHub(shift);
+        activeHub = computeActiveHub(shift);
 
         publishState(activeHub);
     }
@@ -176,5 +177,15 @@ public class GameDataTelemetry {
     /** Returns true if Blue alliance's goal goes inactive first. */
     public boolean isBlueInactiveFirst() {
         return inactiveFirstAlliance == InactiveAlliance.BLUE;
+    }
+
+    /** Returns true when the Red hub is currently the active scoring target. */
+    public boolean isRedHubActive() {
+        return "RED".equals(activeHub);
+    }
+
+    /** Returns true when the Blue hub is currently the active scoring target. */
+    public boolean isBlueHubActive() {
+        return "BLUE".equals(activeHub);
     }
 }

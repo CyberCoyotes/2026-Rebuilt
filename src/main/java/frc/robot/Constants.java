@@ -299,7 +299,7 @@ public final class Constants {
     public static final double MIN_DISTANCE_M = 0.5;
     public static final double MAX_DISTANCE_M = 8.0;
 
-    public static final double LEAD_COMPENSATION_DEG_PER_MPS = 10; // Tune up from 0 — 50 degrees of aim offset per m/s of lateral velocity
+    public static final double LEAD_COMPENSATION_DEG_PER_MPS = 00; // Tune up from 0 — 50 degrees of aim offset per m/s of lateral velocity
 
   }
 
@@ -320,9 +320,10 @@ public final class Constants {
     public static final int LEDS_PER_SEGMENT = 36;
 
     /** Total strip length in meters */
-    public static final int STRIP_LENGTH_METERS = 1;
+    public static final double STRIP_LENGTH_METERS = 0.28575;
 
     /** Total number of logical addressable segments */
-    public static final int LOGICAL_LED_COUNT = SEGMENTS_PER_METER * STRIP_LENGTH_METERS; // TODO: Adjust as needed
+    public static final double LOGICAL_LED_COUNT = SEGMENTS_PER_METER * STRIP_LENGTH_METERS;
+
   }
 }

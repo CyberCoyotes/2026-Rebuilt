@@ -7,6 +7,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 import com.ctre.phoenix6.CANBus;
+import com.ctre.phoenix6.controls.ControlRequest;
 import com.ctre.phoenix6.controls.FireAnimation;
 import com.ctre.phoenix6.controls.LarsonAnimation;
 import com.ctre.phoenix6.controls.RainbowAnimation;
@@ -17,53 +18,111 @@ import com.ctre.phoenix6.signals.LarsonBounceValue;
 import com.ctre.phoenix6.signals.RGBWColor;
 
 /**
- * Subsystem that controls an addressable LED strip using a CANdle.
+ * Controls the CANdle LED strip.
+ *
+ * Robot state slots:
+ *   0 — Default    : driving/idle, Larson scanner in team orange-red
+ *   1 — Spinning Up: shooter ramping, rainbow (active/building energy)
+ *   2 — Ready      : shooter at speed, solid green ("go" signal)
+ *   3 — Extra      : manual cycling / fallback, fire animation
+ *
+ * Named commands (use these for Trigger wiring in RobotContainer):
+ *   showDefault()    showSpinningUp()    showReady()
+ *
+ * Operator POV cycles through all slots for testing.
  */
-public class LEDSubsystem extends SubsystemBase {
+public class LedSubsystem extends SubsystemBase {
     private final CANBus kCANBus = new CANBus("rio");
     private final CANdle m_candle = new CANdle(15, kCANBus);
 
-    private final LarsonAnimation m_slot0Animation = new LarsonAnimation(0, 30)
+    // -------------------------------------------------------------------------
+    // Slot 0 — Default (driving around, shooter idle)
+    // Larson scanner in team orange-red
+    // -------------------------------------------------------------------------
+    private final LarsonAnimation m_defaultAnimation = new LarsonAnimation(0, 30)
         .withSlot(0)
         .withColor(new RGBWColor(255, 19, 8, 0))
-        .withSize(1) 
+        .withSize(1)
         .withBounceMode(LarsonBounceValue.Front)
-        .withFrameRate(Hertz.of(25)); // Speed of the animation, in frames per second
+        .withFrameRate(Hertz.of(25));
 
-    private final RainbowAnimation m_slot1Animation = new RainbowAnimation(0, 20)
-        .withSlot(0)
+    // -------------------------------------------------------------------------
+    // Slot 1 — Spinning Up (SPINNING_UP state — not ready yet)
+    // Rainbow conveys rapid activity / "hold on, warming up"
+    // -------------------------------------------------------------------------
+    private final RainbowAnimation m_spinningUpAnimation = new RainbowAnimation(0, 20)
+        .withSlot(1)
         .withBrightness(1)
         .withDirection(AnimationDirectionValue.Forward)
-        .withFrameRate(Hertz.of(100)); 
+        .withFrameRate(Hertz.of(100));
 
-    private final FireAnimation m_slot2Animation = new FireAnimation(0, 30)
-        .withSlot(0)
+    // -------------------------------------------------------------------------
+    // Slot 2 — Ready (READY state — flywheel and hood at targets)
+    // Solid green: clear "go" signal for driver/human player
+    // -------------------------------------------------------------------------
+    private final SolidColor m_readyAnimation = new SolidColor(0, 30)
+        .withColor(new RGBWColor(0, 255, 0, 0));
+
+    // -------------------------------------------------------------------------
+    // Slot 3 — Extra / manual cycling fallback
+    // Fire animation for fun / testing
+    // -------------------------------------------------------------------------
+    private final FireAnimation m_extraAnimation = new FireAnimation(0, 30)
+        .withSlot(2)
         .withBrightness(1)
         .withDirection(AnimationDirectionValue.Forward)
         .withSparking(0.6)
         .withCooling(0.3)
         .withFrameRate(Hertz.of(60));
 
-    private final SolidColor[] m_colors = new SolidColor[] {
+    private final ControlRequest[] m_animations = new ControlRequest[] {
+        m_defaultAnimation,    // 0
+        m_spinningUpAnimation, // 1
+        m_readyAnimation,      // 2
+        m_extraAnimation,      // 3
     };
 
-    public LEDSubsystem() {
+    private int m_currentSlot = 0;
+
+    public LedSubsystem() {
         setDefaultCommand(updateLEDs());
     }
 
-    /**
-     * Updates the animations and LEDs of the CANdle.
-     *
-     * @return Command to run
-     */
+    /** Applies only the currently selected animation each loop. */
     public Command updateLEDs() {
-        return run(() -> {
-            for (var solidColor : m_colors) {
-                m_candle.setControl(solidColor);
-            }
-            m_candle.setControl(m_slot0Animation);
-            m_candle.setControl(m_slot1Animation);
-            m_candle.setControl(m_slot2Animation);
-        });
+        return run(() -> m_candle.setControl(m_animations[m_currentSlot]));
+    }
+
+    // =========================================================================
+    // Named State Commands — wire these to Triggers in RobotContainer
+    // =========================================================================
+
+    /** Driving around, shooter idle. */
+    public Command showDefault() {
+        return runOnce(() -> m_currentSlot = 0);
+    }
+
+    /** Shooter is spinning up (SPINNING_UP) — not at speed yet. */
+    public Command showSpinningUp() {
+        return runOnce(() -> m_currentSlot = 1);
+    }
+
+    /** Shooter is at speed and ready to fire (READY). */
+    public Command showReady() {
+        return runOnce(() -> m_currentSlot = 2);
+    }
+
+    // =========================================================================
+    // Manual POV cycling (operator testing)
+    // =========================================================================
+
+    /** Step forward through all animation slots (wraps around). */
+    public Command cycleNext() {
+        return runOnce(() -> m_currentSlot = (m_currentSlot + 1) % m_animations.length);
+    }
+
+    /** Step backward through all animation slots (wraps around). */
+    public Command cyclePrev() {
+        return runOnce(() -> m_currentSlot = (m_currentSlot - 1 + m_animations.length) % m_animations.length);
     }
 }
