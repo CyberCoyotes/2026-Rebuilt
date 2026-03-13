@@ -13,7 +13,6 @@ import choreo.auto.AutoChooser;
 import choreo.auto.AutoFactory;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.RobotModeTriggers;
 import frc.robot.generated.TunerConstants;
@@ -28,8 +27,6 @@ import frc.robot.subsystems.shooter.ShooterSubsystem;
 import frc.robot.subsystems.led.LEDSubsystem;
 import frc.robot.subsystems.vision.VisionIOLimelight;
 import frc.robot.subsystems.vision.VisionSubsystem;
-
-@SuppressWarnings("unused") // Suppress warnings for unused right now
 
 public class RobotContainer {
     private double MaxSpeed = 0.5 * TunerConstants.kSpeedAt12Volts.in(MetersPerSecond);
@@ -130,10 +127,13 @@ public class RobotContainer {
                 () -> -driver.getLeftY() * MaxSpeed,
                 () -> -driver.getLeftX() * MaxSpeed)); 
         
+        // Hold on and it will cycle back and forth
         driver.rightBumper().whileTrue(intake.fuelPumpCycle());
 
         driver.leftTrigger(0.5).whileTrue(intake.intakeFuel());
-        driver.leftBumper().whileTrue(intake.retractSlidesCmd());
+
+        // Prese once it will retract fully
+        driver.leftBumper().onTrue(intake.retractSlidesCmd());
 
         // driver.a().whileTrue(FuelCommands.fuelPump(indexer));
         
@@ -142,7 +142,7 @@ public class RobotContainer {
         // =====================================================================
         // OPERATOR CONTROLLER (Port 1)
         // =====================================================================
-        var anyPresetHeld = operator.a().or(operator.b()).or(operator.x()).or(operator.y()); 
+        // var anyPresetHeld = operator.a().or(operator.b()).or(operator.x()).or(operator.y()); 
         
         operator.a().whileTrue(
             FuelCommands.shootWithPreset(shooter, indexer, ShooterSubsystem.ShotPreset.TRENCH));

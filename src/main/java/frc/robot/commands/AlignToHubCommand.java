@@ -31,7 +31,6 @@ import java.util.function.DoubleSupplier;
  *
  * VALID TAG IDS: 18-27 (blue hub), excluding 17, 22, 23, 28
  *
- * @author @Isaak3
  */
 public class AlignToHubCommand extends Command {
 

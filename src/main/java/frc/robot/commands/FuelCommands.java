@@ -345,7 +345,7 @@ public class FuelCommands {
         final DoublePublisher ntDistance       = visionTable.getDoubleTopic("distanceToHub_m").publish();
         final DoublePublisher ntLeadOffset     = visionTable.getDoubleTopic("leadOffset_deg").publish();
 
-        final Timer fuelPumpTimer = new Timer();
+        // final Timer fuelPumpTimer = new Timer();
 
         return Commands.run(() -> {
             Translation2d hub = getHubLocation();
