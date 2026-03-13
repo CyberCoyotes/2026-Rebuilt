@@ -54,7 +54,6 @@ public class RobotContainer {
     private final IndexerSubsystem indexer;
     private final ShooterSubsystem shooter;
     private final VisionSubsystem vision;
-    // private final LedSubsystem ledSubsystem;
     private final LedSubsystem ledSub;
     // private final ClimberSubsystem climber;
     private final FuelCommands fuelCommands = null;
@@ -69,26 +68,17 @@ public class RobotContainer {
         vision = new VisionSubsystem(new VisionIOLimelight(Constants.Vision.LIMELIGHT4_NAME));
 
         ledSub = new LedSubsystem();
-        // climber = new ClimberSubsystem();
-
-        // NamedCommands.registerCommand("Shoot",
-        // ShooterCommands.visionAlignAndShoot(shooter, vision, indexer, drivetrain));
 
         autoFactory = drivetrain.createAutoFactory();
-        autoRoutines = new AutoRoutines(autoFactory,drivetrain,indexer, intake, shooter, fuelCommands, vision/*, ledSubsystem*/);
+        autoRoutines = new AutoRoutines(autoFactory,drivetrain,indexer, intake, shooter, fuelCommands, vision);
         SmartDashboard.putData(autoChooser);
 
         autoChooser.addRoutine("Rt Trench-Mid-Trench", autoRoutines::RtTrench_Mid_Trench);
         autoChooser.addRoutine("Rt Trench-Mid-Ramp", autoRoutines::RtTrench_Mid_Ramp);
-        
         autoChooser.addRoutine("Lt Trench-Mid-Trench", autoRoutines::LtTrench_Mid_Trench);
         autoChooser.addRoutine("Rt Trench-Mid-Ramp", autoRoutines::RtTrench_Mid_Ramp);
-
-
         autoChooser.addRoutine("Center Depot shot)", autoRoutines:: MidDepot);
-
         autoChooser.addRoutine("Rt Trench-Mid-Trench (Split)", autoRoutines::RtTrench_Mid_Trench_Splits);
-
         
         SmartDashboard.putData("AutoChooser", autoChooser);
         configureBindings();
@@ -134,7 +124,7 @@ public class RobotContainer {
         driver.leftTrigger(0.5).whileTrue(intake.intakeFuel());
 
         // Prese once it will retract fully
-        driver.leftBumper().onTrue(intake.retractSlidesCmd());
+        driver.leftBumper().onTrue(intake.retractSlidesIncrementalCmd());
 
         // driver.a().whileTrue(FuelCommands.fuelPump(indexer));
         
