@@ -7,6 +7,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 import com.ctre.phoenix6.CANBus;
+import com.ctre.phoenix6.controls.ControlRequest;
 import com.ctre.phoenix6.controls.FireAnimation;
 import com.ctre.phoenix6.controls.LarsonAnimation;
 import com.ctre.phoenix6.controls.RainbowAnimation;
@@ -18,52 +19,67 @@ import com.ctre.phoenix6.signals.RGBWColor;
 
 /**
  * Subsystem that controls an addressable LED strip using a CANdle.
+ * Use cycleNext() / cyclePrev() commands to step through animations.
  */
-public class LEDSubsystem extends SubsystemBase {
+public class LedSubsystem extends SubsystemBase {
     private final CANBus kCANBus = new CANBus("rio");
     private final CANdle m_candle = new CANdle(15, kCANBus);
 
+    // Slot 0 — Larson (red scanner)
     private final LarsonAnimation m_slot0Animation = new LarsonAnimation(0, 30)
         .withSlot(0)
         .withColor(new RGBWColor(255, 19, 8, 0))
-        .withSize(1) 
+        .withSize(1)
         .withBounceMode(LarsonBounceValue.Front)
-        .withFrameRate(Hertz.of(25)); // Speed of the animation, in frames per second
+        .withFrameRate(Hertz.of(25));
 
+    // Slot 1 — Rainbow
     private final RainbowAnimation m_slot1Animation = new RainbowAnimation(0, 20)
-        .withSlot(0)
+        .withSlot(1)
         .withBrightness(1)
         .withDirection(AnimationDirectionValue.Forward)
-        .withFrameRate(Hertz.of(100)); 
+        .withFrameRate(Hertz.of(100));
 
+    // Slot 2 — Fire (forward)
     private final FireAnimation m_slot2Animation = new FireAnimation(0, 30)
-        .withSlot(0)
+        .withSlot(2)
         .withBrightness(1)
         .withDirection(AnimationDirectionValue.Forward)
         .withSparking(0.6)
         .withCooling(0.3)
         .withFrameRate(Hertz.of(60));
 
-    private final SolidColor[] m_colors = new SolidColor[] {
+    // Slot 3 — Solid alliance red
+    private final SolidColor m_slot3= new SolidColor(0, 30)
+        .withColor(new RGBWColor(255, 0, 0, 0));
+
+    private final ControlRequest[] m_animations = new ControlRequest[] {
+        m_slot0Animation,
+        m_slot1Animation,
+        m_slot2Animation,
+        m_slot3,
     };
 
-    public LEDSubsystem() {
+    private int m_currentSlot = 0;
+
+    public LedSubsystem() {
         setDefaultCommand(updateLEDs());
     }
 
     /**
-     * Updates the animations and LEDs of the CANdle.
-     *
-     * @return Command to run
+     * Applies only the currently selected animation each loop.
      */
     public Command updateLEDs() {
-        return run(() -> {
-            for (var solidColor : m_colors) {
-                m_candle.setControl(solidColor);
-            }
-            m_candle.setControl(m_slot0Animation);
-            m_candle.setControl(m_slot1Animation);
-            m_candle.setControl(m_slot2Animation);
-        });
+        return run(() -> m_candle.setControl(m_animations[m_currentSlot]));
+    }
+
+    /** Step forward through animations (wraps around). */
+    public Command cycleNext() {
+        return runOnce(() -> m_currentSlot = (m_currentSlot + 1) % m_animations.length);
+    }
+
+    /** Step backward through animations (wraps around). */
+    public Command cyclePrev() {
+        return runOnce(() -> m_currentSlot = (m_currentSlot - 1 + m_animations.length) % m_animations.length);
     }
 }
