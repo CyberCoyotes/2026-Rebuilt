@@ -7,7 +7,6 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import frc.robot.subsystems.shooter.ShooterSubsystem;
 import frc.robot.commands.FuelCommands;
 import frc.robot.commands.FuelCommands.Auto;
-import frc.robot.subsystems.led.LEDSubsystem;
 import frc.robot.subsystems.vision.VisionSubsystem;
 import frc.robot.subsystems.indexer.IndexerSubsystem;
 import frc.robot.subsystems.intake.IntakeSubsystem;

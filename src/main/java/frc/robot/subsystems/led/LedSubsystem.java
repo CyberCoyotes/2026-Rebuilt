@@ -19,7 +19,7 @@ import com.ctre.phoenix6.signals.RGBWColor;
 /**
  * Subsystem that controls an addressable LED strip using a CANdle.
  */
-public class LEDSubsystem extends SubsystemBase {
+public class LedSubsystem extends SubsystemBase {
     private final CANBus kCANBus = new CANBus("rio");
     private final CANdle m_candle = new CANdle(15, kCANBus);
 
@@ -47,7 +47,7 @@ public class LEDSubsystem extends SubsystemBase {
     private final SolidColor[] m_colors = new SolidColor[] {
     };
 
-    public LEDSubsystem() {
+    public LedSubsystem() {
         setDefaultCommand(updateLEDs());
     }
 

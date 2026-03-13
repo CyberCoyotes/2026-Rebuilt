@@ -24,7 +24,7 @@ import frc.robot.subsystems.indexer.IndexerIOHardware;
 import frc.robot.subsystems.intake.IntakeIOHardware;
 import frc.robot.subsystems.shooter.ShooterIOHardware;
 import frc.robot.subsystems.shooter.ShooterSubsystem;
-import frc.robot.subsystems.led.LEDSubsystem;
+import frc.robot.subsystems.led.LedSubsystem;
 import frc.robot.subsystems.vision.VisionIOLimelight;
 import frc.robot.subsystems.vision.VisionSubsystem;
 
@@ -54,7 +54,7 @@ public class RobotContainer {
     private final ShooterSubsystem shooter;
     private final VisionSubsystem vision;
     // private final LedSubsystem ledSubsystem;
-    private final LEDSubsystem ledSub;
+    private final LedSubsystem ledSub;
     // private final ClimberSubsystem climber;
     private final FuelCommands fuelCommands = null;
     private final AutoFactory autoFactory;
@@ -67,7 +67,7 @@ public class RobotContainer {
         shooter = new ShooterSubsystem(new ShooterIOHardware());
         vision = new VisionSubsystem(new VisionIOLimelight(Constants.Vision.LIMELIGHT4_NAME));
 
-        ledSub = new LEDSubsystem();
+        ledSub = new LedSubsystem();
         // climber = new ClimberSubsystem();
 
         // NamedCommands.registerCommand("Shoot",
