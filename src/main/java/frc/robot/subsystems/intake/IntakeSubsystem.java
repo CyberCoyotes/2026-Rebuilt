@@ -455,7 +455,7 @@ public class IntakeSubsystem extends SubsystemBase {
                 if (t < 0.5) {
                     setSlidesToPosition(Constants.Intake.SLIDE_BOUNCE_DOWN_POS);
                 } else if (t < 1.0) {
-                    setSlidesToPosition(Constants.Intake.SLIDE_BOUNCE_UP_POS);
+                    setSlidesToPosition(Constants.Intake.SLIDE_PUMP_SENSOR_UP_POS);
                 } else {
                     cycleTimer.restart();
                 }
