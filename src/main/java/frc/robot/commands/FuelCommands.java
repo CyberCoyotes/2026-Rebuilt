@@ -146,24 +146,6 @@ public class FuelCommands {
                     shooter.setIdle();
                 }).withName("ShootPresetAuton[" + preset.label + "]");
     }
-    // // Template for the using ShotPresets in Auton
-    // public static Command shootPresetAuton(ShooterSubsystem shooter, IndexerSubsystem indexer,
-    //         ShotPreset preset, double feedSeconds,
-    //         boolean waitForReady) {
-    //     return Commands.sequence(
-    //             Commands.runOnce(() -> {
-    //                 shooter.setTargetVelocity(preset.rpm);
-    //                 shooter.setTargetHoodPose(preset.hood);
-    //                 shooter.beginSpinUp(); // void — was shooter.spinUp() (returns Command, would be discarded)
-    //             }, shooter),
-    //             Commands.waitUntil(shooter::isReady), // removed timeout 3/9/26
-    //             indexer.feed() // replaced indexer.conveyorForward() + indexer.indexerForward() with feed() 
-    //     // ).finallyDo(() -> { // TODO Comment out for testing and remove for good once validated that is is not needed
-    //     //     indexer.indexerStop();
-    //     //     indexer.conveyorStop();
-    //     //     shooter.setIdle();}
-    //     ).withName("ShootPresetAuton[" + preset.label + "]");
-    // }
 
     /**
      * Convenience overload — shoots using a {@link ShotPreset} enum value.
@@ -422,27 +404,21 @@ public class FuelCommands {
             if (shooter.isReady()) {
                 indexer.conveyorForward();
                 indexer.indexerForward();
-                // Inline fuel pump — mirrors fuelPump() but runs inside the run loop
-                // intake.runRoller();
-                // fuelPumpTimer used to time slide-bounce; kept ready for future tuning
-                // fuelPumpTimer.get();
             } else {
                 indexer.indexerStop();
                 indexer.conveyorStop();
-                // intake.stopRoller();
-                fuelPumpTimer.reset(); // reset so pump starts fresh when shooter becomes ready
+                // fuelPumpTimer.reset(); // reset so pump starts fresh when shooter becomes ready
             }
 
         }, shooter, indexer, drivetrain /*, intake*/)
                 .beforeStarting(Commands.runOnce(() -> {
                     shooter.beginSpinUp();
-                    fuelPumpTimer.reset();
-                    fuelPumpTimer.start();
+                    // fuelPumpTimer.reset();
+                    // fuelPumpTimer.start();
                 }, shooter))
                 .finallyDo(() -> {
                     indexer.indexerStop();
                     indexer.conveyorStop();
-                    // intake.stopRoller();
                     shooter.setIdle();
                 })
                 .withName("PoseAlignAndShoot");
@@ -558,11 +534,8 @@ public class FuelCommands {
     public static Command visionShootSequence(ShooterSubsystem shooter, VisionSubsystem vision,
             IndexerSubsystem indexer) {
         return Commands.sequence(
-                Commands.waitUntil(vision::hasTarget).withTimeout(1.0),
+                Commands.waitUntil(vision::hasTarget)/* REMOVED .withTimeout(1.0) */,
                 visionShot(shooter, vision)
-        // IndexerCommands.feedTimed(indexer, 0.5), // FIXME to use the
-        // IndexerSubsystem's feed method instead of a command from IndexerCommands
-        // Commands.runOnce(shooter::returnToStandby, shooter)
         ).withName("VisionShootSequence");
     }
 
@@ -580,7 +553,7 @@ public class FuelCommands {
                     shooter.updateFromDistance(distance);
                     shooter.beginSpinUp(); // void — transitions state machine to SPINNING_UP
                 }, shooter, vision),
-                Commands.waitUntil(shooter::isReady).withTimeout(3.0))
+                Commands.waitUntil(shooter::isReady)/* REMOVED .withTimeout(3.0) */)
                 .withName("VisionShot");
     }
 
@@ -649,7 +622,6 @@ public class FuelCommands {
         // PID for rotational alignment — mirrors VisionAlignToTargetCommand constants.
         // Created fresh each call so no stale integral state between auto shots.
         // TODO: Tune kP and kD. Start with just kP = 0.05 and work up.
-    @SuppressWarnings("resource")
     PIDController alignPID = new PIDController(0.05, 0.0, 0.005);
         alignPID.setTolerance(2.0); // degrees — matches VisionConstants.ALIGNMENT_TOLERANCE_DEGREES
 
@@ -761,89 +733,6 @@ public class FuelCommands {
 
 
 
-
-        /**
-         * Autonomous pose-aligned shoot command.
-         *
-         * Replaces fixed-preset auton shots where the robot needs to rotate to face
-         * the hub before firing. Uses the same odometry-based heading math as
-         * {@link FuelCommands#poseAlignAndShoot} but with no driver translation input.
-         *
-         * Sequence:
-         * 1. Spins up shooter from pose distance while rotating toward hub.
-         * 2. Waits until heading error ≤ ALIGNMENT_TOLERANCE_DEGREES AND shooter isReady()
-         *    (3-second timeout — fires anyway if alignment cannot be reached in time).
-         * 3. Feeds the indexer for {@code feedSeconds}.
-         * 4. Returns shooter to idle and stops indexer/conveyor.
-         *
-         * @param shooter     Shooter subsystem
-         * @param m_vision     Indexer subsystem
-         * @param m_indexer  Swerve drivetrain (provides field pose)
-         * @param m_drivetrain How long to run the indexer/conveyor after aligned and ready
-         * @return Autonomous align-and-shoot command
-         */
-        /* 
-        public static Command visionShot_version2(
-                ShooterSubsystem shooter,
-                VisionSubsystem m_vision,
-                IndexerSubsystem m_indexer,
-                CommandSwerveDrivetrain m_drivetrain) {
-
-            final SwerveRequest.FieldCentric alignRequest = new SwerveRequest.FieldCentric()
-                    .withDriveRequestType(DriveRequestType.OpenLoopVoltage);
-
-            return Commands.sequence(
-                    // Phase 1: Spin up + rotate to hub simultaneously
-                    Commands.deadline(
-                            Commands.waitUntil(() -> {
-                                Translation2d hub = getHubLocation();
-                                Pose2d pose = m_indexer.getState().Pose;
-                                double dx = hub.getX() - pose.getX();
-                                double dy = hub.getY() - pose.getY();
-                                double headingError = Math.toDegrees(Math.atan2(dy, dx))
-                                        - pose.getRotation().getDegrees();
-                                while (headingError >  180) headingError -= 360;
-                                while (headingError < -180) headingError += 360;
-                                return Math.abs(headingError) <= Constants.Vision.ALIGNMENT_TOLERANCE_DEGREES
-                                        && shooter.isReady();
-                            }).withTimeout(3.0),
-                            Commands.run(() -> {
-                                Translation2d hub = getHubLocation();
-                                Pose2d pose = m_indexer.getState().Pose;
-                                double dx = hub.getX() - pose.getX();
-                                double dy = hub.getY() - pose.getY();
-                                double distance = MathUtil.clamp(
-                                        Math.hypot(dx, dy),
-                                        Constants.Vision.MIN_DISTANCE_M,
-                                        Constants.Vision.MAX_DISTANCE_M);
-                                shooter.updateFromDistance(distance);
-                                if (shooter.getState() != ShooterSubsystem.ShooterState.READY) {
-                                    shooter.beginSpinUp(); // void — only transitions state; never call spinUp() (returns Command) here
-                                }
-                                double headingError = Math.toDegrees(Math.atan2(dy, dx))
-                                        - pose.getRotation().getDegrees();
-                                while (headingError >  180) headingError -= 360;
-                                while (headingError < -180) headingError += 360;
-                                double rotRate = MathUtil.clamp(
-                                        headingError * Constants.Vision.ROTATIONAL_KP,
-                                        -Constants.Vision.MAX_ALIGNMENT_ROTATION_RAD_PER_SEC,
-                                        Constants.Vision.MAX_ALIGNMENT_ROTATION_RAD_PER_SEC);
-                                m_indexer.setControl(
-                                        alignRequest
-                                                .withVelocityX(0)
-                                                .withVelocityY(0)
-                                                .withRotationalRate(rotRate));
-                            }, shooter, m_indexer)),
-                    // Phase 2: Feed
-                    m_indexer.feed().withTimeout(m_drivetrain))
-                    .finallyDo(() -> {
-                        m_vision.indexerStop();
-                        m_vision.conveyorStop();
-                        shooter.setIdle();
-                    }).withName("AutoAlignAndShoot");
-        }
-*/
-
         // =============================================================================
         /**
          * Autonomous odometry-based align-and-shoot.
@@ -891,7 +780,7 @@ public class FuelCommands {
                                 while (headingErrorDeg < -180) headingErrorDeg += 360;
                                 return Math.abs(headingErrorDeg) <= Constants.Vision.ALIGNMENT_TOLERANCE_DEGREES
                                         && shooter.isReady();
-                            }).withTimeout(3.0),
+                            })/* REMOVED .withTimeout(3.0) */,
                             Commands.run(() -> {
                                 Translation2d hub = getHubLocation();
                                 Pose2d pose = drivetrain.getState().Pose;
@@ -928,9 +817,8 @@ public class FuelCommands {
         }
 
         // =============================================================================
-        //
-        /* Autonomous shooting command */
-        /* FIXME Trench is the working "Test" command for autonomous. Others should be updated after its working properly */
+        // Presets
+        // =============================================================================
         public static Command shootTrench(ShooterSubsystem shooter, IndexerSubsystem indexer,
                 double safetyTimeout) {
             return Commands.sequence(
@@ -948,20 +836,6 @@ public class FuelCommands {
             }).withName("ShootTrenchAuton");
         }
 
-        /**
-         * Autonomous: shoot at trench preset while retracting intake slides (two-phase)
-         * and running the intake roller concurrently.
-         *
-         * The shoot sequence ({@link #shootTrench}) is the deadline — slide retraction
-         * is cancelled when feeding completes. Safe to compose with path-following or
-         * other parallel commands in auton.
-         *
-         * @param shooter     The shooter subsystem
-         * @param indexer     The indexer subsystem
-         * @param intake      The intake subsystem
-         * @param safetyTimeout Hard stop for the feed phase if sensor doesn't trigger
-         * @return Deadline command: shootTrench (deadline) + slide retract in parallel
-         */
         public static Command shootTrenchWithSlideRetract(ShooterSubsystem shooter,
                 IndexerSubsystem indexer, IntakeSubsystem intake, double safetyTimeout) {
             return Commands.deadline(
@@ -970,7 +844,6 @@ public class FuelCommands {
                     .withName("ShootTrenchWithSlideRetract");
         }
 
-        /* Autonomous shooting command */
         public static Command shootHub(ShooterSubsystem shooter, IndexerSubsystem indexer,
                 double safetyTimeout) {
             return Commands.sequence(
@@ -987,7 +860,6 @@ public class FuelCommands {
                     }).withName("ShootHubAuton");
         }
 
-        /* Autonomous shooting command */
         public static Command shootTower(ShooterSubsystem shooter, IndexerSubsystem indexer,
                 double safetyTimeout) {
             return Commands.sequence(
@@ -1003,7 +875,6 @@ public class FuelCommands {
                         shooter.setIdle();
                     }).withName("ShootTowerAuton");
         } // end of command
-        /* Autonomous shooting command */
 
         public static Command shootFar(ShooterSubsystem shooter, IndexerSubsystem indexer,
                 double safetyTimeout) {
@@ -1021,22 +892,7 @@ public class FuelCommands {
                     }).withName("ShootFarAuton");
         } // end of command
 
-        /* Autonomous shooting command */
-        public static Command shootTren(ShooterSubsystem shooter, IndexerSubsystem indexer,
-                double safetyTimeout) {
-            return Commands.sequence(
-                    Commands.runOnce(() -> {
-                        shooter.setTargetVelocity(Constants.Shooter.TRENCH_RPM);
-                        shooter.setTargetHoodPose(Constants.Shooter.TRENCH_HOOD);
-                        shooter.beginSpinUp();
-                    }, shooter),
-                    Commands.waitUntil(shooter::isReady).withTimeout(6.0),
-                    indexer.feedUntilChuteEmpty(safetyTimeout)).finallyDo(() -> {
-                        indexer.indexerStop();
-                        indexer.conveyorStop();
-                        shooter.setIdle();
-                    }).withName("ShootTrenchAuton");
-        }
+
     } 
     // end of class Auto
 
