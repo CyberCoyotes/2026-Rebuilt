@@ -466,6 +466,14 @@ public void periodic() {
         HOOD_ROT_MAP.put(5.5, 5.50);
     }
 
+    /*
+     * CLOSE_RPM = 2700, 0.00
+     * TOWER_RPM = 3200, 4.30
+     * TRENCH_RPM = 3200, 4.30
+     * FAR_RPM = 3800, 5.50
+     * PASS_RPM = 3603, 2.00
+     */
+
     /**
      * Updates shooter targets from the interpolation maps for the given distance.
      *
