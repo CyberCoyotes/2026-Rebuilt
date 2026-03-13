@@ -80,10 +80,17 @@ public class RobotContainer {
         autoRoutines = new AutoRoutines(autoFactory,drivetrain,indexer, intake, shooter, fuelCommands, vision/*, ledSubsystem*/);
         SmartDashboard.putData(autoChooser);
 
-        autoChooser.addRoutine("Rt Trench to middle", autoRoutines::StartRMid);
-        autoChooser.addRoutine("Lt Trench to middle", autoRoutines::StartLMid);
-        // autoChooser.addRoutine("Test(center shot)", autoRoutines::TestRoutine);
+        autoChooser.addRoutine("Rt Trench-Mid-Trench", autoRoutines::RtTrench_Mid_Trench);
+        autoChooser.addRoutine("Rt Trench-Mid-Ramp", autoRoutines::RtTrench_Mid_Ramp);
+        
+        autoChooser.addRoutine("Lt Trench-Mid-Trench", autoRoutines::LtTrench_Mid_Trench);
+        autoChooser.addRoutine("Rt Trench-Mid-Ramp", autoRoutines::RtTrench_Mid_Ramp);
+
+
         autoChooser.addRoutine("Center Depot shot)", autoRoutines:: MidDepot);
+
+        autoChooser.addRoutine("Rt Trench-Mid-Trench (Split)", autoRoutines::RtTrench_Mid_Trench_Splits);
+
         
         SmartDashboard.putData("AutoChooser", autoChooser);
         configureBindings();
