@@ -123,7 +123,7 @@ public class RobotContainer {
 
         driver.leftTrigger(0.5).whileTrue(intake.intakeFuel());
 
-        // Prese once it will retract fully
+        // Press once to partially retract slides
         driver.leftBumper().onTrue(intake.retractSlidesIncrementalCmd());
 
         // driver.a().whileTrue(FuelCommands.fuelPump(indexer));
