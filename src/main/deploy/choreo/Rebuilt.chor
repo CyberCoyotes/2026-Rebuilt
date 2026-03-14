@@ -3,7 +3,15 @@
  "version":2,
  "type":"Swerve",
  "variables":{
-  "expressions":{},
+  "expressions":{
+   "IntakeV":{
+    "dimension":"LinVel",
+    "var":{
+     "exp":"0.6 m / s",
+     "val":0.6
+    }
+   }
+  },
   "poses":{
    "Chute":{
     "x":{
@@ -95,8 +103,8 @@
      "val":3.0
     },
     "y":{
-     "exp":"5.35 m",
-     "val":5.35
+     "exp":"5.6 m",
+     "val":5.6
     },
     "heading":{
      "exp":"-45 deg",
