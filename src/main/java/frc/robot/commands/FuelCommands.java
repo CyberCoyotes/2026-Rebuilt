@@ -772,7 +772,7 @@ public class FuelCommands {
                                 while (headingErrorDeg < -180) headingErrorDeg += 360;
                                 return Math.abs(headingErrorDeg) <= Constants.Vision.ALIGNMENT_TOLERANCE_DEGREES
                                         && shooter.isReady();
-                            })/* REMOVED .withTimeout(3.0) */,
+                            }).withTimeout(3.0), /* REMOVED .withTimeout(3.0) */
                             Commands.run(() -> {
                                 Translation2d hub = getHubLocation();
                                 Pose2d pose = drivetrain.getState().Pose;
