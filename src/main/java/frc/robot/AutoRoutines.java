@@ -97,7 +97,7 @@ public class AutoRoutines {
         }
 
                 public AutoRoutine RtTrench_Mid_Ramp_Splits() {
-                final AutoRoutine routine = m_factory.newRoutine("RtTrench_Mid_Ramp_Splits");
+                final AutoRoutine routine = m_factory.newRoutine("RtTrench_Mid_Ramp_Splits"); // TODO Check 2025 for 2nd reference?
                 final AutoTrajectory RtTrench_Mid = routine.trajectory("RtTrench_Mid", 0);
                 final AutoTrajectory RtMid_Ramp = routine.trajectory("RtMid_Ramp", 0);
 
@@ -158,10 +158,11 @@ public class AutoRoutines {
                 routine.active().onTrue(
                                 Commands.sequence(
                                                 LtTrench_Mid_Trench.resetOdometry(), // Always reset odometry first
-                                                LtTrench_Mid_Trench.cmd() // Follow the pat
+                                                LtTrench_Mid_Trench.cmd() // Follow the path
 
                                 ));
                 // Routine Events
+                LtTrench_Mid_Trench.atTime("Intake").onTrue(m_intake.intakeFuelTimer(5));
                 LtTrench_Mid_Trench.atTime("Shoot").onTrue(FuelCommands.Auto.poseAlignAndShoot(m_shooter, m_indexer, m_drivetrain, 6.0));
                 LtTrench_Mid_Trench.atTime("FuelPump").onTrue(m_intake.fuelPumpCycleSensor(m_indexer));
 
@@ -181,6 +182,28 @@ public class AutoRoutines {
                 // Routine Events
                 MidDepot.atTime("Intake").onTrue(m_intake.intakeFuelTimer(10));
                 MidDepot.atTime("Shoot").onTrue(FuelCommands.Auto.shootFar(m_shooter, m_indexer, 6)); // score
+
+                return routine;
+        }
+
+         public AutoRoutine Center() {
+                        final AutoRoutine routine = m_factory.newRoutine("Center");
+                        final AutoTrajectory Center = routine.trajectory("Center", 0);
+                        // final AutoTrajectory TestRountine2 = routine.trajectory("Center", 1);
+
+                        routine.active().onTrue(
+                                        Commands.sequence(
+                                                        Center.resetOdometry(), // Always reset odometry first
+                                                        Center.cmd(), // Follow the path
+                                                        m_drivetrain.stop().withTimeout(10.0)
+                                                        // TestRountine2.cmd()
+
+                                        ));
+                        // Routine Events
+
+                Center.atTime("Shoot")
+                                .onTrue(FuelCommands.Auto.shootHub(m_shooter, m_indexer,6.6));
+                // Center.atTime("FuelPump").onTrue(m_intake.fuelPumpCycleSensor(m_indexer));
 
                 return routine;
         }
@@ -215,27 +238,7 @@ public class AutoRoutines {
                         return routine;
                 }
 
-                public AutoRoutine TestRoutine() {
-                        final AutoRoutine routine = m_factory.newRoutine("TestRoutine");
-                        final AutoTrajectory TestRoutine = routine.trajectory("TestRoutine", 0);
-                        final AutoTrajectory TestRountine2 = routine.trajectory("TestRoutine", 1);
-
-                        routine.active().onTrue(
-                                        Commands.sequence(
-                                                        TestRoutine.resetOdometry(), // Always reset odometry first
-                                                        TestRoutine.cmd(), // Follow the path
-                                                        m_drivetrain.stop().withTimeout(10.0),
-                                                        TestRountine2.cmd()
-
-                                        ));
-                        // Routine Events
-
-                        TestRoutine.atTime("Shoot").onTrue(FuelCommands.Auto.shootHub(m_shooter, m_indexer, 3.0)); // score
-                        // Dummy.atTime("Intake").onTrue(IntakeSubsystem.intakeFuel(m_shooter,
-                        // m_indexer)); //score
-
-                        return routine;
-                }
+               
 
                 public AutoRoutine visionTest() {
                         final AutoRoutine routine = m_factory.newRoutine("VisionTest");

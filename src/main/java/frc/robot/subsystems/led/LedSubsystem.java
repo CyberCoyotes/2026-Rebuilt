@@ -41,10 +41,10 @@ public class LedSubsystem extends SubsystemBase {
     // -------------------------------------------------------------------------
     private final LarsonAnimation m_defaultAnimation = new LarsonAnimation(0, 30)
         .withSlot(0)
-        .withColor(new RGBWColor(255, 19, 8, 0))
+        .withColor(new RGBWColor(255, 0, 0, 0))
         .withSize(1)
         .withBounceMode(LarsonBounceValue.Front)
-        .withFrameRate(Hertz.of(25));
+        .withFrameRate(Hertz.of(2));
 
     // -------------------------------------------------------------------------
     // Slot 1 — Spinning Up (SPINNING_UP state — not ready yet)
@@ -52,16 +52,16 @@ public class LedSubsystem extends SubsystemBase {
     // -------------------------------------------------------------------------
     private final RainbowAnimation m_spinningUpAnimation = new RainbowAnimation(0, 20)
         .withSlot(1)
-        .withBrightness(1)
+        .withBrightness(.2)
         .withDirection(AnimationDirectionValue.Forward)
-        .withFrameRate(Hertz.of(100));
+        .withFrameRate(Hertz.of(2));
 
     // -------------------------------------------------------------------------
     // Slot 2 — Ready (READY state — flywheel and hood at targets)
     // Solid green: clear "go" signal for driver/human player
     // -------------------------------------------------------------------------
     private final SolidColor m_readyAnimation = new SolidColor(0, 30)
-        .withColor(new RGBWColor(0, 255, 0, 0));
+        .withColor(new RGBWColor(255, 0, 0, 0));
 
     // -------------------------------------------------------------------------
     // Slot 3 — Extra / manual cycling fallback
@@ -69,11 +69,11 @@ public class LedSubsystem extends SubsystemBase {
     // -------------------------------------------------------------------------
     private final FireAnimation m_extraAnimation = new FireAnimation(0, 30)
         .withSlot(2)
-        .withBrightness(1)
+        .withBrightness(.2)
         .withDirection(AnimationDirectionValue.Forward)
         .withSparking(0.6)
         .withCooling(0.3)
-        .withFrameRate(Hertz.of(60));
+        .withFrameRate(Hertz.of(.2));
 
     private final ControlRequest[] m_animations = new ControlRequest[] {
         m_defaultAnimation,    // 0
@@ -90,7 +90,8 @@ public class LedSubsystem extends SubsystemBase {
 
     /** Applies only the currently selected animation each loop. */
     public Command updateLEDs() {
-        return run(() -> m_candle.setControl(m_animations[m_currentSlot]));
+        // return run(() -> m_candle.setControl(m_animations[m_currentSlot]));
+        return run(() -> m_candle.setControl(m_readyAnimation));
     }
 
     // =========================================================================
