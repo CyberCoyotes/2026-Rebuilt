@@ -772,7 +772,11 @@ public class FuelCommands {
                                 while (headingErrorDeg < -180) headingErrorDeg += 360;
                                 return Math.abs(headingErrorDeg) <= Constants.Vision.ALIGNMENT_TOLERANCE_DEGREES
                                         && shooter.isReady();
-                            }).withTimeout(3.0), /* REMOVED .withTimeout(3.0) */
+                            /* Added .withTimeout(3.0) and working now. Post weekend, explore why timeout is needed
+                             * Lower to 1.0 and see if it still works — if not, we know the issue is that the command is waiting indefinitely for the alignment condition to be met, which never happens because of some bug in the alignment code. The timeout allows it to move on to feeding even if the alignment condition is never satisfied, which is better than doing nothing at all.
+                            */
+                                    }).withTimeout(1.0), 
+                            
                             Commands.run(() -> {
                                 Translation2d hub = getHubLocation();
                                 Pose2d pose = drivetrain.getState().Pose;

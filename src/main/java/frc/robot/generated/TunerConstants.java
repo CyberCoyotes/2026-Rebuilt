@@ -78,10 +78,10 @@ public class TunerConstants {
             .withStatorCurrentLimitEnable(true))
     .withOpenLoopRamps(
         new OpenLoopRampsConfigs()
-            .withDutyCycleOpenLoopRampPeriod(0.1))
+            .withDutyCycleOpenLoopRampPeriod(0.1)) // Use for free CTRE 
     .withClosedLoopRamps(
         new ClosedLoopRampsConfigs()
-            .withDutyCycleClosedLoopRampPeriod(0.05));
+            .withDutyCycleClosedLoopRampPeriod(0.05)); // Use for Pro CTRE
 
     private static final TalonFXConfiguration steerInitialConfigs = new TalonFXConfiguration()
             .withCurrentLimits(
