@@ -384,33 +384,21 @@ public class IntakeSubsystem extends SubsystemBase {
      *
      * Use with whileTrue() — the command runs indefinitely and stops cleanly on release.
      * Replaces fuelPumpBasic().repeatedly() which had roller-stop gaps between cycles.
-     *
-     * Jam recovery: if the slide hasn't reached SLIDE_BOUNCE_UP_POS within 0.5 s of
-     * commanding it (physical jam), the cycle immediately restarts to DOWN to dislodge.
      */
     public Command fuelPumpCycle() {
         Timer cycleTimer = new Timer();
-        Timer jamTimer = new Timer();
         return Commands.run(() -> {
             runRoller();
             double t = cycleTimer.get();
             if (t < 0.5) {
                 setSlidesToPosition(Constants.Intake.SLIDE_BOUNCE_DOWN_POS);
-                jamTimer.restart(); // keep resetting so jam timer only counts during UP phase
-            } else {
+            } else if (t < 1.0) {
                 setSlidesToPosition(Constants.Intake.SLIDE_BOUNCE_UP_POS);
-                boolean notNearUp = Math.abs(inputs.slidePositionRotations
-                        - Constants.Intake.SLIDE_BOUNCE_UP_POS) > 2.0;
-                if (notNearUp && jamTimer.get() >= 0.5) {
-                    // Jammed — slide hasn't moved to UP in 0.5 s; restart to DOWN to dislodge
-                    cycleTimer.restart();
-                    jamTimer.restart();
-                } else if (t >= 1.0) {
-                    cycleTimer.restart(); // normal end-of-UP-phase reset
-                }
+            } else {
+                cycleTimer.restart(); // reset + start, so next cycle begins immediately
             }
         }, this)
-                .beforeStarting(() -> { cycleTimer.restart(); jamTimer.restart(); })
+                .beforeStarting(cycleTimer::restart)
                 .finallyDo(this::stopRoller)
                 .withName("FuelPumpCycle");
     }
@@ -420,33 +408,22 @@ public class IntakeSubsystem extends SubsystemBase {
      * Ends naturally after {@code seconds}, making it safe for autonomous and
      * Choreo event linking via {@code trajectory.atTime("FuelPump").onTrue(...)}.
      *
-     * Jam recovery: same as fuelPumpCycle() — if the slide hasn't reached
-     * SLIDE_BOUNCE_UP_POS within 0.5 s, the cycle restarts to DOWN to dislodge.
-     *
      * @param seconds How long to run the pump cycle.
      */
     public Command fuelPumpCycleAuto(double seconds) {
         Timer cycleTimer = new Timer();
-        Timer jamTimer = new Timer();
         return Commands.run(() -> {
             runRoller();
             double t = cycleTimer.get();
             if (t < 0.5) {
                 setSlidesToPosition(Constants.Intake.SLIDE_BOUNCE_DOWN_POS);
-                jamTimer.restart();
-            } else {
+            } else if (t < 1.0) {
                 setSlidesToPosition(Constants.Intake.SLIDE_BOUNCE_UP_POS);
-                boolean notNearUp = Math.abs(inputs.slidePositionRotations
-                        - Constants.Intake.SLIDE_BOUNCE_UP_POS) > 2.0;
-                if (notNearUp && jamTimer.get() >= 0.5) {
-                    cycleTimer.restart();
-                    jamTimer.restart();
-                } else if (t >= 1.0) {
-                    cycleTimer.restart();
-                }
+            } else {
+                cycleTimer.restart();
             }
         }, this)
-                .beforeStarting(() -> { cycleTimer.restart(); jamTimer.restart(); })
+                .beforeStarting(cycleTimer::restart)
                 .withTimeout(seconds)
                 .finallyDo(this::stopRoller)
                 .withName("FuelPumpCycleAuto");
@@ -472,7 +449,6 @@ public class IntakeSubsystem extends SubsystemBase {
      */
     public Command fuelPumpCycleSensor(IndexerSubsystem indexer) {
         Timer cycleTimer = new Timer();
-        Timer jamTimer = new Timer();
         return Commands.sequence(
             // Phase 1: wait for first fuel — no subsystem required, intake can run freely
             Commands.runOnce(indexer::resetChuteTracking),
@@ -483,20 +459,13 @@ public class IntakeSubsystem extends SubsystemBase {
                 double t = cycleTimer.get();
                 if (t < 0.5) {
                     setSlidesToPosition(Constants.Intake.SLIDE_BOUNCE_DOWN_POS);
-                    jamTimer.restart();
-                } else {
+                } else if (t < 1.0) {
                     setSlidesToPosition(Constants.Intake.SLIDE_PUMP_SENSOR_UP_POS);
-                    boolean notNearUp = Math.abs(inputs.slidePositionRotations
-                            - Constants.Intake.SLIDE_PUMP_SENSOR_UP_POS) > 2.0;
-                    if (notNearUp && jamTimer.get() >= 0.5) {
-                        cycleTimer.restart();
-                        jamTimer.restart();
-                    } else if (t >= 1.0) {
-                        cycleTimer.restart();
-                    }
+                } else {
+                    cycleTimer.restart();
                 }
             }, this)
-                .beforeStarting(() -> { cycleTimer.restart(); jamTimer.restart(); })
+                .beforeStarting(cycleTimer::restart)
                 .until(indexer::isChuteEmpty)
                 .withTimeout(10.0) // hard stop — tune or remove once reliable
         )
