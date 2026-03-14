@@ -97,6 +97,11 @@ public class IntakeSubsystem extends SubsystemBase {
     // STATE QUERIES  —  read-only, no side effects
     // =========================================================================
 
+    /** True when the roller is actively running forward (intaking). */
+    public boolean isRollerRunning() {
+        return rollerState == RollerState.RUNNING;
+    }
+
     /** True when slide is within tolerance of the extended setpoint. */
     public boolean isSlideFullyExtended() {
         return Math.abs(inputs.slidePositionRotations - Constants.Intake.SLIDE_EXTENDED_POS) < 0.05;

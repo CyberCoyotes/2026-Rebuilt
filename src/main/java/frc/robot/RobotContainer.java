@@ -147,6 +147,16 @@ public class RobotContainer {
 
         operator.rightBumper().whileTrue(FuelCommands.shootPass(shooter, indexer));
 
+        // Hold to back a ball out of the chute if it entered prematurely
+        operator.rightTrigger().whileTrue(indexer.reverse());
+
+        // Auto-reverse: intake running + shooter idle + ball detected in chute = premature ball → reverse indexer
+        // new Trigger(() ->
+        //     intake.isRollerRunning() &&
+        //     shooter.getState() == ShooterSubsystem.ShooterState.IDLE &&
+        //     indexer.isFuelDetected()
+        // ).whileTrue(indexer.reverse());
+
         operator.leftTrigger().whileTrue(FuelCommands.runAirPopper(indexer, shooter, intake));
         operator.leftBumper().whileTrue(intake.retractSlidesStack());
 

@@ -209,6 +209,25 @@ public class IndexerSubsystem extends SubsystemBase {
     // subsystems belong in RobotContainer or a superstructure class.
 
     /**
+     * Reverses conveyor and indexer while the button is held.
+     * Use to back a ball out of the chute when it has entered prematurely.
+     * Stops and returns to IDLE on release.
+     */
+    public Command reverse() {
+        return Commands.startEnd(
+                () -> {
+                    setState(IndexerState.EJECTING);
+                    // conveyorReverse();
+                    indexerReverse();
+                },
+                () -> {
+                    stop();
+                    setState(IndexerState.IDLE);
+                },
+                this).withName("Reverse Indexer");
+    }
+
+    /**
      * Runs conveyor and indexer forward while the button is held.
      * Stops and returns to IDLE on release.
      */
