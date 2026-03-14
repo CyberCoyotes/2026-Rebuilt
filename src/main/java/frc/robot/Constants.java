@@ -59,7 +59,7 @@ public final class Constants {
      * Extends farther than SLIDE_BOUNCE_UP_POS to push straggler balls into conveyor range
      * so the chute sensor can detect them. ~half of full extension. TODO: Tune
      */
-    public static final double SLIDE_PUMP_SENSOR_UP_POS = 24.0;
+    public static final double SLIDE_PUMP_SENSOR_UP_POS = 30.0;
 
 
     // TODO Tune the roller voltages
