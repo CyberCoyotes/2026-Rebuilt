@@ -217,7 +217,7 @@ public class IndexerSubsystem extends SubsystemBase {
         return Commands.startEnd(
                 () -> {
                     setState(IndexerState.EJECTING);
-                    conveyorReverse();
+                    // conveyorReverse();
                     indexerReverse();
                 },
                 () -> {
