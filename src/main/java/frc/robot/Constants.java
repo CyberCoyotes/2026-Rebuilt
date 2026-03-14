@@ -63,7 +63,7 @@ public final class Constants {
 
 
     // TODO Tune the roller voltages
-    public static final double FORWARD_ROLLER_VOLTS = 10.0; // TODO Was at 9.0, but 10.0 is more reliably picking up fuel from the floor in testing
+    public static final double FORWARD_ROLLER_VOLTS = 11.0; // TODO Was 10.0 is more reliably picking up fuel from the floor in testing
     public static final double REVERSE_ROLLER_VOLTS = -8.0;
   }
 
@@ -97,8 +97,8 @@ public final class Constants {
     public static final double CONVEYOR_POPPER_VOLTAGE = 3.0;
 
     // TODO Tune indexer voltages for reliable feeding
-    public static final double INDEXER_FORWARD_VOLTAGE = 6.0;
-    public static final double INDEXER_REVERSE_VOLTAGE = -4.0;
+    public static final double INDEXER_FORWARD_VOLTAGE = 8.0; // was 6.0
+    public static final double INDEXER_REVERSE_VOLTAGE = -8.0;
     public static final double INDEXER_POPPER_VOLTAGE = 3.0;
 
     // Physical max distance of the chute beam — 14 inches (0.36 m).

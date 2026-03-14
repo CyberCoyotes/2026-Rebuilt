@@ -73,9 +73,9 @@ public class IndexerIOHardware implements IndexerIO {
         config.MotorOutput.NeutralMode = NeutralModeValue.Brake;
         config.MotorOutput.Inverted    = InvertedValue.CounterClockwise_Positive;
 
-        config.CurrentLimits.SupplyCurrentLimit       = 40.0;
+        config.CurrentLimits.SupplyCurrentLimit       = 45.0; // was 40
         config.CurrentLimits.SupplyCurrentLimitEnable = true;
-        config.CurrentLimits.StatorCurrentLimit       = 50.0;
+        config.CurrentLimits.StatorCurrentLimit       = 80.0; // was 50
         config.CurrentLimits.StatorCurrentLimitEnable = true;
 
         config.Voltage.PeakForwardVoltage = 12.0;

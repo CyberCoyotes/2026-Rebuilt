@@ -77,9 +77,11 @@ public class RobotContainer {
         autoChooser.addRoutine("Rt Trench-Mid-Ramp", autoRoutines::RtTrench_Mid_Ramp);
         autoChooser.addRoutine("Lt Trench-Mid-Trench", autoRoutines::LtTrench_Mid_Trench);
         autoChooser.addRoutine("Rt Trench-Mid-Ramp", autoRoutines::RtTrench_Mid_Ramp);
-        autoChooser.addRoutine("Center Depot shot)", autoRoutines:: MidDepot);
-        autoChooser.addRoutine("Rt Trench-Mid-Trench (Split)", autoRoutines::RtTrench_Mid_Trench_Splits);
-        autoChooser.addRoutine("Rt Trench-Mid-Ramp (Split)", autoRoutines::RtTrench_Mid_Ramp_Splits);
+        autoChooser.addRoutine("Center", autoRoutines::Center);
+        
+        // autoChooser.addRoutine("Center Depot shot)", autoRoutines:: MidDepot);
+        // autoChooser.addRoutine("Rt Trench-Mid-Trench (Split)", autoRoutines::RtTrench_Mid_Trench_Splits);
+        // autoChooser.addRoutine("Rt Trench-Mid-Ramp (Split)", autoRoutines::RtTrench_Mid_Ramp_Splits);
         
         SmartDashboard.putData("AutoChooser", autoChooser);
         configureBindings();
@@ -159,6 +161,8 @@ public class RobotContainer {
 
         operator.leftTrigger().whileTrue(FuelCommands.runAirPopper(indexer, shooter, intake));
         operator.leftBumper().whileTrue(intake.retractSlidesStack());
+
+        // FIXME Add a reverse indexer on start button for operator
 
     
         // operator.povUp().whileTrue(null); // incremental extend climber command to be added when climber is ready

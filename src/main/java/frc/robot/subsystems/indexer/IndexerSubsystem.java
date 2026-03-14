@@ -204,6 +204,7 @@ public class IndexerSubsystem extends SubsystemBase {
     }
 
     // ==== Command Factories ===================================================
+
     // Single-subsystem commands live here because they are tightly coupled to
     // this subsystem's motors and state. Commands that coordinate multiple
     // subsystems belong in RobotContainer or a superstructure class.
