@@ -379,21 +379,33 @@ public class IntakeSubsystem extends SubsystemBase {
      *
      * Use with whileTrue() — the command runs indefinitely and stops cleanly on release.
      * Replaces fuelPumpBasic().repeatedly() which had roller-stop gaps between cycles.
+     *
+     * Jam recovery: if the slide hasn't reached SLIDE_BOUNCE_UP_POS within 0.5 s of
+     * commanding it (physical jam), the cycle immediately restarts to DOWN to dislodge.
      */
     public Command fuelPumpCycle() {
         Timer cycleTimer = new Timer();
+        Timer jamTimer = new Timer();
         return Commands.run(() -> {
             runRoller();
             double t = cycleTimer.get();
             if (t < 0.5) {
                 setSlidesToPosition(Constants.Intake.SLIDE_BOUNCE_DOWN_POS);
-            } else if (t < 1.0) {
-                setSlidesToPosition(Constants.Intake.SLIDE_BOUNCE_UP_POS);
+                jamTimer.restart(); // keep resetting so jam timer only counts during UP phase
             } else {
-                cycleTimer.restart(); // reset + start, so next cycle begins immediately
+                setSlidesToPosition(Constants.Intake.SLIDE_BOUNCE_UP_POS);
+                boolean notNearUp = Math.abs(inputs.slidePositionRotations
+                        - Constants.Intake.SLIDE_BOUNCE_UP_POS) > 2.0;
+                if (notNearUp && jamTimer.get() >= 0.5) {
+                    // Jammed — slide hasn't moved to UP in 0.5 s; restart to DOWN to dislodge
+                    cycleTimer.restart();
+                    jamTimer.restart();
+                } else if (t >= 1.0) {
+                    cycleTimer.restart(); // normal end-of-UP-phase reset
+                }
             }
         }, this)
-                .beforeStarting(cycleTimer::restart)
+                .beforeStarting(() -> { cycleTimer.restart(); jamTimer.restart(); })
                 .finallyDo(this::stopRoller)
                 .withName("FuelPumpCycle");
     }
