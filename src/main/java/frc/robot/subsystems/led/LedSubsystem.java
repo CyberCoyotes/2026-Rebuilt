@@ -35,22 +35,23 @@ public class LedSubsystem extends SubsystemBase {
     private final CANBus kCANBus = new CANBus("rio");
     private final CANdle m_candle = new CANdle(15, kCANBus);
 
+    private final int LEDendIndex = 12; // 14 LEDs, but 0-indexed
     // -------------------------------------------------------------------------
     // Slot 0 — Default (driving around, shooter idle)
     // Larson scanner in team orange-red
     // -------------------------------------------------------------------------
-    private final LarsonAnimation m_defaultAnimation = new LarsonAnimation(0, 30)
+    private final LarsonAnimation m_defaultAnimation = new LarsonAnimation(8, LEDendIndex)
         .withSlot(0)
         .withColor(new RGBWColor(255, 0, 0, 0))
         .withSize(1)
         .withBounceMode(LarsonBounceValue.Front)
-        .withFrameRate(Hertz.of(2));
+        .withFrameRate(Hertz.of(10));
 
     // -------------------------------------------------------------------------
     // Slot 1 — Spinning Up (SPINNING_UP state — not ready yet)
     // Rainbow conveys rapid activity / "hold on, warming up"
     // -------------------------------------------------------------------------
-    private final RainbowAnimation m_spinningUpAnimation = new RainbowAnimation(0, 20)
+    private final RainbowAnimation m_spinningUpAnimation = new RainbowAnimation(0, LEDendIndex)
         .withSlot(1)
         .withBrightness(.2)
         .withDirection(AnimationDirectionValue.Forward)
@@ -60,14 +61,14 @@ public class LedSubsystem extends SubsystemBase {
     // Slot 2 — Ready (READY state — flywheel and hood at targets)
     // Solid green: clear "go" signal for driver/human player
     // -------------------------------------------------------------------------
-    private final SolidColor m_readyAnimation = new SolidColor(0, 30)
+    private final SolidColor m_readyAnimation = new SolidColor(0, LEDendIndex)
         .withColor(new RGBWColor(255, 0, 0, 0));
 
     // -------------------------------------------------------------------------
     // Slot 3 — Extra / manual cycling fallback
     // Fire animation for fun / testing
     // -------------------------------------------------------------------------
-    private final FireAnimation m_extraAnimation = new FireAnimation(0, 30)
+    private final FireAnimation m_extraAnimation = new FireAnimation(0,LEDendIndex )
         .withSlot(2)
         .withBrightness(.2)
         .withDirection(AnimationDirectionValue.Forward)
@@ -91,7 +92,7 @@ public class LedSubsystem extends SubsystemBase {
     /** Applies only the currently selected animation each loop. */
     public Command updateLEDs() {
         // return run(() -> m_candle.setControl(m_animations[m_currentSlot]));
-        return run(() -> m_candle.setControl(m_readyAnimation));
+        return run(() -> m_candle.setControl(m_defaultAnimation));
     }
 
     // =========================================================================
