@@ -147,6 +147,9 @@ public class RobotContainer {
 
         operator.rightBumper().whileTrue(FuelCommands.shootPass(shooter, indexer));
 
+        // Hold to back a ball out of the chute if it entered prematurely
+        operator.rightTrigger().whileTrue(indexer.reverse());
+
         operator.leftTrigger().whileTrue(FuelCommands.runAirPopper(indexer, shooter, intake));
         operator.leftBumper().whileTrue(intake.retractSlidesStack());
 
