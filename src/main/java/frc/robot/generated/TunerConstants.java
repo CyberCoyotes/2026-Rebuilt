@@ -69,14 +69,19 @@ public class TunerConstants {
      * );
      */
     private static final TalonFXConfiguration driveInitialConfigs = new TalonFXConfiguration()
-            // Suggested current limits for a 4-motor swerve drive with 55A supply current limit per motor (Chat suggestions)
-            //
-            .withCurrentLimits(
-                    new CurrentLimitsConfigs()
-                            .withSupplyCurrentLimit(Amps.of(60)) // Battery protection — 4× = 240A max
-                            .withSupplyCurrentLimitEnable(true) // FIXME Enable supply current limit
-                            .withStatorCurrentLimit(Amps.of(90)) // X60 can handle more, but this is a safe start
-                            .withStatorCurrentLimitEnable(true)); // FIXME Enable stator current limit
+        // Added a ramp
+         .withCurrentLimits(
+        new CurrentLimitsConfigs()
+            .withSupplyCurrentLimit(Amps.of(60))
+            .withSupplyCurrentLimitEnable(true)
+            .withStatorCurrentLimit(Amps.of(90))
+            .withStatorCurrentLimitEnable(true))
+    .withOpenLoopRamps(
+        new OpenLoopRampsConfigs()
+            .withDutyCycleOpenLoopRampPeriod(0.1))
+    .withClosedLoopRamps(
+        new ClosedLoopRampsConfigs()
+            .withDutyCycleClosedLoopRampPeriod(0.05));
 
     private static final TalonFXConfiguration steerInitialConfigs = new TalonFXConfiguration()
             .withCurrentLimits(
