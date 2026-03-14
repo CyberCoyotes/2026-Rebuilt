@@ -415,22 +415,33 @@ public class IntakeSubsystem extends SubsystemBase {
      * Ends naturally after {@code seconds}, making it safe for autonomous and
      * Choreo event linking via {@code trajectory.atTime("FuelPump").onTrue(...)}.
      *
+     * Jam recovery: same as fuelPumpCycle() — if the slide hasn't reached
+     * SLIDE_BOUNCE_UP_POS within 0.5 s, the cycle restarts to DOWN to dislodge.
+     *
      * @param seconds How long to run the pump cycle.
      */
     public Command fuelPumpCycleAuto(double seconds) {
         Timer cycleTimer = new Timer();
+        Timer jamTimer = new Timer();
         return Commands.run(() -> {
             runRoller();
             double t = cycleTimer.get();
             if (t < 0.5) {
                 setSlidesToPosition(Constants.Intake.SLIDE_BOUNCE_DOWN_POS);
-            } else if (t < 1.0) {
-                setSlidesToPosition(Constants.Intake.SLIDE_BOUNCE_UP_POS);
+                jamTimer.restart();
             } else {
-                cycleTimer.restart();
+                setSlidesToPosition(Constants.Intake.SLIDE_BOUNCE_UP_POS);
+                boolean notNearUp = Math.abs(inputs.slidePositionRotations
+                        - Constants.Intake.SLIDE_BOUNCE_UP_POS) > 2.0;
+                if (notNearUp && jamTimer.get() >= 0.5) {
+                    cycleTimer.restart();
+                    jamTimer.restart();
+                } else if (t >= 1.0) {
+                    cycleTimer.restart();
+                }
             }
         }, this)
-                .beforeStarting(cycleTimer::restart)
+                .beforeStarting(() -> { cycleTimer.restart(); jamTimer.restart(); })
                 .withTimeout(seconds)
                 .finallyDo(this::stopRoller)
                 .withName("FuelPumpCycleAuto");
@@ -456,6 +467,7 @@ public class IntakeSubsystem extends SubsystemBase {
      */
     public Command fuelPumpCycleSensor(IndexerSubsystem indexer) {
         Timer cycleTimer = new Timer();
+        Timer jamTimer = new Timer();
         return Commands.sequence(
             // Phase 1: wait for first fuel — no subsystem required, intake can run freely
             Commands.runOnce(indexer::resetChuteTracking),
@@ -466,13 +478,20 @@ public class IntakeSubsystem extends SubsystemBase {
                 double t = cycleTimer.get();
                 if (t < 0.5) {
                     setSlidesToPosition(Constants.Intake.SLIDE_BOUNCE_DOWN_POS);
-                } else if (t < 1.0) {
-                    setSlidesToPosition(Constants.Intake.SLIDE_PUMP_SENSOR_UP_POS);
+                    jamTimer.restart();
                 } else {
-                    cycleTimer.restart();
+                    setSlidesToPosition(Constants.Intake.SLIDE_PUMP_SENSOR_UP_POS);
+                    boolean notNearUp = Math.abs(inputs.slidePositionRotations
+                            - Constants.Intake.SLIDE_PUMP_SENSOR_UP_POS) > 2.0;
+                    if (notNearUp && jamTimer.get() >= 0.5) {
+                        cycleTimer.restart();
+                        jamTimer.restart();
+                    } else if (t >= 1.0) {
+                        cycleTimer.restart();
+                    }
                 }
             }, this)
-                .beforeStarting(cycleTimer::restart)
+                .beforeStarting(() -> { cycleTimer.restart(); jamTimer.restart(); })
                 .until(indexer::isChuteEmpty)
                 .withTimeout(10.0) // hard stop — tune or remove once reliable
         )
