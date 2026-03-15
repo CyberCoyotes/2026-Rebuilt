@@ -70,11 +70,11 @@ public class ShooterIOHardware implements ShooterIO {
       TalonFXConfiguration config = new TalonFXConfiguration();
 
       // On 2/27 was set at 60
-      config.CurrentLimits.SupplyCurrentLimit = 45.0; // TODO: Tune Flywheel supply current limit for testing.
+      config.CurrentLimits.SupplyCurrentLimit = 45.0;
       config.CurrentLimits.SupplyCurrentLimitEnable = true;
 
       // On 2/27 was set at 120
-      config.CurrentLimits.StatorCurrentLimit = 90.0; // TODO: Tune Flywheel stator current limit for testing.
+      config.CurrentLimits.StatorCurrentLimit = 90.0;
       config.CurrentLimits.StatorCurrentLimitEnable = true;
       config.ClosedLoopRamps.VoltageClosedLoopRampPeriod = 0.10;
 

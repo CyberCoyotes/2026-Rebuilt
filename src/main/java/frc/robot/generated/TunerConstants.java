@@ -59,37 +59,29 @@ public class TunerConstants {
     // Some configs will be overwritten; check the `with*InitialConfigs()` API
     // documentation.
 
-    /*
-     * TODO possible fix for odd driving behavior
-     * private static final TalonFXConfiguration driveInitialConfigs = new
-     * TalonFXConfiguration()
-     * .withMotorOutput(
-     * new MotorOutputConfigs()
-     * .withNeutralMode(NeutralModeValue.Brake)
-     * );
-     */
     private static final TalonFXConfiguration driveInitialConfigs = new TalonFXConfiguration()
-        // Added a ramp
-         .withCurrentLimits(
-        new CurrentLimitsConfigs()
-            .withSupplyCurrentLimit(Amps.of(60))
-            .withSupplyCurrentLimitEnable(true)
-            .withStatorCurrentLimit(Amps.of(90))
-            .withStatorCurrentLimitEnable(true))
-    .withOpenLoopRamps(
-        new OpenLoopRampsConfigs()
-            .withDutyCycleOpenLoopRampPeriod(0.1)) // Use for free CTRE 
-    .withClosedLoopRamps(
-        new ClosedLoopRampsConfigs()
-            .withDutyCycleClosedLoopRampPeriod(0.05)); // Use for Pro CTRE
+                    // Added a ramp
+                    .withCurrentLimits(
+                                    new CurrentLimitsConfigs()
+                                                    .withSupplyCurrentLimit(Amps.of(55))
+                                                    .withSupplyCurrentLimitEnable(true)
+                                                    .withStatorCurrentLimit(Amps.of(90))
+                                                    .withStatorCurrentLimitEnable(true))
+                    .withOpenLoopRamps(
+                                    new OpenLoopRampsConfigs()
+                                                    .withDutyCycleOpenLoopRampPeriod(0.1)) // Use for free CTRE
+                    .withClosedLoopRamps(
+                                    new ClosedLoopRampsConfigs()
+                                                    .withDutyCycleClosedLoopRampPeriod(0.05)); // Use for Pro CTRE; we are Pro licensed
 
     private static final TalonFXConfiguration steerInitialConfigs = new TalonFXConfiguration()
-            .withCurrentLimits(
-                    new CurrentLimitsConfigs()
-                            // Swerve azimuth does not require much torque output, so we can set a
-                            // relatively low stator current limit to help avoid brownouts without impacting performance.
-                            .withStatorCurrentLimit(Amps.of(60))
-                            .withStatorCurrentLimitEnable(true));
+                    .withCurrentLimits(
+                                    new CurrentLimitsConfigs()
+                                                    .withStatorCurrentLimit(Amps.of(60))
+                                                    .withStatorCurrentLimitEnable(true)
+                                                    .withSupplyCurrentLimit(Amps.of(40)) // Added Sunday
+                                                    .withSupplyCurrentLimitEnable(true)); // Added Sunday
+
     private static final CANcoderConfiguration encoderInitialConfigs = new CANcoderConfiguration();
     // Configs for the Pigeon 2; leave this null to skip applying Pigeon 2 configs
     private static final Pigeon2Configuration pigeonConfigs = null;
