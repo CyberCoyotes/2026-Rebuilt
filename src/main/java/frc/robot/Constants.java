@@ -192,13 +192,13 @@ public final class Constants {
   // =========================================================
   // Climber
   // =========================================================
-  public static final class Climber {
-    private Climber() {
-    }
+  // public static final class Climber {
+  //   private Climber() {
+  //   }
 
-    /** Climber motor A - Kraken X60 with TalonFX controller */
-    public static final int CLIMB_MOTOR_ID = 30;
-  }
+  //   /** Climber motor A - Kraken X60 with TalonFX controller */
+  //   public static final int CLIMB_MOTOR_ID = 30;
+  // }
 
   // =========================================================
   // Vision / Limelight
