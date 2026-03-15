@@ -1,6 +1,4 @@
-// New file: src/main/java/frc/robot/util/PhoenixUtil.java
-
-package frc.robot.Util;
+package frc.robot.util;
 
 import com.ctre.phoenix6.StatusCode;
 import edu.wpi.first.wpilibj.DriverStation;
@@ -10,10 +8,12 @@ public final class PhoenixUtil {
 
     /**
      * Applies a Phoenix 6 configuration with retry logic.
-     * A single apply() on RIO CAN bus can return OK prematurely if the
-     * device is still booting. Retrying catches transient failures.
      *
-     * @param deviceName Human-readable name for DriverStation warnings
+     * A single apply() on RIO CAN bus can return OK prematurely if the device
+     * is still booting. Five retries catches transient startup failures.
+     * Prints a DriverStation warning if all retries fail.
+     *
+     * @param deviceName Human-readable name shown in DriverStation warning
      * @param applyCall  Lambda that performs the apply() and returns StatusCode
      */
     public static void applyConfig(String deviceName,
