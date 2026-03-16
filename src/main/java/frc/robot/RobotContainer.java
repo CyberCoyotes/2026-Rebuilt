@@ -13,6 +13,7 @@ import choreo.auto.AutoChooser;
 import choreo.auto.AutoFactory;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import edu.wpi.first.wpilibj2.command.button.RobotModeTriggers;
@@ -26,6 +27,7 @@ import frc.robot.subsystems.intake.IntakeIOHardware;
 import frc.robot.subsystems.shooter.ShooterIOHardware;
 import frc.robot.subsystems.shooter.ShooterSubsystem;
 import frc.robot.subsystems.led.LedSubsystem;
+import frc.robot.subsystems.vision.LimelightHelpers;
 import frc.robot.subsystems.vision.VisionIOLimelight;
 import frc.robot.subsystems.vision.VisionSubsystem;
 
@@ -110,6 +112,19 @@ public class RobotContainer {
         // Start: Reset field-centric heading
         driver.start().onTrue(drivetrain.runOnce(drivetrain::seedFieldCentric));
 
+        // Back: Reset odometry to Limelight botpose (use when robot rides up on a ball and wheels lose contact)
+        driver.back().onTrue(Commands.runOnce(() -> {
+            var driveState = drivetrain.getState();
+            double headingDeg = driveState.Pose.getRotation().getDegrees();
+            LimelightHelpers.SetRobotOrientation(
+                    Constants.Vision.LIMELIGHT4_NAME, headingDeg, 0, 0, 0, 0, 0);
+            var llMeasurement = LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2(
+                    Constants.Vision.LIMELIGHT4_NAME);
+            if (llMeasurement != null && llMeasurement.tagCount > 0) {
+                drivetrain.resetPose(llMeasurement.pose);
+            }
+        }, drivetrain));
+
         drivetrain.registerTelemetry(logger::telemeterize);
 
         // =====================================================================
@@ -161,6 +176,19 @@ public class RobotContainer {
 
         operator.leftTrigger().whileTrue(FuelCommands.runAirPopper(indexer, shooter, intake));
         operator.leftBumper().whileTrue(intake.retractSlidesStack());
+
+        // Back (View ⧉): Reset odometry to botpose — use when robot rides up on a ball
+        operator.back().onTrue(Commands.runOnce(() -> {
+            var driveState = drivetrain.getState();
+            double headingDeg = driveState.Pose.getRotation().getDegrees();
+            LimelightHelpers.SetRobotOrientation(
+                    Constants.Vision.LIMELIGHT4_NAME, headingDeg, 0, 0, 0, 0, 0);
+            var llMeasurement = LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2(
+                    Constants.Vision.LIMELIGHT4_NAME);
+            if (llMeasurement != null && llMeasurement.tagCount > 0) {
+                drivetrain.resetPose(llMeasurement.pose);
+            }
+        }, drivetrain));
 
         // FIXME Add a reverse indexer on start button for operator
 
