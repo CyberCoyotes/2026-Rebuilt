@@ -11,6 +11,7 @@ import com.ctre.phoenix6.swerve.SwerveRequest;
 
 import choreo.auto.AutoChooser;
 import choreo.auto.AutoFactory;
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
@@ -115,6 +116,11 @@ public class RobotContainer {
         // Back: Reset odometry to Limelight botpose (use when robot rides up on a ball and wheels lose contact)
         driver.back().onTrue(Commands.runOnce(() -> {
             var driveState = drivetrain.getState();
+            double omegaRps = Units.radiansToRotations(driveState.Speeds.omegaRadiansPerSecond);
+            if (Math.abs(omegaRps) >= 2.0) {
+                SmartDashboard.putString("BotposeReset", "SKIPPED (spinning)");
+                return;
+            }
             double headingDeg = driveState.Pose.getRotation().getDegrees();
             LimelightHelpers.SetRobotOrientation(
                     Constants.Vision.LIMELIGHT4_NAME, headingDeg, 0, 0, 0, 0, 0);
@@ -122,6 +128,9 @@ public class RobotContainer {
                     Constants.Vision.LIMELIGHT4_NAME);
             if (llMeasurement != null && llMeasurement.tagCount > 0) {
                 drivetrain.resetPose(llMeasurement.pose);
+                SmartDashboard.putString("BotposeReset", "OK");
+            } else {
+                SmartDashboard.putString("BotposeReset", "SKIPPED (no tags)");
             }
         }, drivetrain));
 
@@ -180,6 +189,11 @@ public class RobotContainer {
         // Back (View ⧉): Reset odometry to botpose — use when robot rides up on a ball
         operator.back().onTrue(Commands.runOnce(() -> {
             var driveState = drivetrain.getState();
+            double omegaRps = Units.radiansToRotations(driveState.Speeds.omegaRadiansPerSecond);
+            if (Math.abs(omegaRps) >= 2.0) {
+                SmartDashboard.putString("BotposeReset", "SKIPPED (spinning)");
+                return;
+            }
             double headingDeg = driveState.Pose.getRotation().getDegrees();
             LimelightHelpers.SetRobotOrientation(
                     Constants.Vision.LIMELIGHT4_NAME, headingDeg, 0, 0, 0, 0, 0);
@@ -187,6 +201,9 @@ public class RobotContainer {
                     Constants.Vision.LIMELIGHT4_NAME);
             if (llMeasurement != null && llMeasurement.tagCount > 0) {
                 drivetrain.resetPose(llMeasurement.pose);
+                SmartDashboard.putString("BotposeReset", "OK");
+            } else {
+                SmartDashboard.putString("BotposeReset", "SKIPPED (no tags)");
             }
         }, drivetrain));
 
