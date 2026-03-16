@@ -11,8 +11,8 @@ import com.ctre.phoenix6.swerve.SwerveRequest;
 
 import choreo.auto.AutoChooser;
 import choreo.auto.AutoFactory;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import edu.wpi.first.wpilibj2.command.button.RobotModeTriggers;
@@ -110,6 +110,9 @@ public class RobotContainer {
         // Start: Reset field-centric heading
         driver.start().onTrue(drivetrain.runOnce(drivetrain::seedFieldCentric));
 
+        // Back: Reset odometry to Limelight botpose (use when robot rides up on a ball and wheels lose contact)
+        driver.back().onTrue(drivetrain.resetPoseFromVisionCommand());
+
         drivetrain.registerTelemetry(logger::telemeterize);
 
         // =====================================================================
@@ -161,6 +164,9 @@ public class RobotContainer {
 
         operator.leftTrigger().whileTrue(FuelCommands.runAirPopper(indexer, shooter, intake));
         operator.leftBumper().whileTrue(intake.retractSlidesStack());
+
+        // Back (View ⧉): Reset odometry to botpose — use when robot rides up on a ball
+        operator.back().onTrue(drivetrain.resetPoseFromVisionCommand());
 
         // FIXME Add a reverse indexer on start button for operator
 
