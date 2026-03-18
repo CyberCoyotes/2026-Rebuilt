@@ -79,10 +79,18 @@ public class GameDataTelemetry {
     public void update() {
 
         
-        // vvv CANCEL FOR COMPETITION - remove these two lines before competing vvv
+        // vvv CANCEL FOR COMPETITION - recomment these two lines before competing vvv
+        // -----------------------------------------------------------------------
+        // PRACTICE SIDE: currently set to BLUE (we practice on Blue)
+        // BEFORE COMP: recomment both lines and let FMS send real data
+        //
+        // NOTE: This also controls LED colors — if set to RED, lights will only
+        // ever show red hub states and will never trigger blue hub LEDs.
+        // -----------------------------------------------------------------------
         inactiveFirstAlliance = InactiveAlliance.BLUE;
         dataReceived = true;
         // ^^^ CANCEL FOR COMPETITION ^^^
+
 
         if (!dataReceived) {
             String gameData = DriverStation.getGameSpecificMessage();

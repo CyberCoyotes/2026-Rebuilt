@@ -68,6 +68,8 @@ public class RobotContainer {
         vision = new VisionSubsystem(new VisionIOLimelight(Constants.Vision.LIMELIGHT4_NAME));
 
         ledSub = new LedSubsystem();
+        ledSub.setShiftTimeSupplier(gameDataTelemetry::getSecondsUntilNextShift);
+
 
         autoFactory = drivetrain.createAutoFactory();
         autoRoutines = new AutoRoutines(autoFactory,drivetrain,indexer, intake, shooter, fuelCommands, vision);

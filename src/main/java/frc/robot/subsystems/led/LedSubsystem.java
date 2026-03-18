@@ -18,6 +18,8 @@ import com.ctre.phoenix6.signals.AnimationDirectionValue;
 import com.ctre.phoenix6.signals.LarsonBounceValue;
 import com.ctre.phoenix6.signals.RGBWColor;
 
+import java.util.function.DoubleSupplier;
+
 /**
  * Controls the CANdle LED strip.
  *
@@ -114,15 +116,35 @@ private final SolidColor m_blueHubAnimation = new SolidColor(0, LEDendIndex)
 
     private int m_currentSlot = 0;
 
+    private DoubleSupplier m_shiftTimeSupplier = () -> 0.0;
+
+
     public LedSubsystem() {
         setDefaultCommand(updateLEDs());
     }
 
     /** Applies only the currently selected animation each loop. */
-    public Command updateLEDs() {
-        // return run(() -> m_candle.setControl(m_animations[m_currentSlot]));
-        return run(() -> m_candle.setControl(m_animations[m_currentSlot]));
-    }
+public Command updateLEDs() {
+    return run(() -> {
+        if (m_currentSlot == 4) {
+            double t = m_shiftTimeSupplier.getAsDouble();
+            double hz;
+            if (t > 5.0) {
+                // 10s → 5s: slow flash (1 Hz → 4 Hz)
+                hz = 1.0 + (10.0 - t) * 0.6;
+            } else if (t > 1.0) {
+                // 5s → 1s: fast blink (4 Hz → 12 Hz)
+                hz = 4.0 + (5.0 - t) * 2.0;
+            } else {
+                // 1s → 0s: almost solid (12 Hz → 30 Hz)
+                hz = 12.0 + (1.0 - t) * 18.0;
+            }
+            m_shiftWarningAnimation.withFrameRate(Hertz.of(hz));
+        }
+        m_candle.setControl(m_animations[m_currentSlot]);
+    });
+}
+
 
     // =========================================================================
     // Named State Commands — wire these to Triggers in RobotContainer
@@ -157,6 +179,11 @@ public Command showBlueHub() {
 public Command showShiftWarning() {
     return runOnce(() -> m_currentSlot = 4);
 }
+
+public void setShiftTimeSupplier(DoubleSupplier supplier) {
+    m_shiftTimeSupplier = supplier;
+}
+
 
 
     // =========================================================================
