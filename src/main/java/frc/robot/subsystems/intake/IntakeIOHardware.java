@@ -69,12 +69,12 @@ public class IntakeIOHardware implements IntakeIO {
             config.CurrentLimits.StatorCurrentLimitEnable = true;
 
             config.SoftwareLimitSwitch.ForwardSoftLimitEnable = true;
-            config.SoftwareLimitSwitch.ForwardSoftLimitThreshold = 44.25;
+            config.SoftwareLimitSwitch.ForwardSoftLimitThreshold = Constants.Intake.SLIDE_MAX_POS;
             config.SoftwareLimitSwitch.ReverseSoftLimitEnable = true;
-            config.SoftwareLimitSwitch.ReverseSoftLimitThreshold = -0.2; // Allow MotionMagic to reach and hold 0.0 without the soft limit reducing output early
+            config.SoftwareLimitSwitch.ReverseSoftLimitThreshold = 0.0; 
 
-            /* Tune PID values for position control of the Slide motor */
-            config.Slot0.kP = 2.0;
+            /* TODO These new re-tuning for position control of the new slide mechanism */
+            config.Slot0.kP = 2.0; 
             config.Slot0.kI = 0.0;
             config.Slot0.kD = 0.0;
             config.Slot0.kS = 0.7;
@@ -100,7 +100,7 @@ public class IntakeIOHardware implements IntakeIO {
     private final MotionMagicVoltage slideRequest = new MotionMagicVoltage(0);
 
     // DynamicMotionMagic for slower slide movement 
-    // TODO: Tune these for a slower retract profile
+    // TODO: Revisit this with the new slides to try for new retract profile
     private final DynamicMotionMagicVoltage slideRequestSlow = new DynamicMotionMagicVoltage(0, 4, 4);
                                                               // (position=0, velocity=16, accel=16, jerk=0)
 
