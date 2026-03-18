@@ -6,7 +6,7 @@ import choreo.auto.AutoTrajectory;
 import edu.wpi.first.wpilibj2.command.Commands;
 import frc.robot.subsystems.shooter.ShooterSubsystem;
 import frc.robot.commands.FuelCommands;
-import frc.robot.commands.FuelCommands.Auto;
+// import frc.robot.commands.FuelCommands.Auto;
 import frc.robot.subsystems.vision.VisionSubsystem;
 import frc.robot.subsystems.indexer.IndexerSubsystem;
 import frc.robot.subsystems.intake.IntakeSubsystem;
@@ -58,11 +58,7 @@ public class AutoRoutines {
                                 ));
                 // Routine Events
                 RtTrench_Mid_Trench.atTime("Intake").onTrue(m_intake.intakeFuelTimer(6));
-                // Option A — fixed timer:
-                // RtTrench_Mid_Trench.atTime("FuelPump").onTrue(m_intake.fuelPumpCycleAuto(2.0));
-                // Option B — sensor-gated (waits for first detection, stops when chute clears):
-                // RtTrench_Mid_Trench.atTime("FuelPump").onTrue(m_intake.fuelPumpCycleSensor(m_indexer));
-                // Vision Shot
+
                 RtTrench_Mid_Trench.atTime("Shoot")
                                 .onTrue(FuelCommands.Auto.poseAlignAndShoot(m_shooter, m_indexer, m_drivetrain, 6.0));
                 RtTrench_Mid_Trench.atTime("FuelPump").onTrue(m_intake.fuelPumpCycleSensor(m_indexer));
@@ -83,12 +79,8 @@ public class AutoRoutines {
 
                                 ));
                 // Routine Events
-                RtTrench_Mid.atTime("Intake").onTrue(m_intake.intakeFuelTimer(8));
-                // Option A — fixed timer:
-                // RtTrench_Mid_Trench.atTime("FuelPump").onTrue(m_intake.fuelPumpCycleAuto(2.0));
-                // Option B — sensor-gated (waits for first detection, stops when chute clears):
-                // RtTrench_Mid_Trench.atTime("FuelPump").onTrue(m_intake.fuelPumpCycleSensor(m_indexer));
-                // Vision Shot
+                RtTrench_Mid.atTime("Intake").onTrue(m_intake.intakeFuelTimer(6));
+
                 RtMid_Trench.atTime("Shoot")
                                 .onTrue(FuelCommands.Auto.poseAlignAndShoot(m_shooter, m_indexer, m_drivetrain, 6.0));
                 RtMid_Trench.atTime("FuelPump").onTrue(m_intake.fuelPumpCycleSensor(m_indexer));
@@ -109,12 +101,7 @@ public class AutoRoutines {
 
                                 ));
                 // Routine Events
-                RtTrench_Mid.atTime("Intake").onTrue(m_intake.intakeFuelTimer(8));
-                // Option A — fixed timer:
-                // RtTrench_Mid_Trench.atTime("FuelPump").onTrue(m_intake.fuelPumpCycleAuto(2.0));
-                // Option B — sensor-gated (waits for first detection, stops when chute clears):
-                // RtTrench_Mid_Trench.atTime("FuelPump").onTrue(m_intake.fuelPumpCycleSensor(m_indexer));
-                // Vision Shot
+                RtTrench_Mid.atTime("Intake").onTrue(m_intake.intakeFuelTimer(6));
                 RtMid_Ramp.atTime("Shoot")
                                 .onTrue(FuelCommands.Auto.poseAlignAndShoot(m_shooter, m_indexer, m_drivetrain, 6.0));
                 RtMid_Ramp.atTime("FuelPump").onTrue(m_intake.fuelPumpCycleSensor(m_indexer));
@@ -125,8 +112,6 @@ public class AutoRoutines {
         public AutoRoutine RtTrench_Mid_Ramp() {
                 final AutoRoutine routine = m_factory.newRoutine("RtTrench_Mid_Ramp");
                 final AutoTrajectory RtTrench_Mid_Ramp = routine.trajectory("RtTrench_Mid_Ramp", 0);
-                // final AutoTrajectory StartRMid2 = routine.trajectory("StartRMid", 1);
-                // final AutoTrajectory StartRMid3 = routine.trajectory("StartRMid", 2);
 
                 routine.active().onTrue(
                                 Commands.sequence(
@@ -138,12 +123,7 @@ public class AutoRoutines {
 
                                 ));
                 // Routine Events
-                RtTrench_Mid_Ramp.atTime("Intake").onTrue(m_intake.intakeFuelTimer(8));
-                // Option A — fixed timer:
-                // RtTrench_Mid_Trench.atTime("FuelPump").onTrue(m_intake.fuelPumpCycleAuto(2.0));
-                // Option B — sensor-gated (waits for first detection, stops when chute clears):
-                // RtTrench_Mid_Ramp.atTime("FuelPump").onTrue(m_intake.fuelPumpCycleSensor(m_indexer));
-                // Vision Shot
+                RtTrench_Mid_Ramp.atTime("Intake").onTrue(m_intake.intakeFuelTimer(6));
                 RtTrench_Mid_Ramp.atTime("Shoot")
                                 .onTrue(FuelCommands.Auto.poseAlignAndShoot(m_shooter, m_indexer, m_drivetrain, 6.0));
                 RtTrench_Mid_Ramp.atTime("FuelPump").onTrue(m_intake.fuelPumpCycleSensor(m_indexer));

@@ -33,13 +33,13 @@ public final class Constants {
     }
 
     /** Intake rotator motor - Kraken X44 with TalonFX controller */
-    public static final int INTAKE_ROLLER_MOTOR_ID = 20;
+    public static final int INTAKE_ROLLER_LEFT_MOTOR_ID = 20; // TODO Update name in Tuner
 
-    /** Intake slide motor A - Kraken X44 with TalonFX controller */
-    public static final int INTAKE_SLIDE_MOTOR_ID = 21;
+    /** Intake rotator motor - Kraken X44 with TalonFX controller */
+    public static final int INTAKE_ROLLER_RIGHT_MOTOR_ID = 21; // TODO Update name and ID in Tuner
 
-    /** Intake slide motor B - Kraken X44 with TalonFX controller (paired with A) */
-    // public static final int INTAKE_SLIDE_B__MOTOR_ID = 22; // Not needed
+    /** Intake slide motor - Kraken X44 with TalonFX controller */
+    public static final int INTAKE_SLIDE_MOTOR_ID = 22; // TODO Update name and ID in Tuner
 
     /** Time of Flight sensor - CANrange, confirms fuel presence */
     public static final int INTAKE_SENSOR_ID = 41;
@@ -81,6 +81,7 @@ public final class Constants {
 
     /**
      * Conveyor motor - Minion with TalonFXS controller, moves pieces along hopper
+     * TODO: Replace this with a Kraken X44, ID in Phoenix Tuner, and update here when ready
      */
     public static final int CONVEYOR_MOTOR_ID = 24;
 
