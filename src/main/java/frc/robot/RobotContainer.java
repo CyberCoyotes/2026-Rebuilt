@@ -189,27 +189,19 @@ public class RobotContainer {
             .onTrue(ledSub.showReady())
             .onFalse(ledSub.showDefault());
 
-        // =====================================================================
-        // LED GAME TELEMETRY TRIGGERS (commented out — enable when needed)
-        // Requires: gameDataTelemetry accessible here, DriverStation import
-        // =====================================================================
+        new Trigger(gameDataTelemetry::isRedHubActive)
+            .onTrue(ledSub.showRedHub())
+            .onFalse(ledSub.showDefault());
 
-        // -- Robot alliance color on enable --
-        // new Trigger(() -> DriverStation.getAlliance().orElse(DriverStation.Alliance.Red) == DriverStation.Alliance.Red)
-        //     .onTrue(ledSub.showDefault()); // swap showDefault() for a showAllianceRed() if you add one
+        new Trigger(gameDataTelemetry::isBlueHubActive)
+            .onTrue(ledSub.showBlueHub())
+            .onFalse(ledSub.showDefault());
 
-        // -- Active hub: which alliance is currently in scoring mode --
-        // new Trigger(gameDataTelemetry::isRedHubActive)
-        //     .onTrue(/* ledSub.showRedHub() */null)
-        //     .onFalse(/* ledSub.showDefault() */null);
+        new Trigger(() -> gameDataTelemetry.getSecondsUntilNextShift() < 10
+                && gameDataTelemetry.getSecondsUntilNextShift() > 0)
+            .onTrue(ledSub.showShiftWarning())
+            .onFalse(ledSub.showDefault());
 
-        // new Trigger(gameDataTelemetry::isBlueHubActive)
-        //     .onTrue(/* ledSub.showBlueHub() */null)
-        //     .onFalse(/* ledSub.showDefault() */null);
-
-        // -- FMS data received (lights up once auto-scoring data arrives ~3s after auto) --
-        // new Trigger(gameDataTelemetry::isDataReceived)
-        //     .onTrue(/* ledSub.showAllianceColor() */null);
 
         // Operator holds a face button to override with a named preset.
 

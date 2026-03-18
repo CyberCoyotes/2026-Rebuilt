@@ -80,8 +80,8 @@ public class GameDataTelemetry {
 
         
         // vvv CANCEL FOR COMPETITION - remove these two lines before competing vvv
-        // inactiveFirstAlliance = InactiveAlliance.BLUE;
-        // dataReceived = true;
+        inactiveFirstAlliance = InactiveAlliance.BLUE;
+        dataReceived = true;
         // ^^^ CANCEL FOR COMPETITION ^^^
 
         if (!dataReceived) {
@@ -184,8 +184,18 @@ public class GameDataTelemetry {
         return "RED".equals(activeHub);
     }
 
-    /** Returns true when the Blue hub is currently the active scoring target. */
+   /** Returns true when the Blue hub is currently the active scoring target. */
     public boolean isBlueHubActive() {
         return "BLUE".equals(activeHub);
+    }
+
+    /** Returns seconds remaining until the next hub shift. Returns 0 when no shift is coming. */
+    public double getSecondsUntilNextShift() {
+        double t = DriverStation.getMatchTime();
+        if (t < 0) return 0;
+        if (t > SHIFT_2_START_SEC) return t - SHIFT_2_START_SEC;
+        if (t > SHIFT_3_START_SEC) return t - SHIFT_3_START_SEC;
+        if (t > SHIFT_4_START_SEC) return t - SHIFT_4_START_SEC;
+        return 0;
     }
 }

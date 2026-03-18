@@ -12,6 +12,7 @@ import com.ctre.phoenix6.controls.FireAnimation;
 import com.ctre.phoenix6.controls.LarsonAnimation;
 import com.ctre.phoenix6.controls.RainbowAnimation;
 import com.ctre.phoenix6.controls.SolidColor;
+import com.ctre.phoenix6.controls.StrobeAnimation;
 import com.ctre.phoenix6.hardware.CANdle;
 import com.ctre.phoenix6.signals.AnimationDirectionValue;
 import com.ctre.phoenix6.signals.LarsonBounceValue;
@@ -76,12 +77,40 @@ public class LedSubsystem extends SubsystemBase {
         .withCooling(0.3)
         .withFrameRate(Hertz.of(.2));
 
+    // -------------------------------------------------------------------------
+// Slot 4 — Shift Warning (< 10 seconds until next hub shift)
+// -------------------------------------------------------------------------
+private final StrobeAnimation m_shiftWarningAnimation = new StrobeAnimation(0, LEDendIndex)
+    .withSlot(4)
+    .withColor(new RGBWColor(255, 255, 255, 255))
+    .withBrightness(.8)
+    .withFrameRate(Hertz.of(10));
+
+// -------------------------------------------------------------------------
+// Slot 5 — Red Hub Active
+// -------------------------------------------------------------------------
+private final SolidColor m_redHubAnimation = new SolidColor(0, LEDendIndex)
+    .withSlot(5)
+    .withColor(new RGBWColor(255, 0, 0, 0));
+
+// -------------------------------------------------------------------------
+// Slot 6 — Blue Hub Active
+// -------------------------------------------------------------------------
+private final SolidColor m_blueHubAnimation = new SolidColor(0, LEDendIndex)
+    .withSlot(6)
+    .withColor(new RGBWColor(0, 0, 255, 0));
+
+
     private final ControlRequest[] m_animations = new ControlRequest[] {
-        m_defaultAnimation,    // 0
-        m_spinningUpAnimation, // 1
-        m_readyAnimation,      // 2
-        m_extraAnimation,      // 3
-    };
+    m_defaultAnimation,        // 0
+    m_spinningUpAnimation,     // 1
+    m_readyAnimation,          // 2
+    m_extraAnimation,          // 3
+    m_shiftWarningAnimation,   // 4
+    m_redHubAnimation,         // 5
+    m_blueHubAnimation,        // 6
+};
+
 
     private int m_currentSlot = 0;
 
@@ -92,7 +121,7 @@ public class LedSubsystem extends SubsystemBase {
     /** Applies only the currently selected animation each loop. */
     public Command updateLEDs() {
         // return run(() -> m_candle.setControl(m_animations[m_currentSlot]));
-        return run(() -> m_candle.setControl(m_defaultAnimation));
+        return run(() -> m_candle.setControl(m_animations[m_currentSlot]));
     }
 
     // =========================================================================
@@ -113,6 +142,22 @@ public class LedSubsystem extends SubsystemBase {
     public Command showReady() {
         return runOnce(() -> m_currentSlot = 2);
     }
+
+    /** Red hub is the active scoring target. */
+public Command showRedHub() {
+    return runOnce(() -> m_currentSlot = 5);
+}
+
+/** Blue hub is the active scoring target. */
+public Command showBlueHub() {
+    return runOnce(() -> m_currentSlot = 6);
+}
+
+/** Shift is less than 10 seconds away — strobe warning. */
+public Command showShiftWarning() {
+    return runOnce(() -> m_currentSlot = 4);
+}
+
 
     // =========================================================================
     // Manual POV cycling (operator testing)
