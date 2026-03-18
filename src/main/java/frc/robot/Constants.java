@@ -36,34 +36,32 @@ public final class Constants {
     public static final int INTAKE_ROLLER_LEFT_MOTOR_ID = 20; // TODO Update name in Tuner
 
     /** Intake rotator motor - Kraken X44 with TalonFX controller */
-    public static final int INTAKE_ROLLER_RIGHT_MOTOR_ID = 21; // TODO Update name and ID in Tuner
+    public static final int INTAKE_ROLLER_RIGHT_MOTOR_ID = 21; // TODO Update name and ID in Tuner <-- **NEW**
 
     /** Intake slide motor - Kraken X44 with TalonFX controller */
-    public static final int INTAKE_SLIDE_MOTOR_ID = 22; // TODO Update name and ID in Tuner
+    public static final int INTAKE_SLIDE_MOTOR_ID = 22; // TODO Update name and ID in Tuner <-- **was 21**
 
     /** Time of Flight sensor - CANrange, confirms fuel presence */
     public static final int INTAKE_SENSOR_ID = 41;
 
     // === Constants =====================
     public static final double SLIDE_RETRACTED_POS = 0.0;
-    public static final double SLIDE_EXTENDED_POS = 44.40;
-    public static final double SLIDE_MAX_POSITION = 44.454; // Mechanical limit, validate in configs limit
-    public static final double SLIDE_UP_POSITION = 39.5;
+   
+    /* TODO: Update with new slide positions using Tuner
+    * Set in code here (slightly less than mechanical max to prevent hitting hard stops)
+    * Set configs limits to prevent commanding beyond physical limits, but use these software limits for normal operation and target positions.
+    */ 
+    public static final double SLIDE_EXTENDED_POS = 44.40;  
+    public static final double SLIDE_MAX_POS = 44.454; 
+
+    /* TODO: Update these Special positions 
+    * Pump UP: roller lifted ~5 rotations toward bumpers — high position for bump agitation.
+    */
+    public static final double SLIDE_PUMP_OUT_POS = 40.0;
+    public static final double SLIDE_PUMP_IN_POS   = 30.0;
     
-    /** Bounce DOWN: roller near fully extended — low position for bump agitation. TODO: Tune */
-    public static final double SLIDE_BOUNCE_DOWN_POS = 40.0;
-    /** Bounce UP: roller lifted ~5 rotations toward bumpers — high position for bump agitation. TODO: Tune */
-    public static final double SLIDE_BOUNCE_UP_POS   = 30.0;
-    /**
-     * Sensor-pump UP position: deeper inward sweep used by fuelPumpCycleSensor only.
-     * Extends farther than SLIDE_BOUNCE_UP_POS to push straggler balls into conveyor range
-     * so the chute sensor can detect them. ~half of full extension. TODO: Tune
-     */
-    public static final double SLIDE_PUMP_SENSOR_UP_POS = 30.0;
-
-
     // TODO Tune the roller voltages
-    public static final double FORWARD_ROLLER_VOLTS = 11.0; // TODO Was 10.0 is more reliably picking up fuel from the floor in testing
+    public static final double FORWARD_ROLLER_VOLTS = 11.0; //
     public static final double REVERSE_ROLLER_VOLTS = -8.0;
   }
 

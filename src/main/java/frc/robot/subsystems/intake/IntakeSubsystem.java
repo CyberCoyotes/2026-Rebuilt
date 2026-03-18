@@ -363,9 +363,9 @@ public class IntakeSubsystem extends SubsystemBase {
         return Commands.run(() -> {
             runRoller();
             if (bounceTimer.get() < 0.5) {
-                setSlidesToPosition(Constants.Intake.SLIDE_BOUNCE_DOWN_POS);
+                setSlidesToPosition(Constants.Intake.SLIDE_PUMP_OUT_POS);
             } else if (bounceTimer.get() < 1.0) {
-                setSlidesToPosition(Constants.Intake.SLIDE_BOUNCE_UP_POS);
+                setSlidesToPosition(Constants.Intake.SLIDE_PUMP_IN_POS);
             } else {
                 bounceTimer.reset();
             }
@@ -391,9 +391,9 @@ public class IntakeSubsystem extends SubsystemBase {
             runRoller();
             double t = cycleTimer.get();
             if (t < 0.5) {
-                setSlidesToPosition(Constants.Intake.SLIDE_BOUNCE_DOWN_POS);
+                setSlidesToPosition(Constants.Intake.SLIDE_PUMP_OUT_POS);
             } else if (t < 1.0) {
-                setSlidesToPosition(Constants.Intake.SLIDE_BOUNCE_UP_POS);
+                setSlidesToPosition(Constants.Intake.SLIDE_PUMP_IN_POS);
             } else {
                 cycleTimer.restart(); // reset + start, so next cycle begins immediately
             }
@@ -416,9 +416,9 @@ public class IntakeSubsystem extends SubsystemBase {
             runRoller();
             double t = cycleTimer.get();
             if (t < 0.5) {
-                setSlidesToPosition(Constants.Intake.SLIDE_BOUNCE_DOWN_POS);
+                setSlidesToPosition(Constants.Intake.SLIDE_PUMP_OUT_POS);
             } else if (t < 1.0) {
-                setSlidesToPosition(Constants.Intake.SLIDE_BOUNCE_UP_POS);
+                setSlidesToPosition(Constants.Intake.SLIDE_PUMP_IN_POS);
             } else {
                 cycleTimer.restart();
             }
@@ -458,9 +458,9 @@ public class IntakeSubsystem extends SubsystemBase {
                 runRoller();
                 double t = cycleTimer.get();
                 if (t < 0.5) {
-                    setSlidesToPosition(Constants.Intake.SLIDE_BOUNCE_DOWN_POS);
+                    setSlidesToPosition(Constants.Intake.SLIDE_PUMP_OUT_POS);
                 } else if (t < 1.0) {
-                    setSlidesToPosition(Constants.Intake.SLIDE_PUMP_SENSOR_UP_POS);
+                    setSlidesToPosition(Constants.Intake.SLIDE_PUMP_IN_POS);
                 } else {
                     cycleTimer.restart();
                 }
@@ -478,12 +478,12 @@ public class IntakeSubsystem extends SubsystemBase {
         return Commands.sequence(
                 Commands.run(() -> {
                     runRoller();
-                    setSlidesToPosition(Constants.Intake.SLIDE_BOUNCE_DOWN_POS);
+                    setSlidesToPosition(Constants.Intake.SLIDE_PUMP_OUT_POS);
                 }, this)
                         .withTimeout(0.5),
                 Commands.run(() -> {
                     runRoller();
-                    setSlidesToPosition(Constants.Intake.SLIDE_BOUNCE_UP_POS);
+                    setSlidesToPosition(Constants.Intake.SLIDE_PUMP_IN_POS);
                 }, this)
                         .withTimeout(0.5))
                 .finallyDo(this::stopRoller).withName("FuelPumpBasic");
@@ -495,14 +495,14 @@ public class IntakeSubsystem extends SubsystemBase {
                 // ==== Cycle 1 ====
                 Commands.run(() -> {
                     runRoller();
-                    setSlidesToPosition(Constants.Intake.SLIDE_BOUNCE_DOWN_POS);
+                    setSlidesToPosition(Constants.Intake.SLIDE_PUMP_OUT_POS);
                 }, this)
                         .withTimeout(0.5),
                 // Short pause between down and up to allow fuel to settle before bouncing back up again
                 Commands.waitSeconds(0.1),
                 Commands.run(() -> {
                     runRoller();
-                    setSlidesToPosition(Constants.Intake.SLIDE_BOUNCE_UP_POS);
+                    setSlidesToPosition(Constants.Intake.SLIDE_PUMP_IN_POS);
                 }, this)
                     .withTimeout(0.5),
                 Commands.waitSeconds(0.1),
@@ -510,13 +510,13 @@ public class IntakeSubsystem extends SubsystemBase {
                 // ==== Cycle 2 ====
                 Commands.run(() -> {
                     runRoller();
-                    setSlidesToPosition(Constants.Intake.SLIDE_BOUNCE_DOWN_POS);
+                    setSlidesToPosition(Constants.Intake.SLIDE_PUMP_OUT_POS);
                 }, this)
                         .withTimeout(0.5),
                 Commands.waitSeconds(0.1),
                 Commands.run(() -> {
                     runRoller();
-                    setSlidesToPosition(Constants.Intake.SLIDE_BOUNCE_UP_POS);
+                    setSlidesToPosition(Constants.Intake.SLIDE_PUMP_IN_POS);
                 }, this)
                         .withTimeout(0.5),
                 Commands.waitSeconds(0.1)
@@ -529,14 +529,14 @@ public class IntakeSubsystem extends SubsystemBase {
     public Command fuelPumpSetCyclesRetract() {
         return Commands.sequence(
                 // ==== Cycle 1 ====
-                Commands.runOnce(() -> setSlidesToPosition(Constants.Intake.SLIDE_BOUNCE_DOWN_POS), this),
+                Commands.runOnce(() -> setSlidesToPosition(Constants.Intake.SLIDE_PUMP_OUT_POS), this),
                 Commands.waitSeconds(0.5),
-                Commands.runOnce(() -> setSlidesToPosition(Constants.Intake.SLIDE_BOUNCE_UP_POS), this),
+                Commands.runOnce(() -> setSlidesToPosition(Constants.Intake.SLIDE_PUMP_IN_POS), this),
                 Commands.waitSeconds(0.5),
                 // ==== Cycle 2 ====
-                Commands.runOnce(() -> setSlidesToPosition(Constants.Intake.SLIDE_BOUNCE_DOWN_POS), this),
+                Commands.runOnce(() -> setSlidesToPosition(Constants.Intake.SLIDE_PUMP_OUT_POS), this),
                 Commands.waitSeconds(0.5),
-                Commands.runOnce(() -> setSlidesToPosition(Constants.Intake.SLIDE_BOUNCE_UP_POS), this),
+                Commands.runOnce(() -> setSlidesToPosition(Constants.Intake.SLIDE_PUMP_IN_POS), this),
                 Commands.waitSeconds(0.5),
                 // ==== Cycle 3 ====
                 Commands.runOnce(() -> setSlidesToPosition(Constants.Intake.SLIDE_RETRACTED_POS), this))
