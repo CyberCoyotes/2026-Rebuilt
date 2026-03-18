@@ -9,6 +9,7 @@ import com.ctre.phoenix6.controls.MotionMagicVoltage;
 import com.ctre.phoenix6.controls.VoltageOut;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.InvertedValue;
+import com.ctre.phoenix6.signals.MotorAlignmentValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
@@ -116,7 +117,7 @@ public class IntakeIOHardware implements IntakeIO {
 
         rollerLeft.getConfigurator().apply(RollerConfig.roller());
         rollerRight.getConfigurator().apply(RollerConfig.roller());
-        rollerRight.setControl(new Follower(rollerLeft.getDeviceID(), true)); // Oppose master direction
+        rollerRight.setControl(new Follower(rollerLeft.getDeviceID(), MotorAlignmentValue.Opposed)); // Oppose master direction
         slide.getConfigurator().apply(SlideConfig.slide());
 
         // Cache signal references — slide needs position and velocity for MotionMagic
