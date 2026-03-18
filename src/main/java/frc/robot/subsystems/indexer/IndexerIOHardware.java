@@ -4,13 +4,10 @@ import com.ctre.phoenix6.BaseStatusSignal;
 import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.configs.CANrangeConfiguration;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
-import com.ctre.phoenix6.configs.TalonFXSConfiguration;
 import com.ctre.phoenix6.controls.VoltageOut;
 import com.ctre.phoenix6.hardware.CANrange;
 import com.ctre.phoenix6.hardware.TalonFX;
-import com.ctre.phoenix6.hardware.TalonFXS;
 import com.ctre.phoenix6.signals.InvertedValue;
-import com.ctre.phoenix6.signals.MotorArrangementValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 
 import frc.robot.Constants;
@@ -23,7 +20,7 @@ import frc.robot.util.PhoenixUtil;
  * data structure read by IndexerSubsystem.
  *
  * CANrange detection strategy:
- * We configure each sensor with a ProximityThreshold and read getIsDetected()
+ * We configure any ToF sensor with a ProximityThreshold and read getIsDetected()
  * as a cached StatusSignal. This means the sensor itself decides "detected or not"
  * based on the configured threshold — we don't do the comparison in code.
  * getDistance() is also cached so students can watch raw values in AdvantageScope
@@ -34,12 +31,11 @@ import frc.robot.util.PhoenixUtil;
  */
 public class IndexerIOHardware implements IndexerIO {
 
-    // ── Motor Configuration ────────────────────────────────────────────────────
+    // == Motor Configuration =============================================
 
-    private static TalonFXSConfiguration conveyorConfig() {
-        TalonFXSConfiguration config = new TalonFXSConfiguration();
+    private static TalonFXConfiguration conveyorConfig() {
+        TalonFXConfiguration config = new TalonFXConfiguration();
 
-        config.Commutation.MotorArrangement = MotorArrangementValue.Minion_JST;
         config.MotorOutput.NeutralMode = NeutralModeValue.Brake;
         config.MotorOutput.Inverted    = InvertedValue.Clockwise_Positive;
 
@@ -83,16 +79,16 @@ public class IndexerIOHardware implements IndexerIO {
         return config;
     }
 
-    // ── Hardware ───────────────────────────────────────────────────────────────
-    private final TalonFXS conveyorMotor;
-    private final TalonFX  indexerMotor;
+    // == Hardware =================================================================
+    private final TalonFX conveyorMotor;
+    private final TalonFX indexerMotor;
     private final CANrange chuteToF;
 
-    // ── Control Requests ───────────────────────────────────────────────────────
+    // == Control Requests ==========================================================
     private final VoltageOut conveyorVoltageRequest = new VoltageOut(0.0);
     private final VoltageOut indexerVoltageRequest  = new VoltageOut(0.0);
 
-    // ── Status Signals ─────────────────────────────────────────────────────────
+    // == Status Signals ===========================================================
     private final StatusSignal<?> conveyorVelocity;
     private final StatusSignal<?> conveyorCurrent;
     private final StatusSignal<?> indexerVelocity;
@@ -100,9 +96,9 @@ public class IndexerIOHardware implements IndexerIO {
     private final StatusSignal<?> chuteDistance;
     private final StatusSignal<Boolean> chuteIsDetected;
 
-    // ── Constructor ────────────────────────────────────────────────────────────
+    // == Constructor =============================================================
     public IndexerIOHardware() {
-        conveyorMotor = new TalonFXS(Constants.Indexer.CONVEYOR_MOTOR_ID, Constants.RIO_CANBUS);
+        conveyorMotor = new TalonFX(Constants.Indexer.CONVEYOR_MOTOR_ID, Constants.RIO_CANBUS);
         indexerMotor  = new TalonFX(Constants.Indexer.INDEXER_MOTOR_ID,   Constants.RIO_CANBUS);
         chuteToF      = new CANrange(Constants.Indexer.CHUTE_TOF_ID,       Constants.RIO_CANBUS);
 
@@ -131,7 +127,7 @@ public class IndexerIOHardware implements IndexerIO {
         chuteToF.optimizeBusUtilization();
     }
 
-    // ── IO Implementation ──────────────────────────────────────────────────────
+    // == IO Implementation ========================================================
     @Override
     public void updateInputs(IndexerIOInputs inputs) {
         BaseStatusSignal.refreshAll(
