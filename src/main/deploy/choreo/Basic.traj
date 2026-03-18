@@ -14,9 +14,9 @@
  },
  "params":{
   "waypoints":[
-    {"x":{"exp":"StartR.x", "val":4.42}, "y":{"exp":"StartR.y", "val":0.47}, "heading":{"exp":"StartR.heading", "val":1.5707963267948966}, "intervals":0, "split":false, "fixTranslation":true, "fixHeading":true, "overrideIntervals":false},
-    {"x":{"exp":"StartR.x", "val":4.42}, "y":{"exp":"StartR.y", "val":0.47}, "heading":{"exp":"StartR.heading", "val":1.5707963267948966}, "intervals":8, "split":false, "fixTranslation":true, "fixHeading":true, "overrideIntervals":false},
-    {"x":{"exp":"TrShotR.x", "val":4.14}, "y":{"exp":"TrShotR.y", "val":0.57}, "heading":{"exp":"TrShotR.heading", "val":1.54}, "intervals":40, "split":false, "fixTranslation":true, "fixHeading":true, "overrideIntervals":false}],
+    {"x":{"exp":"R_Tr.x", "val":4.42}, "y":{"exp":"R_Tr.y", "val":0.47}, "heading":{"exp":"R_Tr.heading", "val":1.5707963267948966}, "intervals":0, "split":false, "fixTranslation":true, "fixHeading":true, "overrideIntervals":false},
+    {"x":{"exp":"R_Tr.x", "val":4.42}, "y":{"exp":"R_Tr.y", "val":0.47}, "heading":{"exp":"R_Tr.heading", "val":1.5707963267948966}, "intervals":9, "split":false, "fixTranslation":true, "fixHeading":true, "overrideIntervals":false},
+    {"x":{"exp":"R_TrShot.x", "val":4.1}, "y":{"exp":"R_TrShot.y", "val":0.57}, "heading":{"exp":"R_TrShot.heading", "val":1.5}, "intervals":40, "split":false, "fixTranslation":true, "fixHeading":true, "overrideIntervals":false}],
   "constraints":[
     {"from":"first", "to":null, "data":{"type":"StopPoint", "props":{}}, "enabled":true},
     {"from":"last", "to":null, "data":{"type":"StopPoint", "props":{}}, "enabled":true},
