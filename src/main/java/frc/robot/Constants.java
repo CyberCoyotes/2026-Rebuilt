@@ -80,8 +80,7 @@ public final class Constants {
     public static final int INDEXER_MOTOR_ID = 23;
 
     /**
-     * Conveyor motor - Minion with TalonFXS controller, moves pieces along hopper
-     * TODO: Replace this with a Kraken X44, ID in Phoenix Tuner, and update here when ready
+     * Conveyor motor - Kraken X44 with TalonFX controller, moves pieces along hopper
      */
     public static final int CONVEYOR_MOTOR_ID = 24;
 
