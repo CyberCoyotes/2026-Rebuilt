@@ -99,7 +99,8 @@ public class IndexerIOHardware implements IndexerIO {
     // == Constructor =============================================================
     public IndexerIOHardware() {
         conveyorMotor = new TalonFX(Constants.Indexer.CONVEYOR_MOTOR_ID, Constants.RIO_CANBUS);
-        indexerMotor  = new TalonFX(Constants.Indexer.INDEXER_MOTOR_ID,   Constants.RIO_CANBUS);
+        indexerMotorLeft  = new TalonFX(Constants.Indexer.KICKER_LEFT_MOTOR_ID,   Constants.RIO_CANBUS);
+        indexerMotorRight  = new TalonFX(Constants.Indexer.KICKER_RIGHT_MOTOR_ID,   Constants.RIO_CANBUS);
         chuteToF      = new CANrange(Constants.Indexer.CHUTE_TOF_ID,       Constants.RIO_CANBUS);
 
         // Apply configs with retry logic — replaces the single-attempt local helper.

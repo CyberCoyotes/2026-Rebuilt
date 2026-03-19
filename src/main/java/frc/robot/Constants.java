@@ -78,7 +78,7 @@ public final class Constants {
     public static final int CONVEYOR_MOTOR_ID = 27; // TODO Update name and ID in Tuner <-- **was 23**
 
     /**
-     * CANrange Time of Flight sensor detects presence of fuel at indexer egress to
+     * CANrange Time of Flight sensor detects presence of fuel at indexer chute egress to
      * shooter (optional)
      */
     public static final int CHUTE_TOF_ID = 42;
@@ -167,7 +167,7 @@ public final class Constants {
      * Consider using WCP Encoder
      * Add an end of line comment `Tuned` when each is verified
      */
-    public static final double CLOSE_HOOD = 0.00;   // Tuned and ready
+    public static final double CLOSE_HOOD = 0.00;   // TODO: Tuned and ready
     public static final double POPPER_HOOD = 8.42;  // TODO: Tune Popper hood was 8.42
     public static final double TOWER_HOOD = 4.30;   // TODO: Tune Tower hood
     public static final double TRENCH_HOOD = 4.30;  // TODO: Tune Trench hood
