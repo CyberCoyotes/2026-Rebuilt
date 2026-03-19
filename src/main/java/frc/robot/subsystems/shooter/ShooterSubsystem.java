@@ -11,8 +11,8 @@ import edu.wpi.first.networktables.StringPublisher;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.subsystems.shooter.ShooterIO.ShooterIOInputs;
 import frc.robot.Constants;
+import frc.robot.subsystems.shooter.ShooterIO.ShooterIOInputs;
 
 /**
  * STATE MACHINE:
@@ -117,6 +117,7 @@ public class ShooterSubsystem extends SubsystemBase {
     }
 
     // ==== State Machine Enums ====
+    /* Defines what mode the shooter is in. Each value represents a distinct operational mode with different hardware behavior */
     public enum ShooterState {
         IDLE,    // Motors off — only used on explicit stop, not during normal match play
         SPINNING_UP, // Flywheel ramping to target after trigger pull — transitions to READY when at speed
@@ -190,6 +191,10 @@ public void periodic() {
         }
     }
 
+    /* Handles transitions — called once when you want to change modes. It:
+     Guards against no-op transitions (if currentState == newState return)
+     Runs entry actions — one-time side effects that happen at the moment of entering a state (e.g. stopFlywheels() on entering IDLE, commandFlywheelVelocity() on entering PASS)
+     */
     private void setState(ShooterState newState) {
         if (currentState == newState)
             return;
