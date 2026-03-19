@@ -61,9 +61,9 @@ public class VisionSubsystem extends SubsystemBase {
     private final IntegerPublisher tagIdPublisher;
     private final DoublePublisher targetAreaPublisher;
     private final DoublePublisher distanceMetersPublisher;
-    private final DoublePublisher distanceCmPublisher;
+    // private final DoublePublisher distanceCmPublisher;
     private final DoublePublisher horizontalAnglePublisher;
-    private final DoublePublisher verticalAnglePublisher;
+    // private final DoublePublisher verticalAnglePublisher;
     private final DoublePublisher latencyPublisher;
 
     // ===== State Tracking =====
@@ -113,9 +113,9 @@ public class VisionSubsystem extends SubsystemBase {
         tagIdPublisher = visionTable.getIntegerTopic("TagID").publish();
         targetAreaPublisher = visionTable.getDoubleTopic("TargetArea").publish();
         distanceMetersPublisher = visionTable.getDoubleTopic("Distance_m").publish();
-        distanceCmPublisher = visionTable.getDoubleTopic("Distance_cm").publish();
+        // distanceCmPublisher = visionTable.getDoubleTopic("Distance_cm").publish();
         horizontalAnglePublisher = visionTable.getDoubleTopic("HorizontalAngle_deg").publish();
-        verticalAnglePublisher = visionTable.getDoubleTopic("VerticalAngle_deg").publish();
+        // verticalAnglePublisher = visionTable.getDoubleTopic("VerticalAngle_deg").publish();
         latencyPublisher = visionTable.getDoubleTopic("TotalLatency_ms").publish();
 
         // Initialize Limelight to known state
@@ -152,7 +152,7 @@ public class VisionSubsystem extends SubsystemBase {
             lastTargetSeenTime = Timer.getFPGATimestamp();
 
             // Update last known good values
-            lastKnownDistance = calculateDistance();
+            // lastKnownDistance = calculateDistance();
             lastKnownHorizontalAngle = getHorizontalAngleDegrees();
 
             // Check if we're aligned
@@ -200,10 +200,10 @@ public class VisionSubsystem extends SubsystemBase {
         }
 
         // Check calculated distance is reasonable
-        double distance = calculateDistance();
-        if (distance > Constants.Vision.MAX_DISTANCE_METERS || distance < 0.1) {
-            return false;
-        }
+        // double distance = calculateDistance();
+        // if (distance > Constants.Vision.MAX_DISTANCE_METERS || distance < 0.1) {
+        //     return false;
+        // }
 
         return true;
     }
@@ -225,9 +225,9 @@ public class VisionSubsystem extends SubsystemBase {
      *
      * @return Current alignment state
      */
-    public AlignmentState getAlignmentState() {
-        return currentState;
-    }
+    // public AlignmentState getAlignmentState() {
+    //     return currentState;
+    // }
 
     /**
      * Checks if a valid target is currently visible.
@@ -293,13 +293,13 @@ public class VisionSubsystem extends SubsystemBase {
      *
      * False when no target has ever been seen or the grace period has expired.
      */
-    public boolean isUsableForShooting() {
-        if (currentState == AlignmentState.LOST_TARGET) {
-            // Grace period: use last-known distance rather than resetting the shooter
-            return lastKnownDistance > 0.1;
-        }
-        return hasTarget() && isHubTarget() && getDistanceToTargetMeters() > 0.1;
-    }
+    // public boolean isUsableForShooting() {
+    //     if (currentState == AlignmentState.LOST_TARGET) {
+    //         // Grace period: use last-known distance rather than resetting the shooter
+    //         return lastKnownDistance > 0.1;
+    //     }
+    //     return hasTarget() && isHubTarget() && getDistanceToTargetMeters() > 0.1;
+    // }
 
     // =========================================================================
     // PUBLIC API - Calculated Values for Shooter
@@ -314,39 +314,39 @@ public class VisionSubsystem extends SubsystemBase {
      *
      * @return Distance to target in meters, or 0 if no target
      */
-    public double getDistanceToTargetMeters() {
-        if (currentState == AlignmentState.NO_TARGET) {
-            return 0.0;
-        }
+    // public double getDistanceToTargetMeters() {
+    //     if (currentState == AlignmentState.NO_TARGET) {
+    //         return 0.0;
+    //     }
 
-        if (currentState == AlignmentState.LOST_TARGET) {
-            return lastKnownDistance; // Use last known value during grace period
-        }
+    //     if (currentState == AlignmentState.LOST_TARGET) {
+    //         return lastKnownDistance; // Use last known value during grace period
+    //     }
 
-        return calculateDistance();
-    }
+    //     // return calculateDistance();
+    // }
 
     /**
      * Internal distance calculation from camera geometry.
      */
-    private double calculateDistance() {
-        double heightDiff = Constants.Vision.APRILTAG_HEIGHT_METERS -
-                          Constants.Vision.CAMERA_HEIGHT_METERS;
+    // private double calculateDistance() {
+    //     double heightDiff = Constants.Vision.APRILTAG_HEIGHT_METERS -
+    //                       Constants.Vision.CAMERA_HEIGHT_METERS;
 
-        double verticalAngleDegrees = Units.radiansToDegrees(inputs.verticalAngleRadians);
-        double angleToTarget = Constants.Vision.CAMERA_ANGLE_DEGREES + verticalAngleDegrees;
+    //     double verticalAngleDegrees = Units.radiansToDegrees(inputs.verticalAngleRadians);
+    //     double angleToTarget = Constants.Vision.CAMERA_ANGLE_DEGREES + verticalAngleDegrees;
 
-        return Math.abs(heightDiff / Math.tan(Math.toRadians(angleToTarget)));
-    }
+    //     return Math.abs(heightDiff / Math.tan(Math.toRadians(angleToTarget)));
+    // }
 
     /**
      * Gets distance to target in centimeters (for compatibility with older code).
      *
      * @return Distance in centimeters
      */
-    public double getDistanceToTargetCM() {
-        return getDistanceToTargetMeters() * 100.0;
-    }
+    // public double getDistanceToTargetCM() {
+    //     return getDistanceToTargetMeters() * 100.0;
+    // }
 
     // =========================================================================
     // PUBLIC API - Angle Values for Drivetrain Alignment
@@ -379,25 +379,25 @@ public class VisionSubsystem extends SubsystemBase {
      *
      * @return Horizontal angle in radians
      */
-    public double getHorizontalAngleRadians() {
-        return Units.degreesToRadians(getHorizontalAngleDegrees());
-    }
+    // public double getHorizontalAngleRadians() {
+    //     return Units.degreesToRadians(getHorizontalAngleDegrees());
+    // }
 
     /**
      * Gets vertical angle to target in degrees.
      *
      * @return Vertical angle in degrees
      */
-    public double getVerticalAngleDegrees() {
-        return Units.radiansToDegrees(inputs.verticalAngleRadians);
-    }
+    // public double getVerticalAngleDegrees() {
+    //     return Units.radiansToDegrees(inputs.verticalAngleRadians);
+    // }
 
     // =========================================================================
     // PUBLIC API - Camera Control
     // =========================================================================
 
     /**
-     * Sets the active vision pipeline.
+     * Sets the active vision pipeline. Valid API, just not called in current code since we only have one pipeline configured.
      *
      * @param pipelineIndex Pipeline index (0-9)
      */
@@ -406,7 +406,7 @@ public class VisionSubsystem extends SubsystemBase {
     }
 
     /**
-     * Sets the LED mode.
+     * Sets the Camera LED mode. Valid API, but we currently just set it once in the constructor and never change it. 
      *
      * @param mode LED mode to set
      */
@@ -428,10 +428,10 @@ public class VisionSubsystem extends SubsystemBase {
         isAlignedPublisher.set(isAligned());
         tagIdPublisher.set(getTagId());
         targetAreaPublisher.set(inputs.targetArea);
-        distanceMetersPublisher.set(getDistanceToTargetMeters());
-        distanceCmPublisher.set(getDistanceToTargetCM());
+        // distanceMetersPublisher.set(getDistanceToTargetMeters());
+        // distanceCmPublisher.set(getDistanceToTargetCM());
         horizontalAnglePublisher.set(getHorizontalAngleDegrees());
-        verticalAnglePublisher.set(getVerticalAngleDegrees());
+        // verticalAnglePublisher.set(getVerticalAngleDegrees());
         latencyPublisher.set(inputs.totalLatencyMs);
 
         // AdvantageKit logging (unchanged)

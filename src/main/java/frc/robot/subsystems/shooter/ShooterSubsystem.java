@@ -1,6 +1,6 @@
 package frc.robot.subsystems.shooter;
 
-// import org.littletonrobotics.junction.Logger;
+import org.littletonrobotics.junction.Logger;
 
 import edu.wpi.first.math.interpolation.InterpolatingDoubleTreeMap;
 import edu.wpi.first.networktables.BooleanPublisher;
@@ -18,6 +18,7 @@ import frc.robot.Constants;
  * STATE MACHINE:
  * - IDLE: All motors off, hood at home position
  * - STANDBY: Reserved for future pre-rev use — not active, flywheel command is commented out
+ * - SPINNING_UP: Flywheel ramping to target after trigger pull — transitions to READY when at speed
  * - READY: Flywheel and hood at preset targets, ready to shoot
  * - PASS: Passing shot at PASS_RPM, hood at PASS_HOOD
  * - EJECT: Flywheel reverse at EJECT_RPM for clearing jams — velocity-gated
@@ -117,9 +118,10 @@ public class ShooterSubsystem extends SubsystemBase {
         selectedPresetPublisher       = shooterTable.getStringTopic("SelectedPreset").publish();
     }
 
-    // ==== State Machine ====
+    // ==== State Machine Enums ====
     public enum ShooterState {
         IDLE,    // Motors off — only used on explicit stop, not during normal match play
+        SPINNING_UP, // Flywheel ramping to target after trigger pull — transitions to READY when at speed
         STANDBY, // Flywheel spinning at STANDBY_RPM; ready to ramp to target on demand
         READY,   // Flywheel and hood at preset targets, ready to shoot
         PASS,    // Passing shot at PASS_RPM, hood at PASS_HOOD
@@ -127,17 +129,25 @@ public class ShooterSubsystem extends SubsystemBase {
         POPPER   // Popper mode: flywheel and hood at minimum pose for assisting with fuel loading
     }
 
-    // ==== Periodic ====
-    @Override
-    public void periodic() {
-        io.updateInputs(inputs);
-        updateStateMachine();
+@Override
+public void periodic() {
+    io.updateInputs(inputs);
 
-        if (++periodicCounter % 5 == 0) {
-            io.updateSlowInputs(inputs);
-            publishToElastic();
-        }
+    // SPINNING_UP → READY promotion
+    // Only periodic() earns the READY state — never set directly
+    if (currentState == ShooterState.SPINNING_UP
+            && isFlywheelAtVelocity()
+            && isHoodAtPose()) {
+        setState(ShooterState.READY);
     }
+
+    updateStateMachine();  // after promotion so READY takes effect this cycle
+
+    if (++periodicCounter % 5 == 0) {
+        io.updateSlowInputs(inputs);
+        publishToElastic();
+    }
+}
 
     private void publishToElastic() {
         statePublisher.set(currentStateString);
@@ -162,6 +172,10 @@ public class ShooterSubsystem extends SubsystemBase {
             case IDLE:
                 break;
             case STANDBY:
+                break;
+            case SPINNING_UP:
+                commandFlywheelVelocity(targetFlywheelMotorRPM);
+                io.setHoodPose(targetHoodPoseRot);
                 break;
             case READY:
                 // Re-issue every cycle so any silent target change (setTargetVelocity, updateFromDistance)
@@ -244,10 +258,12 @@ public class ShooterSubsystem extends SubsystemBase {
     }
 
     /**
-     * Transitions to READY, ramping flywheel to target and moving hood to target angle.
+     * Transitions state machine to SPINNING_UP.
+     * Void method — safe to call inside lambdas, runOnce, and Commands.run() loops.
+     * Use spinUpCommand() when you need a scheduled Command in a sequence.
      */
-    public void prepareToShoot() {
-        setState(ShooterState.READY);
+    public void beginSpinUp() {
+        setState(ShooterState.SPINNING_UP);
     }
 
     /** Sets shooter to passing mode. */
@@ -341,6 +357,11 @@ public class ShooterSubsystem extends SubsystemBase {
         return currentState == ShooterState.READY && isFlywheelAtVelocity() && isHoodAtPose();
     }
 
+    // isBusy() becomes possible
+    public boolean isSpinningUp() {
+        return currentState == ShooterState.SPINNING_UP;
+    }
+
     /** Returns true if in PASS state with flywheel and hood at targets. */
     public boolean isPassReady() {
         return currentState == ShooterState.PASS && isFlywheelAtVelocity() && isHoodAtPose();
@@ -365,7 +386,9 @@ public class ShooterSubsystem extends SubsystemBase {
         return inputs.flywheelCurrentAmps > 150.0;
     }
 
-    // ==== Commands ==========================
+    // =========================================================================
+    // Commands
+    // =========================================================================
 
     /** Returns shooter to idle. */
     public Command idleCommand() {
@@ -392,7 +415,20 @@ public class ShooterSubsystem extends SubsystemBase {
         return targetHoodPoseRot;
     }
 
-    // ==== Vision Lookup Tables ====
+    /**
+     * Command that holds SPINNING_UP state while scheduled and returns to IDLE on end.
+     * Use as a standalone step in a Commands.sequence() — never call this inside a lambda.
+     * For lambdas/runOnce/Commands.run(), use beginSpinUp() (void) instead.
+     */
+    public Command spinUpCommand() {
+        return Commands.startEnd(
+            () -> setState(ShooterState.SPINNING_UP),
+            () -> setState(ShooterState.IDLE),
+            this).withName("Shooter: SpinUpCommand");
+    }
+        // =========================================================================
+    // Vision Lookup Tables
+    // =========================================================================
 
     /**
      * Distance-to-RPM and distance-to-hood lookup tables.
@@ -429,6 +465,14 @@ public class ShooterSubsystem extends SubsystemBase {
         HOOD_ROT_MAP.put(3.55, 4.30); 
         HOOD_ROT_MAP.put(5.5, 5.50);
     }
+
+    /*
+     * CLOSE_RPM = 2700, 0.00
+     * TOWER_RPM = 3200, 4.30
+     * TRENCH_RPM = 3200, 4.30
+     * FAR_RPM = 3800, 5.50
+     * PASS_RPM = 3603, 2.00
+     */
 
     /**
      * Updates shooter targets from the interpolation maps for the given distance.

@@ -11,10 +11,10 @@ import com.ctre.phoenix6.swerve.SwerveRequest;
 
 import choreo.auto.AutoChooser;
 import choreo.auto.AutoFactory;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
+import edu.wpi.first.wpilibj2.command.button.Trigger;
 import edu.wpi.first.wpilibj2.command.button.RobotModeTriggers;
 import frc.robot.generated.TunerConstants;
 import frc.robot.commands.FuelCommands;
@@ -28,8 +28,6 @@ import frc.robot.subsystems.shooter.ShooterSubsystem;
 import frc.robot.subsystems.led.LedSubsystem;
 import frc.robot.subsystems.vision.VisionIOLimelight;
 import frc.robot.subsystems.vision.VisionSubsystem;
-
-@SuppressWarnings("unused") // Suppress warnings for unused right now
 
 public class RobotContainer {
     private double MaxSpeed = 0.5 * TunerConstants.kSpeedAt12Volts.in(MetersPerSecond);
@@ -56,8 +54,7 @@ public class RobotContainer {
     private final IndexerSubsystem indexer;
     private final ShooterSubsystem shooter;
     private final VisionSubsystem vision;
-    // private final LedSubsystem ledSubsystem;
-    private final LedSubsystem larson;
+    private final LedSubsystem ledSub;
     // private final ClimberSubsystem climber;
     private final FuelCommands fuelCommands = null;
     private final AutoFactory autoFactory;
@@ -70,18 +67,21 @@ public class RobotContainer {
         shooter = new ShooterSubsystem(new ShooterIOHardware());
         vision = new VisionSubsystem(new VisionIOLimelight(Constants.Vision.LIMELIGHT4_NAME));
 
-        larson = new LedSubsystem();
-        // climber = new ClimberSubsystem();
+        ledSub = new LedSubsystem();
 
         autoFactory = drivetrain.createAutoFactory();
-        autoRoutines = new AutoRoutines(autoFactory,drivetrain,indexer, intake, shooter, fuelCommands);
+        autoRoutines = new AutoRoutines(autoFactory,drivetrain,indexer, intake, shooter, fuelCommands, vision);
         SmartDashboard.putData(autoChooser);
-        autoChooser.addRoutine("Four meters", autoRoutines::FM);
-        autoChooser.addRoutine("Lob", autoRoutines::Lob);
-        autoChooser.addRoutine("StartRight goes to middle", autoRoutines::StartRMid);
-        autoChooser.addRoutine("StartLeft goes to middle", autoRoutines::StartLMid);
-        autoChooser.addRoutine("Test(center shot)", autoRoutines::TestRoutine);
-        autoChooser.addRoutine("Center Depot shot)", autoRoutines:: MidDepot);
+
+        autoChooser.addRoutine("Rt Trench-Mid-Trench", autoRoutines::RtTrench_Mid_Trench);
+        autoChooser.addRoutine("Rt Trench-Mid-Ramp", autoRoutines::RtTrench_Mid_Ramp);
+        autoChooser.addRoutine("Lt Trench-Mid-Trench", autoRoutines::LtTrench_Mid_Trench);
+        autoChooser.addRoutine("Rt Trench-Mid-Ramp", autoRoutines::RtTrench_Mid_Ramp);
+        autoChooser.addRoutine("Center", autoRoutines::Center);
+        
+        // autoChooser.addRoutine("Center Depot shot)", autoRoutines:: MidDepot);
+        // autoChooser.addRoutine("Rt Trench-Mid-Trench (Split)", autoRoutines::RtTrench_Mid_Trench_Splits);
+        // autoChooser.addRoutine("Rt Trench-Mid-Ramp (Split)", autoRoutines::RtTrench_Mid_Ramp_Splits);
         
         SmartDashboard.putData("AutoChooser", autoChooser);
         configureBindings();
@@ -89,6 +89,7 @@ public class RobotContainer {
     }
 
     private void configureBindings() {
+
         // =====================================================================
         // DRIVER CONTROLLER (Port 0) - Drivetrain
         // =====================================================================
@@ -109,48 +110,106 @@ public class RobotContainer {
         // Start: Reset field-centric heading
         driver.start().onTrue(drivetrain.runOnce(drivetrain::seedFieldCentric));
 
+        // Back: Reset odometry to Limelight botpose (use when robot rides up on a ball and wheels lose contact)
+        driver.back().onTrue(drivetrain.resetPoseFromVisionCommand());
+
         drivetrain.registerTelemetry(logger::telemeterize);
 
         // =====================================================================
         // DRIVER CONTROLLER (Port 0) - Shooter
         // =====================================================================
-
         
         driver.rightTrigger(0.5).whileTrue(
-            FuelCommands.poseAlignAndShoot(shooter, indexer, drivetrain,
+            FuelCommands.poseAlignAndShoot(shooter, indexer, /*intake,*/ drivetrain,
                 () -> -driver.getLeftY() * MaxSpeed,
                 () -> -driver.getLeftX() * MaxSpeed)); 
         
-        driver.rightBumper().whileTrue(FuelCommands.shootPass(shooter, indexer));
+        // Hold on and it will cycle back and forth
+        driver.rightBumper().whileTrue(intake.fuelPumpCycle());
 
         driver.leftTrigger(0.5).whileTrue(intake.intakeFuel());
-        driver.leftBumper().whileTrue(intake.compressFuelIncremental());
 
-        driver.povDown().onTrue(intake.retractSlidesCmd());
+        // Press once to partially retract slides
+        driver.leftBumper().onTrue(intake.retractSlidesIncrementalCmd());
+
+        // driver.a().whileTrue(FuelCommands.fuelPump(indexer));
+        
 
 
         // =====================================================================
         // OPERATOR CONTROLLER (Port 1)
         // =====================================================================
-        var anyPresetHeld = operator.a().or(operator.b()).or(operator.x()).or(operator.y()); 
+        // var anyPresetHeld = operator.a().or(operator.b()).or(operator.x()).or(operator.y()); 
         
-        operator.rightTrigger(0.5).and(operator.a()).whileTrue(
+        operator.a().whileTrue(
             FuelCommands.shootWithPreset(shooter, indexer, ShooterSubsystem.ShotPreset.TRENCH));
-        operator.rightTrigger(0.5).and(operator.b()).whileTrue(
+        operator.b().whileTrue(
             FuelCommands.shootWithPreset(shooter, indexer, ShooterSubsystem.ShotPreset.CLOSE));
-        operator.rightTrigger(0.5).and(operator.x()).whileTrue(
+        operator.x().whileTrue(
             FuelCommands.shootWithPreset(shooter, indexer, ShooterSubsystem.ShotPreset.TOWER));
-        operator.rightTrigger(0.5).and(operator.y()).whileTrue(
+        operator.y().whileTrue(
             FuelCommands.shootWithPreset(shooter, indexer, ShooterSubsystem.ShotPreset.FAR));
 
         operator.rightBumper().whileTrue(FuelCommands.shootPass(shooter, indexer));
 
+        // Hold to back a ball out of the chute if it entered prematurely
+        operator.rightTrigger().whileTrue(indexer.reverse());
+
+        // Auto-reverse: intake running + shooter idle + ball detected in chute = premature ball → reverse indexer
+        // new Trigger(() ->
+        //     intake.isRollerRunning() &&
+        //     shooter.getState() == ShooterSubsystem.ShooterState.IDLE &&
+        //     indexer.isFuelDetected()
+        // ).whileTrue(indexer.reverse());
+
         operator.leftTrigger().whileTrue(FuelCommands.runAirPopper(indexer, shooter, intake));
         operator.leftBumper().whileTrue(intake.retractSlidesStack());
+
+        // Back (View ⧉): Reset odometry to botpose — use when robot rides up on a ball
+        operator.back().onTrue(drivetrain.resetPoseFromVisionCommand());
+
+        // FIXME Add a reverse indexer on start button for operator
 
     
         // operator.povUp().whileTrue(null); // incremental extend climber command to be added when climber is ready
         // operator.povDown().whileTrue(null); // incremental retract climber command to be added when climber is ready
+
+        // POV cycles through LED animations (for testing / manual override)
+        operator.povUp().onTrue(ledSub.cycleNext());
+        operator.povDown().onTrue(ledSub.cyclePrev());
+
+        // =====================================================================
+        // LED STATE TRIGGERS — shooter states
+        // =====================================================================
+        new Trigger(shooter::isSpinningUp)
+            .onTrue(ledSub.showSpinningUp())
+            .onFalse(ledSub.showDefault());
+
+        new Trigger(shooter::isReady)
+            .onTrue(ledSub.showReady())
+            .onFalse(ledSub.showDefault());
+
+        // =====================================================================
+        // LED GAME TELEMETRY TRIGGERS (commented out — enable when needed)
+        // Requires: gameDataTelemetry accessible here, DriverStation import
+        // =====================================================================
+
+        // -- Robot alliance color on enable --
+        // new Trigger(() -> DriverStation.getAlliance().orElse(DriverStation.Alliance.Red) == DriverStation.Alliance.Red)
+        //     .onTrue(ledSub.showDefault()); // swap showDefault() for a showAllianceRed() if you add one
+
+        // -- Active hub: which alliance is currently in scoring mode --
+        // new Trigger(gameDataTelemetry::isRedHubActive)
+        //     .onTrue(/* ledSub.showRedHub() */null)
+        //     .onFalse(/* ledSub.showDefault() */null);
+
+        // new Trigger(gameDataTelemetry::isBlueHubActive)
+        //     .onTrue(/* ledSub.showBlueHub() */null)
+        //     .onFalse(/* ledSub.showDefault() */null);
+
+        // -- FMS data received (lights up once auto-scoring data arrives ~3s after auto) --
+        // new Trigger(gameDataTelemetry::isDataReceived)
+        //     .onTrue(/* ledSub.showAllianceColor() */null);
 
         // Operator holds a face button to override with a named preset.
 

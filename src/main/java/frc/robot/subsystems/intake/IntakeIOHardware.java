@@ -4,10 +4,12 @@ import com.ctre.phoenix6.BaseStatusSignal;
 import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.DynamicMotionMagicVoltage;
+import com.ctre.phoenix6.controls.Follower;
 import com.ctre.phoenix6.controls.MotionMagicVoltage;
 import com.ctre.phoenix6.controls.VoltageOut;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.InvertedValue;
+import com.ctre.phoenix6.signals.MotorAlignmentValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
@@ -67,16 +69,17 @@ public class IntakeIOHardware implements IntakeIO {
             config.CurrentLimits.StatorCurrentLimitEnable = true;
 
             config.SoftwareLimitSwitch.ForwardSoftLimitEnable = true;
-            config.SoftwareLimitSwitch.ForwardSoftLimitThreshold = 44.25;
+            config.SoftwareLimitSwitch.ForwardSoftLimitThreshold = Constants.Intake.SLIDE_MAX_POS;
             config.SoftwareLimitSwitch.ReverseSoftLimitEnable = true;
-            config.SoftwareLimitSwitch.ReverseSoftLimitThreshold = 0.0;
+            config.SoftwareLimitSwitch.ReverseSoftLimitThreshold = 0.0; 
 
-            /* Tune PID values for position control of the Slide motor */
-            config.Slot0.kP = 2.0;
+            /* TODO These new re-tuning for position control of the new slide mechanism */
+            config.Slot0.kP = 2.0; 
             config.Slot0.kI = 0.0;
             config.Slot0.kD = 0.0;
+            config.Slot0.kS = 0.7;
 
-            /* MotionMagic profile - TODO: Tune the MotionMagic parameters for smooth and responsive slide movement. */
+            /* MotionMagic profile */
             config.MotionMagic.MotionMagicCruiseVelocity = 363; // 960;
             config.MotionMagic.MotionMagicAcceleration = 363;
             config.MotionMagic.MotionMagicJerk = 0;
@@ -86,7 +89,8 @@ public class IntakeIOHardware implements IntakeIO {
     }
 
     // ==== Hardware ====
-    private final TalonFX roller;
+    private final TalonFX rollerLeft;   // Lead motor
+    private final TalonFX rollerRight;  // Follow motor (opposes leader direction)
     private final TalonFX slide;
 
     // ==== Control Requests ====
@@ -96,7 +100,7 @@ public class IntakeIOHardware implements IntakeIO {
     private final MotionMagicVoltage slideRequest = new MotionMagicVoltage(0);
 
     // DynamicMotionMagic for slower slide movement 
-    // TODO: Tune these for a slower retract profile
+    // TODO: Revisit this with the new slides to try for new retract profile
     private final DynamicMotionMagicVoltage slideRequestSlow = new DynamicMotionMagicVoltage(0, 4, 4);
                                                               // (position=0, velocity=16, accel=16, jerk=0)
 
@@ -106,10 +110,14 @@ public class IntakeIOHardware implements IntakeIO {
     private final StatusSignal<AngularVelocity> slideVelocity;
 
     public IntakeIOHardware() {
-        roller = new TalonFX(Constants.Intake.INTAKE_ROLLER_MOTOR_ID, Constants.RIO_CANBUS);
+        rollerLeft = new TalonFX(Constants.Intake.INTAKE_ROLLER_LEFT_MOTOR_ID, Constants.RIO_CANBUS);
+        rollerRight = new TalonFX(Constants.Intake.INTAKE_ROLLER_RIGHT_MOTOR_ID, Constants.RIO_CANBUS);
+
         slide  = new TalonFX(Constants.Intake.INTAKE_SLIDE_MOTOR_ID, Constants.RIO_CANBUS);
 
-        roller.getConfigurator().apply(RollerConfig.roller());
+        rollerLeft.getConfigurator().apply(RollerConfig.roller());
+        rollerRight.getConfigurator().apply(RollerConfig.roller());
+        rollerRight.setControl(new Follower(rollerLeft.getDeviceID(), MotorAlignmentValue.Opposed)); // Oppose master direction
         slide.getConfigurator().apply(SlideConfig.slide());
 
         // Cache signal references — slide needs position and velocity for MotionMagic
@@ -123,7 +131,8 @@ public class IntakeIOHardware implements IntakeIO {
             slideVelocity
         );
 
-        roller.optimizeBusUtilization();
+        rollerLeft.optimizeBusUtilization();
+        rollerRight.optimizeBusUtilization();
         slide.optimizeBusUtilization();
 
         // Zero slide encoder at startup — assumes slide is fully retracted
@@ -149,12 +158,12 @@ public class IntakeIOHardware implements IntakeIO {
     // ==== Roller Methods ====
     @Override
     public void setRollerVoltage(double volts) {
-        roller.setControl(rollerRequest.withOutput(volts));
+        rollerLeft.setControl(rollerRequest.withOutput(volts));
     }
 
     @Override
     public void stopRoller() {
-        roller.stopMotor();
+        rollerLeft.stopMotor();
     }
 
     // ==== Slide Methods ====

@@ -33,22 +33,36 @@ public final class Constants {
     }
 
     /** Intake rotator motor - Kraken X44 with TalonFX controller */
-    public static final int INTAKE_ROLLER_MOTOR_ID = 20;
+    public static final int INTAKE_ROLLER_LEFT_MOTOR_ID = 20; // TODO Update name in Tuner
 
-    /** Intake slide motor A - Kraken X44 with TalonFX controller */
-    public static final int INTAKE_SLIDE_MOTOR_ID = 21;
+    /** Intake rotator motor - Kraken X44 with TalonFX controller */
+    public static final int INTAKE_ROLLER_RIGHT_MOTOR_ID = 21; // TODO Update name and ID in Tuner <-- **NEW**
 
-    /** Intake slide motor B - Kraken X44 with TalonFX controller (paired with A) */
-    // public static final int INTAKE_SLIDE_B__MOTOR_ID = 22; // Not needed
+    /** Intake slide motor - Kraken X44 with TalonFX controller */
+    public static final int INTAKE_SLIDE_MOTOR_ID = 22; // TODO Update name and ID in Tuner <-- **was 21**
 
     /** Time of Flight sensor - CANrange, confirms fuel presence */
     public static final int INTAKE_SENSOR_ID = 41;
 
     // === Constants =====================
-    public static final double SLIDE_RETRACTED_POSITION = 0.0;
-    public static final double SLIDE_EXTENDED_POSITION = 44.40;
-    public static final double SLIDE_MIN_POSITION = 0.0;
-    public static final double SLIDE_MAX_POSITION = 44.454;
+    public static final double SLIDE_RETRACTED_POS = 0.0;
+   
+    /* TODO: Update with new slide positions using Tuner
+    * Set in code here (slightly less than mechanical max to prevent hitting hard stops)
+    * Set configs limits to prevent commanding beyond physical limits, but use these software limits for normal operation and target positions.
+    */ 
+    public static final double SLIDE_EXTENDED_POS = 44.40;  
+    public static final double SLIDE_MAX_POS = 44.454; 
+
+    /* TODO: Update these Special positions 
+    * Pump UP: roller lifted ~5 rotations toward bumpers — high position for bump agitation.
+    */
+    public static final double SLIDE_PUMP_OUT_POS = 40.0;
+    public static final double SLIDE_PUMP_IN_POS   = 30.0;
+    
+    // TODO Tune the roller voltages
+    public static final double FORWARD_ROLLER_VOLTS = 11.0; //
+    public static final double REVERSE_ROLLER_VOLTS = -8.0;
   }
 
   // =========================================================
@@ -64,7 +78,7 @@ public final class Constants {
     public static final int INDEXER_MOTOR_ID = 23;
 
     /**
-     * Conveyor motor - Minion with TalonFXS controller, moves pieces along hopper
+     * Conveyor motor - Kraken X44 with TalonFX controller, moves pieces along hopper
      */
     public static final int CONVEYOR_MOTOR_ID = 24;
 
@@ -75,23 +89,27 @@ public final class Constants {
     public static final int CHUTE_TOF_ID = 42;
 
     //=== Voltage Constants =====================
+    // TODO Tune conveyor voltages for reliable feeding
     public static final double CONVEYOR_FORWARD_VOLTAGE = 6.0;
     public static final double CONVEYOR_REVERSE_VOLTAGE = -4.0;
     public static final double CONVEYOR_POPPER_VOLTAGE = 3.0;
 
-    public static final double INDEXER_FORWARD_VOLTAGE = 6.0;
-    public static final double INDEXER_REVERSE_VOLTAGE = -4.0;
+    // TODO Tune indexer voltages for reliable feeding
+    public static final double INDEXER_FORWARD_VOLTAGE = 8.0; // was 6.0
+    public static final double INDEXER_REVERSE_VOLTAGE = -8.0;
     public static final double INDEXER_POPPER_VOLTAGE = 3.0;
 
-    public static final double CHUTE_MAX_DISTANCE = 0.50; // TODO: Tune experimentally
-    public static final double CHUTE_MIN_DISTANCE = 0.02; // TODO: Tune experimentally
+    // Physical max distance of the chute beam — 14 inches (0.36 m).
+    // Used as the CANrange ProximityThreshold so the hardware "detected" signal
+    // matches the same boundary.
+    public static final double CHUTE_MAX_DISTANCE = 0.36; // 14 inches
 
-    // Chute detection threshold: distance below which we consider a piece to be
-    // present at the chute.
-    public static final double CHUTE_DETECTION_THRESHOLD_METERS = 0.40; //
-    public static final double CHUTE_TOLERANCE = 0.05;
+    // Software threshold for fuel detection.
+    // A fuel ball is ~6 in (0.1524 m); anything below ~10 in (0.25 m) means fuel
+    // is present in the chute.
+    public static final double FUEL_DETECTION_DISTANCE = 0.25; // ~10 inches
 
-    public static final double FUEL_CLEAR_TIME = 2.0;
+    public static final double FUEL_CLEAR_TIME = 2.0; // seconds
 
   }
 
@@ -130,7 +148,7 @@ public final class Constants {
     public static final double TOWER_RPM = 3200; // TODO: Tune was 3100, 4.42
     public static final double TRENCH_RPM = 3200; // TODO: Tune
     public static final double FAR_RPM = 3800; // TODO: Tune was 4000 + 5.5 worked
-    public static final double PASS_RPM = 3200; // TODO: Tune was 4000 + 7.00 and too much, 3200 is a starting point
+    public static final double PASS_RPM = 3603; // TODO: Tune was 4000 + 7.00 and too much, 3200 is a starting point
 
     /**
      * Reverse RPM for jam clearing. Only reached through eject(), which gates on
@@ -143,13 +161,12 @@ public final class Constants {
      */
     public static final double EJECT_MAX_ENTRY_RPM = 500.0;
 
-    public static final double FLYWHEEL_TOLERANCE_PERCENT = 0.05; // Tightened from 0.10 — measured steady-state
-                                                                  // variance ±30 RPM at 3300; 3% = ±99 RPM (~3×
-                                                                  // variance)
+    /* Tightened from 0.10 — measured steady-state; variance ±30 RPM at 3300; 3% = ±99 RPM (~3× variance) */
+    public static final double FLYWHEEL_TOLERANCE_PERCENT = 0.05; 
 
     // --- Hood (Kraken rotational positions) ---
     public static final double MIN_HOOD_POSE_ROT = 0.0; // Mechanical limit, validate in configs limit
-    public static final double MAX_HOOD_POSE_ROT = 9.14; // Mechanical limit, validate in configs limit
+    public static final double MAX_HOOD_POSE_ROT = 10.15; // Mechanical limit, validate in configs limit
     public static final double HOOD_POSE_TOLERANCE = 0.25; // TODO Tune tolerance based on testing — consider a tighter
                                                            // tolerance than 0.25 rotations
 
@@ -163,7 +180,7 @@ public final class Constants {
     public static final double TOWER_HOOD = 4.30;   // TODO: Tune Tower hood
     public static final double TRENCH_HOOD = 4.30;  // TODO: Tune Trench hood
     public static final double FAR_HOOD = 5.50;     // TODO: Tune Far hood, was 4000 + 5.5 worked
-    public static final double PASS_HOOD = 3.00;    //TODO: Tune Pass hoodm, was 7.00 and too much
+    public static final double PASS_HOOD = 2.00;    //TODO: Tune Pass hoodm, was 7.00 and too much
 
     // --- Testing Increments ---
     public static final double HOOD_TEST_INCREMENT = 0.2;
@@ -173,13 +190,13 @@ public final class Constants {
   // =========================================================
   // Climber
   // =========================================================
-  public static final class Climber {
-    private Climber() {
-    }
+  // public static final class Climber {
+  //   private Climber() {
+  //   }
 
-    /** Climber motor A - Kraken X60 with TalonFX controller */
-    public static final int CLIMB_MOTOR_ID = 30;
-  }
+  //   /** Climber motor A - Kraken X60 with TalonFX controller */
+  //   public static final int CLIMB_MOTOR_ID = 30;
+  // }
 
   // =========================================================
   // Vision / Limelight
@@ -197,7 +214,7 @@ public final class Constants {
     public static final int GAME_PIECE_PIPELINE = 1; // Optional: for note/game piece detection
 
     // =========================================================
-    // Camera mounting
+    // Camera mounting - Primarily Documentation Purposes
     // =========================================================
 
     /** Height of Limelight lens from floor in meters */
@@ -215,11 +232,7 @@ public final class Constants {
     /** Angle of camera from horizontal in degrees (positive = tilted up) */
     // 25 degrees is a common starting point for angled vision setups, but should be
     // measured for accuracy.
-    public static final double CAMERA_ANGLE_DEGREES = 25.0; // TODO: Measure actual angle
-
-    /** Height of AprilTag center from floor in meters */
-    //
-    public static final double APRILTAG_HEIGHT_METERS = 1.45; // TODO: Update for 2026 game
+    public static final double CAMERA_ANGLE_DEGREES = 15.5;
 
     // Alignment tolerances
     /** Tolerance for horizontal alignment in degrees */
@@ -266,6 +279,8 @@ public final class Constants {
      * - Too high → oscillates left/right around the target
      * See TUNING.md §5 for step-by-step procedure.
      */
+
+    // started at 40; now 10;
     public static final double ROTATIONAL_KP = 0.10;
 
     /**
@@ -281,7 +296,7 @@ public final class Constants {
     public static final double MIN_DISTANCE_M = 0.5;
     public static final double MAX_DISTANCE_M = 8.0;
 
-    public static final double LEAD_COMPENSATION_DEG_PER_MPS = 40; // Tune up from 0 — 50 degrees of aim offset per m/s of lateral velocity
+    public static final double LEAD_COMPENSATION_DEG_PER_MPS = 00; // Tune up from 0 — 50 degrees of aim offset per m/s of lateral velocity
 
   }
 
@@ -302,9 +317,10 @@ public final class Constants {
     public static final int LEDS_PER_SEGMENT = 36;
 
     /** Total strip length in meters */
-    public static final int STRIP_LENGTH_METERS = 1;
+    public static final double STRIP_LENGTH_METERS = 0.28575;
 
     /** Total number of logical addressable segments */
-    public static final int LOGICAL_LED_COUNT = SEGMENTS_PER_METER * STRIP_LENGTH_METERS; // TODO: Adjust as needed
+    public static final double LOGICAL_LED_COUNT = SEGMENTS_PER_METER * STRIP_LENGTH_METERS;
+
   }
 }
