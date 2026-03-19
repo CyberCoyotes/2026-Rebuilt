@@ -131,7 +131,6 @@ public class ShooterIOHardware implements ShooterIO {
   // ── Hardware ───────────────────────────────────────────────────────────────
   private final TalonFX flywheelMotorA;
   private final TalonFX flywheelMotorB;
-  private final TalonFX flywheelMotorC;
   private final TalonFXS hoodMotor;
 
   // ── Control Requests ───────────────────────────────────────────────────────
@@ -147,14 +146,12 @@ public class ShooterIOHardware implements ShooterIO {
   private final StatusSignal<?> flywheelAMotorVoltage;
   private final StatusSignal<?> flywheelATempCelsius;
   private final StatusSignal<?> flywheelBTempCelsius;
-  private final StatusSignal<?> flywheelCTempCelsius;
   private final StatusSignal<?> hoodPosition;
 
   // ── Constructor ────────────────────────────────────────────────────────────
   public ShooterIOHardware() {
-    flywheelMotorA = new TalonFX(Constants.Shooter.FLYWHEEL_A_MOTOR_ID, Constants.RIO_CANBUS);
-    flywheelMotorB = new TalonFX(Constants.Shooter.FLYWHEEL_B_MOTOR_ID, Constants.RIO_CANBUS);
-    flywheelMotorC = new TalonFX(Constants.Shooter.FLYWHEEL_C_MOTOR_ID, Constants.RIO_CANBUS);
+    flywheelMotorA = new TalonFX(Constants.Shooter.FLYWHEEL_LEFT_MOTOR_ID, Constants.RIO_CANBUS);
+    flywheelMotorB = new TalonFX(Constants.Shooter.FLYWHEEL_RIGHT_MOTOR_ID, Constants.RIO_CANBUS);
     hoodMotor      = new TalonFXS(Constants.Shooter.HOOD_MOTOR_ID, Constants.RIO_CANBUS);
 
     // Apply configs with retry logic — bare apply() can fail silently on RIO CAN
@@ -164,8 +161,6 @@ public class ShooterIOHardware implements ShooterIO {
         () -> flywheelMotorA.getConfigurator().apply(FlywheelConfig.leader()));
     PhoenixUtil.applyConfig("Flywheel B follower",
         () -> flywheelMotorB.getConfigurator().apply(FlywheelConfig.follower()));
-    PhoenixUtil.applyConfig("Flywheel C follower",
-        () -> flywheelMotorC.getConfigurator().apply(FlywheelConfig.follower()));
     PhoenixUtil.applyConfig("Hood",
         () -> hoodMotor.getConfigurator().apply(HoodConfig.hood()));
 
@@ -174,7 +169,6 @@ public class ShooterIOHardware implements ShooterIO {
     flywheelAMotorVoltage = flywheelMotorA.getMotorVoltage();
     flywheelATempCelsius  = flywheelMotorA.getDeviceTemp();
     flywheelBTempCelsius  = flywheelMotorB.getDeviceTemp();
-    flywheelCTempCelsius  = flywheelMotorC.getDeviceTemp();
     hoodPosition          = hoodMotor.getPosition();
 
     // Disable all status frames not explicitly re-enabled below.
@@ -182,7 +176,6 @@ public class ShooterIOHardware implements ShooterIO {
     // MUST come AFTER this call or they will be cleared.
     flywheelMotorA.optimizeBusUtilization();
     flywheelMotorB.optimizeBusUtilization();
-    flywheelMotorC.optimizeBusUtilization();
     hoodMotor.optimizeBusUtilization();
 
     // 100Hz — DutyCycle and MotorVoltage must be re-enabled on Motor A so
@@ -204,14 +197,12 @@ public class ShooterIOHardware implements ShooterIO {
     BaseStatusSignal.setUpdateFrequencyForAll(
         10.0,
         flywheelATempCelsius,
-        flywheelBTempCelsius,
-        flywheelCTempCelsius
+        flywheelBTempCelsius
     );
 
     // Followers MUST be set AFTER optimizeBusUtilization() — aggressive frame
     // disabling can break the follower control link if set before.
-    flywheelMotorB.setControl(new Follower(Constants.Shooter.FLYWHEEL_A_MOTOR_ID, MotorAlignmentValue.Aligned));
-    flywheelMotorC.setControl(new Follower(Constants.Shooter.FLYWHEEL_A_MOTOR_ID, MotorAlignmentValue.Aligned));
+    flywheelMotorB.setControl(new Follower(Constants.Shooter.FLYWHEEL_LEFT_MOTOR_ID, MotorAlignmentValue.Aligned));
 
     // Initialize hood to known zero position
     hoodMotor.setPosition(0.0);
@@ -220,12 +211,11 @@ public class ShooterIOHardware implements ShooterIO {
   // ── IO Implementation ──────────────────────────────────────────────────────
   @Override
   public void updateSlowInputs(ShooterIOInputs inputs) {
-    BaseStatusSignal.refreshAll(flywheelATempCelsius, flywheelBTempCelsius, flywheelCTempCelsius);
+    BaseStatusSignal.refreshAll(flywheelATempCelsius, flywheelBTempCelsius);
 
     inputs.flywheelMaxTempCelsius = Math.max(
         flywheelATempCelsius.getValueAsDouble(),
-        Math.max(flywheelBTempCelsius.getValueAsDouble(),
-                 flywheelCTempCelsius.getValueAsDouble()));
+        flywheelBTempCelsius.getValueAsDouble());
   }
 
   @Override
@@ -250,12 +240,10 @@ public class ShooterIOHardware implements ShooterIO {
     // stop when A receives a neutral request in Phoenix 6.
     flywheelMotorA.stopMotor();
     flywheelMotorB.stopMotor();
-    flywheelMotorC.stopMotor();
 
     // Re-establish follower after stopping — stopMotor() sends NeutralOut which
     // overrides the Follower request, so followers must be reset afterward.
-    flywheelMotorB.setControl(new Follower(Constants.Shooter.FLYWHEEL_A_MOTOR_ID, MotorAlignmentValue.Aligned));
-    flywheelMotorC.setControl(new Follower(Constants.Shooter.FLYWHEEL_A_MOTOR_ID, MotorAlignmentValue.Aligned));
+    flywheelMotorB.setControl(new Follower(Constants.Shooter.FLYWHEEL_LEFT_MOTOR_ID, MotorAlignmentValue.Aligned));
   }
 
   @Override
@@ -267,7 +255,6 @@ public class ShooterIOHardware implements ShooterIO {
   public void stop() {
     flywheelMotorA.stopMotor();
     flywheelMotorB.stopMotor();
-    flywheelMotorC.stopMotor();
     hoodMotor.stopMotor();
   }
 
