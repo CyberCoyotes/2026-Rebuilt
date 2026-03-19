@@ -31,38 +31,32 @@ public final class Constants {
   public static final class Intake {
     private Intake() {
     }
-
+    
+    // == IDs ===============================================
     /** Intake rotator motor - Kraken X44 with TalonFX controller */
-    public static final int INTAKE_ROLLER_LEFT_MOTOR_ID = 20; // TODO Update name in Tuner
-
-    /** Intake rotator motor - Kraken X44 with TalonFX controller */
-    public static final int INTAKE_ROLLER_RIGHT_MOTOR_ID = 21; // TODO Update name and ID in Tuner <-- **NEW**
+    public static final int ROLLER_LEFT_MOTOR_ID = 20; // TODO Update name in Tuner
+    public static final int ROLLER_RIGHT_MOTOR_ID = 21; // TODO Update name and ID in Tuner <-- **NEW**
 
     /** Intake slide motor - Kraken X44 with TalonFX controller */
-    public static final int INTAKE_SLIDE_MOTOR_ID = 22; // TODO Update name and ID in Tuner <-- **was 21**
+    public static final int SLIDE_MOTOR_ID = 22; // TODO Update name and ID in Tuner <-- **was 21**
 
-    /** Time of Flight sensor - CANrange, confirms fuel presence */
-    public static final int INTAKE_SENSOR_ID = 41;
-
-    // === Constants =====================
-    public static final double SLIDE_RETRACTED_POS = 0.0;
    
-    /* TODO: Update with new slide positions using Tuner
+    /* TODO: Update with new slide `positions` using Tuner
     * Set in code here (slightly less than mechanical max to prevent hitting hard stops)
-    * Set configs limits to prevent commanding beyond physical limits, but use these software limits for normal operation and target positions.
+    * Configs limit is set to the MAX_POS, but other values are here for normal operation and target positions.
     */ 
+    public static final double SLIDE_MAX_POS = 44.454; // Also reference in the config limits
+    public static final double SLIDE_RETRACTED_POS = 0.0;
     public static final double SLIDE_EXTENDED_POS = 44.40;  
-    public static final double SLIDE_MAX_POS = 44.454; 
-
+    
     /* TODO: Update these Special positions 
-    * Pump UP: roller lifted ~5 rotations toward bumpers — high position for bump agitation.
     */
     public static final double SLIDE_PUMP_OUT_POS = 40.0;
     public static final double SLIDE_PUMP_IN_POS   = 30.0;
     
     // TODO Tune the roller voltages
-    public static final double FORWARD_ROLLER_VOLTS = 11.0; //
-    public static final double REVERSE_ROLLER_VOLTS = -8.0;
+    public static final double ROLLER_FORWARD_VOLTS = 11.0;
+    public static final double ROLLER_REVERSE_VOLTS = -8.0;
   }
 
   // =========================================================
@@ -75,12 +69,13 @@ public final class Constants {
     /**
      * Indexer motor - Kraken X44 with TalonFX controller, feeds pieces to shooter
      */
-    public static final int INDEXER_MOTOR_ID = 23;
+    public static final int KICKER_LEFT_MOTOR_ID = 23; // TODO Update name in Tuner
+    public static final int KICKER_RIGHT_MOTOR_ID = 24; // TODO Update name in Tuner and ID in Tuner <-- **NEW**
 
     /**
      * Conveyor motor - Kraken X44 with TalonFX controller, moves pieces along hopper
      */
-    public static final int CONVEYOR_MOTOR_ID = 24;
+    public static final int CONVEYOR_MOTOR_ID = 27; // TODO Update name and ID in Tuner <-- **was 23**
 
     /**
      * CANrange Time of Flight sensor detects presence of fuel at indexer egress to
@@ -95,18 +90,18 @@ public final class Constants {
     public static final double CONVEYOR_POPPER_VOLTAGE = 3.0;
 
     // TODO Tune indexer voltages for reliable feeding
-    public static final double INDEXER_FORWARD_VOLTAGE = 8.0; // was 6.0
-    public static final double INDEXER_REVERSE_VOLTAGE = -8.0;
-    public static final double INDEXER_POPPER_VOLTAGE = 3.0;
+    public static final double KICKER_FORWARD_VOLTAGE = 8.0; // was 6.0
+    public static final double KICKER_REVERSE_VOLTAGE = -8.0;
+    public static final double KICKER_POPPER_VOLTAGE = 3.0;
 
-    // Physical max distance of the chute beam — 14 inches (0.36 m).
+    // Physical max distance of the chute beam: **NEW**.
     // Used as the CANrange ProximityThreshold so the hardware "detected" signal
     // matches the same boundary.
-    public static final double CHUTE_MAX_DISTANCE = 0.36; // 14 inches
+    public static final double FUEL_CHUTE_MAX_DISTANCE = 0.36; // TODO Remeasure the new shooter width
 
     // Software threshold for fuel detection.
-    // A fuel ball is ~6 in (0.1524 m); anything below ~10 in (0.25 m) means fuel
-    // is present in the chute.
+    // A fuel ball is ~6 in (0.1524 m)
+    // Anything below ~10 in (0.25 m) means fuel is present in the chute.
     public static final double FUEL_DETECTION_DISTANCE = 0.25; // ~10 inches
 
     public static final double FUEL_CLEAR_TIME = 2.0; // seconds
@@ -121,13 +116,10 @@ public final class Constants {
     }
 
     /** Flywheel A motor - Kraken X60 with TalonFX controller (leader) */
-    public static final int FLYWHEEL_A_MOTOR_ID = 25;
+    public static final int FLYWHEEL_LEFT_MOTOR_ID = 25;
 
     /** Flywheel B motor - Kraken X60 with TalonFX controller (follower of A) */
-    public static final int FLYWHEEL_B_MOTOR_ID = 26;
-
-    /** Flywheel C motor - Kraken X60 with TalonFX controller (follower of A) */
-    public static final int FLYWHEEL_C_MOTOR_ID = 27;
+    public static final int FLYWHEEL_RIGHT_MOTOR_ID = 26;
 
     /** Hood motor - Minion with TalonFXS controller, adjusts shot angle */
     public static final int HOOD_MOTOR_ID = 28;
@@ -186,17 +178,6 @@ public final class Constants {
     public static final double HOOD_TEST_INCREMENT = 0.2;
     public static final double FLYWHEEL_TEST_INCREMENT_RPM = 100.0;
   }
-
-  // =========================================================
-  // Climber
-  // =========================================================
-  // public static final class Climber {
-  //   private Climber() {
-  //   }
-
-  //   /** Climber motor A - Kraken X60 with TalonFX controller */
-  //   public static final int CLIMB_MOTOR_ID = 30;
-  // }
 
   // =========================================================
   // Vision / Limelight

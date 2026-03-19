@@ -131,12 +131,12 @@ public class IntakeSubsystem extends SubsystemBase {
     // ---- Roller ----    
     
     public void runRoller() {
-        io.setRollerVoltage(Constants.Intake.FORWARD_ROLLER_VOLTS);
+        io.setRollerVoltage(Constants.Intake.ROLLER_FORWARD_VOLTS);
         rollerState = RollerState.RUNNING;
     }
 
     public void reverseRoller() {
-        io.setRollerVoltage(Constants.Intake.REVERSE_ROLLER_VOLTS);
+        io.setRollerVoltage(Constants.Intake.ROLLER_REVERSE_VOLTS);
         rollerState = RollerState.REVERSED;
     }
 
