@@ -6,7 +6,7 @@ import org.littletonrobotics.junction.AutoLog;
  * ShooterIO - Hardware abstraction interface for the shooter subsystem.
  *
  * The shooter launches game pieces using:
- * - Flywheel motors: 3x TalonFX (A=leader, B/C=followers) spin up to launch game pieces
+ * - Flywheel motors: 2x TalonFX (leader + 1 follower, opposite sides) spin up to launch game pieces
  * - Hood motor: TalonFXS adjusts launch angle for different distances
  *
  * PATTERN: IO Interface

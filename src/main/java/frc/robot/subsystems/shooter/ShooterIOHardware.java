@@ -1,7 +1,6 @@
 package frc.robot.subsystems.shooter;
 
 import com.ctre.phoenix6.BaseStatusSignal;
-import com.ctre.phoenix6.StatusCode;
 import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.configs.TalonFXSConfiguration;
@@ -37,29 +36,21 @@ public class ShooterIOHardware implements ShooterIO {
   private static class FlywheelConfig {
 
     /**
-     * Config for Motors B and C (followers).
-     * Followers must NOT have a ramp period — the leader owns the ramp.
-     * A ramp on the follower causes it to lag behind A, producing desync,
-     * orange LEDs, and the characteristic whoop-whoop-whoop noise.
-     * PID gains are also cleared — followers never run closed-loop independently.
+     * Config for the follower motor.
+     * Direction is controlled by MotorAlignmentValue.Opposed in the Follower control
+     * request — the Inverted config here is irrelevant while following.
+     * No ramp, no PID — the follower mirrors the leader's output exactly and never
+     * runs closed-loop independently.
      */
     static TalonFXConfiguration follower() {
       TalonFXConfiguration config = new TalonFXConfiguration();
 
       config.MotorOutput.NeutralMode = NeutralModeValue.Coast;
-      config.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
 
       config.CurrentLimits.SupplyCurrentLimit = 45.0;
       config.CurrentLimits.SupplyCurrentLimitEnable = true;
       config.CurrentLimits.StatorCurrentLimit = 90.0;
       config.CurrentLimits.StatorCurrentLimitEnable = true;
-
-      // No ramp period — leader controls the ramp, followers just mirror output
-      config.ClosedLoopRamps.VoltageClosedLoopRampPeriod = 0.0;
-
-      // No PID gains — followers never run closed-loop
-      config.Slot0.kP = 0.0;
-      config.Slot0.kV = 0.0;
 
       return config;
     }
@@ -120,9 +111,9 @@ public class ShooterIOHardware implements ShooterIO {
 
       // Soft limits
       config.SoftwareLimitSwitch.ForwardSoftLimitEnable = true;
-      config.SoftwareLimitSwitch.ForwardSoftLimitThreshold = 10.15;
+      config.SoftwareLimitSwitch.ForwardSoftLimitThreshold = Constants.Shooter.MAX_HOOD_POSE;
       config.SoftwareLimitSwitch.ReverseSoftLimitEnable = true;
-      config.SoftwareLimitSwitch.ReverseSoftLimitThreshold = 0.0;
+      config.SoftwareLimitSwitch.ReverseSoftLimitThreshold = Constants.Shooter.MIN_HOOD_POSE;
 
       return config;
     }
@@ -141,6 +132,11 @@ public class ShooterIOHardware implements ShooterIO {
   // PositionVoltage commands maximum effort immediately — do not use for hood.
   private final MotionMagicVoltage hoodPositionRequest = new MotionMagicVoltage(0.0);
 
+  // Opposed: leader and follower are on opposite physical sides — they must spin
+  // in opposite directions to co-rotate the flywheel and launch the ball together.
+  private final Follower flywheelFollowerRequest =
+      new Follower(Constants.Shooter.FLYWHEEL_LEFT_MOTOR_ID, MotorAlignmentValue.Opposed);
+
   // == Status Signals ====================================================
   private final StatusSignal<?> flywheelLeaderVelocity;
   private final StatusSignal<?> flywheelLeaderVoltage;
@@ -157,9 +153,9 @@ public class ShooterIOHardware implements ShooterIO {
     // Apply configs with retry logic — bare apply() can fail silently on RIO CAN
     // bus if the device is still booting. PhoenixUtil retries up to 5 times and
     // prints a DriverStation warning if all attempts fail.
-    PhoenixUtil.applyConfig("Flywheel A leader",
+    PhoenixUtil.applyConfig("Flywheel Leader",
         () -> flywheelLeader.getConfigurator().apply(FlywheelConfig.leader()));
-    PhoenixUtil.applyConfig("Flywheel B follower",
+    PhoenixUtil.applyConfig("Flywheel Follower",
         () -> flywheelFollower.getConfigurator().apply(FlywheelConfig.follower()));
     PhoenixUtil.applyConfig("Hood",
         () -> hoodMotor.getConfigurator().apply(HoodConfig.hood()));
@@ -178,8 +174,8 @@ public class ShooterIOHardware implements ShooterIO {
     flywheelFollower.optimizeBusUtilization();
     hoodMotor.optimizeBusUtilization();
 
-    // 100Hz — DutyCycle and MotorVoltage must be re-enabled on Motor A so
-    // followers B and C can mirror output. Without these, followers lose sync.
+    // 100Hz — DutyCycle and MotorVoltage must be re-enabled on the leader so
+    // the follower can mirror output. Without these, followers lose sync.
     BaseStatusSignal.setUpdateFrequencyForAll(
         100.0,
         flywheelLeader.getDutyCycle(),
@@ -202,7 +198,7 @@ public class ShooterIOHardware implements ShooterIO {
 
     // Followers MUST be set AFTER optimizeBusUtilization() — aggressive frame
     // disabling can break the follower control link if set before.
-    flywheelFollower.setControl(new Follower(Constants.Shooter.FLYWHEEL_LEFT_MOTOR_ID, MotorAlignmentValue.Aligned));
+    flywheelFollower.setControl(flywheelFollowerRequest);
 
     // Initialize hood to known zero position
     hoodMotor.setPosition(0.0);
@@ -236,14 +232,11 @@ public class ShooterIOHardware implements ShooterIO {
 
   @Override
   public void stopFlywheels() {
-    // Explicitly stop all three — Follower control on B/C does NOT automatically
-    // stop when A receives a neutral request in Phoenix 6.
+    // Stop leader only — follower mirrors the leader's NeutralOut automatically.
+    // Calling stopMotor() on the follower directly would break the Follower control
+    // link (any direct command overrides it), requiring a re-establish on the next
+    // velocity command. Leave the follower alone and let it follow to neutral.
     flywheelLeader.stopMotor();
-    flywheelFollower.stopMotor();
-
-    // Re-establish follower after stopping — stopMotor() sends NeutralOut which
-    // overrides the Follower request, so followers must be reset afterward.
-    flywheelFollower.setControl(new Follower(Constants.Shooter.FLYWHEEL_LEFT_MOTOR_ID, MotorAlignmentValue.Aligned));
   }
 
   @Override
@@ -253,8 +246,8 @@ public class ShooterIOHardware implements ShooterIO {
 
   @Override
   public void stop() {
+    // Stop leader only — follower mirrors to neutral automatically (see stopFlywheels).
     flywheelLeader.stopMotor();
-    flywheelFollower.stopMotor();
     hoodMotor.stopMotor();
   }
 
