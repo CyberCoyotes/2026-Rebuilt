@@ -22,8 +22,8 @@ public final class Constants {
   // 20-39 Other motors (intake, indexer, shooter, climber)
   // 40+ Sensors (ToF, CANrange, etc.)
   // CAN Bus:
-  // > canivore (for drivetrain + CANdle)
-  // > rio (for other subsystems)
+  // -- canivore (for drivetrain + CANdle)
+  // -- rio (for other subsystems)
 
   // =========================================================
   // Intake
