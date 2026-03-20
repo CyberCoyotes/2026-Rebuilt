@@ -181,10 +181,11 @@ public class IntakeIOHardware implements IntakeIO {
         slide.setControl(slideRequestSlow.withPosition(position));
     }
 
-    @Override
-    public double getSlidePosition() {
-        return slidePosition.getValueAsDouble();
-    }
+    // This was not following the IO pattern and was being called directly by the subsystem
+    // @Override
+    // public double getSlidePosition() {
+    //     return slidePosition.getValueAsDouble();
+    // }
 
     @Override
     public void stopSlide() {
