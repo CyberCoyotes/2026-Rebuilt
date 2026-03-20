@@ -586,7 +586,7 @@ public class IntakeSubsystem extends SubsystemBase {
                 Commands.run(this::runRoller, this)
                         .withTimeout(intakeTimeout)
                         .finallyDo(this::stopRoller))
-                .withName("IntakeFuelAuton");
+                .withName("IntakeFuelTimer");
     }
 
     public Command intakeFuelUntil(BooleanSupplier condition) {
@@ -595,7 +595,7 @@ public class IntakeSubsystem extends SubsystemBase {
                 Commands.run(this::runRoller, this)
                         .until(condition)
                         .finallyDo(this::stopRoller))
-                .withName("IntakeFuelAuton");
+                .withName("IntakeFuelUntil");
     }
 
     /**

@@ -36,7 +36,7 @@ import frc.robot.Constants;
 
 public class IntakeIOHardware implements IntakeIO {
 
-    // ── Roller Configuration ───────────────────────────────────────────────────
+    // == Roller Configuration =====================================
     private static class RollerConfig {
 
         static TalonFXConfiguration roller() {
@@ -54,7 +54,7 @@ public class IntakeIOHardware implements IntakeIO {
         }
     }
 
-    // ==== Slide Configuration ====
+    // == Slide Configuration ======================================
     private static class SlideConfig {
 
         static TalonFXConfiguration slide() {
@@ -88,12 +88,12 @@ public class IntakeIOHardware implements IntakeIO {
         }
     }
 
-    // ==== Hardware ====
-    private final TalonFX rollerLeft;   // Lead motor
-    private final TalonFX rollerRight;  // Follow motor (opposes leader direction)
+    // == Hardware =============================================================
+    private final TalonFX rollerLead; // Currently the left roller motor, but can be swapped if needed by changing motor IDs in Constants
+    private final TalonFX rollerFollow;  // Currently the right roller motor
     private final TalonFX slide;
 
-    // ==== Control Requests ====
+    // == Control Requests =====================================================
     private final VoltageOut rollerRequest = new VoltageOut(0);
 
     // MotionMagic control for slide — set position, motor holds after command ends
@@ -104,20 +104,20 @@ public class IntakeIOHardware implements IntakeIO {
     private final DynamicMotionMagicVoltage slideRequestSlow = new DynamicMotionMagicVoltage(0, 4, 4);
                                                               // (position=0, velocity=16, accel=16, jerk=0)
 
-    // ==== Status Signals — 50Hz (control-critical) ====
+    // == Status Signals — 50Hz (control-critical) =====================================================
     // Current, voltage, and temp are captured by CTRE Hoot for diagnostics.
     private final StatusSignal<Angle> slidePosition;
     private final StatusSignal<AngularVelocity> slideVelocity;
 
     public IntakeIOHardware() {
-        rollerLeft = new TalonFX(Constants.Intake.INTAKE_ROLLER_LEFT_MOTOR_ID, Constants.RIO_CANBUS);
-        rollerRight = new TalonFX(Constants.Intake.INTAKE_ROLLER_RIGHT_MOTOR_ID, Constants.RIO_CANBUS);
+        rollerLead = new TalonFX(Constants.Intake.ROLLER_LEFT_MOTOR_ID, Constants.RIO_CANBUS);
+        rollerFollow = new TalonFX(Constants.Intake.ROLLER_RIGHT_MOTOR_ID, Constants.RIO_CANBUS);
 
-        slide  = new TalonFX(Constants.Intake.INTAKE_SLIDE_MOTOR_ID, Constants.RIO_CANBUS);
+        slide  = new TalonFX(Constants.Intake.SLIDE_MOTOR_ID, Constants.RIO_CANBUS);
 
-        rollerLeft.getConfigurator().apply(RollerConfig.roller());
-        rollerRight.getConfigurator().apply(RollerConfig.roller());
-        rollerRight.setControl(new Follower(rollerLeft.getDeviceID(), MotorAlignmentValue.Opposed)); // Oppose master direction
+        rollerLead.getConfigurator().apply(RollerConfig.roller());
+        rollerFollow.getConfigurator().apply(RollerConfig.roller());
+        rollerFollow.setControl(new Follower(rollerLead.getDeviceID(), MotorAlignmentValue.Opposed)); // Oppose master direction
         slide.getConfigurator().apply(SlideConfig.slide());
 
         // Cache signal references — slide needs position and velocity for MotionMagic
@@ -131,8 +131,8 @@ public class IntakeIOHardware implements IntakeIO {
             slideVelocity
         );
 
-        rollerLeft.optimizeBusUtilization();
-        rollerRight.optimizeBusUtilization();
+        rollerLead.optimizeBusUtilization();
+        rollerFollow.optimizeBusUtilization();
         slide.optimizeBusUtilization();
 
         // Zero slide encoder at startup — assumes slide is fully retracted
@@ -158,14 +158,16 @@ public class IntakeIOHardware implements IntakeIO {
     // ==== Roller Methods ====
     @Override
     public void setRollerVoltage(double volts) {
-        rollerLeft.setControl(rollerRequest.withOutput(volts));
-        rollerRight.setControl(rollerRequest.withOutput(-volts));
+        rollerLead.setControl(rollerRequest.withOutput(volts));
+        // Follower will automatically oppose lead motor, so no need to set voltage here.
+        // Calling the motor directly a "follower break"
+        // rollerFollow.setControl(rollerRequest.withOutput(-volts)); 
     }
 
     @Override
     public void stopRoller() {
-        rollerLeft.stopMotor();
-        rollerRight.stopMotor();
+        rollerLead.stopMotor();
+        // rollerFollow.stopMotor();
     }
 
     // ==== Slide Methods ====
