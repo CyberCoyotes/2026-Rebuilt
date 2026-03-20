@@ -1,6 +1,8 @@
 package frc.robot.subsystems.indexer;
 
 import org.littletonrobotics.junction.AutoLog;
+import org.littletonrobotics.junction.LogTable;
+import org.littletonrobotics.junction.inputs.LoggableInputs;
 
 /**
  * IndexerIO - Hardware abstraction interface for the indexer subsystem.
@@ -33,7 +35,7 @@ public interface IndexerIO {
      * TOF_DETECTION_THRESHOLD_METERS in IndexerIOHardware.
      */
     @AutoLog
-    class IndexerIOInputs {
+    class IndexerIOInputs implements LoggableInputs{
 
         // ===== Conveyor Motor =====
         /** Conveyor motor velocity in rotations per second. Used for jam detection. */
@@ -59,6 +61,36 @@ public interface IndexerIO {
 
         /** True if a game piece is detected in the indexer→shooter chute. */
         public boolean chuteDetected = false;
+
+        @Override
+public void toLog(LogTable table) {
+    // Conveyor Motor
+    table.put("ConveyorVelocityRPS", conveyorVelocityRPS);
+    table.put("ConveyorCurrentAmps", conveyorCurrentAmps);
+
+    // Indexer Motor
+    table.put("IndexerVelocityRPS", indexerVelocityRPS);
+    table.put("IndexerCurrentAmps", indexerCurrentAmps);
+
+    // Chute CANrange
+    table.put("ChuteDistanceMeters", chuteDistanceMeters);
+    table.put("ChuteDetected", chuteDetected);
+}
+
+@Override
+public void fromLog(LogTable table) {
+    // Conveyor Motor
+    conveyorVelocityRPS = table.get("ConveyorVelocityRPS", conveyorVelocityRPS);
+    conveyorCurrentAmps = table.get("ConveyorCurrentAmps", conveyorCurrentAmps);
+
+    // Indexer Motor
+    indexerVelocityRPS = table.get("IndexerVelocityRPS", indexerVelocityRPS);
+    indexerCurrentAmps = table.get("IndexerCurrentAmps", indexerCurrentAmps);
+
+    // Chute CANrange
+    chuteDistanceMeters = table.get("ChuteDistanceMeters", chuteDistanceMeters);
+    chuteDetected = table.get("ChuteDetected", chuteDetected);
+}
     }
 
     /**
