@@ -159,11 +159,13 @@ public class IntakeIOHardware implements IntakeIO {
     @Override
     public void setRollerVoltage(double volts) {
         rollerLeft.setControl(rollerRequest.withOutput(volts));
+        rollerRight.setControl(rollerRequest.withOutput(-volts));
     }
 
     @Override
     public void stopRoller() {
         rollerLeft.stopMotor();
+        rollerRight.stopMotor();
     }
 
     // ==== Slide Methods ====
