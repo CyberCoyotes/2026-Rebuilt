@@ -110,10 +110,10 @@ public class IntakeIOHardware implements IntakeIO {
     private final StatusSignal<AngularVelocity> slideVelocity;
 
     public IntakeIOHardware() {
-        rollerLeft = new TalonFX(Constants.Intake.INTAKE_ROLLER_LEFT_MOTOR_ID, Constants.RIO_CANBUS);
-        rollerRight = new TalonFX(Constants.Intake.INTAKE_ROLLER_RIGHT_MOTOR_ID, Constants.RIO_CANBUS);
+        rollerLeft = new TalonFX(Constants.Intake.ROLLER_LEFT_MOTOR_ID, Constants.RIO_CANBUS);
+        rollerRight = new TalonFX(Constants.Intake.ROLLER_RIGHT_MOTOR_ID, Constants.RIO_CANBUS);
 
-        slide  = new TalonFX(Constants.Intake.INTAKE_SLIDE_MOTOR_ID, Constants.RIO_CANBUS);
+        slide  = new TalonFX(Constants.Intake.SLIDE_MOTOR_ID, Constants.RIO_CANBUS);
 
         rollerLeft.getConfigurator().apply(RollerConfig.roller());
         rollerRight.getConfigurator().apply(RollerConfig.roller());
