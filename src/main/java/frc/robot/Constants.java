@@ -31,38 +31,32 @@ public final class Constants {
   public static final class Intake {
     private Intake() {
     }
-
+    
+    // == IDs ===============================================
     /** Intake rotator motor - Kraken X44 with TalonFX controller */
-    public static final int INTAKE_ROLLER_LEFT_MOTOR_ID = 20; // TODO Update name in Tuner
-
-    /** Intake rotator motor - Kraken X44 with TalonFX controller */
-    public static final int INTAKE_ROLLER_RIGHT_MOTOR_ID = 21; // TODO Update name and ID in Tuner <-- **NEW**
+    public static final int ROLLER_LEFT_MOTOR_ID = 20; // TODO Update name in Tuner
+    public static final int ROLLER_RIGHT_MOTOR_ID = 21; // TODO Update name and ID in Tuner <-- **NEW**
 
     /** Intake slide motor - Kraken X44 with TalonFX controller */
-    public static final int INTAKE_SLIDE_MOTOR_ID = 22; // TODO Update name and ID in Tuner <-- **was 21**
+    public static final int SLIDE_MOTOR_ID = 22; // TODO Update name and ID in Tuner <-- **was 21**
 
-    /** Time of Flight sensor - CANrange, confirms fuel presence */
-    public static final int INTAKE_SENSOR_ID = 41;
-
-    // === Constants =====================
-    public static final double SLIDE_RETRACTED_POS = 0.0;
    
-    /* TODO: Update with new slide positions using Tuner
+    /* TODO: Update with new slide `positions` using Tuner
     * Set in code here (slightly less than mechanical max to prevent hitting hard stops)
-    * Set configs limits to prevent commanding beyond physical limits, but use these software limits for normal operation and target positions.
+    * Configs limit is set to the MAX_POS, but other values are here for normal operation and target positions.
     */ 
+    public static final double SLIDE_MAX_POS = 44.454; // Also reference in the config limits
+    public static final double SLIDE_RETRACTED_POS = 0.0;
     public static final double SLIDE_EXTENDED_POS = 44.40;  
-    public static final double SLIDE_MAX_POS = 44.454; 
-
+    
     /* TODO: Update these Special positions 
-    * Pump UP: roller lifted ~5 rotations toward bumpers — high position for bump agitation.
     */
     public static final double SLIDE_PUMP_OUT_POS = 40.0;
     public static final double SLIDE_PUMP_IN_POS   = 30.0;
     
     // TODO Tune the roller voltages
-    public static final double FORWARD_ROLLER_VOLTS = 11.0; //
-    public static final double REVERSE_ROLLER_VOLTS = -8.0;
+    public static final double ROLLER_FORWARD_VOLTS = 11.0;
+    public static final double ROLLER_REVERSE_VOLTS = -8.0;
   }
 
   // =========================================================
@@ -75,15 +69,16 @@ public final class Constants {
     /**
      * Indexer motor - Kraken X44 with TalonFX controller, feeds pieces to shooter
      */
-    public static final int INDEXER_MOTOR_ID = 23;
+    public static final int KICKER_LEFT_MOTOR_ID = 23; // TODO Update name in Tuner
+    public static final int KICKER_RIGHT_MOTOR_ID = 24; // TODO Update name in Tuner and ID in Tuner <-- **NEW**
 
     /**
      * Conveyor motor - Kraken X44 with TalonFX controller, moves pieces along hopper
      */
-    public static final int CONVEYOR_MOTOR_ID = 24;
+    public static final int CONVEYOR_MOTOR_ID = 27; // TODO Update name and ID in Tuner <-- **was 23**
 
     /**
-     * CANrange Time of Flight sensor detects presence of fuel at indexer egress to
+     * CANrange Time of Flight sensor detects presence of fuel at indexer chute egress to
      * shooter (optional)
      */
     public static final int CHUTE_TOF_ID = 42;
@@ -95,18 +90,18 @@ public final class Constants {
     public static final double CONVEYOR_POPPER_VOLTAGE = 3.0;
 
     // TODO Tune indexer voltages for reliable feeding
-    public static final double INDEXER_FORWARD_VOLTAGE = 8.0; // was 6.0
-    public static final double INDEXER_REVERSE_VOLTAGE = -8.0;
-    public static final double INDEXER_POPPER_VOLTAGE = 3.0;
+    public static final double KICKER_FORWARD_VOLTAGE = 8.0; // was 6.0
+    public static final double KICKER_REVERSE_VOLTAGE = -8.0;
+    public static final double KICKER_POPPER_VOLTAGE = 3.0;
 
-    // Physical max distance of the chute beam — 14 inches (0.36 m).
+    // Physical max distance of the chute beam: **NEW**.
     // Used as the CANrange ProximityThreshold so the hardware "detected" signal
     // matches the same boundary.
-    public static final double CHUTE_MAX_DISTANCE = 0.36; // 14 inches
+    public static final double FUEL_CHUTE_MAX_DISTANCE = 0.36; // TODO Remeasure the new shooter width
 
     // Software threshold for fuel detection.
-    // A fuel ball is ~6 in (0.1524 m); anything below ~10 in (0.25 m) means fuel
-    // is present in the chute.
+    // A fuel ball is ~6 in (0.1524 m)
+    // Anything below ~10 in (0.25 m) means fuel is present in the chute.
     public static final double FUEL_DETECTION_DISTANCE = 0.25; // ~10 inches
 
     public static final double FUEL_CLEAR_TIME = 2.0; // seconds
@@ -121,13 +116,10 @@ public final class Constants {
     }
 
     /** Flywheel A motor - Kraken X60 with TalonFX controller (leader) */
-    public static final int FLYWHEEL_A_MOTOR_ID = 25;
+    public static final int FLYWHEEL_LEFT_MOTOR_ID = 25;
 
     /** Flywheel B motor - Kraken X60 with TalonFX controller (follower of A) */
-    public static final int FLYWHEEL_B_MOTOR_ID = 26;
-
-    /** Flywheel C motor - Kraken X60 with TalonFX controller (follower of A) */
-    public static final int FLYWHEEL_C_MOTOR_ID = 27;
+    public static final int FLYWHEEL_RIGHT_MOTOR_ID = 26;
 
     /** Hood motor - Minion with TalonFXS controller, adjusts shot angle */
     public static final int HOOD_MOTOR_ID = 28;
@@ -165,8 +157,8 @@ public final class Constants {
     public static final double FLYWHEEL_TOLERANCE_PERCENT = 0.05; 
 
     // --- Hood (Kraken rotational positions) ---
-    public static final double MIN_HOOD_POSE_ROT = 0.0; // Mechanical limit, validate in configs limit
-    public static final double MAX_HOOD_POSE_ROT = 10.15; // Mechanical limit, validate in configs limit
+    public static final double MIN_HOOD_POSE = 0.0; // Mechanical limit, also use to set in Configs
+    public static final double MAX_HOOD_POSE = 10.15; // Mechanical limit; also use to set in Configs
     public static final double HOOD_POSE_TOLERANCE = 0.25; // TODO Tune tolerance based on testing — consider a tighter
                                                            // tolerance than 0.25 rotations
 
@@ -175,7 +167,7 @@ public final class Constants {
      * Consider using WCP Encoder
      * Add an end of line comment `Tuned` when each is verified
      */
-    public static final double CLOSE_HOOD = 0.00;   // Tuned and ready
+    public static final double CLOSE_HOOD = 0.00;   // TODO: Tuned and ready
     public static final double POPPER_HOOD = 8.42;  // TODO: Tune Popper hood was 8.42
     public static final double TOWER_HOOD = 4.30;   // TODO: Tune Tower hood
     public static final double TRENCH_HOOD = 4.30;  // TODO: Tune Trench hood
@@ -186,17 +178,6 @@ public final class Constants {
     public static final double HOOD_TEST_INCREMENT = 0.2;
     public static final double FLYWHEEL_TEST_INCREMENT_RPM = 100.0;
   }
-
-  // =========================================================
-  // Climber
-  // =========================================================
-  // public static final class Climber {
-  //   private Climber() {
-  //   }
-
-  //   /** Climber motor A - Kraken X60 with TalonFX controller */
-  //   public static final int CLIMB_MOTOR_ID = 30;
-  // }
 
   // =========================================================
   // Vision / Limelight
@@ -211,7 +192,7 @@ public final class Constants {
 
     // Pipeline indices
     public static final int APRILTAG_PIPELINE = 0;
-    public static final int GAME_PIECE_PIPELINE = 1; // Optional: for note/game piece detection
+    // public static final int GAME_PIECE_PIPELINE = 1; // Optional: for note/game piece detection
 
     // =========================================================
     // Camera mounting - Primarily Documentation Purposes
@@ -235,8 +216,8 @@ public final class Constants {
     public static final double CAMERA_ANGLE_DEGREES = 15.5;
 
     // Alignment tolerances
-    /** Tolerance for horizontal alignment in degrees */
-    public static final double ALIGNMENT_TOLERANCE_DEGREES = 1.0; // was 2
+    /** Tolerance for horizontal alignment in degrees used in FuelCommands.java */
+    public static final double ALIGNMENT_TOLERANCE_DEGREES = 1.0; // appeared to be a duplicate
 
     /** Minimum target area to consider target valid (prevents false positives) */
     public static final double MIN_TARGET_AREA_PERCENT = 0.1;
@@ -244,32 +225,11 @@ public final class Constants {
     /** Maximum distance to trust vision measurement in meters */
     public static final double MAX_DISTANCE_METERS = 8.0;
 
-    // Valid tag IDs
-    // NOTE: MIN/MAX here are used for general target validation in VisionSubsystem.
-    // Hub-specific filtering uses BLUE_HUB_TAG_IDS / RED_HUB_TAG_IDS arrays below.
-    public static final int MIN_VALID_TAG_ID = 1;
-    public static final int MAX_VALID_TAG_ID = 28; // Fixed: was -1, which rejected all tags
-
-    // Blue hub AprilTag IDs (2026 field layout — all 8 hub faces)
-    // Layout: 18/27 (top chute), 19/20 (sides), 26/25 (sides), 21/24 (bottom chute)
-    public static final int[] BLUE_HUB_TAG_IDS = {18, 19, 20, 21, 24, 25, 26, 27};
-
-    // Red hub AprilTag IDs (2026 field layout — all 8 hub faces)
-    // Layout: 8/5 (top chute), 9/10 (sides), 4/3 (sides), 11/2 (bottom chute)
-    public static final int[] RED_HUB_TAG_IDS = {2, 3, 4, 5, 8, 9, 10, 11};
-
-    // Hub center positions in WPILib blue-origin field coordinates (meters).
-    // Used by poseAlignAndShoot / autoAlignAndShoot for odometry-based aiming.
-    // Red hub is the field-length mirror of blue: x = 17.548 - 4.625 = 12.923
-    // TODO: verify exact coordinates against 2026 field layout JSON if shooting accuracy needs improvement
-    public static final Translation2d BLUE_HUB_LOCATION = new Translation2d(4.625, 4.025);
-    public static final Translation2d RED_HUB_LOCATION  = new Translation2d(11.923, 4.025);
-
     // State tracking
     /** Time in seconds before considering target "lost" after losing sight */
     public static final double TARGET_TIMEOUT_SECONDS = 0.5;
 
-    // == Vision-driven drivetrain rotation ====
+    // == Vision-driven drivetrain rotation ========================
     /**
      * Proportional gain for rotational alignment: (rad/s output) per (degree of tx
      * error).
@@ -290,13 +250,33 @@ public final class Constants {
      * Default: 3.0 rad/s (~172°/s). Reduce if the robot swings too aggressively.
      */
     public static final double MAX_ALIGNMENT_ROTATION_RAD_PER_SEC = 5.0;
-
-    public static final double ALIGNMENT_TOLERANCE_DEG = 0.5;
-    public static final double MAX_ROT_RAD_PER_SEC = 3.0;
     public static final double MIN_DISTANCE_M = 0.5;
     public static final double MAX_DISTANCE_M = 8.0;
+    // public static final double ALIGNMENT_TOLERANCE_DEG = 0.5; // Duplicate of ALIGNMENT_TOLERANCE_DEGREES above, but with a tighter tolerance for "aligned" state if needed?
+    // public static final double MAX_ROT_RAD_PER_SEC = 3.0; // Duplicate of MAX_ALIGNMENT_ROTATION_RAD_PER_SEC above, but with a more aggressive cap if needed?
 
     public static final double LEAD_COMPENSATION_DEG_PER_MPS = 00; // Tune up from 0 — 50 degrees of aim offset per m/s of lateral velocity
+  
+    // == Valid tag IDs =========================
+    // NOTE: MIN/MAX here are used for general target validation in VisionSubsystem.
+    // Hub-specific filtering uses BLUE_HUB_TAG_IDS / RED_HUB_TAG_IDS arrays below.
+    public static final int MIN_VALID_TAG_ID = 1;
+    public static final int MAX_VALID_TAG_ID = 28; // Fixed: was -1, which rejected all tags
+
+    // Blue hub AprilTag IDs (2026 field layout — all 8 hub faces)
+    // Layout: 18/27 (top chute), 19/20 (sides), 26/25 (sides), 21/24 (bottom chute)
+    public static final int[] BLUE_HUB_TAG_IDS = {18, 19, 20, 21, 24, 25, 26, 27};
+
+    // Red hub AprilTag IDs (2026 field layout — all 8 hub faces)
+    // Layout: 8/5 (top chute), 9/10 (sides), 4/3 (sides), 11/2 (bottom chute)
+    public static final int[] RED_HUB_TAG_IDS = {2, 3, 4, 5, 8, 9, 10, 11};
+
+    // Hub center positions in WPILib blue-origin field coordinates (meters).
+    // Used by poseAlignAndShoot / autoAlignAndShoot for odometry-based aiming.
+    // Red hub is the field-length mirror of blue: x = 17.548 - 4.625 = 12.923
+    // TODO: verify exact coordinates against 2026 field layout JSON if shooting accuracy needs improvement
+    public static final Translation2d BLUE_HUB_LOCATION = new Translation2d(4.625, 4.025);
+    public static final Translation2d RED_HUB_LOCATION  = new Translation2d(11.923, 4.025);
 
   }
 

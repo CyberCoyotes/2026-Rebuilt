@@ -28,6 +28,7 @@ import frc.robot.subsystems.shooter.ShooterSubsystem;
 import frc.robot.subsystems.led.LedSubsystem;
 import frc.robot.subsystems.vision.VisionIOLimelight;
 import frc.robot.subsystems.vision.VisionSubsystem;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 public class RobotContainer {
     private double MaxSpeed = 0.5 * TunerConstants.kSpeedAt12Volts.in(MetersPerSecond);
@@ -71,19 +72,15 @@ public class RobotContainer {
 
         autoFactory = drivetrain.createAutoFactory();
         autoRoutines = new AutoRoutines(autoFactory,drivetrain,indexer, intake, shooter, fuelCommands, vision);
-        SmartDashboard.putData(autoChooser);
-
-        autoChooser.addRoutine("Rt Trench-Mid-Trench", autoRoutines::RtTrench_Mid_Trench);
-        autoChooser.addRoutine("Rt Trench-Mid-Ramp", autoRoutines::RtTrench_Mid_Ramp);
-        autoChooser.addRoutine("Lt Trench-Mid-Trench", autoRoutines::LtTrench_Mid_Trench);
-        autoChooser.addRoutine("Rt Trench-Mid-Ramp", autoRoutines::RtTrench_Mid_Ramp);
-        autoChooser.addRoutine("Center", autoRoutines::Center);
-        
-        // autoChooser.addRoutine("Center Depot shot)", autoRoutines:: MidDepot);
-        // autoChooser.addRoutine("Rt Trench-Mid-Trench (Split)", autoRoutines::RtTrench_Mid_Trench_Splits);
-        // autoChooser.addRoutine("Rt Trench-Mid-Ramp (Split)", autoRoutines::RtTrench_Mid_Ramp_Splits);
-        
         SmartDashboard.putData("AutoChooser", autoChooser);
+
+        autoChooser.addRoutine("L Trench-Mid-Trench", autoRoutines::LtTrench_Mid_Trench);
+        autoChooser.addRoutine("R Trench-Mid-Trench", autoRoutines::RtTrench_Mid_Trench);
+        autoChooser.addRoutine("R Trench-Mid-Ramp", autoRoutines::RtTrench_Mid_Ramp);
+        autoChooser.addRoutine("R Trench-Mid-Ramp", autoRoutines::RtTrench_Mid_Ramp);
+        autoChooser.addRoutine("Center", autoRoutines::Center);
+                
+        
         configureBindings();
 
     }

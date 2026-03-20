@@ -1,6 +1,6 @@
 package frc.robot.subsystems.shooter;
 
-import org.littletonrobotics.junction.Logger;
+// import org.littletonrobotics.junction.Logger;
 
 import edu.wpi.first.math.interpolation.InterpolatingDoubleTreeMap;
 import edu.wpi.first.networktables.BooleanPublisher;
@@ -11,8 +11,8 @@ import edu.wpi.first.networktables.StringPublisher;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.subsystems.shooter.ShooterIO.ShooterIOInputs;
 import frc.robot.Constants;
+import frc.robot.subsystems.shooter.ShooterIO.ShooterIOInputs;
 
 /**
  * STATE MACHINE:
@@ -31,8 +31,6 @@ import frc.robot.Constants;
  *   (no trigger required to see the display)
  *
  */
-
-@SuppressWarnings("unused") // Unused methods are intentional for future use and testing
 
 public class ShooterSubsystem extends SubsystemBase {
 
@@ -85,7 +83,7 @@ public class ShooterSubsystem extends SubsystemBase {
     private final BooleanPublisher flywheelAtRpmPublisher;
     private final StringPublisher  selectedPresetPublisher;
 
-    // ==== State ====
+    // ==== State =========================================================
     private ShooterState currentState     = ShooterState.IDLE;
     private ShotPreset   displayPreset    = null; // null = Vision mode (no operator button held)
     private String currentStateString     = ShooterState.IDLE.toString();
@@ -95,7 +93,7 @@ public class ShooterSubsystem extends SubsystemBase {
     // Slow publish divider
     private int periodicCounter = 0;
 
-    // ==== CONSTRUCTOR ====
+    // ==== CONSTRUCTOR ================================================
     public ShooterSubsystem(ShooterIO io) {
         this.io = io;
 
@@ -119,10 +117,10 @@ public class ShooterSubsystem extends SubsystemBase {
     }
 
     // ==== State Machine Enums ====
+    /* Defines what mode the shooter is in. Each value represents a distinct operational mode with different hardware behavior */
     public enum ShooterState {
         IDLE,    // Motors off — only used on explicit stop, not during normal match play
         SPINNING_UP, // Flywheel ramping to target after trigger pull — transitions to READY when at speed
-        STANDBY, // Flywheel spinning at STANDBY_RPM; ready to ramp to target on demand
         READY,   // Flywheel and hood at preset targets, ready to shoot
         PASS,    // Passing shot at PASS_RPM, hood at PASS_HOOD
         EJECT,   // Jam clearing: flywheel at EJECT_RPM (reverse), hood at MIN_POSE — velocity-gated
@@ -171,16 +169,11 @@ public void periodic() {
         switch (currentState) {
             case IDLE:
                 break;
-            case STANDBY:
-                break;
             case SPINNING_UP:
                 commandFlywheelVelocity(targetFlywheelMotorRPM);
                 io.setHoodPose(targetHoodPoseRot);
                 break;
             case READY:
-                // Re-issue every cycle so any silent target change (setTargetVelocity, updateFromDistance)
-                // takes effect immediately, and so the TalonFX recovers automatically if it
-                // drops its setpoint due to a transient fault or CAN dropout.
                 commandFlywheelVelocity(targetFlywheelMotorRPM);
                 io.setHoodPose(targetHoodPoseRot);
                 break;
@@ -198,6 +191,10 @@ public void periodic() {
         }
     }
 
+    /* Handles transitions — called once when you want to change modes. It:
+     Guards against no-op transitions (if currentState == newState return)
+     Runs entry actions — one-time side effects that happen at the moment of entering a state (e.g. stopFlywheels() on entering IDLE, commandFlywheelVelocity() on entering PASS)
+     */
     private void setState(ShooterState newState) {
         if (currentState == newState)
             return;
@@ -208,12 +205,7 @@ public void periodic() {
         switch (newState) {
             case IDLE:
                 io.stopFlywheels();
-                io.setHoodPose(Constants.Shooter.MIN_HOOD_POSE_ROT);
-                break;
-
-            case STANDBY:
-                // io.setFlywheelVelocity(STANDBY_RPM); // TODO: Do not use right now **EXPERIMENTAL**
-                io.setHoodPose(Constants.Shooter.MIN_HOOD_POSE_ROT);
+                io.setHoodPose(Constants.Shooter.MIN_HOOD_POSE);
                 break;
 
             case READY:
@@ -231,7 +223,7 @@ public void periodic() {
             case EJECT:
                 // io.setFlywheelVelocity(EJECT_RPM);
                 commandFlywheelVelocity(Constants.Shooter.EJECT_RPM); // Routes to the active control mode (VelocityVoltage or VelocityTorqueCurrentFOC)
-                io.setHoodPose(Constants.Shooter.MIN_HOOD_POSE_ROT);
+                io.setHoodPose(Constants.Shooter.MIN_HOOD_POSE);
                 break;
             case POPPER:
                 commandFlywheelVelocity(Constants.Shooter.POPPER_RPM);
@@ -246,14 +238,6 @@ public void periodic() {
 
     /** Full stop — stops flywheels and returns hood to home. */
     public void setIdle() {
-        setState(ShooterState.IDLE);
-    }
-
-    /**
-     * Resets shooter after a shot. Currently routes to IDLE because STANDBY
-     * (pre-rev) is not yet active. Update this when STANDBY spin logic is validated.
-     */
-    public void returnToStandby() {
         setState(ShooterState.IDLE);
     }
 
@@ -315,7 +299,7 @@ public void periodic() {
      * Sets target hood pose in rotations. Clamped to valid range. Does NOT change state.
      */
     public void setTargetHoodPose(double rotations) {
-        targetHoodPoseRot = Math.max(Constants.Shooter.MIN_HOOD_POSE_ROT, Math.min(Constants.Shooter.MAX_HOOD_POSE_ROT, rotations));
+        targetHoodPoseRot = Math.max(Constants.Shooter.MIN_HOOD_POSE, Math.min(Constants.Shooter.MAX_HOOD_POSE, rotations));
     }
 
     /** Adjusts target flywheel velocity by a delta. */
@@ -426,7 +410,8 @@ public void periodic() {
             () -> setState(ShooterState.IDLE),
             this).withName("Shooter: SpinUpCommand");
     }
-        // =========================================================================
+
+    // =========================================================================
     // Vision Lookup Tables
     // =========================================================================
 
@@ -453,17 +438,20 @@ public void periodic() {
     private static final InterpolatingDoubleTreeMap HOOD_ROT_MAP     = new InterpolatingDoubleTreeMap();
 
     static {
-        // ==== Flywheel RPM vs. distance =================================
+        // Both maps MUST have identical distance keys — they are co-indexed.
+        // Adding a distance to one map without adding it to the other produces
+        // inconsistent RPM/hood pairings at that distance. Always update both.
         // TODO: Replace each value with a measured result (see TUNING.md §4)
-        FLYWHEEL_RPM_MAP.put(1.5, 2700.0);
-        FLYWHEEL_RPM_MAP.put(3.55, 3200.0); 
-        FLYWHEEL_RPM_MAP.put(5.5, 3800.0);
 
-        // ==== Hood position (rotations) vs. distance =================================
-        // TODO: Replace each value with a measured result (see TUNING.md §4)
-        HOOD_ROT_MAP.put(1.5, 0.00); 
-        HOOD_ROT_MAP.put(3.55, 4.30); 
-        HOOD_ROT_MAP.put(5.5, 5.50);
+        // distance (m) → flywheel RPM
+        FLYWHEEL_RPM_MAP.put(1.5,  2700.0);
+        FLYWHEEL_RPM_MAP.put(3.55, 3200.0);
+        FLYWHEEL_RPM_MAP.put(5.5,  3800.0);
+
+        // distance (m) → hood rotations
+        HOOD_ROT_MAP.put(1.5,  0.00);
+        HOOD_ROT_MAP.put(3.55, 4.30);
+        HOOD_ROT_MAP.put(5.5,  5.50);
     }
 
     /*
