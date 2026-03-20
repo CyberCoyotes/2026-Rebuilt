@@ -157,8 +157,8 @@ public final class Constants {
     public static final double FLYWHEEL_TOLERANCE_PERCENT = 0.05; 
 
     // --- Hood (Kraken rotational positions) ---
-    public static final double MIN_HOOD_POSE_ROT = 0.0; // Mechanical limit, validate in configs limit
-    public static final double MAX_HOOD_POSE_ROT = 10.15; // Mechanical limit, validate in configs limit
+    public static final double MIN_HOOD_POSE = 0.0; // Mechanical limit, also use to set in Configs
+    public static final double MAX_HOOD_POSE = 10.15; // Mechanical limit; also use to set in Configs
     public static final double HOOD_POSE_TOLERANCE = 0.25; // TODO Tune tolerance based on testing — consider a tighter
                                                            // tolerance than 0.25 rotations
 
