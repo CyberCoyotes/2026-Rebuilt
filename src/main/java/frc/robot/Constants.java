@@ -22,8 +22,8 @@ public final class Constants {
   // 20-39 Other motors (intake, indexer, shooter, climber)
   // 40+ Sensors (ToF, CANrange, etc.)
   // CAN Bus:
-  // > canivore (for drivetrain + CANdle)
-  // > rio (for other subsystems)
+  // -- canivore (for drivetrain + CANdle)
+  // -- rio (for other subsystems)
 
   // =========================================================
   // Intake
@@ -47,7 +47,8 @@ public final class Constants {
     */ 
     public static final double SLIDE_MAX_POS = 44.454; // Also reference in the config limits
     public static final double SLIDE_RETRACTED_POS = 0.0;
-    public static final double SLIDE_EXTENDED_POS = 44.40;  
+    public static final double SLIDE_EXTENDED_POS = 44.40;
+    public static final double SLIDE_TOLERANCE = 0.05;  
     
     /* TODO: Update these Special positions 
     */
@@ -57,6 +58,7 @@ public final class Constants {
     // TODO Tune the roller voltages
     public static final double ROLLER_FORWARD_VOLTS = 11.0;
     public static final double ROLLER_REVERSE_VOLTS = -8.0;
+    
   }
 
   // =========================================================

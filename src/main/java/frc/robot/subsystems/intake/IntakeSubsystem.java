@@ -79,8 +79,8 @@ public class IntakeSubsystem extends SubsystemBase {
 
         // Derived/computed values logged separately so they appear in AdvantageScope
         Logger.recordOutput("Intake/State", getIntakeState());
-        Logger.recordOutput("Intake/SlideExtended", isSlideFullyExtended());
-        Logger.recordOutput("Intake/SlideRetracted", isSlideFullyRetracted());
+        Logger.recordOutput("Intake/SlideExtended", isSlideExtended());
+        Logger.recordOutput("Intake/SlideRetracted", isSlideRetracted());
 
         publishTelemetry();
     }
@@ -89,8 +89,8 @@ public class IntakeSubsystem extends SubsystemBase {
     private void publishTelemetry() {
         intakeStatePublisher.set(getIntakeState());
         slidePositionPublisher.set(inputs.slidePositionRotations);
-        slideExtendedPublisher.set(isSlideFullyExtended());
-        slideRetractedPublisher.set(isSlideFullyRetracted());
+        slideExtendedPublisher.set(isSlideExtended());
+        slideRetractedPublisher.set(isSlideRetracted());
     }
 
     // =========================================================================
@@ -103,23 +103,28 @@ public class IntakeSubsystem extends SubsystemBase {
     }
 
     /** True when slide is within tolerance of the extended setpoint. */
-    public boolean isSlideFullyExtended() {
-        return Math.abs(inputs.slidePositionRotations - Constants.Intake.SLIDE_EXTENDED_POS) < 0.05;
+    public boolean isSlideExtended() {
+        return Math.abs(inputs.slidePositionRotations - Constants.Intake.SLIDE_EXTENDED_POS) < Constants.Intake.SLIDE_TOLERANCE;
     }
 
     /** True when slide is within tolerance of the retracted setpoint. */
-    public boolean isSlideFullyRetracted() {
-        return Math.abs(inputs.slidePositionRotations - Constants.Intake.SLIDE_RETRACTED_POS) < 0.05;
+    public boolean isSlideRetracted() {
+        return Math.abs(inputs.slidePositionRotations - Constants.Intake.SLIDE_RETRACTED_POS) < Constants.Intake.SLIDE_TOLERANCE;
+    }
+
+    // If you need position for a command or calculation
+    public double getSlidePositionRotations() {
+        return inputs.slidePositionRotations;
     }
 
     public String getIntakeState() {
-        if (isSlideFullyExtended() && rollerState == RollerState.RUNNING)
+        if (isSlideExtended() && rollerState == RollerState.RUNNING)
             return "Intaking";
-        if (isSlideFullyExtended() && rollerState == RollerState.REVERSED)
+        if (isSlideExtended() && rollerState == RollerState.REVERSED)
             return "Ejecting";
-        if (isSlideFullyExtended())
+        if (isSlideExtended())
             return "Extended";
-        if (isSlideFullyRetracted())
+        if (isSlideRetracted())
             return "Retracted";
         return "Moving";
     }
@@ -128,7 +133,7 @@ public class IntakeSubsystem extends SubsystemBase {
     // LOW-LEVEL ACTUATORS  —  called by command factories, never by each other
     // =========================================================================
 
-    // ---- Roller ----    
+    // ==== Roller ====    
     
     public void runRoller() {
         io.setRollerVoltage(Constants.Intake.ROLLER_FORWARD_VOLTS);
@@ -145,7 +150,7 @@ public class IntakeSubsystem extends SubsystemBase {
         rollerState = RollerState.STOPPED;
     }
 
-    // ---- Slide ----
+    // ==== Slide ====
     /** Moves slide to the fully extended position via MotionMagic. Motor holds after. */
 
     public void extendSlides() {
@@ -586,7 +591,7 @@ public class IntakeSubsystem extends SubsystemBase {
                 Commands.run(this::runRoller, this)
                         .withTimeout(intakeTimeout)
                         .finallyDo(this::stopRoller))
-                .withName("IntakeFuelAuton");
+                .withName("IntakeFuelTimer");
     }
 
     public Command intakeFuelUntil(BooleanSupplier condition) {
@@ -595,7 +600,7 @@ public class IntakeSubsystem extends SubsystemBase {
                 Commands.run(this::runRoller, this)
                         .until(condition)
                         .finallyDo(this::stopRoller))
-                .withName("IntakeFuelAuton");
+                .withName("IntakeFuelUntil");
     }
 
     /**
@@ -611,11 +616,9 @@ public class IntakeSubsystem extends SubsystemBase {
         * still cleans up properly.
         *
      * Typical auton usage:
-     * <pre>
      *   Commands.deadline(
      *       FuelCommands.shootWithPreset(shooter, indexer, rpm, hood),
      *       intake.retractSlidesWithRollerCmd());
-     * </pre>
      */
     public Command retractSlidesAuton() {
         return Commands.sequence(
@@ -626,7 +629,7 @@ public class IntakeSubsystem extends SubsystemBase {
                 Commands.run(() -> {
                     retractSlidesSlow();
                     runRoller();
-                }, this).until(this::isSlideFullyRetracted))
+                }, this).until(this::isSlideRetracted))
                 .finallyDo(() -> stopRoller())
                 .withName("RetractSlidesWithRoller");
     }

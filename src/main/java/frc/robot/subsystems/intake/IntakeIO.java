@@ -78,7 +78,7 @@ public interface IntakeIO {
 
     void stopSlide();
 
-    double getSlidePosition();
+    // double getSlidePosition();
 
     // ===== Intake sensor methods =====
     // double getIntakeDistance();
