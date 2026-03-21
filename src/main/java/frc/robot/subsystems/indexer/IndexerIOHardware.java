@@ -122,6 +122,13 @@ public class IndexerIOHardware implements IndexerIO {
         chuteDistance    = chuteToF.getDistance();
         chuteIsDetected  = chuteToF.getIsDetected();
 
+        // optimizeBusUtilization() must come BEFORE setUpdateFrequency —
+        // it wipes all status frame rates; setUpdateFrequency re-enables only what we need.
+        conveyorMotor.optimizeBusUtilization();
+        kickerMotorLead.optimizeBusUtilization();
+        kickerMotorFollow.optimizeBusUtilization();
+        chuteToF.optimizeBusUtilization();
+
         BaseStatusSignal.setUpdateFrequencyForAll(
             50.0,
             conveyorVelocity, conveyorCurrent,
@@ -129,11 +136,6 @@ public class IndexerIOHardware implements IndexerIO {
             kickerFollowVelocity,  kickerFollowCurrent,
             chuteDistance,    chuteIsDetected
         );
-
-        conveyorMotor.optimizeBusUtilization();
-        kickerMotorLead.optimizeBusUtilization();
-        kickerMotorFollow.optimizeBusUtilization();
-        chuteToF.optimizeBusUtilization();
     }
 
     // == IO Implementation ========================================================

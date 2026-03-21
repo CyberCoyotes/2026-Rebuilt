@@ -15,6 +15,7 @@ import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
 
 import frc.robot.Constants;
+import frc.robot.util.PhoenixUtil;
 
 /**
  * IntakeIOHardware - Real hardware implementation using CTRE TalonFX motors.
@@ -115,15 +116,20 @@ public class IntakeIOHardware implements IntakeIO {
 
         slide  = new TalonFX(Constants.Intake.SLIDE_MOTOR_ID, Constants.RIO_CANBUS);
 
-        rollerLead.getConfigurator().apply(RollerConfig.roller());
-        rollerFollow.getConfigurator().apply(RollerConfig.roller());
-        rollerFollow.setControl(new Follower(rollerLead.getDeviceID(), MotorAlignmentValue.Opposed)); // Oppose master direction
-        slide.getConfigurator().apply(SlideConfig.slide());
+        PhoenixUtil.applyConfig("Roller Lead",   () -> rollerLead.getConfigurator().apply(RollerConfig.roller()));
+        PhoenixUtil.applyConfig("Roller Follow", () -> rollerFollow.getConfigurator().apply(RollerConfig.roller()));
+        PhoenixUtil.applyConfig("Slide",         () -> slide.getConfigurator().apply(SlideConfig.slide()));
 
         // Cache signal references — slide needs position and velocity for MotionMagic
         // and at-target checks. Roller has no control-critical signals to read.
         slidePosition = slide.getPosition();
         slideVelocity = slide.getVelocity();
+
+        // optimizeBusUtilization() must come BEFORE setUpdateFrequency —
+        // it wipes all status frame rates; setUpdateFrequency re-enables only what we need.
+        rollerLead.optimizeBusUtilization();
+        rollerFollow.optimizeBusUtilization();
+        slide.optimizeBusUtilization();
 
         BaseStatusSignal.setUpdateFrequencyForAll(
             50.0,
@@ -131,9 +137,9 @@ public class IntakeIOHardware implements IntakeIO {
             slideVelocity
         );
 
-        rollerLead.optimizeBusUtilization();
-        rollerFollow.optimizeBusUtilization();
-        slide.optimizeBusUtilization();
+        // Follower MUST be set AFTER optimizeBusUtilization() — aggressive frame
+        // disabling can break the follower control link if set before.
+        rollerFollow.setControl(new Follower(rollerLead.getDeviceID(), MotorAlignmentValue.Opposed));
 
         // Zero slide encoder at startup — assumes slide is fully retracted
         slide.setPosition(0.0);
