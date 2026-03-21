@@ -888,8 +888,51 @@ public class FuelCommands {
                     }).withName("ShootFarAuton");
         } // end of command
 
+        /**
+         * Sensor-gated fuel pump for autonomous — bridges IntakeSubsystem and
+         * IndexerSubsystem.
+         *
+         * <p>Phase 1 — WAIT (no subsystem held): polls {@code indexer.isFuelDetected()}.
+         * While waiting, IntakeSubsystem is free so an {@code intakeFuelTimer} can run
+         * in parallel without conflict.
+         *
+         * <p>Phase 2 — PUMP (claims IntakeSubsystem): bounces slides + runs roller
+         * until {@code indexer.isChuteEmpty()} is true (fuel seen then gone for
+         * FUEL_CLEAR_TIME seconds).
+         *
+         * <p>A hard-stop timeout prevents the command from hanging if the sensor lies
+         * or fuel never clears.
+         *
+         * @param intake  The IntakeSubsystem that owns the slides and roller.
+         * @param indexer The IndexerSubsystem that owns the chute CANrange sensor.
+         */
+        public static Command fuelPumpCycleSensor(IntakeSubsystem intake, IndexerSubsystem indexer) {
+            Timer cycleTimer = new Timer();
+            return Commands.sequence(
+                // Phase 1: wait for first fuel — no subsystem required, intake can run freely
+                Commands.runOnce(indexer::resetChuteTracking),
+                Commands.waitUntil(indexer::isFuelDetected),
+                // Phase 2: pump until chute clears (or hard timeout)
+                Commands.run(() -> {
+                    intake.runRoller();
+                    double t = cycleTimer.get();
+                    if (t < 0.5) {
+                        intake.setSlidesToPosition(Constants.Intake.SLIDE_PUMP_OUT_POS);
+                    } else if (t < 1.0) {
+                        intake.setSlidesToPosition(Constants.Intake.SLIDE_PUMP_IN_POS);
+                    } else {
+                        cycleTimer.restart();
+                    }
+                }, intake)
+                    .beforeStarting(cycleTimer::restart)
+                    .until(indexer::isChuteEmpty)
+                    .withTimeout(10.0) // hard stop — tune or remove once reliable
+            )
+            .finallyDo(intake::stopRoller)
+            .withName("FuelPumpCycleSensor");
+        }
 
-    } 
+    }
     // end of class Auto
 
 } // end of class FuelCommands

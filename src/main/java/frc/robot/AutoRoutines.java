@@ -61,7 +61,7 @@ public class AutoRoutines {
 
                 RtTrench_Mid_Trench.atTime("Shoot")
                                 .onTrue(FuelCommands.Auto.poseAlignAndShoot(m_shooter, m_indexer, m_drivetrain, 6.0));
-                RtTrench_Mid_Trench.atTime("FuelPump").onTrue(m_intake.fuelPumpCycleSensor(m_indexer));
+                RtTrench_Mid_Trench.atTime("FuelPump").onTrue(FuelCommands.Auto.fuelPumpCycleSensor(m_intake, m_indexer));
 
                 return routine;
         }
@@ -83,7 +83,7 @@ public class AutoRoutines {
 
                 RtMid_Trench.atTime("Shoot")
                                 .onTrue(FuelCommands.Auto.poseAlignAndShoot(m_shooter, m_indexer, m_drivetrain, 6.0));
-                RtMid_Trench.atTime("FuelPump").onTrue(m_intake.fuelPumpCycleSensor(m_indexer));
+                RtMid_Trench.atTime("FuelPump").onTrue(FuelCommands.Auto.fuelPumpCycleSensor(m_intake, m_indexer));
 
                 return routine;
         }
@@ -104,7 +104,7 @@ public class AutoRoutines {
                 RtTrench_Mid.atTime("Intake").onTrue(m_intake.intakeFuelTimer(6));
                 RtMid_Ramp.atTime("Shoot")
                                 .onTrue(FuelCommands.Auto.poseAlignAndShoot(m_shooter, m_indexer, m_drivetrain, 6.0));
-                RtMid_Ramp.atTime("FuelPump").onTrue(m_intake.fuelPumpCycleSensor(m_indexer));
+                RtMid_Ramp.atTime("FuelPump").onTrue(FuelCommands.Auto.fuelPumpCycleSensor(m_intake, m_indexer));
 
                 return routine;
         }
@@ -126,7 +126,7 @@ public class AutoRoutines {
                 RtTrench_Mid_Ramp.atTime("Intake").onTrue(m_intake.intakeFuelTimer(6));
                 RtTrench_Mid_Ramp.atTime("Shoot")
                                 .onTrue(FuelCommands.Auto.poseAlignAndShoot(m_shooter, m_indexer, m_drivetrain, 6.0));
-                RtTrench_Mid_Ramp.atTime("FuelPump").onTrue(m_intake.fuelPumpCycleSensor(m_indexer));
+                RtTrench_Mid_Ramp.atTime("FuelPump").onTrue(FuelCommands.Auto.fuelPumpCycleSensor(m_intake, m_indexer));
 
                 return routine;
         }
@@ -144,7 +144,7 @@ public class AutoRoutines {
                 // Routine Events
                 LtTrench_Mid_Trench.atTime("Intake").onTrue(m_intake.intakeFuelTimer(8));
                 LtTrench_Mid_Trench.atTime("Shoot").onTrue(FuelCommands.Auto.poseAlignAndShoot(m_shooter, m_indexer, m_drivetrain, 6.0));
-                LtTrench_Mid_Trench.atTime("FuelPump").onTrue(m_intake.fuelPumpCycleSensor(m_indexer));
+                LtTrench_Mid_Trench.atTime("FuelPump").onTrue(FuelCommands.Auto.fuelPumpCycleSensor(m_intake, m_indexer));
 
                 return routine;
         }
@@ -183,7 +183,7 @@ public class AutoRoutines {
 
                 Center.atTime("Shoot")
                                 .onTrue(FuelCommands.Auto.shootHub(m_shooter, m_indexer,6.6));
-                // Center.atTime("FuelPump").onTrue(m_intake.fuelPumpCycleSensor(m_indexer));
+                // Center.atTime("FuelPump").onTrue(FuelCommands.Auto.fuelPumpCycleSensor(m_intake, m_indexer));
 
                 return routine;
         }
