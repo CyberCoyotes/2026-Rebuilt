@@ -1,6 +1,5 @@
 package frc.robot.subsystems.intake;
 
-import com.ctre.phoenix6.BaseStatusSignal;
 import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.DynamicMotionMagicVoltage;
@@ -26,9 +25,7 @@ import frc.robot.util.PhoenixUtil;
  *
  * Key features:
  * - Uses centralized TalonFXConfigs for motor configuration
- * - Voltage control for roller
- * - Voltage control for slide (MotionMagic commented out pending tuning)
- * - Optimized status signal updates for performance
+ * - Voltage control for roller, MotionMagic for slide
  * - All telemetry logged via AdvantageKit
  *
  * @author @Isaak3
@@ -105,7 +102,7 @@ public class IntakeIOHardware implements IntakeIO {
     private final DynamicMotionMagicVoltage slideRequestSlow = new DynamicMotionMagicVoltage(0, 4, 4);
                                                               // (position=0, velocity=16, accel=16, jerk=0)
 
-    // == Status Signals — 50Hz (control-critical) =====================================================
+    // == Status Signals ===============================================================
     // Current, voltage, and temp are captured by CTRE Hoot for diagnostics.
     private final StatusSignal<Angle> slidePosition;
     private final StatusSignal<AngularVelocity> slideVelocity;
@@ -125,20 +122,6 @@ public class IntakeIOHardware implements IntakeIO {
         slidePosition = slide.getPosition();
         slideVelocity = slide.getVelocity();
 
-        // optimizeBusUtilization() must come BEFORE setUpdateFrequency —
-        // it wipes all status frame rates; setUpdateFrequency re-enables only what we need.
-        rollerLead.optimizeBusUtilization();
-        rollerFollow.optimizeBusUtilization();
-        slide.optimizeBusUtilization();
-
-        BaseStatusSignal.setUpdateFrequencyForAll(
-            50.0,
-            slidePosition,
-            slideVelocity
-        );
-
-        // Follower MUST be set AFTER optimizeBusUtilization() — aggressive frame
-        // disabling can break the follower control link if set before.
         rollerFollow.setControl(new Follower(rollerLead.getDeviceID(), MotorAlignmentValue.Opposed));
 
         // Zero slide encoder at startup — assumes slide is fully retracted
