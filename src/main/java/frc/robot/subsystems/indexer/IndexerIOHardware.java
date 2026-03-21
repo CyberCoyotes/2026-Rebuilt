@@ -81,50 +81,58 @@ public class IndexerIOHardware implements IndexerIO {
 
     // == Hardware =================================================================
     private final TalonFX conveyorMotor;
-    private final TalonFX indexerMotor;
+    private final TalonFX kickerMotorLead;
+    private final TalonFX kickerMotorFollow;
     private final CANrange chuteToF;
 
     // == Control Requests ==========================================================
     private final VoltageOut conveyorVoltageRequest = new VoltageOut(0.0);
-    private final VoltageOut indexerVoltageRequest  = new VoltageOut(0.0);
+    private final VoltageOut kickerLeadVoltageRequest  = new VoltageOut(0.0);
 
     // == Status Signals ===========================================================
     private final StatusSignal<?> conveyorVelocity;
     private final StatusSignal<?> conveyorCurrent;
-    private final StatusSignal<?> indexerVelocity;
-    private final StatusSignal<?> indexerCurrent;
+    private final StatusSignal<?> kickerLeadVelocity;
+    private final StatusSignal<?> kickerFollowVelocity;
+    private final StatusSignal<?> kickerLeadCurrent;
+    private final StatusSignal<?> kickerFollowCurrent;
     private final StatusSignal<?> chuteDistance;
     private final StatusSignal<Boolean> chuteIsDetected;
 
     // == Constructor =============================================================
     public IndexerIOHardware() {
         conveyorMotor = new TalonFX(Constants.Indexer.CONVEYOR_MOTOR_ID, Constants.RIO_CANBUS);
-        indexerMotorLeft  = new TalonFX(Constants.Indexer.KICKER_LEFT_MOTOR_ID,   Constants.RIO_CANBUS);
-        indexerMotorRight  = new TalonFX(Constants.Indexer.KICKER_RIGHT_MOTOR_ID,   Constants.RIO_CANBUS);
+        kickerMotorLead  = new TalonFX(Constants.Indexer.KICKER_LEFT_MOTOR_ID,   Constants.RIO_CANBUS);
+        kickerMotorFollow = new TalonFX(Constants.Indexer.KICKER_RIGHT_MOTOR_ID,   Constants.RIO_CANBUS);
         chuteToF      = new CANrange(Constants.Indexer.CHUTE_TOF_ID,       Constants.RIO_CANBUS);
 
         // Apply configs with retry logic — replaces the single-attempt local helper.
         // Five retries handles devices still booting when apply() is first called.
         PhoenixUtil.applyConfig("Conveyor",  () -> conveyorMotor.getConfigurator().apply(conveyorConfig()));
-        PhoenixUtil.applyConfig("Indexer",   () -> indexerMotor.getConfigurator().apply(indexerConfig()));
+        PhoenixUtil.applyConfig("Kicker Lead",   () -> kickerMotorLead.getConfigurator().apply(indexerConfig()));
+        PhoenixUtil.applyConfig("Kicker Follow",   () -> kickerMotorFollow.getConfigurator().apply(indexerConfig()));
         PhoenixUtil.applyConfig("Chute ToF", () -> chuteToF.getConfigurator().apply(chuteCANrangeConfig()));
 
         conveyorVelocity = conveyorMotor.getVelocity();
         conveyorCurrent  = conveyorMotor.getSupplyCurrent();
-        indexerVelocity  = indexerMotor.getVelocity();
-        indexerCurrent   = indexerMotor.getSupplyCurrent();
+        kickerLeadVelocity  = kickerMotorLead.getVelocity();
+        kickerFollowVelocity = kickerMotorFollow.getVelocity();
+        kickerLeadCurrent   = kickerMotorLead.getSupplyCurrent();
+        kickerFollowCurrent = kickerMotorFollow.getSupplyCurrent();
         chuteDistance    = chuteToF.getDistance();
         chuteIsDetected  = chuteToF.getIsDetected();
 
         BaseStatusSignal.setUpdateFrequencyForAll(
             50.0,
             conveyorVelocity, conveyorCurrent,
-            indexerVelocity,  indexerCurrent,
+            kickerLeadVelocity,  kickerLeadCurrent,
+            kickerFollowVelocity,  kickerFollowCurrent,
             chuteDistance,    chuteIsDetected
         );
 
         conveyorMotor.optimizeBusUtilization();
-        indexerMotor.optimizeBusUtilization();
+        kickerMotorLead.optimizeBusUtilization();
+        kickerMotorFollow.optimizeBusUtilization();
         chuteToF.optimizeBusUtilization();
     }
 
@@ -133,14 +141,16 @@ public class IndexerIOHardware implements IndexerIO {
     public void updateInputs(IndexerIOInputs inputs) {
         BaseStatusSignal.refreshAll(
             conveyorVelocity, conveyorCurrent,
-            indexerVelocity,  indexerCurrent,
+            kickerLeadVelocity,  kickerLeadCurrent,
+            kickerFollowCurrent,
             chuteDistance,    chuteIsDetected
         );
 
         inputs.conveyorVelocityRPS = conveyorVelocity.getValueAsDouble();
         inputs.conveyorCurrentAmps = conveyorCurrent.getValueAsDouble();
-        inputs.indexerVelocityRPS  = indexerVelocity.getValueAsDouble();
-        inputs.indexerCurrentAmps  = indexerCurrent.getValueAsDouble();
+        inputs.kickerLeadVelocityRPS  = kickerLeadVelocity.getValueAsDouble();
+        inputs.kickerLeadCurrentAmps  = kickerLeadCurrent.getValueAsDouble();
+        inputs.kickerFollowCurrentAmps = kickerFollowCurrent.getValueAsDouble();
         inputs.chuteDistanceMeters = chuteDistance.getValueAsDouble();
         inputs.chuteDetected       = chuteIsDetected.getValue();
     }
@@ -151,13 +161,13 @@ public class IndexerIOHardware implements IndexerIO {
     }
 
     @Override
-    public void setIndexerMotor(double volts) {
-        indexerMotor.setControl(indexerVoltageRequest.withOutput(volts));
+    public void setKickerMotorVolts(double volts) {
+        kickerMotorLead.setControl(kickerLeadVoltageRequest.withOutput(volts));
     }
 
     @Override
     public void stop() {
         conveyorMotor.stopMotor();
-        indexerMotor.stopMotor();
+        kickerMotorLead.stopMotor();
     }
 }
