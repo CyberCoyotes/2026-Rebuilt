@@ -132,10 +132,10 @@ public class ShooterIOHardware implements ShooterIO {
   // PositionVoltage commands maximum effort immediately — do not use for hood.
   private final MotionMagicVoltage hoodPositionRequest = new MotionMagicVoltage(0.0);
 
-  // Opposed: leader and follower are on opposite physical sides — they must spin
-  // in opposite directions to co-rotate the flywheel and launch the ball together.
+  // NotOpposed: both motors are on the same physical side — they spin in the same
+  // direction to co-rotate the flywheel and launch the ball together.
   private final Follower flywheelFollowerRequest =
-      new Follower(Constants.Shooter.FLYWHEEL_LEFT_MOTOR_ID, MotorAlignmentValue.Opposed);
+      new Follower(Constants.Shooter.FLYWHEEL_LEFT_MOTOR_ID, MotorAlignmentValue.NotOpposed);
 
   // == Status Signals ====================================================
   private final StatusSignal<?> flywheelLeaderVelocity;
