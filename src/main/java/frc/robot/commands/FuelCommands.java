@@ -191,57 +191,6 @@ public class FuelCommands {
     // =========================================================================
 
     /**
-     * Agitates fuel by bouncing the intake roller against the bumpers, then shoots
-     * once the flywheel is ready — feeding and bouncing run in parallel.
-     *
-     * Slides run in reverse (higher position = roller lower/out). The bounce rocks
-     * the roller between SLIDE_BOUNCE_DOWN_POS (~40) and SLIDE_BOUNCE_UP_POS (~35).
-     *
-     * Sequence:
-     *   1. Set trench preset targets and beginSpinUp (TESTING — swap preset as needed).
-     *   2. Wait until shooter.isReady() — flywheel + hood settled (3 s timeout).
-     *   3. Parallel:
-     *        A. Run conveyor + indexer forward continuously (feeds the shot).
-     *        B. Run slideBounceUp() repeatedly — keeps agitating while held.
-     *   4. finallyDo: stops indexer/conveyor and returns shooter to idle.
-     *
-     * Phase 3 runs until the command is interrupted (whileTrue trigger released).
-     * slideBounceUp().repeatedly() restarts the 2-second bounce cycle each time it
-     * finishes, so the roller keeps rocking for as long as the button is held.
-     *
-     * Bind to a button with whileTrue().
-     *
-     * @param shooter The shooter subsystem
-     * @param indexer The indexer subsystem
-     * @param intake  The intake subsystem
-     * @return Command that waits for flywheel ready, then feeds + bounces in parallel
-     */
-    // public static Command slideBounceAndShoot(ShooterSubsystem shooter, IndexerSubsystem indexer,
-    //         IntakeSubsystem intake) {
-    //     return Commands.sequence(
-    //             // Step 1: arm trench preset and spin up (TODO: swap preset before competition)
-    //             Commands.runOnce(() -> {
-    //                 shooter.setTargetVelocity(Constants.Shooter.TRENCH_RPM);
-    //                 shooter.setTargetHoodPose(Constants.Shooter.TRENCH_HOOD);
-    //                 shooter.beginSpinUp();
-    //             }, shooter),
-    //             // Step 2: wait for flywheel + hood to settle before feeding
-    //             Commands.waitUntil(shooter::isReady).withTimeout(3.0),
-    //             // Step 3: feed + bounce in parallel until trigger is released
-    //             Commands.parallel(
-    //                     Commands.run(() -> {
-    //                         indexer.conveyorForward();
-    //                         indexer.indexerForward();
-    //                     }, indexer),
-    //                     intake.fuelPumpBasic().repeatedly()))
-    //             .finallyDo(() -> {
-    //                 indexer.indexerStop();
-    //                 indexer.conveyorStop();
-    //                 shooter.setIdle();
-    //             }).withName("SlideBounceAndShoot");
-    // }
-
-    /**
      * Creates a command to eject jammed game pieces.
      * Reverses flywheel for a duration then returns to SPINUP.
      *
@@ -406,267 +355,9 @@ public class FuelCommands {
                 .withName("PoseAlignAndShoot");
     }
 
-    // =========================================================================
-    // VISION ALIGN AND SHOOT (limelight tx — secondary/fallback)
-    // [UNBOUND] visionAlignAndShoot, visionShootSequence, visionShot, trackTarget
-    // None of these are wired to a button in RobotContainer. poseAlignAndShoot
-    // (odometry-based) is the active shooting command on driver.rightTrigger().
-    // =========================================================================
-
-    /**
-     * Combined vision-targeting and shooting command. Intended as the primary RT
-     * binding.
-     *
-     * Behavior (all while trigger held):
-     * 1. Arms the current POV-selected preset immediately as a fallback baseline.
-     * 2. Continuously looks for the nearest hub AprilTag (alliance-aware).
-     * 3. If a hub tag is visible (or in grace period): updates flywheel RPM and
-     * hood position from the distance interpolation table every cycle.
-     * 4. Overrides drivetrain rotation with a P-controller on tx (horizontal
-     * angle),
-     * while still allowing the driver to translate freely with the left stick.
-     * 5. Fires the indexer and conveyor as soon as vision reports aligned AND
-     * shooter reports ready. Stops feeding if either condition is lost.
-     * 6. On trigger release: stops indexer, conveyor, and shooter.
-     *
-     * Subsystem requirements: shooter, vision, indexer, drivetrain
-     * → interrupts the default drive command for the duration of the trigger hold.
-     *
-     * Tuning handles:
-     * - Constants.Vision.ROTATIONAL_KP (rotation aggressiveness)
-     * - Constants.Vision.MAX_ALIGNMENT_ROTATION_RAD_PER_SEC (rotation clamp)
-     * - ShooterSubsystem FLYWHEEL_RPM_MAP / HOOD_ROT_MAP (shooter params)
-     * See TUNING.md for the step-by-step procedure.
-     *
-     * @param shooter    Shooter subsystem
-     * @param vision     Vision subsystem
-     * @param indexer    Indexer subsystem
-     * @param drivetrain Swerve drivetrain
-     * @param xSupplier  Driver left-Y velocity in m/s (already scaled by MaxSpeed)
-     * @param ySupplier  Driver left-X velocity in m/s (already scaled by MaxSpeed)
-     */
-    // public static Command visionAlignAndShoot(
-    //         ShooterSubsystem shooter,
-    //         VisionSubsystem vision,
-    //         IndexerSubsystem indexer,
-    //         CommandSwerveDrivetrain drivetrain,
-    //         DoubleSupplier xSupplier,
-    //         DoubleSupplier ySupplier) {
-
-    //     final double maxSpeed = 0.5 * TunerConstants.kSpeedAt12Volts.in(MetersPerSecond);
-
-    //     // Created once; reused every execute cycle.
-    //     // FieldCentric: driver controls X/Y translation, vision controls rotation.
-    //     final SwerveRequest.FieldCentric alignRequest = new SwerveRequest.FieldCentric()
-    //             .withDeadband(maxSpeed * 0.15)
-    //             .withDriveRequestType(DriveRequestType.OpenLoopVoltage);
-
-    //     return Commands.run(() -> {
-
-    //         // ── 1. Shooter: update from vision or hold current targets ─────────
-    //         if (vision.isUsableForShooting()) {
-    //             // Live-update RPM + hood from distance table (also pushes to hardware
-    //             // if already in READY state — see ShooterSubsystem.updateFromDistance)
-    //             shooter.updateFromDistance(vision.getDistanceToTargetMeters());
-    //         }
-    //         // Keep commanding SPINNING_UP every cycle until READY — setState() no-ops if already there
-    //         if (shooter.getState() != ShooterSubsystem.ShooterState.READY) {
-    //             shooter.beginSpinUp(); // void — only transitions state; never call spinUp() (returns Command) here
-    //         }
-
-    //         // ── 2. Drivetrain: driver translation + vision rotation ────────────
-    //         // tx returns 0.0 when NO_TARGET, so rotation correction drops to zero
-    //         // automatically when the camera has nothing to track.
-    //         double txDeg = vision.getHorizontalAngleDegrees();
-    //         double rotRate = MathUtil.clamp(
-    //                 txDeg * Constants.Vision.ROTATIONAL_KP,
-    //                 -Constants.Vision.MAX_ALIGNMENT_ROTATION_RAD_PER_SEC,
-    //                 Constants.Vision.MAX_ALIGNMENT_ROTATION_RAD_PER_SEC);
-
-    //         drivetrain.setControl(
-    //                 alignRequest
-    //                         .withVelocityX(xSupplier.getAsDouble())
-    //                         .withVelocityY(ySupplier.getAsDouble())
-    //                         .withRotationalRate(rotRate));
-
-    //         // ── 3. Feed: only when both conditions met ─────────────────────────
-    //         if (vision.isAligned() && shooter.isReady()) {
-    //             indexer.indexerForward();
-    //             indexer.conveyorForward();
-    //         } else {
-    //             indexer.indexerStop();
-    //             indexer.conveyorStop();
-    //         }
-
-    //     }, shooter, vision, indexer, drivetrain)
-    //             .beforeStarting(Commands.runOnce(shooter::beginSpinUp, shooter))
-    //             .finallyDo(() -> {
-    //                 indexer.indexerStop();
-    //                 indexer.conveyorStop();
-    //                 shooter.setIdle();
-    //             })
-    //             .withName("VisionAlignAndShoot");
-    // }
-
-    // /**
-    //  * Creates a vision-based shoot sequence with indexer coordination.
-    //  *
-    //  * @param shooter The shooter subsystem
-    //  * @param vision  The vision subsystem
-    //  * @param indexer The indexer subsystem
-    //  * @return Vision-based shooting sequence
-    //  */
-    // public static Command visionShootSequence(ShooterSubsystem shooter, VisionSubsystem vision,
-    //         IndexerSubsystem indexer) {
-    //     return Commands.sequence(
-    //             Commands.waitUntil(vision::hasTarget)/* REMOVED .withTimeout(1.0) */,
-    //             visionShot(shooter, vision)
-    //     ).withName("VisionShootSequence");
-    // }
-
-    // /**
-    //  * Creates a command to shoot using vision-based distance calculation.
-    //  *
-    //  * @param shooter The shooter subsystem
-    //  * @param vision  The vision subsystem
-    //  * @return Command that uses vision for aiming
-    //  */
-    // public static Command visionShot(ShooterSubsystem shooter, VisionSubsystem vision) {
-    //     return Commands.sequence(
-    //             Commands.runOnce(() -> {
-    //                 double distance = vision.getDistanceToTargetMeters();
-    //                 shooter.updateFromDistance(distance);
-    //                 shooter.beginSpinUp(); // void — transitions state machine to SPINNING_UP
-    //             }, shooter, vision),
-    //             Commands.waitUntil(shooter::isReady)/* REMOVED .withTimeout(3.0) */)
-    //             .withName("VisionShot");
-    // }
-
-    // /**
-    //  * Creates a command to continuously update shooter based on vision.
-    //  *
-    //  * @param shooter The shooter subsystem
-    //  * @param vision  The vision subsystem
-    //  * @return Command that continuously tracks target
-    //  */
-
-    // public static Command trackTarget(ShooterSubsystem shooter, VisionSubsystem vision) {
-    //     return Commands.run(() -> {
-    //         if (vision.hasTarget()) {
-    //             double distance = vision.getDistanceToTargetMeters();
-    //             shooter.updateFromDistance(distance);
-    //         }
-    //     }, shooter, vision)
-    //             .withName("TrackTarget");
-    // }
 
     public static class Auto {
-        // ============================================================================
-    // ADD THIS METHOD to ShooterCommands.java (or FuelCommands.java if that's the
-    // current file name on the 362-auton-vision-shot-again branch)
-    //
-    // REQUIRED IMPORTS (add to existing import block if not already present):
-    //   import edu.wpi.first.math.MathUtil;
-    //   import edu.wpi.first.math.controller.PIDController;
-    //   import com.ctre.phoenix6.swerve.SwerveRequest;
-    //   import frc.robot.subsystems.CommandSwerveDrivetrain;
-    // ============================================================================
-
-    // [UNBOUND] visionShot_version1 — not registered in AutoRoutines or autoChooser.
-    // All active auto routines use Auto.poseAlignAndShoot instead.
-    /**
-     * Vision align and shoot sequence — designed for Choreo autonomous event
-     * markers.
-     *
-     * Choreo handles the bulk of robot positioning; this command handles final
-     * adjustments:
-     * Phase 1 (parallel):
-     * - Branch A: Rotates robot using vision PID to center on the AprilTag
-     * - Branch B: Spins up shooter using vision distance for RPM and hood angle
-     * Both branches must complete before advancing to Phase 2.
-     * Phase 2: Feed the game piece to the shooter
-     * Phase 3: Return shooter to idle
-     *
-     * The overall 5-second timeout acts as the safety stop condition (replaces the
-     * "hasShotBoolean" trigger you'd wire up later — swap .withTimeout(5.0) for
-     * .until(hasShotBooleanSupplier) when that sensor is ready).
-     *
-     * CHOREO REGISTRATION (in RobotContainer.java configureNamedCommands()):
-     * NamedCommands.registerCommand("Shoot",
-     * ShooterCommands.visionAlignAndShoot(shooter, vision, indexer, drivetrain));
-     *
-     * @param shooter    The shooter subsystem
-     * @param vision     The vision subsystem
-     * @param indexer    The indexer subsystem
-     * @param drivetrain The drivetrain (required by the alignment branch)
-     * @return Complete vision-assisted auto shoot sequence
-     */
-    // public static Command visionShot_version1(
-    //         ShooterSubsystem shooter,
-    //         VisionSubsystem vision,
-    //         IndexerSubsystem indexer,
-    //         CommandSwerveDrivetrain drivetrain) {
-    //     // PID for rotational alignment — mirrors VisionAlignToTargetCommand constants.
-    //     // Created fresh each call so no stale integral state between auto shots.
-    //     // TODO: Tune kP and kD. Start with just kP = 0.05 and work up.
-    // PIDController alignPID = new PIDController(0.05, 0.0, 0.005);
-    //     alignPID.setTolerance(2.0); // degrees — matches VisionConstants.ALIGNMENT_TOLERANCE_DEGREES
-
-    //     // Field-centric drive request — same type as VisionAlignToTargetCommand
-    //     SwerveRequest.FieldCentric driveRequest = new SwerveRequest.FieldCentric();
-
-    //     return Commands.sequence(
-
-    //             // ==== Phase 1: Align AND spin up at the same time =========================
-    //             // Using parallel() so we don't waste time doing these steps sequentially.
-    //             // The parallel block finishes only when BOTH branches are done.
-    //             Commands.parallel(
-
-    //                     // Branch A: Rotate robot to face the AprilTag
-    //                     // Mirrors the logic in reference/VisionAlignToTargetCommand.java
-    //                     Commands.run(() -> {
-    //                         if (vision.hasTarget()) {
-    //                             // Positive tx = target to the right → rotate counterclockwise to correct
-    //                             // If robot spins the wrong direction, flip the sign on rotationSpeed
-    //                             double tx = vision.getHorizontalAngleDegrees();
-    //                             double rotationSpeed = MathUtil.clamp(
-    //                                     -alignPID.calculate(tx, 0), // negative = correct direction for FieldCentric
-    //                                     -1.0, 1.0 // TODO: Tune max rotation speed (rad/s)
-    //                             );
-    //                             drivetrain.setControl(driveRequest
-    //                                     .withVelocityX(0)
-    //                                     .withVelocityY(0)
-    //                                     .withRotationalRate(rotationSpeed));
-    //                         } else {
-    //                             // No target — hold still and wait
-    //                             drivetrain.setControl(driveRequest
-    //                                     .withVelocityX(0)
-    //                                     .withVelocityY(0)
-    //                                     .withRotationalRate(0));
-    //                         }
-    //                     }, drivetrain)
-    //                             .until(vision::isAligned) // VisionSubsystem already tracks this via state machine
-    //                             .withTimeout(3.0), // Safety — don't spin forever if target disappears
-
-    //                     // Branch B: Set shooter RPM and hood angle from vision distance, wait until
-    //                     // ready
-    //                     // Reuses the existing visionShot() factory method unchanged
-    //                     visionShot(shooter, vision) // already includes .withTimeout(3.0)
-    //             ),
-
-    //             // ==== Phase 2: Both aligned and shooter ready — fire =====================
-    //             indexer.feedTimed( 0.5),
-
-    //             // ==== Phase 3: Return to idle ===========================================
-    //             Commands.runOnce(shooter::setIdle, shooter)
-
-    //     )
-    //             // Overall timeout = the "boolean stop" for now.
-    //             // Later: swap .withTimeout(5.0) for .until(hasShotBooleanSupplier)
-    //             .withTimeout(5.0)
-    //             .withName("VisionAlignAndShoot");
-    // }
-
+   
     // ============================================================================
     // RobotContainer.java — add to configureNamedCommands() or wherever you
     // register Choreo event markers. This wires the "Shoot" event marker in your
@@ -674,14 +365,14 @@ public class FuelCommands {
     // ============================================================================
 
     /*
-    * // In RobotContainer.java — inside configureNamedCommands() or the
+    * In RobotContainer.java — inside configureNamedCommands() or the
     * constructor:
     * 
     * NamedCommands.registerCommand("Shoot",
     * ShooterCommands.visionAlignAndShoot(shooter, vision, indexer, drivetrain));
     * 
-    * // If you want the shooter pre-warming while Choreo drives to position,
-    * // also register a "SpinUp" marker to fire earlier in the path:
+    * If you want the shooter pre-warming while Choreo drives to position,
+    * also register a "SpinUp" marker to fire earlier in the path:
     * NamedCommands.registerCommand("SpinUp",
     * ShooterCommands.visionShot(shooter, vision)); // start warming early
     */
@@ -715,10 +406,6 @@ public class FuelCommands {
     * If you want to SKIP the shot on timeout, wrap the sequence in:
     * .onlyIf(() -> vision.hasTarget())
     */
-
-    // =========================================================================
-
-
 
         // =============================================================================
         /**
@@ -827,14 +514,6 @@ public class FuelCommands {
             }).withName("ShootTrenchAuton");
         }
 
-        public static Command shootTrenchWithSlideRetract(ShooterSubsystem shooter,
-                IndexerSubsystem indexer, IntakeSubsystem intake, double safetyTimeout) {
-            return Commands.deadline(
-                    shootTrench(shooter, indexer, safetyTimeout),
-                    intake.retractSlidesAuton())
-                    .withName("ShootTrenchWithSlideRetract");
-        }
-
         public static Command shootHub(ShooterSubsystem shooter, IndexerSubsystem indexer,
                 double safetyTimeout) {
             return Commands.sequence(
@@ -887,15 +566,15 @@ public class FuelCommands {
          * Sensor-gated fuel pump for autonomous — bridges IntakeSubsystem and
          * IndexerSubsystem.
          *
-         * <p>Phase 1 — WAIT (no subsystem held): polls {@code indexer.isFuelDetected()}.
+         * Phase 1 — WAIT (no subsystem held): polls {@code indexer.isFuelDetected()}.
          * While waiting, IntakeSubsystem is free so an {@code intakeFuelTimer} can run
          * in parallel without conflict.
          *
-         * <p>Phase 2 — PUMP (claims IntakeSubsystem): bounces slides + runs roller
+         * Phase 2 — PUMP (claims IntakeSubsystem): "bounces" slides + runs roller
          * until {@code indexer.isChuteEmpty()} is true (fuel seen then gone for
          * FUEL_CLEAR_TIME seconds).
          *
-         * <p>A hard-stop timeout prevents the command from hanging if the sensor lies
+         * A hard-stop timeout prevents the command from hanging if the sensor lies
          * or fuel never clears.
          *
          * @param intake  The IntakeSubsystem that owns the slides and roller.
@@ -927,7 +606,21 @@ public class FuelCommands {
             .withName("FuelPumpCycleSensor");
         }
 
-    }
-    // end of class Auto
+    }// end of class Auto
 
 } // end of class FuelCommands
+
+
+// =======================================================================================
+// DEPRECATED/EXPERIMENTAL COMMANDS — use with caution and test thoroughly if re-enabling
+// =======================================================================================
+
+    /* Probably not needed
+        public static Command shootTrenchWithSlideRetract(ShooterSubsystem shooter,
+                IndexerSubsystem indexer, IntakeSubsystem intake, double safetyTimeout) {
+            return Commands.deadline(
+                    shootTrench(shooter, indexer, safetyTimeout),
+                    intake.retractSlidesAuton())
+                    .withName("ShootTrenchWithSlideRetract");
+        }
+    */
