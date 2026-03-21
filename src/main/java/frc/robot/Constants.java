@@ -12,10 +12,10 @@ public final class Constants {
   public static final CANBus RIO_CANBUS = CANBus.roboRIO("rio"); // native rio bus
 
   // =========================================================
-  // ## CAN ID Quick Reference — keep in sync with source constants ##
+  // CAN ID Quick Reference — keep in sync with source constants ##
   // =========================================================
   /*
-  ### candrive bus (CANivore) ###
+  === candrive bus (CANivore) ===
     1 FL Drive Motor  Kraken X60 (TunerConstants.kFrontLeftDriveMotorId)
     2 FR Steer Motor  Kraken X60 (TunerConstants.kFrontRightSteerMotorId)
     3 FL CANcoder     (TunerConstants.kFrontLeftEncoderId)
@@ -31,7 +31,7 @@ public final class Constants {
     14 Pigeon 2 IMU   (TunerConstants.kPigeonId)
     15 CANdle LEDs    (Led.CANDLE_ID)
   
-  ### rio bus ###
+  === rio bus ===
     20 Intake Roller Left   Kraken X44 (Intake.ROLLER_LEFT_MOTOR_ID)
     21 Intake Roller Right  Kraken X44 (Intake.ROLLER_RIGHT_MOTOR_ID)
     22 Intake Slide         Kraken X44 (Intake.SLIDE_MOTOR_ID)
