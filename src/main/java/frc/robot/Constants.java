@@ -57,29 +57,16 @@ public final class Constants {
     public static final int ROLLER_RIGHT_MOTOR_ID = 21; // TODO Update name and ID in Tuner <-- **NEW**
     public static final int SLIDE_MOTOR_ID = 22; // TODO Update name and ID in Tuner <-- **was 21**
 
-    /*
-     * TODO: Find new slide positions with Phoenix Tuner
-     * by manually moving the slide to with low VoltageOut (e.g. 2V) 
-    and update with new slide `positions` using Tuner
-     * Set in code here (slightly less than mechanical max to prevent hitting hard
-     * stops)
-     * Configs limit is set to the MAX_POS, but other values are here for normal
-     * operation and target positions.
-     */
-    public static final double SLIDE_MAX_POS = 44.454; // Also reference in the config limits
+    public static final double SLIDE_MAX_POS = 44.454; // TODO update position with Phoenix Tuner
     public static final double SLIDE_RETRACTED_POS = 0.0;
-    public static final double SLIDE_EXTENDED_POS = 44.40;
-    public static final double SLIDE_TOLERANCE = 0.05;
+    public static final double SLIDE_EXTENDED_POS = 44.40; // TODO update position with Phoenix Tuner
+    public static final double SLIDE_TOLERANCE = 0.05; // TODO Tune tolerance based on testing
 
-    /*
-     * TODO: Update these Special positions
-     */
-    public static final double SLIDE_PUMP_OUT_POS = 40.0;
-    public static final double SLIDE_PUMP_IN_POS = 30.0;
+    public static final double SLIDE_PUMP_OUT_POS = 40.0; // TODO update position with Phoenix Tuner
+    public static final double SLIDE_PUMP_IN_POS = 30.0; // TODO update position with Phoenix Tuner
 
-    // TODO Tune the roller voltages
-    public static final double ROLLER_FORWARD_VOLTS = 11.0;
-    public static final double ROLLER_REVERSE_VOLTS = -8.0;
+    public static final double ROLLER_FORWARD_VOLTS = 11.0; // TODO update voltage with Phoenix Tuner
+    public static final double ROLLER_REVERSE_VOLTS = -8.0; // TODO update voltage with Phoenix Tuner
 
   }
 
@@ -87,50 +74,43 @@ public final class Constants {
   // Indexer
   // =========================================================
   public static final class Indexer {
-    public static double INDEXER_REVERSE_VOLTAGE;
+    public static double INDEXER_REVERSE_VOLTAGE; // TODO Update voltage in Tuner
 
     private Indexer() {
     }
 
-    /* (2) Kraken X60 with TalonFX controller, feeds pieces to shooter
-     */
-    public static final int KICKER_LEFT_MOTOR_ID = 23; // TODO Update name in Tuner
-    public static final int KICKER_RIGHT_MOTOR_ID = 24; // TODO Update name in Tuner and ID in Tuner <-- **NEW**
+    /* (2) Kraken X60 with TalonFX controller, feeds pieces to shooter */
+    public static final int KICKER_LEFT_MOTOR_ID = 23; // TODO Check and update name and ID in Phoenix Tuner
+    public static final int KICKER_RIGHT_MOTOR_ID = 24; // TODO Check and update name and ID in Phoenix Tuner
+
+    /** Conveyor motor - Kraken X44 with TalonFX controller, moves pieces along hopper */
+    public static final int CONVEYOR_MOTOR_ID = 27; // // TODO Check and update name and ID in Phoenix Tuner
 
     /**
-     * Conveyor motor - Kraken X44 with TalonFX controller, moves pieces along
-     * hopper
-     */
-    public static final int CONVEYOR_MOTOR_ID = 27; // TODO Update name and ID in Tuner <-- **was 23**
-
-    /**
-     * CANrange Time of Flight sensor detects presence of fuel at indexer chute
-     * egress to
-     * shooter (optional)
-     */
+     * CANrange Time of Flight sensor - detects presence of fuel at indexer egress chute to shooter */
     public static final int CHUTE_TOF_ID = 42;
 
     // === Voltage Constants =====================
-    // TODO Tune conveyor voltages for reliable feeding
-    public static final double CONVEYOR_FORWARD_VOLTAGE = 6.0;
-    public static final double CONVEYOR_REVERSE_VOLTAGE = -4.0;
-    public static final double CONVEYOR_POPPER_VOLTAGE = 3.0;
+    public static final double CONVEYOR_FORWARD_VOLTAGE = 6.0; // TODO Update voltage in Tuner as needed
+    public static final double CONVEYOR_REVERSE_VOLTAGE = -4.0; // TODO Update voltage in Tuner as needed
+    public static final double CONVEYOR_POPPER_VOLTAGE = 3.0; // TODO Update voltage in Tuner as needed
 
-    // TODO Tune indexer voltages for reliable feeding
-    public static final double KICKER_FORWARD_VOLTAGE = 8.0; // was 6.0
-    public static final double KICKER_REVERSE_VOLTAGE = -8.0;
-    public static final double KICKER_POPPER_VOLTAGE = 3.0;
+    public static final double KICKER_FORWARD_VOLTAGE = 8.0; // was 6.0 // TODO update with Phoenix Tuner and record here 
+    public static final double KICKER_REVERSE_VOLTAGE = -8.0; // // TODO update with Phoenix Tuner and record here
+    public static final double KICKER_POPPER_VOLTAGE = 3.0; // // TODO update with Phoenix Tuner and record here
 
-    // Physical max distance of the chute beam: **NEW**.
-    // Used as the CANrange ProximityThreshold so the hardware "detected" signal
-    // matches the same boundary.
-    public static final double FUEL_CHUTE_MAX_DISTANCE = 0.36; // TODO Remeasure the new shooter width
+    // === Distanace Constants =====================
+    /* Used as the CANrange ProximityThreshold so the hardware "detected" signal matches the same boundary.
+     * Software threshold for fuel detection.
+     * A fuel ball is ~6 in (0.1524 m)
+     * Anything below ~10 in (0.25 m) means fuel is present in the chute.
+     */
+    public static final double FUEL_SIZE = 0.1524; // ~10 inches
+    public static final double CHUTE_MAX_DISTANCE = 0.36; // TODO Remeasure the new shooter width
+    public static final double FUEL_DETECTION_THRESHOLD = FUEL_SIZE * 0.75; // 75% of fuel size to account for sensor variance and ensure reliable detection
+    public static final double FUEL_DETECTION_DISTANCE = CHUTE_MAX_DISTANCE - FUEL_DETECTION_THRESHOLD; // ~10 inches
 
-    // Software threshold for fuel detection.
-    // A fuel ball is ~6 in (0.1524 m)
-    // Anything below ~10 in (0.25 m) means fuel is present in the chute.
-    public static final double FUEL_DETECTION_DISTANCE = 0.25; // ~10 inches
-
+    // Time to wait after detecting fuel at the chute before considering it "cleared".
     public static final double FUEL_CLEAR_TIME = 2.0; // seconds
 
   }
