@@ -1,6 +1,5 @@
 package frc.robot.subsystems.indexer;
 
-import com.ctre.phoenix6.BaseStatusSignal;
 import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.configs.CANrangeConfiguration;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
@@ -121,21 +120,6 @@ public class IndexerIOHardware implements IndexerIO {
         kickerFollowCurrent = kickerMotorFollow.getSupplyCurrent();
         chuteDistance    = chuteToF.getDistance();
         chuteIsDetected  = chuteToF.getIsDetected();
-
-        // optimizeBusUtilization() must come BEFORE setUpdateFrequency —
-        // it wipes all status frame rates; setUpdateFrequency re-enables only what we need.
-        conveyorMotor.optimizeBusUtilization();
-        kickerMotorLead.optimizeBusUtilization();
-        kickerMotorFollow.optimizeBusUtilization();
-        chuteToF.optimizeBusUtilization();
-
-        BaseStatusSignal.setUpdateFrequencyForAll(
-            50.0,
-            conveyorVelocity, conveyorCurrent,
-            kickerLeadVelocity,  kickerLeadCurrent,
-            kickerFollowVelocity,  kickerFollowCurrent,
-            chuteDistance,    chuteIsDetected
-        );
     }
 
     // == IO Implementation ========================================================
