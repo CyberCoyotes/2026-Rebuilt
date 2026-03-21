@@ -332,8 +332,6 @@ public class FuelCommands {
         final DoublePublisher ntDistance       = visionTable.getDoubleTopic("distanceToHub_m").publish();
         final DoublePublisher ntLeadOffset     = visionTable.getDoubleTopic("leadOffset_deg").publish();
 
-        // final Timer fuelPumpTimer = new Timer();
-
         return Commands.run(() -> {
             Translation2d hub = getHubLocation();
             Pose2d pose = drivetrain.getState().Pose;
@@ -394,14 +392,11 @@ public class FuelCommands {
             } else {
                 indexer.indexerStop();
                 indexer.conveyorStop();
-                // fuelPumpTimer.reset(); // reset so pump starts fresh when shooter becomes ready
             }
 
         }, shooter, indexer, drivetrain /*, intake*/)
                 .beforeStarting(Commands.runOnce(() -> {
                     shooter.beginSpinUp();
-                    // fuelPumpTimer.reset();
-                    // fuelPumpTimer.start();
                 }, shooter))
                 .finallyDo(() -> {
                     indexer.indexerStop();
@@ -888,8 +883,51 @@ public class FuelCommands {
                     }).withName("ShootFarAuton");
         } // end of command
 
+        /**
+         * Sensor-gated fuel pump for autonomous — bridges IntakeSubsystem and
+         * IndexerSubsystem.
+         *
+         * <p>Phase 1 — WAIT (no subsystem held): polls {@code indexer.isFuelDetected()}.
+         * While waiting, IntakeSubsystem is free so an {@code intakeFuelTimer} can run
+         * in parallel without conflict.
+         *
+         * <p>Phase 2 — PUMP (claims IntakeSubsystem): bounces slides + runs roller
+         * until {@code indexer.isChuteEmpty()} is true (fuel seen then gone for
+         * FUEL_CLEAR_TIME seconds).
+         *
+         * <p>A hard-stop timeout prevents the command from hanging if the sensor lies
+         * or fuel never clears.
+         *
+         * @param intake  The IntakeSubsystem that owns the slides and roller.
+         * @param indexer The IndexerSubsystem that owns the chute CANrange sensor.
+         */
+        public static Command fuelPumpCycleSensor(IntakeSubsystem intake, IndexerSubsystem indexer) {
+            Timer cycleTimer = new Timer();
+            return Commands.sequence(
+                // Phase 1: wait for first fuel — no subsystem required, intake can run freely
+                Commands.runOnce(indexer::resetChuteTracking),
+                Commands.waitUntil(indexer::isFuelDetected),
+                // Phase 2: pump until chute clears (or hard timeout)
+                Commands.run(() -> {
+                    intake.runRoller();
+                    double t = cycleTimer.get();
+                    if (t < 0.5) { // pump out for 0.5s to ensure fuel is moving, then retract for 0.5s to help dislodge if stuck
+                        intake.setSlidesToPosition(Constants.Intake.SLIDE_PUMP_OUT_POS);
+                    } else if (t < 1.0) { // retract slides to help dislodge fuel if it's stuck, then repeat cycle
+                        intake.setSlidesToPosition(Constants.Intake.SLIDE_PUMP_IN_POS);
+                    } else {
+                        cycleTimer.restart();
+                    }
+                }, intake)
+                    .beforeStarting(cycleTimer::restart)
+                    .until(indexer::isChuteEmpty)
+                    .withTimeout(5.0) // hard stop — tune or remove once reliable
+            )
+            .finallyDo(intake::stopRoller)
+            .withName("FuelPumpCycleSensor");
+        }
 
-    } 
+    }
     // end of class Auto
 
 } // end of class FuelCommands
