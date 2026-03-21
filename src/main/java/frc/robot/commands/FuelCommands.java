@@ -191,57 +191,6 @@ public class FuelCommands {
     // =========================================================================
 
     /**
-     * Agitates fuel by bouncing the intake roller against the bumpers, then shoots
-     * once the flywheel is ready — feeding and bouncing run in parallel.
-     *
-     * Slides run in reverse (higher position = roller lower/out). The bounce rocks
-     * the roller between SLIDE_BOUNCE_DOWN_POS (~40) and SLIDE_BOUNCE_UP_POS (~35).
-     *
-     * Sequence:
-     *   1. Set trench preset targets and beginSpinUp (TESTING — swap preset as needed).
-     *   2. Wait until shooter.isReady() — flywheel + hood settled (3 s timeout).
-     *   3. Parallel:
-     *        A. Run conveyor + indexer forward continuously (feeds the shot).
-     *        B. Run slideBounceUp() repeatedly — keeps agitating while held.
-     *   4. finallyDo: stops indexer/conveyor and returns shooter to idle.
-     *
-     * Phase 3 runs until the command is interrupted (whileTrue trigger released).
-     * slideBounceUp().repeatedly() restarts the 2-second bounce cycle each time it
-     * finishes, so the roller keeps rocking for as long as the button is held.
-     *
-     * Bind to a button with whileTrue().
-     *
-     * @param shooter The shooter subsystem
-     * @param indexer The indexer subsystem
-     * @param intake  The intake subsystem
-     * @return Command that waits for flywheel ready, then feeds + bounces in parallel
-     */
-    // public static Command slideBounceAndShoot(ShooterSubsystem shooter, IndexerSubsystem indexer,
-    //         IntakeSubsystem intake) {
-    //     return Commands.sequence(
-    //             // Step 1: arm trench preset and spin up (TODO: swap preset before competition)
-    //             Commands.runOnce(() -> {
-    //                 shooter.setTargetVelocity(Constants.Shooter.TRENCH_RPM);
-    //                 shooter.setTargetHoodPose(Constants.Shooter.TRENCH_HOOD);
-    //                 shooter.beginSpinUp();
-    //             }, shooter),
-    //             // Step 2: wait for flywheel + hood to settle before feeding
-    //             Commands.waitUntil(shooter::isReady).withTimeout(3.0),
-    //             // Step 3: feed + bounce in parallel until trigger is released
-    //             Commands.parallel(
-    //                     Commands.run(() -> {
-    //                         indexer.conveyorForward();
-    //                         indexer.indexerForward();
-    //                     }, indexer),
-    //                     intake.fuelPumpBasic().repeatedly()))
-    //             .finallyDo(() -> {
-    //                 indexer.indexerStop();
-    //                 indexer.conveyorStop();
-    //                 shooter.setIdle();
-    //             }).withName("SlideBounceAndShoot");
-    // }
-
-    /**
      * Creates a command to eject jammed game pieces.
      * Reverses flywheel for a duration then returns to SPINUP.
      *
@@ -416,14 +365,14 @@ public class FuelCommands {
     // ============================================================================
 
     /*
-    * // In RobotContainer.java — inside configureNamedCommands() or the
+    * In RobotContainer.java — inside configureNamedCommands() or the
     * constructor:
     * 
     * NamedCommands.registerCommand("Shoot",
     * ShooterCommands.visionAlignAndShoot(shooter, vision, indexer, drivetrain));
     * 
-    * // If you want the shooter pre-warming while Choreo drives to position,
-    * // also register a "SpinUp" marker to fire earlier in the path:
+    * If you want the shooter pre-warming while Choreo drives to position,
+    * also register a "SpinUp" marker to fire earlier in the path:
     * NamedCommands.registerCommand("SpinUp",
     * ShooterCommands.visionShot(shooter, vision)); // start warming early
     */
@@ -565,14 +514,6 @@ public class FuelCommands {
             }).withName("ShootTrenchAuton");
         }
 
-        public static Command shootTrenchWithSlideRetract(ShooterSubsystem shooter,
-                IndexerSubsystem indexer, IntakeSubsystem intake, double safetyTimeout) {
-            return Commands.deadline(
-                    shootTrench(shooter, indexer, safetyTimeout),
-                    intake.retractSlidesAuton())
-                    .withName("ShootTrenchWithSlideRetract");
-        }
-
         public static Command shootHub(ShooterSubsystem shooter, IndexerSubsystem indexer,
                 double safetyTimeout) {
             return Commands.sequence(
@@ -625,15 +566,15 @@ public class FuelCommands {
          * Sensor-gated fuel pump for autonomous — bridges IntakeSubsystem and
          * IndexerSubsystem.
          *
-         * <p>Phase 1 — WAIT (no subsystem held): polls {@code indexer.isFuelDetected()}.
+         * Phase 1 — WAIT (no subsystem held): polls {@code indexer.isFuelDetected()}.
          * While waiting, IntakeSubsystem is free so an {@code intakeFuelTimer} can run
          * in parallel without conflict.
          *
-         * <p>Phase 2 — PUMP (claims IntakeSubsystem): bounces slides + runs roller
+         * Phase 2 — PUMP (claims IntakeSubsystem): "bounces" slides + runs roller
          * until {@code indexer.isChuteEmpty()} is true (fuel seen then gone for
          * FUEL_CLEAR_TIME seconds).
          *
-         * <p>A hard-stop timeout prevents the command from hanging if the sensor lies
+         * A hard-stop timeout prevents the command from hanging if the sensor lies
          * or fuel never clears.
          *
          * @param intake  The IntakeSubsystem that owns the slides and roller.
@@ -665,7 +606,21 @@ public class FuelCommands {
             .withName("FuelPumpCycleSensor");
         }
 
-    }
-    // end of class Auto
+    }// end of class Auto
 
 } // end of class FuelCommands
+
+
+// =======================================================================================
+// DEPRECATED/EXPERIMENTAL COMMANDS — use with caution and test thoroughly if re-enabling
+// =======================================================================================
+
+    /* Probably not needed
+        public static Command shootTrenchWithSlideRetract(ShooterSubsystem shooter,
+                IndexerSubsystem indexer, IntakeSubsystem intake, double safetyTimeout) {
+            return Commands.deadline(
+                    shootTrench(shooter, indexer, safetyTimeout),
+                    intake.retractSlidesAuton())
+                    .withName("ShootTrenchWithSlideRetract");
+        }
+    */
