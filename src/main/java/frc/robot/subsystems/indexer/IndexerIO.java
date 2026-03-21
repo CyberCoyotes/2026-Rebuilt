@@ -44,12 +44,13 @@ public interface IndexerIO {
         /** Conveyor motor supply current in amps. Used for jam detection. */
         public double conveyorCurrentAmps = 0.0;
 
-        // ===== Indexer Motor =====
-        /** Indexer motor velocity in rotations per second. Used for jam detection. */
-        public double indexerVelocityRPS = 0.0;
+        // ===== Kicker Motor =====
+        /** Kicker motor velocity in rotations per second. Used for jam detection. */
+        public double kickerLeadVelocityRPS = 0.0;
 
-        /** Indexer motor supply current in amps. Used for jam detection. */
-        public double indexerCurrentAmps = 0.0;
+        /** Kicker motor supply current in amps. Used for jam detection. */
+        public double kickerLeadCurrentAmps = 0.0;
+        public double kickerFollowCurrentAmps = 0.0;
 
         // ===== Chute CANrange =====
         /**
@@ -68,9 +69,10 @@ public void toLog(LogTable table) {
     table.put("ConveyorVelocityRPS", conveyorVelocityRPS);
     table.put("ConveyorCurrentAmps", conveyorCurrentAmps);
 
-    // Indexer Motor
-    table.put("IndexerVelocityRPS", indexerVelocityRPS);
-    table.put("IndexerCurrentAmps", indexerCurrentAmps);
+    // Kicker Motor
+    table.put("KickerLeadVelocityRPS", kickerLeadVelocityRPS);
+    table.put("KickerLeadCurrentAmps", kickerLeadCurrentAmps);
+    table.put("KickerFollowCurrentAmps", kickerFollowCurrentAmps);
 
     // Chute CANrange
     table.put("ChuteDistanceMeters", chuteDistanceMeters);
@@ -83,9 +85,10 @@ public void fromLog(LogTable table) {
     conveyorVelocityRPS = table.get("ConveyorVelocityRPS", conveyorVelocityRPS);
     conveyorCurrentAmps = table.get("ConveyorCurrentAmps", conveyorCurrentAmps);
 
-    // Indexer Motor
-    indexerVelocityRPS = table.get("IndexerVelocityRPS", indexerVelocityRPS);
-    indexerCurrentAmps = table.get("IndexerCurrentAmps", indexerCurrentAmps);
+    // Kicker Motor
+    kickerLeadVelocityRPS = table.get("KickerLeadVelocityRPS", kickerLeadVelocityRPS);
+    kickerLeadCurrentAmps = table.get("KickerLeadCurrentAmps", kickerLeadCurrentAmps);
+    kickerFollowCurrentAmps = table.get("KickerFollowCurrentAmps", kickerFollowCurrentAmps);
 
     // Chute CANrange
     chuteDistanceMeters = table.get("ChuteDistanceMeters", chuteDistanceMeters);
@@ -109,11 +112,11 @@ public void fromLog(LogTable table) {
     default void setConveyorMotor(double volts) {}
 
     /**
-     * Sets the indexer motor output voltage.
+     * Sets the kicker motor output voltage.
      *
      * @param volts Positive = toward shooter, negative = reverse
      */
-    default void setIndexerMotor(double volts) {}
+    default void setKickerMotorVolts(double volts) {}
 
     /** Stops both motors. */
     default void stop() {}

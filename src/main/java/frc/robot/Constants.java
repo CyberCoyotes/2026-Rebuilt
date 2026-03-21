@@ -65,6 +65,8 @@ public final class Constants {
   // Indexer
   // =========================================================
   public static final class Indexer {
+    public static double INDEXER_REVERSE_VOLTAGE;
+
     private Indexer() {
     }
 

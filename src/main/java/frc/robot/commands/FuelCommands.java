@@ -95,7 +95,7 @@ public class FuelCommands {
                 Commands.waitUntil(shooter::isReady).withTimeout(3.0),
                 Commands.run(() -> {
                     indexer.conveyorForward();
-                    indexer.indexerForward();
+                    indexer.kickerForward();
                 }, indexer))
                 .finallyDo(() -> {
                     indexer.indexerStop();
@@ -278,7 +278,7 @@ public class FuelCommands {
                 Commands.waitUntil(shooter::isPassReady).withTimeout(3.0),
                 Commands.run(() -> {
     indexer.conveyorForward();
-    indexer.indexerForward();
+    indexer.kickerForward();
 }, indexer))
                 .finallyDo(() -> {
                     indexer.indexerStop();
@@ -390,7 +390,7 @@ public class FuelCommands {
             // 4. Feed: aligned within 2° AND flywheel/hood settled
             if (shooter.isReady()) {
                 indexer.conveyorForward();
-                indexer.indexerForward();
+                indexer.kickerForward();
             } else {
                 indexer.indexerStop();
                 indexer.conveyorStop();
