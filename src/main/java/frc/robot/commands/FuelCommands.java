@@ -332,8 +332,6 @@ public class FuelCommands {
         final DoublePublisher ntDistance       = visionTable.getDoubleTopic("distanceToHub_m").publish();
         final DoublePublisher ntLeadOffset     = visionTable.getDoubleTopic("leadOffset_deg").publish();
 
-        // final Timer fuelPumpTimer = new Timer();
-
         return Commands.run(() -> {
             Translation2d hub = getHubLocation();
             Pose2d pose = drivetrain.getState().Pose;
@@ -394,14 +392,11 @@ public class FuelCommands {
             } else {
                 indexer.indexerStop();
                 indexer.conveyorStop();
-                // fuelPumpTimer.reset(); // reset so pump starts fresh when shooter becomes ready
             }
 
         }, shooter, indexer, drivetrain /*, intake*/)
                 .beforeStarting(Commands.runOnce(() -> {
                     shooter.beginSpinUp();
-                    // fuelPumpTimer.reset();
-                    // fuelPumpTimer.start();
                 }, shooter))
                 .finallyDo(() -> {
                     indexer.indexerStop();
@@ -916,9 +911,9 @@ public class FuelCommands {
                 Commands.run(() -> {
                     intake.runRoller();
                     double t = cycleTimer.get();
-                    if (t < 0.5) {
+                    if (t < 0.5) { // pump out for 0.5s to ensure fuel is moving, then retract for 0.5s to help dislodge if stuck
                         intake.setSlidesToPosition(Constants.Intake.SLIDE_PUMP_OUT_POS);
-                    } else if (t < 1.0) {
+                    } else if (t < 1.0) { // retract slides to help dislodge fuel if it's stuck, then repeat cycle
                         intake.setSlidesToPosition(Constants.Intake.SLIDE_PUMP_IN_POS);
                     } else {
                         cycleTimer.restart();
@@ -926,7 +921,7 @@ public class FuelCommands {
                 }, intake)
                     .beforeStarting(cycleTimer::restart)
                     .until(indexer::isChuteEmpty)
-                    .withTimeout(10.0) // hard stop — tune or remove once reliable
+                    .withTimeout(5.0) // hard stop — tune or remove once reliable
             )
             .finallyDo(intake::stopRoller)
             .withName("FuelPumpCycleSensor");
