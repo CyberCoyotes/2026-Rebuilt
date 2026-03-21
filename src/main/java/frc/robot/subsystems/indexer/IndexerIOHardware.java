@@ -4,7 +4,9 @@ import com.ctre.phoenix6.BaseStatusSignal;
 import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.configs.CANrangeConfiguration;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
+import com.ctre.phoenix6.controls.Follower;
 import com.ctre.phoenix6.controls.VoltageOut;
+import com.ctre.phoenix6.signals.MotorAlignmentValue;
 import com.ctre.phoenix6.hardware.CANrange;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.InvertedValue;
@@ -88,6 +90,9 @@ public class IndexerIOHardware implements IndexerIO {
     // == Control Requests ==========================================================
     private final VoltageOut conveyorVoltageRequest = new VoltageOut(0.0);
     private final VoltageOut kickerLeadVoltageRequest  = new VoltageOut(0.0);
+    // NotOpposed: both kicker motors are on the same physical side — follower mirrors leader output.
+    private final Follower kickerFollowerRequest =
+        new Follower(Constants.Indexer.KICKER_LEFT_MOTOR_ID, MotorAlignmentValue.NotOpposed);
 
     // == Status Signals ===========================================================
     private final StatusSignal<?> conveyorVelocity;
@@ -112,6 +117,9 @@ public class IndexerIOHardware implements IndexerIO {
         PhoenixUtil.applyConfig("Kicker Lead",   () -> kickerMotorLead.getConfigurator().apply(indexerConfig()));
         PhoenixUtil.applyConfig("Kicker Follow",   () -> kickerMotorFollow.getConfigurator().apply(indexerConfig()));
         PhoenixUtil.applyConfig("Chute ToF", () -> chuteToF.getConfigurator().apply(chuteCANrangeConfig()));
+
+        // Follower must be set after configs are applied.
+        kickerMotorFollow.setControl(kickerFollowerRequest);
 
         conveyorVelocity = conveyorMotor.getVelocity();
         conveyorCurrent  = conveyorMotor.getSupplyCurrent();
@@ -155,6 +163,7 @@ public class IndexerIOHardware implements IndexerIO {
     @Override
     public void stop() {
         conveyorMotor.stopMotor();
+        // Stop lead only — follower mirrors the leader's NeutralOut automatically.
         kickerMotorLead.stopMotor();
     }
 }
