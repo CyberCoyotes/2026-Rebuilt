@@ -12,18 +12,37 @@ public final class Constants {
   public static final CANBus RIO_CANBUS = CANBus.roboRIO("rio"); // native rio bus
 
   // =========================================================
-  // Drive / Swerve These are in TunerConstants.java since they're generated with
-  // the Phoenix Tuner app
+  // ## CAN ID Quick Reference — keep in sync with source constants ##
   // =========================================================
-  // CAN ID Allocation:
-  // 1-12 Drivetrain (drive motors, steer motors, CANcoders) — TunerConstants.java
-  // 14 Pigeon 2 (IMU) — TunerConstants.java
-  // 15 CANivore / CANdle (LED controller)
-  // 20-39 Other motors (intake, indexer, shooter, climber)
-  // 40+ Sensors (ToF, CANrange, etc.)
-  // CAN Bus:
-  // -- canivore (for drivetrain + CANdle)
-  // -- rio (for other subsystems)
+  /*
+  ### candrive bus (CANivore) ###
+    1 FL Drive Motor  Kraken X60 (TunerConstants.kFrontLeftDriveMotorId)
+    2 FR Steer Motor  Kraken X60 (TunerConstants.kFrontRightSteerMotorId)
+    3 FL CANcoder     (TunerConstants.kFrontLeftEncoderId)
+    4 FR Drive Motor  Kraken X60 (TunerConstants.kFrontRightDriveMotorId)
+    5 FL Steer Motor  Kraken X60 (TunerConstants.kFrontLeftSteerMotorId)
+    6 FR CANcoder     (TunerConstants.kFrontRightEncoderId)
+    7 BL Drive Motor  Kraken X60 (TunerConstants.kBackLeftDriveMotorId)
+    8 BL Steer Motor  Kraken X60 (TunerConstants.kBackLeftSteerMotorId)
+    9 BL CANcoder     (TunerConstants.kBackLeftEncoderId)
+    10 BR Drive Motor Kraken X60 (TunerConstants.kBackRightDriveMotorId)
+    11 BR Steer Motor Kraken X60 (TunerConstants.kBackRightSteerMotorId)
+    12 BR CANcoder    (TunerConstants.kBackRightEncoderId)
+    14 Pigeon 2 IMU   (TunerConstants.kPigeonId)
+    15 CANdle LEDs    (Led.CANDLE_ID)
+  
+  ### rio bus ###
+    20 Intake Roller Left   Kraken X44 (Intake.ROLLER_LEFT_MOTOR_ID)
+    21 Intake Roller Right  Kraken X44 (Intake.ROLLER_RIGHT_MOTOR_ID)
+    22 Intake Slide         Kraken X44 (Intake.SLIDE_MOTOR_ID)
+    23 Kicker Left          Kraken X60 (Indexer.KICKER_LEFT_MOTOR_ID)
+    24 Kicker Right         Kraken X60 (Indexer.KICKER_RIGHT_MOTOR_ID)
+    25 Flywheel Left        Kraken X60 (Shooter.FLYWHEEL_LEFT_MOTOR_ID)
+    26 Flywheel Right       Kraken X60 (Shooter.FLYWHEEL_RIGHT_MOTOR_ID)
+    27 Conveyor             Kraken X44 (Indexer.CONVEYOR_MOTOR_ID)
+    28 Hood                 Minion/FXIS (Shooter.HOOD_MOTOR_ID)
+    42 Chute ToF CANrange   (Indexer.CHUTE_TOF_ID)
+  */
 
   // =========================================================
   // Intake
@@ -31,34 +50,37 @@ public final class Constants {
   public static final class Intake {
     private Intake() {
     }
-    
+
     // == IDs ===============================================
-    /** Intake rotator motor - Kraken X44 with TalonFX controller */
+    /** (3) Kraken X44 with TalonFX controller */
     public static final int ROLLER_LEFT_MOTOR_ID = 20; // TODO Update name in Tuner
     public static final int ROLLER_RIGHT_MOTOR_ID = 21; // TODO Update name and ID in Tuner <-- **NEW**
-
-    /** Intake slide motor - Kraken X44 with TalonFX controller */
     public static final int SLIDE_MOTOR_ID = 22; // TODO Update name and ID in Tuner <-- **was 21**
 
-   
-    /* TODO: Update with new slide `positions` using Tuner
-    * Set in code here (slightly less than mechanical max to prevent hitting hard stops)
-    * Configs limit is set to the MAX_POS, but other values are here for normal operation and target positions.
-    */ 
+    /*
+     * TODO: Find new slide positions with Phoenix Tuner
+     * by manually moving the slide to with low VoltageOut (e.g. 2V) 
+    and update with new slide `positions` using Tuner
+     * Set in code here (slightly less than mechanical max to prevent hitting hard
+     * stops)
+     * Configs limit is set to the MAX_POS, but other values are here for normal
+     * operation and target positions.
+     */
     public static final double SLIDE_MAX_POS = 44.454; // Also reference in the config limits
     public static final double SLIDE_RETRACTED_POS = 0.0;
     public static final double SLIDE_EXTENDED_POS = 44.40;
-    public static final double SLIDE_TOLERANCE = 0.05;  
-    
-    /* TODO: Update these Special positions 
-    */
+    public static final double SLIDE_TOLERANCE = 0.05;
+
+    /*
+     * TODO: Update these Special positions
+     */
     public static final double SLIDE_PUMP_OUT_POS = 40.0;
-    public static final double SLIDE_PUMP_IN_POS   = 30.0;
-    
+    public static final double SLIDE_PUMP_IN_POS = 30.0;
+
     // TODO Tune the roller voltages
     public static final double ROLLER_FORWARD_VOLTS = 11.0;
     public static final double ROLLER_REVERSE_VOLTS = -8.0;
-    
+
   }
 
   // =========================================================
@@ -70,24 +92,25 @@ public final class Constants {
     private Indexer() {
     }
 
-    /**
-     * Indexer motor - Kraken X44 with TalonFX controller, feeds pieces to shooter
+    /* (2) Kraken X60 with TalonFX controller, feeds pieces to shooter
      */
     public static final int KICKER_LEFT_MOTOR_ID = 23; // TODO Update name in Tuner
     public static final int KICKER_RIGHT_MOTOR_ID = 24; // TODO Update name in Tuner and ID in Tuner <-- **NEW**
 
     /**
-     * Conveyor motor - Kraken X44 with TalonFX controller, moves pieces along hopper
+     * Conveyor motor - Kraken X44 with TalonFX controller, moves pieces along
+     * hopper
      */
     public static final int CONVEYOR_MOTOR_ID = 27; // TODO Update name and ID in Tuner <-- **was 23**
 
     /**
-     * CANrange Time of Flight sensor detects presence of fuel at indexer chute egress to
+     * CANrange Time of Flight sensor detects presence of fuel at indexer chute
+     * egress to
      * shooter (optional)
      */
     public static final int CHUTE_TOF_ID = 42;
 
-    //=== Voltage Constants =====================
+    // === Voltage Constants =====================
     // TODO Tune conveyor voltages for reliable feeding
     public static final double CONVEYOR_FORWARD_VOLTAGE = 6.0;
     public static final double CONVEYOR_REVERSE_VOLTAGE = -4.0;
@@ -157,8 +180,11 @@ public final class Constants {
      */
     public static final double EJECT_MAX_ENTRY_RPM = 500.0;
 
-    /* Tightened from 0.10 — measured steady-state; variance ±30 RPM at 3300; 3% = ±99 RPM (~3× variance) */
-    public static final double FLYWHEEL_TOLERANCE_PERCENT = 0.05; 
+    /*
+     * Tightened from 0.10 — measured steady-state; variance ±30 RPM at 3300; 3% =
+     * ±99 RPM (~3× variance)
+     */
+    public static final double FLYWHEEL_TOLERANCE_PERCENT = 0.05;
 
     // --- Hood (Kraken rotational positions) ---
     public static final double MIN_HOOD_POSE = 0.0; // Mechanical limit, also use to set in Configs
@@ -171,12 +197,12 @@ public final class Constants {
      * Consider using WCP Encoder
      * Add an end of line comment `Tuned` when each is verified
      */
-    public static final double CLOSE_HOOD = 0.00;   // TODO: Tuned and ready
-    public static final double POPPER_HOOD = 8.42;  // TODO: Tune Popper hood was 8.42
-    public static final double TOWER_HOOD = 4.30;   // TODO: Tune Tower hood
-    public static final double TRENCH_HOOD = 4.30;  // TODO: Tune Trench hood
-    public static final double FAR_HOOD = 5.50;     // TODO: Tune Far hood, was 4000 + 5.5 worked
-    public static final double PASS_HOOD = 2.00;    //TODO: Tune Pass hoodm, was 7.00 and too much
+    public static final double CLOSE_HOOD = 0.00; // TODO: Tuned and ready
+    public static final double POPPER_HOOD = 8.42; // TODO: Tune Popper hood was 8.42
+    public static final double TOWER_HOOD = 4.30; // TODO: Tune Tower hood
+    public static final double TRENCH_HOOD = 4.30; // TODO: Tune Trench hood
+    public static final double FAR_HOOD = 5.50; // TODO: Tune Far hood, was 4000 + 5.5 worked
+    public static final double PASS_HOOD = 2.00; // TODO: Tune Pass hoodm, was 7.00 and too much
 
     // --- Testing Increments ---
     public static final double HOOD_TEST_INCREMENT = 0.2;
@@ -196,7 +222,8 @@ public final class Constants {
 
     // Pipeline indices
     public static final int APRILTAG_PIPELINE = 0;
-    // public static final int GAME_PIECE_PIPELINE = 1; // Optional: for note/game piece detection
+    // public static final int GAME_PIECE_PIPELINE = 1; // Optional: for note/game
+    // piece detection
 
     // =========================================================
     // Camera mounting - Primarily Documentation Purposes
@@ -256,11 +283,16 @@ public final class Constants {
     public static final double MAX_ALIGNMENT_ROTATION_RAD_PER_SEC = 5.0;
     public static final double MIN_DISTANCE_M = 0.5;
     public static final double MAX_DISTANCE_M = 8.0;
-    // public static final double ALIGNMENT_TOLERANCE_DEG = 0.5; // Duplicate of ALIGNMENT_TOLERANCE_DEGREES above, but with a tighter tolerance for "aligned" state if needed?
-    // public static final double MAX_ROT_RAD_PER_SEC = 3.0; // Duplicate of MAX_ALIGNMENT_ROTATION_RAD_PER_SEC above, but with a more aggressive cap if needed?
+    // public static final double ALIGNMENT_TOLERANCE_DEG = 0.5; // Duplicate of
+    // ALIGNMENT_TOLERANCE_DEGREES above, but with a tighter tolerance for "aligned"
+    // state if needed?
+    // public static final double MAX_ROT_RAD_PER_SEC = 3.0; // Duplicate of
+    // MAX_ALIGNMENT_ROTATION_RAD_PER_SEC above, but with a more aggressive cap if
+    // needed?
 
-    public static final double LEAD_COMPENSATION_DEG_PER_MPS = 00; // Tune up from 0 — 50 degrees of aim offset per m/s of lateral velocity
-  
+    public static final double LEAD_COMPENSATION_DEG_PER_MPS = 00; // Tune up from 0 — 50 degrees of aim offset per m/s
+                                                                   // of lateral velocity
+
     // == Valid tag IDs =========================
     // NOTE: MIN/MAX here are used for general target validation in VisionSubsystem.
     // Hub-specific filtering uses BLUE_HUB_TAG_IDS / RED_HUB_TAG_IDS arrays below.
@@ -269,18 +301,19 @@ public final class Constants {
 
     // Blue hub AprilTag IDs (2026 field layout — all 8 hub faces)
     // Layout: 18/27 (top chute), 19/20 (sides), 26/25 (sides), 21/24 (bottom chute)
-    public static final int[] BLUE_HUB_TAG_IDS = {18, 19, 20, 21, 24, 25, 26, 27};
+    public static final int[] BLUE_HUB_TAG_IDS = { 18, 19, 20, 21, 24, 25, 26, 27 };
 
     // Red hub AprilTag IDs (2026 field layout — all 8 hub faces)
     // Layout: 8/5 (top chute), 9/10 (sides), 4/3 (sides), 11/2 (bottom chute)
-    public static final int[] RED_HUB_TAG_IDS = {2, 3, 4, 5, 8, 9, 10, 11};
+    public static final int[] RED_HUB_TAG_IDS = { 2, 3, 4, 5, 8, 9, 10, 11 };
 
     // Hub center positions in WPILib blue-origin field coordinates (meters).
     // Used by poseAlignAndShoot / autoAlignAndShoot for odometry-based aiming.
     // Red hub is the field-length mirror of blue: x = 17.548 - 4.625 = 12.923
-    // TODO: verify exact coordinates against 2026 field layout JSON if shooting accuracy needs improvement
+    // TODO: verify exact coordinates against 2026 field layout JSON if shooting
+    // accuracy needs improvement
     public static final Translation2d BLUE_HUB_LOCATION = new Translation2d(4.625, 4.025);
-    public static final Translation2d RED_HUB_LOCATION  = new Translation2d(11.923, 4.025);
+    public static final Translation2d RED_HUB_LOCATION = new Translation2d(11.923, 4.025);
 
   }
 
