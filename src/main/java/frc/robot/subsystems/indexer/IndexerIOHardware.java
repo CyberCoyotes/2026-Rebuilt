@@ -12,6 +12,9 @@ import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 
+import edu.wpi.first.units.measure.AngularVelocity;
+import edu.wpi.first.units.measure.Current;
+import edu.wpi.first.units.measure.Distance;
 import frc.robot.Constants;
 import frc.robot.util.PhoenixUtil;
 
@@ -73,10 +76,9 @@ public class IndexerIOHardware implements IndexerIO {
         CANrangeConfiguration config = new CANrangeConfiguration();
 
         config.ProximityParams.ProximityThreshold = Constants.Indexer.FUEL_DETECTION_DISTANCE;
-        config.ProximityParams.ProximityHysteresis = 0.025; // meters — TODO: Tune
-
-        config.FovParams.FOVRangeX = 6.75; // degrees — TODO: Tune
-        config.FovParams.FOVRangeY = 6.75; // degrees — TODO: Tune
+        config.ProximityParams.ProximityHysteresis = 0.025; //
+        config.FovParams.FOVRangeX = 6.75; // 
+        config.FovParams.FOVRangeY = 6.75; //
 
         return config;
     }
@@ -89,19 +91,21 @@ public class IndexerIOHardware implements IndexerIO {
 
     // == Control Requests ==========================================================
     private final VoltageOut conveyorVoltageRequest = new VoltageOut(0.0);
+
+    // Both kicker motors are on the same physical side; belted together, no gearboxes, need to follow same direction
     private final VoltageOut kickerLeadVoltageRequest  = new VoltageOut(0.0);
-    // NotOpposed: both kicker motors are on the same physical side — follower mirrors leader output.
     private final Follower kickerFollowerRequest =
-        new Follower(Constants.Indexer.KICKER_LEFT_MOTOR_ID, MotorAlignmentValue.NotOpposed);
+        new Follower(Constants.Indexer.KICKER_LEFT_MOTOR_ID, MotorAlignmentValue.Aligned);
 
     // == Status Signals ===========================================================
-    private final StatusSignal<?> conveyorVelocity;
-    private final StatusSignal<?> conveyorCurrent;
-    private final StatusSignal<?> kickerLeadVelocity;
-    private final StatusSignal<?> kickerFollowVelocity;
-    private final StatusSignal<?> kickerLeadCurrent;
-    private final StatusSignal<?> kickerFollowCurrent;
-    private final StatusSignal<?> chuteDistance;
+    /* These Status Signals were not typed previously <?>, but trying Typed e.g. <AngularVelocity> */
+    private final StatusSignal<AngularVelocity> conveyorVelocity;
+    private final StatusSignal<Current> conveyorCurrent;
+    private final StatusSignal<AngularVelocity> kickerLeadVelocity;
+    private final StatusSignal<AngularVelocity> kickerFollowVelocity;
+    private final StatusSignal<Current> kickerLeadCurrent;
+    private final StatusSignal<Current> kickerFollowCurrent;
+    private final StatusSignal<Distance> chuteDistance;
     private final StatusSignal<Boolean> chuteIsDetected;
 
     // == Constructor =============================================================
@@ -135,10 +139,10 @@ public class IndexerIOHardware implements IndexerIO {
     @Override
     public void updateInputs(IndexerIOInputs inputs) {
         BaseStatusSignal.refreshAll(
-            conveyorVelocity, conveyorCurrent,
-            kickerLeadVelocity,  kickerLeadCurrent,
-            kickerFollowCurrent,
-            chuteDistance,    chuteIsDetected
+            conveyorVelocity,       conveyorCurrent,
+            kickerLeadVelocity,     kickerLeadCurrent,
+            kickerFollowCurrent,    kickerFollowVelocity,
+            chuteDistance,          chuteIsDetected
         );
 
         inputs.conveyorVelocityRPS = conveyorVelocity.getValueAsDouble();
