@@ -36,12 +36,29 @@ import static edu.wpi.first.units.Units.MetersPerSecond;
  */
 public class FuelCommands {
 
+    /**
+     * Robot-front heading offset needed so the rear-mounted shooter/camera points at the hub.
+     *
+     * Current mechanical layout: shooter and camera are mounted on the back of the robot, so
+     * the chassis front must point 180° away from the hub when aligning to shoot.
+     */
+    private static final double SHOOTER_ALIGNMENT_OFFSET_DEGREES = 180.0;
+
     /** Returns the hub center for the current alliance (defaults to blue if FMS not connected). */
     private static Translation2d getHubLocation() {
         return DriverStation.getAlliance()
                 .filter(a -> a == DriverStation.Alliance.Red)
                 .map(a -> Constants.Vision.RED_HUB_LOCATION)
                 .orElse(Constants.Vision.BLUE_HUB_LOCATION);
+    }
+
+    private static double getRobotFrontTargetHeadingDegrees(double angleToHubDeg, double aimOffsetDeg) {
+        double targetHeadingDeg = angleToHubDeg + aimOffsetDeg + SHOOTER_ALIGNMENT_OFFSET_DEGREES;
+        return MathUtil.inputModulus(targetHeadingDeg, -180.0, 180.0);
+    }
+
+    private static double getHeadingErrorDegrees(double targetHeadingDeg, double currentHeadingDeg) {
+        return MathUtil.inputModulus(targetHeadingDeg - currentHeadingDeg, -180.0, 180.0);
     }
 
     // =========================================================================
@@ -312,9 +329,8 @@ public class FuelCommands {
             double leadOffsetDeg = -lateralVelocity * Constants.Vision.LEAD_COMPENSATION_DEG_PER_MPS;
 
             double currentHeadingDeg = pose.getRotation().getDegrees();
-            double headingErrorDeg   = angleToHubDeg + leadOffsetDeg - currentHeadingDeg;
-            while (headingErrorDeg >  180) headingErrorDeg -= 360;
-            while (headingErrorDeg < -180) headingErrorDeg += 360;
+            double targetHeadingDeg = getRobotFrontTargetHeadingDegrees(angleToHubDeg, leadOffsetDeg);
+            double headingErrorDeg = getHeadingErrorDegrees(targetHeadingDeg, currentHeadingDeg);
 
             ntLeadOffset.set(leadOffsetDeg);
 
