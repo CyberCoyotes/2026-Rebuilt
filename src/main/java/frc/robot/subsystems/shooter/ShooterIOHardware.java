@@ -38,19 +38,16 @@ public class ShooterIOHardware implements ShooterIO {
   // == Flywheel Configuration ==========================================
   private static class FlywheelConfig {
 
-    /**
-     * Config for the follower motor.
-     * Direction is controlled by MotorAlignmentValue.Opposed in the Follower control
-     * request — the Inverted config here is irrelevant while following.
-     * No ramp, no PID — the follower mirrors the leader's output exactly and never
-     * runs closed-loop independently.
-     */
+    /* 
+    * While in follower mode, motor direction is governed by the Follower request.
+    * Keep follower motor config simple because it is not intended to run closed-loop independently.
+    */
     static TalonFXConfiguration follower() {
       TalonFXConfiguration config = new TalonFXConfiguration();
 
       config.MotorOutput.NeutralMode = NeutralModeValue.Coast;
 
-      config.CurrentLimits.SupplyCurrentLimit = 45.0;
+      config.CurrentLimits.SupplyCurrentLimit = 50.0; // Previously 45
       config.CurrentLimits.SupplyCurrentLimitEnable = true;
       config.CurrentLimits.StatorCurrentLimit = 90.0;
       config.CurrentLimits.StatorCurrentLimitEnable = true;
@@ -61,7 +58,7 @@ public class ShooterIOHardware implements ShooterIO {
     static TalonFXConfiguration leader() {
       TalonFXConfiguration config = new TalonFXConfiguration();
 
-      config.CurrentLimits.SupplyCurrentLimit = 45.0;
+      config.CurrentLimits.SupplyCurrentLimit = 50.0; // Previously 45
       config.CurrentLimits.SupplyCurrentLimitEnable = true;
       config.CurrentLimits.StatorCurrentLimit = 90.0;
       config.CurrentLimits.StatorCurrentLimitEnable = true;
@@ -81,7 +78,7 @@ public class ShooterIOHardware implements ShooterIO {
     }
   }
 
-  // ── Hood Configuration ─────────────────────────────────────────────────────
+  // == Hood Configuration ==========================================================
   private static class HoodConfig {
 
     static TalonFXSConfiguration hood() {
@@ -180,8 +177,6 @@ public class ShooterIOHardware implements ShooterIO {
     flywheelFollower.optimizeBusUtilization();
     hoodMotor.optimizeBusUtilization();
 
-    // 100Hz — DutyCycle and MotorVoltage must be re-enabled on the leader so
-    // the follower can mirror output. Without these, followers lose sync.
     BaseStatusSignal.setUpdateFrequencyForAll(
         100.0,
         flywheelLeader.getDutyCycle(),
