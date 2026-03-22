@@ -14,6 +14,7 @@ import com.ctre.phoenix6.signals.NeutralModeValue;
 
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Current;
+import edu.wpi.first.units.measure.Distance;
 import frc.robot.Constants;
 import frc.robot.util.PhoenixUtil;
 
@@ -75,10 +76,9 @@ public class IndexerIOHardware implements IndexerIO {
         CANrangeConfiguration config = new CANrangeConfiguration();
 
         config.ProximityParams.ProximityThreshold = Constants.Indexer.FUEL_DETECTION_DISTANCE;
-        config.ProximityParams.ProximityHysteresis = 0.025; // meters — TODO: Tune
-
-        config.FovParams.FOVRangeX = 6.75; // degrees — TODO: Tune
-        config.FovParams.FOVRangeY = 6.75; // degrees — TODO: Tune
+        config.ProximityParams.ProximityHysteresis = 0.025; //
+        config.FovParams.FOVRangeX = 6.75; // 
+        config.FovParams.FOVRangeY = 6.75; //
 
         return config;
     }
@@ -105,7 +105,7 @@ public class IndexerIOHardware implements IndexerIO {
     private final StatusSignal<AngularVelocity> kickerFollowVelocity;
     private final StatusSignal<Current> kickerLeadCurrent;
     private final StatusSignal<Current> kickerFollowCurrent;
-    private final StatusSignal<?> chuteDistance;
+    private final StatusSignal<Distance> chuteDistance;
     private final StatusSignal<Boolean> chuteIsDetected;
 
     // == Constructor =============================================================
@@ -139,10 +139,10 @@ public class IndexerIOHardware implements IndexerIO {
     @Override
     public void updateInputs(IndexerIOInputs inputs) {
         BaseStatusSignal.refreshAll(
-            conveyorVelocity, conveyorCurrent,
-            kickerLeadVelocity,  kickerLeadCurrent,
-            kickerFollowCurrent,
-            chuteDistance,    chuteIsDetected
+            conveyorVelocity,       conveyorCurrent,
+            kickerLeadVelocity,     kickerLeadCurrent,
+            kickerFollowCurrent,    kickerFollowVelocity,
+            chuteDistance,          chuteIsDetected
         );
 
         inputs.conveyorVelocityRPS = conveyorVelocity.getValueAsDouble();
