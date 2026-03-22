@@ -5,7 +5,7 @@ import choreo.auto.AutoRoutine;
 import choreo.auto.AutoTrajectory;
 import edu.wpi.first.wpilibj2.command.Commands;
 import frc.robot.subsystems.shooter.ShooterSubsystem;
-import frc.robot.commands.FuelCommands;
+import frc.robot.commands.FuelCommandsClaude;
 // import frc.robot.commands.FuelCommands.Auto;
 import frc.robot.subsystems.vision.VisionSubsystem;
 import frc.robot.subsystems.indexer.IndexerSubsystem;
@@ -18,7 +18,7 @@ public class AutoRoutines {
         private final IntakeSubsystem m_intake;
         private final IndexerSubsystem m_indexer;
         private final ShooterSubsystem m_shooter;
-        private final FuelCommands m_fuelCommands;
+        private final FuelCommandsClaude m_fuelCommands;
         private final VisionSubsystem m_vision;
         // private final LedSubsystem m_ledSubsystem;
 
@@ -28,7 +28,7 @@ public class AutoRoutines {
 
         public AutoRoutines(AutoFactory factory, CommandSwerveDrivetrain drivetrain, /* , ClimberSubsystem climber, */
                         IndexerSubsystem indexer, IntakeSubsystem intake, ShooterSubsystem shooter,
-                        FuelCommands fuelCommands, VisionSubsystem vision/* , LedSubsystem ledSubsystem */) {
+                        FuelCommandsClaude fuelCommands, VisionSubsystem vision/* , LedSubsystem ledSubsystem */) {
                 m_factory = factory;
                 m_drivetrain = drivetrain;
                 // m_climber = climber;
@@ -60,8 +60,8 @@ public class AutoRoutines {
                 RtTrench_Mid_Trench.atTime("Intake").onTrue(m_intake.intakeFuelTimer(6));
 
                 RtTrench_Mid_Trench.atTime("Shoot")
-                                .onTrue(FuelCommands.Auto.poseAlignAndShoot(m_shooter, m_indexer, m_drivetrain, 6.0));
-                RtTrench_Mid_Trench.atTime("FuelPump").onTrue(FuelCommands.Auto.fuelPumpCycleSensor(m_intake, m_indexer));
+                                .onTrue(FuelCommandsClaude.Auto.poseAlignAndShoot(m_shooter, m_indexer, m_drivetrain, 6.0));
+                RtTrench_Mid_Trench.atTime("FuelPump").onTrue(FuelCommandsClaude.Auto.fuelPumpCycleSensor(m_intake, m_indexer));
 
                 return routine;
         }
@@ -82,8 +82,8 @@ public class AutoRoutines {
                 RtTrench_Mid.atTime("Intake").onTrue(m_intake.intakeFuelTimer(6));
 
                 RtMid_Trench.atTime("Shoot")
-                                .onTrue(FuelCommands.Auto.poseAlignAndShoot(m_shooter, m_indexer, m_drivetrain, 6.0));
-                RtMid_Trench.atTime("FuelPump").onTrue(FuelCommands.Auto.fuelPumpCycleSensor(m_intake, m_indexer));
+                                .onTrue(FuelCommandsClaude.Auto.poseAlignAndShoot(m_shooter, m_indexer, m_drivetrain, 6.0));
+                RtMid_Trench.atTime("FuelPump").onTrue(FuelCommandsClaude.Auto.fuelPumpCycleSensor(m_intake, m_indexer));
 
                 return routine;
         }
@@ -103,8 +103,8 @@ public class AutoRoutines {
                 // Routine Events
                 RtTrench_Mid.atTime("Intake").onTrue(m_intake.intakeFuelTimer(6));
                 RtMid_Ramp.atTime("Shoot")
-                                .onTrue(FuelCommands.Auto.poseAlignAndShoot(m_shooter, m_indexer, m_drivetrain, 6.0));
-                RtMid_Ramp.atTime("FuelPump").onTrue(FuelCommands.Auto.fuelPumpCycleSensor(m_intake, m_indexer));
+                                .onTrue(FuelCommandsClaude.Auto.poseAlignAndShoot(m_shooter, m_indexer, m_drivetrain, 6.0));
+                RtMid_Ramp.atTime("FuelPump").onTrue(FuelCommandsClaude.Auto.fuelPumpCycleSensor(m_intake, m_indexer));
 
                 return routine;
         }
@@ -125,8 +125,8 @@ public class AutoRoutines {
                 // Routine Events
                 RtTrench_Mid_Ramp.atTime("Intake").onTrue(m_intake.intakeFuelTimer(6));
                 RtTrench_Mid_Ramp.atTime("Shoot")
-                                .onTrue(FuelCommands.Auto.poseAlignAndShoot(m_shooter, m_indexer, m_drivetrain, 6.0));
-                RtTrench_Mid_Ramp.atTime("FuelPump").onTrue(FuelCommands.Auto.fuelPumpCycleSensor(m_intake, m_indexer));
+                                .onTrue(FuelCommandsClaude.Auto.poseAlignAndShoot(m_shooter, m_indexer, m_drivetrain, 6.0));
+                RtTrench_Mid_Ramp.atTime("FuelPump").onTrue(FuelCommandsClaude.Auto.fuelPumpCycleSensor(m_intake, m_indexer));
 
                 return routine;
         }
@@ -143,8 +143,8 @@ public class AutoRoutines {
                                 ));
                 // Routine Events
                 LtTrench_Mid_Trench.atTime("Intake").onTrue(m_intake.intakeFuelTimer(8));
-                LtTrench_Mid_Trench.atTime("Shoot").onTrue(FuelCommands.Auto.poseAlignAndShoot(m_shooter, m_indexer, m_drivetrain, 6.0));
-                LtTrench_Mid_Trench.atTime("FuelPump").onTrue(FuelCommands.Auto.fuelPumpCycleSensor(m_intake, m_indexer));
+                LtTrench_Mid_Trench.atTime("Shoot").onTrue(FuelCommandsClaude.Auto.poseAlignAndShoot(m_shooter, m_indexer, m_drivetrain, 6.0));
+                LtTrench_Mid_Trench.atTime("FuelPump").onTrue(FuelCommandsClaude.Auto.fuelPumpCycleSensor(m_intake, m_indexer));
 
                 return routine;
         }
@@ -161,7 +161,7 @@ public class AutoRoutines {
                                 ));
                 // Routine Events
                 MidDepot.atTime("Intake").onTrue(m_intake.intakeFuelTimer(8));
-                MidDepot.atTime("Shoot").onTrue(FuelCommands.Auto.shootFar(m_shooter, m_indexer, 6)); // score
+                MidDepot.atTime("Shoot").onTrue(FuelCommandsClaude.Auto.shootFar(m_shooter, m_indexer, 6)); // score
 
                 return routine;
         }
@@ -182,7 +182,7 @@ public class AutoRoutines {
                         // Routine Events
 
                 Center.atTime("Shoot")
-                                .onTrue(FuelCommands.Auto.shootHub(m_shooter, m_indexer,6.6));
+                                .onTrue(FuelCommandsClaude.Auto.shootHub(m_shooter, m_indexer,6.6));
                 // Center.atTime("FuelPump").onTrue(FuelCommands.Auto.fuelPumpCycleSensor(m_intake, m_indexer));
 
                 return routine;
@@ -237,7 +237,7 @@ public class AutoRoutines {
                         // Place the "Shoot" event marker at the END of the trajectory segment so the
                         // path finishes before this fires.
                         Experimental.atTime("Shoot")
-                                        .onTrue(FuelCommands.Auto.poseAlignAndShoot(m_shooter, m_indexer, m_drivetrain,
+                                        .onTrue(FuelCommandsClaude.Auto.poseAlignAndShoot(m_shooter, m_indexer, m_drivetrain,
                                                         3.0));
 
                         return routine;

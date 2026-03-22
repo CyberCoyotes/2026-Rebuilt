@@ -34,7 +34,7 @@ import static edu.wpi.first.units.Units.MetersPerSecond;
  * Using a factory pattern keeps command creation centralized and reusable.
  * 
  */
-public class FuelCommands {
+public class FuelCommandsClaude {
 
     /**
      * Robot-front heading offset needed so the rear-mounted shooter/camera points at the hub.
