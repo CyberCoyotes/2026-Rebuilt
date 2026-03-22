@@ -316,7 +316,9 @@ public class FuelCommands {
             }
 
             // 2. Apply velocity offset for movement
-            double angleToHubDeg = Math.toDegrees(Math.atan2(dy, dx));
+            // +180° because shooter/camera are on the BACK of the robot — we want
+            // the back to face the hub, not the front.
+            double angleToHubDeg = Math.toDegrees(Math.atan2(dy, dx)) + 180.0;
 
             // Velocity lead compensation — offsets aim opposite to lateral movement
             var speeds = drivetrain.getState().Speeds;
@@ -464,11 +466,11 @@ public class FuelCommands {
                                 Pose2d pose = drivetrain.getState().Pose;
                                 double dx = hub.getX() - pose.getX();
                                 double dy = hub.getY() - pose.getY();
-                                double angleToHubDeg = Math.toDegrees(Math.atan2(dy, dx));
-                                double targetHeadingDeg = getRobotFrontTargetHeadingDegrees(angleToHubDeg, 0.0);
-                                double headingErrorDeg = getHeadingErrorDegrees(
-                                        targetHeadingDeg,
-                                        pose.getRotation().getDegrees());
+                                // +180° — shooter is on the BACK of the robot
+                                double headingErrorDeg = Math.toDegrees(Math.atan2(dy, dx)) + 180.0
+                                        - pose.getRotation().getDegrees();
+                                while (headingErrorDeg >  180) headingErrorDeg -= 360;
+                                while (headingErrorDeg < -180) headingErrorDeg += 360;
                                 return Math.abs(headingErrorDeg) <= Constants.Vision.ALIGNMENT_TOLERANCE_DEGREES
                                         && shooter.isReady();
                             /* Added .withTimeout(3.0) and working now. Post weekend, explore why timeout is needed
@@ -489,11 +491,11 @@ public class FuelCommands {
                                 if (shooter.getState() != ShooterSubsystem.ShooterState.READY) {
                                     shooter.beginSpinUp();
                                 }
-                                double angleToHubDeg = Math.toDegrees(Math.atan2(dy, dx));
-                                double targetHeadingDeg = getRobotFrontTargetHeadingDegrees(angleToHubDeg, 0.0);
-                                double headingErrorDeg = getHeadingErrorDegrees(
-                                        targetHeadingDeg,
-                                        pose.getRotation().getDegrees());
+                                // +180° — shooter is on the BACK of the robot
+                                double headingErrorDeg = Math.toDegrees(Math.atan2(dy, dx)) + 180.0
+                                        - pose.getRotation().getDegrees();
+                                while (headingErrorDeg >  180) headingErrorDeg -= 360;
+                                while (headingErrorDeg < -180) headingErrorDeg += 360;
                                 double rotRate = MathUtil.clamp(
                                         headingErrorDeg * Constants.Vision.ROTATIONAL_KP,
                                         -Constants.Vision.MAX_ALIGNMENT_ROTATION_RAD_PER_SEC,
