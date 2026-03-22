@@ -315,10 +315,10 @@ public class FuelCommandsGPT {
                 shooter.beginSpinUp(); // void — only transitions state; never call spinUp() (returns Command) here
             }
 
-            // 2. Apply velocity offset for movement
-            // +180° because shooter/camera are on the BACK of the robot — we want
-            // the back to face the hub, not the front.
-            double angleToHubDeg = Math.toDegrees(Math.atan2(dy, dx)) + 180.0;
+            // 2. Apply velocity offset for movement.
+            // Keep the raw hub bearing here; the rear-shooter 180 deg correction is
+            // applied once in getRobotFrontTargetHeadingDegrees(...).
+            double angleToHubDeg = Math.toDegrees(Math.atan2(dy, dx));
             
             // Velocity lead compensation — offsets aim opposite to lateral movement
             var speeds = drivetrain.getState().Speeds;
