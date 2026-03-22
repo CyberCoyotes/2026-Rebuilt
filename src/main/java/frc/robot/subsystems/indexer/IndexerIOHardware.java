@@ -12,6 +12,8 @@ import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 
+import edu.wpi.first.units.measure.AngularVelocity;
+import edu.wpi.first.units.measure.Current;
 import frc.robot.Constants;
 import frc.robot.util.PhoenixUtil;
 
@@ -90,17 +92,18 @@ public class IndexerIOHardware implements IndexerIO {
     // == Control Requests ==========================================================
     private final VoltageOut conveyorVoltageRequest = new VoltageOut(0.0);
     private final VoltageOut kickerLeadVoltageRequest  = new VoltageOut(0.0);
-    // NotOpposed: both kicker motors are on the same physical side — follower mirrors leader output.
+    // Both kicker motors are on the same physical side; belted together, no gearboxes, need to follow same direction
     private final Follower kickerFollowerRequest =
-        new Follower(Constants.Indexer.KICKER_LEFT_MOTOR_ID, MotorAlignmentValue.NotOpposed);
+        new Follower(Constants.Indexer.KICKER_LEFT_MOTOR_ID, MotorAlignmentValue.Aligned);
 
     // == Status Signals ===========================================================
-    private final StatusSignal<?> conveyorVelocity;
-    private final StatusSignal<?> conveyorCurrent;
-    private final StatusSignal<?> kickerLeadVelocity;
-    private final StatusSignal<?> kickerFollowVelocity;
-    private final StatusSignal<?> kickerLeadCurrent;
-    private final StatusSignal<?> kickerFollowCurrent;
+    /* These Status Signals were not typed previously <?>, but trying Typed e.g. <AngularVelocity> */
+    private final StatusSignal<AngularVelocity> conveyorVelocity;
+    private final StatusSignal<Current> conveyorCurrent;
+    private final StatusSignal<AngularVelocity> kickerLeadVelocity;
+    private final StatusSignal<AngularVelocity> kickerFollowVelocity;
+    private final StatusSignal<Current> kickerLeadCurrent;
+    private final StatusSignal<Current> kickerFollowCurrent;
     private final StatusSignal<?> chuteDistance;
     private final StatusSignal<Boolean> chuteIsDetected;
 

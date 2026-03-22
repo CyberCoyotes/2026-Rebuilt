@@ -14,6 +14,9 @@ import com.ctre.phoenix6.signals.MotorAlignmentValue;
 import com.ctre.phoenix6.signals.MotorArrangementValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 
+import edu.wpi.first.units.measure.AngularVelocity;
+import edu.wpi.first.units.measure.Temperature;
+import edu.wpi.first.units.measure.Voltage;
 import frc.robot.Constants;
 import frc.robot.util.PhoenixUtil;
 
@@ -132,16 +135,19 @@ public class ShooterIOHardware implements ShooterIO {
   // PositionVoltage commands maximum effort immediately — do not use for hood.
   private final MotionMagicVoltage hoodPositionRequest = new MotionMagicVoltage(0.0);
 
-  // NotOpposed: both motors are on the same physical side — they spin in the same
+  // Both motors are on the same physical side and they spin in the same
   // direction to co-rotate the flywheel and launch the ball together.
   private final Follower flywheelFollowerRequest =
-      new Follower(Constants.Shooter.FLYWHEEL_LEFT_MOTOR_ID, MotorAlignmentValue.NotOpposed);
+      new Follower(Constants.Shooter.FLYWHEEL_LEFT_MOTOR_ID, MotorAlignmentValue.Aligned);
+      // new Follower(flywheelLeader.getDeviceID(), MotorAlignmentValue.Aligned); Alternative approach
 
   // == Status Signals ====================================================
-  private final StatusSignal<?> flywheelLeaderVelocity;
-  private final StatusSignal<?> flywheelLeaderVoltage;
-  private final StatusSignal<?> flywheelLeaderTempCelsius;
-  private final StatusSignal<?> flywheelFollowerTempCelsius;
+  /* These Status Signals were not typed previously <?>, but trying Typed e.g. <AngularVelocity> */
+  // private final StatusSignal<?> flywheelLeaderVelocity;
+  private final StatusSignal<AngularVelocity> flywheelLeaderVelocity;
+  private final StatusSignal<Voltage> flywheelLeaderVoltage;
+  private final StatusSignal<Temperature> flywheelLeaderTempCelsius;
+  private final StatusSignal<Temperature> flywheelFollowerTempCelsius;
   private final StatusSignal<?> hoodPosition;
 
   // == Constructor =======================================================
