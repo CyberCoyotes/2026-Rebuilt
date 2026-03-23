@@ -75,6 +75,8 @@ public class AutoRoutines {
                                 Commands.sequence(
                                                 RtTrench_Mid.resetOdometry(), // Always reset odometry first
                                                 RtTrench_Mid.cmd(), // Follow the path
+                                                // Vision checkpoint: require >=2 tags at segment boundary for high-confidence reset
+                                                m_drivetrain.resetPoseFromVisionCommand(2),
                                                 RtMid_Trench.cmd() // Follow the path
 
                                 ));
@@ -97,6 +99,8 @@ public class AutoRoutines {
                                 Commands.sequence(
                                                 RtTrench_Mid.resetOdometry(), // Always reset odometry first
                                                 RtTrench_Mid.cmd(), // Follow the path
+                                                // Vision checkpoint: require >=2 tags at segment boundary for high-confidence reset
+                                                m_drivetrain.resetPoseFromVisionCommand(2),
                                                 RtMid_Ramp.cmd() // Follow the path
 
                                 ));

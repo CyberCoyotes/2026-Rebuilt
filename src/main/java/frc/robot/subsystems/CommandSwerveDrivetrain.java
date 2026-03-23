@@ -312,6 +312,24 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
      * @return Command (requires drivetrain)
      */
     public Command resetPoseFromVisionCommand() {
+        return resetPoseFromVisionCommand(1);
+    }
+
+    /**
+     * Returns a command that resets the robot pose to the Limelight MegaTag2 botpose estimate,
+     * requiring at least {@code minTagCount} tags for the reset to proceed.
+     * <p>
+     * Use {@code minTagCount = 2} during autonomous for higher-confidence resets at segment
+     * boundaries — two visible tags constrain both translation and heading, so the estimate
+     * is far more reliable than a single-tag fix.
+     * <p>
+     * The reset is still skipped if the robot is spinning >= 2.0 rot/s.
+     *
+     * @param minTagCount Minimum number of AprilTags required to accept the estimate (1 for
+     *                    teleop driver reset, 2+ recommended for autonomous checkpoints)
+     * @return Command (requires drivetrain)
+     */
+    public Command resetPoseFromVisionCommand(int minTagCount) {
         return runOnce(() -> {
             var driveState = getState();
             double omegaRps = Units.radiansToRotations(driveState.Speeds.omegaRadiansPerSecond);
@@ -324,11 +342,13 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
                     Constants.Vision.LIMELIGHT4_NAME, headingDeg, 0, 0, 0, 0, 0);
             var llMeasurement = LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2(
                     Constants.Vision.LIMELIGHT4_NAME);
-            if (llMeasurement != null && llMeasurement.tagCount > 0) {
+            if (llMeasurement != null && llMeasurement.tagCount >= minTagCount) {
                 resetPose(llMeasurement.pose);
-                SmartDashboard.putString("BotposeReset", "OK");
+                SmartDashboard.putString("BotposeReset", "OK (" + llMeasurement.tagCount + " tags)");
             } else {
-                SmartDashboard.putString("BotposeReset", "SKIPPED (no tags)");
+                int count = (llMeasurement != null) ? llMeasurement.tagCount : 0;
+                SmartDashboard.putString("BotposeReset",
+                        "SKIPPED (tags: " + count + " < " + minTagCount + ")");
             }
         });
     }
