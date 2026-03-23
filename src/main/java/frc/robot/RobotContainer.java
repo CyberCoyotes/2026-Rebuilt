@@ -17,7 +17,7 @@ import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import edu.wpi.first.wpilibj2.command.button.RobotModeTriggers;
 import frc.robot.generated.TunerConstants;
-import frc.robot.commands.FuelCommands;
+import frc.robot.commands.FuelCommandsGPT;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
 import frc.robot.subsystems.indexer.IndexerSubsystem;
 import frc.robot.subsystems.intake.IntakeSubsystem;
@@ -57,7 +57,7 @@ public class RobotContainer {
     private final VisionSubsystem vision;
     private final LedSubsystem ledSub;
     // private final ClimberSubsystem climber;
-    private final FuelCommands fuelCommands = null;
+    private final FuelCommandsGPT fuelCommands = null;
     private final AutoFactory autoFactory;
     private final AutoRoutines autoRoutines;
     private final AutoChooser autoChooser = new AutoChooser();
@@ -117,7 +117,7 @@ public class RobotContainer {
         // =====================================================================
         
         driver.rightTrigger(0.5).whileTrue(
-            FuelCommands.poseAlignAndShoot(shooter, indexer, /*intake,*/ drivetrain,
+            FuelCommandsGPT.poseAlignAndShoot(shooter, indexer, /*intake,*/ drivetrain,
                 () -> -driver.getLeftY() * MaxSpeed,
                 () -> -driver.getLeftX() * MaxSpeed)); 
         
@@ -139,15 +139,15 @@ public class RobotContainer {
         // var anyPresetHeld = operator.a().or(operator.b()).or(operator.x()).or(operator.y()); 
         
         operator.a().whileTrue(
-            FuelCommands.shootWithPreset(shooter, indexer, ShooterSubsystem.ShotPreset.TRENCH));
+            FuelCommandsGPT.shootWithPreset(shooter, indexer, ShooterSubsystem.ShotPreset.TRENCH));
         operator.b().whileTrue(
-            FuelCommands.shootWithPreset(shooter, indexer, ShooterSubsystem.ShotPreset.CLOSE));
+            FuelCommandsGPT.shootWithPreset(shooter, indexer, ShooterSubsystem.ShotPreset.CLOSE));
         operator.x().whileTrue(
-            FuelCommands.shootWithPreset(shooter, indexer, ShooterSubsystem.ShotPreset.TOWER));
+            FuelCommandsGPT.shootWithPreset(shooter, indexer, ShooterSubsystem.ShotPreset.TOWER));
         operator.y().whileTrue(
-            FuelCommands.shootWithPreset(shooter, indexer, ShooterSubsystem.ShotPreset.FAR));
+            FuelCommandsGPT.shootWithPreset(shooter, indexer, ShooterSubsystem.ShotPreset.FAR));
 
-        operator.rightBumper().whileTrue(FuelCommands.shootPass(shooter, indexer));
+        operator.rightBumper().whileTrue(FuelCommandsGPT.shootPass(shooter, indexer));
 
         // Hold to back a ball out of the chute if it entered prematurely
         operator.rightTrigger().whileTrue(indexer.reverse());
@@ -159,7 +159,7 @@ public class RobotContainer {
         //     indexer.isFuelDetected()
         // ).whileTrue(indexer.reverse());
 
-        operator.leftTrigger().whileTrue(FuelCommands.runAirPopper(indexer, shooter, intake));
+        operator.leftTrigger().whileTrue(FuelCommandsGPT.runAirPopper(indexer, shooter, intake));
         operator.leftBumper().whileTrue(intake.retractSlidesStack());
 
         // Back (View ⧉): Reset odometry to botpose — use when robot rides up on a ball
