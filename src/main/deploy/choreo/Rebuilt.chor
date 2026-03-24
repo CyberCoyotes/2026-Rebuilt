@@ -4,7 +4,7 @@
  "type":"Swerve",
  "variables":{
   "expressions":{
-   "IntakeV":{
+   "IntakeVel":{
     "dimension":"LinVel",
     "var":{
      "exp":"1 m / s",
@@ -51,8 +51,22 @@
      "val":4.0
     },
     "heading":{
-     "exp":"0 deg",
-     "val":0.0
+     "exp":"3.14 rad",
+     "val":3.14
+    }
+   },
+   "HubCloseShot":{
+    "x":{
+     "exp":"2.55 m",
+     "val":2.55
+    },
+    "y":{
+     "exp":"4 m",
+     "val":4.0
+    },
+    "heading":{
+     "exp":"3.14 rad",
+     "val":3.14
     }
    },
    "L_MidHub":{
@@ -69,7 +83,7 @@
      "val":-1.5707963267948966
     }
    },
-   "L_Mid_In":{
+   "L_MidIn":{
     "x":{
      "exp":"7.8 m",
      "val":7.8
@@ -83,7 +97,7 @@
      "val":-1.5707963267948966
     }
    },
-   "L_Mid_InStop":{
+   "L_MidInStop":{
     "x":{
      "exp":"7.8 m",
      "val":7.8
@@ -97,7 +111,7 @@
      "val":-1.5707963267948966
     }
    },
-   "L_Mid_Tr":{
+   "L_MidTr":{
     "x":{
      "exp":"6.25 m",
      "val":6.25
@@ -111,6 +125,20 @@
      "val":-1.5707963267948966
     }
    },
+   "L_RampMidAlign":{
+    "x":{
+     "exp":"6 m",
+     "val":6.0
+    },
+    "y":{
+     "exp":"5.55 m",
+     "val":5.55
+    },
+    "heading":{
+     "exp":"135 deg",
+     "val":2.356194490192345
+    }
+   },
    "L_RampShot":{
     "x":{
      "exp":"3 m",
@@ -121,22 +149,8 @@
      "val":5.55
     },
     "heading":{
-     "exp":"-0.79 rad",
-     "val":-0.79
-    }
-   },
-   "L_Ramp_MidAlign":{
-    "x":{
-     "exp":"6 m",
-     "val":6.0
-    },
-    "y":{
-     "exp":"5.55 m",
-     "val":5.55
-    },
-    "heading":{
-     "exp":"-0.79 rad",
-     "val":-0.79
+     "exp":"135 deg",
+     "val":2.356194490192345
     }
    },
    "L_Tr":{
@@ -195,7 +209,7 @@
      "val":1.5707963267948966
     }
    },
-   "R_Mid_In":{
+   "R_MidIn":{
     "x":{
      "exp":"7.8 m",
      "val":7.8
@@ -209,7 +223,7 @@
      "val":1.5707963267948966
     }
    },
-   "R_Mid_InStop":{
+   "R_MidInStop":{
     "x":{
      "exp":"7.8 m",
      "val":7.8
@@ -223,6 +237,20 @@
      "val":1.5707963267948966
     }
    },
+   "R_RampAlign":{
+    "x":{
+     "exp":"6.25 m",
+     "val":6.25
+    },
+    "y":{
+     "exp":"2.5 m",
+     "val":2.5
+    },
+    "heading":{
+     "exp":"225 deg",
+     "val":3.9269908169872414
+    }
+   },
    "R_RampShot":{
     "x":{
      "exp":"3 m",
@@ -233,22 +261,8 @@
      "val":2.5
     },
     "heading":{
-     "exp":"45 deg",
-     "val":0.7853981633974483
-    }
-   },
-   "R_Ramp_MidAlign":{
-    "x":{
-     "exp":"6 m",
-     "val":6.0
-    },
-    "y":{
-     "exp":"2.5 m",
-     "val":2.5
-    },
-    "heading":{
-     "exp":"45 deg",
-     "val":0.7853981633974483
+     "exp":"225 deg",
+     "val":3.9269908169872414
     }
    },
    "R_Tr":{
