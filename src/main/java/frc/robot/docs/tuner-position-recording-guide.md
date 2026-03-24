@@ -25,7 +25,7 @@ Use this procedure any time you need to find what encoder value (in rotations) a
 1. Connect the laptop to the robot's radio **or** USB-B cable directly to the roboRIO.
 2. Open **Phoenix Tuner X**.
 3. In the top-left dropdown, select the connection type:
-   - **WiFi** → select `10.48.29.2` (your team number) **OR**
+   - **WiFi** → select `10.36.6.2` (your team number) **OR**
    - **roboRIO USB** → select `172.22.11.2`
 4. Wait for the device list to populate. You should see your motors listed by name and CAN ID.
 
