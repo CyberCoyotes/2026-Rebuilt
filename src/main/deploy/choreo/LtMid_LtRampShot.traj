@@ -13,8 +13,8 @@
  },
  "params":{
   "waypoints":[
-    {"x":{"exp":"L_RampAlign.x", "val":6.0}, "y":{"exp":"L_RampAlign.y", "val":5.55}, "heading":{"exp":"L_RampAlign.heading", "val":2.356194490192345}, "intervals":21, "split":false, "fixTranslation":true, "fixHeading":true, "overrideIntervals":false},
-    {"x":{"exp":"L_RampShot.x", "val":3.0}, "y":{"exp":"L_RampShot.y", "val":5.55}, "heading":{"exp":"L_RampShot.heading", "val":2.356194490192345}, "intervals":40, "split":false, "fixTranslation":true, "fixHeading":true, "overrideIntervals":false}],
+    {"x":{"exp":"LtRampAlign.x", "val":6.0}, "y":{"exp":"LtRampAlign.y", "val":5.55}, "heading":{"exp":"LtRampAlign.heading", "val":2.356194490192345}, "intervals":21, "split":false, "fixTranslation":true, "fixHeading":true, "overrideIntervals":false},
+    {"x":{"exp":"LtRampShot.x", "val":3.0}, "y":{"exp":"LtRampShot.y", "val":5.55}, "heading":{"exp":"LtRampShot.heading", "val":2.356194490192345}, "intervals":40, "split":false, "fixTranslation":true, "fixHeading":true, "overrideIntervals":false}],
   "constraints":[
     {"from":"first", "to":null, "data":{"type":"StopPoint", "props":{}}, "enabled":true},
     {"from":"last", "to":null, "data":{"type":"StopPoint", "props":{}}, "enabled":true},
