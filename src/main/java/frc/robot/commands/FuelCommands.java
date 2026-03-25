@@ -440,6 +440,15 @@ public class FuelCommands {
             final SwerveRequest.FieldCentric alignRequest = new SwerveRequest.FieldCentric()
                     .withDriveRequestType(DriveRequestType.OpenLoopVoltage);
 
+            // NT publisher: "Auto/PoseAlign/HeadingError_deg"
+            // Shows live heading error during poseAlignAndShoot (odometry-based, no vision).
+            // Use in Elastic to diagnose whether the 1° tolerance is reachable in auto.
+            // Goes to 0 when pointed at hub; fires when |error| ≤ ALIGNMENT_TOLERANCE_DEGREES.
+            final DoublePublisher ntPoseAlignHeadingError = NetworkTableInstance.getDefault()
+                    .getTable("Auto/PoseAlign")
+                    .getDoubleTopic("HeadingError_deg")
+                    .publish();
+
             return Commands.sequence(
                     // Phase 1: rotate to hub + spin up — both must be ready before feeding
                     Commands.deadline(
@@ -476,6 +485,7 @@ public class FuelCommands {
                                         - pose.getRotation().getDegrees();
                                 while (headingErrorDeg >  180) headingErrorDeg -= 360;
                                 while (headingErrorDeg < -180) headingErrorDeg += 360;
+                                ntPoseAlignHeadingError.set(headingErrorDeg);
                                 double rotRate = MathUtil.clamp(
                                         headingErrorDeg * Constants.Vision.ROTATIONAL_KP,
                                         -Constants.Vision.MAX_ALIGNMENT_ROTATION_RAD_PER_SEC,
