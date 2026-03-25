@@ -1,5 +1,5 @@
 {
- "name":"R_Tr_Mid_Trench",
+ "name":"RTr_Mid_Trench",
  "version":3,
  "snapshot":{
   "waypoints":[
@@ -26,7 +26,7 @@
   "waypoints":[
     {"x":{"exp":"R_Tr.x", "val":4.42}, "y":{"exp":"R_Tr.y", "val":0.47}, "heading":{"exp":"R_Tr.heading", "val":1.5707963267948966}, "intervals":20, "split":false, "fixTranslation":true, "fixHeading":true, "overrideIntervals":false},
     {"x":{"exp":"R_TrAlign.x", "val":6.25}, "y":{"exp":"R_TrAlign.y", "val":0.55}, "heading":{"exp":"R_TrAlign.heading", "val":1.5707963267948966}, "intervals":19, "split":false, "fixTranslation":false, "fixHeading":false, "overrideIntervals":false},
-    {"x":{"exp":"R_MidIntake.x", "val":7.8}, "y":{"exp":"R_MidIntake.y", "val":1.1}, "heading":{"exp":"R_MidIntake.heading", "val":1.5707963267948966}, "intervals":83, "split":false, "fixTranslation":true, "fixHeading":true, "overrideIntervals":false},
+    {"x":{"exp":"R_MidIn.x", "val":7.8}, "y":{"exp":"R_MidIn.y", "val":1.1}, "heading":{"exp":"R_MidIn.heading", "val":1.5707963267948966}, "intervals":83, "split":false, "fixTranslation":true, "fixHeading":true, "overrideIntervals":false},
     {"x":{"exp":"R_Mid.x", "val":7.75}, "y":{"exp":"R_Mid.y", "val":3.55}, "heading":{"exp":"R_Mid.heading", "val":1.5707963267948966}, "intervals":34, "split":false, "fixTranslation":true, "fixHeading":true, "overrideIntervals":false},
     {"x":{"exp":"R_TrAlign.x", "val":6.25}, "y":{"exp":"R_TrAlign.y", "val":0.55}, "heading":{"exp":"R_TrAlign.heading", "val":1.5707963267948966}, "intervals":27, "split":false, "fixTranslation":true, "fixHeading":true, "overrideIntervals":false},
     {"x":{"exp":"3.86 m", "val":3.86}, "y":{"exp":"0.54 m", "val":0.54}, "heading":{"exp":"1.54 rad", "val":1.54}, "intervals":10, "split":false, "fixTranslation":true, "fixHeading":true, "overrideIntervals":false},

@@ -7,8 +7,8 @@
    "IntakeVel":{
     "dimension":"LinVel",
     "var":{
-     "exp":"1 m / s",
-     "val":1.0
+     "exp":"1.5 m / s",
+     "val":1.5
     }
    }
   },
@@ -83,7 +83,7 @@
      "val":-1.5707963267948966
     }
    },
-   "L_MidIn":{
+   "L_MidIntake":{
     "x":{
      "exp":"7.8 m",
      "val":7.8
@@ -97,7 +97,7 @@
      "val":-1.5707963267948966
     }
    },
-   "L_MidInStop":{
+   "L_MidIntakeStop":{
     "x":{
      "exp":"7.8 m",
      "val":7.8
@@ -125,7 +125,7 @@
      "val":-1.5707963267948966
     }
    },
-   "L_RampMidAlign":{
+   "L_RampAlign":{
     "x":{
      "exp":"6 m",
      "val":6.0
@@ -209,20 +209,6 @@
      "val":1.5707963267948966
     }
    },
-   "R_MidIn":{
-    "x":{
-     "exp":"7.8 m",
-     "val":7.8
-    },
-    "y":{
-     "exp":"1.1 m",
-     "val":1.1
-    },
-    "heading":{
-     "exp":"90 deg",
-     "val":1.5707963267948966
-    }
-   },
    "R_MidInStop":{
     "x":{
      "exp":"7.8 m",
@@ -237,10 +223,24 @@
      "val":1.5707963267948966
     }
    },
+   "R_MidIntake":{
+    "x":{
+     "exp":"7.8 m",
+     "val":7.8
+    },
+    "y":{
+     "exp":"1.1 m",
+     "val":1.1
+    },
+    "heading":{
+     "exp":"90 deg",
+     "val":1.5707963267948966
+    }
+   },
    "R_RampAlign":{
     "x":{
-     "exp":"6.25 m",
-     "val":6.25
+     "exp":"6.1 m",
+     "val":6.1
     },
     "y":{
      "exp":"2.5 m",
@@ -249,6 +249,20 @@
     "heading":{
      "exp":"225 deg",
      "val":3.9269908169872414
+    }
+   },
+   "R_RampAlignHalf":{
+    "x":{
+     "exp":"6.95 m",
+     "val":6.95
+    },
+    "y":{
+     "exp":"3.5 m",
+     "val":3.5
+    },
+    "heading":{
+     "exp":"-3.14 rad",
+     "val":-3.14
     }
    },
    "R_RampShot":{
