@@ -6,7 +6,7 @@ import choreo.auto.AutoTrajectory;
 import edu.wpi.first.wpilibj2.command.Commands;
 import frc.robot.subsystems.shooter.ShooterSubsystem;
 import frc.robot.commands.FuelCommandsGPT;
-// import frc.robot.commands.FuelCommands.Auto;
+import frc.robot.commands.FuelCommandsGPT.Auto;
 import frc.robot.subsystems.vision.VisionSubsystem;
 import frc.robot.subsystems.indexer.IndexerSubsystem;
 import frc.robot.subsystems.intake.IntakeSubsystem;
