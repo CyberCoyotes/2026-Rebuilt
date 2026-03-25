@@ -1,11 +1,11 @@
 {
- "name":"RtRamp_RtTrench",
+ "name":"RtRampShot_RtTrench",
  "version":3,
  "snapshot":{
   "waypoints":[
     {"x":3.0, "y":2.5, "heading":3.9269908169872414, "intervals":20, "split":false, "fixTranslation":true, "fixHeading":true, "overrideIntervals":false},
     {"x":2.8392703533172607, "y":1.579417705535889, "heading":0.0, "intervals":25, "split":false, "fixTranslation":true, "fixHeading":false, "overrideIntervals":false},
-    {"x":4.432308673858643, "y":0.5507292747497559, "heading":0.0023368823511914667, "intervals":20, "split":false, "fixTranslation":true, "fixHeading":true, "overrideIntervals":false}],
+    {"x":4.432308673858643, "y":0.5507292747497559, "heading":0.0023368823511914667, "intervals":58, "split":false, "fixTranslation":true, "fixHeading":true, "overrideIntervals":false}],
   "constraints":[
     {"from":"first", "to":null, "data":{"type":"StopPoint", "props":{}}, "enabled":true},
     {"from":"last", "to":null, "data":{"type":"StopPoint", "props":{}}, "enabled":true},
@@ -16,7 +16,7 @@
   "waypoints":[
     {"x":{"exp":"R_RampShot.x", "val":3.0}, "y":{"exp":"R_RampShot.y", "val":2.5}, "heading":{"exp":"R_RampShot.heading", "val":3.9269908169872414}, "intervals":20, "split":false, "fixTranslation":true, "fixHeading":true, "overrideIntervals":false},
     {"x":{"exp":"2.8392703533172607 m", "val":2.8392703533172607}, "y":{"exp":"1.5794177055358887 m", "val":1.579417705535889}, "heading":{"exp":"0 deg", "val":0.0}, "intervals":25, "split":false, "fixTranslation":true, "fixHeading":false, "overrideIntervals":false},
-    {"x":{"exp":"4.432308673858643 m", "val":4.432308673858643}, "y":{"exp":"0.5507292747497559 m", "val":0.5507292747497559}, "heading":{"exp":"2.3368823511914667 mrad", "val":0.0023368823511914667}, "intervals":20, "split":false, "fixTranslation":true, "fixHeading":true, "overrideIntervals":false}],
+    {"x":{"exp":"4.432308673858643 m", "val":4.432308673858643}, "y":{"exp":"0.5507292747497559 m", "val":0.5507292747497559}, "heading":{"exp":"2.3368823511914667 mrad", "val":0.0023368823511914667}, "intervals":58, "split":false, "fixTranslation":true, "fixHeading":true, "overrideIntervals":false}],
   "constraints":[
     {"from":"first", "to":null, "data":{"type":"StopPoint", "props":{}}, "enabled":true},
     {"from":"last", "to":null, "data":{"type":"StopPoint", "props":{}}, "enabled":true},

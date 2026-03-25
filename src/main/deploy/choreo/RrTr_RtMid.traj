@@ -22,7 +22,7 @@
     {"x":{"exp":"R_Tr.x", "val":4.42}, "y":{"exp":"R_Tr.y", "val":0.47}, "heading":{"exp":"R_Tr.heading", "val":1.5707963267948966}, "intervals":16, "split":false, "fixTranslation":true, "fixHeading":true, "overrideIntervals":false},
     {"x":{"exp":"R_TrAlign.x", "val":6.25}, "y":{"exp":"R_TrAlign.y", "val":0.55}, "heading":{"exp":"R_TrAlign.heading", "val":1.5707963267948966}, "intervals":15, "split":false, "fixTranslation":true, "fixHeading":true, "overrideIntervals":false},
     {"x":{"exp":"R_MidIntake.x", "val":7.8}, "y":{"exp":"R_MidIntake.y", "val":1.1}, "heading":{"exp":"R_MidIntake.heading", "val":1.5707963267948966}, "intervals":42, "split":false, "fixTranslation":true, "fixHeading":true, "overrideIntervals":false},
-    {"x":{"exp":"R_MidInStop.x", "val":7.8}, "y":{"exp":"R_MidInStop.y", "val":3.5}, "heading":{"exp":"2.4 rad", "val":2.4}, "intervals":18, "split":false, "fixTranslation":true, "fixHeading":true, "overrideIntervals":false},
+    {"x":{"exp":"R_MidIntakeStop.x", "val":7.8}, "y":{"exp":"R_MidIntakeStop.y", "val":3.5}, "heading":{"exp":"2.4 rad", "val":2.4}, "intervals":18, "split":false, "fixTranslation":true, "fixHeading":true, "overrideIntervals":false},
     {"x":{"exp":"R_RampAlignHalf.x", "val":6.95}, "y":{"exp":"R_RampAlignHalf.y", "val":3.5}, "heading":{"exp":"R_RampAlignHalf.heading", "val":-3.14}, "intervals":21, "split":false, "fixTranslation":true, "fixHeading":true, "overrideIntervals":false},
     {"x":{"exp":"R_RampAlign.x", "val":6.1}, "y":{"exp":"R_RampAlign.y", "val":2.5}, "heading":{"exp":"R_RampAlign.heading", "val":3.9269908169872414}, "intervals":40, "split":false, "fixTranslation":true, "fixHeading":true, "overrideIntervals":false}],
   "constraints":[
