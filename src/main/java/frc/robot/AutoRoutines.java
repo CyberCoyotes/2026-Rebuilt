@@ -262,6 +262,33 @@ public class AutoRoutines {
                         // .atTime("Load").onTrue(m_intakeCommands.intake());
                         return routine;
                 }
+
+                /* 
+                * Example of a routine with multiple trajectories and events of different from different paths circa 2025
+                * A.K.A. "The Liam is GOAT" example
+                */
+                public AutoRoutine STAtoL() {
+                        final AutoRoutine routine = m_factory.newRoutine("ST-A");
+                        final AutoTrajectory STA = routine.trajectory("ST-A", 0);
+                        final AutoTrajectory STA2 = routine.trajectory("ST-A", 1);
+                        final AutoTrajectory CSL = routine.trajectory("CS1-L", 0);
+                        final AutoTrajectory CSL2 = routine.trajectory("CS1-L", 1);
+
+                        routine.active().onTrue(
+                                        Commands.sequence(
+                                                        STA.resetOdometry(), // Always reset odometry first
+                                                        STA.cmd(), // Follow the path
+                                                        m_drivetrain.stop().withTimeout(DRIVE_WAIT),
+                                                        STA2.cmd(),
+                                                        m_drivetrain.stop().withTimeout(DRIVE_WAIT),
+                                                        CSL.cmd(),
+                                                        m_drivetrain.stop().withTimeout(DRIVE_WAIT),
+                                                        CSL2.cmd()
+
+                                        ));
+
+                        return routine;
+                }
         } // end of inner class
 
 } // end of class
