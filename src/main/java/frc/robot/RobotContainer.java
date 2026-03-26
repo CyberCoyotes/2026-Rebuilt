@@ -57,8 +57,7 @@ public class RobotContainer {
     private final ShooterSubsystem shooter;
     private final VisionSubsystem vision;
     private final LedSubsystem ledSub;
-    // private final ClimberSubsystem climber;
-    private final FuelCommandsGPT fuelCommands = null;
+    // private final FuelCommandsGPT fuelCommands = null; Not using because its currently Static
     private final AutoFactory autoFactory;
     private final AutoRoutines autoRoutines;
     private final AutoChooser autoChooser = new AutoChooser();
@@ -68,7 +67,6 @@ public class RobotContainer {
         indexer = new IndexerSubsystem(new IndexerIOHardware());
         shooter = new ShooterSubsystem(new ShooterIOHardware());
         vision = new VisionSubsystem(new VisionIOLimelight(Constants.Vision.LIMELIGHT4_NAME));
-
         ledSub = new LedSubsystem();
 
         autoFactory = drivetrain.createAutoFactory();
@@ -80,7 +78,6 @@ public class RobotContainer {
         autoChooser.addRoutine("R Trench-Mid-Ramp", autoRoutines::RtTrench_Mid_Ramp);
         autoChooser.addRoutine("R Trench-Mid-Ramp", autoRoutines::RtTrench_Mid_Ramp);
         autoChooser.addRoutine("Center", autoRoutines::Center);
-                
         
         configureBindings();
 
@@ -154,6 +151,7 @@ public class RobotContainer {
         operator.rightTrigger().whileTrue(indexer.reverse());
 
         // Auto-reverse: intake running + shooter idle + ball detected in chute = premature ball → reverse indexer
+        // Sensor in new place so this probably NOT valid anymore
         // new Trigger(() ->
         //     intake.isRollerRunning() &&
         //     shooter.getState() == ShooterSubsystem.ShooterState.IDLE &&
