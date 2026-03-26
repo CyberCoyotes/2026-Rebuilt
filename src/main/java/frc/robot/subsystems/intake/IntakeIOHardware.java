@@ -105,9 +105,8 @@ public class IntakeIOHardware implements IntakeIO {
                     0,
                     Constants.Intake.SLIDE_SLOW_MM_CRUISE_VELOCITY,
                     Constants.Intake.SLIDE_SLOW_MM_ACCELERATION);
-                                                              // (position=0, velocity=16, accel=16, jerk=0)
 
-    // == Status Signals ===============================================================
+    // == Status Signals =============================================================
     // Current, voltage, and temp are captured by CTRE Hoot for diagnostics.
     private final StatusSignal<Angle> slidePosition;
     private final StatusSignal<AngularVelocity> slideVelocity;
@@ -144,9 +143,6 @@ public class IntakeIOHardware implements IntakeIO {
         inputs.slidePositionRotations = slidePosition.getValueAsDouble();
         inputs.slideVelocityRPS = slideVelocity.getValueAsDouble();
 
-        // Sensor data — uncomment when hardware is added
-        // inputs.intakeDistance = getIntakeDistance();
-        // inputs.hasGamePiece = intakeTargetClose();
     }
 
     // ==== Roller Methods ====

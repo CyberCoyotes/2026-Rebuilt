@@ -327,4 +327,14 @@ public final class Constants {
     public static final double LOGICAL_LED_COUNT = SEGMENTS_PER_METER * STRIP_LENGTH_METERS;
 
   }
+
+  public static final class Auto {
+    private Auto() {
+    }
+
+     // How long to wait after driving before doing something else
+    public static final double DRIVE_WAIT = 1.0; // Cut 2.0 -> 1.0 or less
+    public static final double SCORE_WAIT = 1.0; // Cut 2.0 -> 1.0 or less
+
+  }
 }
