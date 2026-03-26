@@ -209,20 +209,17 @@ public void periodic() {
                 break;
 
             case READY:
-                // io.setFlywheelVelocity(targetFlywheelMotorRPM);
-                commandFlywheelVelocity(targetFlywheelMotorRPM); // Routes to the active control mode (VelocityVoltage or VelocityTorqueCurrentFOC)
+                commandFlywheelVelocity(targetFlywheelMotorRPM);
                 io.setHoodPose(targetHoodPoseRot);
                 break;
 
             case PASS:
-                // io.setFlywheelVelocity(PASS_RPM);
-                commandFlywheelVelocity(Constants.Shooter.PASS_RPM); // Routes to the active control mode (VelocityVoltage or VelocityTorqueCurrentFOC)
+                commandFlywheelVelocity(Constants.Shooter.PASS_RPM);
                 io.setHoodPose(Constants.Shooter.PASS_HOOD);
                 break;
 
             case EJECT:
-                // io.setFlywheelVelocity(EJECT_RPM);
-                commandFlywheelVelocity(Constants.Shooter.EJECT_RPM); // Routes to the active control mode (VelocityVoltage or VelocityTorqueCurrentFOC)
+                commandFlywheelVelocity(Constants.Shooter.EJECT_RPM);
                 io.setHoodPose(Constants.Shooter.MIN_HOOD_POSE);
                 break;
             case POPPER:
@@ -442,7 +439,7 @@ public void periodic() {
         // Adding a distance to one map without adding it to the other produces
         // inconsistent RPM/hood pairings at that distance. Always update both.
         
-        // TODO: Replace each Flywheel RPM value Hood ROT value with a measured result (see TUNING.md)
+        // TODO Replace each Flywheel RPM value Hood ROT value with a measured result (see TUNING.md)
         // distance (m) → flywheel RPM
         FLYWHEEL_RPM_MAP.put(1.5,  2700.0);
         FLYWHEEL_RPM_MAP.put(3.55, 3200.0);

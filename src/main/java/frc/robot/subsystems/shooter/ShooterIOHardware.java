@@ -88,7 +88,7 @@ public class ShooterIOHardware implements ShooterIO {
       config.MotorOutput.NeutralMode = NeutralModeValue.Brake;
       config.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
 
-      // Voltage limits — capped for safe hood movement
+      // Voltage limits — capped for safe hood movement and plenty fast for short-range repositioning.
       config.Voltage.PeakForwardVoltage = 4.0;
       config.Voltage.PeakReverseVoltage = -4.0;
 
@@ -96,17 +96,13 @@ public class ShooterIOHardware implements ShooterIO {
       config.CurrentLimits.SupplyCurrentLimitEnable = true;
 
       // Position PID — Slot 0
-      // kI removed — integrator windup was causing current spikes during shooting cycles.
       // MotionMagicVoltage with kP/kD is sufficient for hood positioning.
-      // TODO: Retune kP and add kD after kI removal
+      /* TODO: Current not using MotionMagic for Hood position, but ideally it should be. 
+      * If we switch to MotionMagic, we need to run kP/kD for smooth, stable positioning without overshoot or oscillation.
+      */
       config.Slot0.kP = 1.00;
-      config.Slot0.kI = 0.0;  // Removed — was 0.75, caused integrator windup
+      config.Slot0.kI = 0.0;
       config.Slot0.kD = 0.00;
-
-      // MotionMagic profile — controls velocity/accel during position moves
-      // Limits current spike from large position changes vs raw PositionVoltage
-      
-      // TODO: Tune these values for smooth hood movement
       config.MotionMagic.MotionMagicCruiseVelocity = 10.0;
       config.MotionMagic.MotionMagicAcceleration = 20.0;
 
@@ -141,8 +137,12 @@ public class ShooterIOHardware implements ShooterIO {
       // new Follower(flywheelLeader.getDeviceID(), MotorAlignmentValue.Opposed); Alternative approach
 
   // == Status Signals ====================================================
-  /* These Status Signals were not typed previously <?>, but trying Typed e.g. <AngularVelocity> */
-  // private final StatusSignal<?> flywheelLeaderVelocity;
+
+  /* 
+  * These Status Signals were not typed previously <?>, but trying Typed e.g. <AngularVelocity> 
+  * example
+  *   private final StatusSignal<?> flywheelLeaderVelocity;
+  */ 
   private final StatusSignal<AngularVelocity> flywheelLeaderVelocity;
   private final StatusSignal<Voltage> flywheelLeaderVoltage;
   private final StatusSignal<Temperature> flywheelLeaderTempCelsius;
