@@ -105,6 +105,7 @@ public class ShooterIOHardware implements ShooterIO {
 
       // MotionMagic profile — controls velocity/accel during position moves
       // Limits current spike from large position changes vs raw PositionVoltage
+      
       // TODO: Tune these values for smooth hood movement
       config.MotionMagic.MotionMagicCruiseVelocity = 10.0;
       config.MotionMagic.MotionMagicAcceleration = 20.0;

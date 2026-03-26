@@ -4,13 +4,12 @@ import choreo.auto.AutoFactory;
 import choreo.auto.AutoRoutine;
 import choreo.auto.AutoTrajectory;
 import edu.wpi.first.wpilibj2.command.Commands;
-import frc.robot.subsystems.shooter.ShooterSubsystem;
 import frc.robot.commands.FuelCommandsGPT;
-// import frc.robot.commands.FuelCommands.Auto;
-import frc.robot.subsystems.vision.VisionSubsystem;
+import frc.robot.subsystems.CommandSwerveDrivetrain;
 import frc.robot.subsystems.indexer.IndexerSubsystem;
 import frc.robot.subsystems.intake.IntakeSubsystem;
-import frc.robot.subsystems.CommandSwerveDrivetrain;
+import frc.robot.subsystems.shooter.ShooterSubsystem;
+import frc.robot.subsystems.vision.VisionSubsystem;
 
 public class AutoRoutines {
         private final AutoFactory m_factory;
@@ -18,28 +17,24 @@ public class AutoRoutines {
         private final IntakeSubsystem m_intake;
         private final IndexerSubsystem m_indexer;
         private final ShooterSubsystem m_shooter;
-        private final FuelCommandsGPT m_fuelCommands;
-        private final VisionSubsystem m_vision;
+        // private final VisionSubsystem m_vision;
         // private final LedSubsystem m_ledSubsystem;
 
         // How long to wait after driving before doing something else
         private final double DRIVE_WAIT = 1.0; // Cut 2.0 -> 1.0 or less
-        private final double SCORE_WAIT = 1.0; // Cut 2.0 -> 1.0 or less
 
-        public AutoRoutines(AutoFactory factory, CommandSwerveDrivetrain drivetrain, /* , ClimberSubsystem climber, */
-                        IndexerSubsystem indexer, IntakeSubsystem intake, ShooterSubsystem shooter,
-                        FuelCommandsGPT fuelCommands, VisionSubsystem vision/* , LedSubsystem ledSubsystem */) {
+        public AutoRoutines(AutoFactory factory, 
+                        CommandSwerveDrivetrain drivetrain,
+                        IndexerSubsystem indexer, 
+                        IntakeSubsystem intake, 
+                        ShooterSubsystem shooter) {
                 m_factory = factory;
                 m_drivetrain = drivetrain;
-                // m_climber = climber;
                 m_indexer = indexer;
                 m_intake = intake;
                 m_shooter = shooter;
-                m_vision = vision;
-                m_fuelCommands = fuelCommands;
+                // m_vision = vision;
         }
-
-
 
         public AutoRoutine RtTrench_Mid_Trench() {
                 final AutoRoutine routine = m_factory.newRoutine("RtTrench_Mid_Trench");
@@ -89,7 +84,7 @@ public class AutoRoutines {
         }
 
                 public AutoRoutine RtTrench_Mid_Ramp_Splits() {
-                final AutoRoutine routine = m_factory.newRoutine("RtTrench_Mid_Ramp_Splits"); // TODO Check 2025 for 2nd reference?
+                final AutoRoutine routine = m_factory.newRoutine("RtTrench_Mid_Ramp_Splits");
                 final AutoTrajectory RtTrench_Mid = routine.trajectory("RtTrench_Mid", 0);
                 final AutoTrajectory RtMid_Ramp = routine.trajectory("RtMid_Ramp", 0);
 
