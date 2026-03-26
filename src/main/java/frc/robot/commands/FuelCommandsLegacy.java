@@ -197,8 +197,6 @@ public class FuelCommandsLegacy {
         return Commands.sequence(
                 Commands.runOnce(shooter::eject, shooter),
                 Commands.waitSeconds(durationSeconds)
-        // Commands.runOnce(shooter::returnToStandby, shooter) // TODO: Do not use right
-        // now **EXPERIMENTAL**
         ).withName("EjectShooter");
     }
 
