@@ -62,6 +62,13 @@ public final class Constants {
     public static final double SLIDE_EXTENDED_POS = 44.40; // TODO update position with Phoenix Tuner
     public static final double SLIDE_TOLERANCE = 0.05; // TODO Tune tolerance based on testing
 
+    public static final double SLIDE_MM_CRUISE_VELOCITY = 363.0;
+    public static final double SLIDE_MM_ACCELERATION = 363.0;
+    public static final double SLIDE_MM_JERK = 0.0;
+
+    public static final double SLIDE_SLOW_MM_CRUISE_VELOCITY = 4.0;
+    public static final double SLIDE_SLOW_MM_ACCELERATION = 4.0;
+
     public static final double SLIDE_PUMP_OUT_POS = 40.0; // TODO update position with Phoenix Tuner
     public static final double SLIDE_PUMP_IN_POS = 30.0; // TODO update position with Phoenix Tuner
 
