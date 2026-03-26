@@ -60,7 +60,7 @@ public class VisionSubsystem extends SubsystemBase {
     private final BooleanPublisher isAlignedPublisher;
     private final IntegerPublisher tagIdPublisher;
     private final DoublePublisher targetAreaPublisher;
-    private final DoublePublisher distanceMetersPublisher;
+    // private final DoublePublisher distanceMetersPublisher;
     // private final DoublePublisher distanceCmPublisher;
     private final DoublePublisher horizontalAnglePublisher;
     // private final DoublePublisher verticalAnglePublisher;
@@ -91,7 +91,7 @@ public class VisionSubsystem extends SubsystemBase {
     // ===== Last Known Good Data =====
     // When we lose a target, we briefly hold onto the last known values
     // This prevents sudden jumps and allows smooth recovery
-    private double lastKnownDistance = 0.0;
+    // private double lastKnownDistance = 0.0; // FIXME replace with last known position?
     private double lastKnownHorizontalAngle = 0.0;
     private double lastTargetSeenTime = 0.0;
 
@@ -112,7 +112,7 @@ public class VisionSubsystem extends SubsystemBase {
         isAlignedPublisher = visionTable.getBooleanTopic("IsAligned").publish();
         tagIdPublisher = visionTable.getIntegerTopic("TagID").publish();
         targetAreaPublisher = visionTable.getDoubleTopic("TargetArea").publish();
-        distanceMetersPublisher = visionTable.getDoubleTopic("Distance_m").publish();
+        // distanceMetersPublisher = visionTable.getDoubleTopic("Distance_m").publish();
         // distanceCmPublisher = visionTable.getDoubleTopic("Distance_cm").publish();
         horizontalAnglePublisher = visionTable.getDoubleTopic("HorizontalAngle_deg").publish();
         // verticalAnglePublisher = visionTable.getDoubleTopic("VerticalAngle_deg").publish();
@@ -172,7 +172,7 @@ public class VisionSubsystem extends SubsystemBase {
             } else {
                 // Definitely lost target
                 currentState = AlignmentState.NO_TARGET;
-                lastKnownDistance = 0.0;
+                // lastKnownDistance = 0.0;
                 lastKnownHorizontalAngle = 0.0;
             }
         }
