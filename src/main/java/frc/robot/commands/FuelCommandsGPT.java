@@ -466,8 +466,9 @@ public class FuelCommandsGPT {
                                         pose.getRotation().getDegrees());
                                 return Math.abs(headingErrorDeg) <= Constants.Vision.ALIGNMENT_TOLERANCE_DEGREES
                                         && shooter.isReady();
-                            /* Added .withTimeout(3.0) and working now. Post weekend, explore why timeout is needed
-                             * Lower to 1.0 and see if it still works — if not, we know the issue is that the command is waiting indefinitely for the alignment condition to be met, which never happens because of some bug in the alignment code. The timeout allows it to move on to feeding even if the alignment condition is never satisfied, which is better than doing nothing at all.
+                            /* FIXME: Added .withTimeout() and working now. 
+                             * Explore why timeout is needed
+                             * The timeout allows it to move on to feeding even if the alignment condition is never satisfied, which is better than doing nothing at all.
                             */
                                     }).withTimeout(1.0), 
                             
@@ -613,7 +614,7 @@ public class FuelCommandsGPT {
                 }, intake)
                     .beforeStarting(cycleTimer::restart)
                     .until(indexer::isChuteEmpty)
-                    .withTimeout(5.0) // hard stop — tune or remove once reliable
+                    .withTimeout(5.0) // TODO: Tune or remove once reliable
             )
             .finallyDo(intake::stopRoller)
             .withName("FuelPumpCycleSensor");

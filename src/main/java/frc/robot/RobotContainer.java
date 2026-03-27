@@ -164,8 +164,7 @@ public class RobotContainer {
         // Back (View ⧉): Reset odometry to botpose — use when robot rides up on a ball
         operator.back().onTrue(drivetrain.resetPoseFromVisionCommand());
 
-        // FIXME Add a reverse indexer on start button for operator
-
+        // FIXME: Add a reverse indexer on start button for operator
     
         // operator.povUp().whileTrue(null); // incremental extend climber command to be added when climber is ready
         // operator.povDown().whileTrue(null); // incremental retract climber command to be added when climber is ready
