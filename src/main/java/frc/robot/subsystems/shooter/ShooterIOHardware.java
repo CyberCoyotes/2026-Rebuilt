@@ -80,15 +80,15 @@ public class ShooterIOHardware implements ShooterIO {
     static TalonFXSConfiguration hood() {
       TalonFXSConfiguration config = new TalonFXSConfiguration();
 
-      config.Commutation.MotorArrangement = Constants.Hood.Config.MOTOR_ARRANGEMENT;
-      config.MotorOutput.NeutralMode = Constants.Hood.Config.NEUTRAL_MODE;
-      config.MotorOutput.Inverted = Constants.Hood.Config.INVERTED;
+      config.Commutation.MotorArrangement = Constants.Hood.HoodConfig.MOTOR_ARRANGEMENT;
+      config.MotorOutput.NeutralMode = Constants.Hood.HoodConfig.NEUTRAL_MODE;
+      config.MotorOutput.Inverted = Constants.Hood.HoodConfig.INVERTED;
 
       // Voltage limits — capped for safe hood movement and plenty fast for short-range repositioning.
-      config.Voltage.PeakForwardVoltage = Constants.Hood.PEAK_FORWARD_VOLTAGE; // 4.0;
-      config.Voltage.PeakReverseVoltage = Constants.Hood.PEAK_REVERSE_VOLTAGE; // -4.0;
+      config.Voltage.PeakForwardVoltage = Constants.Hood.PEAK_FORWARD_VOLTAGE;
+      config.Voltage.PeakReverseVoltage = Constants.Hood.PEAK_REVERSE_VOLTAGE;
 
-      config.CurrentLimits.SupplyCurrentLimit = Constants.Hood.SUPPLY_CURRENT_LIMIT; // 30.0;
+      config.CurrentLimits.SupplyCurrentLimit = Constants.Hood.SUPPLY_CURRENT_LIMIT;
       config.CurrentLimits.SupplyCurrentLimitEnable = true;
 
       // Position PID — Slot 0

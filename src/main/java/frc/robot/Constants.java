@@ -330,53 +330,47 @@ public final class Constants {
     public static final int HOOD_MOTOR_ID = 28;
 
     // == Mechanism setpoints / tuning ========================
-    public static final double MIN_POSE = 0.0; // Mechanical limit, also use to set in Configs
-    public static final double MAX_POSE = 10.15; // Mechanical limit; also use to set in Configs
+    public static final double MIN_POSE = 0.00; // Mechanical limit, also use to set in Configs
+    public static final double MAX_POSE = 4.356934; // Mechanical limit; also used to set in Configs
     
     // TODO: Verify hood tolerance on the current linkage and backlash.
-    public static final double POSE_TOLERANCE = 0.25; 
+    public static final double POSE_TOLERANCE = 0.05; 
 
     /*
      * TODO: Verify hood setpoints on the current shooter geometry. Add an end-of-line
      * "Tuned" note when each value is confirmed.
      */
     public static final double CLOSE_HOOD = 0.00; 
-    public static final double POPPER_HOOD = 8.42;
+    public static final double POPPER_HOOD = 4.30; //
     public static final double TOWER_HOOD = 4.30;
     public static final double TRENCH_HOOD = 4.30;
-    public static final double FAR_HOOD = 5.50;
+    public static final double FAR_HOOD = 4.30; // Was 5.50
     public static final double PASS_HOOD = 2.00;
 
     // Manual tuning increments used for bring-up and testing.
     public static final double TEST_INCREMENT = 0.2;
-
     public static final double ACCELERATION = 0;
-
     public static final double CRUISE_VELOCITY = 0;
 
     public static final double KP = 0;
-
     public static final double KI = 0;
-
     public static final double KD = 0;
 
     public static final double SUPPLY_CURRENT_LIMIT = 30;
-
     public static final double PEAK_REVERSE_VOLTAGE = -4.0;
-
     public static final double PEAK_FORWARD_VOLTAGE = 4.0;
-
     public static final double ENCODER_ZERO_POSITION = 0.0;
 
-    public static final class Config {
-      private Config() {
+    public static final class HoodConfig {
+      private HoodConfig() {
       }
 
       // == Hardware config ====================================
       public static final MotorArrangementValue MOTOR_ARRANGEMENT = MotorArrangementValue.Minion_JST;
       public static final NeutralModeValue NEUTRAL_MODE = NeutralModeValue.Brake;
-      public static final InvertedValue INVERTED = InvertedValue.Clockwise_Positive;
+      public static final InvertedValue INVERTED = InvertedValue.CounterClockwise_Positive; // Had to switch
     }
+
   }
 
   // =========================================================
