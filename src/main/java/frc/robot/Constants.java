@@ -61,27 +61,30 @@ public final class Constants {
 
     /*
      * Kraken X44 with TalonFX controller (x3)
-     * FIXME update motor names and IDs in Phoenix Tuner
+     * FIXME: Update Intake motor names and IDs in Phoenix Tuner
      */
     public static final int ROLLER_LEFT_MOTOR_ID = 20;
     public static final int ROLLER_RIGHT_MOTOR_ID = 21;
     public static final int SLIDE_MOTOR_ID = 22;
 
+    /* FIXME: Tune the Intake slide positions, velocity, and motion magic values 
+    * Add "Tuned" comments after verification with testing
+    */
     public static final double SLIDE_RETRACTED_POS = 0.0;
     public static final double SLIDE_EXTENDED_POS = 44.40;
     public static final double SLIDE_MAX_POS = 44.454;
     public static final double SLIDE_TOLERANCE = 0.25;
     public static final double SLIDE_INCREMENTAL_RETRACT_ROTATIONS = 15.0;
 
-    public static final double SLIDE_MM_CRUISE_VELOCITY = 363.0;
-    public static final double SLIDE_MM_ACCELERATION = 363.0;
+    public static final double SLIDE_MM_CRUISE_VELOCITY = 32; //363;
+    public static final double SLIDE_MM_ACCELERATION = 32; // 363.0;
     public static final double SLIDE_MM_JERK = 0.0;
 
     public static final double SLIDE_SLOW_MM_CRUISE_VELOCITY = 4.0;
     public static final double SLIDE_SLOW_MM_ACCELERATION = 4.0;
 
-    public static final double SLIDE_PUMP_OUT_POS = 40.0; // TODO update position with Phoenix Tuner
-    public static final double SLIDE_PUMP_IN_POS = 30.0; // TODO update position with Phoenix Tuner
+    public static final double SLIDE_PUMP_OUT_POS = 40.0;
+    public static final double SLIDE_PUMP_IN_POS = 30.0;
 
     /*
      * TODO update roller voltages after testing with Phoenix Tuner
@@ -108,6 +111,10 @@ public final class Constants {
 
       public static final NeutralModeValue NEUTRAL_MODE = NeutralModeValue.Brake;
       public static final InvertedValue INVERTED = InvertedValue.CounterClockwise_Positive;
+
+      /* FIXME: Tune the Slide config values 
+      * Add "Tuned" comments after verification with testing
+      */
       public static final double SUPPLY_CURRENT_LIMIT = 40.0;
       public static final double STATOR_CURRENT_LIMIT = 40.0;
       public static final double REVERSE_SOFT_LIMIT = SLIDE_RETRACTED_POS;
@@ -128,7 +135,7 @@ public final class Constants {
     }
 
     /* Kraken X60 with TalonFX controller (x2); feeds pieces to shooter 
-    * FIXME update KICKER and CONVEYOR motor names and IDs in Phoenix Tuner
+    * FIXME: Update KICKER and CONVEYOR motor names and IDs in Phoenix Tuner
     */
     public static final int KICKER_LEFT_MOTOR_ID = 23;
     public static final int KICKER_RIGHT_MOTOR_ID = 24;
@@ -171,6 +178,9 @@ public final class Constants {
       private ConveyorConfig() {
       }
 
+      /* FIXME: Tune the Conveyor config values 
+      * Add "Tuned" comments after verification with testing
+      */
       public static final NeutralModeValue NEUTRAL_MODE = NeutralModeValue.Brake;
       public static final InvertedValue INVERTED = InvertedValue.Clockwise_Positive;
       public static final double SUPPLY_CURRENT_LIMIT = 40.0;
@@ -183,6 +193,9 @@ public final class Constants {
       private KickerConfig() {
       }
 
+      /* FIXME: Tune the Kicker config values 
+       * Add "Tuned" comments after verification with testing
+       */
       public static final NeutralModeValue NEUTRAL_MODE = NeutralModeValue.Brake;
       public static final InvertedValue INVERTED = InvertedValue.CounterClockwise_Positive;
       public static final double SUPPLY_CURRENT_LIMIT = 45.0;
@@ -196,6 +209,9 @@ public final class Constants {
       private ChuteSensorConfig() {
       }
 
+      /* FIXME: Tune the Chute Sensor config values 
+       * Add "Tuned" comments after verification with testing
+       */
       public static final double PROXIMITY_HYSTERESIS = 0.025;
       public static final double FOV_RANGE_X = 6.75;
       public static final double FOV_RANGE_Y = 6.75;

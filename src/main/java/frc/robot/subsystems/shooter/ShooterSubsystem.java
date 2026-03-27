@@ -208,6 +208,10 @@ public void periodic() {
                 io.setHoodPose(Constants.Hood.MIN_POSE);
                 break;
 
+            // The flywheel and hood targets set, and BOTH flywheel and hood are in progress to getting to those values and READY
+            case SPINNING_UP:
+                break;
+
             case READY:
                 commandFlywheelVelocity(targetFlywheelMotorRPM);
                 io.setHoodPose(targetHoodPoseRot);
@@ -435,29 +439,23 @@ public void periodic() {
     private static final InterpolatingDoubleTreeMap HOOD_ROT_MAP     = new InterpolatingDoubleTreeMap();
 
     static {
-        // Both maps MUST have identical distance keys — they are co-indexed.
-        // Adding a distance to one map without adding it to the other produces
-        // inconsistent RPM/hood pairings at that distance. Always update both.
-        
+        /* Both maps MUST have identical distance keys — they are co-indexed.
+        * Adding a distance to one map without adding it to the other produces
+        * inconsistent RPM/hood pairings at that distance. Always update both.
+        */
+
         // TODO Replace each Flywheel RPM value Hood ROT value with a measured result (see TUNING.md)
-        // distance (m) → flywheel RPM
+        // key: Distance (m), value: flywheel RPM
         FLYWHEEL_RPM_MAP.put(1.5,  2700.0);
         FLYWHEEL_RPM_MAP.put(3.55, 3200.0);
         FLYWHEEL_RPM_MAP.put(5.5,  3800.0);
-
-        // distance (m) → hood rotations
+        
+        /* TODO Replace each Hood ROT value with a measured result (see TUNING.md) */
+        // key: Distance (m), value: hood rotations
         HOOD_ROT_MAP.put(1.5,  0.00);
         HOOD_ROT_MAP.put(3.55, 4.30);
         HOOD_ROT_MAP.put(5.5,  5.50);
     }
-
-    /*
-     * CLOSE_RPM = 2700, 0.00
-     * TOWER_RPM = 3200, 4.30
-     * TRENCH_RPM = 3200, 4.30
-     * FAR_RPM = 3800, 5.50
-     * PASS_RPM = 3603, 2.00
-     */
 
     /**
      * Updates shooter targets from the interpolation maps for the given distance.
