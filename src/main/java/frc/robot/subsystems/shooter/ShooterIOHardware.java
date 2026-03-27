@@ -9,10 +9,6 @@ import com.ctre.phoenix6.controls.MotionMagicVoltage;
 import com.ctre.phoenix6.controls.VelocityVoltage;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.hardware.TalonFXS;
-import com.ctre.phoenix6.signals.InvertedValue;
-import com.ctre.phoenix6.signals.MotorAlignmentValue;
-import com.ctre.phoenix6.signals.MotorArrangementValue;
-import com.ctre.phoenix6.signals.NeutralModeValue;
 
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Temperature;
@@ -45,11 +41,11 @@ public class ShooterIOHardware implements ShooterIO {
     static TalonFXConfiguration follower() {
       TalonFXConfiguration config = new TalonFXConfiguration();
 
-      config.MotorOutput.NeutralMode = NeutralModeValue.Coast;
+      config.MotorOutput.NeutralMode = Constants.Flywheel.FollowerConfig.NEUTRAL_MODE;
 
-      config.CurrentLimits.SupplyCurrentLimit = 50.0; // Previously 45
+      config.CurrentLimits.SupplyCurrentLimit = Constants.Flywheel.SUPPLY_CURRENT_LIMIT;
       config.CurrentLimits.SupplyCurrentLimitEnable = true;
-      config.CurrentLimits.StatorCurrentLimit = 90.0;
+      config.CurrentLimits.StatorCurrentLimit = Constants.Flywheel.STATOR_CURRENT_LIMIT;
       config.CurrentLimits.StatorCurrentLimitEnable = true;
 
       return config;
@@ -58,21 +54,21 @@ public class ShooterIOHardware implements ShooterIO {
     static TalonFXConfiguration leader() {
       TalonFXConfiguration config = new TalonFXConfiguration();
 
-      config.CurrentLimits.SupplyCurrentLimit = 50.0; // Previously 45
+      config.CurrentLimits.SupplyCurrentLimit = Constants.Flywheel.SUPPLY_CURRENT_LIMIT;
       config.CurrentLimits.SupplyCurrentLimitEnable = true;
-      config.CurrentLimits.StatorCurrentLimit = 90.0;
+      config.CurrentLimits.StatorCurrentLimit = Constants.Flywheel.STATOR_CURRENT_LIMIT;
       config.CurrentLimits.StatorCurrentLimitEnable = true;
 
-      config.ClosedLoopRamps.VoltageClosedLoopRampPeriod = 0.10;
+      config.ClosedLoopRamps.VoltageClosedLoopRampPeriod = Constants.Flywheel.VOLTAGE_CLOSED_LOOP_RAMP_PERIOD; // 0.10
 
-      config.MotorOutput.NeutralMode = NeutralModeValue.Coast;
-      config.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
+      config.MotorOutput.NeutralMode = Constants.Flywheel.LeaderConfig.NEUTRAL_MODE;
+      config.MotorOutput.Inverted = Constants.Flywheel.LeaderConfig.INVERTED;
 
       // Slot 0 — VelocityVoltage gains (kP in Volts/RPS)
       // Tuned 2026-03-01: kV=0.126 → ±30 RPM steady-state at 3300 RPM, 7V draw, no oscillation
-      config.Slot0.kP = 0.15;
-      config.Slot0.kV = 0.119; // don't touch — well tuned
-      config.Slot0.kD = 0.001;
+      config.Slot0.kP = Constants.Flywheel.KP; // 0.15
+      config.Slot0.kV = Constants.Flywheel.KV; // 0.119; // don't touch — well tuned
+      config.Slot0.kD = Constants.Flywheel.KD; // 0.001;
 
       return config;
     }
@@ -84,15 +80,15 @@ public class ShooterIOHardware implements ShooterIO {
     static TalonFXSConfiguration hood() {
       TalonFXSConfiguration config = new TalonFXSConfiguration();
 
-      config.Commutation.MotorArrangement = MotorArrangementValue.Minion_JST;
-      config.MotorOutput.NeutralMode = NeutralModeValue.Brake;
-      config.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
+      config.Commutation.MotorArrangement = Constants.Hood.Config.MOTOR_ARRANGEMENT;
+      config.MotorOutput.NeutralMode = Constants.Hood.Config.NEUTRAL_MODE;
+      config.MotorOutput.Inverted = Constants.Hood.Config.INVERTED;
 
       // Voltage limits — capped for safe hood movement and plenty fast for short-range repositioning.
-      config.Voltage.PeakForwardVoltage = 4.0;
-      config.Voltage.PeakReverseVoltage = -4.0;
+      config.Voltage.PeakForwardVoltage = Constants.Hood.PEAK_FORWARD_VOLTAGE; // 4.0;
+      config.Voltage.PeakReverseVoltage = Constants.Hood.PEAK_REVERSE_VOLTAGE; // -4.0;
 
-      config.CurrentLimits.SupplyCurrentLimit = 30.0;
+      config.CurrentLimits.SupplyCurrentLimit = Constants.Hood.SUPPLY_CURRENT_LIMIT; // 30.0;
       config.CurrentLimits.SupplyCurrentLimitEnable = true;
 
       // Position PID — Slot 0
@@ -100,17 +96,16 @@ public class ShooterIOHardware implements ShooterIO {
       /* TODO: Current not using MotionMagic for Hood position, but ideally it should be. 
       * If we switch to MotionMagic, we need to run kP/kD for smooth, stable positioning without overshoot or oscillation.
       */
-      config.Slot0.kP = 1.00;
-      config.Slot0.kI = 0.0;
-      config.Slot0.kD = 0.00;
-      config.MotionMagic.MotionMagicCruiseVelocity = 10.0;
-      config.MotionMagic.MotionMagicAcceleration = 20.0;
-
+      config.Slot0.kP = Constants.Hood.KP; // 1.00
+      config.Slot0.kI = Constants.Hood.KI; // 0.0
+      config.Slot0.kD = Constants.Hood.KD; // 0.00
+      config.MotionMagic.MotionMagicCruiseVelocity = Constants.Hood.CRUISE_VELOCITY; // 10.0
+      config.MotionMagic.MotionMagicAcceleration = Constants.Hood.ACCELERATION; // 20.0
       // Soft limits
       config.SoftwareLimitSwitch.ForwardSoftLimitEnable = true;
-      config.SoftwareLimitSwitch.ForwardSoftLimitThreshold = Constants.Shooter.MAX_HOOD_POSE;
+      config.SoftwareLimitSwitch.ForwardSoftLimitThreshold = Constants.Hood.MAX_POSE;
       config.SoftwareLimitSwitch.ReverseSoftLimitEnable = true;
-      config.SoftwareLimitSwitch.ReverseSoftLimitThreshold = Constants.Shooter.MIN_HOOD_POSE;
+      config.SoftwareLimitSwitch.ReverseSoftLimitThreshold = Constants.Hood.MIN_POSE;
 
       return config;
     }
@@ -133,7 +128,9 @@ public class ShooterIOHardware implements ShooterIO {
   // leader's shaft rotation while still producing the same flywheel surface
   // direction at the wheel.
   private final Follower flywheelFollowerRequest =
-      new Follower(Constants.Shooter.FLYWHEEL_LEFT_MOTOR_ID, MotorAlignmentValue.Opposed);
+      new Follower(
+          Constants.Flywheel.FLYWHEEL_LEFT_MOTOR_ID,
+          Constants.Flywheel.FollowerConfig.FOLLOWER_ALIGNMENT);
       // new Follower(flywheelLeader.getDeviceID(), MotorAlignmentValue.Opposed); Alternative approach
 
   // == Status Signals ====================================================
@@ -151,9 +148,9 @@ public class ShooterIOHardware implements ShooterIO {
 
   // == Constructor =======================================================
   public ShooterIOHardware() {
-    flywheelLeader = new TalonFX(Constants.Shooter.FLYWHEEL_LEFT_MOTOR_ID, Constants.RIO_CANBUS);
-    flywheelFollower = new TalonFX(Constants.Shooter.FLYWHEEL_RIGHT_MOTOR_ID, Constants.RIO_CANBUS);
-    hoodMotor      = new TalonFXS(Constants.Shooter.HOOD_MOTOR_ID, Constants.RIO_CANBUS);
+    flywheelLeader = new TalonFX(Constants.Flywheel.FLYWHEEL_LEFT_MOTOR_ID, Constants.RIO_CANBUS);
+    flywheelFollower = new TalonFX(Constants.Flywheel.FLYWHEEL_RIGHT_MOTOR_ID, Constants.RIO_CANBUS);
+    hoodMotor      = new TalonFXS(Constants.Hood.HOOD_MOTOR_ID, Constants.RIO_CANBUS);
 
     // Apply configs with retry logic — bare apply() can fail silently on RIO CAN
     // bus if the device is still booting. PhoenixUtil retries up to 5 times and
@@ -204,7 +201,7 @@ public class ShooterIOHardware implements ShooterIO {
     flywheelFollower.setControl(flywheelFollowerRequest);
 
     // Initialize hood to known zero position
-    hoodMotor.setPosition(0.0);
+    hoodMotor.setPosition(Constants.Hood.ENCODER_ZERO_POSITION);
   }
 
   // == IO Implementation ==================================================
