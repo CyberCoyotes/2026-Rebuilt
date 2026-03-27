@@ -9,10 +9,6 @@ import com.ctre.phoenix6.controls.MotionMagicVoltage;
 import com.ctre.phoenix6.controls.VelocityVoltage;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.hardware.TalonFXS;
-import com.ctre.phoenix6.signals.InvertedValue;
-import com.ctre.phoenix6.signals.MotorAlignmentValue;
-import com.ctre.phoenix6.signals.MotorArrangementValue;
-import com.ctre.phoenix6.signals.NeutralModeValue;
 
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Temperature;
@@ -45,7 +41,7 @@ public class ShooterIOHardware implements ShooterIO {
     static TalonFXConfiguration follower() {
       TalonFXConfiguration config = new TalonFXConfiguration();
 
-      config.MotorOutput.NeutralMode = NeutralModeValue.Coast;
+      config.MotorOutput.NeutralMode = Constants.Flywheel.FollowerConfig.NEUTRAL_MODE;
 
       config.CurrentLimits.SupplyCurrentLimit = Constants.Flywheel.SUPPLY_CURRENT_LIMIT;
       config.CurrentLimits.SupplyCurrentLimitEnable = true;
@@ -65,8 +61,8 @@ public class ShooterIOHardware implements ShooterIO {
 
       config.ClosedLoopRamps.VoltageClosedLoopRampPeriod = Constants.Flywheel.VOLTAGE_CLOSED_LOOP_RAMP_PERIOD; // 0.10
 
-      config.MotorOutput.NeutralMode = NeutralModeValue.Coast;
-      config.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
+      config.MotorOutput.NeutralMode = Constants.Flywheel.LeaderConfig.NEUTRAL_MODE;
+      config.MotorOutput.Inverted = Constants.Flywheel.LeaderConfig.INVERTED;
 
       // Slot 0 — VelocityVoltage gains (kP in Volts/RPS)
       // Tuned 2026-03-01: kV=0.126 → ±30 RPM steady-state at 3300 RPM, 7V draw, no oscillation
@@ -84,9 +80,9 @@ public class ShooterIOHardware implements ShooterIO {
     static TalonFXSConfiguration hood() {
       TalonFXSConfiguration config = new TalonFXSConfiguration();
 
-      config.Commutation.MotorArrangement = MotorArrangementValue.Minion_JST;
-      config.MotorOutput.NeutralMode = NeutralModeValue.Brake;
-      config.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
+      config.Commutation.MotorArrangement = Constants.Hood.Config.MOTOR_ARRANGEMENT;
+      config.MotorOutput.NeutralMode = Constants.Hood.Config.NEUTRAL_MODE;
+      config.MotorOutput.Inverted = Constants.Hood.Config.INVERTED;
 
       // Voltage limits — capped for safe hood movement and plenty fast for short-range repositioning.
       config.Voltage.PeakForwardVoltage = Constants.Hood.PEAK_FORWARD_VOLTAGE; // 4.0;
@@ -132,7 +128,9 @@ public class ShooterIOHardware implements ShooterIO {
   // leader's shaft rotation while still producing the same flywheel surface
   // direction at the wheel.
   private final Follower flywheelFollowerRequest =
-      new Follower(Constants.Flywheel.FLYWHEEL_LEFT_MOTOR_ID, MotorAlignmentValue.Opposed);
+      new Follower(
+          Constants.Flywheel.FLYWHEEL_LEFT_MOTOR_ID,
+          Constants.Flywheel.FollowerConfig.FOLLOWER_ALIGNMENT);
       // new Follower(flywheelLeader.getDeviceID(), MotorAlignmentValue.Opposed); Alternative approach
 
   // == Status Signals ====================================================
@@ -203,7 +201,7 @@ public class ShooterIOHardware implements ShooterIO {
     flywheelFollower.setControl(flywheelFollowerRequest);
 
     // Initialize hood to known zero position
-    hoodMotor.setPosition(0.0);
+    hoodMotor.setPosition(Constants.Hood.ENCODER_ZERO_POSITION);
   }
 
   // == IO Implementation ==================================================

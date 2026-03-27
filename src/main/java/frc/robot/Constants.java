@@ -1,6 +1,10 @@
 package frc.robot;
 
 import com.ctre.phoenix6.CANBus;
+import com.ctre.phoenix6.signals.InvertedValue;
+import com.ctre.phoenix6.signals.MotorAlignmentValue;
+import com.ctre.phoenix6.signals.MotorArrangementValue;
+import com.ctre.phoenix6.signals.NeutralModeValue;
 import edu.wpi.first.math.geometry.Translation2d;
 
 public final class Constants {
@@ -10,6 +14,12 @@ public final class Constants {
   /** CTRE CAN bus name (empty string means "rio") */
   // public static final CANBus RIO_CANBUS = new CANBus("rio");
   public static final CANBus RIO_CANBUS = CANBus.roboRIO("rio"); // native rio bus
+
+  /*
+   * Comment convention for this file:
+   * TODO  = value is intentional for now, but still needs on-robot tuning or verification.
+   * FIXME = metadata, naming, or assumptions are currently known to be wrong or incomplete.
+   */
 
   // =========================================================
   // CAN ID Quick Reference — keep in sync with source constants ##
@@ -51,33 +61,80 @@ public final class Constants {
     private Intake() {
     }
 
+    // == Shared / startup assumptions =========================
+    public static final double ENCODER_ZERO_POSITION = 0.0;
+
     // == IDs ===============================================
 
     /*
      * Kraken X44 with TalonFX controller (x3)
-     * FIXME update motor names and IDs in Phoenix Tuner
+     * FIXME: Update Intake motor names in Phoenix Tuner to match these code-side IDs.
      */
     public static final int ROLLER_LEFT_MOTOR_ID = 20;
     public static final int ROLLER_RIGHT_MOTOR_ID = 21;
     public static final int SLIDE_MOTOR_ID = 22;
 
-    public static final double SLIDE_MM_CRUISE_VELOCITY = 363.0;
-    public static final double SLIDE_MM_ACCELERATION = 363.0;
+    // == Mechanism setpoints =================================
+    /*
+     * TODO: Verify all slide positions and Motion Magic values after the latest
+     * mechanical changes. Add an end-of-line "Tuned" note when each value is confirmed.
+     */
+    public static final double SLIDE_RETRACTED_POS = 0.0;
+    public static final double SLIDE_EXTENDED_POS = 44.40;
+    public static final double SLIDE_MAX_POS = 44.454;
+    public static final double SLIDE_TOLERANCE = 0.25;
+    public static final double SLIDE_INCREMENTAL_RETRACT_ROTATIONS = 15.0;
+
+    public static final double SLIDE_MM_CRUISE_VELOCITY = 32;
+    public static final double SLIDE_MM_ACCELERATION = 32;
     public static final double SLIDE_MM_JERK = 0.0;
 
     public static final double SLIDE_SLOW_MM_CRUISE_VELOCITY = 4.0;
     public static final double SLIDE_SLOW_MM_ACCELERATION = 4.0;
 
-    public static final double SLIDE_PUMP_OUT_POS = 40.0; // TODO update position with Phoenix Tuner
-    public static final double SLIDE_PUMP_IN_POS = 30.0; // TODO update position with Phoenix Tuner
+    // Agitation positions used while shooting / pumping fuel.
+    public static final double SLIDE_PUMP_OUT_POS = 40.0;
+    public static final double SLIDE_PUMP_IN_POS = 30.0;
 
     /*
-     * TODO update roller voltages after testing with Phoenix Tuner
-     * Update comments after verifying with testing — these are based on estimates
-     * and may not be accurate
+     * TODO: Verify roller voltages on the current mechanism. These are working
+     * estimates and should be rechecked after roller or intake geometry changes.
      */
     public static final double ROLLER_FORWARD_VOLTS = 11.0;
     public static final double ROLLER_REVERSE_VOLTS = -8.0;
+
+    public static final class RollerConfig {
+      private RollerConfig() {
+      }
+
+      // == Hardware config ====================================
+      public static final NeutralModeValue NEUTRAL_MODE = NeutralModeValue.Brake;
+      public static final InvertedValue INVERTED = InvertedValue.CounterClockwise_Positive;
+      public static final double SUPPLY_CURRENT_LIMIT = 40.0;
+      public static final double STATOR_CURRENT_LIMIT = 40.0;
+      public static final MotorAlignmentValue FOLLOWER_ALIGNMENT = MotorAlignmentValue.Opposed;
+    }
+
+    public static final class SlideConfig {
+      private SlideConfig() {
+      }
+
+      // == Hardware config ====================================
+      public static final NeutralModeValue NEUTRAL_MODE = NeutralModeValue.Brake;
+      public static final InvertedValue INVERTED = InvertedValue.CounterClockwise_Positive;
+
+      /*
+       * TODO: Verify slide current limits, soft limits, and closed-loop gains on the
+       * updated mechanism. Add an end-of-line "Tuned" note when each value is confirmed.
+       */
+      public static final double SUPPLY_CURRENT_LIMIT = 40.0;
+      public static final double STATOR_CURRENT_LIMIT = 40.0;
+      public static final double REVERSE_SOFT_LIMIT = SLIDE_RETRACTED_POS;
+      public static final double KP = 2.0;
+      public static final double KI = 0.0;
+      public static final double KD = 0.0;
+      public static final double KS = 0.7;
+    }
 
   }
 
@@ -89,9 +146,11 @@ public final class Constants {
     private Indexer() {
     }
 
-    /* Kraken X60 with TalonFX controller (x2); feeds pieces to shooter 
-    * FIXME update KICKER and CONVEYOR motor names and IDs in Phoenix Tuner
-    */
+    // == IDs ===============================================
+    /*
+     * Kraken X60 with TalonFX controller (x2); feeds pieces to shooter.
+     * FIXME: Update kicker and conveyor device names in Phoenix Tuner to match code.
+     */
     public static final int KICKER_LEFT_MOTOR_ID = 23;
     public static final int KICKER_RIGHT_MOTOR_ID = 24;
 
@@ -101,11 +160,10 @@ public final class Constants {
     // CANrange Time of Flight sensor; detects presence of fuel at indexer-kicker
     public static final int CHUTE_TOF_ID = 42;
 
-    // === Voltage Constants =====================
+    // == Mechanism outputs ==================================
     /* 
-     * TODO update voltages after testing with Phoenix Tuner
-     * These are based on previous mechanics
-     * Update comments after verifying with testing
+     * TODO: Verify conveyor and kicker voltages on the current hopper / shooter
+     * geometry. These were carried forward from earlier mechanical revisions.
      */
     public static final double CONVEYOR_FORWARD_VOLTAGE = 6.0;
     public static final double CONVEYOR_REVERSE_VOLTAGE = -4.0;
@@ -115,19 +173,68 @@ public final class Constants {
     public static final double KICKER_REVERSE_VOLTAGE = -8.0;
     public static final double KICKER_POPPER_VOLTAGE = 3.0; 
 
-    // === Distanace Constants =====================
+    // == Sensor geometry / thresholds ========================
     /* Used as the CANrange ProximityThreshold so the hardware "detected" signal matches the same boundary.
      * Software threshold for fuel detection.
      * A fuel ball is ~6 in (0.1524 m)
      * Anything below ~10 in (0.25 m) means fuel is present in the chute.
      */
     public static final double FUEL_SIZE = 0.1524; // ~10 inches
-    public static final double CHUTE_MAX_DISTANCE = 0.36; // FIXME Re-measure the new shooter width
+    public static final double CHUTE_MAX_DISTANCE = 0.36; // TODO: Re-measure for the current chute / shooter width.
     public static final double FUEL_DETECTION_THRESHOLD = FUEL_SIZE * 0.75; // 75% of fuel size to account for sensor variance and ensure reliable detection
     public static final double FUEL_DETECTION_DISTANCE = CHUTE_MAX_DISTANCE - FUEL_DETECTION_THRESHOLD; // ~10 inches
 
     // Time to wait after detecting fuel at the chute before considering it "cleared".
     public static final double FUEL_CLEAR_TIME = 2.0; // seconds
+
+    public static final class ConveyorConfig {
+      private ConveyorConfig() {
+      }
+
+      // == Hardware config ====================================
+      /*
+       * TODO: Verify conveyor current limits, polarity, and voltage caps against the
+       * current hardware. Add an end-of-line "Tuned" note when each value is confirmed.
+       */
+      public static final NeutralModeValue NEUTRAL_MODE = NeutralModeValue.Brake;
+      public static final InvertedValue INVERTED = InvertedValue.Clockwise_Positive;
+      public static final double SUPPLY_CURRENT_LIMIT = 40.0;
+      public static final double STATOR_CURRENT_LIMIT = 40.0;
+      public static final double PEAK_FORWARD_VOLTAGE = 12.0;
+      public static final double PEAK_REVERSE_VOLTAGE = -12.0;
+    }
+
+    public static final class KickerConfig {
+      private KickerConfig() {
+      }
+
+      // == Hardware config ====================================
+      /*
+       * TODO: Verify kicker current limits, polarity, and follower alignment on the
+       * current roller stackup. Add an end-of-line "Tuned" note when each value is confirmed.
+       */
+      public static final NeutralModeValue NEUTRAL_MODE = NeutralModeValue.Brake;
+      public static final InvertedValue INVERTED = InvertedValue.CounterClockwise_Positive;
+      public static final double SUPPLY_CURRENT_LIMIT = 45.0;
+      public static final double STATOR_CURRENT_LIMIT = 80.0;
+      public static final double PEAK_FORWARD_VOLTAGE = 12.0;
+      public static final double PEAK_REVERSE_VOLTAGE = -12.0;
+      public static final MotorAlignmentValue FOLLOWER_ALIGNMENT = MotorAlignmentValue.Opposed;
+    }
+
+    public static final class ChuteSensorConfig {
+      private ChuteSensorConfig() {
+      }
+
+      // == Hardware config ====================================
+      /*
+       * TODO: Verify the CANrange hysteresis and FOV settings against the final chute
+       * mounting location. Add an end-of-line "Tuned" note when each value is confirmed.
+       */
+      public static final double PROXIMITY_HYSTERESIS = 0.025;
+      public static final double FOV_RANGE_X = 6.75;
+      public static final double FOV_RANGE_Y = 6.75;
+    }
 
   }
 
@@ -138,21 +245,21 @@ public final class Constants {
     private Flywheel() {
     }
 
+    // == IDs ===============================================
     // Kraken X60 with TalonFX controller (leader); Flywheel A motor
     public static final int FLYWHEEL_LEFT_MOTOR_ID = 25;
 
     // Kraken X60 with TalonFX controller (follower of A); Flywheel B motor
     public static final int FLYWHEEL_RIGHT_MOTOR_ID = 26;
     
-    // === Constants ===
+    // == Mechanism setpoints / tuning ========================
     // Kraken X60 free speed
     public static final double MAX_RPM = 6000.0; 
     public static final double IDLE_RPM = 0;
 
     /**
-     * TODO Tune new RPMs for flywheel without excessive current draw
-     * New mechanical setup may require different RPMs to achieve the same shot distances
-     * Add an end of line comment `Tuned` when each is verified
+     * TODO: Verify shot RPMs on the current shooter. Mechanical changes may alter
+     * the required speed for each distance. Add an end-of-line "Tuned" note when confirmed.
      */
     public static final double POPPER_RPM = 650;
     public static final double STANDBY_RPM = 1000;
@@ -179,8 +286,8 @@ public final class Constants {
     public static final double KD = 0.001;
 
     /*
-     * TODO Tune the flywheel tolerance
-     * Previously 0.10 measured steady-state; 
+     * TODO: Verify flywheel tolerance against current steady-state variation.
+     * Previously 0.10 measured steady-state;
      * Variance ±30 RPM at 3300; 3% = ±99 RPM (~3× variance)
      */
     public static final double TOLERANCE_PERCENT = 0.05;
@@ -189,6 +296,24 @@ public final class Constants {
     public static final double STATOR_CURRENT_LIMIT = 90;
     public static final double TEST_INCREMENT_RPM = 100.0;
     public static final double VOLTAGE_CLOSED_LOOP_RAMP_PERIOD = 0.10; // seconds from neutral to full output
+
+    public static final class LeaderConfig {
+      private LeaderConfig() {
+      }
+
+      // == Hardware config ====================================
+      public static final NeutralModeValue NEUTRAL_MODE = NeutralModeValue.Coast;
+      public static final InvertedValue INVERTED = InvertedValue.Clockwise_Positive;
+    }
+
+    public static final class FollowerConfig {
+      private FollowerConfig() {
+      }
+
+      // == Hardware config ====================================
+      public static final NeutralModeValue NEUTRAL_MODE = NeutralModeValue.Coast;
+      public static final MotorAlignmentValue FOLLOWER_ALIGNMENT = MotorAlignmentValue.Opposed;
+    }
 
   }
 
@@ -200,19 +325,20 @@ public final class Constants {
     private Hood() {
     }
 
-        // Hood motor - Minion with TalonFXS controller, adjusts shot angle
+    // == IDs ===============================================
+    // Hood motor - Minion with TalonFXS controller, adjusts shot angle.
     public static final int HOOD_MOTOR_ID = 28;
 
-        // === Kraken rotational positions =========================
+    // == Mechanism setpoints / tuning ========================
     public static final double MIN_POSE = 0.0; // Mechanical limit, also use to set in Configs
     public static final double MAX_POSE = 10.15; // Mechanical limit; also use to set in Configs
     
-    // TODO Tune hood tolerance based on testing; consider a tighter tolerance than 0.25 rotations
+    // TODO: Verify hood tolerance on the current linkage and backlash.
     public static final double POSE_TOLERANCE = 0.25; 
 
     /*
-     * TODO Tune Hood rotation position values from Kraken encoder for each shot
-     * Add an end of line comment `Tuned` when each is verified
+     * TODO: Verify hood setpoints on the current shooter geometry. Add an end-of-line
+     * "Tuned" note when each value is confirmed.
      */
     public static final double CLOSE_HOOD = 0.00; 
     public static final double POPPER_HOOD = 8.42;
@@ -221,7 +347,7 @@ public final class Constants {
     public static final double FAR_HOOD = 5.50;
     public static final double PASS_HOOD = 2.00;
 
-
+    // Manual tuning increments used for bring-up and testing.
     public static final double TEST_INCREMENT = 0.2;
 
     public static final double ACCELERATION = 0;
@@ -239,6 +365,18 @@ public final class Constants {
     public static final double PEAK_REVERSE_VOLTAGE = -4.0;
 
     public static final double PEAK_FORWARD_VOLTAGE = 4.0;
+
+    public static final double ENCODER_ZERO_POSITION = 0.0;
+
+    public static final class Config {
+      private Config() {
+      }
+
+      // == Hardware config ====================================
+      public static final MotorArrangementValue MOTOR_ARRANGEMENT = MotorArrangementValue.Minion_JST;
+      public static final NeutralModeValue NEUTRAL_MODE = NeutralModeValue.Brake;
+      public static final InvertedValue INVERTED = InvertedValue.Clockwise_Positive;
+    }
   }
 
   // =========================================================
@@ -261,7 +399,7 @@ public final class Constants {
     // Camera mounting - Primarily Documentation Purposes
     // =========================================================
 
-    /* FIXME: Tune camera mounting offsets */
+    /* TODO: Verify camera mounting offsets on the current robot. */
 
     /* Height of Limelight lens from floor in meters is 19.25 inches = 0.489 meters */
     public static final double CAMERA_HEIGHT_METERS = 0.489;

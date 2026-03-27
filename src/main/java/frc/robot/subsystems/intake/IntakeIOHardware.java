@@ -8,9 +8,6 @@ import com.ctre.phoenix6.controls.Follower;
 import com.ctre.phoenix6.controls.MotionMagicVoltage;
 import com.ctre.phoenix6.controls.VoltageOut;
 import com.ctre.phoenix6.hardware.TalonFX;
-import com.ctre.phoenix6.signals.InvertedValue;
-import com.ctre.phoenix6.signals.MotorAlignmentValue;
-import com.ctre.phoenix6.signals.NeutralModeValue;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
 
@@ -41,12 +38,12 @@ public class IntakeIOHardware implements IntakeIO {
         static TalonFXConfiguration roller() {
             TalonFXConfiguration config = new TalonFXConfiguration();
 
-            config.MotorOutput.NeutralMode = NeutralModeValue.Brake;
-            config.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
+            config.MotorOutput.NeutralMode = Constants.Intake.RollerConfig.NEUTRAL_MODE;
+            config.MotorOutput.Inverted = Constants.Intake.RollerConfig.INVERTED;
 
-            config.CurrentLimits.SupplyCurrentLimit = 40.0;
+            config.CurrentLimits.SupplyCurrentLimit = Constants.Intake.RollerConfig.SUPPLY_CURRENT_LIMIT;
             config.CurrentLimits.SupplyCurrentLimitEnable = true;
-            config.CurrentLimits.StatorCurrentLimit = 40.0;
+            config.CurrentLimits.StatorCurrentLimit = Constants.Intake.RollerConfig.STATOR_CURRENT_LIMIT;
             config.CurrentLimits.StatorCurrentLimitEnable = true;
 
             return config;
@@ -59,24 +56,24 @@ public class IntakeIOHardware implements IntakeIO {
         static TalonFXConfiguration slide() {
             TalonFXConfiguration config = new TalonFXConfiguration();
 
-            config.MotorOutput.NeutralMode = NeutralModeValue.Brake;
-            config.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
+            config.MotorOutput.NeutralMode = Constants.Intake.SlideConfig.NEUTRAL_MODE;
+            config.MotorOutput.Inverted = Constants.Intake.SlideConfig.INVERTED;
 
-            config.CurrentLimits.SupplyCurrentLimit = 40.0;
+            config.CurrentLimits.SupplyCurrentLimit = Constants.Intake.SlideConfig.SUPPLY_CURRENT_LIMIT;
             config.CurrentLimits.SupplyCurrentLimitEnable = true;
-            config.CurrentLimits.StatorCurrentLimit = 40.0;
+            config.CurrentLimits.StatorCurrentLimit = Constants.Intake.SlideConfig.STATOR_CURRENT_LIMIT;
             config.CurrentLimits.StatorCurrentLimitEnable = true;
 
             config.SoftwareLimitSwitch.ForwardSoftLimitEnable = true;
             config.SoftwareLimitSwitch.ForwardSoftLimitThreshold = Constants.Intake.SLIDE_MAX_POS;
             config.SoftwareLimitSwitch.ReverseSoftLimitEnable = true;
-            config.SoftwareLimitSwitch.ReverseSoftLimitThreshold = 0.0; 
+            config.SoftwareLimitSwitch.ReverseSoftLimitThreshold = Constants.Intake.SlideConfig.REVERSE_SOFT_LIMIT;
 
             /* TODO These new re-tuning for position control of the new slide mechanism */
-            config.Slot0.kP = 2.0; 
-            config.Slot0.kI = 0.0;
-            config.Slot0.kD = 0.0;
-            config.Slot0.kS = 0.7;
+            config.Slot0.kP = Constants.Intake.SlideConfig.KP;
+            config.Slot0.kI = Constants.Intake.SlideConfig.KI;
+            config.Slot0.kD = Constants.Intake.SlideConfig.KD;
+            config.Slot0.kS = Constants.Intake.SlideConfig.KS;
 
             /* MotionMagic profile */
             config.MotionMagic.MotionMagicCruiseVelocity = Constants.Intake.SLIDE_MM_CRUISE_VELOCITY;
@@ -126,10 +123,11 @@ public class IntakeIOHardware implements IntakeIO {
         slidePosition = slide.getPosition();
         slideVelocity = slide.getVelocity();
 
-        rollerFollow.setControl(new Follower(rollerLead.getDeviceID(), MotorAlignmentValue.Opposed));
+        rollerFollow.setControl(
+                new Follower(rollerLead.getDeviceID(), Constants.Intake.RollerConfig.FOLLOWER_ALIGNMENT));
 
         // Zero slide encoder at startup — assumes slide is fully retracted
-        slide.setPosition(0.0);
+        slide.setPosition(Constants.Intake.ENCODER_ZERO_POSITION);
     }
 
     @Override
