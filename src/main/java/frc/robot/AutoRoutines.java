@@ -74,8 +74,8 @@ public class AutoRoutines {
                                                 
                                                 RtMid_RtRampShot.cmd(), // 1.6 seconds
 
-                                                // TODO: Test and tune this shooting + pumping sequence, perhaps run on a deadline?
-                                                // TODO: Measure time. It will vary depending on the number of balls, but measuring should give a better estimate
+                                                // TODO: Test and tune this shooting + pumping sequence
+                                                // TODO: Measure time to unload in Auton. It will vary depending on the number of balls, but measuring should give a better estimate
                                                 Commands.parallel(
                                                         
                                                         /* TODO: Not sure if this will end on it's own or rely on the safety timeout. 
