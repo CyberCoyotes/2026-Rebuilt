@@ -80,9 +80,9 @@ public final class Constants {
      * mechanical changes. Add an end-of-line "Tuned" note when each value is confirmed.
      */
     public static final double SLIDE_RETRACTED_POS = 0.0;
-    public static final double SLIDE_EXTENDED_POS = 44.40;
-    public static final double SLIDE_MAX_POS = 44.454;
-    public static final double SLIDE_TOLERANCE = 0.25;
+    public static final double SLIDE_EXTENDED_POS = 65.75; // Was 44.40
+    public static final double SLIDE_MAX_POS = 65.75;
+    public static final double SLIDE_TOLERANCE = 0.10;
     public static final double SLIDE_INCREMENTAL_RETRACT_ROTATIONS = 15.0;
 
     public static final double SLIDE_MM_CRUISE_VELOCITY = 32;
@@ -93,14 +93,14 @@ public final class Constants {
     public static final double SLIDE_SLOW_MM_ACCELERATION = 4.0;
 
     // Agitation positions used while shooting / pumping fuel.
-    public static final double SLIDE_PUMP_OUT_POS = 40.0;
-    public static final double SLIDE_PUMP_IN_POS = 30.0;
+    public static final double SLIDE_PUMP_OUT_POS = 60.0;
+    public static final double SLIDE_PUMP_IN_POS = 40.0;
 
     /*
      * TODO: Verify roller voltages on the current mechanism. These are working
      * estimates and should be rechecked after roller or intake geometry changes.
      */
-    public static final double ROLLER_FORWARD_VOLTS = 11.0;
+    public static final double ROLLER_FORWARD_VOLTS = 8.0; // Was 11
     public static final double ROLLER_REVERSE_VOLTS = -8.0;
 
     public static final class RollerConfig {
@@ -108,7 +108,7 @@ public final class Constants {
       }
 
       // == Hardware config ====================================
-      public static final NeutralModeValue NEUTRAL_MODE = NeutralModeValue.Brake; // TODO: Consider Coast
+      public static final NeutralModeValue NEUTRAL_MODE = NeutralModeValue.Coast; // Was Brake
       public static final InvertedValue INVERTED = InvertedValue.CounterClockwise_Positive;
       public static final double SUPPLY_CURRENT_LIMIT = 40.0;
       public static final double STATOR_CURRENT_LIMIT = 40.0;
