@@ -1,6 +1,7 @@
-## Autonomous Playbook 2026
+# Autonomous Playbook 2026
 
-        // TODO: Add more auto routines as they are developed
+## Individual Segments
+ // TODO add a list directly from Choreo project. Keep up to date for building proper auto routines
 
 ## Start: Center
 
@@ -8,15 +9,14 @@
 - [ ] Center to Depot
 
 
-### Start: Right Side
+## Start: Right Side
 
 - [ ] Right trench to middle, back through trench, shoot
 - [ ] Right trench to middle, back over ramp, shoot
 
-### Start: Left Side
+## Start: Left Side
 
 - [ ] Left trench to middle, back through trench, shoot
 - [ ] Left trench to middle, back over ramp, shoot
 
-### Individual Segments
 
