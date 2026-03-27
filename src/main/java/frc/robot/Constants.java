@@ -361,15 +361,16 @@ public final class Constants {
     public static final double PEAK_FORWARD_VOLTAGE = 4.0;
     public static final double ENCODER_ZERO_POSITION = 0.0;
 
-    public static final class Config {
-      private Config() {
+    public static final class HoodConfig {
+      private HoodConfig() {
       }
 
       // == Hardware config ====================================
       public static final MotorArrangementValue MOTOR_ARRANGEMENT = MotorArrangementValue.Minion_JST;
       public static final NeutralModeValue NEUTRAL_MODE = NeutralModeValue.Brake;
-      public static final InvertedValue INVERTED = InvertedValue.Clockwise_Positive;
+      public static final InvertedValue INVERTED = InvertedValue.CounterClockwise_Positive; // Had to switch
     }
+
   }
 
   // =========================================================
