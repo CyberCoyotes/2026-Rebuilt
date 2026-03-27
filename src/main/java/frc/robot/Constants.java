@@ -132,10 +132,10 @@ public final class Constants {
   }
 
   // =========================================================
-  // Shooter
+  // Flywheel
   // =========================================================
-  public static final class Shooter {
-    private Shooter() {
+  public static final class Flywheel {
+    private Flywheel() {
     }
 
     // Kraken X60 with TalonFX controller (leader); Flywheel A motor
@@ -144,12 +144,9 @@ public final class Constants {
     // Kraken X60 with TalonFX controller (follower of A); Flywheel B motor
     public static final int FLYWHEEL_RIGHT_MOTOR_ID = 26;
     
-    // Hood motor - Minion with TalonFXS controller, adjusts shot angle
-    public static final int HOOD_MOTOR_ID = 28;
-
     // === Constants ===
     // Kraken X60 free speed
-    public static final double MAX_FLYWHEEL_RPM = 6000.0; 
+    public static final double MAX_RPM = 6000.0; 
     public static final double IDLE_RPM = 0;
 
     /**
@@ -176,20 +173,42 @@ public final class Constants {
      * violent reversal.
      */
     public static final double EJECT_MAX_ENTRY_RPM = 500.0;
+    
+    public static final double KP = 0.15;
+    public static final double KV = 0.119;
+    public static final double KD = 0.001;
 
     /*
      * TODO Tune the flywheel tolerance
      * Previously 0.10 measured steady-state; 
      * Variance ±30 RPM at 3300; 3% = ±99 RPM (~3× variance)
      */
-    public static final double FLYWHEEL_TOLERANCE_PERCENT = 0.05;
+    public static final double TOLERANCE_PERCENT = 0.05;
 
-    // === Kraken rotational positions =========================
-    public static final double MIN_HOOD_POSE = 0.0; // Mechanical limit, also use to set in Configs
-    public static final double MAX_HOOD_POSE = 10.15; // Mechanical limit; also use to set in Configs
+    public static final double SUPPLY_CURRENT_LIMIT = 50;
+    public static final double STATOR_CURRENT_LIMIT = 90;
+    public static final double TEST_INCREMENT_RPM = 100.0;
+    public static final double VOLTAGE_CLOSED_LOOP_RAMP_PERIOD = 0.10; // seconds from neutral to full output
+
+  }
+
+  // =========================================================
+  // Hood
+  // =========================================================
+ 
+  public static final class Hood {
+    private Hood() {
+    }
+
+        // Hood motor - Minion with TalonFXS controller, adjusts shot angle
+    public static final int HOOD_MOTOR_ID = 28;
+
+        // === Kraken rotational positions =========================
+    public static final double MIN_POSE = 0.0; // Mechanical limit, also use to set in Configs
+    public static final double MAX_POSE = 10.15; // Mechanical limit; also use to set in Configs
     
     // TODO Tune hood tolerance based on testing; consider a tighter tolerance than 0.25 rotations
-    public static final double HOOD_POSE_TOLERANCE = 0.25; 
+    public static final double POSE_TOLERANCE = 0.25; 
 
     /*
      * TODO Tune Hood rotation position values from Kraken encoder for each shot
@@ -202,9 +221,24 @@ public final class Constants {
     public static final double FAR_HOOD = 5.50;
     public static final double PASS_HOOD = 2.00;
 
-    // === Testing Increments ========================
-    public static final double HOOD_TEST_INCREMENT = 0.2;
-    public static final double FLYWHEEL_TEST_INCREMENT_RPM = 100.0;
+
+    public static final double TEST_INCREMENT = 0.2;
+
+    public static final double ACCELERATION = 0;
+
+    public static final double CRUISE_VELOCITY = 0;
+
+    public static final double KP = 0;
+
+    public static final double KI = 0;
+
+    public static final double KD = 0;
+
+    public static final double SUPPLY_CURRENT_LIMIT = 30;
+
+    public static final double PEAK_REVERSE_VOLTAGE = -4.0;
+
+    public static final double PEAK_FORWARD_VOLTAGE = 4.0;
   }
 
   // =========================================================

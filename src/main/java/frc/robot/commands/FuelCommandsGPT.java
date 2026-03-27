@@ -514,8 +514,8 @@ public class FuelCommandsGPT {
                 double safetyTimeout) {
             return Commands.sequence(
                     Commands.runOnce(() -> {
-                        shooter.setTargetVelocity(Constants.Shooter.TRENCH_RPM);
-                        shooter.setTargetHoodPose(Constants.Shooter.TRENCH_HOOD);
+                        shooter.setTargetVelocity(Constants.Flywheel.TRENCH_RPM);
+                        shooter.setTargetHoodPose(Constants.Hood.TRENCH_HOOD);
                         shooter.beginSpinUp();
                     }, shooter),
                     Commands.waitUntil(shooter::isReady),
@@ -531,8 +531,8 @@ public class FuelCommandsGPT {
                 double safetyTimeout) {
             return Commands.sequence(
                     Commands.runOnce(() -> {
-                        shooter.setTargetVelocity(Constants.Shooter.CLOSE_RPM);
-                        shooter.setTargetHoodPose(Constants.Shooter.CLOSE_HOOD);
+                        shooter.setTargetVelocity(Constants.Flywheel.CLOSE_RPM);
+                        shooter.setTargetHoodPose(Constants.Hood.CLOSE_HOOD);
                         shooter.beginSpinUp();
                     }, shooter),
                     Commands.waitUntil(shooter::isReady),
@@ -547,8 +547,8 @@ public class FuelCommandsGPT {
                 double safetyTimeout) {
             return Commands.sequence(
                     Commands.runOnce(() -> {
-                        shooter.setTargetVelocity(Constants.Shooter.TOWER_RPM);
-                        shooter.setTargetHoodPose(Constants.Shooter.TOWER_HOOD);
+                        shooter.setTargetVelocity(Constants.Flywheel.TOWER_RPM);
+                        shooter.setTargetHoodPose(Constants.Hood.TOWER_HOOD);
                         shooter.beginSpinUp();
                     }, shooter),
                     Commands.waitUntil(shooter::isReady).withTimeout(6.0),
@@ -563,8 +563,8 @@ public class FuelCommandsGPT {
                 double safetyTimeout) {
             return Commands.sequence(
                     Commands.runOnce(() -> {
-                        shooter.setTargetVelocity(Constants.Shooter.FAR_RPM);
-                        shooter.setTargetHoodPose(Constants.Shooter.FAR_HOOD);
+                        shooter.setTargetVelocity(Constants.Flywheel.FAR_RPM);
+                        shooter.setTargetHoodPose(Constants.Hood.FAR_HOOD);
                         shooter.beginSpinUp();
                     }, shooter),
                     Commands.waitUntil(shooter::isReady).withTimeout(6.0),
