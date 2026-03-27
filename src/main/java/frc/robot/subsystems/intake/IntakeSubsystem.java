@@ -191,7 +191,9 @@ public class IntakeSubsystem extends SubsystemBase {
      * minimum position. Used as a quick incremental jump before slow-finishing.
      */
     public void retractSlidesIncremental() {
-        double target = Math.max(inputs.slidePositionRotations - 15.0, Constants.Intake.SLIDE_RETRACTED_POS);
+        double target = Math.max(
+                inputs.slidePositionRotations - Constants.Intake.SLIDE_INCREMENTAL_RETRACT_ROTATIONS,
+                Constants.Intake.SLIDE_RETRACTED_POS);
         io.setSlidePosition(target);
     }
 

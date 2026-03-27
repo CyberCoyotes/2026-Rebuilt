@@ -1,6 +1,10 @@
 package frc.robot;
 
 import com.ctre.phoenix6.CANBus;
+import com.ctre.phoenix6.signals.InvertedValue;
+import com.ctre.phoenix6.signals.MotorAlignmentValue;
+import com.ctre.phoenix6.signals.MotorArrangementValue;
+import com.ctre.phoenix6.signals.NeutralModeValue;
 import edu.wpi.first.math.geometry.Translation2d;
 
 public final class Constants {
@@ -51,6 +55,8 @@ public final class Constants {
     private Intake() {
     }
 
+    public static final double ENCODER_ZERO_POSITION = 0.0;
+
     // == IDs ===============================================
 
     /*
@@ -60,6 +66,12 @@ public final class Constants {
     public static final int ROLLER_LEFT_MOTOR_ID = 20;
     public static final int ROLLER_RIGHT_MOTOR_ID = 21;
     public static final int SLIDE_MOTOR_ID = 22;
+
+    public static final double SLIDE_RETRACTED_POS = 0.0;
+    public static final double SLIDE_EXTENDED_POS = 44.40;
+    public static final double SLIDE_MAX_POS = 44.454;
+    public static final double SLIDE_TOLERANCE = 0.25;
+    public static final double SLIDE_INCREMENTAL_RETRACT_ROTATIONS = 15.0;
 
     public static final double SLIDE_MM_CRUISE_VELOCITY = 363.0;
     public static final double SLIDE_MM_ACCELERATION = 363.0;
@@ -78,6 +90,32 @@ public final class Constants {
      */
     public static final double ROLLER_FORWARD_VOLTS = 11.0;
     public static final double ROLLER_REVERSE_VOLTS = -8.0;
+
+    public static final class RollerConfig {
+      private RollerConfig() {
+      }
+
+      public static final NeutralModeValue NEUTRAL_MODE = NeutralModeValue.Brake;
+      public static final InvertedValue INVERTED = InvertedValue.CounterClockwise_Positive;
+      public static final double SUPPLY_CURRENT_LIMIT = 40.0;
+      public static final double STATOR_CURRENT_LIMIT = 40.0;
+      public static final MotorAlignmentValue FOLLOWER_ALIGNMENT = MotorAlignmentValue.Opposed;
+    }
+
+    public static final class SlideConfig {
+      private SlideConfig() {
+      }
+
+      public static final NeutralModeValue NEUTRAL_MODE = NeutralModeValue.Brake;
+      public static final InvertedValue INVERTED = InvertedValue.CounterClockwise_Positive;
+      public static final double SUPPLY_CURRENT_LIMIT = 40.0;
+      public static final double STATOR_CURRENT_LIMIT = 40.0;
+      public static final double REVERSE_SOFT_LIMIT = SLIDE_RETRACTED_POS;
+      public static final double KP = 2.0;
+      public static final double KI = 0.0;
+      public static final double KD = 0.0;
+      public static final double KS = 0.7;
+    }
 
   }
 
@@ -128,6 +166,40 @@ public final class Constants {
 
     // Time to wait after detecting fuel at the chute before considering it "cleared".
     public static final double FUEL_CLEAR_TIME = 2.0; // seconds
+
+    public static final class ConveyorConfig {
+      private ConveyorConfig() {
+      }
+
+      public static final NeutralModeValue NEUTRAL_MODE = NeutralModeValue.Brake;
+      public static final InvertedValue INVERTED = InvertedValue.Clockwise_Positive;
+      public static final double SUPPLY_CURRENT_LIMIT = 40.0;
+      public static final double STATOR_CURRENT_LIMIT = 40.0;
+      public static final double PEAK_FORWARD_VOLTAGE = 12.0;
+      public static final double PEAK_REVERSE_VOLTAGE = -12.0;
+    }
+
+    public static final class KickerConfig {
+      private KickerConfig() {
+      }
+
+      public static final NeutralModeValue NEUTRAL_MODE = NeutralModeValue.Brake;
+      public static final InvertedValue INVERTED = InvertedValue.CounterClockwise_Positive;
+      public static final double SUPPLY_CURRENT_LIMIT = 45.0;
+      public static final double STATOR_CURRENT_LIMIT = 80.0;
+      public static final double PEAK_FORWARD_VOLTAGE = 12.0;
+      public static final double PEAK_REVERSE_VOLTAGE = -12.0;
+      public static final MotorAlignmentValue FOLLOWER_ALIGNMENT = MotorAlignmentValue.Opposed;
+    }
+
+    public static final class ChuteSensorConfig {
+      private ChuteSensorConfig() {
+      }
+
+      public static final double PROXIMITY_HYSTERESIS = 0.025;
+      public static final double FOV_RANGE_X = 6.75;
+      public static final double FOV_RANGE_Y = 6.75;
+    }
 
   }
 
@@ -190,6 +262,22 @@ public final class Constants {
     public static final double TEST_INCREMENT_RPM = 100.0;
     public static final double VOLTAGE_CLOSED_LOOP_RAMP_PERIOD = 0.10; // seconds from neutral to full output
 
+    public static final class LeaderConfig {
+      private LeaderConfig() {
+      }
+
+      public static final NeutralModeValue NEUTRAL_MODE = NeutralModeValue.Coast;
+      public static final InvertedValue INVERTED = InvertedValue.Clockwise_Positive;
+    }
+
+    public static final class FollowerConfig {
+      private FollowerConfig() {
+      }
+
+      public static final NeutralModeValue NEUTRAL_MODE = NeutralModeValue.Coast;
+      public static final MotorAlignmentValue FOLLOWER_ALIGNMENT = MotorAlignmentValue.Opposed;
+    }
+
   }
 
   // =========================================================
@@ -239,6 +327,17 @@ public final class Constants {
     public static final double PEAK_REVERSE_VOLTAGE = -4.0;
 
     public static final double PEAK_FORWARD_VOLTAGE = 4.0;
+
+    public static final double ENCODER_ZERO_POSITION = 0.0;
+
+    public static final class Config {
+      private Config() {
+      }
+
+      public static final MotorArrangementValue MOTOR_ARRANGEMENT = MotorArrangementValue.Minion_JST;
+      public static final NeutralModeValue NEUTRAL_MODE = NeutralModeValue.Brake;
+      public static final InvertedValue INVERTED = InvertedValue.Clockwise_Positive;
+    }
   }
 
   // =========================================================

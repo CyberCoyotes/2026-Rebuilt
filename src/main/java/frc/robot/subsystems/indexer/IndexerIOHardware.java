@@ -6,11 +6,8 @@ import com.ctre.phoenix6.configs.CANrangeConfiguration;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.Follower;
 import com.ctre.phoenix6.controls.VoltageOut;
-import com.ctre.phoenix6.signals.MotorAlignmentValue;
 import com.ctre.phoenix6.hardware.CANrange;
 import com.ctre.phoenix6.hardware.TalonFX;
-import com.ctre.phoenix6.signals.InvertedValue;
-import com.ctre.phoenix6.signals.NeutralModeValue;
 
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Current;
@@ -41,16 +38,16 @@ public class IndexerIOHardware implements IndexerIO {
     private static TalonFXConfiguration conveyorConfig() {
         TalonFXConfiguration config = new TalonFXConfiguration();
 
-        config.MotorOutput.NeutralMode = NeutralModeValue.Brake;
-        config.MotorOutput.Inverted    = InvertedValue.Clockwise_Positive;
+        config.MotorOutput.NeutralMode = Constants.Indexer.ConveyorConfig.NEUTRAL_MODE;
+        config.MotorOutput.Inverted    = Constants.Indexer.ConveyorConfig.INVERTED;
 
-        config.CurrentLimits.SupplyCurrentLimit       = 40.0;
+        config.CurrentLimits.SupplyCurrentLimit       = Constants.Indexer.ConveyorConfig.SUPPLY_CURRENT_LIMIT;
         config.CurrentLimits.SupplyCurrentLimitEnable = true;
-        config.CurrentLimits.StatorCurrentLimit       = 40.0;
+        config.CurrentLimits.StatorCurrentLimit       = Constants.Indexer.ConveyorConfig.STATOR_CURRENT_LIMIT;
         config.CurrentLimits.StatorCurrentLimitEnable = true;
 
-        config.Voltage.PeakForwardVoltage =  12.0;
-        config.Voltage.PeakReverseVoltage = -12.0;
+        config.Voltage.PeakForwardVoltage = Constants.Indexer.ConveyorConfig.PEAK_FORWARD_VOLTAGE;
+        config.Voltage.PeakReverseVoltage = Constants.Indexer.ConveyorConfig.PEAK_REVERSE_VOLTAGE;
 
         return config;
     }
@@ -58,16 +55,16 @@ public class IndexerIOHardware implements IndexerIO {
     private static TalonFXConfiguration indexerConfig() {
         TalonFXConfiguration config = new TalonFXConfiguration();
 
-        config.MotorOutput.NeutralMode = NeutralModeValue.Brake;
-        config.MotorOutput.Inverted    = InvertedValue.CounterClockwise_Positive;
+        config.MotorOutput.NeutralMode = Constants.Indexer.KickerConfig.NEUTRAL_MODE;
+        config.MotorOutput.Inverted    = Constants.Indexer.KickerConfig.INVERTED;
 
-        config.CurrentLimits.SupplyCurrentLimit       = 45.0;
+        config.CurrentLimits.SupplyCurrentLimit       = Constants.Indexer.KickerConfig.SUPPLY_CURRENT_LIMIT;
         config.CurrentLimits.SupplyCurrentLimitEnable = true;
-        config.CurrentLimits.StatorCurrentLimit       = 80.0;
+        config.CurrentLimits.StatorCurrentLimit       = Constants.Indexer.KickerConfig.STATOR_CURRENT_LIMIT;
         config.CurrentLimits.StatorCurrentLimitEnable = true;
 
-        config.Voltage.PeakForwardVoltage =  12.0;
-        config.Voltage.PeakReverseVoltage = -12.0;
+        config.Voltage.PeakForwardVoltage = Constants.Indexer.KickerConfig.PEAK_FORWARD_VOLTAGE;
+        config.Voltage.PeakReverseVoltage = Constants.Indexer.KickerConfig.PEAK_REVERSE_VOLTAGE;
 
         return config;
     }
@@ -76,9 +73,9 @@ public class IndexerIOHardware implements IndexerIO {
         CANrangeConfiguration config = new CANrangeConfiguration();
 
         config.ProximityParams.ProximityThreshold = Constants.Indexer.FUEL_DETECTION_DISTANCE;
-        config.ProximityParams.ProximityHysteresis = 0.025; //
-        config.FovParams.FOVRangeX = 6.75; // 
-        config.FovParams.FOVRangeY = 6.75; //
+        config.ProximityParams.ProximityHysteresis = Constants.Indexer.ChuteSensorConfig.PROXIMITY_HYSTERESIS;
+        config.FovParams.FOVRangeX = Constants.Indexer.ChuteSensorConfig.FOV_RANGE_X;
+        config.FovParams.FOVRangeY = Constants.Indexer.ChuteSensorConfig.FOV_RANGE_Y;
 
         return config;
     }
@@ -97,7 +94,7 @@ public class IndexerIOHardware implements IndexerIO {
     // game-piece motion.
     private final VoltageOut kickerLeadVoltageRequest  = new VoltageOut(0.0);
     private final Follower kickerFollowerRequest =
-        new Follower(Constants.Indexer.KICKER_LEFT_MOTOR_ID, MotorAlignmentValue.Opposed);
+        new Follower(Constants.Indexer.KICKER_LEFT_MOTOR_ID, Constants.Indexer.KickerConfig.FOLLOWER_ALIGNMENT);
 
     // == Status Signals ===========================================================
     /* These Status Signals were not typed previously <?>, but trying Typed e.g. <AngularVelocity> */
