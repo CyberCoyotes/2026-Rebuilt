@@ -52,15 +52,14 @@ public final class Constants {
     }
 
     // == IDs ===============================================
-    /** (3) Kraken X44 with TalonFX controller */
-    public static final int ROLLER_LEFT_MOTOR_ID = 20; // TODO Update name in Tuner
-    public static final int ROLLER_RIGHT_MOTOR_ID = 21; // TODO Update name and ID in Tuner <-- **NEW**
-    public static final int SLIDE_MOTOR_ID = 22; // TODO Update name and ID in Tuner <-- **was 21**
 
-    public static final double SLIDE_MAX_POS = 44.454; // TODO update position with Phoenix Tuner
-    public static final double SLIDE_RETRACTED_POS = 0.0;
-    public static final double SLIDE_EXTENDED_POS = 44.40; // TODO update position with Phoenix Tuner
-    public static final double SLIDE_TOLERANCE = 0.05; // TODO Tune tolerance based on testing
+    /*
+     * Kraken X44 with TalonFX controller (x3)
+     * FIXME update motor names and IDs in Phoenix Tuner
+     */
+    public static final int ROLLER_LEFT_MOTOR_ID = 20;
+    public static final int ROLLER_RIGHT_MOTOR_ID = 21;
+    public static final int SLIDE_MOTOR_ID = 22;
 
     public static final double SLIDE_MM_CRUISE_VELOCITY = 363.0;
     public static final double SLIDE_MM_ACCELERATION = 363.0;
@@ -72,8 +71,13 @@ public final class Constants {
     public static final double SLIDE_PUMP_OUT_POS = 40.0; // TODO update position with Phoenix Tuner
     public static final double SLIDE_PUMP_IN_POS = 30.0; // TODO update position with Phoenix Tuner
 
-    public static final double ROLLER_FORWARD_VOLTS = 11.0; // TODO update voltage with Phoenix Tuner
-    public static final double ROLLER_REVERSE_VOLTS = -8.0; // TODO update voltage with Phoenix Tuner
+    /*
+     * TODO update roller voltages after testing with Phoenix Tuner
+     * Update comments after verifying with testing — these are based on estimates
+     * and may not be accurate
+     */
+    public static final double ROLLER_FORWARD_VOLTS = 11.0;
+    public static final double ROLLER_REVERSE_VOLTS = -8.0;
 
   }
 
@@ -81,30 +85,35 @@ public final class Constants {
   // Indexer
   // =========================================================
   public static final class Indexer {
-    public static double INDEXER_REVERSE_VOLTAGE; // TODO Update voltage in Tuner
 
     private Indexer() {
     }
 
-    /* (2) Kraken X60 with TalonFX controller, feeds pieces to shooter */
-    public static final int KICKER_LEFT_MOTOR_ID = 23; // TODO Check and update name and ID in Phoenix Tuner
-    public static final int KICKER_RIGHT_MOTOR_ID = 24; // TODO Check and update name and ID in Phoenix Tuner
+    /* Kraken X60 with TalonFX controller (x2); feeds pieces to shooter 
+    * FIXME update KICKER and CONVEYOR motor names and IDs in Phoenix Tuner
+    */
+    public static final int KICKER_LEFT_MOTOR_ID = 23;
+    public static final int KICKER_RIGHT_MOTOR_ID = 24;
 
-    /** Conveyor motor - Kraken X44 with TalonFX controller, moves pieces along hopper */
-    public static final int CONVEYOR_MOTOR_ID = 27; // // TODO Check and update name and ID in Phoenix Tuner
+    // Kraken X44 with TalonFX controller; conveyor motor moves pieces along hopper
+    public static final int CONVEYOR_MOTOR_ID = 27;
 
-    /**
-     * CANrange Time of Flight sensor - detects presence of fuel at indexer egress chute to shooter */
+    // CANrange Time of Flight sensor; detects presence of fuel at indexer-kicker
     public static final int CHUTE_TOF_ID = 42;
 
     // === Voltage Constants =====================
-    public static final double CONVEYOR_FORWARD_VOLTAGE = 6.0; // TODO Update voltage in Tuner as needed
-    public static final double CONVEYOR_REVERSE_VOLTAGE = -4.0; // TODO Update voltage in Tuner as needed
-    public static final double CONVEYOR_POPPER_VOLTAGE = 3.0; // TODO Update voltage in Tuner as needed
+    /* 
+     * TODO update voltages after testing with Phoenix Tuner
+     * These are based on previous mechanics
+     * Update comments after verifying with testing
+     */
+    public static final double CONVEYOR_FORWARD_VOLTAGE = 6.0;
+    public static final double CONVEYOR_REVERSE_VOLTAGE = -4.0;
+    public static final double CONVEYOR_POPPER_VOLTAGE = 3.0;
 
-    public static final double KICKER_FORWARD_VOLTAGE = 8.0; // was 6.0 // TODO update with Phoenix Tuner and record here 
-    public static final double KICKER_REVERSE_VOLTAGE = -8.0; // // TODO update with Phoenix Tuner and record here
-    public static final double KICKER_POPPER_VOLTAGE = 3.0; // // TODO update with Phoenix Tuner and record here
+    public static final double KICKER_FORWARD_VOLTAGE = 8.0;
+    public static final double KICKER_REVERSE_VOLTAGE = -8.0;
+    public static final double KICKER_POPPER_VOLTAGE = 3.0; 
 
     // === Distanace Constants =====================
     /* Used as the CANrange ProximityThreshold so the hardware "detected" signal matches the same boundary.
@@ -113,7 +122,7 @@ public final class Constants {
      * Anything below ~10 in (0.25 m) means fuel is present in the chute.
      */
     public static final double FUEL_SIZE = 0.1524; // ~10 inches
-    public static final double CHUTE_MAX_DISTANCE = 0.36; // TODO Remeasure the new shooter width
+    public static final double CHUTE_MAX_DISTANCE = 0.36; // FIXME Re-measure the new shooter width
     public static final double FUEL_DETECTION_THRESHOLD = FUEL_SIZE * 0.75; // 75% of fuel size to account for sensor variance and ensure reliable detection
     public static final double FUEL_DETECTION_DISTANCE = CHUTE_MAX_DISTANCE - FUEL_DETECTION_THRESHOLD; // ~10 inches
 
@@ -129,69 +138,71 @@ public final class Constants {
     private Shooter() {
     }
 
-    /** Flywheel A motor - Kraken X60 with TalonFX controller (leader) */
+    // Kraken X60 with TalonFX controller (leader); Flywheel A motor
     public static final int FLYWHEEL_LEFT_MOTOR_ID = 25;
 
-    /** Flywheel B motor - Kraken X60 with TalonFX controller (follower of A) */
+    // Kraken X60 with TalonFX controller (follower of A); Flywheel B motor
     public static final int FLYWHEEL_RIGHT_MOTOR_ID = 26;
-
-    /** Hood motor - Minion with TalonFXS controller, adjusts shot angle */
+    
+    // Hood motor - Minion with TalonFXS controller, adjusts shot angle
     public static final int HOOD_MOTOR_ID = 28;
 
     // === Constants ===
-    // Flywheel
-    public static final double MAX_FLYWHEEL_RPM = 6000.0; // Kraken X60 free speed (6380 was Falcon 500 — verify against
-                                                          // actual motor)
+    // Kraken X60 free speed
+    public static final double MAX_FLYWHEEL_RPM = 6000.0; 
     public static final double IDLE_RPM = 0;
 
     /**
-     * TODO tune RPMs for flywheel without excessive current draw
+     * TODO Tune new RPMs for flywheel without excessive current draw
+     * New mechanical setup may require different RPMs to achieve the same shot distances
      * Add an end of line comment `Tuned` when each is verified
      */
-    public static final double POPPER_RPM = 650; // TODO: 800 was just a little too much
-    public static final double STANDBY_RPM = 1000; // TODO: Tune Standby RPM
-    public static final double CLOSE_RPM = 2700; // TODO: Tune was 2600, 4.42
-    public static final double TOWER_RPM = 3200; // TODO: Tune was 3100, 4.42
-    public static final double TRENCH_RPM = 3200; // TODO: Tune
-    public static final double FAR_RPM = 3800; // TODO: Tune was 4000 + 5.5 worked
-    public static final double PASS_RPM = 3603; // TODO: Tune was 4000 + 7.00 and too much, 3200 is a starting point
+    public static final double POPPER_RPM = 650;
+    public static final double STANDBY_RPM = 1000;
+    public static final double CLOSE_RPM = 2700;
+    public static final double TOWER_RPM = 3200;
+    public static final double TRENCH_RPM = 3200;
+    public static final double FAR_RPM = 3800;
+    public static final double PASS_RPM = 3603;
 
-    /**
-     * Reverse RPM for jam clearing. Only reached through eject(), which gates on
-     * EJECT_MAX_ENTRY_RPM.
+    /*
+     * Reverse Flywheel RPM for jam clearing. 
+     * Only reached through eject(), which gates on EJECT_MAX_ENTRY_RPM.
      */
     public static final double EJECT_RPM = -1500;
-    /**
+
+    /*
      * Maximum forward flywheel RPM at which EJECT is safe to enter. Prevents
      * violent reversal.
      */
     public static final double EJECT_MAX_ENTRY_RPM = 500.0;
 
     /*
-     * Tightened from 0.10 — measured steady-state; variance ±30 RPM at 3300; 3% =
-     * ±99 RPM (~3× variance)
+     * TODO Tune the flywheel tolerance
+     * Previously 0.10 measured steady-state; 
+     * Variance ±30 RPM at 3300; 3% = ±99 RPM (~3× variance)
      */
     public static final double FLYWHEEL_TOLERANCE_PERCENT = 0.05;
 
-    // --- Hood (Kraken rotational positions) ---
+    // === Kraken rotational positions =========================
     public static final double MIN_HOOD_POSE = 0.0; // Mechanical limit, also use to set in Configs
     public static final double MAX_HOOD_POSE = 10.15; // Mechanical limit; also use to set in Configs
-    public static final double HOOD_POSE_TOLERANCE = 0.25; // TODO Tune tolerance based on testing — consider a tighter
-                                                           // tolerance than 0.25 rotations
+    
+    // TODO Tune hood tolerance based on testing; consider a tighter tolerance than 0.25 rotations
+    public static final double HOOD_POSE_TOLERANCE = 0.25; 
 
-    /**
-     * TODO tune Hood rotation position values from Kraken encoder for each shot
-     * Consider using WCP Encoder
+    /*
+     * TODO Tune Hood rotation position values from Kraken encoder for each shot
      * Add an end of line comment `Tuned` when each is verified
      */
-    public static final double CLOSE_HOOD = 0.00; // TODO: Tuned and ready
-    public static final double POPPER_HOOD = 8.42; // TODO: Tune Popper hood was 8.42
-    public static final double TOWER_HOOD = 4.30; // TODO: Tune Tower hood
-    public static final double TRENCH_HOOD = 4.30; // TODO: Tune Trench hood
-    public static final double FAR_HOOD = 5.50; // TODO: Tune Far hood, was 4000 + 5.5 worked
-    public static final double PASS_HOOD = 2.00; // TODO: Tune Pass hoodm, was 7.00 and too much
+    public static final double CLOSE_HOOD = 0.00; 
+    public static final double POPPER_HOOD = 8.42;
+    public static final double TOWER_HOOD = 4.30;
+    public static final double TRENCH_HOOD = 4.30;
+    public static final double FAR_HOOD = 5.50;
+    public static final double PASS_HOOD = 2.00;
 
-    // --- Testing Increments ---
+    // === Testing Increments ========================
     public static final double HOOD_TEST_INCREMENT = 0.2;
     public static final double FLYWHEEL_TEST_INCREMENT_RPM = 100.0;
   }
@@ -216,17 +227,20 @@ public final class Constants {
     // Camera mounting - Primarily Documentation Purposes
     // =========================================================
 
-    /** Height of Limelight lens from floor in meters */
-    // 19.25 inches = 0.489 meters
+    /* FIXME: Tune camera mounting offsets */
+
+    /* Height of Limelight lens from floor in meters is 19.25 inches = 0.489 meters */
     public static final double CAMERA_HEIGHT_METERS = 0.489;
 
-    // Camera is on the back of robot from center reference
-    // -9.5 inches = 0.2413 meters
+    /* 
+    * Camera is on the back of robot from center reference of Pigeon 2
+    * The Shooter is on the back of robot from center reference of Pigeon 2 as well
+    * -9.5 inches = 0.2413 meters 
+    */ 
     public static final double CAMERA_BACK_OFFSET_METERS = 0.2413;
 
-    // Camera is mounted left of center
-    // -10.0 inches = 0.0762 meters
-    public static final double CAMERA_LEFT_OFFSET_METERS = 0.0762;
+    // Camera is **now** center
+    public static final double CAMERA_LEFT_OFFSET_METERS = 0;
 
     /** Angle of camera from horizontal in degrees (positive = tilted up) */
     // 25 degrees is a common starting point for angled vision setups, but should be
@@ -296,9 +310,7 @@ public final class Constants {
 
     // Hub center positions in WPILib blue-origin field coordinates (meters).
     // Used by poseAlignAndShoot / autoAlignAndShoot for odometry-based aiming.
-    // Red hub is the field-length mirror of blue: x = 17.548 - 4.625 = 12.923
-    // TODO: verify exact coordinates against 2026 field layout JSON if shooting
-    // accuracy needs improvement
+    // Red hub is the field-length mirror of blue: x = 17.548 - 4.625 = 12.923 but Choreo shows 11.923, so using that for now until we can verify with measurements.
     public static final Translation2d BLUE_HUB_LOCATION = new Translation2d(4.625, 4.025);
     public static final Translation2d RED_HUB_LOCATION = new Translation2d(11.923, 4.025);
 
