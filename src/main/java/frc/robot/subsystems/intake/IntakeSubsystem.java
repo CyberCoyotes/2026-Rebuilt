@@ -149,25 +149,29 @@ public class IntakeSubsystem extends SubsystemBase {
     }
 
     // ==== Slide ====
-    /** Moves slide to the fully extended position via MotionMagic. Motor holds after. */
-
-    public void extendSlides() {
+    /** Fast full extension using the default Motion Magic profile. */
+    public void extendSlidesFast() {
         io.setSlidePosition(Constants.Intake.SLIDE_EXTENDED_POS);
     }
 
-    /** Moves slide to the fully retracted position via MotionMagic. Motor holds after. */
-    public void retractSlides() {
+    /** Fast full retraction using the default Motion Magic profile. */
+    public void retractSlidesFast() {
         io.setSlidePosition(Constants.Intake.SLIDE_RETRACTED_POS);
     }
 
-    /**
-     * Moves slide to retracted position using the slow DynamicMotionMagic profile.
-     * Call this every loop cycle to continuously re-command the slow profile.
-     * Used inside Commands.run() blocks for gradual retraction.
-     */
+    /** Graceful full retraction using the tunable slow DynamicMotionMagic profile. */
     public void retractSlidesSlow() {
         io.setSlidePositionSlow(Constants.Intake.SLIDE_RETRACTED_POS);
+    }
 
+    /** Backward-compatible alias for the default full extension mode. */
+    public void extendSlides() {
+        extendSlidesFast();
+    }
+
+    /** Backward-compatible alias for the default full retraction mode. */
+    public void retractSlides() {
+        retractSlidesFast();
     }
 
     public void stopSlide() {
@@ -214,16 +218,16 @@ public class IntakeSubsystem extends SubsystemBase {
       /**
      * Sends slide to the extended setpoint (runOnce — MotionMagic holds position).
      */
-    public Command extendSlidesCmd() {
-        return Commands.runOnce(this::extendSlides, this)
+    public Command extendSlidesFastCmd() {
+        return Commands.runOnce(this::extendSlidesFast, this)
                 .withName("ExtendSlides");
     }
 
     /**
      * Sends slide to the retracted setpoint (runOnce — MotionMagic holds position).
      */
-    public Command retractSlidesCmd() {
-        return Commands.runOnce(this::retractSlides, this)
+    public Command retractSlidesFastCmd() {
+        return Commands.runOnce(this::retractSlidesFast, this)
                 .withName("RetractSlides");
     }
 
@@ -234,6 +238,16 @@ public class IntakeSubsystem extends SubsystemBase {
     public Command retractSlidesSlowCmd() {
         return Commands.runOnce(this::retractSlidesSlow, this)
                 .withName("RetractSlidesSlow");
+    }
+
+    /** Backward-compatible alias for the default full extension command. */
+    public Command extendSlidesCmd() {
+        return extendSlidesFastCmd();
+    }
+
+    /** Backward-compatible alias for the default full retraction command. */
+    public Command retractSlidesCmd() {
+        return retractSlidesFastCmd();
     }
 
     /**
@@ -258,12 +272,12 @@ public class IntakeSubsystem extends SubsystemBase {
      * On release:
      *   - Roller stops. Slides stay extended (MotionMagic holds them).
      *
-     * Note: extendSlidesCmd() (runOnce) is used rather than calling extendSlides()
+     * Note: extendSlidesFastCmd() (runOnce) is used rather than calling extendSlidesFast()
      * directly inside a lambda — the runOnce approach was more reliable on hardware.
      */
     public Command intakeFuel() {
         return Commands.sequence(
-                extendSlidesCmd(),
+                extendSlidesFastCmd(),
                 Commands.startEnd(this::runRoller, this::stopRoller, this))
                 .withName("IntakeFuel");
     }
@@ -276,7 +290,7 @@ public class IntakeSubsystem extends SubsystemBase {
         return Commands.runOnce(
                 () -> {
                     stopRoller();
-                    retractSlides();
+                    retractSlidesFast();
                 }, this)
                 .withName("StopFuel");
     }
@@ -287,10 +301,6 @@ public class IntakeSubsystem extends SubsystemBase {
      *
      * Ends automatically after {@code timeoutSeconds}. Good for a timed button
      * press where you want the action to finish on its own.
-     *
-     * Why Commands.run() instead of runOnce():
-     * DynamicMotionMagic requires the setpoint to be re-sent every cycle to keep
-     * the slow profile active. A single runOnce would only send it once.
      *
      * Typical usage:
      * <pre>
@@ -323,9 +333,9 @@ public class IntakeSubsystem extends SubsystemBase {
      * </pre>
      */
     public Command compressFuelHeld() {
-        return Commands.startEnd(
+        return Commands.runEnd(
                 () -> {
-                    retractSlidesIncremental();
+                    retractSlidesSlow();
                     runRoller();
                 },
                 this::stopRoller,
@@ -342,17 +352,17 @@ public class IntakeSubsystem extends SubsystemBase {
      * times with 1-second gaps, giving the mechanism time to settle after each push.
      *
      * Status: Still in use as a fallback. If MotionMagic retraction becomes reliable
-     * under all conditions, this command can be removed in favor of retractSlidesCmd().
+     * under all conditions, this command can be removed in favor of retractSlidesFastCmd().
      */
     public Command retractSlidesStack() {
         return Commands.sequence(
-                Commands.runOnce(this::retractSlides, this),
+                Commands.runOnce(this::retractSlidesFast, this),
                 Commands.waitSeconds(1),
-                Commands.runOnce(this::retractSlides, this),
+                Commands.runOnce(this::retractSlidesFast, this),
                 Commands.waitSeconds(1),
-                Commands.runOnce(this::retractSlides, this),
+                Commands.runOnce(this::retractSlidesFast, this),
                 Commands.waitSeconds(1),
-                Commands.runOnce(this::retractSlides, this))
+                Commands.runOnce(this::retractSlidesFast, this))
                 .withName("RetractSlidesStack");
     }
 
@@ -535,13 +545,13 @@ public class IntakeSubsystem extends SubsystemBase {
      *   3. Stops roller on completion or interruption.
      *
      * Slides remain extended after the command — call stopFuel() or
-     * retractSlidesCmd() afterward if stowing is needed.
+     * retractSlidesFastCmd() afterward if stowing is needed.
      *
      * @param intakeTimeout How long to run the roller after extending.
      */
     public Command intakeFuelTimer(double intakeTimeout) {
         return Commands.sequence(
-                extendSlidesCmd(),
+                extendSlidesFastCmd(),
                 Commands.run(this::runRoller, this)
                         .withTimeout(intakeTimeout)
                         .finallyDo(this::stopRoller))
@@ -550,7 +560,7 @@ public class IntakeSubsystem extends SubsystemBase {
 
     public Command intakeFuelUntil(BooleanSupplier condition) {
         return Commands.sequence(
-                extendSlidesCmd(),
+                extendSlidesFastCmd(),
                 Commands.run(this::runRoller, this)
                         .until(condition)
                         .finallyDo(this::stopRoller))
@@ -563,8 +573,8 @@ public class IntakeSubsystem extends SubsystemBase {
      *
      * Phase 1 (runOnce): Quick 15-rotation jump back via normal MotionMagic.
      *                    Roller starts here.
-     * Phase 2 (run loop): Slow DynamicMotionMagic finish to SLIDE_RETRACTED_POS,
-     *                     re-commanded every cycle until isSlideFullyRetracted().
+     * Phase 2 (run loop): Slow DynamicMotionMagic finish to SLIDE_RETRACTED_POS
+     *                     while the roller keeps running.
      *
      * Roller is stopped in finallyDo so any interrupt (e.g. deadline finishing)
         * still cleans up properly.

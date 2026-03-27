@@ -79,9 +79,9 @@ public class IntakeIOHardware implements IntakeIO {
             config.Slot0.kS = 0.7;
 
             /* MotionMagic profile */
-            config.MotionMagic.MotionMagicCruiseVelocity = 363; // 960;
-            config.MotionMagic.MotionMagicAcceleration = 363;
-            config.MotionMagic.MotionMagicJerk = 0;
+            config.MotionMagic.MotionMagicCruiseVelocity = Constants.Intake.SLIDE_MM_CRUISE_VELOCITY;
+            config.MotionMagic.MotionMagicAcceleration = Constants.Intake.SLIDE_MM_ACCELERATION;
+            config.MotionMagic.MotionMagicJerk = Constants.Intake.SLIDE_MM_JERK;
 
             return config;
         }
@@ -100,10 +100,13 @@ public class IntakeIOHardware implements IntakeIO {
 
     // DynamicMotionMagic for slower slide movement 
     // TODO: Revisit this with the new slides to try for new retract profile
-    private final DynamicMotionMagicVoltage slideRequestSlow = new DynamicMotionMagicVoltage(0, 4, 4);
-                                                              // (position=0, velocity=16, accel=16, jerk=0)
+    private final DynamicMotionMagicVoltage slideRequestSlow =
+            new DynamicMotionMagicVoltage(
+                    0,
+                    Constants.Intake.SLIDE_SLOW_MM_CRUISE_VELOCITY,
+                    Constants.Intake.SLIDE_SLOW_MM_ACCELERATION);
 
-    // == Status Signals ===============================================================
+    // == Status Signals =============================================================
     // Current, voltage, and temp are captured by CTRE Hoot for diagnostics.
     private final StatusSignal<Angle> slidePosition;
     private final StatusSignal<AngularVelocity> slideVelocity;
@@ -140,9 +143,6 @@ public class IntakeIOHardware implements IntakeIO {
         inputs.slidePositionRotations = slidePosition.getValueAsDouble();
         inputs.slideVelocityRPS = slideVelocity.getValueAsDouble();
 
-        // Sensor data — uncomment when hardware is added
-        // inputs.intakeDistance = getIntakeDistance();
-        // inputs.hasGamePiece = intakeTargetClose();
     }
 
     // ==== Roller Methods ====
@@ -168,6 +168,8 @@ public class IntakeIOHardware implements IntakeIO {
 
     @Override
     public void setSlidePositionSlow(double position) {
+        // This request carries its own cruise/accel limits, so we can tune slow
+        // retract independently from the normal Motion Magic profile in config.
         slide.setControl(slideRequestSlow.withPosition(position));
     }
 
