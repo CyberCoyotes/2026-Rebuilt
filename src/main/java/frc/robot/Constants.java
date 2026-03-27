@@ -178,6 +178,10 @@ public final class Constants {
      * violent reversal.
      */
     public static final double EJECT_MAX_ENTRY_RPM = 500.0;
+    
+    public static final double FLYWHEEL_KP = 0.15;
+    public static final double FLYWHEEL_KV = 0.119;
+    public static final double FLYWHEEL_KD = 0.001;
 
     /*
      * TODO Tune the flywheel tolerance
@@ -204,9 +208,11 @@ public final class Constants {
     public static final double FAR_HOOD = 5.50;
     public static final double PASS_HOOD = 2.00;
 
-    // === Testing Increments ========================
     public static final double HOOD_TEST_INCREMENT = 0.2;
+
     public static final double FLYWHEEL_TEST_INCREMENT_RPM = 100.0;
+
+
   }
 
   // =========================================================

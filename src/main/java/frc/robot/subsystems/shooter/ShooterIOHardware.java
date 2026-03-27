@@ -70,9 +70,9 @@ public class ShooterIOHardware implements ShooterIO {
 
       // Slot 0 — VelocityVoltage gains (kP in Volts/RPS)
       // Tuned 2026-03-01: kV=0.126 → ±30 RPM steady-state at 3300 RPM, 7V draw, no oscillation
-      config.Slot0.kP = 0.15;
-      config.Slot0.kV = 0.119; // don't touch — well tuned
-      config.Slot0.kD = 0.001;
+      config.Slot0.kP = Constants.Shooter.FLYWHEEL_KP; // 0.15
+      config.Slot0.kV = Constants.Shooter.FLYWHEEL_KV; // 0.119; // don't touch — well tuned
+      config.Slot0.kD = Constants.Shooter.FLYWHEEL_KD; // 0.001;
 
       return config;
     }
