@@ -67,7 +67,6 @@ public class AutoRoutines {
                 // RightTrench to RightSweep to RightRampShot
                 final AutoTrajectory RtTr_RtSweep = routine.trajectory("RtTr_RtSweep", 0);
 
-
                 routine.active().onTrue(
                                 Commands.sequence(
                                                 RtTr_RtMid.resetOdometry(), // Always reset odometry first
@@ -76,6 +75,11 @@ public class AutoRoutines {
                                                 
                                                 RtMid_RtRampShot.cmd(), // 1.6 seconds
                                                 
+                                                /* TODO: Add "Shoot" and "Fuel Pump" commands to trigger at the end of the trajectory segment before moving on to 
+                                                the next trajectory segment. 
+                                                Cannot use Choreo events as the robot will move on to the trajectory regardless of commands unless I add a wait which I do not want to do. 
+                                                */ 
+
                                                 RtRampShot_RtTr.cmd(), // 1.2 seconds
                                                 
                                                 RtTr_RtSweep.cmd(), // 2.0 seconds
