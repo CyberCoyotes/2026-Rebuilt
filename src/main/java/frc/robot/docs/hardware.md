@@ -4,58 +4,42 @@ A central location for motors, motor controllers, sensors, and CAN devices for q
 
 ---
 
-## Swerve Drive
+## CAN ID Quick Reference — keep in sync with source constants ##
 
-| Component | Type | Qty | Notes |
-|-----------|------|-----|-------|
-| Drive Motors | Kraken X60 + TalonFX | 4 | |
-| Steer Motors | Kraken X60 + TalonFX | 4 | |
-| Azimuth Encoders | CANcoder | 4 | Absolute steering encoders |
-| IMU | Pigeon 2 | 1 | Gyro / accelerometer |
-| LED Controller | CANdle | 1 | RGB LED strip control |
-| CAN Bus | CANivore | 1 | CAN FD for drivetrain |
+### candrive bus (CANivore) ###
 
-**CAN Bus:** `canivore`  
-**Configuration:** See `TunerConstants.java`
+| ID | Name | Type |
+|----|------|------|
+| 1 | FL Drive Motor | Kraken X60 (`TunerConstants.kFrontLeftDriveMotorId`) |
+| 2 | FR Steer Motor | Kraken X60 (`TunerConstants.kFrontRightSteerMotorId`) |
+| 3 | FL CANcoder | `TunerConstants.kFrontLeftEncoderId` |
+| 4 | FR Drive Motor | Kraken X60 (`TunerConstants.kFrontRightDriveMotorId`) |
+| 5 | FL Steer Motor | Kraken X60 (`TunerConstants.kFrontLeftSteerMotorId`) |
+| 6 | FR CANcoder | `TunerConstants.kFrontRightEncoderId` |
+| 7 | BL Drive Motor | Kraken X60 (`TunerConstants.kBackLeftDriveMotorId`) |
+| 8 | BL Steer Motor | Kraken X60 (`TunerConstants.kBackLeftSteerMotorId`) |
+| 9 | BL CANcoder | `TunerConstants.kBackLeftEncoderId` |
+| 10 | BR Drive Motor | Kraken X60 (`TunerConstants.kBackRightDriveMotorId`) |
+| 11 | BR Steer Motor | Kraken X60 (`TunerConstants.kBackRightSteerMotorId`) |
+| 12 | BR CANcoder | `TunerConstants.kBackRightEncoderId` |
+| 14 | Pigeon 2 IMU | `TunerConstants.kPigeonId` |
+| 15 | CANdle LEDs | `Led.CANDLE_ID` |
+  
+### rio bus ### 
 
----
+| ID | Name | Type |
+|----|------|------|
+| 20 | Intake Roller Left | Kraken X44 (`Intake.ROLLER_LEFT_MOTOR_ID`) |
+| 21 | Intake Roller Right | Kraken X44 (`Intake.ROLLER_RIGHT_MOTOR_ID`) |
+| 22 | Intake Slide | Kraken X44 (`Intake.SLIDE_MOTOR_ID`) |
+| 23 | Kicker Left | Kraken X60 (`Indexer.KICKER_LEFT_MOTOR_ID`) |
+| 24 | Kicker Right | Kraken X60 (`Indexer.KICKER_RIGHT_MOTOR_ID`) |
+| 25 | Flywheel Left | Kraken X60 (`Shooter.FLYWHEEL_LEFT_MOTOR_ID`) |
+| 26 | Flywheel Right | Kraken X60 (`Shooter.FLYWHEEL_RIGHT_MOTOR_ID`) |
+| 27 | Conveyor | Kraken X44 (`Indexer.CONVEYOR_MOTOR_ID`) |
+| 28 | Hood | Minion/TalonFXS (`Shooter.HOOD_MOTOR_ID`) |
+| 42 | Chute ToF CANrange | `Indexer.CHUTE_TOF_ID` |
 
-## Intake
-
-| Component | Motor | Controller | Qty | Notes |
-|-----------|-------|------------|-----|-------|
-| Rotator | Kraken X44 | TalonFX | 1 | Spins intake wheels |
-| Slide  | Kraken X44 | TalonFX | 1 | Extension/retraction |
-
-### Intake Sensors
-
-| Sensor | Type | Qty | Purpose |
-|--------|------|-----|---------|
-| Intake | CANrange ToF | 1 | Confirms fuel intake presence |
-
----
-
-## Indexer / Hopper
-
-| Component | Motor | Controller | Qty | Notes |
-|-----------|-------|------------|-----|-------|
-| Indexer | Kraken X60 | TalonFX | 1 | Feeds pieces to shooter |
-| Conveyor | Minion | TalonFXS | 1 | Hopper conveyor |
-
-### Indexer / Hopper Sensors
-
-| Sensor | Type | Qty | Purpose |
-|--------|------|-----|---------|
-| Indexer Exit | CANrange ToF | 1 | Detects fuel at indexer exit |
----
-
-## Shooter
-
-| Component | Motor | Controller | Qty | Notes |
-|-----------|-------|------------|-----|-------|
-| Flywheel | Falcon 500 | TalonFX | 3 | (A, B, C) 1 leader, 2 followers, belted |
-| Hood | Minion | TalonFXS | 1 | Hood angle adjustment |
-| Counter Wheel | — | — | 0 | Not implemented |
 
 ### Hood Details
 

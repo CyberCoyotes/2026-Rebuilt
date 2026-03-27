@@ -9,11 +9,10 @@ import com.ctre.phoenix6.controls.MotionMagicVoltage;
 import com.ctre.phoenix6.controls.VelocityVoltage;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.hardware.TalonFXS;
-import com.ctre.phoenix6.signals.InvertedValue;
-import com.ctre.phoenix6.signals.MotorAlignmentValue;
-import com.ctre.phoenix6.signals.MotorArrangementValue;
-import com.ctre.phoenix6.signals.NeutralModeValue;
 
+import edu.wpi.first.units.measure.AngularVelocity;
+import edu.wpi.first.units.measure.Temperature;
+import edu.wpi.first.units.measure.Voltage;
 import frc.robot.Constants;
 import frc.robot.util.PhoenixUtil;
 
@@ -35,21 +34,18 @@ public class ShooterIOHardware implements ShooterIO {
   // == Flywheel Configuration ==========================================
   private static class FlywheelConfig {
 
-    /**
-     * Config for the follower motor.
-     * Direction is controlled by MotorAlignmentValue.Opposed in the Follower control
-     * request — the Inverted config here is irrelevant while following.
-     * No ramp, no PID — the follower mirrors the leader's output exactly and never
-     * runs closed-loop independently.
-     */
+    /* 
+    * While in follower mode, motor direction is governed by the Follower request.
+    * Keep follower motor config simple because it is not intended to run closed-loop independently.
+    */
     static TalonFXConfiguration follower() {
       TalonFXConfiguration config = new TalonFXConfiguration();
 
-      config.MotorOutput.NeutralMode = NeutralModeValue.Coast;
+      config.MotorOutput.NeutralMode = Constants.Flywheel.FollowerConfig.NEUTRAL_MODE;
 
-      config.CurrentLimits.SupplyCurrentLimit = 45.0;
+      config.CurrentLimits.SupplyCurrentLimit = Constants.Flywheel.SUPPLY_CURRENT_LIMIT;
       config.CurrentLimits.SupplyCurrentLimitEnable = true;
-      config.CurrentLimits.StatorCurrentLimit = 90.0;
+      config.CurrentLimits.StatorCurrentLimit = Constants.Flywheel.STATOR_CURRENT_LIMIT;
       config.CurrentLimits.StatorCurrentLimitEnable = true;
 
       return config;
@@ -58,62 +54,58 @@ public class ShooterIOHardware implements ShooterIO {
     static TalonFXConfiguration leader() {
       TalonFXConfiguration config = new TalonFXConfiguration();
 
-      config.CurrentLimits.SupplyCurrentLimit = 45.0;
+      config.CurrentLimits.SupplyCurrentLimit = Constants.Flywheel.SUPPLY_CURRENT_LIMIT;
       config.CurrentLimits.SupplyCurrentLimitEnable = true;
-      config.CurrentLimits.StatorCurrentLimit = 90.0;
+      config.CurrentLimits.StatorCurrentLimit = Constants.Flywheel.STATOR_CURRENT_LIMIT;
       config.CurrentLimits.StatorCurrentLimitEnable = true;
 
-      config.ClosedLoopRamps.VoltageClosedLoopRampPeriod = 0.10;
+      config.ClosedLoopRamps.VoltageClosedLoopRampPeriod = Constants.Flywheel.VOLTAGE_CLOSED_LOOP_RAMP_PERIOD; // 0.10
 
-      config.MotorOutput.NeutralMode = NeutralModeValue.Coast;
-      config.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
+      config.MotorOutput.NeutralMode = Constants.Flywheel.LeaderConfig.NEUTRAL_MODE;
+      config.MotorOutput.Inverted = Constants.Flywheel.LeaderConfig.INVERTED;
 
       // Slot 0 — VelocityVoltage gains (kP in Volts/RPS)
       // Tuned 2026-03-01: kV=0.126 → ±30 RPM steady-state at 3300 RPM, 7V draw, no oscillation
-      config.Slot0.kP = 0.15;
-      config.Slot0.kV = 0.119; // don't touch — well tuned
-      config.Slot0.kD = 0.001;
+      config.Slot0.kP = Constants.Flywheel.KP; // 0.15
+      config.Slot0.kV = Constants.Flywheel.KV; // 0.119; // don't touch — well tuned
+      config.Slot0.kD = Constants.Flywheel.KD; // 0.001;
 
       return config;
     }
   }
 
-  // ── Hood Configuration ─────────────────────────────────────────────────────
+  // == Hood Configuration ==========================================================
   private static class HoodConfig {
 
     static TalonFXSConfiguration hood() {
       TalonFXSConfiguration config = new TalonFXSConfiguration();
 
-      config.Commutation.MotorArrangement = MotorArrangementValue.Minion_JST;
-      config.MotorOutput.NeutralMode = NeutralModeValue.Brake;
-      config.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
+      config.Commutation.MotorArrangement = Constants.Hood.Config.MOTOR_ARRANGEMENT;
+      config.MotorOutput.NeutralMode = Constants.Hood.Config.NEUTRAL_MODE;
+      config.MotorOutput.Inverted = Constants.Hood.Config.INVERTED;
 
-      // Voltage limits — capped for safe hood movement
-      config.Voltage.PeakForwardVoltage = 4.0;
-      config.Voltage.PeakReverseVoltage = -4.0;
+      // Voltage limits — capped for safe hood movement and plenty fast for short-range repositioning.
+      config.Voltage.PeakForwardVoltage = Constants.Hood.PEAK_FORWARD_VOLTAGE; // 4.0;
+      config.Voltage.PeakReverseVoltage = Constants.Hood.PEAK_REVERSE_VOLTAGE; // -4.0;
 
-      config.CurrentLimits.SupplyCurrentLimit = 30.0;
+      config.CurrentLimits.SupplyCurrentLimit = Constants.Hood.SUPPLY_CURRENT_LIMIT; // 30.0;
       config.CurrentLimits.SupplyCurrentLimitEnable = true;
 
       // Position PID — Slot 0
-      // kI removed — integrator windup was causing current spikes during shooting cycles.
       // MotionMagicVoltage with kP/kD is sufficient for hood positioning.
-      // TODO: Retune kP and add kD after kI removal
-      config.Slot0.kP = 1.00;
-      config.Slot0.kI = 0.0;  // Removed — was 0.75, caused integrator windup
-      config.Slot0.kD = 0.00;
-
-      // MotionMagic profile — controls velocity/accel during position moves
-      // Limits current spike from large position changes vs raw PositionVoltage
-      // TODO: Tune these values for smooth hood movement
-      config.MotionMagic.MotionMagicCruiseVelocity = 10.0;
-      config.MotionMagic.MotionMagicAcceleration = 20.0;
-
+      /* TODO: Current not using MotionMagic for Hood position, but ideally it should be. 
+      * If we switch to MotionMagic, we need to run kP/kD for smooth, stable positioning without overshoot or oscillation.
+      */
+      config.Slot0.kP = Constants.Hood.KP; // 1.00
+      config.Slot0.kI = Constants.Hood.KI; // 0.0
+      config.Slot0.kD = Constants.Hood.KD; // 0.00
+      config.MotionMagic.MotionMagicCruiseVelocity = Constants.Hood.CRUISE_VELOCITY; // 10.0
+      config.MotionMagic.MotionMagicAcceleration = Constants.Hood.ACCELERATION; // 20.0
       // Soft limits
       config.SoftwareLimitSwitch.ForwardSoftLimitEnable = true;
-      config.SoftwareLimitSwitch.ForwardSoftLimitThreshold = Constants.Shooter.MAX_HOOD_POSE;
+      config.SoftwareLimitSwitch.ForwardSoftLimitThreshold = Constants.Hood.MAX_POSE;
       config.SoftwareLimitSwitch.ReverseSoftLimitEnable = true;
-      config.SoftwareLimitSwitch.ReverseSoftLimitThreshold = Constants.Shooter.MIN_HOOD_POSE;
+      config.SoftwareLimitSwitch.ReverseSoftLimitThreshold = Constants.Hood.MIN_POSE;
 
       return config;
     }
@@ -132,23 +124,33 @@ public class ShooterIOHardware implements ShooterIO {
   // PositionVoltage commands maximum effort immediately — do not use for hood.
   private final MotionMagicVoltage hoodPositionRequest = new MotionMagicVoltage(0.0);
 
-  // Opposed: leader and follower are on opposite physical sides — they must spin
-  // in opposite directions to co-rotate the flywheel and launch the ball together.
+  // Flywheel follower was mechanically flipped again, so it must oppose the
+  // leader's shaft rotation while still producing the same flywheel surface
+  // direction at the wheel.
   private final Follower flywheelFollowerRequest =
-      new Follower(Constants.Shooter.FLYWHEEL_LEFT_MOTOR_ID, MotorAlignmentValue.Opposed);
+      new Follower(
+          Constants.Flywheel.FLYWHEEL_LEFT_MOTOR_ID,
+          Constants.Flywheel.FollowerConfig.FOLLOWER_ALIGNMENT);
+      // new Follower(flywheelLeader.getDeviceID(), MotorAlignmentValue.Opposed); Alternative approach
 
   // == Status Signals ====================================================
-  private final StatusSignal<?> flywheelLeaderVelocity;
-  private final StatusSignal<?> flywheelLeaderVoltage;
-  private final StatusSignal<?> flywheelLeaderTempCelsius;
-  private final StatusSignal<?> flywheelFollowerTempCelsius;
+
+  /* 
+  * These Status Signals were not typed previously <?>, but trying Typed e.g. <AngularVelocity> 
+  * example
+  *   private final StatusSignal<?> flywheelLeaderVelocity;
+  */ 
+  private final StatusSignal<AngularVelocity> flywheelLeaderVelocity;
+  private final StatusSignal<Voltage> flywheelLeaderVoltage;
+  private final StatusSignal<Temperature> flywheelLeaderTempCelsius;
+  private final StatusSignal<Temperature> flywheelFollowerTempCelsius;
   private final StatusSignal<?> hoodPosition;
 
   // == Constructor =======================================================
   public ShooterIOHardware() {
-    flywheelLeader = new TalonFX(Constants.Shooter.FLYWHEEL_LEFT_MOTOR_ID, Constants.RIO_CANBUS);
-    flywheelFollower = new TalonFX(Constants.Shooter.FLYWHEEL_RIGHT_MOTOR_ID, Constants.RIO_CANBUS);
-    hoodMotor      = new TalonFXS(Constants.Shooter.HOOD_MOTOR_ID, Constants.RIO_CANBUS);
+    flywheelLeader = new TalonFX(Constants.Flywheel.FLYWHEEL_LEFT_MOTOR_ID, Constants.RIO_CANBUS);
+    flywheelFollower = new TalonFX(Constants.Flywheel.FLYWHEEL_RIGHT_MOTOR_ID, Constants.RIO_CANBUS);
+    hoodMotor      = new TalonFXS(Constants.Hood.HOOD_MOTOR_ID, Constants.RIO_CANBUS);
 
     // Apply configs with retry logic — bare apply() can fail silently on RIO CAN
     // bus if the device is still booting. PhoenixUtil retries up to 5 times and
@@ -174,8 +176,6 @@ public class ShooterIOHardware implements ShooterIO {
     flywheelFollower.optimizeBusUtilization();
     hoodMotor.optimizeBusUtilization();
 
-    // 100Hz — DutyCycle and MotorVoltage must be re-enabled on the leader so
-    // the follower can mirror output. Without these, followers lose sync.
     BaseStatusSignal.setUpdateFrequencyForAll(
         100.0,
         flywheelLeader.getDutyCycle(),
@@ -201,7 +201,7 @@ public class ShooterIOHardware implements ShooterIO {
     flywheelFollower.setControl(flywheelFollowerRequest);
 
     // Initialize hood to known zero position
-    hoodMotor.setPosition(0.0);
+    hoodMotor.setPosition(Constants.Hood.ENCODER_ZERO_POSITION);
   }
 
   // == IO Implementation ==================================================

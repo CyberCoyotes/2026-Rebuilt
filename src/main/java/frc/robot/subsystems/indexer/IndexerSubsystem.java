@@ -14,8 +14,6 @@ import edu.wpi.first.wpilibj2.command.WaitCommand;
 import frc.robot.Constants;
 import frc.robot.subsystems.indexer.IndexerIO.IndexerIOInputs;
 
-@SuppressWarnings("unused") // Suppress warnings for unused right now
-
 public class IndexerSubsystem extends SubsystemBase {
 
     // ==== Indexer State =======================================================
@@ -144,20 +142,20 @@ public class IndexerSubsystem extends SubsystemBase {
         io.setConveyorMotor(0.0);
     }
 
-    public void indexerForward() {
-        io.setIndexerMotor(Constants.Indexer.INDEXER_FORWARD_VOLTAGE);
+    public void kickerForward() {
+        io.setKickerMotorVolts(Constants.Indexer.KICKER_FORWARD_VOLTAGE);
     }
 
     public void indexerReverse() {
-        io.setIndexerMotor(Constants.Indexer.INDEXER_REVERSE_VOLTAGE);
+        io.setKickerMotorVolts(Constants.Indexer.KICKER_REVERSE_VOLTAGE);
     }
 
     public void indexerAirPopper() {
-        io.setIndexerMotor(Constants.Indexer.INDEXER_POPPER_VOLTAGE);
+        io.setKickerMotorVolts(Constants.Indexer.KICKER_POPPER_VOLTAGE);
     }
 
     public void indexerStop() {
-        io.setIndexerMotor(0.0);
+        io.setKickerMotorVolts(0.0);
     }
 
     public void stop() {
@@ -169,7 +167,7 @@ public class IndexerSubsystem extends SubsystemBase {
     }
 
     public void setIndexerVolts(double volts) {
-        io.setIndexerMotor(volts);
+        io.setKickerMotorVolts(volts);
     }
 
     // ==== Sensor Queries ==================================
@@ -238,7 +236,7 @@ public class IndexerSubsystem extends SubsystemBase {
                 () -> {
                     setState(IndexerState.FEEDING);
                     conveyorForward();
-                    indexerForward();
+                    kickerForward();
                 },
                 () -> {
                     stop();
@@ -258,7 +256,7 @@ public class IndexerSubsystem extends SubsystemBase {
                 Commands.runOnce(() -> {
                     setState(IndexerState.FEEDING);
                     conveyorForward();
-                    indexerForward();
+                    kickerForward();
                 }, this),
                 Commands.waitSeconds(durationSeconds),
                 Commands.runOnce(() -> {
@@ -339,7 +337,7 @@ public class IndexerSubsystem extends SubsystemBase {
                 () -> {
                     setState(IndexerState.FEEDING);
                     conveyorForward();
-                    indexerForward();
+                    kickerForward();
                 },
                 () -> {
                     stop();

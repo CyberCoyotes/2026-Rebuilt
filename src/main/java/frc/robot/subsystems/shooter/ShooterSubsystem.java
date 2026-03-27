@@ -44,12 +44,12 @@ public class ShooterSubsystem extends SubsystemBase {
      * Published to NetworkTables as Shooter/SelectedPreset for Elastic display.
      */
     public enum ShotPreset {
-        CLOSE  ("Close",    Constants.Shooter.CLOSE_RPM,  Constants.Shooter.CLOSE_HOOD),
-        TOWER  ("Tower",    Constants.Shooter.TOWER_RPM,  Constants.Shooter.TOWER_HOOD),
-        TRENCH ("Trench",   Constants.Shooter.TRENCH_RPM, Constants.Shooter.TRENCH_HOOD),
-        PASS   ("Pass",     Constants.Shooter.PASS_RPM,   Constants.Shooter.PASS_HOOD),
-        FAR    ("Corner",   Constants.Shooter.FAR_RPM,    Constants.Shooter.FAR_HOOD),
-        POPPER ("Popper",   Constants.Shooter.POPPER_RPM, Constants.Shooter.POPPER_HOOD);
+        CLOSE  ("Close",    Constants.Flywheel.CLOSE_RPM,  Constants.Hood.CLOSE_HOOD),
+        TOWER  ("Tower",    Constants.Flywheel.TOWER_RPM,  Constants.Hood.TOWER_HOOD),
+        TRENCH ("Trench",   Constants.Flywheel.TRENCH_RPM, Constants.Hood.TRENCH_HOOD),
+        PASS   ("Pass",     Constants.Flywheel.PASS_RPM,   Constants.Hood.PASS_HOOD),
+        FAR    ("Corner",   Constants.Flywheel.FAR_RPM,    Constants.Hood.FAR_HOOD),
+        POPPER ("Popper",   Constants.Flywheel.POPPER_RPM, Constants.Hood.POPPER_HOOD);
 
         public final String label;
         public final double rpm;
@@ -178,15 +178,15 @@ public void periodic() {
                 io.setHoodPose(targetHoodPoseRot);
                 break;
             case PASS:
-                commandFlywheelVelocity(Constants.Shooter.PASS_RPM);
-                io.setHoodPose(Constants.Shooter.PASS_HOOD);
+                commandFlywheelVelocity(Constants.Flywheel.PASS_RPM);
+                io.setHoodPose(Constants.Hood.PASS_HOOD);
                 break;
             case EJECT:
-                commandFlywheelVelocity(Constants.Shooter.EJECT_RPM);
+                commandFlywheelVelocity(Constants.Flywheel.EJECT_RPM);
                 break;
             case POPPER:
-                commandFlywheelVelocity(Constants.Shooter.POPPER_RPM);
-                io.setHoodPose(Constants.Shooter.POPPER_HOOD);
+                commandFlywheelVelocity(Constants.Flywheel.POPPER_RPM);
+                io.setHoodPose(Constants.Hood.POPPER_HOOD);
                 break;
         }
     }
@@ -205,29 +205,30 @@ public void periodic() {
         switch (newState) {
             case IDLE:
                 io.stopFlywheels();
-                io.setHoodPose(Constants.Shooter.MIN_HOOD_POSE);
+                io.setHoodPose(Constants.Hood.MIN_POSE);
+                break;
+
+            // The flywheel and hood targets set, and BOTH flywheel and hood are in progress to getting to those values and READY
+            case SPINNING_UP:
                 break;
 
             case READY:
-                // io.setFlywheelVelocity(targetFlywheelMotorRPM);
-                commandFlywheelVelocity(targetFlywheelMotorRPM); // Routes to the active control mode (VelocityVoltage or VelocityTorqueCurrentFOC)
+                commandFlywheelVelocity(targetFlywheelMotorRPM);
                 io.setHoodPose(targetHoodPoseRot);
                 break;
 
             case PASS:
-                // io.setFlywheelVelocity(PASS_RPM);
-                commandFlywheelVelocity(Constants.Shooter.PASS_RPM); // Routes to the active control mode (VelocityVoltage or VelocityTorqueCurrentFOC)
-                io.setHoodPose(Constants.Shooter.PASS_HOOD);
+                commandFlywheelVelocity(Constants.Flywheel.PASS_RPM);
+                io.setHoodPose(Constants.Hood.PASS_HOOD);
                 break;
 
             case EJECT:
-                // io.setFlywheelVelocity(EJECT_RPM);
-                commandFlywheelVelocity(Constants.Shooter.EJECT_RPM); // Routes to the active control mode (VelocityVoltage or VelocityTorqueCurrentFOC)
-                io.setHoodPose(Constants.Shooter.MIN_HOOD_POSE);
+                commandFlywheelVelocity(Constants.Flywheel.EJECT_RPM);
+                io.setHoodPose(Constants.Hood.MIN_POSE);
                 break;
             case POPPER:
-                commandFlywheelVelocity(Constants.Shooter.POPPER_RPM);
-                io.setHoodPose(Constants.Shooter.POPPER_HOOD);
+                commandFlywheelVelocity(Constants.Flywheel.POPPER_RPM);
+                io.setHoodPose(Constants.Hood.POPPER_HOOD);
                 break;
         }
     }
@@ -260,7 +261,7 @@ public void periodic() {
      * Blocked if flywheel is above EJECT_MAX_ENTRY_RPM to prevent violent reversal.
      */
     public void eject() {
-        if (Math.abs(getCurrentVelocityRPM()) > Constants.Shooter.EJECT_MAX_ENTRY_RPM) {
+        if (Math.abs(getCurrentVelocityRPM()) > Constants.Flywheel.EJECT_MAX_ENTRY_RPM) {
             return; // Flywheel spinning too fast to safely reverse — refuse eject
         }
         setState(ShooterState.EJECT);
@@ -292,14 +293,14 @@ public void periodic() {
 
     /** Sets target flywheel velocity (forward only — clamped to MAX_FLYWHEEL_RPM). Does NOT change state. */
     public void setTargetVelocity(double rpm) {
-        targetFlywheelMotorRPM = Math.min(Math.abs(rpm), Constants.Shooter.MAX_FLYWHEEL_RPM);
+        targetFlywheelMotorRPM = Math.min(Math.abs(rpm), Constants.Flywheel.MAX_RPM);
     }
 
     /**
      * Sets target hood pose in rotations. Clamped to valid range. Does NOT change state.
      */
     public void setTargetHoodPose(double rotations) {
-        targetHoodPoseRot = Math.max(Constants.Shooter.MIN_HOOD_POSE, Math.min(Constants.Shooter.MAX_HOOD_POSE, rotations));
+        targetHoodPoseRot = Math.max(Constants.Hood.MIN_POSE, Math.min(Constants.Hood.MAX_POSE, rotations));
     }
 
     /** Adjusts target flywheel velocity by a delta. */
@@ -356,13 +357,13 @@ public void periodic() {
         if (Math.abs(targetFlywheelMotorRPM) < 1.0) {
             return Math.abs(inputs.flywheelLeaderMotorRPM) < 50.0;
         }
-        double tolerance = Math.abs(targetFlywheelMotorRPM) * Constants.Shooter.FLYWHEEL_TOLERANCE_PERCENT;
+        double tolerance = Math.abs(targetFlywheelMotorRPM) * Constants.Flywheel.TOLERANCE_PERCENT;
         return Math.abs(inputs.flywheelLeaderMotorRPM - targetFlywheelMotorRPM) < tolerance;
     }
 
     /** Returns true if hood is at target pose within tolerance. */
     public boolean isHoodAtPose() {
-        return Math.abs(inputs.hoodPositionRotations - targetHoodPoseRot) < Constants.Shooter.HOOD_POSE_TOLERANCE;
+        return Math.abs(inputs.hoodPositionRotations - targetHoodPoseRot) < Constants.Hood.POSE_TOLERANCE;
     }
 
     /** Returns true if total flywheel current is too high. */
@@ -438,29 +439,23 @@ public void periodic() {
     private static final InterpolatingDoubleTreeMap HOOD_ROT_MAP     = new InterpolatingDoubleTreeMap();
 
     static {
-        // Both maps MUST have identical distance keys — they are co-indexed.
-        // Adding a distance to one map without adding it to the other produces
-        // inconsistent RPM/hood pairings at that distance. Always update both.
-        // TODO: Replace each value with a measured result (see TUNING.md §4)
+        /* Both maps MUST have identical distance keys — they are co-indexed.
+        * Adding a distance to one map without adding it to the other produces
+        * inconsistent RPM/hood pairings at that distance. Always update both.
+        */
 
-        // distance (m) → flywheel RPM
+        // TODO Replace each Flywheel RPM value Hood ROT value with a measured result (see TUNING.md)
+        // key: Distance (m), value: flywheel RPM
         FLYWHEEL_RPM_MAP.put(1.5,  2700.0);
         FLYWHEEL_RPM_MAP.put(3.55, 3200.0);
         FLYWHEEL_RPM_MAP.put(5.5,  3800.0);
-
-        // distance (m) → hood rotations
+        
+        /* TODO Replace each Hood ROT value with a measured result (see TUNING.md) */
+        // key: Distance (m), value: hood rotations
         HOOD_ROT_MAP.put(1.5,  0.00);
         HOOD_ROT_MAP.put(3.55, 4.30);
         HOOD_ROT_MAP.put(5.5,  5.50);
     }
-
-    /*
-     * CLOSE_RPM = 2700, 0.00
-     * TOWER_RPM = 3200, 4.30
-     * TRENCH_RPM = 3200, 4.30
-     * FAR_RPM = 3800, 5.50
-     * PASS_RPM = 3603, 2.00
-     */
 
     /**
      * Updates shooter targets from the interpolation maps for the given distance.

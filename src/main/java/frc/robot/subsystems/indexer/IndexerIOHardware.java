@@ -4,12 +4,14 @@ import com.ctre.phoenix6.BaseStatusSignal;
 import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.configs.CANrangeConfiguration;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
+import com.ctre.phoenix6.controls.Follower;
 import com.ctre.phoenix6.controls.VoltageOut;
 import com.ctre.phoenix6.hardware.CANrange;
 import com.ctre.phoenix6.hardware.TalonFX;
-import com.ctre.phoenix6.signals.InvertedValue;
-import com.ctre.phoenix6.signals.NeutralModeValue;
 
+import edu.wpi.first.units.measure.AngularVelocity;
+import edu.wpi.first.units.measure.Current;
+import edu.wpi.first.units.measure.Distance;
 import frc.robot.Constants;
 import frc.robot.util.PhoenixUtil;
 
@@ -36,16 +38,16 @@ public class IndexerIOHardware implements IndexerIO {
     private static TalonFXConfiguration conveyorConfig() {
         TalonFXConfiguration config = new TalonFXConfiguration();
 
-        config.MotorOutput.NeutralMode = NeutralModeValue.Brake;
-        config.MotorOutput.Inverted    = InvertedValue.Clockwise_Positive;
+        config.MotorOutput.NeutralMode = Constants.Indexer.ConveyorConfig.NEUTRAL_MODE;
+        config.MotorOutput.Inverted    = Constants.Indexer.ConveyorConfig.INVERTED;
 
-        config.CurrentLimits.SupplyCurrentLimit       = 40.0;
+        config.CurrentLimits.SupplyCurrentLimit       = Constants.Indexer.ConveyorConfig.SUPPLY_CURRENT_LIMIT;
         config.CurrentLimits.SupplyCurrentLimitEnable = true;
-        config.CurrentLimits.StatorCurrentLimit       = 40.0;
+        config.CurrentLimits.StatorCurrentLimit       = Constants.Indexer.ConveyorConfig.STATOR_CURRENT_LIMIT;
         config.CurrentLimits.StatorCurrentLimitEnable = true;
 
-        config.Voltage.PeakForwardVoltage =  12.0;
-        config.Voltage.PeakReverseVoltage = -12.0;
+        config.Voltage.PeakForwardVoltage = Constants.Indexer.ConveyorConfig.PEAK_FORWARD_VOLTAGE;
+        config.Voltage.PeakReverseVoltage = Constants.Indexer.ConveyorConfig.PEAK_REVERSE_VOLTAGE;
 
         return config;
     }
@@ -53,16 +55,16 @@ public class IndexerIOHardware implements IndexerIO {
     private static TalonFXConfiguration indexerConfig() {
         TalonFXConfiguration config = new TalonFXConfiguration();
 
-        config.MotorOutput.NeutralMode = NeutralModeValue.Brake;
-        config.MotorOutput.Inverted    = InvertedValue.CounterClockwise_Positive;
+        config.MotorOutput.NeutralMode = Constants.Indexer.KickerConfig.NEUTRAL_MODE;
+        config.MotorOutput.Inverted    = Constants.Indexer.KickerConfig.INVERTED;
 
-        config.CurrentLimits.SupplyCurrentLimit       = 45.0;
+        config.CurrentLimits.SupplyCurrentLimit       = Constants.Indexer.KickerConfig.SUPPLY_CURRENT_LIMIT;
         config.CurrentLimits.SupplyCurrentLimitEnable = true;
-        config.CurrentLimits.StatorCurrentLimit       = 80.0;
+        config.CurrentLimits.StatorCurrentLimit       = Constants.Indexer.KickerConfig.STATOR_CURRENT_LIMIT;
         config.CurrentLimits.StatorCurrentLimitEnable = true;
 
-        config.Voltage.PeakForwardVoltage =  12.0;
-        config.Voltage.PeakReverseVoltage = -12.0;
+        config.Voltage.PeakForwardVoltage = Constants.Indexer.KickerConfig.PEAK_FORWARD_VOLTAGE;
+        config.Voltage.PeakReverseVoltage = Constants.Indexer.KickerConfig.PEAK_REVERSE_VOLTAGE;
 
         return config;
     }
@@ -71,76 +73,82 @@ public class IndexerIOHardware implements IndexerIO {
         CANrangeConfiguration config = new CANrangeConfiguration();
 
         config.ProximityParams.ProximityThreshold = Constants.Indexer.FUEL_DETECTION_DISTANCE;
-        config.ProximityParams.ProximityHysteresis = 0.025; // meters — TODO: Tune
-
-        config.FovParams.FOVRangeX = 6.75; // degrees — TODO: Tune
-        config.FovParams.FOVRangeY = 6.75; // degrees — TODO: Tune
+        config.ProximityParams.ProximityHysteresis = Constants.Indexer.ChuteSensorConfig.PROXIMITY_HYSTERESIS;
+        config.FovParams.FOVRangeX = Constants.Indexer.ChuteSensorConfig.FOV_RANGE_X;
+        config.FovParams.FOVRangeY = Constants.Indexer.ChuteSensorConfig.FOV_RANGE_Y;
 
         return config;
     }
 
     // == Hardware =================================================================
     private final TalonFX conveyorMotor;
-    private final TalonFX indexerMotor;
+    private final TalonFX kickerMotorLead;
+    private final TalonFX kickerMotorFollow;
     private final CANrange chuteToF;
 
     // == Control Requests ==========================================================
     private final VoltageOut conveyorVoltageRequest = new VoltageOut(0.0);
-    private final VoltageOut indexerVoltageRequest  = new VoltageOut(0.0);
+
+    // Kicker follower was mechanically flipped again, so it must mirror the lead
+    // motor with opposite shaft rotation while still matching the same commanded
+    // game-piece motion.
+    private final VoltageOut kickerLeadVoltageRequest  = new VoltageOut(0.0);
+    private final Follower kickerFollowerRequest =
+        new Follower(Constants.Indexer.KICKER_LEFT_MOTOR_ID, Constants.Indexer.KickerConfig.FOLLOWER_ALIGNMENT);
 
     // == Status Signals ===========================================================
-    private final StatusSignal<?> conveyorVelocity;
-    private final StatusSignal<?> conveyorCurrent;
-    private final StatusSignal<?> indexerVelocity;
-    private final StatusSignal<?> indexerCurrent;
-    private final StatusSignal<?> chuteDistance;
+    /* These Status Signals were not typed previously <?>, but trying Typed e.g. <AngularVelocity> */
+    private final StatusSignal<AngularVelocity> conveyorVelocity;
+    private final StatusSignal<Current> conveyorCurrent;
+    private final StatusSignal<AngularVelocity> kickerLeadVelocity;
+    private final StatusSignal<AngularVelocity> kickerFollowVelocity;
+    private final StatusSignal<Current> kickerLeadCurrent;
+    private final StatusSignal<Current> kickerFollowCurrent;
+    private final StatusSignal<Distance> chuteDistance;
     private final StatusSignal<Boolean> chuteIsDetected;
 
     // == Constructor =============================================================
     public IndexerIOHardware() {
         conveyorMotor = new TalonFX(Constants.Indexer.CONVEYOR_MOTOR_ID, Constants.RIO_CANBUS);
-        indexerMotorLeft  = new TalonFX(Constants.Indexer.KICKER_LEFT_MOTOR_ID,   Constants.RIO_CANBUS);
-        indexerMotorRight  = new TalonFX(Constants.Indexer.KICKER_RIGHT_MOTOR_ID,   Constants.RIO_CANBUS);
+        kickerMotorLead  = new TalonFX(Constants.Indexer.KICKER_LEFT_MOTOR_ID,   Constants.RIO_CANBUS);
+        kickerMotorFollow = new TalonFX(Constants.Indexer.KICKER_RIGHT_MOTOR_ID,   Constants.RIO_CANBUS);
         chuteToF      = new CANrange(Constants.Indexer.CHUTE_TOF_ID,       Constants.RIO_CANBUS);
 
         // Apply configs with retry logic — replaces the single-attempt local helper.
         // Five retries handles devices still booting when apply() is first called.
         PhoenixUtil.applyConfig("Conveyor",  () -> conveyorMotor.getConfigurator().apply(conveyorConfig()));
-        PhoenixUtil.applyConfig("Indexer",   () -> indexerMotor.getConfigurator().apply(indexerConfig()));
+        PhoenixUtil.applyConfig("Kicker Lead",   () -> kickerMotorLead.getConfigurator().apply(indexerConfig()));
+        PhoenixUtil.applyConfig("Kicker Follow",   () -> kickerMotorFollow.getConfigurator().apply(indexerConfig()));
         PhoenixUtil.applyConfig("Chute ToF", () -> chuteToF.getConfigurator().apply(chuteCANrangeConfig()));
+
+        // Follower must be set after configs are applied.
+        kickerMotorFollow.setControl(kickerFollowerRequest);
 
         conveyorVelocity = conveyorMotor.getVelocity();
         conveyorCurrent  = conveyorMotor.getSupplyCurrent();
-        indexerVelocity  = indexerMotor.getVelocity();
-        indexerCurrent   = indexerMotor.getSupplyCurrent();
+        kickerLeadVelocity  = kickerMotorLead.getVelocity();
+        kickerFollowVelocity = kickerMotorFollow.getVelocity();
+        kickerLeadCurrent   = kickerMotorLead.getSupplyCurrent();
+        kickerFollowCurrent = kickerMotorFollow.getSupplyCurrent();
         chuteDistance    = chuteToF.getDistance();
         chuteIsDetected  = chuteToF.getIsDetected();
-
-        BaseStatusSignal.setUpdateFrequencyForAll(
-            50.0,
-            conveyorVelocity, conveyorCurrent,
-            indexerVelocity,  indexerCurrent,
-            chuteDistance,    chuteIsDetected
-        );
-
-        conveyorMotor.optimizeBusUtilization();
-        indexerMotor.optimizeBusUtilization();
-        chuteToF.optimizeBusUtilization();
     }
 
     // == IO Implementation ========================================================
     @Override
     public void updateInputs(IndexerIOInputs inputs) {
         BaseStatusSignal.refreshAll(
-            conveyorVelocity, conveyorCurrent,
-            indexerVelocity,  indexerCurrent,
-            chuteDistance,    chuteIsDetected
+            conveyorVelocity,       conveyorCurrent,
+            kickerLeadVelocity,     kickerLeadCurrent,
+            kickerFollowCurrent,    kickerFollowVelocity,
+            chuteDistance,          chuteIsDetected
         );
 
         inputs.conveyorVelocityRPS = conveyorVelocity.getValueAsDouble();
         inputs.conveyorCurrentAmps = conveyorCurrent.getValueAsDouble();
-        inputs.indexerVelocityRPS  = indexerVelocity.getValueAsDouble();
-        inputs.indexerCurrentAmps  = indexerCurrent.getValueAsDouble();
+        inputs.kickerLeadVelocityRPS  = kickerLeadVelocity.getValueAsDouble();
+        inputs.kickerLeadCurrentAmps  = kickerLeadCurrent.getValueAsDouble();
+        inputs.kickerFollowCurrentAmps = kickerFollowCurrent.getValueAsDouble();
         inputs.chuteDistanceMeters = chuteDistance.getValueAsDouble();
         inputs.chuteDetected       = chuteIsDetected.getValue();
     }
@@ -151,13 +159,14 @@ public class IndexerIOHardware implements IndexerIO {
     }
 
     @Override
-    public void setIndexerMotor(double volts) {
-        indexerMotor.setControl(indexerVoltageRequest.withOutput(volts));
+    public void setKickerMotorVolts(double volts) {
+        kickerMotorLead.setControl(kickerLeadVoltageRequest.withOutput(volts));
     }
 
     @Override
     public void stop() {
         conveyorMotor.stopMotor();
-        indexerMotor.stopMotor();
+        // Stop lead only — follower mirrors the leader's NeutralOut automatically.
+        kickerMotorLead.stopMotor();
     }
 }

@@ -4,11 +4,11 @@
  "type":"Swerve",
  "variables":{
   "expressions":{
-   "IntakeV":{
+   "IntakeVel":{
     "dimension":"LinVel",
     "var":{
-     "exp":"1 m / s",
-     "val":1.0
+     "exp":"1.5 m / s",
+     "val":1.5
     }
    }
   },
@@ -51,11 +51,25 @@
      "val":4.0
     },
     "heading":{
-     "exp":"0 deg",
-     "val":0.0
+     "exp":"3.14 rad",
+     "val":3.14
     }
    },
-   "L_MidHub":{
+   "HubCloseShot":{
+    "x":{
+     "exp":"2.55 m",
+     "val":2.55
+    },
+    "y":{
+     "exp":"4 m",
+     "val":4.0
+    },
+    "heading":{
+     "exp":"3.14 rad",
+     "val":3.14
+    }
+   },
+   "LtMidHub":{
     "x":{
      "exp":"6 m",
      "val":6.0
@@ -69,7 +83,7 @@
      "val":-1.5707963267948966
     }
    },
-   "L_Mid_In":{
+   "LtMidIntake":{
     "x":{
      "exp":"7.8 m",
      "val":7.8
@@ -83,7 +97,7 @@
      "val":-1.5707963267948966
     }
    },
-   "L_Mid_InStop":{
+   "LtMidIntakeStop":{
     "x":{
      "exp":"7.8 m",
      "val":7.8
@@ -97,7 +111,7 @@
      "val":-1.5707963267948966
     }
    },
-   "L_Mid_Tr":{
+   "LtMidTr":{
     "x":{
      "exp":"6.25 m",
      "val":6.25
@@ -111,21 +125,7 @@
      "val":-1.5707963267948966
     }
    },
-   "L_RampShot":{
-    "x":{
-     "exp":"3 m",
-     "val":3.0
-    },
-    "y":{
-     "exp":"5.55 m",
-     "val":5.55
-    },
-    "heading":{
-     "exp":"-0.79 rad",
-     "val":-0.79
-    }
-   },
-   "L_Ramp_MidAlign":{
+   "LtRampAlign":{
     "x":{
      "exp":"6 m",
      "val":6.0
@@ -135,11 +135,25 @@
      "val":5.55
     },
     "heading":{
-     "exp":"-0.79 rad",
-     "val":-0.79
+     "exp":"135 deg",
+     "val":2.356194490192345
     }
    },
-   "L_Tr":{
+   "LtRampShot":{
+    "x":{
+     "exp":"3 m",
+     "val":3.0
+    },
+    "y":{
+     "exp":"5.55 m",
+     "val":5.55
+    },
+    "heading":{
+     "exp":"135 deg",
+     "val":2.356194490192345
+    }
+   },
+   "LtTr":{
     "x":{
      "exp":"4.42 m",
      "val":4.42
@@ -149,11 +163,11 @@
      "val":7.62
     },
     "heading":{
-     "exp":"-90 deg",
-     "val":-1.5707963267948966
+     "exp":"0 rad",
+     "val":0.0
     }
    },
-   "L_TrAlign":{
+   "LtTrAlign":{
     "x":{
      "exp":"6.25 m",
      "val":6.25
@@ -167,7 +181,7 @@
      "val":-1.5707963267948966
     }
    },
-   "L_TrShot":{
+   "LtTrShot":{
     "x":{
      "exp":"4.1 m",
      "val":4.1
@@ -181,7 +195,7 @@
      "val":-1.5
     }
    },
-   "R_MidHub":{
+   "RtMidHub":{
     "x":{
      "exp":"6 m",
      "val":6.0
@@ -195,21 +209,21 @@
      "val":1.5707963267948966
     }
    },
-   "R_Mid_In":{
+   "RtMidIntake":{
     "x":{
      "exp":"7.8 m",
      "val":7.8
     },
     "y":{
-     "exp":"1.1 m",
-     "val":1.1
+     "exp":"1.3 m",
+     "val":1.3
     },
     "heading":{
      "exp":"90 deg",
      "val":1.5707963267948966
     }
    },
-   "R_Mid_InStop":{
+   "RtMidIntakeStop":{
     "x":{
      "exp":"7.8 m",
      "val":7.8
@@ -223,7 +237,35 @@
      "val":1.5707963267948966
     }
    },
-   "R_RampShot":{
+   "RtRampAlign":{
+    "x":{
+     "exp":"6 m",
+     "val":6.0
+    },
+    "y":{
+     "exp":"2.5 m",
+     "val":2.5
+    },
+    "heading":{
+     "exp":"225 deg",
+     "val":3.9269908169872414
+    }
+   },
+   "RtRampAlignHalf":{
+    "x":{
+     "exp":"6.95 m",
+     "val":6.95
+    },
+    "y":{
+     "exp":"3.5 m",
+     "val":3.5
+    },
+    "heading":{
+     "exp":"-3.14 rad",
+     "val":-3.14
+    }
+   },
+   "RtRampShot":{
     "x":{
      "exp":"3 m",
      "val":3.0
@@ -233,25 +275,11 @@
      "val":2.5
     },
     "heading":{
-     "exp":"45 deg",
-     "val":0.7853981633974483
+     "exp":"225 deg",
+     "val":3.9269908169872414
     }
    },
-   "R_Ramp_MidAlign":{
-    "x":{
-     "exp":"6 m",
-     "val":6.0
-    },
-    "y":{
-     "exp":"2.5 m",
-     "val":2.5
-    },
-    "heading":{
-     "exp":"45 deg",
-     "val":0.7853981633974483
-    }
-   },
-   "R_Tr":{
+   "RtTr":{
     "x":{
      "exp":"4.42 m",
      "val":4.42
@@ -261,11 +289,11 @@
      "val":0.47
     },
     "heading":{
-     "exp":"90 deg",
-     "val":1.5707963267948966
+     "exp":"0 rad",
+     "val":0.0
     }
    },
-   "R_TrAlign":{
+   "RtTrAlign":{
     "x":{
      "exp":"6.25 m",
      "val":6.25
@@ -275,11 +303,11 @@
      "val":0.55
     },
     "heading":{
-     "exp":"90 deg",
-     "val":1.5707963267948966
+     "exp":"0 rad",
+     "val":0.0
     }
    },
-   "R_TrShot":{
+   "RtTrShot":{
     "x":{
      "exp":"4.1 m",
      "val":4.1
@@ -295,16 +323,30 @@
    },
    "Station":{
     "x":{
-     "exp":"0.47 m",
-     "val":0.47
+     "exp":"0.65 m",
+     "val":0.65
     },
     "y":{
      "exp":"0.65 m",
      "val":0.65
     },
     "heading":{
-     "exp":"0 deg",
-     "val":0.0
+     "exp":"-3.14 rad",
+     "val":-3.14
+    }
+   },
+   "StationIntake":{
+    "x":{
+     "exp":"1 m",
+     "val":1.0
+    },
+    "y":{
+     "exp":"0.65 m",
+     "val":0.65
+    },
+    "heading":{
+     "exp":"3.14 rad",
+     "val":3.14
     }
    },
    "StationShot":{

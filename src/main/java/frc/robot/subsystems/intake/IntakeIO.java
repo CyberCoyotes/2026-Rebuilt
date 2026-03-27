@@ -1,6 +1,5 @@
 package frc.robot.subsystems.intake;
 
-import org.littletonrobotics.junction.AutoLog;
 import org.littletonrobotics.junction.LogTable;
 import org.littletonrobotics.junction.inputs.LoggableInputs;
 
@@ -78,7 +77,7 @@ public interface IntakeIO {
 
     void stopSlide();
 
-    double getSlidePosition();
+    // double getSlidePosition();
 
     // ===== Intake sensor methods =====
     // double getIntakeDistance();
