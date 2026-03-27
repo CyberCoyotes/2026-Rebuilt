@@ -61,17 +61,15 @@ public final class Constants {
     public static final int ROLLER_RIGHT_MOTOR_ID = 21;
     public static final int SLIDE_MOTOR_ID = 22;
 
-    /*
-     * FIXME update slide positions after testing with Phoenix Tuner
-     * Update comments after verifying with testing — these are based on estimates
-     * and may not be accurate
-     */
-    public static final double SLIDE_MAX_POS = 44.454;
-    public static final double SLIDE_RETRACTED_POS = 0.0;
-    public static final double SLIDE_EXTENDED_POS = 44.40;
-    public static final double SLIDE_TOLERANCE = 0.05;
-    public static final double SLIDE_PUMP_OUT_POS = 40.0;
-    public static final double SLIDE_PUMP_IN_POS = 30.0;
+    public static final double SLIDE_MM_CRUISE_VELOCITY = 363.0;
+    public static final double SLIDE_MM_ACCELERATION = 363.0;
+    public static final double SLIDE_MM_JERK = 0.0;
+
+    public static final double SLIDE_SLOW_MM_CRUISE_VELOCITY = 4.0;
+    public static final double SLIDE_SLOW_MM_ACCELERATION = 4.0;
+
+    public static final double SLIDE_PUMP_OUT_POS = 40.0; // TODO update position with Phoenix Tuner
+    public static final double SLIDE_PUMP_IN_POS = 30.0; // TODO update position with Phoenix Tuner
 
     /*
      * TODO update roller voltages after testing with Phoenix Tuner
@@ -373,6 +371,16 @@ public final class Constants {
 
     /** Total number of logical addressable segments */
     public static final double LOGICAL_LED_COUNT = SEGMENTS_PER_METER * STRIP_LENGTH_METERS;
+
+  }
+
+  public static final class Auto {
+    private Auto() {
+    }
+
+     // How long to wait after driving before doing something else
+    public static final double DRIVE_WAIT = 1.0; // Cut 2.0 -> 1.0 or less
+    public static final double SCORE_WAIT = 1.0; // Cut 2.0 -> 1.0 or less
 
   }
 }
