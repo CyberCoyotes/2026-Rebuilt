@@ -1,12 +1,14 @@
 package frc.robot.subsystems.shooter;
 
 import org.littletonrobotics.junction.AutoLog;
+import org.littletonrobotics.junction.LogTable;
+import org.littletonrobotics.junction.inputs.LoggableInputs;
 
 /**
  * ShooterIO - Hardware abstraction interface for the shooter subsystem.
  *
  * The shooter launches game pieces using:
- * - Flywheel motors: 3x TalonFX (A=leader, B/C=followers) spin up to launch game pieces
+ * - Flywheel motors: 2x TalonFX (leader + 1 follower, opposite sides) spin up to launch game pieces
  * - Hood motor: TalonFXS adjusts launch angle for different distances
  *
  * PATTERN: IO Interface
@@ -30,7 +32,7 @@ public interface ShooterIO {
      * The fast fields are control-critical; the slow fields are for diagnostics/dashboard.
      */
     @AutoLog
-    class ShooterIOInputs {
+    class ShooterIOInputs implements LoggableInputs{
         // ===== Fast Fields (updated every 20ms cycle) =====
         // These drive closed-loop control and must be fresh every cycle.
 
@@ -64,6 +66,38 @@ public interface ShooterIO {
 
         /** Hood angle in degrees (approximate, derived from rotations) */
         public double hoodAngleDegrees = 0.0;
+
+    @Override
+public void toLog(LogTable table) {
+    // Fast Fields
+    table.put("FlywheelLeaderMotorRPM", flywheelLeaderMotorRPM);
+    table.put("FlywheelLeaderMotorRPS", flywheelLeaderMotorRPS);
+    table.put("FlywheelAppliedVolts", flywheelAppliedVolts);
+    table.put("HoodPositionRotations", hoodPositionRotations);
+
+    // Slow Fields
+    table.put("FlywheelCurrentAmps", flywheelCurrentAmps);
+    table.put("FlywheelMaxTempCelsius", flywheelMaxTempCelsius);
+    table.put("HoodAppliedVolts", hoodAppliedVolts);
+    table.put("HoodCurrentAmps", hoodCurrentAmps);
+    table.put("HoodAngleDegrees", hoodAngleDegrees);
+}
+
+@Override
+public void fromLog(LogTable table) {
+    // Fast Fields
+    flywheelLeaderMotorRPM = table.get("FlywheelLeaderMotorRPM", flywheelLeaderMotorRPM);
+    flywheelLeaderMotorRPS = table.get("FlywheelLeaderMotorRPS", flywheelLeaderMotorRPS);
+    flywheelAppliedVolts = table.get("FlywheelAppliedVolts", flywheelAppliedVolts);
+    hoodPositionRotations = table.get("HoodPositionRotations", hoodPositionRotations);
+
+    // Slow Fields
+    flywheelCurrentAmps = table.get("FlywheelCurrentAmps", flywheelCurrentAmps);
+    flywheelMaxTempCelsius = table.get("FlywheelMaxTempCelsius", flywheelMaxTempCelsius);
+    hoodAppliedVolts = table.get("HoodAppliedVolts", hoodAppliedVolts);
+    hoodCurrentAmps = table.get("HoodCurrentAmps", hoodCurrentAmps);
+    hoodAngleDegrees = table.get("HoodAngleDegrees", hoodAngleDegrees);
+}
     }
 
     /**

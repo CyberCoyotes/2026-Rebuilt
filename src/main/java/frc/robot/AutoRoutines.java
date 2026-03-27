@@ -4,13 +4,12 @@ import choreo.auto.AutoFactory;
 import choreo.auto.AutoRoutine;
 import choreo.auto.AutoTrajectory;
 import edu.wpi.first.wpilibj2.command.Commands;
-import frc.robot.subsystems.shooter.ShooterSubsystem;
-import frc.robot.commands.FuelCommands;
-// import frc.robot.commands.FuelCommands.Auto;
+import frc.robot.commands.FuelCommandsGPT;
 import frc.robot.subsystems.vision.VisionSubsystem;
+import frc.robot.subsystems.CommandSwerveDrivetrain;
 import frc.robot.subsystems.indexer.IndexerSubsystem;
 import frc.robot.subsystems.intake.IntakeSubsystem;
-import frc.robot.subsystems.CommandSwerveDrivetrain;
+import frc.robot.subsystems.shooter.ShooterSubsystem;
 
 public class AutoRoutines {
         private final AutoFactory m_factory;
@@ -18,93 +17,122 @@ public class AutoRoutines {
         private final IntakeSubsystem m_intake;
         private final IndexerSubsystem m_indexer;
         private final ShooterSubsystem m_shooter;
-        private final FuelCommands m_fuelCommands;
-        private final VisionSubsystem m_vision;
-        // private final LedSubsystem m_ledSubsystem;
 
         // How long to wait after driving before doing something else
         private final double DRIVE_WAIT = 1.0; // Cut 2.0 -> 1.0 or less
-        private final double SCORE_WAIT = 1.0; // Cut 2.0 -> 1.0 or less
 
-        public AutoRoutines(AutoFactory factory, CommandSwerveDrivetrain drivetrain, /* , ClimberSubsystem climber, */
-                        IndexerSubsystem indexer, IntakeSubsystem intake, ShooterSubsystem shooter,
-                        FuelCommands fuelCommands, VisionSubsystem vision/* , LedSubsystem ledSubsystem */) {
+        public AutoRoutines(AutoFactory factory, 
+                        CommandSwerveDrivetrain drivetrain,
+                        IndexerSubsystem indexer, 
+                        IntakeSubsystem intake, 
+                        ShooterSubsystem shooter) {
                 m_factory = factory;
                 m_drivetrain = drivetrain;
-                // m_climber = climber;
                 m_indexer = indexer;
                 m_intake = intake;
                 m_shooter = shooter;
-                m_vision = vision;
-                m_fuelCommands = fuelCommands;
+                // m_vision = vision;
         }
 
-
-
-        public AutoRoutine RtTrench_Mid_Trench() {
-                final AutoRoutine routine = m_factory.newRoutine("RtTrench_Mid_Trench");
-                final AutoTrajectory RtTrench_Mid_Trench = routine.trajectory("RtTrench_Mid_Trench", 0);
-                // final AutoTrajectory StartRMid2 = routine.trajectory("StartRMid", 1);
-                // final AutoTrajectory StartRMid3 = routine.trajectory("StartRMid", 2);
+        public AutoRoutine RtTrench_RtMid_RtTrench() {
+                final AutoRoutine routine = m_factory.newRoutine("RtTrench_RtMid_RtTrench");
+                final AutoTrajectory RtTrench_RtMid_RtTrench = routine.trajectory("RtTrench_RtMid_RtTrench", 0);
 
                 routine.active().onTrue(
                                 Commands.sequence(
-                                                RtTrench_Mid_Trench.resetOdometry(), // Always reset odometry first
-                                                RtTrench_Mid_Trench.cmd() // Follow the path
-                                // m_drivetrain.stop().withTimeout(3),
-                                // StartRMid2.cmd(),
-                                // StartRMid3.cmd()
+                                                RtTrench_RtMid_RtTrench.resetOdometry(), // Always reset odometry first
+                                                RtTrench_RtMid_RtTrench.cmd() // Follow the path
 
                                 ));
                 // Routine Events
-                RtTrench_Mid_Trench.atTime("Intake").onTrue(m_intake.intakeFuelTimer(6));
+                RtTrench_RtMid_RtTrench.atTime("Intake").onTrue(m_intake.intakeFuelTimer(6));
 
-                RtTrench_Mid_Trench.atTime("Shoot")
-                                .onTrue(FuelCommands.Auto.poseAlignAndShoot(m_shooter, m_indexer, m_drivetrain, 6.0));
-                RtTrench_Mid_Trench.atTime("FuelPump").onTrue(m_intake.fuelPumpCycleSensor(m_indexer));
-
+                RtTrench_RtMid_RtTrench.atTime("Shoot")
+                                .onTrue(FuelCommandsGPT.Auto.poseAlignAndShoot(m_shooter, m_indexer, m_drivetrain, 6.0));
+                RtTrench_RtMid_RtTrench.atTime("FuelPump").onTrue(FuelCommandsGPT.Auto.fuelPumpCycleSensor(m_intake, m_indexer));
                 return routine;
         }
 
-        public AutoRoutine RtTrench_Mid_Trench_Splits() {
-                final AutoRoutine routine = m_factory.newRoutine("RtTrench_Mid_Trench_Splits");
-                final AutoTrajectory RtTrench_Mid = routine.trajectory("RtTrench_Mid", 0);
-                final AutoTrajectory RtMid_Trench = routine.trajectory("RtMid_Trench", 0);
+
+                // Right Trench to Middle to Ramp Shot
+                public AutoRoutine RtTrench_Ramp_Double() {
+
+                final AutoRoutine routine = m_factory.newRoutine("Rt x2 Trench-Ramp");
+                // RightTrench to RightMiddle to RightRampAlign
+                final AutoTrajectory RtTr_RtMid = routine.trajectory("RtTr_RtMid", 0);
+                // RightRampAlign to RightRampShot
+                final AutoTrajectory RtMid_RtRampShot = routine.trajectory("RtMid_RtRampShot", 0);
+                // RightRampShoot to RightTrench
+                final AutoTrajectory RtRampShot_RtTr = routine.trajectory("RtRampShot_RtTr", 0);                        
+                // RightTrench to RightSweep to RightRampShot
+                final AutoTrajectory RtTr_RtSweep = routine.trajectory("RtTr_RtSweep", 0);
+
 
                 routine.active().onTrue(
                                 Commands.sequence(
-                                                RtTrench_Mid.resetOdometry(), // Always reset odometry first
-                                                RtTrench_Mid.cmd(), // Follow the path
-                                                RtMid_Trench.cmd() // Follow the path
+                                                RtTr_RtMid.resetOdometry(), // Always reset odometry first
+
+                                                RtTr_RtMid.cmd(), // 3.6 seconds
+                                                
+                                                RtMid_RtRampShot.cmd(), // 1.6 seconds
+                                                
+                                                RtRampShot_RtTr.cmd(), // 1.2 seconds
+                                                
+                                                RtTr_RtSweep.cmd(), // 2.0 seconds
+                                                
+                                                RtMid_RtRampShot.cmd() // 1.6 seconds
+                                                // ---------------------- 10.0 seconds total (est) without shooting ----------------------
+
 
                                 ));
                 // Routine Events
-                RtTrench_Mid.atTime("Intake").onTrue(m_intake.intakeFuelTimer(6));
+                RtTr_RtMid.atTime("Intake").onTrue(m_intake.intakeFuelTimer(6));
 
-                RtMid_Trench.atTime("Shoot")
-                                .onTrue(FuelCommands.Auto.poseAlignAndShoot(m_shooter, m_indexer, m_drivetrain, 6.0));
-                RtMid_Trench.atTime("FuelPump").onTrue(m_intake.fuelPumpCycleSensor(m_indexer));
+                RtMid_RtRampShot.atTime("Shoot")
+                                .onTrue(FuelCommandsGPT.Auto.poseAlignAndShoot(m_shooter, m_indexer, m_drivetrain, 6.0));
+                
+                RtMid_RtRampShot.atTime("FuelPump").onTrue(FuelCommandsGPT.Auto.fuelPumpCycleSensor(m_intake, m_indexer));
 
                 return routine;
         }
+        
+        // Left Trench to Middle to Ramp Shot
+        public AutoRoutine LtTrench_Ramp_Double() {
 
-                public AutoRoutine RtTrench_Mid_Ramp_Splits() {
-                final AutoRoutine routine = m_factory.newRoutine("RtTrench_Mid_Ramp_Splits"); // TODO Check 2025 for 2nd reference?
-                final AutoTrajectory RtTrench_Mid = routine.trajectory("RtTrench_Mid", 0);
-                final AutoTrajectory RtMid_Ramp = routine.trajectory("RtMid_Ramp", 0);
+                final AutoRoutine routine = m_factory.newRoutine("Lt x2 Trench-Ramp");
+                // LeftTrench to LeftMiddle to LeftRampAlign
+                final AutoTrajectory LtTr_LtMid = routine.trajectory("LtTr_LtMid", 0);
+                // LeftRampAlign to LeftRampShot
+                final AutoTrajectory LtMid_LtRampShot = routine.trajectory("LtMid_LtRampShot", 0);
+                // LeftRampShoot to LeftTrench
+                final AutoTrajectory LtRampShot_LtTr = routine.trajectory("LtRampShot_LtTr", 0);                        
+                // LeftTrench to LeftSweep to LeftRampShot
+                final AutoTrajectory LtTr_LtSweep = routine.trajectory("LtTr_LtSweep", 0);
 
                 routine.active().onTrue(
                                 Commands.sequence(
-                                                RtTrench_Mid.resetOdometry(), // Always reset odometry first
-                                                RtTrench_Mid.cmd(), // Follow the path
-                                                RtMid_Ramp.cmd() // Follow the path
+                                                LtTr_LtMid.resetOdometry(), // Always reset odometry first
+                                                
+                                                LtTr_LtMid.cmd(), // 3.6 seconds
+                                                
+                                                LtMid_LtRampShot.cmd(), // 1.6 seconds
+
+                                                LtRampShot_LtTr.cmd(), // 1.2 seconds
+                                                
+                                                LtTr_LtSweep.cmd(), // 2.0 seconds
+                                                
+                                                LtMid_LtRampShot.cmd() // 1.6 seconds
+                                                // ---------------------- 10.0 seconds total (est) without shooting ----------------------
+
 
                                 ));
                 // Routine Events
-                RtTrench_Mid.atTime("Intake").onTrue(m_intake.intakeFuelTimer(6));
-                RtMid_Ramp.atTime("Shoot")
-                                .onTrue(FuelCommands.Auto.poseAlignAndShoot(m_shooter, m_indexer, m_drivetrain, 6.0));
-                RtMid_Ramp.atTime("FuelPump").onTrue(m_intake.fuelPumpCycleSensor(m_indexer));
+                LtTr_LtMid.atTime("Intake").onTrue(m_intake.intakeFuelTimer(6));
+                
+                LtMid_LtRampShot.atTime("Shoot")
+                                .onTrue(FuelCommandsGPT.Auto.poseAlignAndShoot(m_shooter, m_indexer, m_drivetrain, 6.0));
+                
+                LtMid_LtRampShot.atTime("FuelPump").onTrue(FuelCommandsGPT.Auto.fuelPumpCycleSensor(m_intake, m_indexer));
 
                 return routine;
         }
@@ -125,8 +153,8 @@ public class AutoRoutines {
                 // Routine Events
                 RtTrench_Mid_Ramp.atTime("Intake").onTrue(m_intake.intakeFuelTimer(6));
                 RtTrench_Mid_Ramp.atTime("Shoot")
-                                .onTrue(FuelCommands.Auto.poseAlignAndShoot(m_shooter, m_indexer, m_drivetrain, 6.0));
-                RtTrench_Mid_Ramp.atTime("FuelPump").onTrue(m_intake.fuelPumpCycleSensor(m_indexer));
+                                .onTrue(FuelCommandsGPT.Auto.poseAlignAndShoot(m_shooter, m_indexer, m_drivetrain, 6.0));
+                RtTrench_Mid_Ramp.atTime("FuelPump").onTrue(FuelCommandsGPT.Auto.fuelPumpCycleSensor(m_intake, m_indexer));
 
                 return routine;
         }
@@ -143,8 +171,8 @@ public class AutoRoutines {
                                 ));
                 // Routine Events
                 LtTrench_Mid_Trench.atTime("Intake").onTrue(m_intake.intakeFuelTimer(8));
-                LtTrench_Mid_Trench.atTime("Shoot").onTrue(FuelCommands.Auto.poseAlignAndShoot(m_shooter, m_indexer, m_drivetrain, 6.0));
-                LtTrench_Mid_Trench.atTime("FuelPump").onTrue(m_intake.fuelPumpCycleSensor(m_indexer));
+                LtTrench_Mid_Trench.atTime("Shoot").onTrue(FuelCommandsGPT.Auto.poseAlignAndShoot(m_shooter, m_indexer, m_drivetrain, 6.0));
+                LtTrench_Mid_Trench.atTime("FuelPump").onTrue(FuelCommandsGPT.Auto.fuelPumpCycleSensor(m_intake, m_indexer));
 
                 return routine;
         }
@@ -161,7 +189,7 @@ public class AutoRoutines {
                                 ));
                 // Routine Events
                 MidDepot.atTime("Intake").onTrue(m_intake.intakeFuelTimer(8));
-                MidDepot.atTime("Shoot").onTrue(FuelCommands.Auto.shootFar(m_shooter, m_indexer, 6)); // score
+                MidDepot.atTime("Shoot").onTrue(FuelCommandsGPT.Auto.shootFar(m_shooter, m_indexer, 6)); // score
 
                 return routine;
         }
@@ -182,8 +210,8 @@ public class AutoRoutines {
                         // Routine Events
 
                 Center.atTime("Shoot")
-                                .onTrue(FuelCommands.Auto.shootHub(m_shooter, m_indexer,6.6));
-                // Center.atTime("FuelPump").onTrue(m_intake.fuelPumpCycleSensor(m_indexer));
+                                .onTrue(FuelCommandsGPT.Auto.shootHub(m_shooter, m_indexer,6.6));
+                // Center.atTime("FuelPump").onTrue(FuelCommands.Auto.fuelPumpCycleSensor(m_intake, m_indexer));
 
                 return routine;
         }
@@ -204,7 +232,7 @@ public class AutoRoutines {
                                         Commands.sequence(
                                                         Lob.resetOdometry(), // Always reset odometry first
                                                         Lob.cmd(), // , // Follow the path
-                                                        m_drivetrain.stop().withTimeout(DRIVE_WAIT)
+                                                        m_drivetrain.stop().withTimeout(Constants.Auto.DRIVE_WAIT)
                                         // Lob2.cmd()
 
                                         ));
@@ -237,7 +265,7 @@ public class AutoRoutines {
                         // Place the "Shoot" event marker at the END of the trajectory segment so the
                         // path finishes before this fires.
                         Experimental.atTime("Shoot")
-                                        .onTrue(FuelCommands.Auto.poseAlignAndShoot(m_shooter, m_indexer, m_drivetrain,
+                                        .onTrue(FuelCommandsGPT.Auto.poseAlignAndShoot(m_shooter, m_indexer, m_drivetrain,
                                                         3.0));
 
                         return routine;
@@ -260,6 +288,33 @@ public class AutoRoutines {
                         // .atTime("Score").onTrue(m_indexerCommands.autoScore()); //score
 
                         // .atTime("Load").onTrue(m_intakeCommands.intake());
+                        return routine;
+                }
+
+                /* 
+                * Example of a routine with multiple trajectories and events of different from different paths circa 2025
+                * A.K.A. "The Liam is GOAT" example
+                */
+                public AutoRoutine STAtoL() {
+                        final AutoRoutine routine = m_factory.newRoutine("ST-A");
+                        final AutoTrajectory STA = routine.trajectory("ST-A", 0);
+                        final AutoTrajectory STA2 = routine.trajectory("ST-A", 1);
+                        final AutoTrajectory CSL = routine.trajectory("CS1-L", 0);
+                        final AutoTrajectory CSL2 = routine.trajectory("CS1-L", 1);
+
+                        routine.active().onTrue(
+                                        Commands.sequence(
+                                                        STA.resetOdometry(), // Always reset odometry first
+                                                        STA.cmd(), // Follow the path
+                                                        m_drivetrain.stop().withTimeout(DRIVE_WAIT),
+                                                        STA2.cmd(),
+                                                        m_drivetrain.stop().withTimeout(DRIVE_WAIT),
+                                                        CSL.cmd(),
+                                                        m_drivetrain.stop().withTimeout(DRIVE_WAIT),
+                                                        CSL2.cmd()
+
+                                        ));
+
                         return routine;
                 }
         } // end of inner class

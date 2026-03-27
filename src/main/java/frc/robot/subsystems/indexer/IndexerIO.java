@@ -1,6 +1,8 @@
 package frc.robot.subsystems.indexer;
 
 import org.littletonrobotics.junction.AutoLog;
+import org.littletonrobotics.junction.LogTable;
+import org.littletonrobotics.junction.inputs.LoggableInputs;
 
 /**
  * IndexerIO - Hardware abstraction interface for the indexer subsystem.
@@ -33,7 +35,7 @@ public interface IndexerIO {
      * TOF_DETECTION_THRESHOLD_METERS in IndexerIOHardware.
      */
     @AutoLog
-    class IndexerIOInputs {
+    class IndexerIOInputs implements LoggableInputs{
 
         // ===== Conveyor Motor =====
         /** Conveyor motor velocity in rotations per second. Used for jam detection. */
@@ -42,12 +44,13 @@ public interface IndexerIO {
         /** Conveyor motor supply current in amps. Used for jam detection. */
         public double conveyorCurrentAmps = 0.0;
 
-        // ===== Indexer Motor =====
-        /** Indexer motor velocity in rotations per second. Used for jam detection. */
-        public double indexerVelocityRPS = 0.0;
+        // ===== Kicker Motor =====
+        /** Kicker motor velocity in rotations per second. Used for jam detection. */
+        public double kickerLeadVelocityRPS = 0.0;
 
-        /** Indexer motor supply current in amps. Used for jam detection. */
-        public double indexerCurrentAmps = 0.0;
+        /** Kicker motor supply current in amps. Used for jam detection. */
+        public double kickerLeadCurrentAmps = 0.0;
+        public double kickerFollowCurrentAmps = 0.0;
 
         // ===== Chute CANrange =====
         /**
@@ -59,6 +62,38 @@ public interface IndexerIO {
 
         /** True if a game piece is detected in the indexer→shooter chute. */
         public boolean chuteDetected = false;
+
+        @Override
+public void toLog(LogTable table) {
+    // Conveyor Motor
+    table.put("ConveyorVelocityRPS", conveyorVelocityRPS);
+    table.put("ConveyorCurrentAmps", conveyorCurrentAmps);
+
+    // Kicker Motor
+    table.put("KickerLeadVelocityRPS", kickerLeadVelocityRPS);
+    table.put("KickerLeadCurrentAmps", kickerLeadCurrentAmps);
+    table.put("KickerFollowCurrentAmps", kickerFollowCurrentAmps);
+
+    // Chute CANrange
+    table.put("ChuteDistanceMeters", chuteDistanceMeters);
+    table.put("ChuteDetected", chuteDetected);
+}
+
+@Override
+public void fromLog(LogTable table) {
+    // Conveyor Motor
+    conveyorVelocityRPS = table.get("ConveyorVelocityRPS", conveyorVelocityRPS);
+    conveyorCurrentAmps = table.get("ConveyorCurrentAmps", conveyorCurrentAmps);
+
+    // Kicker Motor
+    kickerLeadVelocityRPS = table.get("KickerLeadVelocityRPS", kickerLeadVelocityRPS);
+    kickerLeadCurrentAmps = table.get("KickerLeadCurrentAmps", kickerLeadCurrentAmps);
+    kickerFollowCurrentAmps = table.get("KickerFollowCurrentAmps", kickerFollowCurrentAmps);
+
+    // Chute CANrange
+    chuteDistanceMeters = table.get("ChuteDistanceMeters", chuteDistanceMeters);
+    chuteDetected = table.get("ChuteDetected", chuteDetected);
+}
     }
 
     /**
@@ -77,11 +112,11 @@ public interface IndexerIO {
     default void setConveyorMotor(double volts) {}
 
     /**
-     * Sets the indexer motor output voltage.
+     * Sets the kicker motor output voltage.
      *
      * @param volts Positive = toward shooter, negative = reverse
      */
-    default void setIndexerMotor(double volts) {}
+    default void setKickerMotorVolts(double volts) {}
 
     /** Stops both motors. */
     default void stop() {}
