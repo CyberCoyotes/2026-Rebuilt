@@ -92,10 +92,12 @@ public class IndexerIOHardware implements IndexerIO {
     // == Control Requests ==========================================================
     private final VoltageOut conveyorVoltageRequest = new VoltageOut(0.0);
 
-    // Both kicker motors are on the same physical side; belted together, no gearboxes, need to follow same direction
+    // Kicker follower was mechanically flipped again, so it must mirror the lead
+    // motor with opposite shaft rotation while still matching the same commanded
+    // game-piece motion.
     private final VoltageOut kickerLeadVoltageRequest  = new VoltageOut(0.0);
     private final Follower kickerFollowerRequest =
-        new Follower(Constants.Indexer.KICKER_LEFT_MOTOR_ID, MotorAlignmentValue.Aligned);
+        new Follower(Constants.Indexer.KICKER_LEFT_MOTOR_ID, MotorAlignmentValue.Opposed);
 
     // == Status Signals ===========================================================
     /* These Status Signals were not typed previously <?>, but trying Typed e.g. <AngularVelocity> */

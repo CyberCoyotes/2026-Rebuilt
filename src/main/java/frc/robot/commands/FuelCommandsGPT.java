@@ -1,31 +1,26 @@
 package frc.robot.commands;
 
+import java.util.function.DoubleSupplier;
+
 import com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType;
 import com.ctre.phoenix6.swerve.SwerveRequest;
 
 import edu.wpi.first.math.MathUtil;
-import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Translation2d;
-import edu.wpi.first.wpilibj.DriverStation;
-import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.networktables.DoublePublisher;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
+import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import frc.robot.Constants;
-import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
-import frc.robot.subsystems.vision.VisionSubsystem;
 import frc.robot.subsystems.indexer.IndexerSubsystem;
 import frc.robot.subsystems.intake.IntakeSubsystem;
 import frc.robot.subsystems.shooter.ShooterSubsystem;
 import frc.robot.subsystems.shooter.ShooterSubsystem.ShotPreset;
-
-import java.util.function.DoubleSupplier;
-
-import static edu.wpi.first.units.Units.MetersPerSecond;
 
 /**
  * Fuel Commands - Factory for shooter-related commands.
@@ -34,7 +29,15 @@ import static edu.wpi.first.units.Units.MetersPerSecond;
  * Using a factory pattern keeps command creation centralized and reusable.
  * 
  */
-public class FuelCommands {
+public class FuelCommandsGPT {
+
+    /**
+     * Robot-front heading offset needed so the rear-mounted shooter/camera points at the hub.
+     *
+     * Current mechanical layout: shooter and camera are mounted on the back of the robot, so
+     * the chassis front must point 180° away from the hub when aligning to shoot.
+     */
+    private static final double SHOOTER_ALIGNMENT_OFFSET_DEGREES = 180.0;
 
     /** Returns the hub center for the current alliance (defaults to blue if FMS not connected). */
     private static Translation2d getHubLocation() {
@@ -42,6 +45,15 @@ public class FuelCommands {
                 .filter(a -> a == DriverStation.Alliance.Red)
                 .map(a -> Constants.Vision.RED_HUB_LOCATION)
                 .orElse(Constants.Vision.BLUE_HUB_LOCATION);
+    }
+
+    private static double getRobotFrontTargetHeadingDegrees(double angleToHubDeg, double aimOffsetDeg) {
+        double targetHeadingDeg = angleToHubDeg + aimOffsetDeg + SHOOTER_ALIGNMENT_OFFSET_DEGREES;
+        return MathUtil.inputModulus(targetHeadingDeg, -180.0, 180.0);
+    }
+
+    private static double getHeadingErrorDegrees(double targetHeadingDeg, double currentHeadingDeg) {
+        return MathUtil.inputModulus(targetHeadingDeg - currentHeadingDeg, -180.0, 180.0);
     }
 
     // =========================================================================
@@ -202,8 +214,6 @@ public class FuelCommands {
         return Commands.sequence(
                 Commands.runOnce(shooter::eject, shooter),
                 Commands.waitSeconds(durationSeconds)
-        // Commands.runOnce(shooter::returnToStandby, shooter) // TODO: Do not use right
-        // now **EXPERIMENTAL**
         ).withName("EjectShooter");
     }
 
@@ -298,9 +308,11 @@ public class FuelCommands {
                 shooter.beginSpinUp(); // void — only transitions state; never call spinUp() (returns Command) here
             }
 
-            // 2. Apply velocity offset for movement
+            // 2. Apply velocity offset for movement.
+            // Keep the raw hub bearing here; the rear-shooter 180 deg correction is
+            // applied once in getRobotFrontTargetHeadingDegrees(...).
             double angleToHubDeg = Math.toDegrees(Math.atan2(dy, dx));
-
+            
             // Velocity lead compensation — offsets aim opposite to lateral movement
             var speeds = drivetrain.getState().Speeds;
             double vx = speeds.vxMetersPerSecond;
@@ -310,9 +322,8 @@ public class FuelCommands {
             double leadOffsetDeg = -lateralVelocity * Constants.Vision.LEAD_COMPENSATION_DEG_PER_MPS;
 
             double currentHeadingDeg = pose.getRotation().getDegrees();
-            double headingErrorDeg   = angleToHubDeg + leadOffsetDeg - currentHeadingDeg;
-            while (headingErrorDeg >  180) headingErrorDeg -= 360;
-            while (headingErrorDeg < -180) headingErrorDeg += 360;
+            double targetHeadingDeg = getRobotFrontTargetHeadingDegrees(angleToHubDeg, leadOffsetDeg);
+            double headingErrorDeg = getHeadingErrorDegrees(targetHeadingDeg, currentHeadingDeg);
 
             ntLeadOffset.set(leadOffsetDeg);
 
@@ -440,15 +451,6 @@ public class FuelCommands {
             final SwerveRequest.FieldCentric alignRequest = new SwerveRequest.FieldCentric()
                     .withDriveRequestType(DriveRequestType.OpenLoopVoltage);
 
-            // NT publisher: "Auto/PoseAlign/HeadingError_deg"
-            // Shows live heading error during poseAlignAndShoot (odometry-based, no vision).
-            // Use in Elastic to diagnose whether the 1° tolerance is reachable in auto.
-            // Goes to 0 when pointed at hub; fires when |error| ≤ ALIGNMENT_TOLERANCE_DEGREES.
-            final DoublePublisher ntPoseAlignHeadingError = NetworkTableInstance.getDefault()
-                    .getTable("Auto/PoseAlign")
-                    .getDoubleTopic("HeadingError_deg")
-                    .publish();
-
             return Commands.sequence(
                     // Phase 1: rotate to hub + spin up — both must be ready before feeding
                     Commands.deadline(
@@ -457,10 +459,11 @@ public class FuelCommands {
                                 Pose2d pose = drivetrain.getState().Pose;
                                 double dx = hub.getX() - pose.getX();
                                 double dy = hub.getY() - pose.getY();
-                                double headingErrorDeg = Math.toDegrees(Math.atan2(dy, dx))
-                                        - pose.getRotation().getDegrees();
-                                while (headingErrorDeg >  180) headingErrorDeg -= 360;
-                                while (headingErrorDeg < -180) headingErrorDeg += 360;
+                                double angleToHubDeg = Math.toDegrees(Math.atan2(dy, dx));
+                                double targetHeadingDeg = getRobotFrontTargetHeadingDegrees(angleToHubDeg, 0.0);
+                                double headingErrorDeg = getHeadingErrorDegrees(
+                                        targetHeadingDeg,
+                                        pose.getRotation().getDegrees());
                                 return Math.abs(headingErrorDeg) <= Constants.Vision.ALIGNMENT_TOLERANCE_DEGREES
                                         && shooter.isReady();
                             /* Added .withTimeout(3.0) and working now. Post weekend, explore why timeout is needed
@@ -481,11 +484,11 @@ public class FuelCommands {
                                 if (shooter.getState() != ShooterSubsystem.ShooterState.READY) {
                                     shooter.beginSpinUp();
                                 }
-                                double headingErrorDeg = Math.toDegrees(Math.atan2(dy, dx))
-                                        - pose.getRotation().getDegrees();
-                                while (headingErrorDeg >  180) headingErrorDeg -= 360;
-                                while (headingErrorDeg < -180) headingErrorDeg += 360;
-                                ntPoseAlignHeadingError.set(headingErrorDeg);
+                                double angleToHubDeg = Math.toDegrees(Math.atan2(dy, dx));
+                                double targetHeadingDeg = getRobotFrontTargetHeadingDegrees(angleToHubDeg, 0.0);
+                                double headingErrorDeg = getHeadingErrorDegrees(
+                                        targetHeadingDeg,
+                                        pose.getRotation().getDegrees());
                                 double rotRate = MathUtil.clamp(
                                         headingErrorDeg * Constants.Vision.ROTATIONAL_KP,
                                         -Constants.Vision.MAX_ALIGNMENT_ROTATION_RAD_PER_SEC,

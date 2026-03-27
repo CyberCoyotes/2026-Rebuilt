@@ -4,13 +4,11 @@ import choreo.auto.AutoFactory;
 import choreo.auto.AutoRoutine;
 import choreo.auto.AutoTrajectory;
 import edu.wpi.first.wpilibj2.command.Commands;
-import frc.robot.subsystems.shooter.ShooterSubsystem;
-import frc.robot.commands.FuelCommands;
-// import frc.robot.commands.FuelCommands.Auto;
-import frc.robot.subsystems.vision.VisionSubsystem;
+import frc.robot.commands.FuelCommandsGPT;
+import frc.robot.subsystems.CommandSwerveDrivetrain;
 import frc.robot.subsystems.indexer.IndexerSubsystem;
 import frc.robot.subsystems.intake.IntakeSubsystem;
-import frc.robot.subsystems.CommandSwerveDrivetrain;
+import frc.robot.subsystems.shooter.ShooterSubsystem;
 
 public class AutoRoutines {
         private final AutoFactory m_factory;
@@ -18,28 +16,24 @@ public class AutoRoutines {
         private final IntakeSubsystem m_intake;
         private final IndexerSubsystem m_indexer;
         private final ShooterSubsystem m_shooter;
-        private final FuelCommands m_fuelCommands;
-        private final VisionSubsystem m_vision;
+        // private final VisionSubsystem m_vision;
         // private final LedSubsystem m_ledSubsystem;
 
         // How long to wait after driving before doing something else
         private final double DRIVE_WAIT = 1.0; // Cut 2.0 -> 1.0 or less
-        private final double SCORE_WAIT = 1.0; // Cut 2.0 -> 1.0 or less
 
-        public AutoRoutines(AutoFactory factory, CommandSwerveDrivetrain drivetrain, /* , ClimberSubsystem climber, */
-                        IndexerSubsystem indexer, IntakeSubsystem intake, ShooterSubsystem shooter,
-                        FuelCommands fuelCommands, VisionSubsystem vision/* , LedSubsystem ledSubsystem */) {
+        public AutoRoutines(AutoFactory factory, 
+                        CommandSwerveDrivetrain drivetrain,
+                        IndexerSubsystem indexer, 
+                        IntakeSubsystem intake, 
+                        ShooterSubsystem shooter) {
                 m_factory = factory;
                 m_drivetrain = drivetrain;
-                // m_climber = climber;
                 m_indexer = indexer;
                 m_intake = intake;
                 m_shooter = shooter;
-                m_vision = vision;
-                m_fuelCommands = fuelCommands;
+                // m_vision = vision;
         }
-
-
 
         public AutoRoutine RtTrench_Mid_Trench() {
                 final AutoRoutine routine = m_factory.newRoutine("RtTrench_Mid_Trench");
@@ -60,8 +54,8 @@ public class AutoRoutines {
                 RtTrench_Mid_Trench.atTime("Intake").onTrue(m_intake.intakeFuelTimer(6));
 
                 RtTrench_Mid_Trench.atTime("Shoot")
-                                .onTrue(FuelCommands.Auto.poseAlignAndShoot(m_shooter, m_indexer, m_drivetrain, 6.0));
-                RtTrench_Mid_Trench.atTime("FuelPump").onTrue(FuelCommands.Auto.fuelPumpCycleSensor(m_intake, m_indexer));
+                                .onTrue(FuelCommandsGPT.Auto.poseAlignAndShoot(m_shooter, m_indexer, m_drivetrain, 6.0));
+                RtTrench_Mid_Trench.atTime("FuelPump").onTrue(FuelCommandsGPT.Auto.fuelPumpCycleSensor(m_intake, m_indexer));
 
                 return routine;
         }
@@ -82,14 +76,14 @@ public class AutoRoutines {
                 RtTrench_Mid.atTime("Intake").onTrue(m_intake.intakeFuelTimer(6));
 
                 RtMid_Trench.atTime("Shoot")
-                                .onTrue(FuelCommands.Auto.poseAlignAndShoot(m_shooter, m_indexer, m_drivetrain, 6.0));
-                RtMid_Trench.atTime("FuelPump").onTrue(FuelCommands.Auto.fuelPumpCycleSensor(m_intake, m_indexer));
+                                .onTrue(FuelCommandsGPT.Auto.poseAlignAndShoot(m_shooter, m_indexer, m_drivetrain, 6.0));
+                RtMid_Trench.atTime("FuelPump").onTrue(FuelCommandsGPT.Auto.fuelPumpCycleSensor(m_intake, m_indexer));
 
                 return routine;
         }
 
                 public AutoRoutine RtTrench_Mid_Ramp_Splits() {
-                final AutoRoutine routine = m_factory.newRoutine("RtTrench_Mid_Ramp_Splits"); // TODO Check 2025 for 2nd reference?
+                final AutoRoutine routine = m_factory.newRoutine("RtTrench_Mid_Ramp_Splits");
                 final AutoTrajectory RtTrench_Mid = routine.trajectory("RtTrench_Mid", 0);
                 final AutoTrajectory RtMid_Ramp = routine.trajectory("RtMid_Ramp", 0);
 
@@ -103,8 +97,8 @@ public class AutoRoutines {
                 // Routine Events
                 RtTrench_Mid.atTime("Intake").onTrue(m_intake.intakeFuelTimer(6));
                 RtMid_Ramp.atTime("Shoot")
-                                .onTrue(FuelCommands.Auto.poseAlignAndShoot(m_shooter, m_indexer, m_drivetrain, 6.0));
-                RtMid_Ramp.atTime("FuelPump").onTrue(FuelCommands.Auto.fuelPumpCycleSensor(m_intake, m_indexer));
+                                .onTrue(FuelCommandsGPT.Auto.poseAlignAndShoot(m_shooter, m_indexer, m_drivetrain, 6.0));
+                RtMid_Ramp.atTime("FuelPump").onTrue(FuelCommandsGPT.Auto.fuelPumpCycleSensor(m_intake, m_indexer));
 
                 return routine;
         }
@@ -125,8 +119,8 @@ public class AutoRoutines {
                 // Routine Events
                 RtTrench_Mid_Ramp.atTime("Intake").onTrue(m_intake.intakeFuelTimer(6));
                 RtTrench_Mid_Ramp.atTime("Shoot")
-                                .onTrue(FuelCommands.Auto.poseAlignAndShoot(m_shooter, m_indexer, m_drivetrain, 6.0));
-                RtTrench_Mid_Ramp.atTime("FuelPump").onTrue(FuelCommands.Auto.fuelPumpCycleSensor(m_intake, m_indexer));
+                                .onTrue(FuelCommandsGPT.Auto.poseAlignAndShoot(m_shooter, m_indexer, m_drivetrain, 6.0));
+                RtTrench_Mid_Ramp.atTime("FuelPump").onTrue(FuelCommandsGPT.Auto.fuelPumpCycleSensor(m_intake, m_indexer));
 
                 return routine;
         }
@@ -143,8 +137,8 @@ public class AutoRoutines {
                                 ));
                 // Routine Events
                 LtTrench_Mid_Trench.atTime("Intake").onTrue(m_intake.intakeFuelTimer(8));
-                LtTrench_Mid_Trench.atTime("Shoot").onTrue(FuelCommands.Auto.poseAlignAndShoot(m_shooter, m_indexer, m_drivetrain, 6.0));
-                LtTrench_Mid_Trench.atTime("FuelPump").onTrue(FuelCommands.Auto.fuelPumpCycleSensor(m_intake, m_indexer));
+                LtTrench_Mid_Trench.atTime("Shoot").onTrue(FuelCommandsGPT.Auto.poseAlignAndShoot(m_shooter, m_indexer, m_drivetrain, 6.0));
+                LtTrench_Mid_Trench.atTime("FuelPump").onTrue(FuelCommandsGPT.Auto.fuelPumpCycleSensor(m_intake, m_indexer));
 
                 return routine;
         }
@@ -161,7 +155,7 @@ public class AutoRoutines {
                                 ));
                 // Routine Events
                 MidDepot.atTime("Intake").onTrue(m_intake.intakeFuelTimer(8));
-                MidDepot.atTime("Shoot").onTrue(FuelCommands.Auto.shootFar(m_shooter, m_indexer, 6)); // score
+                MidDepot.atTime("Shoot").onTrue(FuelCommandsGPT.Auto.shootFar(m_shooter, m_indexer, 6)); // score
 
                 return routine;
         }
@@ -182,7 +176,7 @@ public class AutoRoutines {
                         // Routine Events
 
                 Center.atTime("Shoot")
-                                .onTrue(FuelCommands.Auto.shootHub(m_shooter, m_indexer,6.6));
+                                .onTrue(FuelCommandsGPT.Auto.shootHub(m_shooter, m_indexer,6.6));
                 // Center.atTime("FuelPump").onTrue(FuelCommands.Auto.fuelPumpCycleSensor(m_intake, m_indexer));
 
                 return routine;
@@ -237,7 +231,7 @@ public class AutoRoutines {
                         // Place the "Shoot" event marker at the END of the trajectory segment so the
                         // path finishes before this fires.
                         Experimental.atTime("Shoot")
-                                        .onTrue(FuelCommands.Auto.poseAlignAndShoot(m_shooter, m_indexer, m_drivetrain,
+                                        .onTrue(FuelCommandsGPT.Auto.poseAlignAndShoot(m_shooter, m_indexer, m_drivetrain,
                                                         3.0));
 
                         return routine;
