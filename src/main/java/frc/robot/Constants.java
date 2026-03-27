@@ -108,7 +108,7 @@ public final class Constants {
       }
 
       // == Hardware config ====================================
-      public static final NeutralModeValue NEUTRAL_MODE = NeutralModeValue.Brake;
+      public static final NeutralModeValue NEUTRAL_MODE = NeutralModeValue.Brake; // TODO: Consider Coast
       public static final InvertedValue INVERTED = InvertedValue.CounterClockwise_Positive;
       public static final double SUPPLY_CURRENT_LIMIT = 40.0;
       public static final double STATOR_CURRENT_LIMIT = 40.0;
@@ -120,7 +120,7 @@ public final class Constants {
       }
 
       // == Hardware config ====================================
-      public static final NeutralModeValue NEUTRAL_MODE = NeutralModeValue.Brake;
+      public static final NeutralModeValue NEUTRAL_MODE = NeutralModeValue.Coast; // TODO: Changing from Brake to Coast; especially if it gets hit
       public static final InvertedValue INVERTED = InvertedValue.CounterClockwise_Positive;
 
       /*
