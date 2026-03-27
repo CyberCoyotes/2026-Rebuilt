@@ -17,8 +17,8 @@ public final class Constants {
 
   /*
    * Comment convention for this file:
-   * TODO  = value is intentional for now, but still needs on-robot tuning or verification.
-   * FIXME = metadata, naming, or assumptions are currently known to be wrong or incomplete.
+   * ToDo = value is intentional for now, but still needs on-robot tuning or verification.
+   * FixMe = metadata, naming, or assumptions are currently known to be wrong or incomplete.
    */
 
   // =========================================================
