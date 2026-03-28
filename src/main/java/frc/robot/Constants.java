@@ -66,10 +66,7 @@ public final class Constants {
 
     // == IDs ===============================================
 
-    /*
-     * Kraken X44 with TalonFX controller (x3)
-     * FIXME: Update Intake motor names in Phoenix Tuner to match these code-side IDs.
-     */
+    /* Kraken X44 with TalonFX controller (x3) */
     public static final int ROLLER_LEFT_MOTOR_ID = 20;
     public static final int ROLLER_RIGHT_MOTOR_ID = 21;
     public static final int SLIDE_MOTOR_ID = 22;
