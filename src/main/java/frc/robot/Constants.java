@@ -129,8 +129,8 @@ public final class Constants {
        * updated mechanism. Add an end-of-line "Tuned" note when each value is confirmed.
        */
       public static final double SUPPLY_CURRENT_LIMIT = 40.0;
-      public static final double STATOR_CURRENT_LIMIT = 40.0;
-      public static final double REVERSE_SOFT_LIMIT = SLIDE_RETRACTED_POS;
+      public static final double STATOR_CURRENT_LIMIT = 60.0;
+      public static final double REVERSE_SOFT_LIMIT = SLIDE_RETRACTED_POS; // CHECK
       public static final double KP = 2.0;
       public static final double KI = 0.0;
       public static final double KD = 0.0;

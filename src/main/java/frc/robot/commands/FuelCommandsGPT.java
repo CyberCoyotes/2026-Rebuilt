@@ -609,7 +609,7 @@ public class FuelCommandsGPT {
                 }, intake)
                     .beforeStarting(cycleTimer::restart)
                     .until(indexer::isChuteEmpty)
-                    .withTimeout(5.0) // TODO: Tune or remove once reliable
+                    .withTimeout(5.0) // Tune or remove once reliable
             )
             .finallyDo(intake::stopRoller)
             .withName("FuelPumpCycleSensor");
