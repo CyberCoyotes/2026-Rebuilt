@@ -121,7 +121,7 @@ public class IntakeSubsystem extends SubsystemBase {
 
     /** True when the slide is safely past the home position for roller operation. */
     public boolean isSlidePastHome() {
-        return inputs.slidePositionRotations > Constants.Intake.SLIDE_HOME_POS;
+        return inputs.slidePositionRotations > Constants.Intake.SLIDE_ROLLER_SAFE_POS;
     }
 
     // If you need position for a command or calculation

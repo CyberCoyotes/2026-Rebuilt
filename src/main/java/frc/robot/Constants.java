@@ -80,6 +80,8 @@ public final class Constants {
     public static final double SLIDE_HOME_POS = 19.18; // 
     public static final double SLIDE_EXTENDED_POS = 63.00; // Was 44.40
     public static final double SLIDE_MAX_POS = 65.75;
+    public static final double SLIDE_ROLLER_SAFE_MARGIN = 1.5;
+    public static final double SLIDE_ROLLER_SAFE_POS = SLIDE_HOME_POS + SLIDE_ROLLER_SAFE_MARGIN;
 
     public static final double SLIDE_TOLERANCE = 0.05;
     public static final double SLIDE_INCREMENTAL_RETRACT_ROTATIONS = 15.0;
