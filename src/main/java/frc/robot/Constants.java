@@ -181,8 +181,8 @@ public final class Constants {
      * Anything below ~10 in (0.25 m) means fuel is present in the chute.
      */
     public static final double FUEL_SIZE = 0.1524; // ~10 inches
-    public static final double CHUTE_MAX_DISTANCE = 0.36; // TODO: Re-measure for the current chute / shooter width.
-    public static final double FUEL_DETECTION_THRESHOLD = FUEL_SIZE * 0.75; // 75% of fuel size to account for sensor variance and ensure reliable detection
+    public static final double CHUTE_MAX_DISTANCE = 0.6096; // // 24" = 0.6096 m.
+    public static final double FUEL_DETECTION_THRESHOLD = FUEL_SIZE * 0.60; // 60% of fuel size to account for sensor variance and ensure reliable detection
     public static final double FUEL_DETECTION_DISTANCE = CHUTE_MAX_DISTANCE - FUEL_DETECTION_THRESHOLD; // ~10 inches
 
     // Time to wait after detecting fuel at the chute before considering it "cleared".
