@@ -166,9 +166,9 @@ public final class Constants {
      * TODO: Verify conveyor and kicker voltages on the current hopper / shooter
      * geometry. These were carried forward from earlier mechanical revisions.
      */
-    public static final double CONVEYOR_FORWARD_VOLTAGE = 6.0;
-    public static final double CONVEYOR_REVERSE_VOLTAGE = -4.0;
-    public static final double CONVEYOR_POPPER_VOLTAGE = 3.0;
+    public static final double CONVEYOR_FORWARD_VOLTAGE = 2.5;
+    public static final double CONVEYOR_REVERSE_VOLTAGE = -2.5;
+    public static final double CONVEYOR_POPPER_VOLTAGE = 1.0;
 
     public static final double KICKER_FORWARD_VOLTAGE = 10.0;
     public static final double KICKER_REVERSE_VOLTAGE = -8.0;
