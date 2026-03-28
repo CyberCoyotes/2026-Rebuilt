@@ -122,7 +122,7 @@ public void fromLog(LogTable table) {
 
     /**
      * Sets the flywheel target velocity in RPM.
-     * Uses velocity closed-loop control with FOC for smooth acceleration.
+     * Uses the configured flywheel velocity closed-loop mode.
      *
      * @param rpm Target velocity in rotations per minute (positive = forward, negative = reverse)
      */

@@ -285,6 +285,7 @@ public final class Constants {
     public static final double KP = 0.000;
     public static final double KV = 0.100;
     public static final double KD = 0.000;
+    public static final double KA = 0.000;
 
     /*
      * TODO: Verify flywheel tolerance against current steady-state variation.
@@ -296,7 +297,13 @@ public final class Constants {
     public static final double SUPPLY_CURRENT_LIMIT = 50;
     public static final double STATOR_CURRENT_LIMIT = 90;
     public static final double TEST_INCREMENT_RPM = 100.0;
-    public static final double VOLTAGE_CLOSED_LOOP_RAMP_PERIOD = 0.10; // seconds from neutral to full output
+
+    /*
+     * Motion Magic Velocity starting point for the rebuilt two-Kraken flywheel.
+     * Tune acceleration to shape spin-up, then refine Slot0 gains.
+     */
+    public static final double MM_ACCELERATION_RPS_PER_SEC = 25.0;
+    public static final double MM_JERK_RPS_PER_SEC_CUBED = 0.0;
 
     public static final class LeaderConfig {
       private LeaderConfig() {
