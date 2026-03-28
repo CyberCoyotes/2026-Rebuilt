@@ -86,8 +86,8 @@ public final class Constants {
     public static final double SLIDE_MANUAL_STEP_ROTATIONS = 5.0;
     public static final double SLIDE_MANUAL_REPEAT_SECONDS = 0.15;
 
-    public static final double SLIDE_MM_CRUISE_VELOCITY = 32;
-    public static final double SLIDE_MM_ACCELERATION = 32;
+    public static final double SLIDE_MM_CRUISE_VELOCITY = 64; // 32
+    public static final double SLIDE_MM_ACCELERATION = 64; // 32
     public static final double SLIDE_MM_JERK = 0.0;
 
     public static final double SLIDE_SLOW_MM_CRUISE_VELOCITY = 4.0;
