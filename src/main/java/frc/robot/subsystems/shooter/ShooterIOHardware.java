@@ -14,7 +14,7 @@ import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Temperature;
 import edu.wpi.first.units.measure.Voltage;
 import frc.robot.Constants;
-import frc.robot.util.PhoenixUtil;
+import frc.robot.utilities.PhoenixUtil;
 
 /**
  * ShooterIOHardware - Real hardware implementation for the shooter subsystem.
@@ -85,17 +85,14 @@ public class ShooterIOHardware implements ShooterIO {
       config.MotorOutput.Inverted = Constants.Hood.HoodConfig.INVERTED;
 
       // Voltage limits — capped for safe hood movement and plenty fast for short-range repositioning.
-      config.Voltage.PeakForwardVoltage = Constants.Hood.PEAK_FORWARD_VOLTAGE;
-      config.Voltage.PeakReverseVoltage = Constants.Hood.PEAK_REVERSE_VOLTAGE;
+      config.Voltage.PeakForwardVoltage = Constants.Hood.PEAK_FORWARD_VOLTAGE; // 4.0;
+      config.Voltage.PeakReverseVoltage = Constants.Hood.PEAK_REVERSE_VOLTAGE; // -4.0;
 
-      config.CurrentLimits.SupplyCurrentLimit = Constants.Hood.SUPPLY_CURRENT_LIMIT;
+      config.CurrentLimits.SupplyCurrentLimit = Constants.Hood.SUPPLY_CURRENT_LIMIT; // 30.0;
       config.CurrentLimits.SupplyCurrentLimitEnable = true;
 
       // Position PID — Slot 0
       // MotionMagicVoltage with kP/kD is sufficient for hood positioning.
-      /* TODO: Current not using MotionMagic for Hood position, but ideally it should be. 
-      * If we switch to MotionMagic, we need to run kP/kD for smooth, stable positioning without overshoot or oscillation.
-      */
       config.Slot0.kP = Constants.Hood.KP; // 1.00
       config.Slot0.kI = Constants.Hood.KI; // 0.0
       config.Slot0.kD = Constants.Hood.KD; // 0.00
@@ -117,7 +114,7 @@ public class ShooterIOHardware implements ShooterIO {
   private final TalonFXS hoodMotor;
 
   // == Control Requests =====================================================
-  private final VelocityVoltage flywheelVelocityRequest = new VelocityVoltage(0.0);
+  private final VelocityVoltage flywheelVelocityRequest = new VelocityVoltage(0.0).withEnableFOC(false);
 
   // MotionMagicVoltage respects the cruise velocity/accel profile set in config,
   // limiting current spikes during large position changes.

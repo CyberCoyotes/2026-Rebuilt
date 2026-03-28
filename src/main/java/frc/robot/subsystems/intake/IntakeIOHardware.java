@@ -12,7 +12,7 @@ import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
 
 import frc.robot.Constants;
-import frc.robot.util.PhoenixUtil;
+import frc.robot.utilities.PhoenixUtil;
 
 /**
  * IntakeIOHardware - Real hardware implementation using CTRE TalonFX motors.
@@ -69,6 +69,7 @@ public class IntakeIOHardware implements IntakeIO {
             config.SoftwareLimitSwitch.ReverseSoftLimitEnable = true;
             config.SoftwareLimitSwitch.ReverseSoftLimitThreshold = Constants.Intake.SlideConfig.REVERSE_SOFT_LIMIT;
 
+            /* TODO These new re-tuning for position control of the new slide mechanism */
             config.Slot0.kP = Constants.Intake.SlideConfig.KP;
             config.Slot0.kI = Constants.Intake.SlideConfig.KI;
             config.Slot0.kD = Constants.Intake.SlideConfig.KD;

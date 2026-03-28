@@ -13,7 +13,7 @@ import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.Distance;
 import frc.robot.Constants;
-import frc.robot.util.PhoenixUtil;
+import frc.robot.utilities.PhoenixUtil;
 
 /**
  * IndexerIOHardware - Real hardware implementation of IndexerIO.

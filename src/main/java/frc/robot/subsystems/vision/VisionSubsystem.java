@@ -91,7 +91,7 @@ public class VisionSubsystem extends SubsystemBase {
     // ===== Last Known Good Data =====
     // When we lose a target, we briefly hold onto the last known values
     // This prevents sudden jumps and allows smooth recovery
-    // private double lastKnownDistance = 0.0; // FIXME replace with last known position?
+    // private double lastKnownDistance = 0.0; // FIXME replace with last known position
     private double lastKnownHorizontalAngle = 0.0;
     private double lastTargetSeenTime = 0.0;
 
