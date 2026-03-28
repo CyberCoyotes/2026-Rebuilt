@@ -353,7 +353,7 @@ public final class Constants {
     public static final double ACCELERATION = 0;
     public static final double CRUISE_VELOCITY = 0;
 
-    public static final double KP = 0;
+    public static final double KP = 0.5;
     public static final double KI = 0;
     public static final double KD = 0;
 
