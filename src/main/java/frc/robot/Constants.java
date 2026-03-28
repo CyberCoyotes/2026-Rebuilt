@@ -80,7 +80,7 @@ public final class Constants {
      * mechanical changes. Add an end-of-line "Tuned" note when each value is confirmed.
      */
     public static final double SLIDE_RETRACTED_POS = 0.0;
-    public static final double SLIDE_HOME_POS = 20.0; // TODO: Tune to the normal operating home/stow position.
+    public static final double SLIDE_HOME_POS = 23.0; 
     public static final double SLIDE_EXTENDED_POS = 63.00; // Was 44.40
     public static final double SLIDE_MAX_POS = 65.75;
 
