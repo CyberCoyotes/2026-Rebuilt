@@ -77,17 +77,17 @@ public final class Constants {
      * mechanical changes. Add an end-of-line "Tuned" note when each value is confirmed.
      */
     public static final double SLIDE_RETRACTED_POS = 0.0;
-    public static final double SLIDE_HOME_POS = 23.0; 
+    public static final double SLIDE_HOME_POS = 19.18; // 
     public static final double SLIDE_EXTENDED_POS = 63.00; // Was 44.40
     public static final double SLIDE_MAX_POS = 65.75;
 
-    public static final double SLIDE_TOLERANCE = 0.10;
+    public static final double SLIDE_TOLERANCE = 0.05;
     public static final double SLIDE_INCREMENTAL_RETRACT_ROTATIONS = 15.0;
     public static final double SLIDE_MANUAL_STEP_ROTATIONS = 5.0;
     public static final double SLIDE_MANUAL_REPEAT_SECONDS = 0.15;
 
-    public static final double SLIDE_MM_CRUISE_VELOCITY = 32;
-    public static final double SLIDE_MM_ACCELERATION = 32;
+    public static final double SLIDE_MM_CRUISE_VELOCITY = 64; // 32
+    public static final double SLIDE_MM_ACCELERATION = 64; // 32
     public static final double SLIDE_MM_JERK = 0.0;
 
     public static final double SLIDE_SLOW_MM_CRUISE_VELOCITY = 4.0;
@@ -129,8 +129,8 @@ public final class Constants {
        * updated mechanism. Add an end-of-line "Tuned" note when each value is confirmed.
        */
       public static final double SUPPLY_CURRENT_LIMIT = 40.0;
-      public static final double STATOR_CURRENT_LIMIT = 40.0;
-      public static final double REVERSE_SOFT_LIMIT = SLIDE_RETRACTED_POS;
+      public static final double STATOR_CURRENT_LIMIT = 60.0;
+      public static final double REVERSE_SOFT_LIMIT = SLIDE_RETRACTED_POS; // CHECK
       public static final double KP = 2.0;
       public static final double KI = 0.0;
       public static final double KD = 0.0;
@@ -166,9 +166,9 @@ public final class Constants {
      * TODO: Verify conveyor and kicker voltages on the current hopper / shooter
      * geometry. These were carried forward from earlier mechanical revisions.
      */
-    public static final double CONVEYOR_FORWARD_VOLTAGE = 6.0;
-    public static final double CONVEYOR_REVERSE_VOLTAGE = -4.0;
-    public static final double CONVEYOR_POPPER_VOLTAGE = 3.0;
+    public static final double CONVEYOR_FORWARD_VOLTAGE = 2.5;
+    public static final double CONVEYOR_REVERSE_VOLTAGE = -2.5;
+    public static final double CONVEYOR_POPPER_VOLTAGE = 1.0;
 
     public static final double KICKER_FORWARD_VOLTAGE = 10.0;
     public static final double KICKER_REVERSE_VOLTAGE = -8.0;
@@ -181,8 +181,8 @@ public final class Constants {
      * Anything below ~10 in (0.25 m) means fuel is present in the chute.
      */
     public static final double FUEL_SIZE = 0.1524; // ~10 inches
-    public static final double CHUTE_MAX_DISTANCE = 0.36; // TODO: Re-measure for the current chute / shooter width.
-    public static final double FUEL_DETECTION_THRESHOLD = FUEL_SIZE * 0.75; // 75% of fuel size to account for sensor variance and ensure reliable detection
+    public static final double CHUTE_MAX_DISTANCE = 0.6096; // // 24" = 0.6096 m.
+    public static final double FUEL_DETECTION_THRESHOLD = FUEL_SIZE * 0.60; // 60% of fuel size to account for sensor variance and ensure reliable detection
     public static final double FUEL_DETECTION_DISTANCE = CHUTE_MAX_DISTANCE - FUEL_DETECTION_THRESHOLD; // ~10 inches
 
     // Time to wait after detecting fuel at the chute before considering it "cleared".
@@ -282,9 +282,9 @@ public final class Constants {
      */
     public static final double EJECT_MAX_ENTRY_RPM = 500.0;
     
-    public static final double KP = 0.15;
-    public static final double KV = 0.119;
-    public static final double KD = 0.001;
+    public static final double KP = 0.000;
+    public static final double KV = 0.100;
+    public static final double KD = 0.000;
 
     /*
      * TODO: Verify flywheel tolerance against current steady-state variation.
@@ -353,7 +353,7 @@ public final class Constants {
     public static final double ACCELERATION = 0;
     public static final double CRUISE_VELOCITY = 0;
 
-    public static final double KP = 0;
+    public static final double KP = 0.5;
     public static final double KI = 0;
     public static final double KD = 0;
 
