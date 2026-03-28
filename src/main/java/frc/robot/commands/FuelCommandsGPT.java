@@ -466,12 +466,7 @@ public class FuelCommandsGPT {
                                         pose.getRotation().getDegrees());
                                 return Math.abs(headingErrorDeg) <= Constants.Vision.ALIGNMENT_TOLERANCE_DEGREES
                                         && shooter.isReady();
-                            /* FIXME: Added .withTimeout() and working now. 
-                             * Explore why timeout is needed
-                             * The timeout allows it to move on to feeding even if the alignment condition is never satisfied, which is better than doing nothing at all.
-                            */
                                     }).withTimeout(1.0), 
-                            
                             Commands.run(() -> {
                                 Translation2d hub = getHubLocation();
                                 Pose2d pose = drivetrain.getState().Pose;
