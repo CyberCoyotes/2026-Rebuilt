@@ -302,7 +302,7 @@ public final class Constants {
      * Motion Magic Velocity starting point for the rebuilt two-Kraken flywheel.
      * Tune acceleration to shape spin-up, then refine Slot0 gains.
      */
-    public static final double MM_ACCELERATION_RPS_PER_SEC = 25.0;
+    public static final double MM_ACCELERATION_RPS_PER_SEC = 180.0;
     public static final double MM_JERK_RPS_PER_SEC_CUBED = 0.0;
 
     public static final class LeaderConfig {
