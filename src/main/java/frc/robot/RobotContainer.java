@@ -127,7 +127,8 @@ public class RobotContainer {
 
         // driver.a().whileTrue(FuelCommands.fuelPump(indexer));
         
-
+         driver.povLeft().whileTrue(
+            FuelCommandsGPT.shootWithPreset(shooter, indexer, ShooterSubsystem.ShotPreset.CLOSE));
 
         // =====================================================================
         // OPERATOR CONTROLLER (Port 1)
