@@ -172,7 +172,6 @@ public final class Constants {
     public static final double CONVEYOR_REVERSE_VOLTAGE = -2.5;
     public static final double CONVEYOR_POPPER_VOLTAGE = 1.0;
 
-    public static final double OPEN_LOOP_RAMP_RATE = 0.5;
     public static final double KICKER_FORWARD_VOLTAGE = 6.0;
     public static final double KICKER_REVERSE_VOLTAGE = -8.0;
     public static final double KICKER_POPPER_VOLTAGE = 3.0; 
@@ -224,6 +223,7 @@ public final class Constants {
       public static final double PEAK_FORWARD_VOLTAGE = 12.0;
       public static final double PEAK_REVERSE_VOLTAGE = -12.0;
       public static final MotorAlignmentValue FOLLOWER_ALIGNMENT = MotorAlignmentValue.Opposed;
+      public static final double OPEN_LOOP_RAMP_RATE = 0.5;
     }
 
     public static final class ChuteSensorConfig {

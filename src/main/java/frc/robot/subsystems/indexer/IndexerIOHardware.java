@@ -66,6 +66,9 @@ public class IndexerIOHardware implements IndexerIO {
         config.Voltage.PeakForwardVoltage = Constants.Indexer.KickerConfig.PEAK_FORWARD_VOLTAGE;
         config.Voltage.PeakReverseVoltage = Constants.Indexer.KickerConfig.PEAK_REVERSE_VOLTAGE;
 
+        
+        config.OpenLoopRamps.VoltageOpenLoopRampPeriod = Constants.Indexer.KickerConfig.OPEN_LOOP_RAMP_RATE;
+
         return config;
     }
 
