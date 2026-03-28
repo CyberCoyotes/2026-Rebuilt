@@ -117,7 +117,7 @@ public class ShooterIOHardware implements ShooterIO {
   private final TalonFXS hoodMotor;
 
   // == Control Requests =====================================================
-  private final VelocityVoltage flywheelVelocityRequest = new VelocityVoltage(0.0).withEnableFOC(false);
+  private final VelocityVoltage flywheelVelocityRequest = new VelocityVoltage(0.0);
 
   // MotionMagicVoltage respects the cruise velocity/accel profile set in config,
   // limiting current spikes during large position changes.

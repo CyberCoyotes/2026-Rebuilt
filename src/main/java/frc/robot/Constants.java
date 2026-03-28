@@ -80,10 +80,14 @@ public final class Constants {
      * mechanical changes. Add an end-of-line "Tuned" note when each value is confirmed.
      */
     public static final double SLIDE_RETRACTED_POS = 0.0;
-    public static final double SLIDE_EXTENDED_POS = 65.75; // Was 44.40
+    public static final double SLIDE_HOME_POS = 23.0; 
+    public static final double SLIDE_EXTENDED_POS = 63.00; // Was 44.40
     public static final double SLIDE_MAX_POS = 65.75;
+
     public static final double SLIDE_TOLERANCE = 0.10;
     public static final double SLIDE_INCREMENTAL_RETRACT_ROTATIONS = 15.0;
+    public static final double SLIDE_MANUAL_STEP_ROTATIONS = 5.0;
+    public static final double SLIDE_MANUAL_REPEAT_SECONDS = 0.15;
 
     public static final double SLIDE_MM_CRUISE_VELOCITY = 32;
     public static final double SLIDE_MM_ACCELERATION = 32;
@@ -169,7 +173,7 @@ public final class Constants {
     public static final double CONVEYOR_REVERSE_VOLTAGE = -4.0;
     public static final double CONVEYOR_POPPER_VOLTAGE = 3.0;
 
-    public static final double KICKER_FORWARD_VOLTAGE = 8.0;
+    public static final double KICKER_FORWARD_VOLTAGE = 10.0;
     public static final double KICKER_REVERSE_VOLTAGE = -8.0;
     public static final double KICKER_POPPER_VOLTAGE = 3.0; 
 
@@ -263,7 +267,7 @@ public final class Constants {
      */
     public static final double POPPER_RPM = 650;
     public static final double STANDBY_RPM = 1000;
-    public static final double CLOSE_RPM = 2700;
+    public static final double CLOSE_RPM = 3603; // 2700
     public static final double TOWER_RPM = 3200;
     public static final double TRENCH_RPM = 3200;
     public static final double FAR_RPM = 3800;
@@ -341,10 +345,10 @@ public final class Constants {
      * "Tuned" note when each value is confirmed.
      */
     public static final double CLOSE_HOOD = 0.00; 
-    public static final double POPPER_HOOD = 4.30; //
-    public static final double TOWER_HOOD = 4.30;
-    public static final double TRENCH_HOOD = 4.30;
-    public static final double FAR_HOOD = 4.30; // Was 5.50
+    public static final double POPPER_HOOD = 4.20; //
+    public static final double TOWER_HOOD = 4.20;
+    public static final double TRENCH_HOOD = 4.20;
+    public static final double FAR_HOOD = 4.20; // Was 5.50
     public static final double PASS_HOOD = 2.00;
 
     // Manual tuning increments used for bring-up and testing.
