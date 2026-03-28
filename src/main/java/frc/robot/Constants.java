@@ -172,7 +172,8 @@ public final class Constants {
     public static final double CONVEYOR_REVERSE_VOLTAGE = -2.5;
     public static final double CONVEYOR_POPPER_VOLTAGE = 1.0;
 
-    public static final double KICKER_FORWARD_VOLTAGE = 10.0;
+    public static final double OPEN_LOOP_RAMP_RATE = 0.5;
+    public static final double KICKER_FORWARD_VOLTAGE = 6.0;
     public static final double KICKER_REVERSE_VOLTAGE = -8.0;
     public static final double KICKER_POPPER_VOLTAGE = 3.0; 
 
@@ -218,8 +219,8 @@ public final class Constants {
        */
       public static final NeutralModeValue NEUTRAL_MODE = NeutralModeValue.Brake;
       public static final InvertedValue INVERTED = InvertedValue.CounterClockwise_Positive;
-      public static final double SUPPLY_CURRENT_LIMIT = 45.0;
-      public static final double STATOR_CURRENT_LIMIT = 80.0;
+      public static final double SUPPLY_CURRENT_LIMIT = 40.0;
+      public static final double STATOR_CURRENT_LIMIT = 60.0;
       public static final double PEAK_FORWARD_VOLTAGE = 12.0;
       public static final double PEAK_REVERSE_VOLTAGE = -12.0;
       public static final MotorAlignmentValue FOLLOWER_ALIGNMENT = MotorAlignmentValue.Opposed;
@@ -296,15 +297,15 @@ public final class Constants {
      */
     public static final double TOLERANCE_PERCENT = 0.05;
 
-    public static final double SUPPLY_CURRENT_LIMIT = 50;
-    public static final double STATOR_CURRENT_LIMIT = 90;
+    public static final double SUPPLY_CURRENT_LIMIT = 100;
+    public static final double STATOR_CURRENT_LIMIT = 60;
     public static final double TEST_INCREMENT_RPM = 100.0;
 
     /*
      * Motion Magic Velocity starting point for the rebuilt two-Kraken flywheel.
      * Tune acceleration to shape spin-up, then refine Slot0 gains.
      */
-    public static final double MM_ACCELERATION_RPS_PER_SEC = 180.0;
+    public static final double MM_ACCELERATION_RPS_PER_SEC = 120.0;
     public static final double MM_JERK_RPS_PER_SEC_CUBED = 0.0;
 
     public static final class LeaderConfig {
