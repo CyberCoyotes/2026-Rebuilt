@@ -353,7 +353,8 @@ public class IntakeSubsystem extends SubsystemBase {
     public Command intakeFuel() {
         return Commands.sequence(
                 extendSlidesFastCmd(),
-                Commands.startEnd(this::runRoller, this::stopRoller, this))
+                Commands.run(this::runRoller, this)
+                        .finallyDo(this::stopRoller))
                 .withName("IntakeFuel");
     }
 
