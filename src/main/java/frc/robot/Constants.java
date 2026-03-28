@@ -282,9 +282,9 @@ public final class Constants {
      */
     public static final double EJECT_MAX_ENTRY_RPM = 500.0;
     
-    public static final double KP = 0.15;
-    public static final double KV = 0.119;
-    public static final double KD = 0.001;
+    public static final double KP = 0.000;
+    public static final double KV = 0.100;
+    public static final double KD = 0.000;
 
     /*
      * TODO: Verify flywheel tolerance against current steady-state variation.
