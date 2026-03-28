@@ -291,6 +291,12 @@ public class IntakeSubsystem extends SubsystemBase {
                 .withName("RetractSlidesSlow");
     }
 
+    /** Re-issues the slow retract profile while held so the slide keeps working toward zero. */
+    public Command retractSlidesSlowHeldCmd() {
+        return Commands.run(this::retractSlidesSlow, this)
+                .withName("RetractSlidesSlowHeld");
+    }
+
     /** Backward-compatible alias for the default full extension command. */
     public Command extendSlidesCmd() {
         return extendSlidesFastCmd();

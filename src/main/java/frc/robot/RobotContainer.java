@@ -119,11 +119,9 @@ public class RobotContainer {
                 () -> -driver.getLeftY() * MaxSpeed,
                 () -> -driver.getLeftX() * MaxSpeed)); 
         
-        // Hold on and it will cycle back and forth
-        driver.rightBumper().whileTrue(intake.fuelPumpCycle());
+        driver.rightBumper().whileTrue(intake.retractSlidesSlowHeldCmd());
 
         driver.leftTrigger(0.5).whileTrue(intake.intakeFuel());
-
         // Press once to partially retract slides
         driver.leftBumper().onTrue(intake.retractSlidesIncrementalCmd());
 
@@ -145,10 +143,12 @@ public class RobotContainer {
         operator.y().whileTrue(
             FuelCommandsGPT.shootWithPreset(shooter, indexer, ShooterSubsystem.ShotPreset.FAR));
 
-        operator.rightBumper().whileTrue(FuelCommandsGPT.shootPass(shooter, indexer));
 
         // Hold to back a ball out of the chute if it entered prematurely
-        operator.rightTrigger().whileTrue(indexer.reverse());
+        operator.rightTrigger(.5).whileTrue(indexer.reverse());
+        operator.leftTrigger(0.5).whileTrue(intake.intakeFuel());
+;
+
 
         // Auto-reverse: intake running + shooter idle + ball detected in chute = premature ball → reverse indexer
         // Sensor in new place so this probably NOT valid anymore
@@ -158,18 +158,18 @@ public class RobotContainer {
         //     indexer.isFuelDetected()
         // ).whileTrue(indexer.reverse());
 
-        operator.leftTrigger().whileTrue(FuelCommandsGPT.runAirPopper(indexer, shooter, intake));
-        operator.leftBumper().whileTrue(intake.retractSlidesStack());
+        operator.rightBumper().whileTrue(intake.retractSlidesSlowHeldCmd());
+        // operator.leftBumper().whileTrue(intake.retractSlidesStack());
 
         // Back (View ⧉): Reset odometry to botpose — use when robot rides up on a ball
         operator.back().onTrue(drivetrain.resetPoseFromVisionCommand());
     
-        // operator.povUp().whileTrue(null); // incremental extend climber command to be added when climber is ready
-        // operator.povDown().whileTrue(null); // incremental retract climber command to be added when climber is ready
+        operator.povUp().whileTrue(intake.manualSlideExtendHoldCmd());
+        operator.povDown().whileTrue(intake.manualSlideRetractHoldCmd());
 
-        // POV cycles through LED animations (for testing / manual override)
-        operator.povUp().onTrue(ledSub.cycleNext());
-        operator.povDown().onTrue(ledSub.cyclePrev());
+        // // POV cycles through LED animations (for testing / manual override)
+        // operator.povUp().onTrue(ledSub.cycleNext());
+        // operator.povDown().onTrue(ledSub.cyclePrev());
 
         // =====================================================================
         // LED STATE TRIGGERS — shooter states
