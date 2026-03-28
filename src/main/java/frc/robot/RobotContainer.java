@@ -188,8 +188,8 @@ public class RobotContainer {
 
         // FIXME: Add a reverse indexer on start button for operator
     
-        // operator.povUp().whileTrue(null); // incremental extend climber command to be added when climber is ready
-        // operator.povDown().whileTrue(null); // incremental retract climber command to be added when climber is ready
+        operator.povUp().whileTrue(intake.manualSlideExtendHoldCmd());
+        operator.povDown().whileTrue(intake.manualSlideRetractHoldCmd());
 
         // POV cycles through LED animations (for testing / manual override)
         operator.povUp().onTrue(ledSub.cycleNext());

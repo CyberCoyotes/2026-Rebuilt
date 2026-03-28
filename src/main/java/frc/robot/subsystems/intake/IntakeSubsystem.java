@@ -199,13 +199,26 @@ public class IntakeSubsystem extends SubsystemBase {
     }
 
     /**
+     * Nudges the slide by a relative amount, clamped to the allowed travel range.
+     * Useful for manual operator adjustment without committing to a fixed preset.
+     */
+    public void nudgeSlides(double deltaRotations) {
+        double target = Math.max(
+                Constants.Intake.SLIDE_RETRACTED_POS,
+                Math.min(
+                        inputs.slidePositionRotations + deltaRotations,
+                        Constants.Intake.SLIDE_MAX_POS));
+        io.setSlidePosition(target);
+    }
+
+    /**
      * Retracts slide by 15 rotations from its current position, clamped to the
-     * minimum position. Used as a quick incremental jump before slow-finishing.
+     * true retracted position. Used as a quick incremental jump before slow-finishing.
      */
     public void retractSlidesIncremental() {
         double target = Math.max(
                 inputs.slidePositionRotations - Constants.Intake.SLIDE_INCREMENTAL_RETRACT_ROTATIONS,
-                Constants.Intake.SLIDE_HOME_POS);
+                Constants.Intake.SLIDE_RETRACTED_POS);
         io.setSlidePosition(target);
     }
 
@@ -276,6 +289,24 @@ public class IntakeSubsystem extends SubsystemBase {
     public Command retractSlidesIncrementalCmd() {
         return Commands.runOnce(this::retractSlidesIncremental, this)
                 .withName("RetractSlidesIncremental");
+    }
+
+    /** Repeats a small manual slide nudge while held. */
+    public Command manualSlideNudgeHoldCmd(double deltaRotations) {
+        return Commands.repeatingSequence(
+                Commands.runOnce(() -> nudgeSlides(deltaRotations), this),
+                Commands.waitSeconds(Constants.Intake.SLIDE_MANUAL_REPEAT_SECONDS))
+                .withName(deltaRotations >= 0.0 ? "ManualSlideExtendHold" : "ManualSlideRetractHold");
+    }
+
+    /** Extends the slide in small repeated steps while held. */
+    public Command manualSlideExtendHoldCmd() {
+        return manualSlideNudgeHoldCmd(Constants.Intake.SLIDE_MANUAL_STEP_ROTATIONS);
+    }
+
+    /** Retracts the slide in small repeated steps while held. */
+    public Command manualSlideRetractHoldCmd() {
+        return manualSlideNudgeHoldCmd(-Constants.Intake.SLIDE_MANUAL_STEP_ROTATIONS);
     }
 
      // =========================================================================
