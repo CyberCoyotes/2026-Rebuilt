@@ -77,11 +77,11 @@ public final class Constants {
      * mechanical changes. Add an end-of-line "Tuned" note when each value is confirmed.
      */
     public static final double SLIDE_RETRACTED_POS = 0.0;
-    public static final double SLIDE_HOME_POS = 23.0; 
+    public static final double SLIDE_HOME_POS = 19.18; // 
     public static final double SLIDE_EXTENDED_POS = 63.00; // Was 44.40
     public static final double SLIDE_MAX_POS = 65.75;
 
-    public static final double SLIDE_TOLERANCE = 0.10;
+    public static final double SLIDE_TOLERANCE = 0.05;
     public static final double SLIDE_INCREMENTAL_RETRACT_ROTATIONS = 15.0;
     public static final double SLIDE_MANUAL_STEP_ROTATIONS = 5.0;
     public static final double SLIDE_MANUAL_REPEAT_SECONDS = 0.15;
