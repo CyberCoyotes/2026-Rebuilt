@@ -73,23 +73,6 @@ public class RobotContainer {
         autoRoutines = new AutoRoutines(autoFactory,drivetrain,indexer, intake, shooter);
         SmartDashboard.putData("AutoChooser", autoChooser);
 
-        // TODO: Add more auto routines as they are developed
-
-        /* Auto Playbook */
-
-        // Center Simple
-
-        // Right trench to middle, back through trench, shoot
-
-        // Right trench to middle, back over ramp, shoot
-
-        // 
-
-        // Left trench to middle, back through trench, shoot
-
-        // Left trench to middle, back over ramp, shoot
-
-
         // autoChooser.addRoutine("L Trench-Mid-Trench", autoRoutines::LtTrench_Mid_Trench);
         // autoChooser.addRoutine("R Trench-Mid-Trench", autoRoutines::RtTrench_RtMid_RtTrench);
         // autoChooser.addRoutine("R Trench-Mid-Ramp", autoRoutines::RtTrench_Mid_Ramp);
@@ -135,11 +118,11 @@ public class RobotContainer {
             FuelCommandsGPT.poseAlignAndShoot(shooter, indexer, /*intake,*/ drivetrain,
                 () -> -driver.getLeftY() * MaxSpeed,
                 () -> -driver.getLeftX() * MaxSpeed)); 
-
-        driver.leftTrigger(0.5).whileTrue(intake.intakeFuel());
         
         // Hold on and it will cycle back and forth
-        driver.rightBumper().whileTrue(intake.fuelPumpSlow());
+        driver.rightBumper().whileTrue(intake.fuelPumpCycle());
+
+        driver.leftTrigger(0.5).whileTrue(intake.intakeFuel());
 
         // Press once to partially retract slides
         driver.leftBumper().onTrue(intake.retractSlidesIncrementalCmd());
@@ -162,11 +145,7 @@ public class RobotContainer {
         operator.y().whileTrue(
             FuelCommandsGPT.shootWithPreset(shooter, indexer, ShooterSubsystem.ShotPreset.FAR));
 
-        operator.rightBumper().whileTrue(intake.fuelPumpSlow());
-        
-        operator.leftTrigger(0.5).whileTrue(intake.intakeFuel());
-
-        // operator.rightBumper().whileTrue(FuelCommandsGPT.shootPass(shooter, indexer));
+        operator.rightBumper().whileTrue(FuelCommandsGPT.shootPass(shooter, indexer));
 
         // Hold to back a ball out of the chute if it entered prematurely
         operator.rightTrigger().whileTrue(indexer.reverse());
@@ -179,17 +158,14 @@ public class RobotContainer {
         //     indexer.isFuelDetected()
         // ).whileTrue(indexer.reverse());
 
-        // operator.leftTrigger().whileTrue(FuelCommandsGPT.runAirPopper(indexer, shooter, intake));
-
+        operator.leftTrigger().whileTrue(FuelCommandsGPT.runAirPopper(indexer, shooter, intake));
         operator.leftBumper().whileTrue(intake.retractSlidesStack());
 
         // Back (View ⧉): Reset odometry to botpose — use when robot rides up on a ball
         operator.back().onTrue(drivetrain.resetPoseFromVisionCommand());
-
-        // FIXME: Add a reverse indexer on start button for operator
     
-        operator.povUp().whileTrue(intake.manualSlideExtendHoldCmd());
-        operator.povDown().whileTrue(intake.manualSlideRetractHoldCmd());
+        // operator.povUp().whileTrue(null); // incremental extend climber command to be added when climber is ready
+        // operator.povDown().whileTrue(null); // incremental retract climber command to be added when climber is ready
 
         // POV cycles through LED animations (for testing / manual override)
         operator.povUp().onTrue(ledSub.cycleNext());
