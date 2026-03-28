@@ -103,8 +103,8 @@ public final class Constants {
      * TODO: Verify roller voltages on the current mechanism. These are working
      * estimates and should be rechecked after roller or intake geometry changes.
      */
-    public static final double ROLLER_FORWARD_VOLTS = 8.0; // Was 11
-    public static final double ROLLER_REVERSE_VOLTS = -8.0;
+    public static final double ROLLER_FORWARD_VOLTS = 8; // Was 12
+    public static final double ROLLER_REVERSE_VOLTS = -8;
 
     public static final class RollerConfig {
       private RollerConfig() {
@@ -200,7 +200,7 @@ public final class Constants {
        * current hardware. Add an end-of-line "Tuned" note when each value is confirmed.
        */
       public static final NeutralModeValue NEUTRAL_MODE = NeutralModeValue.Brake;
-      public static final InvertedValue INVERTED = InvertedValue.Clockwise_Positive;
+      public static final InvertedValue INVERTED = InvertedValue.CounterClockwise_Positive;
       public static final double SUPPLY_CURRENT_LIMIT = 40.0;
       public static final double STATOR_CURRENT_LIMIT = 40.0;
       public static final double PEAK_FORWARD_VOLTAGE = 12.0;
