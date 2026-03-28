@@ -358,8 +358,8 @@ public final class Constants {
     public static final double KD = 0;
 
     public static final double SUPPLY_CURRENT_LIMIT = 30;
-    public static final double PEAK_REVERSE_VOLTAGE = -4.0;
-    public static final double PEAK_FORWARD_VOLTAGE = 4.0;
+    public static final double REVERSE_VOLTAGE = -4.0;
+    public static final double FORWARD_VOLTAGE = 4.0;
     public static final double ENCODER_ZERO_POSITION = 0.0;
 
     public static final class HoodConfig {
