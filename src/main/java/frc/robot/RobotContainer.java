@@ -135,11 +135,11 @@ public class RobotContainer {
             FuelCommandsGPT.poseAlignAndShoot(shooter, indexer, /*intake,*/ drivetrain,
                 () -> -driver.getLeftY() * MaxSpeed,
                 () -> -driver.getLeftX() * MaxSpeed)); 
-        
-        // Hold on and it will cycle back and forth
-        driver.rightBumper().whileTrue(intake.fuelPumpCycle());
 
         driver.leftTrigger(0.5).whileTrue(intake.intakeFuel());
+        
+        // Hold on and it will cycle back and forth
+        driver.rightBumper().whileTrue(intake.fuelPumpSlow());
 
         // Press once to partially retract slides
         driver.leftBumper().onTrue(intake.retractSlidesIncrementalCmd());
@@ -162,7 +162,11 @@ public class RobotContainer {
         operator.y().whileTrue(
             FuelCommandsGPT.shootWithPreset(shooter, indexer, ShooterSubsystem.ShotPreset.FAR));
 
-        operator.rightBumper().whileTrue(FuelCommandsGPT.shootPass(shooter, indexer));
+        operator.rightBumper().whileTrue(intake.fuelPumpSlow());
+        
+        operator.leftTrigger(0.5).whileTrue(intake.intakeFuel());
+
+        // operator.rightBumper().whileTrue(FuelCommandsGPT.shootPass(shooter, indexer));
 
         // Hold to back a ball out of the chute if it entered prematurely
         operator.rightTrigger().whileTrue(indexer.reverse());
@@ -175,7 +179,8 @@ public class RobotContainer {
         //     indexer.isFuelDetected()
         // ).whileTrue(indexer.reverse());
 
-        operator.leftTrigger().whileTrue(FuelCommandsGPT.runAirPopper(indexer, shooter, intake));
+        // operator.leftTrigger().whileTrue(FuelCommandsGPT.runAirPopper(indexer, shooter, intake));
+
         operator.leftBumper().whileTrue(intake.retractSlidesStack());
 
         // Back (View ⧉): Reset odometry to botpose — use when robot rides up on a ball
