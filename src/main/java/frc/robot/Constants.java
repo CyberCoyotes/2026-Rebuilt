@@ -168,12 +168,12 @@ public final class Constants {
      * TODO: Verify conveyor and kicker voltages on the current hopper / shooter
      * geometry. These were carried forward from earlier mechanical revisions.
      */
-    public static final double CONVEYOR_FORWARD_VOLTAGE = 2.5;
-    public static final double CONVEYOR_REVERSE_VOLTAGE = -2.5;
+    public static final double CONVEYOR_FORWARD_VOLTAGE = .5;
+    public static final double CONVEYOR_REVERSE_VOLTAGE = -1;
     public static final double CONVEYOR_POPPER_VOLTAGE = 1.0;
-
-    public static final double KICKER_FORWARD_VOLTAGE = 6.0;
-    public static final double KICKER_REVERSE_VOLTAGE = -8.0;
+                                                                // INCREASE AS NECESSARY
+    public static final double KICKER_FORWARD_VOLTAGE = 12.0;
+    public static final double KICKER_REVERSE_VOLTAGE = -4.0;
     public static final double KICKER_POPPER_VOLTAGE = 3.0; 
 
     // == Sensor geometry / thresholds ========================
@@ -219,11 +219,11 @@ public final class Constants {
       public static final NeutralModeValue NEUTRAL_MODE = NeutralModeValue.Brake;
       public static final InvertedValue INVERTED = InvertedValue.CounterClockwise_Positive;
       public static final double SUPPLY_CURRENT_LIMIT = 40.0;
-      public static final double STATOR_CURRENT_LIMIT = 60.0;
+      public static final double STATOR_CURRENT_LIMIT = 100.0;
       public static final double PEAK_FORWARD_VOLTAGE = 12.0;
       public static final double PEAK_REVERSE_VOLTAGE = -12.0;
       public static final MotorAlignmentValue FOLLOWER_ALIGNMENT = MotorAlignmentValue.Opposed;
-      public static final double OPEN_LOOP_RAMP_RATE = 0.5;
+      public static final double OPEN_LOOP_RAMP_RATE = 0.95;
     }
 
     public static final class ChuteSensorConfig {

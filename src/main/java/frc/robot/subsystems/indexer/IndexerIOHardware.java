@@ -1,6 +1,7 @@
 package frc.robot.subsystems.indexer;
 
 import com.ctre.phoenix6.BaseStatusSignal;
+import com.ctre.phoenix6.StatusCode;
 import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.configs.CANrangeConfiguration;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
@@ -42,9 +43,9 @@ public class IndexerIOHardware implements IndexerIO {
         config.MotorOutput.Inverted    = Constants.Indexer.ConveyorConfig.INVERTED;
 
         config.CurrentLimits.SupplyCurrentLimit       = Constants.Indexer.ConveyorConfig.SUPPLY_CURRENT_LIMIT;
-        config.CurrentLimits.SupplyCurrentLimitEnable = true;
+        config.CurrentLimits.SupplyCurrentLimitEnable = false;
         config.CurrentLimits.StatorCurrentLimit       = Constants.Indexer.ConveyorConfig.STATOR_CURRENT_LIMIT;
-        config.CurrentLimits.StatorCurrentLimitEnable = true;
+        config.CurrentLimits.StatorCurrentLimitEnable = false; // TEMPORARILY DISABLED. RE-ENABLE WHEN LIMIT FOUND
 
         config.Voltage.PeakForwardVoltage = Constants.Indexer.ConveyorConfig.PEAK_FORWARD_VOLTAGE;
         config.Voltage.PeakReverseVoltage = Constants.Indexer.ConveyorConfig.PEAK_REVERSE_VOLTAGE;
@@ -117,13 +118,20 @@ public class IndexerIOHardware implements IndexerIO {
         kickerMotorFollow = new TalonFX(Constants.Indexer.KICKER_RIGHT_MOTOR_ID,   Constants.RIO_CANBUS);
         chuteToF      = new CANrange(Constants.Indexer.CHUTE_TOF_ID,       Constants.RIO_CANBUS);
 
-        // Apply configs with retry logic — replaces the single-attempt local helper.
+       // Apply configs with retry logic — replaces the single-attempt local helper.
         // Five retries handles devices still booting when apply() is first called.
         PhoenixUtil.applyConfig("Conveyor",  () -> conveyorMotor.getConfigurator().apply(conveyorConfig()));
-        PhoenixUtil.applyConfig("Kicker Lead",   () -> kickerMotorLead.getConfigurator().apply(indexerConfig()));
-        PhoenixUtil.applyConfig("Kicker Follow",   () -> kickerMotorFollow.getConfigurator().apply(indexerConfig()));
+        PhoenixUtil.applyConfig("Kicker Lead", () -> {
+            StatusCode code = kickerMotorLead.getConfigurator().apply(indexerConfig());
+            System.out.println("Kicker Lead config result: " + code.getName());
+            return code;
+        });                                                                         //TEMPORARY CHECK TO MAKE SURE MOTOR CONFIGS ARE BEING APPLIED CORRECTLY
+        PhoenixUtil.applyConfig("Kicker Follow", () -> {
+            StatusCode code = kickerMotorFollow.getConfigurator().apply(indexerConfig());
+            System.out.println("Kicker Follow config result: " + code.getName());
+            return code;
+        });
         PhoenixUtil.applyConfig("Chute ToF", () -> chuteToF.getConfigurator().apply(chuteCANrangeConfig()));
-
         // Follower must be set after configs are applied.
         kickerMotorFollow.setControl(kickerFollowerRequest);
 
