@@ -49,6 +49,7 @@ public class IntakeSubsystem extends SubsystemBase {
     private final NetworkTable intakeTable;
     private final StringPublisher intakeStatePublisher;
     private final DoublePublisher slidePositionPublisher;
+    private final BooleanPublisher rollerAllowedPublisher;
     private final BooleanPublisher slideExtendedPublisher;
     private final BooleanPublisher slideRetractedPublisher;
 
@@ -62,6 +63,7 @@ public class IntakeSubsystem extends SubsystemBase {
         intakeTable = inst.getTable("Intake");
         intakeStatePublisher = intakeTable.getStringTopic("State").publish();
         slidePositionPublisher = intakeTable.getDoubleTopic("SlidePosition").publish();
+        rollerAllowedPublisher = intakeTable.getBooleanTopic("RollerAllowed").publish();
         slideExtendedPublisher = intakeTable.getBooleanTopic("SlideExtended").publish();
         slideRetractedPublisher = intakeTable.getBooleanTopic("SlideRetracted").publish();
     }
@@ -77,6 +79,7 @@ public class IntakeSubsystem extends SubsystemBase {
 
         // Derived/computed values logged separately so they appear in AdvantageScope
         Logger.recordOutput("Intake/State", getIntakeState());
+        Logger.recordOutput("Intake/RollerAllowed", isSlidePastHome());
         Logger.recordOutput("Intake/SlideExtended", isSlideExtended());
         Logger.recordOutput("Intake/SlideRetracted", isSlideRetracted());
 
@@ -87,6 +90,7 @@ public class IntakeSubsystem extends SubsystemBase {
     private void publishTelemetry() {
         intakeStatePublisher.set(getIntakeState());
         slidePositionPublisher.set(inputs.slidePositionRotations);
+        rollerAllowedPublisher.set(isSlidePastHome());
         slideExtendedPublisher.set(isSlideExtended());
         slideRetractedPublisher.set(isSlideRetracted());
     }
@@ -115,6 +119,11 @@ public class IntakeSubsystem extends SubsystemBase {
         return Math.abs(inputs.slidePositionRotations - Constants.Intake.SLIDE_HOME_POS) < Constants.Intake.SLIDE_TOLERANCE;
     }
 
+    /** True when the slide is safely past the home position for roller operation. */
+    public boolean isSlidePastHome() {
+        return inputs.slidePositionRotations > Constants.Intake.SLIDE_HOME_POS;
+    }
+
     // If you need position for a command or calculation
     public double getSlidePositionRotations() {
         return inputs.slidePositionRotations;
@@ -141,11 +150,19 @@ public class IntakeSubsystem extends SubsystemBase {
     // ==== Roller ====    
     
     public void runRoller() {
+        if (!isSlidePastHome()) {
+            stopRoller();
+            return;
+        }
         io.setRollerVoltage(Constants.Intake.ROLLER_FORWARD_VOLTS);
         rollerState = RollerState.RUNNING;
     }
 
     public void reverseRoller() {
+        if (!isSlidePastHome()) {
+            stopRoller();
+            return;
+        }
         io.setRollerVoltage(Constants.Intake.ROLLER_REVERSE_VOLTS);
         rollerState = RollerState.REVERSED;
     }
@@ -228,13 +245,15 @@ public class IntakeSubsystem extends SubsystemBase {
 
      /** Runs roller while held; stops on release. */
     public Command intakeRoller() {
-        return Commands.startEnd(this::runRoller, this::stopRoller, this)
+        return Commands.run(this::runRoller, this)
+                .finallyDo(this::stopRoller)
                 .withName("IntakeRoller");
     }
 
     /** Reverses roller while held; stops on release. */
     public Command reverseIntakeRoller() {
-        return Commands.startEnd(this::reverseRoller, this::stopRoller, this)
+        return Commands.run(this::reverseRoller, this)
+                .finallyDo(this::stopRoller)
                 .withName("ReverseIntakeRoller");
     }
 
