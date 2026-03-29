@@ -43,9 +43,9 @@ public class IndexerIOHardware implements IndexerIO {
         config.MotorOutput.Inverted    = Constants.Indexer.ConveyorConfig.INVERTED;
 
         config.CurrentLimits.SupplyCurrentLimit       = Constants.Indexer.ConveyorConfig.SUPPLY_CURRENT_LIMIT;
-        config.CurrentLimits.SupplyCurrentLimitEnable = false;
+        config.CurrentLimits.SupplyCurrentLimitEnable = true;
         config.CurrentLimits.StatorCurrentLimit       = Constants.Indexer.ConveyorConfig.STATOR_CURRENT_LIMIT;
-        config.CurrentLimits.StatorCurrentLimitEnable = false; // TEMPORARILY DISABLED. RE-ENABLE WHEN LIMIT FOUND
+        config.CurrentLimits.StatorCurrentLimitEnable = true;
 
         config.Voltage.PeakForwardVoltage = Constants.Indexer.ConveyorConfig.PEAK_FORWARD_VOLTAGE;
         config.Voltage.PeakReverseVoltage = Constants.Indexer.ConveyorConfig.PEAK_REVERSE_VOLTAGE;
@@ -66,9 +66,6 @@ public class IndexerIOHardware implements IndexerIO {
 
         config.Voltage.PeakForwardVoltage = Constants.Indexer.KickerConfig.PEAK_FORWARD_VOLTAGE;
         config.Voltage.PeakReverseVoltage = Constants.Indexer.KickerConfig.PEAK_REVERSE_VOLTAGE;
-
-        
-        config.OpenLoopRamps.VoltageOpenLoopRampPeriod = Constants.Indexer.KickerConfig.OPEN_LOOP_RAMP_RATE;
 
         return config;
     }
