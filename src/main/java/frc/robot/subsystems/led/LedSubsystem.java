@@ -34,7 +34,7 @@ public class LedSubsystem extends SubsystemBase {
     private final int kRightFireSlot = 1;
     private final int kAnimSlot = 0; // slot for intake/shooting animations
 
-    private static final int kStripCount = 175;
+    private static final int kStripCount = 350;
 
     private final Timer m_animTimer = new Timer();
 
@@ -43,7 +43,7 @@ public class LedSubsystem extends SubsystemBase {
     // =========================================================================
 
     // Left fire region (0–50)
-    private final FireAnimation m_leftFire = new FireAnimation(0, 50)
+    private final FireAnimation m_leftFire = new FireAnimation(0, 100)
             .withSlot(kLeftFireSlot)
             .withBrightness(1)
             .withDirection(AnimationDirectionValue.Forward)
@@ -52,7 +52,7 @@ public class LedSubsystem extends SubsystemBase {
             .withFrameRate(Hertz.of(60));
 
     // Right fire region (125–175)
-    private final FireAnimation m_rightFire = new FireAnimation(175, 125)
+    private final FireAnimation m_rightFire = new FireAnimation(350, 250)
             .withSlot(kRightFireSlot)
             .withBrightness(1)
             .withDirection(AnimationDirectionValue.Forward)
@@ -64,7 +64,7 @@ public class LedSubsystem extends SubsystemBase {
     private final LarsonAnimation m_intakeAnimation = new LarsonAnimation(0, kStripCount)
             .withSlot(kAnimSlot)
             .withColor(new RGBWColor(255, 0, 0, 0))
-            .withSize(15)
+            .withSize(20)
             .withBounceMode(LarsonBounceValue.Front)
             .withFrameRate(Hertz.of(500));
 
@@ -73,7 +73,7 @@ public class LedSubsystem extends SubsystemBase {
             .withSlot(kAnimSlot)
             .withColor(new RGBWColor(255, 0, 0, 0))
             .withDirection(AnimationDirectionValue.Forward)
-            .withFrameRate(Hertz.of(750));
+            .withFrameRate(Hertz.of(650));
 
     // =========================================================================
     // State machine
