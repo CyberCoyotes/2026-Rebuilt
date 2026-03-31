@@ -67,7 +67,7 @@ public class RobotContainer {
         indexer = new IndexerSubsystem(new IndexerIOHardware());
         shooter = new ShooterSubsystem(new ShooterIOHardware());
         vision = new VisionSubsystem(new VisionIOLimelight(Constants.Vision.LIMELIGHT4_NAME));
-        ledSub = new LedSubsystem();
+        ledSub = new LedSubsystem(shooter);
 
         autoFactory = drivetrain.createAutoFactory();
         autoRoutines = new AutoRoutines(autoFactory,drivetrain,indexer, intake, shooter);
@@ -171,18 +171,32 @@ public class RobotContainer {
         // // POV cycles through LED animations (for testing / manual override)
         // operator.povUp().onTrue(ledSub.cycleNext());
         // operator.povDown().onTrue(ledSub.cyclePrev());
+// =====================================================================
+// LED STATE TRIGGERS
+// =====================================================================
 
-        // =====================================================================
-        // LED STATE TRIGGERS — shooter states
-        // =====================================================================
-        new Trigger(shooter::isSpinningUp)
-            .onTrue(ledSub.showSpinningUp())
-            .onFalse(ledSub.showDefault());
+    // Shooting — any shoot preset (driver RT, driver POV left, operator A/B/X/Y)
+    Trigger anyShootHeld = driver.rightTrigger(0.5)
+        .or(driver.povLeft())
+        .or(operator.a())
+        .or(operator.b())
+        .or(operator.x())
+        .or(operator.y());
+            anyShootHeld
+                .onTrue(ledSub.showShooting())
+                .and(RobotModeTriggers.teleop()).onFalse(ledSub.showIdle());
 
-        new Trigger(shooter::isReady)
-            .onTrue(ledSub.showReady())
-            .onFalse(ledSub.showDefault());
 
+    // Intaking — driver or operator left trigger
+    Trigger anyIntakeHeld = driver.leftTrigger(0.5)
+        .or(operator.leftTrigger(0.5));
+            anyIntakeHeld
+                .onTrue(ledSub.showIntaking())
+                .and(RobotModeTriggers.teleop()).onFalse(ledSub.showIdle());
+
+    // Default to idle when enabled and nothing else is active
+    RobotModeTriggers.teleop()
+        .onTrue(ledSub.showIdle());
         // =====================================================================
         // LED GAME TELEMETRY TRIGGERS (commented out — enable when needed)
         // Requires: gameDataTelemetry accessible here, DriverStation import
