@@ -37,7 +37,7 @@ public class FuelCommandsGPT {
      * Current mechanical layout: shooter and camera are mounted on the back of the robot, so
      * the chassis front must point 180° away from the hub when aligning to shoot.
      */
-    private static final double SHOOTER_ALIGNMENT_OFFSET_DEGREES = 180.0;
+    private static final double SHOOTER_ALIGNMENT_OFFSET_DEGREES = 0.0;
 
     /** Returns the hub center for the current alliance (defaults to blue if FMS not connected). */
     private static Translation2d getHubLocation() {
@@ -328,11 +328,16 @@ public class FuelCommandsGPT {
             ntLeadOffset.set(leadOffsetDeg);
 
             // 3. Rotation correction
+            double rawRotRate = headingErrorDeg * Constants.Vision.ROTATIONAL_KP;
             double rotRate = MathUtil.clamp(
-                    headingErrorDeg * Constants.Vision.ROTATIONAL_KP,
-                    -Constants.Vision.MAX_ALIGNMENT_ROTATION_RAD_PER_SEC,
-                    Constants.Vision.MAX_ALIGNMENT_ROTATION_RAD_PER_SEC);
+                rawRotRate,
+                -Constants.Vision.MAX_ALIGNMENT_ROTATION_RAD_PER_SEC,
+                Constants.Vision.MAX_ALIGNMENT_ROTATION_RAD_PER_SEC);
 
+            if (Math.abs(headingErrorDeg) > 1.0 && Math.abs(rotRate) < Constants.Vision.MIN_ALIGNMENT_ROTATION_RAD_PER_SEC) {
+                rotRate = Math.copySign(Constants.Vision.MIN_ALIGNMENT_ROTATION_RAD_PER_SEC, rotRate);
+            }
+            
             ntAngleToHub.set(angleToHubDeg);
             ntCurrentHeading.set(currentHeadingDeg);
             ntHeadingError.set(headingErrorDeg);

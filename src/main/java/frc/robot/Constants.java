@@ -284,7 +284,7 @@ public final class Constants {
      */
     public static final double EJECT_MAX_ENTRY_RPM = 500.0;
     
-    public static final double KP = 0.000;
+    public static final double KP = 0.005;
     public static final double KV = 0.100;
     public static final double KD = 0.000;
     public static final double KA = 0.000;
@@ -406,14 +406,14 @@ public final class Constants {
     /* TODO: Verify camera mounting offsets on the current robot. */
 
     /* Height of Limelight lens from floor in meters is 19.25 inches = 0.489 meters */
-    public static final double CAMERA_HEIGHT_METERS = 0.489;
+    public static final double CAMERA_HEIGHT_METERS = 0.5;
 
     /* 
     * Camera is on the back of robot from center reference of Pigeon 2
     * The Shooter is on the back of robot from center reference of Pigeon 2 as well
     * -9.5 inches = 0.2413 meters 
     */ 
-    public static final double CAMERA_BACK_OFFSET_METERS = 0.2413;
+    public static final double CAMERA_BACK_OFFSET_METERS = 0;
 
     // Camera is **now** center
     public static final double CAMERA_LEFT_OFFSET_METERS = 0;
@@ -449,7 +449,7 @@ public final class Constants {
      */
 
     // started at 40; now 10;
-    public static final double ROTATIONAL_KP = 0.10;
+    public static final double ROTATIONAL_KP = 0.05;
 
     /**
      * Maximum rotational rate the vision command will apply to the drivetrain
@@ -457,8 +457,9 @@ public final class Constants {
      * Prevents violent snap when tx error is large on first acquisition.
      * Default: 3.0 rad/s (~172°/s). Reduce if the robot swings too aggressively.
      */
-    public static final double MAX_ALIGNMENT_ROTATION_RAD_PER_SEC = 5.0;
-    public static final double MIN_DISTANCE_M = 0.5;
+    public static final double MIN_ALIGNMENT_ROTATION_RAD_PER_SEC = 0.15; // tune to just above static friction
+    public static final double MAX_ALIGNMENT_ROTATION_RAD_PER_SEC = 2.0;
+    public static final double MIN_DISTANCE_M = 0.25;
     public static final double MAX_DISTANCE_M = 8.0;
     // public static final double ALIGNMENT_TOLERANCE_DEG = 0.5; // Duplicate of
     // ALIGNMENT_TOLERANCE_DEGREES above, but with a tighter tolerance for "aligned"

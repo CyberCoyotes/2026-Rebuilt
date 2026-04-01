@@ -91,9 +91,9 @@ public class RobotContainer {
 
         drivetrain.setDefaultCommand(
             drivetrain.applyRequest(() ->
-                drive.withVelocityX(-driver.getLeftY() * MaxSpeed)
-                    .withVelocityY(-driver.getLeftX() * MaxSpeed)
-                    .withRotationalRate(-driver.getRightX() * MaxAngularRate)
+                drive.withVelocityX(driver.getLeftY() * MaxSpeed)
+                    .withVelocityY(driver.getLeftX() * MaxSpeed)
+                    .withRotationalRate(driver.getRightX() * MaxAngularRate)
             )
         );
 
@@ -125,10 +125,14 @@ public class RobotContainer {
         // Press once to partially retract slides
         driver.leftBumper().onTrue(intake.retractSlidesIncrementalCmd());
 
-        // driver.a().whileTrue(FuelCommands.fuelPump(indexer));
-        
-         driver.povLeft().whileTrue(
+        driver.povLeft().whileTrue(
             FuelCommandsGPT.shootWithPreset(shooter, indexer, ShooterSubsystem.ShotPreset.CLOSE));
+        driver.povRight().whileTrue(
+            FuelCommandsGPT.shootWithPreset(shooter, indexer, ShooterSubsystem.ShotPreset.TRENCH));
+        driver.povUp().whileTrue(
+            FuelCommandsGPT.shootWithPreset(shooter, indexer, ShooterSubsystem.ShotPreset.FAR));
+        driver.povDown().whileTrue(
+            FuelCommandsGPT.shootWithPreset(shooter, indexer, ShooterSubsystem.ShotPreset.TOWER));
 
         // =====================================================================
         // OPERATOR CONTROLLER (Port 1)
