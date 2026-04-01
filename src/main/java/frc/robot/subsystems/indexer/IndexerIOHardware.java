@@ -88,12 +88,8 @@ public class IndexerIOHardware implements IndexerIO {
     private final CANrange chuteToF;
 
     // == Control Requests ==========================================================
-    private final VoltageOut conveyorVoltageRequest = new VoltageOut(0.0);
-
-    // Kicker follower was mechanically flipped again, so it must mirror the lead
-    // motor with opposite shaft rotation while still matching the same commanded
-    // game-piece motion.
-    private final VoltageOut kickerLeadVoltageRequest  = new VoltageOut(0.0);
+    private final VoltageOut conveyorVoltageRequest = new VoltageOut(0.0).withEnableFOC(false);
+    private final VoltageOut kickerLeadVoltageRequest  = new VoltageOut(0.0).withEnableFOC(false);
     private final Follower kickerFollowerRequest =
         new Follower(Constants.Indexer.KICKER_LEFT_MOTOR_ID, Constants.Indexer.KickerConfig.FOLLOWER_ALIGNMENT);
 

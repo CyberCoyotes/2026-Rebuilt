@@ -115,12 +115,8 @@ public class ShooterIOHardware implements ShooterIO {
   private final TalonFXS hoodMotor;
 
   // == Control Requests =====================================================
-  private final MotionMagicVelocityVoltage flywheelVelocityRequest = new MotionMagicVelocityVoltage(0.0);
-
-  // MotionMagicVoltage respects the cruise velocity/accel profile set in config,
-  // limiting current spikes during large position changes.
-  // PositionVoltage commands maximum effort immediately - do not use for hood.
-  private final MotionMagicVoltage hoodPositionRequest = new MotionMagicVoltage(0.0);
+ private final MotionMagicVelocityVoltage flywheelVelocityRequest = new MotionMagicVelocityVoltage(0.0).withEnableFOC(false);
+private final MotionMagicVoltage hoodPositionRequest = new MotionMagicVoltage(0.0).withEnableFOC(false);
 
   // Flywheel follower was mechanically flipped again, so it must oppose the
   // leader's shaft rotation while still producing the same flywheel surface

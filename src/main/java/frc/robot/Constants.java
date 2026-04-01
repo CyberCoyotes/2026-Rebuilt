@@ -113,7 +113,7 @@ public final class Constants {
       // == Hardware config ====================================
       public static final NeutralModeValue NEUTRAL_MODE = NeutralModeValue.Coast; // Was Brake
       public static final InvertedValue INVERTED = InvertedValue.CounterClockwise_Positive;
-      public static final double SUPPLY_CURRENT_LIMIT = 40.0;
+      public static final double SUPPLY_CURRENT_LIMIT = 30.0;
       public static final double STATOR_CURRENT_LIMIT = 40.0;
       public static final MotorAlignmentValue FOLLOWER_ALIGNMENT = MotorAlignmentValue.Opposed;
     }
@@ -130,7 +130,7 @@ public final class Constants {
        * TODO: Verify slide current limits, soft limits, and closed-loop gains on the
        * updated mechanism. Add an end-of-line "Tuned" note when each value is confirmed.
        */
-      public static final double SUPPLY_CURRENT_LIMIT = 40.0;
+      public static final double SUPPLY_CURRENT_LIMIT = 30.0;
       public static final double STATOR_CURRENT_LIMIT = 60.0;
       public static final double REVERSE_SOFT_LIMIT = SLIDE_RETRACTED_POS; // CHECK
       public static final double KP = 2.0;
@@ -168,11 +168,11 @@ public final class Constants {
      * TODO: Verify conveyor and kicker voltages on the current hopper / shooter
      * geometry. These were carried forward from earlier mechanical revisions.
      */
-    public static final double CONVEYOR_FORWARD_VOLTAGE = 2.5;
+    public static final double CONVEYOR_FORWARD_VOLTAGE = 1.5;
     public static final double CONVEYOR_REVERSE_VOLTAGE = -1;
     public static final double CONVEYOR_POPPER_VOLTAGE = 1.0;
                                                                 // INCREASE AS NECESSARY
-    public static final double KICKER_FORWARD_VOLTAGE = 12.0;
+    public static final double KICKER_FORWARD_VOLTAGE = 3.0;
     public static final double KICKER_REVERSE_VOLTAGE = -4.0;
     public static final double KICKER_POPPER_VOLTAGE = 3.0; 
 
@@ -199,9 +199,9 @@ public final class Constants {
        * TODO: Verify conveyor current limits, polarity, and voltage caps against the
        * current hardware. Add an end-of-line "Tuned" note when each value is confirmed.
        */
-      public static final NeutralModeValue NEUTRAL_MODE = NeutralModeValue.Brake;
+      public static final NeutralModeValue NEUTRAL_MODE = NeutralModeValue.Coast;
       public static final InvertedValue INVERTED = InvertedValue.CounterClockwise_Positive;
-      public static final double SUPPLY_CURRENT_LIMIT = 40.0;
+      public static final double SUPPLY_CURRENT_LIMIT = 30.0;
       public static final double STATOR_CURRENT_LIMIT = 40.0;
       public static final double PEAK_FORWARD_VOLTAGE = 12.0;
       public static final double PEAK_REVERSE_VOLTAGE = -12.0;
@@ -216,10 +216,10 @@ public final class Constants {
        * TODO: Verify kicker current limits, polarity, and follower alignment on the
        * current roller stackup. Add an end-of-line "Tuned" note when each value is confirmed.
        */
-      public static final NeutralModeValue NEUTRAL_MODE = NeutralModeValue.Brake;
-      public static final InvertedValue INVERTED = InvertedValue.CounterClockwise_Positive;
-      public static final double SUPPLY_CURRENT_LIMIT = 40.0;
-      public static final double STATOR_CURRENT_LIMIT = 60.0;
+      public static final NeutralModeValue NEUTRAL_MODE = NeutralModeValue.Coast;
+      public static final InvertedValue INVERTED = InvertedValue.Clockwise_Positive;
+      public static final double SUPPLY_CURRENT_LIMIT = 35.0; // DO NOT RAISE, FUSE IS 40A MAX
+      public static final double STATOR_CURRENT_LIMIT = 100.0;
       public static final double PEAK_FORWARD_VOLTAGE = 12.0;
       public static final double PEAK_REVERSE_VOLTAGE = -12.0;
       public static final MotorAlignmentValue FOLLOWER_ALIGNMENT = MotorAlignmentValue.Opposed;
@@ -296,15 +296,15 @@ public final class Constants {
      */
     public static final double TOLERANCE_PERCENT = 0.05;
 
-    public static final double SUPPLY_CURRENT_LIMIT = 100;
-    public static final double STATOR_CURRENT_LIMIT = 60;
+    public static final double SUPPLY_CURRENT_LIMIT = 35; // DO NOT RAISE, FUSE IS 40A MAX
+    public static final double STATOR_CURRENT_LIMIT = 100;
     public static final double TEST_INCREMENT_RPM = 100.0;
 
     /*
      * Motion Magic Velocity starting point for the rebuilt two-Kraken flywheel.
      * Tune acceleration to shape spin-up, then refine Slot0 gains.
      */
-    public static final double MM_ACCELERATION_RPS_PER_SEC = 120.0;
+    public static final double MM_ACCELERATION_RPS_PER_SEC = 50.0;
     public static final double MM_JERK_RPS_PER_SEC_CUBED = 0.0;
 
     public static final class LeaderConfig {

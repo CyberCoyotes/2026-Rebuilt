@@ -34,7 +34,7 @@ public class LedSubsystem extends SubsystemBase {
     private final int kRightFireSlot = 1;
     private final int kAnimSlot = 0; // slot for intake/shooting animations
 
-    private static final int kStripCount = 350;
+    private static final int kStripCount = 325;
 
     private final Timer m_animTimer = new Timer();
 
@@ -48,17 +48,17 @@ public class LedSubsystem extends SubsystemBase {
             .withBrightness(1)
             .withDirection(AnimationDirectionValue.Forward)
             .withSparking(1)
-            .withCooling(0.3)
-            .withFrameRate(Hertz.of(60));
+            .withCooling(0.2)
+            .withFrameRate(Hertz.of(100));
 
     // Right fire region (125–175)
-    private final FireAnimation m_rightFire = new FireAnimation(350, 250)
+    private final FireAnimation m_rightFire = new FireAnimation(325, 225)
             .withSlot(kRightFireSlot)
             .withBrightness(1)
             .withDirection(AnimationDirectionValue.Forward)
             .withSparking(1)
-            .withCooling(0.3)
-            .withFrameRate(Hertz.of(60));
+            .withCooling(0.2)
+            .withFrameRate(Hertz.of(100));
 
     // Intake: Larson animation (overrides both fire slots)
     private final LarsonAnimation m_intakeAnimation = new LarsonAnimation(0, kStripCount)
@@ -66,7 +66,7 @@ public class LedSubsystem extends SubsystemBase {
             .withColor(new RGBWColor(255, 0, 0, 0))
             .withSize(20)
             .withBounceMode(LarsonBounceValue.Front)
-            .withFrameRate(Hertz.of(500));
+            .withFrameRate(Hertz.of(250));
 
     // Shooting: ColorFlow animation (overrides both fire slots)
     private final ColorFlowAnimation m_shootingAnimation = new ColorFlowAnimation(0, kStripCount)
