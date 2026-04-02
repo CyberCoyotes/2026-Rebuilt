@@ -69,38 +69,40 @@ public final class Constants {
     public static final int ROLLER_RIGHT_MOTOR_ID = 21;
     public static final int SLIDE_MOTOR_ID = 22;
 
-    /*
-     * mechanical changes. Add an end-of-line "Tuned" note when each value is confirmed.
-     */
+    /* Add an end-of-line "Tuned" note when each value is confirmed */
     public static final double SLIDE_RETRACTED_POS = 0.0;
     public static final double SLIDE_HOME_POS = 19.18;
     public static final double SLIDE_EXTENDED_POS = 62.00; // Previous was 63.0
     public static final double SLIDE_MAX_POS = 65.75;
     public static final double SLIDE_ROLLER_SAFE_MARGIN = 1.5;
     public static final double SLIDE_ROLLER_SAFE_POS = SLIDE_HOME_POS + SLIDE_ROLLER_SAFE_MARGIN;
-
     public static final double SLIDE_TOLERANCE = 0.05;
     public static final double SLIDE_INCREMENTAL_RETRACT_ROTATIONS = 15.0;
     public static final double SLIDE_MANUAL_STEP_ROTATIONS = 5.0;
     public static final double SLIDE_MANUAL_REPEAT_SECONDS = 0.15;
 
+    /* Normal or "fast" Motion Magic values for moving the slide quickly to position.
+    * Tune for smoothness and responsiveness without excessive overshoot or oscillation. 
+    * Add an end-of-line "Tuned" note when confirmed. 
+    */
     public static final double SLIDE_MM_CRUISE_VELOCITY = 64; // 32
     public static final double SLIDE_MM_ACCELERATION = 64; // 32
     public static final double SLIDE_MM_JERK = 0.0;
 
     public static final double SLIDE_SLOW_MM_CRUISE_VELOCITY = 4.0;
     public static final double SLIDE_SLOW_MM_ACCELERATION = 4.0;
+    public static final double SLIDE_SLOW_MM_JERK = 0.0;
 
     // Agitation positions used while shooting "pumping fuel"
     public static final double SLIDE_PUMP_OUT_POS = 60.0;
     public static final double SLIDE_PUMP_IN_POS = 40.0;
 
     /*
-     * TODO: Verify roller voltages on the current mechanism. These are working
-     * estimates and should be rechecked after roller or intake geometry changes.
+     * These intake roller values need to be verified, adjusted as needed, and re-verified
      */
     public static final double ROLLER_FORWARD_VOLTS = 8;
     public static final double ROLLER_REVERSE_VOLTS = -8;
+
 
     public static final class RollerConfig {
       private RollerConfig() {
@@ -108,8 +110,12 @@ public final class Constants {
 
       public static final NeutralModeValue NEUTRAL_MODE = NeutralModeValue.Coast; // Comp version was previously Brake
       public static final InvertedValue INVERTED = InvertedValue.CounterClockwise_Positive;
+
+      /* These are intake roller limits; not the actual roller setpoints */
       public static final double SUPPLY_CURRENT_LIMIT = 30.0;
       public static final double STATOR_CURRENT_LIMIT = 40.0;
+      public static final double PEAK_FORWARD_VOLTAGE = 12.0;
+      public static final double PEAK_REVERSE_VOLTAGE = -12.0;
       public static final MotorAlignmentValue FOLLOWER_ALIGNMENT = MotorAlignmentValue.Opposed;
     }
 
@@ -120,13 +126,18 @@ public final class Constants {
       public static final NeutralModeValue NEUTRAL_MODE = NeutralModeValue.Coast; // TODO: Changing from Brake to Coast; especially if it gets hit
       public static final InvertedValue INVERTED = InvertedValue.CounterClockwise_Positive;
 
-      /*
-       * TODO: Verify slide current limits, soft limits, and closed-loop gains on the
-       * updated mechanism. Add an end-of-line "Tuned" note when each value is confirmed.
-       */
+      /* These are slide limits, not the actual setpoints. */
       public static final double SUPPLY_CURRENT_LIMIT = 30.0;
       public static final double STATOR_CURRENT_LIMIT = 60.0;
-      public static final double REVERSE_SOFT_LIMIT = SLIDE_RETRACTED_POS; // CHECK
+      public static final double REVERSE_SOFT_LIMIT = SLIDE_RETRACTED_POS;
+      public static final double FORWARD_SOFT_LIMIT = SLIDE_MAX_POS;
+      public static final double PEAK_FORWARD_VOLTAGE = 12.0;
+      public static final double PEAK_REVERSE_VOLTAGE = -12.0;
+
+      /* Initial PID values for slide position control. 
+      * Tune to minimize overshoot and oscillation while maintaining reasonable responsiveness. 
+      * Add an end-of-line "Tuned" note when confirmed. */
+
       public static final double KP = 2.0;
       public static final double KI = 0.0;
       public static final double KD = 0.0;
