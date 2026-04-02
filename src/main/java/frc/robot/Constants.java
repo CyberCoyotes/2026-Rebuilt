@@ -73,12 +73,11 @@ public final class Constants {
 
     // == Mechanism setpoints =================================
     /*
-     * TODO: Verify all slide positions and Motion Magic values after the latest
      * mechanical changes. Add an end-of-line "Tuned" note when each value is confirmed.
      */
     public static final double SLIDE_RETRACTED_POS = 0.0;
-    public static final double SLIDE_HOME_POS = 19.18; // 
-    public static final double SLIDE_EXTENDED_POS = 63.00; // Was 44.40
+    public static final double SLIDE_HOME_POS = 19.18; // NC Gears reference?
+    public static final double SLIDE_EXTENDED_POS = 62.00; // Was 44.40
     public static final double SLIDE_MAX_POS = 65.75;
     public static final double SLIDE_ROLLER_SAFE_MARGIN = 1.5;
     public static final double SLIDE_ROLLER_SAFE_POS = SLIDE_HOME_POS + SLIDE_ROLLER_SAFE_MARGIN;
@@ -168,11 +167,11 @@ public final class Constants {
      * TODO: Verify conveyor and kicker voltages on the current hopper / shooter
      * geometry. These were carried forward from earlier mechanical revisions.
      */
-    public static final double CONVEYOR_FORWARD_VOLTAGE = 1.5;
+    public static final double CONVEYOR_FORWARD_VOLTAGE = 3.5;
     public static final double CONVEYOR_REVERSE_VOLTAGE = -1;
     public static final double CONVEYOR_POPPER_VOLTAGE = 1.0;
                                                                 // INCREASE AS NECESSARY
-    public static final double KICKER_FORWARD_VOLTAGE = 3.0;
+    public static final double KICKER_FORWARD_VOLTAGE = 6.0;
     public static final double KICKER_REVERSE_VOLTAGE = -4.0;
     public static final double KICKER_POPPER_VOLTAGE = 3.0; 
 
@@ -201,7 +200,7 @@ public final class Constants {
        */
       public static final NeutralModeValue NEUTRAL_MODE = NeutralModeValue.Coast;
       public static final InvertedValue INVERTED = InvertedValue.CounterClockwise_Positive;
-      public static final double SUPPLY_CURRENT_LIMIT = 30.0;
+      public static final double SUPPLY_CURRENT_LIMIT = 35.0;
       public static final double STATOR_CURRENT_LIMIT = 40.0;
       public static final double PEAK_FORWARD_VOLTAGE = 12.0;
       public static final double PEAK_REVERSE_VOLTAGE = -12.0;
@@ -266,11 +265,11 @@ public final class Constants {
      */
     public static final double POPPER_RPM = 650;
     public static final double STANDBY_RPM = 1000;
-    public static final double CLOSE_RPM = 3603; // 2700
+    public static final double CLOSE_RPM = 4500; // WAS 2700
     public static final double TOWER_RPM = 3200;
     public static final double TRENCH_RPM = 3200;
     public static final double FAR_RPM = 3800;
-    public static final double PASS_RPM = 3603;
+    public static final double PASS_RPM = 4000;
 
     /*
      * Reverse Flywheel RPM for jam clearing. 
@@ -285,7 +284,7 @@ public final class Constants {
     public static final double EJECT_MAX_ENTRY_RPM = 500.0;
     
     public static final double KP = 0.005;
-    public static final double KV = 0.100;
+    public static final double KV = .120;
     public static final double KD = 0.000;
     public static final double KA = 0.000;
 
@@ -294,9 +293,9 @@ public final class Constants {
      * Previously 0.10 measured steady-state;
      * Variance ±30 RPM at 3300; 3% = ±99 RPM (~3× variance)
      */
-    public static final double TOLERANCE_PERCENT = 0.05;
+    public static final double TOLERANCE_PERCENT = 0.03;
 
-    public static final double SUPPLY_CURRENT_LIMIT = 35; // DO NOT RAISE, FUSE IS 40A MAX
+    public static final double SUPPLY_CURRENT_LIMIT = 60; // DO NOT RAISE, FUSE IS 40A MAX
     public static final double STATOR_CURRENT_LIMIT = 100;
     public static final double TEST_INCREMENT_RPM = 100.0;
 
@@ -304,7 +303,7 @@ public final class Constants {
      * Motion Magic Velocity starting point for the rebuilt two-Kraken flywheel.
      * Tune acceleration to shape spin-up, then refine Slot0 gains.
      */
-    public static final double MM_ACCELERATION_RPS_PER_SEC = 50.0;
+    public static final double MM_ACCELERATION_RPS_PER_SEC = 150.0;
     public static final double MM_JERK_RPS_PER_SEC_CUBED = 0.0;
 
     public static final class LeaderConfig {
@@ -350,7 +349,7 @@ public final class Constants {
      * TODO: Verify hood setpoints on the current shooter geometry. Add an end-of-line
      * "Tuned" note when each value is confirmed.
      */
-    public static final double CLOSE_HOOD = 0.00; 
+    public static final double CLOSE_HOOD = 4.20; 
     public static final double POPPER_HOOD = 4.20; //
     public static final double TOWER_HOOD = 4.20;
     public static final double TRENCH_HOOD = 4.20;
@@ -359,8 +358,8 @@ public final class Constants {
 
     // Manual tuning increments used for bring-up and testing.
     public static final double TEST_INCREMENT = 0.2;
-    public static final double ACCELERATION = 0;
-    public static final double CRUISE_VELOCITY = 0;
+    public static final double ACCELERATION = 20;
+    public static final double CRUISE_VELOCITY = 40;
 
     public static final double KP = 0.5;
     public static final double KI = 0;
