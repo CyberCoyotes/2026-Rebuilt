@@ -4,7 +4,7 @@ import choreo.auto.AutoFactory;
 import choreo.auto.AutoRoutine;
 import choreo.auto.AutoTrajectory;
 import edu.wpi.first.wpilibj2.command.Commands;
-import frc.robot.commands.FuelCommandsGPT;
+import frc.robot.commands.FuelCommands;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
 import frc.robot.subsystems.indexer.IndexerSubsystem;
 import frc.robot.subsystems.intake.IntakeSubsystem;
@@ -48,8 +48,8 @@ public class AutoRoutines {
                 RtTrench_RtMid_RtTrench.atTime("Intake").onTrue(m_intake.intakeFuelTimer(6));
 
                 RtTrench_RtMid_RtTrench.atTime("Shoot")
-                                .onTrue(FuelCommandsGPT.Auto.poseAlignAndShoot(m_shooter, m_indexer, m_drivetrain, 6.0));
-                RtTrench_RtMid_RtTrench.atTime("FuelPump").onTrue(FuelCommandsGPT.Auto.fuelPumpCycleSensor(m_intake, m_indexer));
+                                .onTrue(FuelCommands.Auto.poseAlignAndShoot(m_shooter, m_indexer, m_drivetrain, 6.0));
+                RtTrench_RtMid_RtTrench.atTime("FuelPump").onTrue(FuelCommands.Auto.fuelPumpCycleSensor(m_intake, m_indexer));
                 return routine;
         }
 
@@ -82,10 +82,10 @@ public class AutoRoutines {
                                                         /* TODO: Not sure if this will end on it's own or rely on the safety timeout. 
                                                         * One possible fix is the CHUTE_SENSOR or literally integrate the fuelPumpCycleSensor() into the autonomous Shooting
                                                         */
-                                                        FuelCommandsGPT.Auto.poseAlignAndShoot(m_shooter, m_indexer, m_drivetrain, 6.0),
+                                                        FuelCommands.Auto.poseAlignAndShoot(m_shooter, m_indexer, m_drivetrain, 6.0),
 
                                                         // TODO: Test fuel pump cycle sensor and if it ends on its own, based on sensor. 
-                                                        FuelCommandsGPT.Auto.fuelPumpCycleSensor(m_intake, m_indexer) 
+                                                        FuelCommands.Auto.fuelPumpCycleSensor(m_intake, m_indexer) 
                                                 ), // Approximately 4.0 seconds total for alignment + shooting + pumping
                                                 
                                                 RtRampShot_RtTr.cmd(), // 1.2 seconds
@@ -95,8 +95,8 @@ public class AutoRoutines {
                                                 RtMid_RtRampShot.cmd(), // 1.6 seconds
                                                 
                                                 Commands.parallel( 
-                                                        FuelCommandsGPT.Auto.poseAlignAndShoot(m_shooter, m_indexer, m_drivetrain, 6.0), 
-                                                        FuelCommandsGPT.Auto.fuelPumpCycleSensor(m_intake, m_indexer)
+                                                        FuelCommands.Auto.poseAlignAndShoot(m_shooter, m_indexer, m_drivetrain, 6.0), 
+                                                        FuelCommands.Auto.fuelPumpCycleSensor(m_intake, m_indexer)
                                                 ) // Approximately 4.0 seconds total for alignment + shooting + pumping
 
                                                 // ---------------------- 10.0 seconds total (est) without shooting ----------------------
@@ -168,8 +168,8 @@ public class AutoRoutines {
                 // Routine Events
                 RtTrench_Mid_Ramp.atTime("Intake").onTrue(m_intake.intakeFuelTimer(6));
                 RtTrench_Mid_Ramp.atTime("Shoot")
-                                .onTrue(FuelCommandsGPT.Auto.poseAlignAndShoot(m_shooter, m_indexer, m_drivetrain, 6.0));
-                RtTrench_Mid_Ramp.atTime("FuelPump").onTrue(FuelCommandsGPT.Auto.fuelPumpCycleSensor(m_intake, m_indexer));
+                                .onTrue(FuelCommands.Auto.poseAlignAndShoot(m_shooter, m_indexer, m_drivetrain, 6.0));
+                RtTrench_Mid_Ramp.atTime("FuelPump").onTrue(FuelCommands.Auto.fuelPumpCycleSensor(m_intake, m_indexer));
 
                 return routine;
         }
@@ -187,8 +187,8 @@ public class AutoRoutines {
                                 ));
                 // Routine Events
                 LtTrench_Mid_Trench.atTime("Intake").onTrue(m_intake.intakeFuelTimer(8));
-                LtTrench_Mid_Trench.atTime("Shoot").onTrue(FuelCommandsGPT.Auto.poseAlignAndShoot(m_shooter, m_indexer, m_drivetrain, 6.0));
-                LtTrench_Mid_Trench.atTime("FuelPump").onTrue(FuelCommandsGPT.Auto.fuelPumpCycleSensor(m_intake, m_indexer));
+                LtTrench_Mid_Trench.atTime("Shoot").onTrue(FuelCommands.Auto.poseAlignAndShoot(m_shooter, m_indexer, m_drivetrain, 6.0));
+                LtTrench_Mid_Trench.atTime("FuelPump").onTrue(FuelCommands.Auto.fuelPumpCycleSensor(m_intake, m_indexer));
 
                 return routine;
         }
@@ -207,7 +207,7 @@ public class AutoRoutines {
                                 ));
                 // Routine Events
                 MidDepot.atTime("Intake").onTrue(m_intake.intakeFuelTimer(8));
-                MidDepot.atTime("Shoot").onTrue(FuelCommandsGPT.Auto.shootFar(m_shooter, m_indexer, 6)); // score
+                MidDepot.atTime("Shoot").onTrue(FuelCommands.Auto.shootFar(m_shooter, m_indexer, 6)); // score
 
                 return routine;
         }
@@ -231,7 +231,7 @@ public class AutoRoutines {
                         // Routine Events
 
                 Center.atTime("Shoot")
-                                .onTrue(FuelCommandsGPT.Auto.shootHub(m_shooter, m_indexer,6.6));
+                                .onTrue(FuelCommands.Auto.shootHub(m_shooter, m_indexer,6.6));
                 // Center.atTime("FuelPump").onTrue(FuelCommands.Auto.fuelPumpCycleSensor(m_intake, m_indexer));
 
                 return routine;
@@ -306,7 +306,7 @@ public class AutoRoutines {
                         // Place the "Shoot" event marker at the END of the trajectory segment so the
                         // path finishes before this fires.
                         Experimental.atTime("Shoot")
-                                        .onTrue(FuelCommandsGPT.Auto.poseAlignAndShoot(m_shooter, m_indexer, m_drivetrain,
+                                        .onTrue(FuelCommands.Auto.poseAlignAndShoot(m_shooter, m_indexer, m_drivetrain,
                                                         3.0));
 
                         return routine;

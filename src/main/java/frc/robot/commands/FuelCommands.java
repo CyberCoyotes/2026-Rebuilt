@@ -29,7 +29,7 @@ import frc.robot.subsystems.shooter.ShooterSubsystem.ShotPreset;
  * Using a factory pattern keeps command creation centralized and reusable.
  * 
  */
-public class FuelCommandsGPT {
+public class FuelCommands {
 
     /** Returns the hub center for the current alliance (defaults to blue if FMS not connected). */
     private static Translation2d getHubLocation() {

@@ -18,7 +18,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.RobotModeTriggers;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
-import frc.robot.commands.FuelCommandsGPT;
+import frc.robot.commands.FuelCommands;
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
 import frc.robot.subsystems.indexer.IndexerIOHardware;
@@ -111,7 +111,7 @@ public class RobotContainer {
         drivetrain.registerTelemetry(logger::telemeterize);
         
         driver.rightTrigger(0.5).whileTrue(
-            FuelCommandsGPT.poseAlignAndShoot(shooter, indexer, /*intake,*/ drivetrain,
+            FuelCommands.poseAlignAndShoot(shooter, indexer, /*intake,*/ drivetrain,
                 () -> -driver.getLeftY() * MaxSpeed,
                 () -> -driver.getLeftX() * MaxSpeed)); 
         
@@ -122,13 +122,13 @@ public class RobotContainer {
         driver.leftBumper().onTrue(intake.retractSlidesIncrementalCmd());
 
         driver.povLeft().whileTrue(
-            FuelCommandsGPT.shootWithPreset(shooter, indexer, ShooterSubsystem.ShotPreset.CLOSE));
+            FuelCommands.shootWithPreset(shooter, indexer, ShooterSubsystem.ShotPreset.CLOSE));
         driver.povRight().whileTrue(
-            FuelCommandsGPT.shootWithPreset(shooter, indexer, ShooterSubsystem.ShotPreset.TRENCH));
+            FuelCommands.shootWithPreset(shooter, indexer, ShooterSubsystem.ShotPreset.TRENCH));
         driver.povUp().whileTrue(
-            FuelCommandsGPT.shootWithPreset(shooter, indexer, ShooterSubsystem.ShotPreset.FAR));
+            FuelCommands.shootWithPreset(shooter, indexer, ShooterSubsystem.ShotPreset.FAR));
         driver.povDown().whileTrue(
-            FuelCommandsGPT.shootWithPreset(shooter, indexer, ShooterSubsystem.ShotPreset.TOWER));
+            FuelCommands.shootWithPreset(shooter, indexer, ShooterSubsystem.ShotPreset.TOWER));
 
         // ====================
         // OPERATOR CONTROLLER
@@ -136,13 +136,13 @@ public class RobotContainer {
         // var anyPresetHeld = operator.a().or(operator.b()).or(operator.x()).or(operator.y()); 
         
         operator.a().whileTrue(
-            FuelCommandsGPT.shootWithPreset(shooter, indexer, ShooterSubsystem.ShotPreset.TRENCH));
+            FuelCommands.shootWithPreset(shooter, indexer, ShooterSubsystem.ShotPreset.TRENCH));
         operator.b().whileTrue(
-            FuelCommandsGPT.shootWithPreset(shooter, indexer, ShooterSubsystem.ShotPreset.CLOSE));
+            FuelCommands.shootWithPreset(shooter, indexer, ShooterSubsystem.ShotPreset.CLOSE));
         operator.x().whileTrue(
-            FuelCommandsGPT.shootWithPreset(shooter, indexer, ShooterSubsystem.ShotPreset.TOWER));
+            FuelCommands.shootWithPreset(shooter, indexer, ShooterSubsystem.ShotPreset.TOWER));
         operator.y().whileTrue(
-            FuelCommandsGPT.shootWithPreset(shooter, indexer, ShooterSubsystem.ShotPreset.FAR));
+            FuelCommands.shootWithPreset(shooter, indexer, ShooterSubsystem.ShotPreset.FAR));
 
 
         // Hold to back a ball out of the chute if it entered prematurely
