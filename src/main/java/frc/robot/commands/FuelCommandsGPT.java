@@ -31,14 +31,6 @@ import frc.robot.subsystems.shooter.ShooterSubsystem.ShotPreset;
  */
 public class FuelCommandsGPT {
 
-    /**
-     * Robot-front heading offset needed so the rear-mounted shooter/camera points at the hub.
-     *
-     * Current mechanical layout: shooter and camera are mounted on the back of the robot, so
-     * the chassis front must point 180° away from the hub when aligning to shoot.
-     */
-    private static final double SHOOTER_ALIGNMENT_OFFSET_DEGREES = 0.0;
-
     /** Returns the hub center for the current alliance (defaults to blue if FMS not connected). */
     private static Translation2d getHubLocation() {
         return DriverStation.getAlliance()
@@ -48,7 +40,7 @@ public class FuelCommandsGPT {
     }
 
     private static double getRobotFrontTargetHeadingDegrees(double angleToHubDeg, double aimOffsetDeg) {
-        double targetHeadingDeg = angleToHubDeg + aimOffsetDeg + SHOOTER_ALIGNMENT_OFFSET_DEGREES;
+        double targetHeadingDeg = angleToHubDeg + aimOffsetDeg + Constants.Vision.ALIGNMENT_OFFSET_DEGREES;
         return MathUtil.inputModulus(targetHeadingDeg, -180.0, 180.0);
     }
 

@@ -171,9 +171,9 @@ public class RobotContainer {
         // // POV cycles through LED animations (for testing / manual override)
         // operator.povUp().onTrue(ledSub.cycleNext());
         // operator.povDown().onTrue(ledSub.cyclePrev());
-// =====================================================================
+// =================================
 // LED STATE TRIGGERS
-// =====================================================================
+// =================================
 
     // Shooting — any shoot preset (driver RT, driver POV left, operator A/B/X/Y)
     Trigger anyShootHeld = driver.rightTrigger(0.5)

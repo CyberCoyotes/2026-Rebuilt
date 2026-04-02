@@ -6,6 +6,7 @@ import com.ctre.phoenix6.signals.MotorAlignmentValue;
 import com.ctre.phoenix6.signals.MotorArrangementValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.units.measure.Current;
 
 public final class Constants {
   private Constants() {
@@ -54,30 +55,26 @@ public final class Constants {
     42 Chute ToF CANrange   (Indexer.CHUTE_TOF_ID)
   */
 
-  // =========================================================
+  // ==========================
   // Intake
-  // =========================================================
+  // ==========================
   public static final class Intake {
     private Intake() {
     }
 
-    // == Shared / startup assumptions =========================
     public static final double ENCODER_ZERO_POSITION = 0.0;
-
-    // == IDs ===============================================
 
     /* Kraken X44 with TalonFX controller (x3) */
     public static final int ROLLER_LEFT_MOTOR_ID = 20;
     public static final int ROLLER_RIGHT_MOTOR_ID = 21;
     public static final int SLIDE_MOTOR_ID = 22;
 
-    // == Mechanism setpoints =================================
     /*
      * mechanical changes. Add an end-of-line "Tuned" note when each value is confirmed.
      */
     public static final double SLIDE_RETRACTED_POS = 0.0;
-    public static final double SLIDE_HOME_POS = 19.18; // NC Gears reference?
-    public static final double SLIDE_EXTENDED_POS = 62.00; // Was 44.40
+    public static final double SLIDE_HOME_POS = 19.18;
+    public static final double SLIDE_EXTENDED_POS = 62.00; // Previous was 63.0
     public static final double SLIDE_MAX_POS = 65.75;
     public static final double SLIDE_ROLLER_SAFE_MARGIN = 1.5;
     public static final double SLIDE_ROLLER_SAFE_POS = SLIDE_HOME_POS + SLIDE_ROLLER_SAFE_MARGIN;
@@ -94,7 +91,7 @@ public final class Constants {
     public static final double SLIDE_SLOW_MM_CRUISE_VELOCITY = 4.0;
     public static final double SLIDE_SLOW_MM_ACCELERATION = 4.0;
 
-    // Agitation positions used while shooting / pumping fuel.
+    // Agitation positions used while shooting "pumping fuel"
     public static final double SLIDE_PUMP_OUT_POS = 60.0;
     public static final double SLIDE_PUMP_IN_POS = 40.0;
 
@@ -102,15 +99,14 @@ public final class Constants {
      * TODO: Verify roller voltages on the current mechanism. These are working
      * estimates and should be rechecked after roller or intake geometry changes.
      */
-    public static final double ROLLER_FORWARD_VOLTS = 8; // Was 12
+    public static final double ROLLER_FORWARD_VOLTS = 8;
     public static final double ROLLER_REVERSE_VOLTS = -8;
 
     public static final class RollerConfig {
       private RollerConfig() {
       }
 
-      // == Hardware config ====================================
-      public static final NeutralModeValue NEUTRAL_MODE = NeutralModeValue.Coast; // Was Brake
+      public static final NeutralModeValue NEUTRAL_MODE = NeutralModeValue.Coast; // Comp version was previously Brake
       public static final InvertedValue INVERTED = InvertedValue.CounterClockwise_Positive;
       public static final double SUPPLY_CURRENT_LIMIT = 30.0;
       public static final double STATOR_CURRENT_LIMIT = 40.0;
@@ -121,7 +117,6 @@ public final class Constants {
       private SlideConfig() {
       }
 
-      // == Hardware config ====================================
       public static final NeutralModeValue NEUTRAL_MODE = NeutralModeValue.Coast; // TODO: Changing from Brake to Coast; especially if it gets hit
       public static final InvertedValue INVERTED = InvertedValue.CounterClockwise_Positive;
 
@@ -140,18 +135,16 @@ public final class Constants {
 
   }
 
-  // =========================================================
+  // =============================
   // Indexer
-  // =========================================================
+  // =============================
   public static final class Indexer {
 
     private Indexer() {
     }
 
-    // == IDs ===============================================
     /*
      * Kraken X60 with TalonFX controller (x2); feeds pieces to shooter.
-     * FIXME: Update kicker and conveyor device names in Phoenix Tuner to match code.
      */
     public static final int KICKER_LEFT_MOTOR_ID = 23;
     public static final int KICKER_RIGHT_MOTOR_ID = 24;
@@ -162,27 +155,22 @@ public final class Constants {
     // CANrange Time of Flight sensor; detects presence of fuel at indexer-kicker
     public static final int CHUTE_TOF_ID = 42;
 
-    // == Mechanism outputs ==================================
     /* 
-     * TODO: Verify conveyor and kicker voltages on the current hopper / shooter
-     * geometry. These were carried forward from earlier mechanical revisions.
+     * Verify conveyor and kicker voltages on the new cpnveyor and kicker
      */
     public static final double CONVEYOR_FORWARD_VOLTAGE = 3.5;
     public static final double CONVEYOR_REVERSE_VOLTAGE = -1;
     public static final double CONVEYOR_POPPER_VOLTAGE = 1.0;
-                                                                // INCREASE AS NECESSARY
+                        
     public static final double KICKER_FORWARD_VOLTAGE = 6.0;
     public static final double KICKER_REVERSE_VOLTAGE = -4.0;
     public static final double KICKER_POPPER_VOLTAGE = 3.0; 
 
-    // == Sensor geometry / thresholds ========================
-    /* Used as the CANrange ProximityThreshold so the hardware "detected" signal matches the same boundary.
-     * Software threshold for fuel detection.
-     * A fuel ball is ~6 in (0.1524 m)
-     * Anything below ~10 in (0.25 m) means fuel is present in the chute.
-     */
-    public static final double FUEL_SIZE = 0.1524; // ~10 inches
-    public static final double CHUTE_MAX_DISTANCE = 0.6096; // // 24" = 0.6096 m.
+    /* 
+    * Used as the CANrange ProximityThreshold so the hardware "detected" signal matches the same boundary.
+    */
+    public static final double FUEL_SIZE = 0.1524; // Fuel-Ball is ~6 inches
+    public static final double CHUTE_MAX_DISTANCE = 0.6096; // 24" = 0.6096 m.
     public static final double FUEL_DETECTION_THRESHOLD = FUEL_SIZE * 0.60; // 60% of fuel size to account for sensor variance and ensure reliable detection
     public static final double FUEL_DETECTION_DISTANCE = CHUTE_MAX_DISTANCE - FUEL_DETECTION_THRESHOLD; // ~10 inches
 
@@ -193,16 +181,15 @@ public final class Constants {
       private ConveyorConfig() {
       }
 
-      // == Hardware config ====================================
       /*
-       * TODO: Verify conveyor current limits, polarity, and voltage caps against the
+       * Verify conveyor current limits, polarity, and voltage caps against the
        * current hardware. Add an end-of-line "Tuned" note when each value is confirmed.
        */
       public static final NeutralModeValue NEUTRAL_MODE = NeutralModeValue.Coast;
       public static final InvertedValue INVERTED = InvertedValue.CounterClockwise_Positive;
       public static final double SUPPLY_CURRENT_LIMIT = 35.0;
       public static final double STATOR_CURRENT_LIMIT = 40.0;
-      public static final double PEAK_FORWARD_VOLTAGE = 12.0;
+      public static final double PEAK_FORWARD_VOLTAGE = 12.0; // TODO verify what this is actually doing with the conveyor
       public static final double PEAK_REVERSE_VOLTAGE = -12.0;
     }
 
@@ -210,16 +197,15 @@ public final class Constants {
       private KickerConfig() {
       }
 
-      // == Hardware config ====================================
       /*
-       * TODO: Verify kicker current limits, polarity, and follower alignment on the
+       * Verify kicker current limits, polarity, and follower alignment on the
        * current roller stackup. Add an end-of-line "Tuned" note when each value is confirmed.
        */
       public static final NeutralModeValue NEUTRAL_MODE = NeutralModeValue.Coast;
       public static final InvertedValue INVERTED = InvertedValue.Clockwise_Positive;
-      public static final double SUPPLY_CURRENT_LIMIT = 35.0; // DO NOT RAISE, FUSE IS 40A MAX
-      public static final double STATOR_CURRENT_LIMIT = 100.0;
-      public static final double PEAK_FORWARD_VOLTAGE = 12.0;
+      public static final double SUPPLY_CURRENT_LIMIT = 50.0;
+      public static final double STATOR_CURRENT_LIMIT = 90.0;
+      public static final double PEAK_FORWARD_VOLTAGE = 12.0; // TODO verify what this is actually doing with the kicker
       public static final double PEAK_REVERSE_VOLTAGE = -12.0;
       public static final MotorAlignmentValue FOLLOWER_ALIGNMENT = MotorAlignmentValue.Opposed;
     }
@@ -228,9 +214,8 @@ public final class Constants {
       private ChuteSensorConfig() {
       }
 
-      // == Hardware config ====================================
       /*
-       * TODO: Verify the CANrange hysteresis and FOV settings against the final chute
+       * Verify the CANrange hysteresis and FOV settings against the final chute
        * mounting location. Add an end-of-line "Tuned" note when each value is confirmed.
        */
       public static final double PROXIMITY_HYSTERESIS = 0.025;
@@ -240,21 +225,20 @@ public final class Constants {
 
   }
 
-  // =========================================================
+  // ===========================
   // Flywheel
-  // =========================================================
+  // ===========================
   public static final class Flywheel {
     private Flywheel() {
     }
 
-    // == IDs ===============================================
     // Kraken X60 with TalonFX controller (leader); Flywheel A motor
     public static final int FLYWHEEL_LEFT_MOTOR_ID = 25;
 
     // Kraken X60 with TalonFX controller (follower of A); Flywheel B motor
     public static final int FLYWHEEL_RIGHT_MOTOR_ID = 26;
     
-    // == Mechanism setpoints / tuning ========================
+    // == Mechanism setpoints / tuning ==========
     // Kraken X60 free speed
     public static final double MAX_RPM = 6000.0; 
     public static final double IDLE_RPM = 0;
@@ -447,6 +431,14 @@ public final class Constants {
      * See TUNING.md §5 for step-by-step procedure.
      */
 
+     /* 
+     * Robot-front heading offset needed so the rear-mounted shooter/camera points at the hub.
+     * Current mechanical layout: shooter and camera are mounted on the back of the robot, so
+     * the chassis front must point 180° away from the hub when aligning to shoot.
+     */
+    
+     public final static double ALIGNMENT_OFFSET_DEGREES = 180.0;
+    
     // started at 40; now 10;
     public static final double ROTATIONAL_KP = 0.05;
 
