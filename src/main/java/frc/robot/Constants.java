@@ -159,7 +159,7 @@ public final class Constants {
      * Verify conveyor and kicker voltages on the new cpnveyor and kicker
      */
     public static final double CONVEYOR_FORWARD_VOLTAGE = 3.5;
-    public static final double CONVEYOR_REVERSE_VOLTAGE = -1;
+    public static final double CONVEYOR_REVERSE_VOLTAGE = -2;
     public static final double CONVEYOR_POPPER_VOLTAGE = 1.0;
                         
     public static final double KICKER_FORWARD_VOLTAGE = 6.0;
@@ -187,10 +187,12 @@ public final class Constants {
        */
       public static final NeutralModeValue NEUTRAL_MODE = NeutralModeValue.Coast;
       public static final InvertedValue INVERTED = InvertedValue.CounterClockwise_Positive;
+
+      /* Conveyor Limits */
       public static final double SUPPLY_CURRENT_LIMIT = 35.0;
       public static final double STATOR_CURRENT_LIMIT = 40.0;
-      public static final double PEAK_FORWARD_VOLTAGE = 12.0; // TODO verify what this is actually doing with the conveyor
-      public static final double PEAK_REVERSE_VOLTAGE = -12.0;
+      public static final double PEAK_FORWARD_VOLTAGE = 12.0; 
+      public static final double PEAK_REVERSE_VOLTAGE = -12.0; 
     }
 
     public static final class KickerConfig {
@@ -203,9 +205,11 @@ public final class Constants {
        */
       public static final NeutralModeValue NEUTRAL_MODE = NeutralModeValue.Coast;
       public static final InvertedValue INVERTED = InvertedValue.Clockwise_Positive;
+
+      /* Kicker Limits */
       public static final double SUPPLY_CURRENT_LIMIT = 50.0;
       public static final double STATOR_CURRENT_LIMIT = 90.0;
-      public static final double PEAK_FORWARD_VOLTAGE = 12.0; // TODO verify what this is actually doing with the kicker
+      public static final double PEAK_FORWARD_VOLTAGE = 12.0;
       public static final double PEAK_REVERSE_VOLTAGE = -12.0;
       public static final MotorAlignmentValue FOLLOWER_ALIGNMENT = MotorAlignmentValue.Opposed;
     }
