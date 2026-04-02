@@ -18,42 +18,44 @@ public final class Constants {
 
   /*
    * Comment convention for this file:
-   * ToDo = value is intentional for now, but still needs on-robot tuning or verification.
-   * FixMe = metadata, naming, or assumptions are currently known to be wrong or incomplete.
+   * ToDo = value is intentional for now, but still needs on-robot tuning or
+   * verification.
+   * FixMe = metadata, naming, or assumptions are currently known to be wrong or
+   * incomplete.
    */
 
   // =========================================================
   // CAN ID Quick Reference — keep in sync with source constants ##
   // =========================================================
   /*
-  === candrive bus (CANivore) ===
-    1 FL Drive Motor  Kraken X60 (TunerConstants.kFrontLeftDriveMotorId)
-    2 FR Steer Motor  Kraken X60 (TunerConstants.kFrontRightSteerMotorId)
-    3 FL CANcoder     (TunerConstants.kFrontLeftEncoderId)
-    4 FR Drive Motor  Kraken X60 (TunerConstants.kFrontRightDriveMotorId)
-    5 FL Steer Motor  Kraken X60 (TunerConstants.kFrontLeftSteerMotorId)
-    6 FR CANcoder     (TunerConstants.kFrontRightEncoderId)
-    7 BL Drive Motor  Kraken X60 (TunerConstants.kBackLeftDriveMotorId)
-    8 BL Steer Motor  Kraken X60 (TunerConstants.kBackLeftSteerMotorId)
-    9 BL CANcoder     (TunerConstants.kBackLeftEncoderId)
-    10 BR Drive Motor Kraken X60 (TunerConstants.kBackRightDriveMotorId)
-    11 BR Steer Motor Kraken X60 (TunerConstants.kBackRightSteerMotorId)
-    12 BR CANcoder    (TunerConstants.kBackRightEncoderId)
-    14 Pigeon 2 IMU   (TunerConstants.kPigeonId)
-    15 CANdle LEDs    (Led.CANDLE_ID)
-  
-  === rio bus ===
-    20 Intake Roller Left   Kraken X44 (Intake.ROLLER_LEFT_MOTOR_ID)
-    21 Intake Roller Right  Kraken X44 (Intake.ROLLER_RIGHT_MOTOR_ID)
-    22 Intake Slide         Kraken X44 (Intake.SLIDE_MOTOR_ID)
-    23 Kicker Left          Kraken X60 (Indexer.KICKER_LEFT_MOTOR_ID)
-    24 Kicker Right         Kraken X60 (Indexer.KICKER_RIGHT_MOTOR_ID)
-    25 Flywheel Left        Kraken X60 (Shooter.FLYWHEEL_LEFT_MOTOR_ID)
-    26 Flywheel Right       Kraken X60 (Shooter.FLYWHEEL_RIGHT_MOTOR_ID)
-    27 Conveyor             Kraken X44 (Indexer.CONVEYOR_MOTOR_ID)
-    28 Hood                 Minion/FXIS (Shooter.HOOD_MOTOR_ID)
-    42 Chute ToF CANrange   (Indexer.CHUTE_TOF_ID)
-  */
+   * === candrive bus (CANivore) ===
+   * 1 FL Drive Motor Kraken X60 (TunerConstants.kFrontLeftDriveMotorId)
+   * 2 FR Steer Motor Kraken X60 (TunerConstants.kFrontRightSteerMotorId)
+   * 3 FL CANcoder (TunerConstants.kFrontLeftEncoderId)
+   * 4 FR Drive Motor Kraken X60 (TunerConstants.kFrontRightDriveMotorId)
+   * 5 FL Steer Motor Kraken X60 (TunerConstants.kFrontLeftSteerMotorId)
+   * 6 FR CANcoder (TunerConstants.kFrontRightEncoderId)
+   * 7 BL Drive Motor Kraken X60 (TunerConstants.kBackLeftDriveMotorId)
+   * 8 BL Steer Motor Kraken X60 (TunerConstants.kBackLeftSteerMotorId)
+   * 9 BL CANcoder (TunerConstants.kBackLeftEncoderId)
+   * 10 BR Drive Motor Kraken X60 (TunerConstants.kBackRightDriveMotorId)
+   * 11 BR Steer Motor Kraken X60 (TunerConstants.kBackRightSteerMotorId)
+   * 12 BR CANcoder (TunerConstants.kBackRightEncoderId)
+   * 14 Pigeon 2 IMU (TunerConstants.kPigeonId)
+   * 15 CANdle LEDs (Led.CANDLE_ID)
+   * 
+   * === rio bus ===
+   * 20 Intake Roller Left Kraken X44 (Intake.ROLLER_LEFT_MOTOR_ID)
+   * 21 Intake Roller Right Kraken X44 (Intake.ROLLER_RIGHT_MOTOR_ID)
+   * 22 Intake Slide Kraken X44 (Intake.SLIDE_MOTOR_ID)
+   * 23 Kicker Left Kraken X60 (Indexer.KICKER_LEFT_MOTOR_ID)
+   * 24 Kicker Right Kraken X60 (Indexer.KICKER_RIGHT_MOTOR_ID)
+   * 25 Flywheel Left Kraken X60 (Shooter.FLYWHEEL_LEFT_MOTOR_ID)
+   * 26 Flywheel Right Kraken X60 (Shooter.FLYWHEEL_RIGHT_MOTOR_ID)
+   * 27 Conveyor Kraken X44 (Indexer.CONVEYOR_MOTOR_ID)
+   * 28 Hood Minion/FXIS (Shooter.HOOD_MOTOR_ID)
+   * 42 Chute ToF CANrange (Indexer.CHUTE_TOF_ID)
+   */
 
   // ==========================
   // Intake
@@ -81,10 +83,13 @@ public final class Constants {
     public static final double SLIDE_MANUAL_STEP_ROTATIONS = 5.0;
     public static final double SLIDE_MANUAL_REPEAT_SECONDS = 0.15;
 
-    /* Normal or "fast" Motion Magic values for moving the slide quickly to position.
-    * Tune for smoothness and responsiveness without excessive overshoot or oscillation. 
-    * Add an end-of-line "Tuned" note when confirmed. 
-    */
+    /*
+     * Normal or "fast" Motion Magic values for moving the slide quickly to
+     * position.
+     * Tune for smoothness and responsiveness without excessive overshoot or
+     * oscillation.
+     * Add an end-of-line "Tuned" note when confirmed.
+     */
     public static final double SLIDE_MM_CRUISE_VELOCITY = 64; // 32
     public static final double SLIDE_MM_ACCELERATION = 64; // 32
     public static final double SLIDE_MM_JERK = 0.0;
@@ -98,11 +103,11 @@ public final class Constants {
     public static final double SLIDE_PUMP_IN_POS = 40.0;
 
     /*
-     * These intake roller values need to be verified, adjusted as needed, and re-verified
+     * These intake roller values need to be verified, adjusted as needed, and
+     * re-verified
      */
     public static final double ROLLER_FORWARD_VOLTS = 8;
     public static final double ROLLER_REVERSE_VOLTS = -8;
-
 
     public static final class RollerConfig {
       private RollerConfig() {
@@ -123,10 +128,11 @@ public final class Constants {
       private SlideConfig() {
       }
 
-      public static final NeutralModeValue NEUTRAL_MODE = NeutralModeValue.Coast; // TODO: Changing from Brake to Coast; especially if it gets hit
+      public static final NeutralModeValue NEUTRAL_MODE = NeutralModeValue.Coast; // Changed from Brake to Coast;
+                                                                                  // especially if it gets hit
       public static final InvertedValue INVERTED = InvertedValue.CounterClockwise_Positive;
 
-      /* These are slide limits, not the actual setpoints. */
+      /* These are slide Limits, not the Setpoints. */
       public static final double SUPPLY_CURRENT_LIMIT = 30.0;
       public static final double STATOR_CURRENT_LIMIT = 60.0;
       public static final double REVERSE_SOFT_LIMIT = SLIDE_RETRACTED_POS;
@@ -134,9 +140,12 @@ public final class Constants {
       public static final double PEAK_FORWARD_VOLTAGE = 12.0;
       public static final double PEAK_REVERSE_VOLTAGE = -12.0;
 
-      /* Initial PID values for slide position control. 
-      * Tune to minimize overshoot and oscillation while maintaining reasonable responsiveness. 
-      * Add an end-of-line "Tuned" note when confirmed. */
+      /*
+       * Initial PID values for slide position control.
+       * Tune to minimize overshoot and oscillation while maintaining reasonable
+       * responsiveness.
+       * Add an end-of-line "Tuned" note when confirmed.
+       */
 
       public static final double KP = 2.0;
       public static final double KI = 0.0;
@@ -166,26 +175,29 @@ public final class Constants {
     // CANrange Time of Flight sensor; detects presence of fuel at indexer-kicker
     public static final int CHUTE_TOF_ID = 42;
 
-    /* 
+    /*
      * Verify conveyor and kicker voltages on the new cpnveyor and kicker
      */
     public static final double CONVEYOR_FORWARD_VOLTAGE = 3.5;
     public static final double CONVEYOR_REVERSE_VOLTAGE = -2;
     public static final double CONVEYOR_POPPER_VOLTAGE = 1.0;
-                        
+
     public static final double KICKER_FORWARD_VOLTAGE = 6.0;
     public static final double KICKER_REVERSE_VOLTAGE = -4.0;
-    public static final double KICKER_POPPER_VOLTAGE = 3.0; 
+    public static final double KICKER_POPPER_VOLTAGE = 3.0;
 
-    /* 
-    * Used as the CANrange ProximityThreshold so the hardware "detected" signal matches the same boundary.
-    */
+    /*
+     * Used as the CANrange ProximityThreshold so the hardware "detected" signal
+     * matches the same boundary.
+     */
     public static final double FUEL_SIZE = 0.1524; // Fuel-Ball is ~6 inches
     public static final double CHUTE_MAX_DISTANCE = 0.6096; // 24" = 0.6096 m.
-    public static final double FUEL_DETECTION_THRESHOLD = FUEL_SIZE * 0.60; // 60% of fuel size to account for sensor variance and ensure reliable detection
+    public static final double FUEL_DETECTION_THRESHOLD = FUEL_SIZE * 0.60; // 60% of fuel size to account for sensor
+                                                                            // variance and ensure reliable detection
     public static final double FUEL_DETECTION_DISTANCE = CHUTE_MAX_DISTANCE - FUEL_DETECTION_THRESHOLD; // ~10 inches
 
-    // Time to wait after detecting fuel at the chute before considering it "cleared".
+    // Time to wait after detecting fuel at the chute before considering it
+    // "cleared".
     public static final double FUEL_CLEAR_TIME = 2.0; // seconds
 
     public static final class ConveyorConfig {
@@ -194,7 +206,8 @@ public final class Constants {
 
       /*
        * Verify conveyor current limits, polarity, and voltage caps against the
-       * current hardware. Add an end-of-line "Tuned" note when each value is confirmed.
+       * current hardware. Add an end-of-line "Tuned" note when each value is
+       * confirmed.
        */
       public static final NeutralModeValue NEUTRAL_MODE = NeutralModeValue.Coast;
       public static final InvertedValue INVERTED = InvertedValue.CounterClockwise_Positive;
@@ -202,8 +215,8 @@ public final class Constants {
       /* Conveyor Limits */
       public static final double SUPPLY_CURRENT_LIMIT = 35.0;
       public static final double STATOR_CURRENT_LIMIT = 40.0;
-      public static final double PEAK_FORWARD_VOLTAGE = 12.0; 
-      public static final double PEAK_REVERSE_VOLTAGE = -12.0; 
+      public static final double PEAK_FORWARD_VOLTAGE = 12.0;
+      public static final double PEAK_REVERSE_VOLTAGE = -12.0;
     }
 
     public static final class KickerConfig {
@@ -212,7 +225,8 @@ public final class Constants {
 
       /*
        * Verify kicker current limits, polarity, and follower alignment on the
-       * current roller stackup. Add an end-of-line "Tuned" note when each value is confirmed.
+       * current roller stackup. Add an end-of-line "Tuned" note when each value is
+       * confirmed.
        */
       public static final NeutralModeValue NEUTRAL_MODE = NeutralModeValue.Coast;
       public static final InvertedValue INVERTED = InvertedValue.Clockwise_Positive;
@@ -231,7 +245,8 @@ public final class Constants {
 
       /*
        * Verify the CANrange hysteresis and FOV settings against the final chute
-       * mounting location. Add an end-of-line "Tuned" note when each value is confirmed.
+       * mounting location. Add an end-of-line "Tuned" note when each value is
+       * confirmed.
        */
       public static final double PROXIMITY_HYSTERESIS = 0.025;
       public static final double FOV_RANGE_X = 6.75;
@@ -252,15 +267,16 @@ public final class Constants {
 
     // Kraken X60 with TalonFX controller (follower of A); Flywheel B motor
     public static final int FLYWHEEL_RIGHT_MOTOR_ID = 26;
-    
+
     // == Mechanism setpoints / tuning ==========
     // Kraken X60 free speed
-    public static final double MAX_RPM = 6000.0; 
+    public static final double MAX_RPM = 6000.0;
     public static final double IDLE_RPM = 0;
 
     /**
      * TODO: Verify shot RPMs on the current shooter. Mechanical changes may alter
-     * the required speed for each distance. Add an end-of-line "Tuned" note when confirmed.
+     * the required speed for each distance. Add an end-of-line "Tuned" note when
+     * confirmed.
      */
     public static final double POPPER_RPM = 650;
     public static final double STANDBY_RPM = 1000;
@@ -271,7 +287,7 @@ public final class Constants {
     public static final double PASS_RPM = 4000;
 
     /*
-     * Reverse Flywheel RPM for jam clearing. 
+     * Reverse Flywheel RPM for jam clearing.
      * Only reached through eject(), which gates on EJECT_MAX_ENTRY_RPM.
      */
     public static final double EJECT_RPM = -1500;
@@ -281,7 +297,7 @@ public final class Constants {
      * violent reversal.
      */
     public static final double EJECT_MAX_ENTRY_RPM = 500.0;
-    
+
     public static final double KP = 0.005;
     public static final double KV = .120;
     public static final double KD = 0.000;
@@ -328,7 +344,7 @@ public final class Constants {
   // =========================================================
   // Hood
   // =========================================================
- 
+
   public static final class Hood {
     private Hood() {
     }
@@ -340,15 +356,16 @@ public final class Constants {
     // == Mechanism setpoints / tuning ========================
     public static final double MIN_POSE = 0.00; // Mechanical limit, also use to set in Configs
     public static final double MAX_POSE = 4.356934; // Mechanical limit; also used to set in Configs
-    
+
     // TODO: Verify hood tolerance on the current linkage and backlash.
-    public static final double POSE_TOLERANCE = 0.05; 
+    public static final double POSE_TOLERANCE = 0.05;
 
     /*
-     * TODO: Verify hood setpoints on the current shooter geometry. Add an end-of-line
+     * TODO: Verify hood setpoints on the current shooter geometry. Add an
+     * end-of-line
      * "Tuned" note when each value is confirmed.
      */
-    public static final double CLOSE_HOOD = 4.20; 
+    public static final double CLOSE_HOOD = 4.20;
     public static final double POPPER_HOOD = 4.20; //
     public static final double TOWER_HOOD = 4.20;
     public static final double TRENCH_HOOD = 4.20;
@@ -403,14 +420,16 @@ public final class Constants {
 
     /* TODO: Verify camera mounting offsets on the current robot. */
 
-    /* Height of Limelight lens from floor in meters is 19.25 inches = 0.489 meters */
+    /*
+     * Height of Limelight lens from floor in meters is 19.25 inches = 0.489 meters
+     */
     public static final double CAMERA_HEIGHT_METERS = 0.5;
 
-    /* 
-    * Camera is on the back of robot from center reference of Pigeon 2
-    * The Shooter is on the back of robot from center reference of Pigeon 2 as well
-    * -9.5 inches = 0.2413 meters 
-    */ 
+    /*
+     * Camera is on the back of robot from center reference of Pigeon 2
+     * The Shooter is on the back of robot from center reference of Pigeon 2 as well
+     * -9.5 inches = 0.2413 meters
+     */
     public static final double CAMERA_BACK_OFFSET_METERS = 0;
 
     // Camera is **now** center
@@ -446,14 +465,16 @@ public final class Constants {
      * See TUNING.md §5 for step-by-step procedure.
      */
 
-     /* 
-     * Robot-front heading offset needed so the rear-mounted shooter/camera points at the hub.
-     * Current mechanical layout: shooter and camera are mounted on the back of the robot, so
+    /*
+     * Robot-front heading offset needed so the rear-mounted shooter/camera points
+     * at the hub.
+     * Current mechanical layout: shooter and camera are mounted on the back of the
+     * robot, so
      * the chassis front must point 180° away from the hub when aligning to shoot.
      */
-    
-     public final static double ALIGNMENT_OFFSET_DEGREES = 180.0;
-    
+
+    public final static double ALIGNMENT_OFFSET_DEGREES = 180.0;
+
     // started at 40; now 10;
     public static final double ROTATIONAL_KP = 0.05;
 
@@ -493,7 +514,9 @@ public final class Constants {
 
     // Hub center positions in WPILib blue-origin field coordinates (meters).
     // Used by poseAlignAndShoot / autoAlignAndShoot for odometry-based aiming.
-    // Red hub is the field-length mirror of blue: x = 17.548 - 4.625 = 12.923 but Choreo shows 11.923, so using that for now until we can verify with measurements.
+    // Red hub is the field-length mirror of blue: x = 17.548 - 4.625 = 12.923 but
+    // Choreo shows 11.923, so using that for now until we can verify with
+    // measurements.
     public static final Translation2d BLUE_HUB_LOCATION = new Translation2d(4.625, 4.025);
     public static final Translation2d RED_HUB_LOCATION = new Translation2d(11.923, 4.025);
 
@@ -527,7 +550,7 @@ public final class Constants {
     private Auto() {
     }
 
-     // How long to wait after driving before doing something else
+    // How long to wait after driving before doing something else
     public static final double DRIVE_WAIT = 1.0; // Cut 2.0 -> 1.0 or less
     public static final double SCORE_WAIT = 1.0; // Cut 2.0 -> 1.0 or less
 
