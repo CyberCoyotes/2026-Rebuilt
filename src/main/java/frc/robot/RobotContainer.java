@@ -85,15 +85,15 @@ public class RobotContainer {
 
     private void configureBindings() {
 
-        // =====================================================================
-        // DRIVER CONTROLLER (Port 0) - Drivetrain
-        // =====================================================================
+        // ====================
+        // DRIVER CONTROLLER
+        // ====================
 
         drivetrain.setDefaultCommand(
             drivetrain.applyRequest(() ->
-                drive.withVelocityX(driver.getLeftY() * MaxSpeed)
-                    .withVelocityY(driver.getLeftX() * MaxSpeed)
-                    .withRotationalRate(driver.getRightX() * MaxAngularRate)
+                drive.withVelocityX(-driver.getLeftY() * MaxSpeed)
+                    .withVelocityY(-driver.getLeftX() * MaxSpeed)
+                    .withRotationalRate(-driver.getRightX() * MaxAngularRate)
             )
         );
 
@@ -109,10 +109,6 @@ public class RobotContainer {
         driver.back().onTrue(drivetrain.resetPoseFromVisionCommand());
 
         drivetrain.registerTelemetry(logger::telemeterize);
-
-        // =====================================================================
-        // DRIVER CONTROLLER (Port 0) - Shooter
-        // =====================================================================
         
         driver.rightTrigger(0.5).whileTrue(
             FuelCommandsGPT.poseAlignAndShoot(shooter, indexer, /*intake,*/ drivetrain,
@@ -134,9 +130,9 @@ public class RobotContainer {
         driver.povDown().whileTrue(
             FuelCommandsGPT.shootWithPreset(shooter, indexer, ShooterSubsystem.ShotPreset.TOWER));
 
-        // =====================================================================
-        // OPERATOR CONTROLLER (Port 1)
-        // =====================================================================
+        // ====================
+        // OPERATOR CONTROLLER
+        // ====================
         // var anyPresetHeld = operator.a().or(operator.b()).or(operator.x()).or(operator.y()); 
         
         operator.a().whileTrue(
