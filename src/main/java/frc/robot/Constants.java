@@ -419,7 +419,6 @@ public final class Constants {
     // =========================================================
 
     /* TODO: Verify camera mounting offsets on the current robot. */
-
     /*
      * Height of Limelight lens from floor in meters is 19.25 inches = 0.489 meters
      */
@@ -440,10 +439,9 @@ public final class Constants {
     // measured for accuracy.
     public static final double CAMERA_ANGLE_DEGREES = 15.5;
 
-    // Alignment tolerances
     /** Tolerance for horizontal alignment in degrees used in FuelCommands.java */
-    public static final double ALIGNMENT_TOLERANCE_DEGREES = 1.0; // appeared to be a duplicate
-
+    public static final double ALIGNMENT_TOLERANCE_DEGREES = 1.0;
+     
     /** Minimum target area to consider target valid (prevents false positives) */
     public static final double MIN_TARGET_AREA_PERCENT = 0.1;
 
@@ -466,37 +464,30 @@ public final class Constants {
      */
 
     /*
-     * Robot-front heading offset needed so the rear-mounted shooter/camera points
-     * at the hub.
      * Current mechanical layout: shooter and camera are mounted on the back of the
-     * robot, so
-     * the chassis front must point 180° away from the hub when aligning to shoot.
+     * robot and shooter faces backwards
+     * Chassis front must point 180° away from the hub when aligning to shoot.
      */
 
     public final static double ALIGNMENT_OFFSET_DEGREES = 180.0;
 
-    // started at 40; now 10;
     public static final double ROTATIONAL_KP = 0.05;
 
     /**
-     * Maximum rotational rate the vision command will apply to the drivetrain
-     * (rad/s).
-     * Prevents violent snap when tx error is large on first acquisition.
+     * Maximum rotational rate the vision command will apply to the drivetrain (rad/s).
      * Default: 3.0 rad/s (~172°/s). Reduce if the robot swings too aggressively.
      */
     public static final double MIN_ALIGNMENT_ROTATION_RAD_PER_SEC = 0.15; // tune to just above static friction
     public static final double MAX_ALIGNMENT_ROTATION_RAD_PER_SEC = 2.0;
     public static final double MIN_DISTANCE_M = 0.25;
     public static final double MAX_DISTANCE_M = 8.0;
-    // public static final double ALIGNMENT_TOLERANCE_DEG = 0.5; // Duplicate of
-    // ALIGNMENT_TOLERANCE_DEGREES above, but with a tighter tolerance for "aligned"
-    // state if needed?
-    // public static final double MAX_ROT_RAD_PER_SEC = 3.0; // Duplicate of
-    // MAX_ALIGNMENT_ROTATION_RAD_PER_SEC above, but with a more aggressive cap if
-    // needed?
 
-    public static final double LEAD_COMPENSATION_DEG_PER_MPS = 00; // Tune up from 0 — 50 degrees of aim offset per m/s
-                                                                   // of lateral velocity
+
+        /* Tune up from 0 — 50 degrees of aim offset per m/s of lateral velocity 
+         * At this point, its not a high priority
+        */
+    public static final double LEAD_COMPENSATION_DEG_PER_MPS = 00; 
+
 
     // == Valid tag IDs =========================
     // NOTE: MIN/MAX here are used for general target validation in VisionSubsystem.
