@@ -17,6 +17,7 @@ import com.ctre.phoenix6.signals.AnimationDirectionValue;
 import com.ctre.phoenix6.signals.LarsonBounceValue;
 import com.ctre.phoenix6.signals.RGBWColor;
 
+import frc.robot.Constants;
 import frc.robot.subsystems.shooter.ShooterSubsystem;
 
 /**
@@ -27,7 +28,10 @@ import frc.robot.subsystems.shooter.ShooterSubsystem;
 public class LedSubsystem extends SubsystemBase {
 
     private final CANBus kCANBus = new CANBus("rio");
-    private final CANdle m_candle = new CANdle(15, kCANBus);
+    private final CANdle m_candle = new CANdle(Constants.Led.CANDLE_ID, kCANBus);
+
+    // FIXME There should NOT be a direct dependency here!
+    // Joel feel free to refactor this out however you want,
     private final ShooterSubsystem m_shooter;
 
     private final int kLeftFireSlot = 0;
@@ -38,9 +42,9 @@ public class LedSubsystem extends SubsystemBase {
 
     private final Timer m_animTimer = new Timer();
 
-    // =========================================================================
+    // ==========================================
     // Animations
-    // =========================================================================
+    // ==========================================
 
     // Left fire region (0–50)
     private final FireAnimation m_leftFire = new FireAnimation(0, 100)
@@ -75,25 +79,25 @@ public class LedSubsystem extends SubsystemBase {
             .withDirection(AnimationDirectionValue.Forward)
             .withFrameRate(Hertz.of(650));
 
-    // =========================================================================
+    // ============================================
     // State machine
-    // =========================================================================
+    // ============================================
     public enum LedState { IDLE, INTAKING, SHOOTING }
 
     private LedState m_state = LedState.IDLE;
     private LedState m_lastState = null;
 
-    // =========================================================================
+    // ============================================
     // Constructor
-    // =========================================================================
+    // ============================================
     public LedSubsystem(ShooterSubsystem shooter) {
         m_shooter = shooter;
         m_animTimer.start();
     }
 
-    // =========================================================================
+    // ============================================
     // Periodic: handle state switching
-    // =========================================================================
+    // ============================================
     @Override
     public void periodic() {
         SmartDashboard.putString("LED State", m_state.name());
@@ -127,9 +131,9 @@ public class LedSubsystem extends SubsystemBase {
         }
     }
 
-    // =========================================================================
+    // ============================================
     // Commands to change state
-    // =========================================================================
+    // ============================================
     public Command showIdle() {
         return Commands.runOnce(() -> m_state = LedState.IDLE);
     }
@@ -142,9 +146,9 @@ public class LedSubsystem extends SubsystemBase {
         return Commands.runOnce(() -> m_state = LedState.SHOOTING);
     }
 
-    // =========================================================================
+    // ================================
     // Manual cycle for testing
-    // =========================================================================
+    // =================================
     public Command cycleNext() {
         return Commands.runOnce(() -> {
             LedState[] states = LedState.values();
