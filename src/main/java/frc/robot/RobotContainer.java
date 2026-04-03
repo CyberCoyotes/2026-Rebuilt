@@ -93,7 +93,7 @@ public class RobotContainer {
             drivetrain.applyRequest(() ->
                 drive.withVelocityX(-driver.getLeftY() * MaxSpeed)
                     .withVelocityY(-driver.getLeftX() * MaxSpeed)
-                    .withRotationalRate(-driver.getRightX() * MaxAngularRate)
+                    .withRotationalRate(driver.getRightX() * MaxAngularRate)
             )
         );
 

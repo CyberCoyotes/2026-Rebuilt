@@ -428,10 +428,10 @@ public final class Constants {
      * TODO: Verify hood setpoints
      * Add an end-of-line "Tuned" note when each value is confirmed.
      */
-    public static final double CLOSE_HOOD = 0.50;
+    public static final double CLOSE_HOOD = 1.50;
     public static final double POPPER_HOOD = 4.20; //
-    public static final double TOWER_HOOD = 0.00;
-    public static final double TRENCH_HOOD = 4.20;
+    public static final double TOWER_HOOD = 2.50;
+    public static final double TRENCH_HOOD = 2.20;
     public static final double FAR_HOOD = 4.20; // Was 5.50
     public static final double PASS_HOOD = 2.00;
 
