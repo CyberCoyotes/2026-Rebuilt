@@ -86,8 +86,8 @@ public class ShooterIOHardware implements ShooterIO {
       config.MotorOutput.Inverted = Constants.Hood.HoodConfig.INVERTED;
 
       // Voltage limits capped for safe hood movement and plenty fast for short-range repositioning.
-      config.Voltage.PeakForwardVoltage = Constants.Hood.FORWARD_VOLTAGE;
-      config.Voltage.PeakReverseVoltage = Constants.Hood.REVERSE_VOLTAGE;
+      config.Voltage.PeakForwardVoltage = Constants.Hood.PEAK_FORWARD_VOLTAGE;
+      config.Voltage.PeakReverseVoltage = Constants.Hood.PEAK_REVERSE_VOLTAGE;
 
       config.CurrentLimits.SupplyCurrentLimit = Constants.Hood.SUPPLY_CURRENT_LIMIT;
       config.CurrentLimits.SupplyCurrentLimitEnable = true;

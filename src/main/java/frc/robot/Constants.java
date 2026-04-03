@@ -6,7 +6,7 @@ import com.ctre.phoenix6.signals.MotorAlignmentValue;
 import com.ctre.phoenix6.signals.MotorArrangementValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 import edu.wpi.first.math.geometry.Translation2d;
-import edu.wpi.first.units.measure.Current;
+// import edu.wpi.first.units.measure.Current;
 
 public final class Constants {
   private Constants() {
@@ -24,27 +24,29 @@ public final class Constants {
    * incomplete.
    */
 
-  // =========================================================
-  // CAN ID Quick Reference — keep in sync with source constants ##
-  // =========================================================
+  // ============================================
+  // CAN ID Quick Reference
+  // ============================================
   /*
    * === candrive bus (CANivore) ===
-   * 1 FL Drive Motor Kraken X60 (TunerConstants.kFrontLeftDriveMotorId)
-   * 2 FR Steer Motor Kraken X60 (TunerConstants.kFrontRightSteerMotorId)
-   * 3 FL CANcoder (TunerConstants.kFrontLeftEncoderId)
-   * 4 FR Drive Motor Kraken X60 (TunerConstants.kFrontRightDriveMotorId)
-   * 5 FL Steer Motor Kraken X60 (TunerConstants.kFrontLeftSteerMotorId)
-   * 6 FR CANcoder (TunerConstants.kFrontRightEncoderId)
-   * 7 BL Drive Motor Kraken X60 (TunerConstants.kBackLeftDriveMotorId)
-   * 8 BL Steer Motor Kraken X60 (TunerConstants.kBackLeftSteerMotorId)
-   * 9 BL CANcoder (TunerConstants.kBackLeftEncoderId)
-   * 10 BR Drive Motor Kraken X60 (TunerConstants.kBackRightDriveMotorId)
-   * 11 BR Steer Motor Kraken X60 (TunerConstants.kBackRightSteerMotorId)
-   * 12 BR CANcoder (TunerConstants.kBackRightEncoderId)
-   * 14 Pigeon 2 IMU (TunerConstants.kPigeonId)
+   * Check TunerConstants.java
+   * 
+   * 1 FL Drive Motor Kraken X60 (kFrontLeftDriveMotorId)
+   * 2 FR Steer Motor Kraken X60 (kFrontRightSteerMotorId)
+   * 3 FL CANcoder (kFrontLeftEncoderId)
+   * 4 FR Drive Motor Kraken X60 (kFrontRightDriveMotorId)
+   * 5 FL Steer Motor Kraken X60 (kFrontLeftSteerMotorId)
+   * 6 FR CANcoder (kFrontRightEncoderId)
+   * 7 BL Drive Motor Kraken X60 (kBackLeftDriveMotorId)
+   * 8 BL Steer Motor Kraken X60 (kBackLeftSteerMotorId)
+   * 9 BL CANcoder (kBackLeftEncoderId)
+   * 10 BR Drive Motor Kraken X60 (kBackRightDriveMotorId)
+   * 11 BR Steer Motor Kraken X60 (kBackRightSteerMotorId)
+   * 12 BR CANcoder (kBackRightEncoderId)
+   * 14 Pigeon 2 IMU (kPigeonId)
    * 15 CANdle LEDs (Led.CANDLE_ID)
    * 
-   * === rio bus ===
+   * === Rio bus ===
    * 20 Intake Roller Left Kraken X44 (Intake.ROLLER_LEFT_MOTOR_ID)
    * 21 Intake Roller Right Kraken X44 (Intake.ROLLER_RIGHT_MOTOR_ID)
    * 22 Intake Slide Kraken X44 (Intake.SLIDE_MOTOR_ID)
@@ -57,9 +59,9 @@ public final class Constants {
    * 42 Chute ToF CANrange (Indexer.CHUTE_TOF_ID)
    */
 
-  // ==========================
+  // ============================================
   // Intake
-  // ==========================
+  // ============================================
   public static final class Intake {
     private Intake() {
     }
@@ -71,7 +73,9 @@ public final class Constants {
     public static final int ROLLER_RIGHT_MOTOR_ID = 21;
     public static final int SLIDE_MOTOR_ID = 22;
 
-    /* Add an end-of-line "Tuned" note when each value is confirmed */
+    /* TODO: Confirm Slide position values
+    * Add an end-of-line "Confirmed" note when each value is confirmed
+    */
     public static final double SLIDE_RETRACTED_POS = 0.0;
     public static final double SLIDE_HOME_POS = 19.18;
     public static final double SLIDE_EXTENDED_POS = 62.00; // Previous was 63.0
@@ -84,27 +88,33 @@ public final class Constants {
     public static final double SLIDE_MANUAL_REPEAT_SECONDS = 0.15;
 
     /*
-     * Normal or "fast" Motion Magic values for moving the slide quickly to
-     * position.
-     * Tune for smoothness and responsiveness without excessive overshoot or
-     * oscillation.
+     * TODO: Adjust these motion magic values for normal slide modes.
+     * 
+     * Normal Motion Magic values for moving the slide quickly to position.
      * Add an end-of-line "Tuned" note when confirmed.
      */
-    public static final double SLIDE_MM_CRUISE_VELOCITY = 64; // 32
-    public static final double SLIDE_MM_ACCELERATION = 64; // 32
+    public static final double SLIDE_MM_CRUISE_VELOCITY = 64;
+    public static final double SLIDE_MM_ACCELERATION = 64;
     public static final double SLIDE_MM_JERK = 0.0;
 
+    /*
+     * TODO: Adjust these motion magic values for normal slide modes.
+     * 
+     * Slow Motion Magic values for moving the slide quickly to position.
+     * Add an end-of-line "Tuned" note when confirmed.
+     */
     public static final double SLIDE_SLOW_MM_CRUISE_VELOCITY = 4.0;
     public static final double SLIDE_SLOW_MM_ACCELERATION = 4.0;
     public static final double SLIDE_SLOW_MM_JERK = 0.0;
 
     // Agitation positions used while shooting "pumping fuel"
+    // Maybe unnecessary for this new mechanical setup
     public static final double SLIDE_PUMP_OUT_POS = 60.0;
     public static final double SLIDE_PUMP_IN_POS = 40.0;
 
     /*
-     * These intake roller values need to be verified, adjusted as needed, and
-     * re-verified
+     * TODO: Verify these intake roller values, adjusted as needed, and
+     * re-verify
      */
     public static final double ROLLER_FORWARD_VOLTS = 8;
     public static final double ROLLER_REVERSE_VOLTS = -8;
@@ -116,7 +126,7 @@ public final class Constants {
       public static final NeutralModeValue NEUTRAL_MODE = NeutralModeValue.Coast; // Comp version was previously Brake
       public static final InvertedValue INVERTED = InvertedValue.CounterClockwise_Positive;
 
-      /* These are intake roller limits; not the actual roller setpoints */
+      /* Intake roller limits */
       public static final double SUPPLY_CURRENT_LIMIT = 30.0;
       public static final double STATOR_CURRENT_LIMIT = 40.0;
       public static final double PEAK_FORWARD_VOLTAGE = 12.0;
@@ -128,11 +138,11 @@ public final class Constants {
       private SlideConfig() {
       }
 
-      public static final NeutralModeValue NEUTRAL_MODE = NeutralModeValue.Coast; // Changed from Brake to Coast;
-                                                                                  // especially if it gets hit
+      // Changed from Brake to Coast; especially if it gets hit
+      public static final NeutralModeValue NEUTRAL_MODE = NeutralModeValue.Coast; 
       public static final InvertedValue INVERTED = InvertedValue.CounterClockwise_Positive;
 
-      /* These are slide Limits, not the Setpoints. */
+      /* Intake slide Limits */
       public static final double SUPPLY_CURRENT_LIMIT = 30.0;
       public static final double STATOR_CURRENT_LIMIT = 60.0;
       public static final double REVERSE_SOFT_LIMIT = SLIDE_RETRACTED_POS;
@@ -141,6 +151,8 @@ public final class Constants {
       public static final double PEAK_REVERSE_VOLTAGE = -12.0;
 
       /*
+       * TODO: Tune these slide PID values for the current slide mechanism.
+       * 
        * Initial PID values for slide position control.
        * Tune to minimize overshoot and oscillation while maintaining reasonable
        * responsiveness.
@@ -176,39 +188,47 @@ public final class Constants {
     public static final int CHUTE_TOF_ID = 42;
 
     /*
-     * Verify conveyor and kicker voltages on the new cpnveyor and kicker
-     */
+    * TODO: Tune and verify conveyor values
+    * Add a "Tuned" note when each value is confirmed.
+    * 
+    * Conveyor voltage setpoints for feeding fuel to the shooter.
+    *
+    */
     public static final double CONVEYOR_FORWARD_VOLTAGE = 3.5;
     public static final double CONVEYOR_REVERSE_VOLTAGE = -2;
     public static final double CONVEYOR_POPPER_VOLTAGE = 1.0;
 
+    /*
+     * TODO: Tune and verify kicker values
+     * Add a "Tuned" note when each value is confirmed.
+     * 
+     * Kicker voltage setpoints for feeding fuel to the shooter.
+     */
     public static final double KICKER_FORWARD_VOLTAGE = 6.0;
     public static final double KICKER_REVERSE_VOLTAGE = -4.0;
     public static final double KICKER_POPPER_VOLTAGE = 3.0;
 
     /*
+     * TODO: Verify these values on the new chute sensor hardware.
+     * Add a "Tuned" note when each value is confirmed.
+     * 
      * Used as the CANrange ProximityThreshold so the hardware "detected" signal
      * matches the same boundary.
      */
     public static final double FUEL_SIZE = 0.1524; // Fuel-Ball is ~6 inches
     public static final double CHUTE_MAX_DISTANCE = 0.6096; // 24" = 0.6096 m.
-    public static final double FUEL_DETECTION_THRESHOLD = FUEL_SIZE * 0.60; // 60% of fuel size to account for sensor
-                                                                            // variance and ensure reliable detection
+
+    // 60% of fuel size to account for sensor variance and ensure reliable detection
+    public static final double FUEL_DETECTION_THRESHOLD = FUEL_SIZE * 0.60; 
     public static final double FUEL_DETECTION_DISTANCE = CHUTE_MAX_DISTANCE - FUEL_DETECTION_THRESHOLD; // ~10 inches
 
-    // Time to wait after detecting fuel at the chute before considering it
-    // "cleared".
+    // Time to wait after detecting fuel at the chute before considering it "cleared".
     public static final double FUEL_CLEAR_TIME = 2.0; // seconds
 
     public static final class ConveyorConfig {
       private ConveyorConfig() {
       }
 
-      /*
-       * Verify conveyor current limits, polarity, and voltage caps against the
-       * current hardware. Add an end-of-line "Tuned" note when each value is
-       * confirmed.
-       */
       public static final NeutralModeValue NEUTRAL_MODE = NeutralModeValue.Coast;
       public static final InvertedValue INVERTED = InvertedValue.CounterClockwise_Positive;
 
@@ -223,11 +243,6 @@ public final class Constants {
       private KickerConfig() {
       }
 
-      /*
-       * Verify kicker current limits, polarity, and follower alignment on the
-       * current roller stackup. Add an end-of-line "Tuned" note when each value is
-       * confirmed.
-       */
       public static final NeutralModeValue NEUTRAL_MODE = NeutralModeValue.Coast;
       public static final InvertedValue INVERTED = InvertedValue.Clockwise_Positive;
 
@@ -268,19 +283,19 @@ public final class Constants {
     // Kraken X60 with TalonFX controller (follower of A); Flywheel B motor
     public static final int FLYWHEEL_RIGHT_MOTOR_ID = 26;
 
-    // == Mechanism setpoints / tuning ==========
     // Kraken X60 free speed
     public static final double MAX_RPM = 6000.0;
     public static final double IDLE_RPM = 0;
 
     /**
-     * TODO: Verify shot RPMs on the current shooter. Mechanical changes may alter
-     * the required speed for each distance. Add an end-of-line "Tuned" note when
-     * confirmed.
+     * TODO: Verify shot RPMs on the current shooter. 
+     * IMPORTANT: Only find these after tuning and adjuting the flywheel PID and Feedforward values. 
+     * 
+     * Add an end-of-line "Tuned" note when confirmed.
      */
     public static final double POPPER_RPM = 650;
     public static final double STANDBY_RPM = 1000;
-    public static final double CLOSE_RPM = 4500; // WAS 2700
+    public static final double CLOSE_RPM = 2700;
     public static final double TOWER_RPM = 3200;
     public static final double TRENCH_RPM = 3200;
     public static final double FAR_RPM = 3800;
@@ -298,13 +313,23 @@ public final class Constants {
      */
     public static final double EJECT_MAX_ENTRY_RPM = 500.0;
 
-    public static final double KP = 0.005;
-    public static final double KV = .120;
+    /*
+     * TODO: Tune these values for the current flywheel. 
+     * See the /docs/flywheel-tuning.md document for the tuning process
+     * 
+     * Flywheel PID and Feedforward gains.
+     */
+ 
+    // Tune 1st
+    public static final double KV = 0.120;
+    // Tune 2nd
+    public static final double KP = 0.000;
     public static final double KD = 0.000;
     public static final double KA = 0.000;
 
     /*
-     * TODO: Verify flywheel tolerance against current steady-state variation.
+     * TODO: Verify flywheel tolerance.
+     * 
      * Previously 0.10 measured steady-state;
      * Variance ±30 RPM at 3300; 3% = ±99 RPM (~3× variance)
      */
@@ -325,7 +350,7 @@ public final class Constants {
       private LeaderConfig() {
       }
 
-      // == Hardware config ====================================
+      // == Hardware config ============================
       public static final NeutralModeValue NEUTRAL_MODE = NeutralModeValue.Coast;
       public static final InvertedValue INVERTED = InvertedValue.Clockwise_Positive;
     }
@@ -334,16 +359,16 @@ public final class Constants {
       private FollowerConfig() {
       }
 
-      // == Hardware config ====================================
+      // == Hardware config ============================
       public static final NeutralModeValue NEUTRAL_MODE = NeutralModeValue.Coast;
       public static final MotorAlignmentValue FOLLOWER_ALIGNMENT = MotorAlignmentValue.Opposed;
     }
 
   }
 
-  // =========================================================
+  // ============================
   // Hood
-  // =========================================================
+  // ============================
 
   public static final class Hood {
     private Hood() {
@@ -361,9 +386,8 @@ public final class Constants {
     public static final double POSE_TOLERANCE = 0.05;
 
     /*
-     * TODO: Verify hood setpoints on the current shooter geometry. Add an
-     * end-of-line
-     * "Tuned" note when each value is confirmed.
+     * TODO: Verify hood setpoints on the current shooter geometry. 
+     * Add an end-of-line "Tuned" note when each value is confirmed.
      */
     public static final double CLOSE_HOOD = 4.20;
     public static final double POPPER_HOOD = 4.20; //
@@ -377,13 +401,16 @@ public final class Constants {
     public static final double ACCELERATION = 20;
     public static final double CRUISE_VELOCITY = 40;
 
+    // Tune these PID values if using motion magic for the hood
     public static final double KP = 0.5;
     public static final double KI = 0;
     public static final double KD = 0;
 
+    // Hood limits
     public static final double SUPPLY_CURRENT_LIMIT = 30;
-    public static final double REVERSE_VOLTAGE = -4.0;
-    public static final double FORWARD_VOLTAGE = 4.0;
+    public static final double STATOR_CURRENT_LIMIT = 40;
+    public static final double PEAK_FORWARD_VOLTAGE = 8.0;
+    public static final double PEAK_REVERSE_VOLTAGE = -8.0;
     public static final double ENCODER_ZERO_POSITION = 0.0;
 
     public static final class HoodConfig {
