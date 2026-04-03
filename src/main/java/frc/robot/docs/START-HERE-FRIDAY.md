@@ -19,6 +19,7 @@ In the [docs](https://github.com/CyberCoyotes/2026-Rebuilt/tree/500-adjust-the-s
 ## Reminders
 
 - Robot safety: robot on blocks or clear carpet space, someone on the disable button, never reach into the robot while enabled.
+- If possible, direct connect to the RIO on the robot; Radio hard wire is next best; WiFi least desirable for testing
 - Text or email if you need help. Don't let anyone rush you — follow the protocol.
 
 ## Subsystems
