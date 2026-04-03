@@ -319,7 +319,7 @@ public final class Constants {
     public static final double STANDBY_RPM = 1000;
     
     // Bumpers against the hub if possible, note robot position if not
-    public static final double CLOSE_RPM = 2700;
+    public static final double CLOSE_RPM = 3000;
 
     // Bumpers against the tower
     public static final double TOWER_RPM = 3200;
@@ -428,7 +428,7 @@ public final class Constants {
      * TODO: Verify hood setpoints
      * Add an end-of-line "Tuned" note when each value is confirmed.
      */
-    public static final double CLOSE_HOOD = 4.20;
+    public static final double CLOSE_HOOD = 0.00;
     public static final double POPPER_HOOD = 4.20; //
     public static final double TOWER_HOOD = 4.20;
     public static final double TRENCH_HOOD = 4.20;
