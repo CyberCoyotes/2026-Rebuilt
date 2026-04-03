@@ -345,40 +345,45 @@ public final class Constants {
      */
     public static final double EJECT_MAX_ENTRY_RPM = 500.0;
 
+    public static final double TEST_INCREMENT_RPM = 100.0;
+
     /*
-     * TODO: Tune these values for the current flywheel. 
-     * See the /docs/flywheel-tuning.md document for the tuning process
-     * 
-     * Flywheel PID and Feedforward gains.
+     * TODO: Tune flywheel values before. 
+     * These values should be tuned without a game piece!
+     * These should be done in the prescribed order, use Pheonix Tuner X to set values and graph results,
+     * give ChatGTP written feedback on the results or use a screenshot, 
+     * and adjust as needed until the flywheel is performing well at the target RPMs with minimal overshoot, oscillation, and steady-state error.
+     * See the /docs/tuning-guide_flywheel.md document for the tuning process
      */
  
-    
-     // TODO: 1st Flywheel Tuning value; do without a game piece!
+    // Flywheel PID and Feedforward gains.    
+    // TODO: 1st Flywheel Tuning value
     public static final double KV = 0.120;
     
-    // TODO: 2nd Flywheel Tuning value; do without a game piece!
+    // TODO: 2nd Flywheel Tuning value
     public static final double KP = 0.000;
 
-    // TODO: 3rd Flywheel Tuning value; do without a game piece! 
+    // TODO: 3rd Flywheel Tuning value 
     // Maybe not needed at all depending on how the flywheel behaves.
     public static final double KD = 0.000;
     public static final double KA = 0.000;
 
     /*
-     * TODO: Verify flywheel tolerance.
+     * TODO: Verify flywheel tolerance can be verified on Saturday.
      * 
      * Previously 0.10 measured steady-state;
      * Variance ±30 RPM at 3300; 3% = ±99 RPM (~3× variance)
      */
     public static final double TOLERANCE_PERCENT = 0.03;
 
-    public static final double SUPPLY_CURRENT_LIMIT = 60; // DO NOT RAISE, FUSE IS 40A MAX
-    public static final double STATOR_CURRENT_LIMIT = 100;
-    public static final double TEST_INCREMENT_RPM = 100.0;
+    /* Flywheel limits */
+    public static final double SUPPLY_CURRENT_LIMIT = 60;
+    public static final double STATOR_CURRENT_LIMIT = 90;
 
     /*
-     * Motion Magic Velocity starting point for the rebuilt two-Kraken flywheel.
+     * TODO: Tune Motion Magic Velocity starting point for the rebuilt two-Kraken flywheel.
      * Tune acceleration to shape spin-up, then refine Slot0 gains.
+     * Probably ok to wait until Saturday
      */
     public static final double MM_ACCELERATION_RPS_PER_SEC = 150.0;
     public static final double MM_JERK_RPS_PER_SEC_CUBED = 0.0;
@@ -387,7 +392,6 @@ public final class Constants {
       private LeaderConfig() {
       }
 
-      // == Hardware config ============================
       public static final NeutralModeValue NEUTRAL_MODE = NeutralModeValue.Coast;
       public static final InvertedValue INVERTED = InvertedValue.Clockwise_Positive;
     }
