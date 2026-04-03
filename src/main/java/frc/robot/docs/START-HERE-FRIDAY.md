@@ -1,6 +1,7 @@
 
-# Friday Overview
+# START HERE FRIDAY Overview
 
+## More Updates
 More comment clean-ups last night and this morning. I've included some inline comments where appropriate and reference docs when more information is needed in the [Constants.java](https://github.com/CyberCoyotes/2026-Rebuilt/blob/500-adjust-the-shooter-subsystem-with-the-new-mechanicals/src/main/java/frc/robot/Constants.java)
 
 In the [docs](https://github.com/CyberCoyotes/2026-Rebuilt/tree/500-adjust-the-shooter-subsystem-with-the-new-mechanicals/src/main/java/frc/robot/docs) folder, I updated and renamed the tuning guides for clarity. There is a general "tuner-x-guide_position-recording.md" there and some specific tuning guides for things like the flywheel.
