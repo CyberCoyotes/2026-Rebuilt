@@ -443,15 +443,10 @@ public void periodic() {
         * Adding a distance to one map without adding it to the other produces
         * inconsistent RPM/hood pairings at that distance. Always update both.
         */
-
-        // TODO Replace each Flywheel RPM value Hood ROT value with a measured result (see TUNING.md)
-        // key: Distance (m), value: flywheel RPM
         FLYWHEEL_RPM_MAP.put(1.5,  2700.0);
         FLYWHEEL_RPM_MAP.put(3.55, 3200.0);
         FLYWHEEL_RPM_MAP.put(5.5,  3800.0);
         
-        /* TODO Replace each Hood ROT value with a measured result (see TUNING.md) */
-        // key: Distance (m), value: hood rotations
         HOOD_ROT_MAP.put(1.5,  0.00);
         HOOD_ROT_MAP.put(3.55, 4.30);
         HOOD_ROT_MAP.put(5.5,  5.50);

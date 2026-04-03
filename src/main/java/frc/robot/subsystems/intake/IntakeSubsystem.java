@@ -49,6 +49,7 @@ public class IntakeSubsystem extends SubsystemBase {
     private final NetworkTable intakeTable;
     private final StringPublisher intakeStatePublisher;
     private final DoublePublisher slidePositionPublisher;
+    private final BooleanPublisher rollerAllowedPublisher;
     private final BooleanPublisher slideExtendedPublisher;
     private final BooleanPublisher slideRetractedPublisher;
 
@@ -62,6 +63,7 @@ public class IntakeSubsystem extends SubsystemBase {
         intakeTable = inst.getTable("Intake");
         intakeStatePublisher = intakeTable.getStringTopic("State").publish();
         slidePositionPublisher = intakeTable.getDoubleTopic("SlidePosition").publish();
+        rollerAllowedPublisher = intakeTable.getBooleanTopic("RollerAllowed").publish();
         slideExtendedPublisher = intakeTable.getBooleanTopic("SlideExtended").publish();
         slideRetractedPublisher = intakeTable.getBooleanTopic("SlideRetracted").publish();
     }
@@ -77,6 +79,7 @@ public class IntakeSubsystem extends SubsystemBase {
 
         // Derived/computed values logged separately so they appear in AdvantageScope
         Logger.recordOutput("Intake/State", getIntakeState());
+        Logger.recordOutput("Intake/RollerAllowed", isSlidePastHome());
         Logger.recordOutput("Intake/SlideExtended", isSlideExtended());
         Logger.recordOutput("Intake/SlideRetracted", isSlideRetracted());
 
@@ -87,6 +90,7 @@ public class IntakeSubsystem extends SubsystemBase {
     private void publishTelemetry() {
         intakeStatePublisher.set(getIntakeState());
         slidePositionPublisher.set(inputs.slidePositionRotations);
+        rollerAllowedPublisher.set(isSlidePastHome());
         slideExtendedPublisher.set(isSlideExtended());
         slideRetractedPublisher.set(isSlideRetracted());
     }
@@ -105,9 +109,19 @@ public class IntakeSubsystem extends SubsystemBase {
         return Math.abs(inputs.slidePositionRotations - Constants.Intake.SLIDE_EXTENDED_POS) < Constants.Intake.SLIDE_TOLERANCE;
     }
 
-    /** True when slide is within tolerance of the retracted setpoint. */
+    /** True when slide is within tolerance of the true startup zero / hard-stop setpoint. */
     public boolean isSlideRetracted() {
         return Math.abs(inputs.slidePositionRotations - Constants.Intake.SLIDE_RETRACTED_POS) < Constants.Intake.SLIDE_TOLERANCE;
+    }
+
+    /** True when slide is within tolerance of the normal operating home/stow setpoint. */
+    public boolean isSlideHome() {
+        return Math.abs(inputs.slidePositionRotations - Constants.Intake.SLIDE_HOME_POS) < Constants.Intake.SLIDE_TOLERANCE;
+    }
+
+    /** True when the slide is safely past the home position for roller operation. */
+    public boolean isSlidePastHome() {
+        return inputs.slidePositionRotations > Constants.Intake.SLIDE_ROLLER_SAFE_POS;
     }
 
     // If you need position for a command or calculation
@@ -122,6 +136,8 @@ public class IntakeSubsystem extends SubsystemBase {
             return "Ejecting";
         if (isSlideExtended())
             return "Extended";
+        if (isSlideHome())
+            return "Home";
         if (isSlideRetracted())
             return "Retracted";
         return "Moving";
@@ -134,11 +150,19 @@ public class IntakeSubsystem extends SubsystemBase {
     // ==== Roller ====    
     
     public void runRoller() {
+        if (!isSlidePastHome()) {
+            stopRoller();
+            return;
+        }
         io.setRollerVoltage(Constants.Intake.ROLLER_FORWARD_VOLTS);
         rollerState = RollerState.RUNNING;
     }
 
     public void reverseRoller() {
+        if (!isSlidePastHome()) {
+            stopRoller();
+            return;
+        }
         io.setRollerVoltage(Constants.Intake.ROLLER_REVERSE_VOLTS);
         rollerState = RollerState.REVERSED;
     }
@@ -156,12 +180,17 @@ public class IntakeSubsystem extends SubsystemBase {
 
     /** Fast full retraction using the default Motion Magic profile. */
     public void retractSlidesFast() {
-        io.setSlidePosition(Constants.Intake.SLIDE_RETRACTED_POS);
+        io.setSlidePosition(Constants.Intake.SLIDE_HOME_POS);
+    }
+
+    /** Fast move to the normal operating home/stow setpoint using the default Motion Magic profile. */
+    public void moveSlidesHome() {
+        io.setSlidePosition(Constants.Intake.SLIDE_HOME_POS);
     }
 
     /** Graceful full retraction using the tunable slow DynamicMotionMagic profile. */
     public void retractSlidesSlow() {
-        io.setSlidePositionSlow(Constants.Intake.SLIDE_RETRACTED_POS);
+        io.setSlidePositionSlow(Constants.Intake.SLIDE_HOME_POS);
     }
 
     /** Backward-compatible alias for the default full extension mode. */
@@ -187,8 +216,21 @@ public class IntakeSubsystem extends SubsystemBase {
     }
 
     /**
+     * Nudges the slide by a relative amount, clamped to the allowed travel range.
+     * Useful for manual operator adjustment without committing to a fixed preset.
+     */
+    public void nudgeSlides(double deltaRotations) {
+        double target = Math.max(
+                Constants.Intake.SLIDE_RETRACTED_POS,
+                Math.min(
+                        inputs.slidePositionRotations + deltaRotations,
+                        Constants.Intake.SLIDE_MAX_POS));
+        io.setSlidePosition(target);
+    }
+
+    /**
      * Retracts slide by 15 rotations from its current position, clamped to the
-     * minimum position. Used as a quick incremental jump before slow-finishing.
+     * true retracted position. Used as a quick incremental jump before slow-finishing.
      */
     public void retractSlidesIncremental() {
         double target = Math.max(
@@ -203,13 +245,15 @@ public class IntakeSubsystem extends SubsystemBase {
 
      /** Runs roller while held; stops on release. */
     public Command intakeRoller() {
-        return Commands.startEnd(this::runRoller, this::stopRoller, this)
+        return Commands.run(this::runRoller, this)
+                .finallyDo(this::stopRoller)
                 .withName("IntakeRoller");
     }
 
     /** Reverses roller while held; stops on release. */
     public Command reverseIntakeRoller() {
-        return Commands.startEnd(this::reverseRoller, this::stopRoller, this)
+        return Commands.run(this::reverseRoller, this)
+                .finallyDo(this::stopRoller)
                 .withName("ReverseIntakeRoller");
     }
 
@@ -233,6 +277,11 @@ public class IntakeSubsystem extends SubsystemBase {
                 .withName("RetractSlides");
     }
 
+    public Command moveSlidesHomeCmd() {
+        return Commands.runOnce(this::moveSlidesHome, this)
+                .withName("MoveSlidesHome");
+    }
+
     /**
      * Sends slide to the retracted setpoint using the slow profile
      * (runOnce — MotionMagic holds position).
@@ -240,6 +289,12 @@ public class IntakeSubsystem extends SubsystemBase {
     public Command retractSlidesSlowCmd() {
         return Commands.runOnce(this::retractSlidesSlow, this)
                 .withName("RetractSlidesSlow");
+    }
+
+    /** Re-issues the slow retract profile while held so the slide keeps working toward zero. */
+    public Command retractSlidesSlowHeldCmd() {
+        return Commands.run(this::retractSlidesSlow, this)
+                .withName("RetractSlidesSlowHeld");
     }
 
     /** Backward-compatible alias for the default full extension command. */
@@ -261,6 +316,24 @@ public class IntakeSubsystem extends SubsystemBase {
                 .withName("RetractSlidesIncremental");
     }
 
+    /** Repeats a small manual slide nudge while held. */
+    public Command manualSlideNudgeHoldCmd(double deltaRotations) {
+        return Commands.repeatingSequence(
+                Commands.runOnce(() -> nudgeSlides(deltaRotations), this),
+                Commands.waitSeconds(Constants.Intake.SLIDE_MANUAL_REPEAT_SECONDS))
+                .withName(deltaRotations >= 0.0 ? "ManualSlideExtendHold" : "ManualSlideRetractHold");
+    }
+
+    /** Extends the slide in small repeated steps while held. */
+    public Command manualSlideExtendHoldCmd() {
+        return manualSlideNudgeHoldCmd(Constants.Intake.SLIDE_MANUAL_STEP_ROTATIONS);
+    }
+
+    /** Retracts the slide in small repeated steps while held. */
+    public Command manualSlideRetractHoldCmd() {
+        return manualSlideNudgeHoldCmd(-Constants.Intake.SLIDE_MANUAL_STEP_ROTATIONS);
+    }
+
      // =========================================================================
     // COMMAND FACTORIES — TELEOP COMBINATIONS
     // =========================================================================
@@ -280,7 +353,8 @@ public class IntakeSubsystem extends SubsystemBase {
     public Command intakeFuel() {
         return Commands.sequence(
                 extendSlidesFastCmd(),
-                Commands.startEnd(this::runRoller, this::stopRoller, this))
+                Commands.run(this::runRoller, this)
+                        .finallyDo(this::stopRoller))
                 .withName("IntakeFuel");
     }
 
@@ -334,7 +408,7 @@ public class IntakeSubsystem extends SubsystemBase {
      *   operator.leftBumper().whileTrue(intake.compressFuelHeld());
      * </pre>
      */
-    public Command compressFuelHeld() {
+    public Command fuelPumpSlow() {
         return Commands.runEnd(
                 () -> {
                     retractSlidesSlow();
@@ -342,6 +416,15 @@ public class IntakeSubsystem extends SubsystemBase {
                 },
                 this::stopRoller,
                 this)
+                .withName("FuelPumpSlow");
+    }
+
+    /**
+     * Backward-compatible alias for the slow fuel compression/pump command.
+     * Runs only while held and stops immediately on release.
+     */
+    public Command compressFuelHeld() {
+        return fuelPumpSlow()
                 .withName("CompressFuelHeld");
     }
 
@@ -510,7 +593,7 @@ public class IntakeSubsystem extends SubsystemBase {
                 Commands.runOnce(() -> setSlidesToPosition(Constants.Intake.SLIDE_PUMP_IN_POS), this),
                 Commands.waitSeconds(0.5),
                 // ==== Cycle 3 ====
-                Commands.runOnce(() -> setSlidesToPosition(Constants.Intake.SLIDE_RETRACTED_POS), this))
+                Commands.runOnce(() -> setSlidesToPosition(Constants.Intake.SLIDE_HOME_POS), this))
                 .withName("FuelPumpThenRetractSlide");
     }
     // =========================================================================
@@ -575,7 +658,7 @@ public class IntakeSubsystem extends SubsystemBase {
      *
      * Phase 1 (runOnce): Quick 15-rotation jump back via normal MotionMagic.
      *                    Roller starts here.
-     * Phase 2 (run loop): Slow DynamicMotionMagic finish to SLIDE_RETRACTED_POS
+     * Phase 2 (run loop): Slow DynamicMotionMagic finish to the bumper/stow pose
      *                     while the roller keeps running.
      *
      * Roller is stopped in finallyDo so any interrupt (e.g. deadline finishing)

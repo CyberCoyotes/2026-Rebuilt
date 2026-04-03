@@ -29,15 +29,7 @@ import frc.robot.subsystems.shooter.ShooterSubsystem.ShotPreset;
  * Using a factory pattern keeps command creation centralized and reusable.
  * 
  */
-public class FuelCommandsGPT {
-
-    /**
-     * Robot-front heading offset needed so the rear-mounted shooter/camera points at the hub.
-     *
-     * Current mechanical layout: shooter and camera are mounted on the back of the robot, so
-     * the chassis front must point 180° away from the hub when aligning to shoot.
-     */
-    private static final double SHOOTER_ALIGNMENT_OFFSET_DEGREES = 180.0;
+public class FuelCommands {
 
     /** Returns the hub center for the current alliance (defaults to blue if FMS not connected). */
     private static Translation2d getHubLocation() {
@@ -48,7 +40,7 @@ public class FuelCommandsGPT {
     }
 
     private static double getRobotFrontTargetHeadingDegrees(double angleToHubDeg, double aimOffsetDeg) {
-        double targetHeadingDeg = angleToHubDeg + aimOffsetDeg + SHOOTER_ALIGNMENT_OFFSET_DEGREES;
+        double targetHeadingDeg = angleToHubDeg + aimOffsetDeg + Constants.Vision.ALIGNMENT_OFFSET_DEGREES;
         return MathUtil.inputModulus(targetHeadingDeg, -180.0, 180.0);
     }
 
@@ -328,11 +320,16 @@ public class FuelCommandsGPT {
             ntLeadOffset.set(leadOffsetDeg);
 
             // 3. Rotation correction
+            double rawRotRate = headingErrorDeg * Constants.Vision.ROTATIONAL_KP;
             double rotRate = MathUtil.clamp(
-                    headingErrorDeg * Constants.Vision.ROTATIONAL_KP,
-                    -Constants.Vision.MAX_ALIGNMENT_ROTATION_RAD_PER_SEC,
-                    Constants.Vision.MAX_ALIGNMENT_ROTATION_RAD_PER_SEC);
+                rawRotRate,
+                -Constants.Vision.MAX_ALIGNMENT_ROTATION_RAD_PER_SEC,
+                Constants.Vision.MAX_ALIGNMENT_ROTATION_RAD_PER_SEC);
 
+            if (Math.abs(headingErrorDeg) > 1.0 && Math.abs(rotRate) < Constants.Vision.MIN_ALIGNMENT_ROTATION_RAD_PER_SEC) {
+                rotRate = Math.copySign(Constants.Vision.MIN_ALIGNMENT_ROTATION_RAD_PER_SEC, rotRate);
+            }
+            
             ntAngleToHub.set(angleToHubDeg);
             ntCurrentHeading.set(currentHeadingDeg);
             ntHeadingError.set(headingErrorDeg);
@@ -466,11 +463,7 @@ public class FuelCommandsGPT {
                                         pose.getRotation().getDegrees());
                                 return Math.abs(headingErrorDeg) <= Constants.Vision.ALIGNMENT_TOLERANCE_DEGREES
                                         && shooter.isReady();
-                            /* Added .withTimeout(3.0) and working now. Post weekend, explore why timeout is needed
-                             * Lower to 1.0 and see if it still works — if not, we know the issue is that the command is waiting indefinitely for the alignment condition to be met, which never happens because of some bug in the alignment code. The timeout allows it to move on to feeding even if the alignment condition is never satisfied, which is better than doing nothing at all.
-                            */
                                     }).withTimeout(1.0), 
-                            
                             Commands.run(() -> {
                                 Translation2d hub = getHubLocation();
                                 Pose2d pose = drivetrain.getState().Pose;
@@ -613,7 +606,7 @@ public class FuelCommandsGPT {
                 }, intake)
                     .beforeStarting(cycleTimer::restart)
                     .until(indexer::isChuteEmpty)
-                    .withTimeout(5.0) // hard stop — tune or remove once reliable
+                    .withTimeout(5.0) // Tune or remove once reliable
             )
             .finallyDo(intake::stopRoller)
             .withName("FuelPumpCycleSensor");

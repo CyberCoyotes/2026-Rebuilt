@@ -12,7 +12,7 @@ import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
 
 import frc.robot.Constants;
-import frc.robot.util.PhoenixUtil;
+import frc.robot.utilities.PhoenixUtil;
 
 /**
  * IntakeIOHardware - Real hardware implementation using CTRE TalonFX motors.
@@ -69,7 +69,6 @@ public class IntakeIOHardware implements IntakeIO {
             config.SoftwareLimitSwitch.ReverseSoftLimitEnable = true;
             config.SoftwareLimitSwitch.ReverseSoftLimitThreshold = Constants.Intake.SlideConfig.REVERSE_SOFT_LIMIT;
 
-            /* TODO These new re-tuning for position control of the new slide mechanism */
             config.Slot0.kP = Constants.Intake.SlideConfig.KP;
             config.Slot0.kI = Constants.Intake.SlideConfig.KI;
             config.Slot0.kD = Constants.Intake.SlideConfig.KD;
@@ -96,7 +95,6 @@ public class IntakeIOHardware implements IntakeIO {
     private final MotionMagicVoltage slideRequest = new MotionMagicVoltage(0);
 
     // DynamicMotionMagic for slower slide movement 
-    // TODO: Revisit this with the new slides to try for new retract profile
     private final DynamicMotionMagicVoltage slideRequestSlow =
             new DynamicMotionMagicVoltage(
                     0,
@@ -126,7 +124,7 @@ public class IntakeIOHardware implements IntakeIO {
         rollerFollow.setControl(
                 new Follower(rollerLead.getDeviceID(), Constants.Intake.RollerConfig.FOLLOWER_ALIGNMENT));
 
-        // Zero slide encoder at startup — assumes slide is fully retracted
+        // Zero slide encoder at startup
         slide.setPosition(Constants.Intake.ENCODER_ZERO_POSITION);
     }
 
