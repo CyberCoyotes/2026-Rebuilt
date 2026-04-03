@@ -382,7 +382,7 @@ public final class Constants {
     public static final double MIN_POSE = 0.00; // Mechanical limit, also use to set in Configs
     public static final double MAX_POSE = 4.356934; // Mechanical limit; also used to set in Configs
 
-    // TODO: Verify hood tolerance on the current linkage and backlash.
+    // TODO: Verify hood tolerance
     public static final double POSE_TOLERANCE = 0.05;
 
     /*
@@ -420,7 +420,11 @@ public final class Constants {
       // == Hardware config ====================================
       public static final MotorArrangementValue MOTOR_ARRANGEMENT = MotorArrangementValue.Minion_JST;
       public static final NeutralModeValue NEUTRAL_MODE = NeutralModeValue.Brake;
-      public static final InvertedValue INVERTED = InvertedValue.CounterClockwise_Positive; // Had to switch
+      public static final InvertedValue INVERTED = InvertedValue.CounterClockwise_Positive;
+
+      public static final double REVERSE_SOFT_LIMIT = MIN_POSE;
+      public static final double FORWARD_SOFT_LIMIT = MAX_POSE;
+      
     }
 
   }
