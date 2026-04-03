@@ -1,7 +1,7 @@
 # Flywheel Tuning Guide & Protocol
 
 **For:** CyberCoyotes 4829 — 2026-Rebuilt
-**Hardware:** 3x Kraken X60 (TalonFX, IDs 25/26/27), VelocityVoltage Slot 0
+**Hardware:** 2x Kraken X60 (TalonFX)
 **Control Mode:** VelocityVoltage (no CANivore required)
 
 Work through the sections in order. Each phase depends on the previous one being correct.

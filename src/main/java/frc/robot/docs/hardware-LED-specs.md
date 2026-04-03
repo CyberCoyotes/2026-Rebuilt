@@ -1,3 +1,5 @@
+**IMPORTANT NOTE: This needs updating since first competition**
+
 # WS2811 12V COB RGB LED Strip — FRC Programming Reference
 
 This document abstracts the key technical details of the LED strip for use in **FIRST Robotics Competition (FRC)** projects, particularly when writing **Java / WPILib** guides or student documentation.
