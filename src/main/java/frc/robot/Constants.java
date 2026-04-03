@@ -235,8 +235,10 @@ public final class Constants {
     public static final double FUEL_DETECTION_THRESHOLD = FUEL_SIZE * 0.60; 
     public static final double FUEL_DETECTION_DISTANCE = CHUTE_MAX_DISTANCE - FUEL_DETECTION_THRESHOLD; // ~10 inches
 
-    // TODO: Verify fuel clear time based on how long it takes for fuel to move through the chute after detection. 
-    // This is NOT something that needs testing on Friday, but should be verified before the next competition to ensure reliable fuel counting and indexing.
+    /* 
+    * Verify fuel clear time based on how long it takes for fuel to move through the chute after detection. 
+    * NOT a Friday priority testing, but should be verified before the next competition. 
+    */
 
     // Time to wait after detecting fuel at the chute before considering it "cleared".
     public static final double FUEL_CLEAR_TIME = 2.0; // seconds
@@ -421,7 +423,7 @@ public final class Constants {
     public static final double POSE_TOLERANCE = 0.05;
 
     /*
-     * TODO: Verify hood setpoints on the current shooter geometry. 
+     * TODO: Verify hood setpoints
      * Add an end-of-line "Tuned" note when each value is confirmed.
      */
     public static final double CLOSE_HOOD = 4.20;
@@ -436,7 +438,11 @@ public final class Constants {
     public static final double ACCELERATION = 20;
     public static final double CRUISE_VELOCITY = 40;
 
-    // Tune these PID values if using motion magic for the hood
+    /* 
+    * Tune these PID hood values if using motion magic
+    * Currently not being used
+    * NOT a Friday testing priority!
+    */ 
     public static final double KP = 0.5;
     public static final double KI = 0;
     public static final double KD = 0;
