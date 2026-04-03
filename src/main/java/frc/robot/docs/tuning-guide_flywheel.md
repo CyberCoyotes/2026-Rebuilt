@@ -1,216 +1,405 @@
-# Flywheel Tuning Guide & Protocol
+# Flywheel Tuning Guide
 
-**For:** CyberCoyotes 4829 — 2026-Rebuilt
-**Hardware:** 2x Kraken X60 (TalonFX)
-**Control Mode:** VelocityVoltage (no CANivore required)
+**For:** CyberCoyotes 4829 - 2026-Rebuilt  
+**Goal:** Live tune the flywheel in Phoenix Tuner X 2026, using RPS graphs first, then copy the final gains back into code.
 
-Work through the sections in order. Each phase depends on the previous one being correct.
+## Hardware And Code References
 
----
+- Flywheel leader motor: `Constants.Flywheel.FLYWHEEL_LEFT_MOTOR_ID = 25`
+- Flywheel follower motor: `Constants.Flywheel.FLYWHEEL_RIGHT_MOTOR_ID = 26`
+- Bus: `Constants.RIO_CANBUS`
+- Control mode in code: `VelocityVoltage` on Slot 0
+- Code gain source: `Constants.Flywheel.KP`, `Constants.Flywheel.KV`, `Constants.Flywheel.KD`
+- Config application: [ShooterIOHardware.java](/C:/Users/jvanscoyoc/.codex/worktrees/35ba/2026-Rebuilt/src/main/java/frc/robot/subsystems/shooter/ShooterIOHardware.java#L67)
+- Flywheel IDs and presets: [Constants.java](/C:/Users/jvanscoyoc/.codex/worktrees/35ba/2026-Rebuilt/src/main/java/frc/robot/Constants.java#L251)
+- Tuning command in robot code: [ShooterSubsystem.java](/C:/Users/jvanscoyoc/.codex/worktrees/35ba/2026-Rebuilt/src/main/java/frc/robot/subsystems/shooter/ShooterSubsystem.java#L499)
 
-## Dashboard Values You Will Use
+## What To Tune In Tuner X
 
-| Elastic Widget | NT Key | What It Tells You |
-|---|---|---|
-| Flywheel RPM | `Shooter/FlywheelRPM` | Actual motor RPM right now |
-| Target RPM | `Shooter/TargetFlywheelRPM` | What the code is asking for |
-| Flywheel Error | `Shooter/FlywheelError` | target − actual (goal: near 0) |
-| Applied Volts | `Shooter/FlywheelAppliedVolts` | Voltage sent to motor (max ~12 V) |
-| Is Ready | `Shooter/IsReady` | Green = ready to feed a ball |
-| State | `Shooter/State` | IDLE / READY / PASS / EJECT |
+Tune the **leader only** in Phoenix Tuner X:
 
----
+- Device `25`: tune Slot 0 gains here
+- Device `26`: do not tune closed-loop gains here; it should remain a follower
 
-## Before You Start
+Verify before tuning:
 
-**Code files you will edit:**
-- Gains → `src/main/java/frc/robot/subsystems/shooter/ShooterIOHardware.java` (lines 94–109, `Slot0`)
-- RPM presets → `src/main/java/frc/robot/Constants.java` (lines 105–163, `Shooter` class)
-- Tuning command → `src/main/java/frc/robot/RobotContainer.java` (line 119)
+- `25` is the motor receiving the velocity command
+- `26` follows `25`
+- follower direction matches `MotorAlignmentValue.Opposed`
+- both wheels produce the same surface direction at the flywheel
 
-**How to spin the flywheel for tuning:**
-Hold **Right Bumper** → flywheel spins at the RPM set in `tuneFlywheelCommand(3300)`.
-Release **Right Bumper** → flywheel stops.
-Change the number in `tuneFlywheelCommand()` to test different RPMs and redeploy.
+## Units Cheat Sheet
 
-**Safety:** Robot must be on the ground with bumpers on. Never tune with a ball in the chamber until Phase 4.
+Phoenix Tuner X flywheel tuning is easiest in **RPS**.
 
----
+- `3300 RPM = 55.0 RPS`
+- `3200 RPM = 53.33 RPS`
+- `3603 RPM = 60.05 RPS`
+- `3800 RPM = 63.33 RPS`
+- `4000 RPM = 66.67 RPS`
 
-## Phase 1 — kV (Feedforward) Tuning
+Code publishes both RPM and RPS:
 
-**What kV does:** Provides the baseline voltage needed to spin at a given speed. Get this right first so kP has less work to do.
+- `Shooter/FlywheelRPM`
+- `Shooter/FlywheelMotorRPS`
+- `Shooter/TargetFlywheelRPM`
+- `Shooter/FlywheelError`
+- `Shooter/FlywheelAppliedVolts`
+- `Shooter/IsReady`
+- `Shooter/FlywheelAtRPM`
 
-**Goal:** With kP = 0, `FlywheelRPM` reaches close to `TargetFlywheelRPM` at steady state.
+## Starting Values
 
-### Steps
+For your current near-`1:1` dual Kraken X60 flywheel, start here:
 
-1. In `ShooterIOHardware.java` Slot0, set:
-   ```java
-   config.Slot0.kP = 0.0;   // Zero out for now
-   config.Slot0.kV = 0.12;  // Starting point
-   ```
-2. Deploy. Enable. Hold Right Bumper (spins at 3300 RPM).
-3. Wait 3–4 seconds for speed to settle.
-4. Read `FlywheelRPM` and `FlywheelError` on dashboard.
-
-| What You See | What To Do |
-|---|---|
-| `FlywheelRPM` < 3300, `FlywheelError` positive | Increase `kV` by 0.005 |
-| `FlywheelRPM` > 3300, `FlywheelError` negative | Decrease `kV` by 0.005 |
-| `FlywheelAppliedVolts` already at 11–12 V | System is saturated; lower target RPM first |
-
-5. Redeploy after each change. Repeat until `FlywheelError` stays within **±200 RPM** at steady state.
-6. Record your kV: **kV = ______**
-
-**Typical Kraken X60 range in voltage mode: kV ≈ 0.110 – 0.130 V/RPS**
-
----
-
-## Phase 2 — kP (Proportional) Tuning
-
-**What kP does:** Corrects the remaining error that kV alone cannot fix. Too low = slow/inaccurate. Too high = oscillation (RPM bouncing).
-
-**Goal:** `FlywheelError` drops to < ±100 RPM with no oscillation.
-
-### Steps
-
-1. With the kV value locked from Phase 1, set:
-   ```java
-   config.Slot0.kP = 0.05;  // Start low
-   ```
-2. Deploy. Enable. Hold Right Bumper.
-3. Watch `FlywheelError` after settling (~3 seconds):
-   - Still >100 RPM error → increase `kP` by `0.02`
-   - RPM hunting (goes up, overshoots, comes back, repeats) → **oscillation — back off kP by 20%**
-4. Repeat until `FlywheelError` stays < **±100 RPM** without hunting.
-
-**Oscillation check:** Watch `FlywheelRPM` for at least 5 seconds. If it oscillates rhythmically (sawtooth pattern), kP is too high.
-
-5. Record your kP: **kP = ______**
-
-**Typical range: kP ≈ 0.05 – 0.20 V/RPS**
-
----
-
-## Phase 3 — Ready Check Validation
-
-**What this checks:** The `IsReady` flag controls when the indexer can fire. Verify it triggers at the right time.
-
-Current tolerance: **±10%** of target RPM
-`Constants.java` line: `FLYWHEEL_TOLERANCE_PERCENT = 0.10`
-
-### Steps
-
-1. Deploy with Phase 1–2 gains.
-2. Hold Right Bumper (3300 RPM target).
-3. Watch `Shooter/IsReady` on dashboard — it should turn **true within 1–2 seconds**.
-
-| Problem | Fix |
-|---|---|
-| `IsReady` never goes true even at target RPM | Check `FlywheelError` is actually < 330 (10% of 3300); if yes, check NT key name |
-| `IsReady` goes true immediately before flywheel spins up | Tolerance is too loose; change to `0.05` (5%) in Constants.java |
-| `IsReady` takes > 3 seconds | Gains are too weak; increase kV or kP slightly |
-
-**Acceptable:** `IsReady = true` within 1.5 seconds of spinning up to steady state.
-
----
-
-## Phase 4 — Preset RPM Validation
-
-**What this does:** Verifies each shot preset RPM actually scores consistently.
-
-### Procedure (repeat for each preset below)
-
-1. Change `tuneFlywheelCommand(TARGET_RPM)` in `RobotContainer.java` line 119 to the preset RPM.
-2. Deploy. Hold Right Bumper. Wait for steady state.
-3. Confirm `FlywheelRPM` ≈ `TargetFlywheelRPM` and `FlywheelError` < 150.
-4. Hold trigger to enter READY state → manually feed a ball → observe scoring.
-5. Adjust RPM in `Constants.java` and repeat until 3 of 3 shots score.
-
-### RPM Presets to Validate
-
-| Preset | RPM Constant | Current Value | Tuned Value | Notes |
-|---|---|---|---|---|
-| CLOSE | `CLOSE_RPM` | 2750 | | Best starting point |
-| TOWER | `TOWER_RPM` | 3200 | | TODO in code |
-| TRENCH | `TRENCH_RPM` | 3200 | | TODO in code |
-| FAR | `FAR_RPM` | 3800 | | Was 4000, reduced |
-| PASS | `PASS_RPM` | 4000 | | |
-
-**Tip:** Tune CLOSE first (shortest distance, most forgiving). Use it to verify the complete shot sequence before moving to longer distances.
-
-**Shot adjustment guide:**
-- Ball lands **short / hits low**: increase RPM by 100–200
-- Ball lands **long / hits high**: decrease RPM by 100–200
-- Ball lands consistently off-center: check hood angle (see `TUNING.md`)
-
----
-
-## Phase 5 — Vision Interpolation Table
-
-**What this does:** Sets the RPM and hood angle the robot uses at each measured distance when using `visionAlignAndShoot()`.
-
-Located in `ShooterSubsystem.java` lines 493–514.
-
-### Procedure
-
-1. Use `Vision/Distance_m` on Elastic to confirm measured distance (see `TUNING.md §3` for distance calibration).
-2. Park robot at exactly **1.0 m, 2.0 m, 3.0 m, 4.0 m, 5.0 m, 6.0 m** from hub tag.
-3. At each distance, use Phase 4 procedure to find the RPM that scores consistently.
-4. Update `FLYWHEEL_RPM_MAP.put(distance, tunedRPM)` in `ShooterSubsystem.java`.
-
-### Tuning Log
-
-| Distance (m) | Tuned RPM | Hood (rot) | Confirmed Scoring | Notes |
-|---|---|---|---|---|
-| 1.0 | | | ☐ | |
-| 2.0 | | | ☐ | |
-| 3.0 | | | ☐ | |
-| 4.0 | | | ☐ | |
-| 5.0 | | | ☐ | |
-| 6.0 | | | ☐ | |
-
-**Tips:**
-- Tune 1.0 m and 6.0 m endpoints first — interpolation fills in the middle.
-- If all distances are biased (all long or all short), recheck camera angle in `Constants.Vision` before adjusting every RPM.
-- Mark each confirmed row with `// Tuned` comment in code.
-
----
-
-## Final Validation Checklist
-
-Before locking in gains for competition:
-
-- [ ] `FlywheelError` < ±100 RPM at steady state for all preset RPMs
-- [ ] `FlywheelAppliedVolts` stays below 11 V at all tested RPMs (not saturating)
-- [ ] `Shooter/IsReady` goes true within 1.5 seconds of reaching target
-- [ ] No oscillation (RPM hunting) visible in `FlywheelRPM` over 5+ seconds
-- [ ] Each preset scores 3 of 3 practice shots before locking in
-- [ ] Post-shot RPM dip < 10% and recovery < 300 ms (watch during rapid-fire)
-- [ ] `EJECT_RPM` (-1500) clears jams without back-feeding
-- [ ] kP and kV values recorded in this file:
-
-```
-// Final tuned gains — update when changed
-Slot0.kV = ______
-Slot0.kP = ______
-Date tuned: __________
+```text
+Slot0.kS = 0.00
+Slot0.kV = 0.14
+Slot0.kP = 0.04
+Slot0.kD = 0.00
 ```
 
----
+Reasonable adjustment range:
 
-## Quick Reference: Gain Effects
+- `kV`: `0.13` to `0.15`
+- `kP`: `0.02` to `0.08`
+- `kD`: `0.00` to `0.005`
+- `kS`: `0.00` to `0.10` only if startup is sticky
+
+If you want the absolute safest first spin:
+
+```text
+Slot0.kS = 0.00
+Slot0.kV = 0.13
+Slot0.kP = 0.03
+Slot0.kD = 0.00
+```
+
+## Phoenix Tuner X 2026 Setup
+
+Open Phoenix Tuner X and connect to device `25`.
+
+Set up these views:
+
+1. `Self-Test Snapshot`
+2. `Plotter` or live graph page
+3. `Configs` -> `Slot 0`
+4. Optional: open device `26` in a second pane just to confirm it follows
+
+Graph these signals on device `25`:
+
+- `Velocity`
+- `Closed Loop Reference`
+- `Motor Voltage`
+- `Closed Loop Error`
+- `Stator Current`
+- `Supply Current`
+
+Best graph combinations:
+
+1. Velocity + Closed Loop Reference
+2. Closed Loop Error + Motor Voltage
+3. Stator Current + Supply Current
+
+If Tuner X shows velocity in rotations per second already, leave it there. That is the cleanest view for tuning.
+
+## How To Command The Flywheel While Tuning
+
+Use the robot's existing tune command or a fixed preset while watching Tuner X.
+
+Current code support:
+
+- [ShooterSubsystem.java](/C:/Users/jvanscoyoc/.codex/worktrees/35ba/2026-Rebuilt/src/main/java/frc/robot/subsystems/shooter/ShooterSubsystem.java#L499) has `tuneFlywheelCommand(double rpm)`
+- That command sends a fixed `VelocityVoltage` setpoint with no indexer and no hood motion
+
+Recommended first target:
+
+- `3300 RPM`
+- which is `55.0 RPS`
+
+Hold the tuning button long enough to see:
+
+- spin-up
+- settle
+- hold for at least 3 more seconds
+
+## Live Tuning Order
+
+Tune in this order:
+
+1. `kV`
+2. `kP`
+3. `kD` only if needed
+4. `kS` only if low-speed startup is sticky
+
+Do not start with `kI`.
+
+## Phase 1: Tune kV
+
+Start with:
+
+```text
+kS = 0.00
+kV = 0.14
+kP = 0.00
+kD = 0.00
+```
+
+Command `55 RPS`.
+
+Watch these graphs:
+
+- Velocity vs Closed Loop Reference
+- Motor Voltage
+- Closed Loop Error
+
+What you want:
+
+- actual velocity rises close to the reference
+- steady-state error becomes small
+- voltage does not sit pinned at 12 V
+
+Adjustments:
+
+- actual settles low: increase `kV` by `0.005`
+- actual settles high: decrease `kV` by `0.005`
+- voltage stays near 12 V the whole time: target may be too high, or friction/current limit is the issue
+
+Exit Phase 1 when:
+
+- steady-state error is about `+/- 2 RPS` or better
+- velocity trace sits close to reference without PID help
+
+For this flywheel, expect final `kV` to likely land around:
+
+```text
+0.135 to 0.145
+```
+
+## Phase 2: Tune kP
+
+Lock in the `kV` you found, then start with:
+
+```text
+kP = 0.04
+```
+
+Keep the same `55 RPS` target.
+
+Watch:
+
+- Velocity vs Closed Loop Reference
+- Closed Loop Error
+- Motor Voltage
+
+What you want:
+
+- faster convergence to target
+- smaller final error
+- no repeated overshoot or hunting
+
+Adjustments:
+
+- sluggish correction, error lingers: increase `kP` by `0.01`
+- visible oscillation or hunting: decrease `kP` by `20%`
+- noisy correction but no real gain in recovery: back `kP` down
+
+Exit Phase 2 when:
+
+- it reaches target quickly
+- it holds within about `+/- 1 RPS` to `+/- 1.5 RPS`
+- velocity trace does not rhythmically cross back and forth over the reference
+
+For this flywheel, expect final `kP` to likely land around:
+
+```text
+0.03 to 0.06
+```
+
+## Phase 3: Only Add kD If You Actually Need It
+
+Start with:
+
+```text
+kD = 0.00
+```
+
+Only try `kD` if:
+
+- the flywheel overshoots after `kP` is high enough
+- or the trace rings once or twice on each step
+
+Adjustment:
+
+- increase `kD` in very small steps: `0.001`
+
+Stop if:
+
+- response gets slower
+- noise increases
+- voltage becomes twitchy with no benefit
+
+Most flywheels like this are fine with `kD = 0`.
+
+## Phase 4: Add kS Only If Startup Is Sticky
+
+If the flywheel starts cleanly, leave `kS = 0`.
+
+Only add `kS` if:
+
+- low-speed tests stall before motion starts
+- the graph shows a deadband before the wheel breaks loose
+
+Start with:
+
+```text
+kS = 0.05
+```
+
+Then:
+
+- if it still hesitates from rest, increase by `0.02`
+- if it jumps too hard at startup, reduce it
+
+For your mechanism, low friction means `kS = 0` is still the most likely answer.
+
+## What Good Graphs Look Like
+
+Velocity vs Closed Loop Reference:
+
+- actual rises smoothly
+- actual approaches reference quickly
+- little or no overshoot
+- no repeating wave pattern
+
+Closed Loop Error:
+
+- large error at startup is normal
+- error should decay toward zero quickly
+- error should not alternate positive/negative repeatedly after settling
+
+Motor Voltage:
+
+- rises strongly during acceleration
+- drops and stabilizes once at speed
+- should usually settle well under 12 V at your normal presets
+
+Current:
+
+- brief acceleration spike is normal
+- stable current at speed is normal
+- repeated current pulsing often means the loop is too aggressive or mechanically unhappy
+
+## Quick Symptom Guide
 
 | Symptom | Likely Cause | Fix |
 |---|---|---|
-| High steady-state error, kP = 0 | kV too low | Increase kV |
-| RPM oscillates (sawtooth) | kP too high | Reduce kP by 20% |
-| Good steady-state but slow rise | kV or kP too low | Increase kV first, then kP |
-| `AppliedVolts` maxed (11–12 V) | Target RPM too high OR current limit too low | Lower RPM target or raise stator limit |
-| RPM drops a lot after each shot | Needs higher kP or higher stator peak limit | Increase kP by 0.02; or raise `StatorCurrentLimit` |
-| Shots short even at correct RPM | Mechanical slip, hood angle, or ball grip issue | Check hood and wheel grip before changing RPM |
+| Settles below target with `kP = 0` | `kV` too low | Increase `kV` |
+| Settles above target with `kP = 0` | `kV` too high | Decrease `kV` |
+| Reaches speed slowly but smoothly | `kP` too low | Increase `kP` a little |
+| Overshoots and hunts | `kP` too high | Reduce `kP` |
+| One or two rings after step | maybe needs a tiny `kD` | Add `0.001` `kD` |
+| Won't start smoothly from very low speed | needs static help | Add a little `kS` |
+| Voltage pinned near 12 V | saturated | lower target, reduce drag, or revisit mechanical setup |
 
----
+## Validate At Real Presets
 
-*See also: `TUNING.md` for full vision + hood tuning protocol.*
+After `55 RPS` looks good, validate the real shooter presets from [Constants.java](/C:/Users/jvanscoyoc/.codex/worktrees/35ba/2026-Rebuilt/src/main/java/frc/robot/Constants.java#L260):
+
+- `POPPER_RPM = 650` -> `10.83 RPS`
+- `STANDBY_RPM = 1000` -> `16.67 RPS`
+- `CLOSE_RPM = 3603` -> `60.05 RPS`
+- `TOWER_RPM = 3200` -> `53.33 RPS`
+- `TRENCH_RPM = 3200` -> `53.33 RPS`
+- `FAR_RPM = 3800` -> `63.33 RPS`
+- `PASS_RPM = 3603` -> `60.05 RPS`
+
+Check at minimum:
+
+1. `53.33 RPS`
+2. `55.0 RPS`
+3. `60.05 RPS`
+4. `63.33 RPS`
+
+You want the same behavior at all of them:
+
+- no saturation
+- no hunting
+- recovery after a shot is quick
+
+## Cross-Check With NetworkTables / Elastic
+
+While Phoenix Tuner X is your live tuning tool, verify robot behavior with these dashboard values:
+
+- `Shooter/FlywheelRPM`
+- `Shooter/FlywheelMotorRPS`
+- `Shooter/TargetFlywheelRPM`
+- `Shooter/FlywheelError`
+- `Shooter/FlywheelAppliedVolts`
+- `Shooter/FlywheelAtRPM`
+- `Shooter/IsReady`
+
+Key checks:
+
+- `FlywheelMotorRPS` should match the Tuner X velocity trend
+- `FlywheelAppliedVolts` should roughly match Tuner X motor voltage
+- `IsReady` should become true only after the flywheel is genuinely settled
+
+## After Live Tuning: Copy Gains Back Into Code
+
+Phoenix Tuner X changes are not your long-term source of truth. After you find final values, copy them into [Constants.java](/C:/Users/jvanscoyoc/.codex/worktrees/35ba/2026-Rebuilt/src/main/java/frc/robot/Constants.java#L277).
+
+Update:
+
+```java
+public static final double KP = ...;
+public static final double KV = ...;
+public static final double KD = ...;
+```
+
+Those values are applied here:
+
+- [ShooterIOHardware.java](/C:/Users/jvanscoyoc/.codex/worktrees/35ba/2026-Rebuilt/src/main/java/frc/robot/subsystems/shooter/ShooterIOHardware.java#L69)
+
+Then redeploy and verify the robot still matches what you saw in Tuner X.
+
+## Recommended Log Sheet
+
+Record at least this much:
+
+```text
+Date:
+Battery:
+Wheel installed:
+Flywheel leader ID: 25
+Flywheel follower ID: 26
+
+Target test point 1: 55.0 RPS
+Final kS:
+Final kV:
+Final kP:
+Final kD:
+
+53.33 RPS result:
+55.0 RPS result:
+60.05 RPS result:
+63.33 RPS result:
+
+Shot recovery notes:
+Ready timing notes:
+```
+
+## Done Criteria
+
+- Device `25` tracks velocity cleanly in Tuner X
+- Device `26` follows correctly and does not get independently commanded
+- actual velocity settles close to reference across the full shot range
+- no sustained oscillation in the velocity graph
+- voltage is not saturating at normal shot presets
+- `Shooter/IsReady` becomes true reliably after spin-up
+- final gains are copied back into `Constants.java`
+
+See also:
+
+- [flywheel-ramp-test.md](/C:/Users/jvanscoyoc/.codex/worktrees/35ba/2026-Rebuilt/src/main/java/frc/robot/docs/flywheel-ramp-test.md)
+- [tuning-guide_vision.md](/C:/Users/jvanscoyoc/.codex/worktrees/35ba/2026-Rebuilt/src/main/java/frc/robot/docs/tuning-guide_vision.md)
