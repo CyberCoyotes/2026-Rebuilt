@@ -357,11 +357,9 @@ public final class Constants {
      */
  
     // Flywheel PID and Feedforward gains.    
-    // TODO: 1st Flywheel Tuning value
-    public static final double KV = 0.120;
+    public static final double KV = 0.135;  // tuned
     
-    // TODO: 2nd Flywheel Tuning value
-    public static final double KP = 0.000;
+    public static final double KP = 0.100;
 
     // TODO: 3rd Flywheel Tuning value 
     // Maybe not needed at all depending on how the flywheel behaves.
