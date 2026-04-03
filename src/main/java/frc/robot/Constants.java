@@ -217,7 +217,7 @@ public final class Constants {
      */
     
      // Kicker-indexer voltage setpoints for feeding fuel to the shooter.
-    public static final double KICKER_FORWARD_VOLTAGE = 6.0;
+    public static final double KICKER_FORWARD_VOLTAGE = 7.0;
     public static final double KICKER_REVERSE_VOLTAGE = -4.0;
     public static final double KICKER_POPPER_VOLTAGE = 3.0;
 
@@ -319,7 +319,7 @@ public final class Constants {
     public static final double STANDBY_RPM = 1000;
     
     // Bumpers against the hub if possible, note robot position if not
-    public static final double CLOSE_RPM = 3000;
+    public static final double CLOSE_RPM = 2800;
 
     // Bumpers against the tower
     public static final double TOWER_RPM = 3200;
@@ -331,7 +331,7 @@ public final class Constants {
     public static final double FAR_RPM = 3800;
 
     // For passing passing from midfield
-    public static final double PASS_RPM = 4000;
+    public static final double PASS_RPM = 4000;   // pass 3200 rpm
 
     /*
      * Reverse Flywheel RPM for jam clearing.
@@ -372,7 +372,7 @@ public final class Constants {
      * Previously 0.10 measured steady-state;
      * Variance ±30 RPM at 3300; 3% = ±99 RPM (~3× variance)
      */
-    public static final double TOLERANCE_PERCENT = 0.03;
+    public static final double TOLERANCE_PERCENT = 0.3;
 
     /* Flywheel limits */
     public static final double SUPPLY_CURRENT_LIMIT = 60;
@@ -428,9 +428,9 @@ public final class Constants {
      * TODO: Verify hood setpoints
      * Add an end-of-line "Tuned" note when each value is confirmed.
      */
-    public static final double CLOSE_HOOD = 0.00;
+    public static final double CLOSE_HOOD = 0.50;
     public static final double POPPER_HOOD = 4.20; //
-    public static final double TOWER_HOOD = 4.20;
+    public static final double TOWER_HOOD = 0.00;
     public static final double TRENCH_HOOD = 4.20;
     public static final double FAR_HOOD = 4.20; // Was 5.50
     public static final double PASS_HOOD = 2.00;
