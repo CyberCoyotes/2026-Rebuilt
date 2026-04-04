@@ -18,7 +18,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.RobotModeTriggers;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
-import frc.robot.commands.FuelCommandsGPT;
+import frc.robot.commands.FuelCommands;
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
 import frc.robot.subsystems.indexer.IndexerIOHardware;
@@ -67,7 +67,7 @@ public class RobotContainer {
         indexer = new IndexerSubsystem(new IndexerIOHardware());
         shooter = new ShooterSubsystem(new ShooterIOHardware());
         vision = new VisionSubsystem(new VisionIOLimelight(Constants.Vision.LIMELIGHT4_NAME));
-        ledSub = new LedSubsystem();
+        ledSub = new LedSubsystem(shooter);
 
         autoFactory = drivetrain.createAutoFactory();
         autoRoutines = new AutoRoutines(autoFactory,drivetrain,indexer, intake, shooter);
@@ -85,15 +85,15 @@ public class RobotContainer {
 
     private void configureBindings() {
 
-        // =====================================================================
-        // DRIVER CONTROLLER (Port 0) - Drivetrain
-        // =====================================================================
+        // ====================
+        // DRIVER CONTROLLER
+        // ====================
 
         drivetrain.setDefaultCommand(
             drivetrain.applyRequest(() ->
                 drive.withVelocityX(-driver.getLeftY() * MaxSpeed)
                     .withVelocityY(-driver.getLeftX() * MaxSpeed)
-                    .withRotationalRate(-driver.getRightX() * MaxAngularRate)
+                    .withRotationalRate(driver.getRightX() * MaxAngularRate)
             )
         );
 
@@ -109,13 +109,9 @@ public class RobotContainer {
         driver.back().onTrue(drivetrain.resetPoseFromVisionCommand());
 
         drivetrain.registerTelemetry(logger::telemeterize);
-
-        // =====================================================================
-        // DRIVER CONTROLLER (Port 0) - Shooter
-        // =====================================================================
         
         driver.rightTrigger(0.5).whileTrue(
-            FuelCommandsGPT.poseAlignAndShoot(shooter, indexer, /*intake,*/ drivetrain,
+            FuelCommands.poseAlignAndShoot(shooter, indexer, /*intake,*/ drivetrain,
                 () -> -driver.getLeftY() * MaxSpeed,
                 () -> -driver.getLeftX() * MaxSpeed)); 
         
@@ -125,23 +121,28 @@ public class RobotContainer {
         // Press once to partially retract slides
         driver.leftBumper().onTrue(intake.retractSlidesIncrementalCmd());
 
-        // driver.a().whileTrue(FuelCommands.fuelPump(indexer));
-        
+        driver.povLeft().whileTrue(
+            FuelCommands.shootWithPreset(shooter, indexer, ShooterSubsystem.ShotPreset.CLOSE));
+        driver.povRight().whileTrue(
+            FuelCommands.shootWithPreset(shooter, indexer, ShooterSubsystem.ShotPreset.TRENCH));
+        driver.povUp().whileTrue(
+            FuelCommands.shootWithPreset(shooter, indexer, ShooterSubsystem.ShotPreset.FAR));
+        driver.povDown().whileTrue(
+            FuelCommands.shootWithPreset(shooter, indexer, ShooterSubsystem.ShotPreset.TOWER));
 
-
-        // =====================================================================
-        // OPERATOR CONTROLLER (Port 1)
-        // =====================================================================
+        // ====================
+        // OPERATOR CONTROLLER
+        // ====================
         // var anyPresetHeld = operator.a().or(operator.b()).or(operator.x()).or(operator.y()); 
         
         operator.a().whileTrue(
-            FuelCommandsGPT.shootWithPreset(shooter, indexer, ShooterSubsystem.ShotPreset.TRENCH));
+            FuelCommands.shootWithPreset(shooter, indexer, ShooterSubsystem.ShotPreset.TRENCH));
         operator.b().whileTrue(
-            FuelCommandsGPT.shootWithPreset(shooter, indexer, ShooterSubsystem.ShotPreset.CLOSE));
+            FuelCommands.shootWithPreset(shooter, indexer, ShooterSubsystem.ShotPreset.CLOSE));
         operator.x().whileTrue(
-            FuelCommandsGPT.shootWithPreset(shooter, indexer, ShooterSubsystem.ShotPreset.TOWER));
+            FuelCommands.shootWithPreset(shooter, indexer, ShooterSubsystem.ShotPreset.TOWER));
         operator.y().whileTrue(
-            FuelCommandsGPT.shootWithPreset(shooter, indexer, ShooterSubsystem.ShotPreset.FAR));
+            FuelCommands.shootWithPreset(shooter, indexer, ShooterSubsystem.ShotPreset.FAR));
 
 
         // Hold to back a ball out of the chute if it entered prematurely
@@ -170,18 +171,32 @@ public class RobotContainer {
         // // POV cycles through LED animations (for testing / manual override)
         // operator.povUp().onTrue(ledSub.cycleNext());
         // operator.povDown().onTrue(ledSub.cyclePrev());
+// =================================
+// LED STATE TRIGGERS
+// =================================
 
-        // =====================================================================
-        // LED STATE TRIGGERS — shooter states
-        // =====================================================================
-        new Trigger(shooter::isSpinningUp)
-            .onTrue(ledSub.showSpinningUp())
-            .onFalse(ledSub.showDefault());
+    // Shooting — any shoot preset (driver RT, driver POV left, operator A/B/X/Y)
+    Trigger anyShootHeld = driver.rightTrigger(0.5)
+        .or(driver.povLeft())
+        .or(operator.a())
+        .or(operator.b())
+        .or(operator.x())
+        .or(operator.y());
+            anyShootHeld
+                .onTrue(ledSub.showShooting())
+                .and(RobotModeTriggers.teleop()).onFalse(ledSub.showIdle());
 
-        new Trigger(shooter::isReady)
-            .onTrue(ledSub.showReady())
-            .onFalse(ledSub.showDefault());
 
+    // Intaking — driver or operator left trigger
+    Trigger anyIntakeHeld = driver.leftTrigger(0.5)
+        .or(operator.leftTrigger(0.5));
+            anyIntakeHeld
+                .onTrue(ledSub.showIntaking())
+                .and(RobotModeTriggers.teleop()).onFalse(ledSub.showIdle());
+
+    // Default to idle when enabled and nothing else is active
+    RobotModeTriggers.teleop()
+        .onTrue(ledSub.showIdle());
         // =====================================================================
         // LED GAME TELEMETRY TRIGGERS (commented out — enable when needed)
         // Requires: gameDataTelemetry accessible here, DriverStation import

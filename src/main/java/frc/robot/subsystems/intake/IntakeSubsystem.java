@@ -121,7 +121,7 @@ public class IntakeSubsystem extends SubsystemBase {
 
     /** True when the slide is safely past the home position for roller operation. */
     public boolean isSlidePastHome() {
-        return inputs.slidePositionRotations > Constants.Intake.SLIDE_HOME_POS;
+        return inputs.slidePositionRotations > Constants.Intake.SLIDE_ROLLER_SAFE_POS;
     }
 
     // If you need position for a command or calculation
@@ -353,7 +353,8 @@ public class IntakeSubsystem extends SubsystemBase {
     public Command intakeFuel() {
         return Commands.sequence(
                 extendSlidesFastCmd(),
-                Commands.startEnd(this::runRoller, this::stopRoller, this))
+                Commands.run(this::runRoller, this)
+                        .finallyDo(this::stopRoller))
                 .withName("IntakeFuel");
     }
 
