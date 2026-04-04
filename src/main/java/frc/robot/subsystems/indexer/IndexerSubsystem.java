@@ -43,6 +43,8 @@ public class IndexerSubsystem extends SubsystemBase {
     // ==== State ===============================================================
     private IndexerState currentState = IndexerState.IDLE;
 
+    private double targetKickerRPM = 0.0;
+
     private boolean isFuelDetected = false;
     /** True once fuel has been seen at least once since last reset — guards donePassingFuel(). */
     private boolean hasSeenFuel = false;
@@ -99,6 +101,9 @@ public class IndexerSubsystem extends SubsystemBase {
         // recordOutput() logs computed/derived values — the decisions the subsystem
         // makes on top of raw data. Hoot can't see these; AK can.
         Logger.recordOutput("Indexer/State", currentState.name());
+        Logger.recordOutput("Indexer/KickerTargetRPM", targetKickerRPM);
+        Logger.recordOutput("Indexer/KickerActualRPM", inputs.kickerLeadVelocityRPS * 60.0);
+        Logger.recordOutput("Indexer/KickerAtVelocity", isKickerAtVelocity());
         Logger.recordOutput("Chute/IsFuelDetected", isFuelDetected);
         Logger.recordOutput("Chute/SecondsSinceLastDetection", secondsSinceLastDetection);
         Logger.recordOutput("Chute/IsChuteEmpty", isChuteEmpty());
@@ -145,6 +150,27 @@ public class IndexerSubsystem extends SubsystemBase {
         io.setKickerMotorVolts(Constants.Indexer.KICKER_FORWARD_VOLTAGE);
     }
 
+    /**
+     * Commands the kicker to its closed-loop velocity target.
+     * Use instead of kickerForward() during a shot — conveyor should only start
+     * feeding once isKickerAtVelocity() returns true.
+     */
+    public void kickerForwardVelocity() {
+        targetKickerRPM = Constants.Indexer.KICKER_FORWARD_RPM;
+        io.setKickerVelocity(targetKickerRPM);
+    }
+
+    /**
+     * True when the kicker lead motor is within tolerance of the target velocity.
+     * Returns true when idle (target < 1 RPM) so it never blocks non-shooting commands.
+     */
+    public boolean isKickerAtVelocity() {
+        if (Math.abs(targetKickerRPM) < 1.0) return true;
+        double actualRPM = inputs.kickerLeadVelocityRPS * 60.0;
+        double tolerance = Math.abs(targetKickerRPM) * Constants.Indexer.KickerConfig.TOLERANCE_PERCENT;
+        return Math.abs(actualRPM - targetKickerRPM) < tolerance;
+    }
+
     public void indexerReverse() {
         io.setKickerMotorVolts(Constants.Indexer.KICKER_REVERSE_VOLTAGE);
     }
@@ -154,6 +180,7 @@ public class IndexerSubsystem extends SubsystemBase {
     }
 
     public void indexerStop() {
+        targetKickerRPM = 0.0;
         io.setKickerMotorVolts(0.0);
     }
 

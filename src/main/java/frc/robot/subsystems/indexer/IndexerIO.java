@@ -118,6 +118,13 @@ public void fromLog(LogTable table) {
      */
     default void setKickerMotorVolts(double volts) {}
 
+    /**
+     * Commands the kicker to a closed-loop velocity target via MotionMagicVelocityVoltage.
+     *
+     * @param rpm Target kicker velocity in RPM (positive = toward shooter)
+     */
+    default void setKickerVelocity(double rpm) {}
+
     /** Stops both motors. */
     default void stop() {}
 }

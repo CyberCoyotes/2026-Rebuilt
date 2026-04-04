@@ -73,11 +73,11 @@ public class FuelCommands {
      * Full preset shoot sequence that owns both the shooter and indexer subsystems.
      *
      * Flow:
-     * 1. Sets the given RPM + hood target silently
-     * 2. Calls beginSpinUp() — flywheel ramps up, hood moves to target
-     * 3. Waits until both are at target (isReady()), with a 3-second safety timeout
-     * 4. Runs indexer and conveyor forward to feed the game piece
-     * 5. On trigger release (whileTrue interrupt): stops indexer/conveyor, returns
+     * 1. Sets the given RPM + hood target; starts flywheel AND kicker spin-up together
+     * 2. Waits until flywheel is ready (isReady()) AND kicker is at velocity,
+     *    with a 3-second safety timeout
+     * 3. Runs conveyor forward to feed; kicker maintains velocity setpoint
+     * 4. On trigger release (whileTrue interrupt): stops indexer/conveyor, returns
      * shooter to standby
      *
      * Use with whileTrue() on the shoot trigger.
@@ -92,14 +92,15 @@ public class FuelCommands {
             double rpm, double hood) {
         return Commands.sequence(
                 Commands.runOnce(() -> {
-                    shooter.setTargetVelocity(rpm); // Set Constants._RPM
-                    shooter.setTargetHoodPose(hood); // Set Constants._HOOD
-                    shooter.beginSpinUp();         // void — transitions state machine to SPINNING_UP
-                }, shooter),
-                Commands.waitUntil(shooter::isReady).withTimeout(3.0),
+                    shooter.setTargetVelocity(rpm);
+                    shooter.setTargetHoodPose(hood);
+                    shooter.beginSpinUp();
+                    indexer.kickerForwardVelocity(); // spin up kicker alongside flywheel
+                }, shooter, indexer),
+                Commands.waitUntil(() -> shooter.isReady() && indexer.isKickerAtVelocity()).withTimeout(3.0),
                 Commands.run(() -> {
                     indexer.conveyorForward();
-                    indexer.kickerForward();
+                    indexer.kickerForwardVelocity(); // maintain kicker velocity during feed
                 }, indexer))
                 .finallyDo(() -> {
                     indexer.indexerStop();

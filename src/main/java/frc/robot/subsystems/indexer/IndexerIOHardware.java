@@ -6,6 +6,7 @@ import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.configs.CANrangeConfiguration;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.Follower;
+import com.ctre.phoenix6.controls.MotionMagicVelocityVoltage;
 import com.ctre.phoenix6.controls.VoltageOut;
 import com.ctre.phoenix6.hardware.CANrange;
 import com.ctre.phoenix6.hardware.TalonFX;
@@ -67,6 +68,12 @@ public class IndexerIOHardware implements IndexerIO {
         config.Voltage.PeakForwardVoltage = Constants.Indexer.KickerConfig.PEAK_FORWARD_VOLTAGE;
         config.Voltage.PeakReverseVoltage = Constants.Indexer.KickerConfig.PEAK_REVERSE_VOLTAGE;
 
+        // Slot 0 gains for MotionMagicVelocityVoltage closed-loop control.
+        config.Slot0.kV = Constants.Indexer.KickerConfig.KV;
+        config.Slot0.kP = Constants.Indexer.KickerConfig.KP;
+        config.Slot0.kA = Constants.Indexer.KickerConfig.KA;
+        config.MotionMagic.MotionMagicAcceleration = Constants.Indexer.KickerConfig.MM_ACCELERATION_RPS_PER_SEC;
+
         return config;
     }
 
@@ -90,6 +97,7 @@ public class IndexerIOHardware implements IndexerIO {
     // == Control Requests ==========================================================
     private final VoltageOut conveyorVoltageRequest = new VoltageOut(0.0).withEnableFOC(false);
     private final VoltageOut kickerLeadVoltageRequest  = new VoltageOut(0.0).withEnableFOC(false);
+    private final MotionMagicVelocityVoltage kickerVelocityRequest = new MotionMagicVelocityVoltage(0.0).withEnableFOC(false);
     private final Follower kickerFollowerRequest =
         new Follower(Constants.Indexer.KICKER_LEFT_MOTOR_ID, Constants.Indexer.KickerConfig.FOLLOWER_ALIGNMENT);
 
@@ -165,6 +173,11 @@ public class IndexerIOHardware implements IndexerIO {
     @Override
     public void setKickerMotorVolts(double volts) {
         kickerMotorLead.setControl(kickerLeadVoltageRequest.withOutput(volts));
+    }
+
+    @Override
+    public void setKickerVelocity(double rpm) {
+        kickerMotorLead.setControl(kickerVelocityRequest.withVelocity(rpm / 60.0));
     }
 
     @Override

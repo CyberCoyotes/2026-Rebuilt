@@ -221,6 +221,18 @@ public final class Constants {
     public static final double KICKER_REVERSE_VOLTAGE = -4.0;
     public static final double KICKER_POPPER_VOLTAGE = 3.0;
 
+    /**
+     * Kicker velocity setpoint for closed-loop feed.
+     *
+     * Starting point: ~71% of CLOSE flywheel RPM (4500). Kicker should be
+     * slightly slower than flywheel surface speed so the flywheel grabs and
+     * accelerates the game piece rather than being pushed back by it.
+     *
+     * TODO: Tune at CLOSE preset first. Adjust up or down to minimize flywheel
+     *       RPM dip on contact. Watch flywheelLeaderMotorRPM in AdvantageScope.
+     */
+    public static final double KICKER_FORWARD_RPM = 3200.0;
+
     /*
      * TODO: Verify these values on the new chute sensor hardware.
      * Add a "Tuned" note when each value is confirmed.
@@ -270,6 +282,30 @@ public final class Constants {
       public static final double PEAK_FORWARD_VOLTAGE = 12.0;
       public static final double PEAK_REVERSE_VOLTAGE = -12.0;
       public static final MotorAlignmentValue FOLLOWER_ALIGNMENT = MotorAlignmentValue.Opposed;
+
+      /**
+       * Velocity control gains for MotionMagicVelocityVoltage (Slot 0).
+       *
+       * Tune order: kV first (set kP=0, spin up, adjust kV until steady-state
+       * RPM matches target). Then add kP to correct any remaining error.
+       * kA only needed if acceleration tracking is poor.
+       *
+       * Same motor as flywheel (Kraken X60), so flywheel gains are the starting point.
+       * TODO: Retune if kicker load differs significantly from flywheel.
+       */
+      public static final double KV = 0.135;
+      public static final double KP = 0.100;
+      public static final double KA = 0.000;
+
+      /** Kicker is a lighter load than flywheel — can spin up faster. */
+      public static final double MM_ACCELERATION_RPS_PER_SEC = 200.0;
+
+      /**
+       * Tighter than flywheel tolerance (10% vs 30%) — kicker stabilizes
+       * quickly and we want consistent handoff velocity.
+       * At 3200 RPM: ±320 RPM band.
+       */
+      public static final double TOLERANCE_PERCENT = 0.10;
     }
 
     public static final class ChuteSensorConfig {
