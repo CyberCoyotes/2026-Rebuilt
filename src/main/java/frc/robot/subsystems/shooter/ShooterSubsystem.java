@@ -363,7 +363,7 @@ public void periodic() {
 
     /** Returns true if hood is at target pose within tolerance. */
     public boolean isHoodAtPose() {
-        return Math.abs(inputs.hoodPositionRotations - targetHoodPoseRot) < Constants.Hood.POSE_TOLERANCE;
+        return Math.abs(inputs.hoodPositionRotations - targetHoodPoseRot) < Constants.Hood.TOLERANCE_POSE;
     }
 
     /** Returns true if total flywheel current is too high. */

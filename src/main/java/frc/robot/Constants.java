@@ -372,7 +372,7 @@ public final class Constants {
      * Previously 0.10 measured steady-state;
      * Variance ±30 RPM at 3300; 3% = ±99 RPM (~3× variance)
      */
-    public static final double TOLERANCE_PERCENT = 0.3;
+    public static final double TOLERANCE_PERCENT = 0.03; // 3% tolerance
 
     /* Flywheel limits */
     public static final double SUPPLY_CURRENT_LIMIT = 60;
@@ -422,7 +422,7 @@ public final class Constants {
     public static final double MAX_POSE = 4.356934; // Mechanical limit; also used to set in Configs
 
     // TODO: Verify hood tolerance
-    public static final double POSE_TOLERANCE = 0.05;
+    public static final double TOLERANCE_POSE = 0.05;
 
     /*
      * TODO: Verify hood setpoints
