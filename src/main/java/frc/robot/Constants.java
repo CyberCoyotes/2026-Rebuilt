@@ -82,7 +82,7 @@ public final class Constants {
      */
     public static final double SLIDE_RETRACTED_POS = 0.0;
     public static final double SLIDE_HOME_POS = 19.18;
-    public static final double SLIDE_EXTENDED_POS = 62.00; // Previous was 63.0
+    public static final double SLIDE_EXTENDED_POS = 63.00; // Previous was 63.0
     public static final double SLIDE_MAX_POS = 65.75;
     public static final double SLIDE_ROLLER_SAFE_MARGIN = 1.5;
     public static final double SLIDE_ROLLER_SAFE_POS = SLIDE_HOME_POS + SLIDE_ROLLER_SAFE_MARGIN;
@@ -217,7 +217,7 @@ public final class Constants {
      */
     
      // Kicker-indexer voltage setpoints for feeding fuel to the shooter.
-    public static final double KICKER_FORWARD_VOLTAGE = 8.5;
+    public static final double KICKER_FORWARD_VOLTAGE = 2.5;
     public static final double KICKER_REVERSE_VOLTAGE = -4.0;
     public static final double KICKER_POPPER_VOLTAGE = 3.0;
 
@@ -318,8 +318,16 @@ public final class Constants {
     // Not currently used
     public static final double STANDBY_RPM = 1000;
     
+    // FIXME All of these need to be less
+    // FIXME Conveyor increase
+    // FIXME Intake Roller always on, and in 
+    // FIXME intake slide, slightly less on extension
+    // FIXME fuel pump back in?
+    // FIXME Limelight direction
+    
+
     // Bumpers against the hub if possible, note robot position if not
-    public static final double CLOSE_RPM = 4500;
+    public static final double CLOSE_RPM = 3000;
 
     // Bumpers against the tower
     public static final double TOWER_RPM = 3200;
@@ -357,9 +365,9 @@ public final class Constants {
      */
  
     // Flywheel PID and Feedforward gains.    
-    public static final double KV = 0.135;  // tuned
+    public static final double KV = 0.130;  // tuned
     
-    public static final double KP = 0.100;
+    public static final double KP = 0.05;
 
     // TODO: 3rd Flywheel Tuning value 
     // Maybe not needed at all depending on how the flywheel behaves.
@@ -385,6 +393,8 @@ public final class Constants {
      */
     public static final double MM_ACCELERATION_RPS_PER_SEC = 150.0;
     public static final double MM_JERK_RPS_PER_SEC_CUBED = 0.0;
+    public static final double MM_EXPO_KV = 0.12;
+    public static final double MM_EXPO_KA = 0.06;
 
     public static final class LeaderConfig {
       private LeaderConfig() {
@@ -428,7 +438,9 @@ public final class Constants {
      * TODO: Verify hood setpoints
      * Add an end-of-line "Tuned" note when each value is confirmed.
      */
-    public static final double CLOSE_HOOD = 3.00;
+    public static final double CLOSE_HOOD = 1.50;
+    // was 3
+    
     public static final double POPPER_HOOD = 4.20; //
     public static final double TOWER_HOOD = 3.50;
     public static final double TRENCH_HOOD = 2.20;

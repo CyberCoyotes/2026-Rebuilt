@@ -190,7 +190,7 @@ public class IntakeSubsystem extends SubsystemBase {
 
     /** Graceful full retraction using the tunable slow DynamicMotionMagic profile. */
     public void retractSlidesSlow() {
-        io.setSlidePositionSlow(Constants.Intake.SLIDE_HOME_POS);
+        io.setSlidePositionSlow(Constants.Intake.SLIDE_RETRACTED_POS);
     }
 
     /** Backward-compatible alias for the default full extension mode. */
