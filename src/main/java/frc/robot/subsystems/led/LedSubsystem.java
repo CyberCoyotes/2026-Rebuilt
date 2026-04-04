@@ -146,6 +146,10 @@ public Command showBlueHub() {
 public Command showShiftWarning() {
     return runOnce(() -> m_currentSlot = 4);
 }
+/** Return LEDs to the default animation. */
+public Command showDefault() {
+    return runOnce(() -> m_currentSlot = 0);
+}
 
 public void setShiftTimeSupplier(DoubleSupplier supplier) {
     m_shiftTimeSupplier = supplier;
