@@ -17,7 +17,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.RobotModeTriggers;
-import edu.wpi.first.wpilibj2.command.button.Trigger;
+// import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.commands.FuelCommands;
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
@@ -25,7 +25,7 @@ import frc.robot.subsystems.indexer.IndexerIOHardware;
 import frc.robot.subsystems.indexer.IndexerSubsystem;
 import frc.robot.subsystems.intake.IntakeIOHardware;
 import frc.robot.subsystems.intake.IntakeSubsystem;
-import frc.robot.subsystems.led.LedSubsystem;
+// import frc.robot.subsystems.led.LedSubsystem;
 import frc.robot.subsystems.shooter.ShooterIOHardware;
 import frc.robot.subsystems.shooter.ShooterSubsystem;
 import frc.robot.subsystems.vision.VisionIOLimelight;
@@ -56,8 +56,7 @@ public class RobotContainer {
     private final IndexerSubsystem indexer;
     private final ShooterSubsystem shooter;
     private final VisionSubsystem vision;
-    private final LedSubsystem ledSub;
-    // private final FuelCommandsGPT fuelCommands = null; Not using because its currently Static
+    // private final LedSubsystem ledSub;
     private final AutoFactory autoFactory;
     private final AutoRoutines autoRoutines;
     private final AutoChooser autoChooser = new AutoChooser();
@@ -67,7 +66,7 @@ public class RobotContainer {
         indexer = new IndexerSubsystem(new IndexerIOHardware());
         shooter = new ShooterSubsystem(new ShooterIOHardware());
         vision = new VisionSubsystem(new VisionIOLimelight(Constants.Vision.LIMELIGHT4_NAME));
-        ledSub = new LedSubsystem(shooter);
+        // ledSub = new LedSubsystem(shooter);
 
         autoFactory = drivetrain.createAutoFactory();
         autoRoutines = new AutoRoutines(autoFactory,drivetrain,indexer, intake, shooter);
@@ -176,27 +175,27 @@ public class RobotContainer {
 // =================================
 
     // Shooting — any shoot preset (driver RT, driver POV left, operator A/B/X/Y)
-    Trigger anyShootHeld = driver.rightTrigger(0.5)
-        .or(driver.povLeft())
-        .or(operator.a())
-        .or(operator.b())
-        .or(operator.x())
-        .or(operator.y());
-            anyShootHeld
-                .onTrue(ledSub.showShooting())
-                .and(RobotModeTriggers.teleop()).onFalse(ledSub.showIdle());
+    // Trigger anyShootHeld = driver.rightTrigger(0.5)
+    //     .or(driver.povLeft())
+    //     .or(operator.a())
+    //     .or(operator.b())
+    //     .or(operator.x())
+    //     .or(operator.y());
+    //         anyShootHeld
+    //             .onTrue(ledSub.showShooting())
+    //             .and(RobotModeTriggers.teleop()).onFalse(ledSub.showIdle());
 
 
-    // Intaking — driver or operator left trigger
-    Trigger anyIntakeHeld = driver.leftTrigger(0.5)
-        .or(operator.leftTrigger(0.5));
-            anyIntakeHeld
-                .onTrue(ledSub.showIntaking())
-                .and(RobotModeTriggers.teleop()).onFalse(ledSub.showIdle());
+    // // Intaking — driver or operator left trigger
+    // Trigger anyIntakeHeld = driver.leftTrigger(0.5)
+    //     .or(operator.leftTrigger(0.5));
+    //         anyIntakeHeld
+    //             .onTrue(ledSub.showIntaking())
+    //             .and(RobotModeTriggers.teleop()).onFalse(ledSub.showIdle());
 
-    // Default to idle when enabled and nothing else is active
-    RobotModeTriggers.teleop()
-        .onTrue(ledSub.showIdle());
+    // // Default to idle when enabled and nothing else is active
+    // RobotModeTriggers.teleop()
+    //     .onTrue(ledSub.showIdle());
         // =====================================================================
         // LED GAME TELEMETRY TRIGGERS (commented out — enable when needed)
         // Requires: gameDataTelemetry accessible here, DriverStation import
