@@ -47,45 +47,45 @@ public class LedSubsystem extends SubsystemBase {
     // ==========================================
 
     // Left fire region (0–50)
-    private final FireAnimation m_leftFire = new FireAnimation(0, 100)
-            .withSlot(kLeftFireSlot)
-            .withBrightness(1)
-            .withDirection(AnimationDirectionValue.Forward)
-            .withSparking(1)
-            .withCooling(0.2)
-            .withFrameRate(Hertz.of(100));
+    // private final FireAnimation m_leftFire = new FireAnimation(0, 100)
+    //         .withSlot(kLeftFireSlot)
+    //         .withBrightness(1)
+    //         .withDirection(AnimationDirectionValue.Forward)
+    //         .withSparking(1)
+    //         .withCooling(0.2)
+    //         .withFrameRate(Hertz.of(100));
 
-    // Right fire region (125–175)
-    private final FireAnimation m_rightFire = new FireAnimation(325, 225)
-            .withSlot(kRightFireSlot)
-            .withBrightness(1)
-            .withDirection(AnimationDirectionValue.Forward)
-            .withSparking(1)
-            .withCooling(0.2)
-            .withFrameRate(Hertz.of(100));
+    // // Right fire region (125–175)
+    // private final FireAnimation m_rightFire = new FireAnimation(325, 225)
+    //         .withSlot(kRightFireSlot)
+    //         .withBrightness(1)
+    //         .withDirection(AnimationDirectionValue.Forward)
+    //         .withSparking(1)
+    //         .withCooling(0.2)
+    //         .withFrameRate(Hertz.of(100));
 
-    // Intake: Larson animation (overrides both fire slots)
-    private final LarsonAnimation m_intakeAnimation = new LarsonAnimation(0, kStripCount)
-            .withSlot(kAnimSlot)
-            .withColor(new RGBWColor(255, 0, 0, 0))
-            .withSize(20)
-            .withBounceMode(LarsonBounceValue.Front)
-            .withFrameRate(Hertz.of(250));
+    // // Intake: Larson animation (overrides both fire slots)
+    // private final LarsonAnimation m_intakeAnimation = new LarsonAnimation(0, kStripCount)
+    //         .withSlot(kAnimSlot)
+    //         .withColor(new RGBWColor(255, 0, 0, 0))
+    //         .withSize(20)
+    //         .withBounceMode(LarsonBounceValue.Front)
+    //         .withFrameRate(Hertz.of(250));
 
-    // Shooting: ColorFlow animation (overrides both fire slots)
-    private final ColorFlowAnimation m_shootingAnimation = new ColorFlowAnimation(0, kStripCount)
-            .withSlot(kAnimSlot)
-            .withColor(new RGBWColor(255, 0, 0, 0))
-            .withDirection(AnimationDirectionValue.Forward)
-            .withFrameRate(Hertz.of(650));
+    // // Shooting: ColorFlow animation (overrides both fire slots)
+    // private final ColorFlowAnimation m_shootingAnimation = new ColorFlowAnimation(0, kStripCount)
+    //         .withSlot(kAnimSlot)
+    //         .withColor(new RGBWColor(255, 0, 0, 0))
+    //         .withDirection(AnimationDirectionValue.Forward)
+    //         .withFrameRate(Hertz.of(650));
 
-    // ============================================
-    // State machine
-    // ============================================
-    public enum LedState { IDLE, INTAKING, SHOOTING }
+    // // ============================================
+    // // State machine
+    // // ============================================
+    // public enum LedState { IDLE, INTAKING, SHOOTING }
 
-    private LedState m_state = LedState.IDLE;
-    private LedState m_lastState = null;
+    // private LedState m_state = LedState.IDLE;
+    // private LedState m_lastState = null;
 
     // ============================================
     // Constructor
