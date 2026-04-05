@@ -298,12 +298,6 @@ public final class Constants {
     // Not currently used
     public static final double STANDBY_RPM = 1000;
     
-    // FIXME Conveyor increase
-    // FIXME Intake roller always on, and in
-    // FIXME intake slide, slightly less on extension
-    // FIXME fuel pump back in?
-    // FIXME Limelight direction
-    
     // Bumpers against the hub if possible, note robot position if not
     public static final double CLOSE_RPM = 3000;  // TODO tune CLOSE_RPM || Tuned 4-4-2026
 
