@@ -35,16 +35,14 @@ public class RobotContainer {
     // =====================================================================
     // Drive Tuning
     // =====================================================================
-    private double MaxSpeed = 0.5 * TunerConstants.kSpeedAt12Volts.in(MetersPerSecond);
-    private double MaxAngularRate = RotationsPerSecond.of(0.5).in(RadiansPerSecond);
+    private double MaxSpeed = TunerConstants.kSpeedAt12Volts.in(MetersPerSecond);
+    private double MaxAngularRate = RotationsPerSecond.of(1.0).in(RadiansPerSecond);
 
     private final SwerveRequest.FieldCentric drive = new SwerveRequest.FieldCentric()
+            // Deadband of 15% on translation and rotation inputs to prevent unintended movement when joysticks are near their centers. 
+            // Adjust as needed based on driver feedback.
             .withDeadband(MaxSpeed * 0.15).withRotationalDeadband(MaxAngularRate * 0.15)
             .withDriveRequestType(DriveRequestType.OpenLoopVoltage);
-    // private final SwerveRequest.SwerveDriveBrake brake = new SwerveRequest.SwerveDriveBrake();
-    // private final SwerveRequest.PointWheelsAt point = new SwerveRequest.PointWheelsAt();
-    // private final SwerveRequest.RobotCentric forwardStraight = new SwerveRequest.RobotCentric()
-            // .withDriveRequestType(DriveRequestType.OpenLoopVoltage);
 
     private final Telemetry logger = new Telemetry(MaxSpeed);
     private final GameDataTelemetry gameDataTelemetry = new GameDataTelemetry();
@@ -69,7 +67,7 @@ public class RobotContainer {
     private final AutoChooser autoChooser = new AutoChooser();
 
     // =====================================================================
-    // Construction
+    // Constructor
     // =====================================================================
     public RobotContainer() {
         intake = new IntakeSubsystem(new IntakeIOHardware());
@@ -231,9 +229,6 @@ public class RobotContainer {
 
     }
 
-    // =====================================================================
-    // Public Accessors
-    // =====================================================================
     public Command getAutonomousCommand() {
         return autoChooser.selectedCommand();
     }
@@ -247,3 +242,14 @@ public class RobotContainer {
     }
 
 } // End of Class RobotContainer
+
+// =====================================================================
+// NOTE: The following are potential additional commands and triggers that can be implemented as needed.
+// These would go before the Constructor
+// =====================================================================
+
+    // Defensive braking if needed
+    // private final SwerveRequest.SwerveDriveBrake brake = new SwerveRequest.SwerveDriveBrake(); 
+    
+    // private final SwerveRequest.PointWheelsAt point = new SwerveRequest.PointWheelsAt();
+    // private final SwerveRequest.RobotCentric forwardStraight = new SwerveRequest.RobotCentric().withDriveRequestType(DriveRequestType.OpenLoopVoltage);
