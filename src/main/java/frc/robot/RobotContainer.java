@@ -17,6 +17,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.RobotModeTriggers;
+import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.commands.FuelCommands;
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
@@ -28,6 +29,7 @@ import frc.robot.subsystems.shooter.ShooterIOHardware;
 import frc.robot.subsystems.shooter.ShooterSubsystem;
 import frc.robot.subsystems.vision.VisionIOLimelight;
 import frc.robot.subsystems.vision.VisionSubsystem;
+import frc.robot.subsystems.led.LedSubsystem;
 
 public class RobotContainer {
     // =====================================================================
@@ -62,6 +64,7 @@ public class RobotContainer {
     private final AutoFactory autoFactory;
     private final AutoRoutines autoRoutines;
     private final AutoChooser autoChooser = new AutoChooser();
+    private final LedSubsystem ledSub;
 
     // =====================================================================
     // Constructor
@@ -72,7 +75,7 @@ public class RobotContainer {
         shooter = new ShooterSubsystem(new ShooterIOHardware());
         vision = new VisionSubsystem(new VisionIOLimelight(Constants.Vision.LIMELIGHT4_NAME));
         ledSub = new LedSubsystem();
-        ledSub.setShiftTimeSupplier(gameDataTelemetry::getSecondsUntilNextShift);
+        // ledSub.setShiftTimeSupplier(gameDataTelemetry::getSecondsUntilNextShift);
 
 
         autoFactory = drivetrain.createAutoFactory();
