@@ -1,7 +1,5 @@
 package frc.robot.subsystems.indexer;
 
-import org.littletonrobotics.junction.Logger;
-
 import edu.wpi.first.networktables.BooleanPublisher;
 import edu.wpi.first.networktables.DoublePublisher;
 import edu.wpi.first.networktables.NetworkTable;
@@ -10,12 +8,15 @@ import edu.wpi.first.networktables.StringPublisher;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import edu.wpi.first.wpilibj2.command.WaitCommand;
 import frc.robot.Constants;
 import frc.robot.subsystems.indexer.IndexerIO.IndexerIOInputs;
 
 public class IndexerSubsystem extends SubsystemBase {
 
-    // ==== Indexer State =======================================================
+    // =====================================================================
+    // Indexer State
+    // =====================================================================
     /**
      * IndexerState — Tracks what the indexer is currently doing.
      *
@@ -32,15 +33,16 @@ public class IndexerSubsystem extends SubsystemBase {
     }
 
 
-    // ==== IO Layer ============================================================
+    // =====================================================================
+    // IO Layer
+    // =====================================================================
     private final IndexerIO io;
 
-    // This subclass implements LoggableInputs, which is what Logger.processInputs()
-    // needs to write fields to the AdvantageKit log. Using plain IndexerIOInputs
-    // here would silently skip all indexer data in AdvantageScope.
     private final IndexerIOInputs inputs = new IndexerIOInputs();
 
-    // ==== State ===============================================================
+    // =====================================================================
+    // State
+    // =====================================================================
     private IndexerState currentState = IndexerState.IDLE;
 
     private boolean isFuelDetected = false;
@@ -50,14 +52,18 @@ public class IndexerSubsystem extends SubsystemBase {
     private double lastDetectionTimestamp = -1.0;
     private double secondsSinceLastDetection = Double.POSITIVE_INFINITY;
 
-    // ==== Elastic Dashboard Publishers ========================================
+    // =====================================================================
+    // Elastic Dashboard Publishers
+    // =====================================================================
     private final NetworkTable indexerTable;
     private final BooleanPublisher chuteDetectedPublisher;
     private final DoublePublisher chuteDistancePublisher;
     private final StringPublisher fuelStatusColorPublisher;
     private final BooleanPublisher chuteEmptyPublisher;
 
-    // ==== Constructor =========================================================
+    // =====================================================================
+    // Constructor
+    // =====================================================================
     public IndexerSubsystem(IndexerIO io) {
         this.io = io;
 
@@ -69,7 +75,9 @@ public class IndexerSubsystem extends SubsystemBase {
         chuteEmptyPublisher      = indexerTable.getBooleanTopic("Chute/IsChuteEmpty").publish();
     }
 
-    // ==== Periodic ============================================================
+    // =====================================================================
+    // Periodic
+    // =====================================================================
     @Override
     public void periodic() {
         io.updateInputs(inputs);
@@ -91,23 +99,11 @@ public class IndexerSubsystem extends SubsystemBase {
             secondsSinceLastDetection = Double.POSITIVE_INFINITY;
         }
 
-
-        // processInputs() logs the raw IO layer — motor signals and sensor readings.
-        // These appear in AdvantageScope under "Indexer/".
-        Logger.processInputs("Indexer", inputs);
-
-        // recordOutput() logs computed/derived values — the decisions the subsystem
-        // makes on top of raw data. Hoot can't see these; AK can.
-        Logger.recordOutput("Indexer/State", currentState.name());
-        Logger.recordOutput("Chute/IsFuelDetected", isFuelDetected);
-        Logger.recordOutput("Chute/SecondsSinceLastDetection", secondsSinceLastDetection);
-        Logger.recordOutput("Chute/IsChuteEmpty", isChuteEmpty());
-        Logger.recordOutput("Chute/DistanceMeters", inputs.chuteDistanceMeters);
-
         publishTelemetry();
     }
 
     private void publishTelemetry() {
+        // TODO: Consider removing these debug publishers once chute tuning is finished.
         chuteDetectedPublisher.set(isFuelDetected);
         chuteDistancePublisher.set(inputs.chuteDistanceMeters);
         // YELLOW = fuel present, RED = no fuel (matches Elastic Dashboard color widget)
@@ -115,7 +111,9 @@ public class IndexerSubsystem extends SubsystemBase {
         chuteEmptyPublisher.set(isChuteEmpty());
     }
 
-    // ==== State =======================================================================
+    // =====================================================================
+    // State
+    // =====================================================================
     private void setState(IndexerState state) {
         this.currentState = state;
     }
@@ -124,7 +122,9 @@ public class IndexerSubsystem extends SubsystemBase {
         return currentState;
     }
 
-    // ==== Motor Control ==============================================================
+    // =====================================================================
+    // Motor Control
+    // =====================================================================
     public void conveyorForward() {
         io.setConveyorMotor(Constants.Indexer.CONVEYOR_FORWARD_VOLTAGE);
     }
@@ -169,7 +169,9 @@ public class IndexerSubsystem extends SubsystemBase {
         io.setKickerMotorVolts(volts);
     }
 
-    // ==== Sensor Queries ==================================
+    // =====================================================================
+    // Sensor Queries
+    // =====================================================================
     public boolean isFuelDetected() {
         return isFuelDetected;
     }
@@ -201,7 +203,9 @@ public class IndexerSubsystem extends SubsystemBase {
         secondsSinceLastDetection = Double.POSITIVE_INFINITY;
     }
 
-    // ==== Command Factories ===================================================
+    // =====================================================================
+    // Command Factories
+    // =====================================================================
 
     // Single-subsystem commands live here because they are tightly coupled to
     // this subsystem's motors and state. Commands that coordinate multiple
