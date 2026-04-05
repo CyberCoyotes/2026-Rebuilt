@@ -17,9 +17,6 @@ public class AutoRoutines {
         private final IndexerSubsystem m_indexer;
         private final ShooterSubsystem m_shooter;
 
-        // How long to wait after driving before doing something else
-        private final double DRIVE_WAIT = 1.0; // Cut 2.0 -> 1.0 or less
-
         public AutoRoutines(AutoFactory factory, 
                         CommandSwerveDrivetrain drivetrain,
                         IndexerSubsystem indexer, 
@@ -332,10 +329,12 @@ public class AutoRoutines {
                         return routine;
                 }
 
-                /* 
-                * Example of a routine with multiple trajectories and events of different from different paths circa 2025
-                * A.K.A. "The Liam is GOAT" example
-                */
+                // ============================================================================
+                // Example routine from previous season with multiple trajectories and events of different types, 
+                // for testing and demonstration purposes. circa 2025
+                // @lvanscoyoc  A.K.A. "Liam GOAT"
+                // ============================================================================
+
                 public AutoRoutine STAtoL() {
                         final AutoRoutine routine = m_factory.newRoutine("ST-A");
                         final AutoTrajectory STA = routine.trajectory("ST-A", 0);
@@ -347,11 +346,11 @@ public class AutoRoutines {
                                         Commands.sequence(
                                                         STA.resetOdometry(), // Always reset odometry first
                                                         STA.cmd(), // Follow the path
-                                                        m_drivetrain.stop().withTimeout(DRIVE_WAIT),
+                                                        // m_drivetrain.stop().withTimeout(DRIVE_WAIT),
                                                         STA2.cmd(),
-                                                        m_drivetrain.stop().withTimeout(DRIVE_WAIT),
+                                                        // m_drivetrain.stop().withTimeout(DRIVE_WAIT),
                                                         CSL.cmd(),
-                                                        m_drivetrain.stop().withTimeout(DRIVE_WAIT),
+                                                        // m_drivetrain.stop().withTimeout(DRIVE_WAIT),
                                                         CSL2.cmd()
 
                                         ));
