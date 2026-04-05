@@ -32,6 +32,9 @@ import frc.robot.subsystems.vision.VisionIOLimelight;
 import frc.robot.subsystems.vision.VisionSubsystem;
 
 public class RobotContainer {
+    // =====================================================================
+    // Drive Tuning
+    // =====================================================================
     private double MaxSpeed = 0.5 * TunerConstants.kSpeedAt12Volts.in(MetersPerSecond);
     private double MaxAngularRate = RotationsPerSecond.of(0.5).in(RadiansPerSecond);
 
@@ -46,11 +49,15 @@ public class RobotContainer {
     private final Telemetry logger = new Telemetry(MaxSpeed);
     private final GameDataTelemetry gameDataTelemetry = new GameDataTelemetry();
 
-    // ===== Controllers =====
+    // =====================================================================
+    // Controllers
+    // =====================================================================
     private final CommandXboxController driver = new CommandXboxController(0);
     private final CommandXboxController operator = new CommandXboxController(1);
 
-    // ===== Subsystems =====
+    // =====================================================================
+    // Subsystems
+    // =====================================================================
     public final CommandSwerveDrivetrain drivetrain = TunerConstants.createDrivetrain();
     private final IntakeSubsystem intake;
     private final IndexerSubsystem indexer;
@@ -61,6 +68,9 @@ public class RobotContainer {
     private final AutoRoutines autoRoutines;
     private final AutoChooser autoChooser = new AutoChooser();
 
+    // =====================================================================
+    // Construction
+    // =====================================================================
     public RobotContainer() {
         intake = new IntakeSubsystem(new IntakeIOHardware());
         indexer = new IndexerSubsystem(new IndexerIOHardware());
@@ -84,9 +94,9 @@ public class RobotContainer {
 
     private void configureBindings() {
 
-        // ====================
-        // DRIVER CONTROLLER
-        // ====================
+        // =====================================================================
+        // Driver Controller
+        // =====================================================================
 
         drivetrain.setDefaultCommand(
             drivetrain.applyRequest(() ->
@@ -129,9 +139,9 @@ public class RobotContainer {
         driver.povDown().whileTrue(
             FuelCommands.shootWithPreset(shooter, indexer, ShooterSubsystem.ShotPreset.TOWER));
 
-        // ====================
-        // OPERATOR CONTROLLER
-        // ====================
+        // =====================================================================
+        // Operator Controller
+        // =====================================================================
         // var anyPresetHeld = operator.a().or(operator.b()).or(operator.x()).or(operator.y()); 
         
         operator.a().whileTrue(
@@ -170,9 +180,8 @@ public class RobotContainer {
         // // POV cycles through LED animations (for testing / manual override)
         // operator.povUp().onTrue(ledSub.cycleNext());
         // operator.povDown().onTrue(ledSub.cyclePrev());
-// =================================
-// LED STATE TRIGGERS
-// =================================
+        // LED State Triggers
+        // Shooting, intake, and default-idle patterns live here when re-enabled.
 
     // Shooting — any shoot preset (driver RT, driver POV left, operator A/B/X/Y)
     // Trigger anyShootHeld = driver.rightTrigger(0.5)
@@ -181,21 +190,21 @@ public class RobotContainer {
     //     .or(operator.b())
     //     .or(operator.x())
     //     .or(operator.y());
-    //         anyShootHeld
-    //             .onTrue(ledSub.showShooting())
-    //             .and(RobotModeTriggers.teleop()).onFalse(ledSub.showIdle());
+        // anyShootHeld
+        //     .onTrue(ledSub.showShooting())
+        //     .and(RobotModeTriggers.teleop()).onFalse(ledSub.showIdle());
 
 
     // // Intaking — driver or operator left trigger
-    // Trigger anyIntakeHeld = driver.leftTrigger(0.5)
-    //     .or(operator.leftTrigger(0.5));
-    //         anyIntakeHeld
-    //             .onTrue(ledSub.showIntaking())
-    //             .and(RobotModeTriggers.teleop()).onFalse(ledSub.showIdle());
+        // Trigger anyIntakeHeld = driver.leftTrigger(0.5)
+        //     .or(operator.leftTrigger(0.5));
+        // anyIntakeHeld
+        //     .onTrue(ledSub.showIntaking())
+        //     .and(RobotModeTriggers.teleop()).onFalse(ledSub.showIdle());
 
     // // Default to idle when enabled and nothing else is active
-    // RobotModeTriggers.teleop()
-    //     .onTrue(ledSub.showIdle());
+        // RobotModeTriggers.teleop()
+        //     .onTrue(ledSub.showIdle());
         // =====================================================================
         // LED GAME TELEMETRY TRIGGERS (commented out — enable when needed)
         // Requires: gameDataTelemetry accessible here, DriverStation import
@@ -222,6 +231,9 @@ public class RobotContainer {
 
     }
 
+    // =====================================================================
+    // Public Accessors
+    // =====================================================================
     public Command getAutonomousCommand() {
         return autoChooser.selectedCommand();
     }
