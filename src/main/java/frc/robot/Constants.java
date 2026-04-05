@@ -82,8 +82,11 @@ public final class Constants {
      */
     public static final double SLIDE_RETRACTED_POS = 0.0;
     public static final double SLIDE_HOME_POS = 19.18;
+    
+    // TODO Confirm this pose
+    // Was 63 but stalling squeeling at last practice
     public static final double SLIDE_EXTENDED_POS = 63.00; // Previous was 63.0
-    public static final double SLIDE_MAX_POS = 65.75;
+    public static final double SLIDE_MAX_POS = 65.75; // TODO Confirm this pose
     public static final double SLIDE_ROLLER_SAFE_MARGIN = 1.5;
     public static final double SLIDE_ROLLER_SAFE_POS = SLIDE_HOME_POS + SLIDE_ROLLER_SAFE_MARGIN;
     public static final double SLIDE_TOLERANCE = 0.05;
@@ -118,10 +121,6 @@ public final class Constants {
     public static final double SLIDE_PUMP_OUT_POS = 60.0;
     public static final double SLIDE_PUMP_IN_POS = 40.0;
 
-    /*
-     * TODO: Verify these intake roller values based on robot testing performance,
-     * adjusted as needed, and re-verify.
-     */
     public static final double ROLLER_FORWARD_VOLTS = 8;
     public static final double ROLLER_REVERSE_VOLTS = -8;
 
