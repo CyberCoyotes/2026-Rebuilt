@@ -98,9 +98,9 @@ public class RobotContainer {
 
         drivetrain.setDefaultCommand(
             drivetrain.applyRequest(() ->
-                drive.withVelocityX(driver.getLeftY() * MaxSpeed) // FIXME
-                    .withVelocityY(driver.getLeftX() * MaxSpeed) // FIXME
-                    .withRotationalRate(driver.getRightX() * MaxAngularRate) // FIXME
+                drive.withVelocityX(driver.getLeftY() * MaxSpeed)
+                    .withVelocityY(driver.getLeftX() * MaxSpeed)
+                    .withRotationalRate(driver.getRightX() * MaxAngularRate)
             )
         );
 
