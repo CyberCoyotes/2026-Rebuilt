@@ -72,14 +72,11 @@ public class ShooterSubsystem extends SubsystemBase {
     private final BooleanPublisher readyPublisher;
     private final DoublePublisher  flywheelRpmPublisher;
     private final DoublePublisher  targetRpmPublisher;
-    private final DoublePublisher  flywheelRpsPublisher;
     private final DoublePublisher  flywheelErrorPublisher;
     private final DoublePublisher  hoodRotationsPublisher;
     private final DoublePublisher  targetHoodRotationsPublisher;
     private final DoublePublisher  hoodErrorPublisher;
     private final BooleanPublisher hoodAtPosePublisher;
-    private final DoublePublisher  flywheelVoltsPublisher;
-    private final DoublePublisher  flywheelTempPublisher;
     private final BooleanPublisher flywheelAtRpmPublisher;
     private final StringPublisher  selectedPresetPublisher;
 
@@ -104,14 +101,11 @@ public class ShooterSubsystem extends SubsystemBase {
         readyPublisher               = shooterTable.getBooleanTopic("IsReady").publish();
         flywheelRpmPublisher         = shooterTable.getDoubleTopic("FlywheelRPM").publish();
         targetRpmPublisher           = shooterTable.getDoubleTopic("TargetFlywheelRPM").publish();
-        flywheelRpsPublisher         = shooterTable.getDoubleTopic("FlywheelMotorRPS").publish();
         flywheelErrorPublisher       = shooterTable.getDoubleTopic("FlywheelError").publish();
         hoodRotationsPublisher       = shooterTable.getDoubleTopic("HoodRotations").publish();
         targetHoodRotationsPublisher = shooterTable.getDoubleTopic("TargetHoodRotations").publish();
         hoodErrorPublisher           = shooterTable.getDoubleTopic("HoodError").publish();
         hoodAtPosePublisher          = shooterTable.getBooleanTopic("HoodAtPose").publish();
-        flywheelVoltsPublisher       = shooterTable.getDoubleTopic("FlywheelAppliedVolts").publish();
-        flywheelTempPublisher        = shooterTable.getDoubleTopic("FlywheelMaxTempCelsius").publish();
         flywheelAtRpmPublisher       = shooterTable.getBooleanTopic("FlywheelAtRPM").publish();
         selectedPresetPublisher       = shooterTable.getStringTopic("SelectedPreset").publish();
     }
@@ -152,14 +146,11 @@ public void periodic() {
         readyPublisher.set(isReady());
         flywheelRpmPublisher.set(inputs.flywheelLeaderMotorRPM);
         targetRpmPublisher.set(targetFlywheelMotorRPM);
-        flywheelRpsPublisher.set(inputs.flywheelLeaderMotorRPS);
         flywheelErrorPublisher.set(targetFlywheelMotorRPM - inputs.flywheelLeaderMotorRPM);
         hoodRotationsPublisher.set(inputs.hoodPositionRotations);
         targetHoodRotationsPublisher.set(targetHoodPoseRot);
         hoodErrorPublisher.set(targetHoodPoseRot - inputs.hoodPositionRotations);
         hoodAtPosePublisher.set(isHoodAtPose());
-        flywheelVoltsPublisher.set(inputs.flywheelAppliedVolts);
-        flywheelTempPublisher.set(inputs.flywheelMaxTempCelsius);
         flywheelAtRpmPublisher.set(isFlywheelAtVelocity());
         selectedPresetPublisher.set(displayPreset != null ? displayPreset.label : "Vision");
     }

@@ -2,8 +2,6 @@ package frc.robot.subsystems.intake;
 
 import java.util.function.BooleanSupplier;
 
-import org.littletonrobotics.junction.Logger;
-
 import edu.wpi.first.networktables.BooleanPublisher;
 import edu.wpi.first.networktables.DoublePublisher;
 import edu.wpi.first.networktables.NetworkTable;
@@ -22,7 +20,6 @@ public class IntakeSubsystem extends SubsystemBase {
     // IO LAYER
     // =========================================================================
     private final IntakeIO io;
-    // me when I lie -> Using IntakeIOInputsAutoLogged (not plain IntakeIOInputs) is required for Logger.processInputs().
     private final IntakeIOInputs inputs = new IntakeIOInputs();
 
     // =========================================================================
@@ -49,9 +46,6 @@ public class IntakeSubsystem extends SubsystemBase {
     private final NetworkTable intakeTable;
     private final StringPublisher intakeStatePublisher;
     private final DoublePublisher slidePositionPublisher;
-    private final BooleanPublisher rollerAllowedPublisher;
-    private final BooleanPublisher slideExtendedPublisher;
-    private final BooleanPublisher slideRetractedPublisher;
 
     // =========================================================================
     // CONSTRUCTOR
@@ -63,9 +57,6 @@ public class IntakeSubsystem extends SubsystemBase {
         intakeTable = inst.getTable("Intake");
         intakeStatePublisher = intakeTable.getStringTopic("State").publish();
         slidePositionPublisher = intakeTable.getDoubleTopic("SlidePosition").publish();
-        rollerAllowedPublisher = intakeTable.getBooleanTopic("RollerAllowed").publish();
-        slideExtendedPublisher = intakeTable.getBooleanTopic("SlideExtended").publish();
-        slideRetractedPublisher = intakeTable.getBooleanTopic("SlideRetracted").publish();
     }
 
     // =========================================================================
@@ -75,24 +66,14 @@ public class IntakeSubsystem extends SubsystemBase {
     @Override
     public void periodic() {
         io.updateInputs(inputs);
-        Logger.processInputs("Intake", inputs);
-
-        // Derived/computed values logged separately so they appear in AdvantageScope
-        Logger.recordOutput("Intake/State", getIntakeState());
-        Logger.recordOutput("Intake/RollerAllowed", isSlidePastHome());
-        Logger.recordOutput("Intake/SlideExtended", isSlideExtended());
-        Logger.recordOutput("Intake/SlideRetracted", isSlideRetracted());
-
         publishTelemetry();
     }
 
     // Driver-facing telemetry pushed to NetworkTables for Elastic Dashboard.
     private void publishTelemetry() {
+        // TODO: Consider removing these debug publishers once intake bring-up is finished.
         intakeStatePublisher.set(getIntakeState());
         slidePositionPublisher.set(inputs.slidePositionRotations);
-        rollerAllowedPublisher.set(isSlidePastHome());
-        slideExtendedPublisher.set(isSlideExtended());
-        slideRetractedPublisher.set(isSlideRetracted());
     }
 
     // =========================================================================

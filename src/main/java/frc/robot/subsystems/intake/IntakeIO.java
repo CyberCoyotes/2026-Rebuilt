@@ -1,17 +1,13 @@
 package frc.robot.subsystems.intake;
 
-import org.littletonrobotics.junction.LogTable;
-import org.littletonrobotics.junction.inputs.LoggableInputs;
-
 public interface IntakeIO {
 
     /**
      * IntakeIOInputs - Container for all intake sensor data.
      *
      * This class holds all data we read from the intake hardware each cycle.
-     * Uses the Autolog feature for automatic logging and replay.
      */
-    public static class IntakeIOInputs implements LoggableInputs{
+    public static class IntakeIOInputs {
 
         // Slide — position needed for MotionMagic and at-target checks
         public double slidePositionRotations = 0.0;
@@ -34,24 +30,6 @@ public interface IntakeIO {
 
         // // is a target detected
         // public boolean intakeTarget = false;
-
-        @Override
-        public void toLog(LogTable table) {
-            table.put("Slide Position Rotations", slidePositionRotations);
-            table.put("Slide Velocity RPS", slideVelocityRPS);
-            table.put("Slide Applied Volts", slideAppliedVolts);
-            table.put("Slide Current Amps", slideCurrentAmps);
-            table.put("Slide Temp Celsius", slideTempCelsius);
-        }
-
-        @Override
-        public void fromLog(LogTable table) {
-            slidePositionRotations = table.get("Slide Position Rotations", slidePositionRotations);
-            slideVelocityRPS = table.get("Slide Velocity RPS", slideVelocityRPS);
-            slideAppliedVolts = table.get("Slide Applied Volts", slideAppliedVolts);
-            slideCurrentAmps = table.get("Slide Current Amps", slideCurrentAmps);
-            slideTempCelsius = table.get("Slide Temp Celsius", slideTempCelsius);
-        }
     }
 
     /**
