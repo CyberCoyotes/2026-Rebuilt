@@ -1,9 +1,5 @@
 package frc.robot.subsystems.indexer;
 
-import org.littletonrobotics.junction.AutoLog;
-import org.littletonrobotics.junction.LogTable;
-import org.littletonrobotics.junction.inputs.LoggableInputs;
-
 /**
  * IndexerIO - Hardware abstraction interface for the indexer subsystem.
  *
@@ -26,16 +22,11 @@ public interface IndexerIO {
     /**
      * IndexerIOInputs — All sensor data read from indexer hardware each cycle.
      *
-     * The @AutoLog annotation generates IndexerIOInputsAutoLogged, a subclass
-     * that handles AdvantageKit logging and replay. The subsystem must instantiate
-     * IndexerIOInputsAutoLogged (not IndexerIOInputs directly) for logging to work.
-     *
      * Distance fields (hopperA/BDistanceMeters) are included for threshold tuning —
      * they let you watch raw sensor output in AdvantageScope while adjusting
      * TOF_DETECTION_THRESHOLD_METERS in IndexerIOHardware.
      */
-    @AutoLog
-    class IndexerIOInputs implements LoggableInputs{
+    class IndexerIOInputs {
 
         // ===== Conveyor Motor =====
         /** Conveyor motor velocity in rotations per second. Used for jam detection. */
@@ -63,44 +54,13 @@ public interface IndexerIO {
         /** True if a game piece is detected in the indexer→shooter chute. */
         public boolean chuteDetected = false;
 
-        @Override
-public void toLog(LogTable table) {
-    // Conveyor Motor
-    table.put("ConveyorVelocityRPS", conveyorVelocityRPS);
-    table.put("ConveyorCurrentAmps", conveyorCurrentAmps);
-
-    // Kicker Motor
-    table.put("KickerLeadVelocityRPS", kickerLeadVelocityRPS);
-    table.put("KickerLeadCurrentAmps", kickerLeadCurrentAmps);
-    table.put("KickerFollowCurrentAmps", kickerFollowCurrentAmps);
-
-    // Chute CANrange
-    table.put("ChuteDistanceMeters", chuteDistanceMeters);
-    table.put("ChuteDetected", chuteDetected);
-}
-
-@Override
-public void fromLog(LogTable table) {
-    // Conveyor Motor
-    conveyorVelocityRPS = table.get("ConveyorVelocityRPS", conveyorVelocityRPS);
-    conveyorCurrentAmps = table.get("ConveyorCurrentAmps", conveyorCurrentAmps);
-
-    // Kicker Motor
-    kickerLeadVelocityRPS = table.get("KickerLeadVelocityRPS", kickerLeadVelocityRPS);
-    kickerLeadCurrentAmps = table.get("KickerLeadCurrentAmps", kickerLeadCurrentAmps);
-    kickerFollowCurrentAmps = table.get("KickerFollowCurrentAmps", kickerFollowCurrentAmps);
-
-    // Chute CANrange
-    chuteDistanceMeters = table.get("ChuteDistanceMeters", chuteDistanceMeters);
-    chuteDetected = table.get("ChuteDetected", chuteDetected);
-}
     }
 
     /**
      * Updates inputs with current sensor data.
      * Called every 20ms by IndexerSubsystem.periodic().
      *
-     * @param inputs The IndexerIOInputsAutoLogged object to populate
+     * @param inputs The IndexerIOInputs object to populate
      */
     default void updateInputs(IndexerIOInputs inputs) {}
 
