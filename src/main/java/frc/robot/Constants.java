@@ -323,12 +323,12 @@ public final class Constants {
     public static final double TEST_INCREMENT_RPM = 100.0;
 
     /*
-     * TODO: Tune flywheel values before. 
      * These values should be tuned without a game piece
-     * These should be done in the prescribed order, use Pheonix Tuner X to set values and graph results,
-     * give ChatGTP written feedback on the results or use a screenshot, 
-     * and adjust as needed until the flywheel is performing well at the target RPMs with minimal overshoot, oscillation, and steady-state error.
-     * See the /docs/tuning-guide_flywheel.md document for the tuning process
+     * These should be done in the prescribed order
+     * Use Pheonix Tuner X to set values and graph results
+     * Give Chat bot written feedback on the results or use a screenshot
+     * Adjust as needed until the flywheel is performing well at the target RPMs with minimal overshoot and minimal oscillation
+     * See the /docs/tuning-guide_flywheel.md document for the full tuning process
      */
  
     // Flywheel PID and feedforward gains.
