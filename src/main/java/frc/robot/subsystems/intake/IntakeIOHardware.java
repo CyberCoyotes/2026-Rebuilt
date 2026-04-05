@@ -125,7 +125,7 @@ public class IntakeIOHardware implements IntakeIO {
                 new Follower(rollerLead.getDeviceID(), Constants.Intake.RollerConfig.FOLLOWER_ALIGNMENT));
 
         // Zero slide encoder at startup
-        slide.setPosition(Constants.Intake.ENCODER_ZERO_POSITION);
+        // slide.setPosition(Constants.Intake.ENCODER_ZERO_POSITION);
     }
 
     @Override

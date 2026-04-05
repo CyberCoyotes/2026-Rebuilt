@@ -5,6 +5,7 @@ import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.MotorAlignmentValue;
 import com.ctre.phoenix6.signals.MotorArrangementValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
+
 import edu.wpi.first.math.geometry.Translation2d;
 // import edu.wpi.first.units.measure.Current;
 
@@ -22,11 +23,11 @@ public final class Constants {
    * FixMe = no safe assumptions or something is legit broken
    */
 
-  // ============================================
+  // =====================================================================
   // CAN ID Quick Reference
-  // ============================================
+  // =====================================================================
 
-  // === candrive (CANivore) bus ===
+  // candrive (CANivore) bus
   /*
    * Check TunerConstants.java to confirm
    * 
@@ -45,7 +46,7 @@ public final class Constants {
    * 14 Pigeon 2 IMU (kPigeonId)
   */
 
-  // === Rio bus ===
+  // Rio bus
   /*
    * 15 CANdle LEDs (Led.CANDLE_ID)
    * 20 Intake Roller Left Kraken X44 (Intake.ROLLER_LEFT_MOTOR_ID)
@@ -60,36 +61,31 @@ public final class Constants {
    * 42 Chute ToF CANrange (Indexer.CHUTE_TOF_ID)
    */
 
-  // ============================================
+  // =====================================================================
   // Intake
-  // ============================================
+  // =====================================================================
   public static final class Intake {
     private Intake() {
     }
-
-    public static final double ENCODER_ZERO_POSITION = 0.0;
 
     /* Kraken X44 with TalonFX controller (x3) */
     public static final int ROLLER_LEFT_MOTOR_ID = 20;
     public static final int ROLLER_RIGHT_MOTOR_ID = 21;
     public static final int SLIDE_MOTOR_ID = 22;
 
-    /*
-     * TODO: Confirm Slide position values.
-     * These were quick measured post Rebuild so they should be close,
-     * but need to be verified and adjusted as needed.
-     * Add an end-of-line "Confirmed" note when each value is confirmed
-     */
+    // Slide setpoints and tuning values
     public static final double SLIDE_RETRACTED_POS = 0.0;
     public static final double SLIDE_HOME_POS = 19.18;
-    public static final double SLIDE_EXTENDED_POS = 62.00; // Previous was 63.0
-    public static final double SLIDE_MAX_POS = 65.75;
+    public static final double SLIDE_EXTENDED_POS = 60.00; // TODO Confirm SLIDE_EXTENDED_POS || 63.0
+    public static final double SLIDE_MAX_POS = 65.75; // TODO Confirm SLIDE_MAX_POS
     public static final double SLIDE_ROLLER_SAFE_MARGIN = 1.5;
     public static final double SLIDE_ROLLER_SAFE_POS = SLIDE_HOME_POS + SLIDE_ROLLER_SAFE_MARGIN;
     public static final double SLIDE_TOLERANCE = 0.05;
     public static final double SLIDE_INCREMENTAL_RETRACT_ROTATIONS = 15.0;
     public static final double SLIDE_MANUAL_STEP_ROTATIONS = 5.0;
     public static final double SLIDE_MANUAL_REPEAT_SECONDS = 0.15;
+    public static final double SLIDE_PUMP_OUT_POS = 60.0;
+    public static final double SLIDE_PUMP_IN_POS = 40.0;
 
     /*
      * TODO: Adjust these motion magic values for normal slide modes.
@@ -111,17 +107,6 @@ public final class Constants {
     public static final double SLIDE_SLOW_MM_ACCELERATION = 4.0;
     public static final double SLIDE_SLOW_MM_JERK = 0.0;
 
-    /*
-     * Agitation positions used while shooting "pumping fuel"
-     * Maybe unnecessary for this new mechanical setup
-     */
-    public static final double SLIDE_PUMP_OUT_POS = 60.0;
-    public static final double SLIDE_PUMP_IN_POS = 40.0;
-
-    /*
-     * TODO: Verify these intake roller values based on robot testing performance,
-     * adjusted as needed, and re-verify.
-     */
     public static final double ROLLER_FORWARD_VOLTS = 8;
     public static final double ROLLER_REVERSE_VOLTS = -8;
 
@@ -130,7 +115,7 @@ public final class Constants {
       }
 
       // At first competigion, this Brake, but work trying Coast
-      public static final NeutralModeValue NEUTRAL_MODE = NeutralModeValue.Coast; 
+      public static final NeutralModeValue NEUTRAL_MODE = NeutralModeValue.Coast;
       public static final InvertedValue INVERTED = InvertedValue.CounterClockwise_Positive;
 
       /* Intake roller limits */
@@ -149,7 +134,7 @@ public final class Constants {
        * Changed from Brake to Coast. Idea that slide will push in some vs than
        * breaking trying to hold position.
        */
-      public static final NeutralModeValue NEUTRAL_MODE = NeutralModeValue.Coast; 
+      public static final NeutralModeValue NEUTRAL_MODE = NeutralModeValue.Coast;
       public static final InvertedValue INVERTED = InvertedValue.CounterClockwise_Positive;
 
       /* Intake slide Limits */
@@ -167,7 +152,6 @@ public final class Constants {
        * Tune to minimize overshoot and oscillation while being snappy 
        * Add an end-of-line "Tuned" note when confirmed.
        */
-
       public static final double KP = 2.0;
       public static final double KI = 0.0;
       public static final double KD = 0.0;
@@ -176,9 +160,9 @@ public final class Constants {
 
   }
 
-  // =============================
+  // =====================================================================
   // Indexer
-  // =============================
+  // =====================================================================
   public static final class Indexer {
 
     private Indexer() {
@@ -201,7 +185,7 @@ public final class Constants {
      * Visually assess performance for now.
      * Add a "Tuned" note when each value is confirmed.
      */
-    //Conveyor voltage setpoints for feeding fuel to the shooter.
+    // Conveyor voltage setpoints for feeding fuel to the shooter.
     public static final double CONVEYOR_FORWARD_VOLTAGE = 3.5;
     public static final double CONVEYOR_REVERSE_VOLTAGE = -2;
     
@@ -216,8 +200,8 @@ public final class Constants {
      * Add a "Tuned" note when each value is confirmed.
      */
     
-     // Kicker-indexer voltage setpoints for feeding fuel to the shooter.
-    public static final double KICKER_FORWARD_VOLTAGE = 8.5;
+    // Kicker-indexer voltage setpoints for feeding fuel to the shooter.
+    public static final double KICKER_FORWARD_VOLTAGE = 2.5;
     public static final double KICKER_REVERSE_VOLTAGE = -4.0;
     public static final double KICKER_POPPER_VOLTAGE = 3.0;
 
@@ -288,17 +272,15 @@ public final class Constants {
 
   }
 
-  // ===========================
+  // =====================================================================
   // Flywheel
-  // ===========================
+  // =====================================================================
   public static final class Flywheel {
     private Flywheel() {
     }
 
-    // Kraken X60 with TalonFX controller (leader); Flywheel A motor
+    // Kraken X60s with TalonFX controller (leader) and (follower)
     public static final int FLYWHEEL_LEFT_MOTOR_ID = 25;
-
-    // Kraken X60 with TalonFX controller (follower of A); Flywheel B motor
     public static final int FLYWHEEL_RIGHT_MOTOR_ID = 26;
 
     // Kraken X60 free speed
@@ -307,8 +289,6 @@ public final class Constants {
 
     /**
      * TODO: Verify shot RPMs on the current shooter.
-     *  
-     * -- IMPORTANT-- Only find these after tuning and adjuting the flywheel PID and Feedforward values. 
      * Add an end-of-line "Tuned" note when confirmed.
      */
 
@@ -319,60 +299,45 @@ public final class Constants {
     public static final double STANDBY_RPM = 1000;
     
     // Bumpers against the hub if possible, note robot position if not
-    public static final double CLOSE_RPM = 4500;
+    public static final double CLOSE_RPM = 3000;  // TODO tune CLOSE_RPM || Tuned 4-4-2026
 
     // Bumpers against the tower
-    public static final double TOWER_RPM = 3200;
+    public static final double TOWER_RPM = 3200;  // TODO tune TOWER_RPM ||
 
     // In the trench, mostly against the wall, but turned slightly towards the hub
-    public static final double TRENCH_RPM = 3200;
+    public static final double TRENCH_RPM = 3200; // TODO tune TRENCH_RPM ||
 
     // In a corner by human player station or depot-corner, angled towards the hub, but not against anything
-    public static final double FAR_RPM = 3800;
+    public static final double FAR_RPM = 3800;    // TODO tune FAR_RPM ||
 
     // For passing passing from midfield
-    public static final double PASS_RPM = 4000;   // pass 3200 rpm
+    public static final double PASS_RPM = 4000;   // TODO tune PASS_RPM ||
 
     /*
      * Reverse Flywheel RPM for jam clearing.
-     * Only reached through eject(), which gates on EJECT_MAX_ENTRY_RPM.
+     * Only reached through eject(), which gates on EJECT_MAX_ENTRY_RPM to prevent violent reversal at high speeds.
      */
     public static final double EJECT_RPM = -1500;
-
-    /*
-     * Maximum forward flywheel RPM at which EJECT is safe to enter. 
-     * Prevents violent reversal.
-     */
     public static final double EJECT_MAX_ENTRY_RPM = 500.0;
 
     public static final double TEST_INCREMENT_RPM = 100.0;
 
     /*
-     * TODO: Tune flywheel values before. 
-     * These values should be tuned without a game piece!
-     * These should be done in the prescribed order, use Pheonix Tuner X to set values and graph results,
-     * give ChatGTP written feedback on the results or use a screenshot, 
-     * and adjust as needed until the flywheel is performing well at the target RPMs with minimal overshoot, oscillation, and steady-state error.
-     * See the /docs/tuning-guide_flywheel.md document for the tuning process
+     * These values should be tuned without a game piece
+     * These should be done in the prescribed order
+     * Use Pheonix Tuner X to set values and graph results
+     * Give Chat bot written feedback on the results or use a screenshot
+     * Adjust as needed until the flywheel is performing well at the target RPMs with minimal overshoot and minimal oscillation
+     * See the /docs/tuning-guide_flywheel.md document for the full tuning process
      */
  
-    // Flywheel PID and Feedforward gains.    
-    public static final double KV = 0.135;  // tuned
-    
-    public static final double KP = 0.100;
+    // Flywheel PID and feedforward gains.
+    public static final double KV = 0.130;  // Tuned 4-4-2026
+    public static final double KP = 0.050;  // Tuned 4-4-2026
+    public static final double KD = 0.000;  // Tuned 4-4-2026
+    public static final double KA = 0.000;  // Tuned 4-4-2026
 
-    // TODO: 3rd Flywheel Tuning value 
-    // Maybe not needed at all depending on how the flywheel behaves.
-    public static final double KD = 0.000;
-    public static final double KA = 0.000;
-
-    /*
-     * TODO: Verify flywheel tolerance can be verified on Saturday.
-     * 
-     * Previously 0.10 measured steady-state;
-     * Variance ±30 RPM at 3300; 3% = ±99 RPM (~3× variance)
-     */
-    public static final double TOLERANCE_PERCENT = 0.03; // 3% tolerance
+    public static final double TOLERANCE_PERCENT = 0.03; // TODO verify Flywheel TOLERANCE_PERCENT 3% tolerance
 
     /* Flywheel limits */
     public static final double SUPPLY_CURRENT_LIMIT = 60;
@@ -383,8 +348,10 @@ public final class Constants {
      * Tune acceleration to shape spin-up, then refine Slot0 gains.
      * Probably ok to wait until Saturday
      */
-    public static final double MM_ACCELERATION_RPS_PER_SEC = 150.0;
-    public static final double MM_JERK_RPS_PER_SEC_CUBED = 0.0;
+    public static final double MM_ACCELERATION_RPS_PER_SEC = 150.0; // Tuned 4-4-2026
+    public static final double MM_JERK_RPS_PER_SEC_CUBED = 0.0;     // Tuned 4-4-2026
+    public static final double MM_EXPO_KV = 0.12;                   // Tuned 4-4-2026 // TODO Implement MM_EXPO_KV in config and test if it improves performance, especially at lower RPMs.
+    public static final double MM_EXPO_KA = 0.06;                   // Tuned 4-4-2026 // TODO Implement MM_EXPO_KA in config and test if it improves performance, especially at lower RPMs.            
 
     public static final class LeaderConfig {
       private LeaderConfig() {
@@ -397,27 +364,26 @@ public final class Constants {
     public static final class FollowerConfig {
       private FollowerConfig() {
       }
-
-      // == Hardware config ============================
+      
       public static final NeutralModeValue NEUTRAL_MODE = NeutralModeValue.Coast;
       public static final MotorAlignmentValue FOLLOWER_ALIGNMENT = MotorAlignmentValue.Opposed;
     }
 
   }
 
-  // ============================
+  // =====================================================================
   // Hood
-  // ============================
+  // =====================================================================
 
   public static final class Hood {
     private Hood() {
     }
 
-    // == IDs ===============================================
+    // IDs
     // Hood motor - Minion with TalonFXS controller, adjusts shot angle.
     public static final int HOOD_MOTOR_ID = 28;
 
-    // == Mechanism setpoints / tuning ========================
+    // Mechanism setpoints and tuning
     public static final double MIN_POSE = 0.00; // Mechanical limit, also use to set in Configs
     public static final double MAX_POSE = 4.356934; // Mechanical limit; also used to set in Configs
 
@@ -428,7 +394,9 @@ public final class Constants {
      * TODO: Verify hood setpoints
      * Add an end-of-line "Tuned" note when each value is confirmed.
      */
-    public static final double CLOSE_HOOD = 3.00;
+    public static final double CLOSE_HOOD = 1.50;
+    // was 3
+    
     public static final double POPPER_HOOD = 4.20; //
     public static final double TOWER_HOOD = 3.50;
     public static final double TRENCH_HOOD = 2.20;
@@ -470,9 +438,9 @@ public final class Constants {
 
   }
 
-  // =========================================================
+  // =====================================================================
   // Vision / Limelight
-  // =========================================================
+  // =====================================================================
   public static final class Vision {
     private Vision() {
     }
@@ -486,9 +454,9 @@ public final class Constants {
     // public static final int GAME_PIECE_PIPELINE = 1; // Optional: for note/game
     // piece detection
 
-    // =========================================================
-    // Camera mounting - Primarily Documentation Purposes
-    // =========================================================
+    // =================================================================
+    // Camera Mounting
+    // =================================================================
 
     /* TODO: Verify camera mounting offsets on the current robot. */
     /*
@@ -524,7 +492,7 @@ public final class Constants {
     /** Time in seconds before considering target "lost" after losing sight */
     public static final double TARGET_TIMEOUT_SECONDS = 0.5;
 
-    // == Vision-driven drivetrain rotation ========================
+    // Vision-driven drivetrain rotation
     /**
      * Proportional gain for rotational alignment: (rad/s output) per (degree of tx
      * error).
@@ -585,9 +553,9 @@ public final class Constants {
 
   }
 
-  // =========================================================
+  // =====================================================================
   // LEDs
-  // =========================================================
+  // =====================================================================
   public static final class Led {
     private Led() {
     }
@@ -609,6 +577,9 @@ public final class Constants {
 
   }
 
+  // =====================================================================
+  // Auto
+  // =====================================================================
   public static final class Auto {
     private Auto() {
     }

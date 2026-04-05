@@ -34,9 +34,9 @@ import frc.robot.subsystems.shooter.ShooterIO.ShooterIOInputs;
 
 public class ShooterSubsystem extends SubsystemBase {
 
-    // =========================================================================
-    // SHOT PRESETS
-    // =========================================================================
+    // =====================================================================
+    // Shot Presets
+    // =====================================================================
 
     /**
      * Named shot presets that can be selected via POV left/right on the driver controller.
@@ -62,28 +62,31 @@ public class ShooterSubsystem extends SubsystemBase {
         }
     }
 
-    // ==== Hardware Interface ====
+    // =====================================================================
+    // Hardware Interface
+    // =====================================================================
     private final ShooterIO io;
     private final ShooterIOInputs inputs = new ShooterIOInputs();
 
-    // ==== Dashboard Publishers (NetworkTables) ====
+    // =====================================================================
+    // Dashboard Publishers
+    // =====================================================================
     private final NetworkTable shooterTable;
     private final StringPublisher  statePublisher;
     private final BooleanPublisher readyPublisher;
     private final DoublePublisher  flywheelRpmPublisher;
     private final DoublePublisher  targetRpmPublisher;
-    private final DoublePublisher  flywheelRpsPublisher;
     private final DoublePublisher  flywheelErrorPublisher;
     private final DoublePublisher  hoodRotationsPublisher;
     private final DoublePublisher  targetHoodRotationsPublisher;
     private final DoublePublisher  hoodErrorPublisher;
     private final BooleanPublisher hoodAtPosePublisher;
-    private final DoublePublisher  flywheelVoltsPublisher;
-    private final DoublePublisher  flywheelTempPublisher;
     private final BooleanPublisher flywheelAtRpmPublisher;
     private final StringPublisher  selectedPresetPublisher;
 
-    // ==== State =========================================================
+    // =====================================================================
+    // State
+    // =====================================================================
     private ShooterState currentState     = ShooterState.IDLE;
     private ShotPreset   displayPreset    = null; // null = Vision mode (no operator button held)
     private String currentStateString     = ShooterState.IDLE.toString();
@@ -93,7 +96,9 @@ public class ShooterSubsystem extends SubsystemBase {
     // Slow publish divider
     private int periodicCounter = 0;
 
-    // ==== CONSTRUCTOR ================================================
+    // =====================================================================
+    // Constructor
+    // =====================================================================
     public ShooterSubsystem(ShooterIO io) {
         this.io = io;
 
@@ -104,19 +109,18 @@ public class ShooterSubsystem extends SubsystemBase {
         readyPublisher               = shooterTable.getBooleanTopic("IsReady").publish();
         flywheelRpmPublisher         = shooterTable.getDoubleTopic("FlywheelRPM").publish();
         targetRpmPublisher           = shooterTable.getDoubleTopic("TargetFlywheelRPM").publish();
-        flywheelRpsPublisher         = shooterTable.getDoubleTopic("FlywheelMotorRPS").publish();
         flywheelErrorPublisher       = shooterTable.getDoubleTopic("FlywheelError").publish();
         hoodRotationsPublisher       = shooterTable.getDoubleTopic("HoodRotations").publish();
         targetHoodRotationsPublisher = shooterTable.getDoubleTopic("TargetHoodRotations").publish();
         hoodErrorPublisher           = shooterTable.getDoubleTopic("HoodError").publish();
         hoodAtPosePublisher          = shooterTable.getBooleanTopic("HoodAtPose").publish();
-        flywheelVoltsPublisher       = shooterTable.getDoubleTopic("FlywheelAppliedVolts").publish();
-        flywheelTempPublisher        = shooterTable.getDoubleTopic("FlywheelMaxTempCelsius").publish();
         flywheelAtRpmPublisher       = shooterTable.getBooleanTopic("FlywheelAtRPM").publish();
         selectedPresetPublisher       = shooterTable.getStringTopic("SelectedPreset").publish();
     }
 
-    // ==== State Machine Enums ====
+    // =====================================================================
+    // State Machine
+    // =====================================================================
     /* Defines what mode the shooter is in. Each value represents a distinct operational mode with different hardware behavior */
     public enum ShooterState {
         IDLE,    // Motors off — only used on explicit stop, not during normal match play
@@ -127,24 +131,24 @@ public class ShooterSubsystem extends SubsystemBase {
         POPPER   // Popper mode: flywheel and hood at minimum pose for assisting with fuel loading
     }
 
-@Override
-public void periodic() {
-    io.updateInputs(inputs);
+    @Override
+    public void periodic() {
+        io.updateInputs(inputs);
 
     // SPINNING_UP → READY promotion
     // Only periodic() earns the READY state — never set directly
-    if (currentState == ShooterState.SPINNING_UP
-            && isFlywheelAtVelocity()
-            && isHoodAtPose()) {
-        setState(ShooterState.READY);
-    }
+        if (currentState == ShooterState.SPINNING_UP
+                && isFlywheelAtVelocity()
+                && isHoodAtPose()) {
+            setState(ShooterState.READY);
+        }
 
-    updateStateMachine();  // after promotion so READY takes effect this cycle
+        updateStateMachine();  // after promotion so READY takes effect this cycle
 
-    if (++periodicCounter % 5 == 0) {
-        io.updateSlowInputs(inputs);
-        publishToElastic();
-    }
+        if (++periodicCounter % 5 == 0) {
+            io.updateSlowInputs(inputs);
+            publishToElastic();
+        }
 }
 
     private void publishToElastic() {
@@ -152,19 +156,16 @@ public void periodic() {
         readyPublisher.set(isReady());
         flywheelRpmPublisher.set(inputs.flywheelLeaderMotorRPM);
         targetRpmPublisher.set(targetFlywheelMotorRPM);
-        flywheelRpsPublisher.set(inputs.flywheelLeaderMotorRPS);
         flywheelErrorPublisher.set(targetFlywheelMotorRPM - inputs.flywheelLeaderMotorRPM);
         hoodRotationsPublisher.set(inputs.hoodPositionRotations);
         targetHoodRotationsPublisher.set(targetHoodPoseRot);
         hoodErrorPublisher.set(targetHoodPoseRot - inputs.hoodPositionRotations);
         hoodAtPosePublisher.set(isHoodAtPose());
-        flywheelVoltsPublisher.set(inputs.flywheelAppliedVolts);
-        flywheelTempPublisher.set(inputs.flywheelMaxTempCelsius);
         flywheelAtRpmPublisher.set(isFlywheelAtVelocity());
         selectedPresetPublisher.set(displayPreset != null ? displayPreset.label : "Vision");
     }
 
-    // =====STATE MACHINE=====
+    // State Machine Logic
     private void updateStateMachine() {
         switch (currentState) {
             case IDLE:
@@ -233,9 +234,9 @@ public void periodic() {
         }
     }
 
-    // =========================================================================
-    // PUBLIC COMMAND METHODS
-    // =========================================================================
+    // =====================================================================
+    // Public Command Methods
+    // =====================================================================
 
     /** Full stop — stops flywheels and returns hood to home. */
     public void setIdle() {
@@ -267,7 +268,7 @@ public void periodic() {
         setState(ShooterState.EJECT);
     }
 
-    // ===== Display Preset (Elastic dashboard sanity check) =====
+    // Display Preset
 
     /**
      * Called when operator holds a preset button — shows the preset label on Elastic.
@@ -289,7 +290,7 @@ public void periodic() {
         setState(ShooterState.POPPER);
     }
 
-    // ===== Target Setters =====
+    // Target Setters
 
     /** Sets target flywheel velocity (forward only — clamped to MAX_FLYWHEEL_RPM). Does NOT change state. */
     public void setTargetVelocity(double rpm) {
@@ -333,9 +334,9 @@ public void periodic() {
         }
     }
 
-    // =========================================================================
-    // STATUS QUERIES
-    // =========================================================================
+    // =====================================================================
+    // Status Queries
+    // =====================================================================
 
     /** Returns true if in READY state with flywheel and hood at targets. */
     public boolean isReady() {
@@ -371,9 +372,9 @@ public void periodic() {
         return inputs.flywheelCurrentAmps > 150.0;
     }
 
-    // =========================================================================
+    // =====================================================================
     // Commands
-    // =========================================================================
+    // =====================================================================
 
     /** Returns shooter to idle. */
     public Command idleCommand() {
@@ -412,9 +413,9 @@ public void periodic() {
             this).withName("Shooter: SpinUpCommand");
     }
 
-    // =========================================================================
+    // =====================================================================
     // Vision Lookup Tables
-    // =========================================================================
+    // =====================================================================
 
     /**
      * Distance-to-RPM and distance-to-hood lookup tables.
