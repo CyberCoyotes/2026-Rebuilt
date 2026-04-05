@@ -2,7 +2,6 @@ package frc.robot.subsystems.intake;
 
 import java.util.function.BooleanSupplier;
 
-import edu.wpi.first.networktables.BooleanPublisher;
 import edu.wpi.first.networktables.DoublePublisher;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
@@ -16,29 +15,31 @@ import frc.robot.subsystems.intake.IntakeIO.IntakeIOInputs;
 
 public class IntakeSubsystem extends SubsystemBase {
 
-    // =========================================================================
-    // IO LAYER
-    // =========================================================================
+    // =====================================================================
+    // IO Layer
+    // =====================================================================
     private final IntakeIO io;
     private final IntakeIOInputs inputs = new IntakeIOInputs();
 
-    // =========================================================================
-    // STATE TRACKING
-    // =========================================================================
+    // =====================================================================
+    // State Tracking
+    // =====================================================================
 
     /**
      * Tracks roller direction internally so getIntakeState() doesn't need to
      * poll the IO layer on every call.
      */
     private enum RollerState {
-        STOPPED, RUNNING, REVERSED
+        STOPPED, 
+        RUNNING, 
+        REVERSED
     }
 
     private RollerState rollerState = RollerState.STOPPED;
 
-    // =========================================================================
-    // ELASTIC DASHBOARD PUBLISHERS
-    // =========================================================================
+    // =====================================================================
+    // Elastic Dashboard Publishers
+    // =====================================================================
 
     // Driver-awareness data: state string, slide position, and at-target booleans.
     // Raw motor signals are captured automatically by CTRE Hoot — no need to
@@ -47,9 +48,9 @@ public class IntakeSubsystem extends SubsystemBase {
     private final StringPublisher intakeStatePublisher;
     private final DoublePublisher slidePositionPublisher;
 
-    // =========================================================================
-    // CONSTRUCTOR
-    // =========================================================================
+    // =====================================================================
+    // Constructor
+    // =====================================================================
     public IntakeSubsystem(IntakeIO intakeIO) {
         this.io = intakeIO;
 
@@ -59,9 +60,9 @@ public class IntakeSubsystem extends SubsystemBase {
         slidePositionPublisher = intakeTable.getDoubleTopic("SlidePosition").publish();
     }
 
-    // =========================================================================
-    // PERIODIC
-    // =========================================================================
+    // =====================================================================
+    // Periodic
+    // =====================================================================
 
     @Override
     public void periodic() {
@@ -76,9 +77,15 @@ public class IntakeSubsystem extends SubsystemBase {
         slidePositionPublisher.set(inputs.slidePositionRotations);
     }
 
-    // =========================================================================
+    // =====================================================================
     // STATE QUERIES  —  read-only, no side effects
-    // =========================================================================
+    // =====================================================================
+
+    // =====================================================================
+    // State Queries
+    // =====================================================================
+
+    // Read-only helpers with no side effects.
 
     /** True when the roller is actively running forward (intaking). */
     public boolean isRollerRunning() {
@@ -105,7 +112,7 @@ public class IntakeSubsystem extends SubsystemBase {
         return inputs.slidePositionRotations > Constants.Intake.SLIDE_ROLLER_SAFE_POS;
     }
 
-    // If you need position for a command or calculation
+    // Position accessor for commands and calculations.
     public double getSlidePositionRotations() {
         return inputs.slidePositionRotations;
     }
@@ -128,8 +135,8 @@ public class IntakeSubsystem extends SubsystemBase {
     // LOW-LEVEL ACTUATORS  —  called by command factories, never by each other
     // =========================================================================
 
-    // ==== Roller ====    
-    
+    // Roller
+
     public void runRoller() {
         if (!isSlidePastHome()) {
             stopRoller();
@@ -385,9 +392,7 @@ public class IntakeSubsystem extends SubsystemBase {
      * Use compressFuel(seconds) when you want it to self-terminate.
      *
      * Typical usage:
-     * <pre>
      *   operator.leftBumper().whileTrue(intake.compressFuelHeld());
-     * </pre>
      */
     public Command fuelPumpSlow() {
         return Commands.runEnd(
