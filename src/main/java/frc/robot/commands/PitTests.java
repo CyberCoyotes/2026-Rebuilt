@@ -17,10 +17,10 @@ public class PitTests {
     
     //Run the flywheel at each preset speed for 4 (s)
     public Command testShooterPresets(ShooterSubsystem shooter) {
-        Command close = Commands.run(() -> shooter.setTargetVelocity(Constants.Shooter.CLOSE_RPM), shooter); 
-        Command trench = Commands.run(() -> shooter.setTargetVelocity(Constants.Shooter.TRENCH_RPM), shooter);
-        Command pass = Commands.run(() -> shooter.setTargetVelocity(Constants.Shooter.PASS_RPM), shooter);
-        Command far = Commands.run(() -> shooter.setTargetVelocity(Constants.Shooter.FAR_RPM), shooter);
+        Command close = Commands.run(() -> shooter.setTargetVelocity(Constants.Flywheel.CLOSE_RPM), shooter); 
+        Command trench = Commands.run(() -> shooter.setTargetVelocity(Constants.Flywheel.TRENCH_RPM), shooter);
+        Command pass = Commands.run(() -> shooter.setTargetVelocity(Constants.Flywheel.PASS_RPM), shooter);
+        Command far = Commands.run(() -> shooter.setTargetVelocity(Constants.Flywheel.FAR_RPM), shooter);
 
         // Ideally it should have something like a `isReady` type check, otherwise it just runs until timeout
         return Commands.sequence(
@@ -36,26 +36,26 @@ public class PitTests {
     //Wait 6 (s)
     //Run the flywheel in reverse for 4 (s)
     public void testShooterEject(ShooterSubsystem shooter) {
-        Command Eject = Commands.run(() -> shooter.setTargetVelocity(Constants.Shooter.EJECT_RPM), shooter);
+        Command Eject = Commands.run(() -> shooter.setTargetVelocity(Constants.Flywheel.EJECT_RPM), shooter);
 
-        Eject.withTimeout(4).schedule();
+        Eject.withTimeout(4);
     }
+    
     //Wait 4 (s)
     //test hood presets
     public void testHoodPresets(ShooterSubsystem shooter) {
-        Command Close = Commands.run(() -> shooter.setTargetVelocity(Constants.Shooter.CLOSE_HOOD), shooter);
-        Command Tower = Commands.run(() -> shooter.setTargetVelocity(Constants.Shooter.TOWER_HOOD), shooter); 
-        Command Trench = Commands.run(() -> shooter.setTargetVelocity(Constants.Shooter.TRENCH_HOOD), shooter);
-        Command Far = Commands.run(() -> shooter.setTargetVelocity(Constants.Shooter.FAR_HOOD), shooter);
-        Command Pass = Commands.run(() -> shooter.setTargetVelocity(Constants.Shooter.PASS_HOOD), shooter);
-
+        Command Close = Commands.run(() -> shooter.setTargetVelocity(Constants.Hood.CLOSE_HOOD), shooter);
+        Command Tower = Commands.run(() -> shooter.setTargetVelocity(Constants.Hood.TOWER_HOOD), shooter); 
+        Command Trench = Commands.run(() -> shooter.setTargetVelocity(Constants.Hood.TRENCH_HOOD), shooter);
+        Command Far = Commands.run(() -> shooter.setTargetVelocity(Constants.Hood.FAR_HOOD), shooter);
+        Command Pass = Commands.run(() -> shooter.setTargetVelocity(Constants.Hood.PASS_HOOD), shooter);
         Commands.sequence(
             Close.withTimeout(testTime),
             Tower.withTimeout(testTime),
             Trench.withTimeout(testTime),
             Far.withTimeout(testTime),
             Pass.withTimeout(testTime)
-        ).schedule();}
+        );}
 
     /*
     public static Command testShooterAndHood(ShooterSubsystem shooter) {
