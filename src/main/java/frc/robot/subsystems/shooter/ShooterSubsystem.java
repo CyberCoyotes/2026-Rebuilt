@@ -511,21 +511,4 @@ public class ShooterSubsystem extends SubsystemBase {
         ).withName("TuneFlywheelRPM");
     }
 
-        // ====== TEST COMMANDS ======
-public Command testFunctionality(){
-    return Commands.sequence(
-        tuneFlywheelCommand(Constants.Flywheel.CLOSE_RPM).withTimeout(2),
-        Commands.waitSeconds(1),
-        tuneFlywheelCommand(Constants.Flywheel.TOWER_RPM).withTimeout(2),
-        Commands.waitSeconds(1),
-        tuneFlywheelCommand(Constants.Flywheel.FAR_RPM).withTimeout(2),
-        Commands.waitSeconds(1),
-        tuneFlywheelCommand(-Constants.Flywheel.FAR_RPM).withTimeout(2),
-        Commands.waitSeconds(1),
-        Commands.run(() -> io.setHoodPose(Constants.Hood.FAR_HOOD), this),
-        Commands.waitSeconds(1),
-        Commands.run(() -> io.setHoodPose(Constants.Hood.CLOSE_HOOD), this)
-);
-}
-
 }
