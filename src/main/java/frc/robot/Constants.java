@@ -501,7 +501,7 @@ public final class Constants {
      *
      * - Too low → slow to center, may not reach ALIGNED before timeout
      * - Too high → oscillates left/right around the target
-     * See TUNING.md for step-by-step procedure.
+     * See `tuning-guide_vision.md` for step-by-step procedure.
      */
 
     /*
