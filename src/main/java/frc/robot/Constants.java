@@ -387,7 +387,7 @@ public final class Constants {
 
     // Mechanism setpoints and tuning
     public static final double MIN_POSE = 0.00; // Mechanical limit, also use to set in Configs
-    public static final double MAX_POSE = 4.356934; // Mechanical limit; also used to set in Configs
+    public static final double MAX_POSE = 5.0; // Mechanical limit; also used to set in Configs
 
     // TODO: Verify hood tolerance
     public static final double TOLERANCE_POSE = 0.05;
@@ -396,11 +396,11 @@ public final class Constants {
      * TODO: Verify hood setpoints
      * Add an end-of-line "Tuned" note when each value is confirmed.
      */
-    public static final double CLOSE_HOOD = 1.50;
+    public static final double CLOSE_HOOD = 3.50; // 1.5
     // was 3
     
     public static final double POPPER_HOOD = 4.20; //
-    public static final double TOWER_HOOD = 3.50;
+    public static final double TOWER_HOOD = 1.5; //3.5
     public static final double TRENCH_HOOD = 2.20;
     public static final double FAR_HOOD = 4.20; // Was 5.50
     public static final double PASS_HOOD = 2.00;
@@ -432,7 +432,7 @@ public final class Constants {
 
       public static final MotorArrangementValue MOTOR_ARRANGEMENT = MotorArrangementValue.Minion_JST;
       public static final NeutralModeValue NEUTRAL_MODE = NeutralModeValue.Brake;
-      public static final InvertedValue INVERTED = InvertedValue.CounterClockwise_Positive;
+      public static final InvertedValue INVERTED = InvertedValue.Clockwise_Positive;
       public static final double REVERSE_SOFT_LIMIT = MIN_POSE;
       public static final double FORWARD_SOFT_LIMIT = MAX_POSE;
       
