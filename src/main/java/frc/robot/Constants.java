@@ -300,20 +300,20 @@ public final class Constants {
     // Not currently used
     public static final double STANDBY_RPM = 1000;
     
-    // Bumpers against the hub if possible, note robot position if not
-    public static final double CLOSE_RPM = 3200;  // TODO tune CLOSE_RPM || Tuned 4-4-2026
+    // Bumpers a meter off the hub, note robot position if not
+    public static final double CLOSE_RPM = 3200;  // TODO tune CLOSE_RPM | Tuned 4-4-2026
 
     // Bumpers against the tower
-    public static final double TOWER_RPM = 3200;  // TODO tune TOWER_RPM ||
+    public static final double TOWER_RPM = 3200;  // TODO tune TOWER_RPM |
 
     // In the trench, mostly against the wall, but turned slightly towards the hub
-    public static final double TRENCH_RPM = 3200; // TODO tune TRENCH_RPM ||
+    public static final double TRENCH_RPM = 3200; // TODO tune TRENCH_RPM |
 
     // In a corner by human player station or depot-corner, angled towards the hub, but not against anything
-    public static final double FAR_RPM = 3800;    // TODO tune FAR_RPM ||
+    public static final double FAR_RPM = 3800;    // TODO tune FAR_RPM |
 
     // For passing passing from midfield
-    public static final double PASS_RPM = 4000;   // TODO tune PASS_RPM ||
+    public static final double PASS_RPM = 4000;   // TODO tune PASS_RPM |
 
     /*
      * Reverse Flywheel RPM for jam clearing.
