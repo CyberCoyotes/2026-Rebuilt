@@ -350,7 +350,7 @@ public final class Constants {
      * Tune acceleration to shape spin-up, then refine Slot0 gains.
      * Probably ok to wait until Saturday
      */
-    public static final double MM_ACCELERATION_RPS_PER_SEC = 150.0; // Tuned 4-4-2026
+    public static final double MM_ACCELERATION_RPS_PER_SEC = 200.0; // Tuned 4-4-2026
     public static final double MM_JERK_RPS_PER_SEC_CUBED = 0.0;     // Tuned 4-4-2026
     public static final double MM_EXPO_KV = 0.12;                   // Tuned 4-4-2026 // TODO Implement MM_EXPO_KV in config and test if it improves performance, especially at lower RPMs.
     public static final double MM_EXPO_KA = 0.06;                   // Tuned 4-4-2026 // TODO Implement MM_EXPO_KA in config and test if it improves performance, especially at lower RPMs.            
