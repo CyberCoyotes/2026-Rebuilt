@@ -666,19 +666,19 @@ public class IntakeSubsystem extends SubsystemBase {
      *       intake.retractSlidesWithRollerCmd());
      */
 
-    // TODO revisit retractSlidesAuton() 
-    public Command retractSlidesAuton() {
-        return Commands.sequence(
-                Commands.runOnce(() -> {
-                    retractSlidesIncremental();
-                    runRoller();
-                }, this),
-                Commands.run(() -> {
-                    retractSlidesSlow();
-                    runRoller();
-                }, this).until(this::isSlideRetracted))
-                .finallyDo(() -> stopRoller())
-                .withName("RetractSlidesWithRoller");
-    }
+    // TODO revisit retractSlidesAuton() I don't think it's needed anymore
+    // public Command retractSlidesAuton() {
+    //     return Commands.sequence(
+    //             Commands.runOnce(() -> {
+    //                 retractSlidesIncremental();
+    //                 runRoller();
+    //             }, this),
+    //             Commands.run(() -> {
+    //                 retractSlidesSlow();
+    //                 runRoller();
+    //             }, this).until(this::isSlideRetracted))
+    //             .finallyDo(() -> stopRoller())
+    //             .withName("RetractSlidesWithRoller");
+    // }
 
 } // end of class

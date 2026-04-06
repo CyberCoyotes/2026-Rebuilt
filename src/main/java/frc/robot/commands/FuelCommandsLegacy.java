@@ -117,13 +117,13 @@ public class FuelCommandsLegacy {
      * @param hood    Target hood position in rotations
      * @return Deadline command: shoot sequence (deadline) + slide retract in parallel
      */
-    public static Command shootWithSlideRetract(ShooterSubsystem shooter, IndexerSubsystem indexer,
-            IntakeSubsystem intake, double rpm, double hood) {
-        return Commands.deadline(
-                shootWithPreset(shooter, indexer, rpm, hood),
-                intake.retractSlidesAuton())
-                .withName("ShootWithSlideRetract[" + rpm + "rpm]");
-    }
+    // public static Command shootWithSlideRetract(ShooterSubsystem shooter, IndexerSubsystem indexer,
+    //         IntakeSubsystem intake, double rpm, double hood) {
+    //     return Commands.deadline(
+    //             shootWithPreset(shooter, indexer, rpm, hood),
+    //             intake.retractSlidesAuton())
+    //             .withName("ShootWithSlideRetract[" + rpm + "rpm]");
+    // }
 
     public static Command shootPresetAuton(ShooterSubsystem shooter, IndexerSubsystem indexer,
             ShotPreset preset, double feedSeconds) {
