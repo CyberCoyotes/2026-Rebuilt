@@ -153,6 +153,12 @@ public class RobotContainer {
         operator.leftTrigger(0.5).whileTrue(intake.intakeFuel());
         operator.rightBumper().whileTrue(intake.retractSlidesSlowHeldCmd());
 
+        // Start (Menu ☰): Toggle flywheel standby pre-rev — operator sets once and forgets.
+        // When ON: flywheel holds at STANDBY_RPM (1800) between shots instead of stopping.
+        // When OFF: flywheel returns to full idle after each shot.
+        // Defaults OFF at robot startup — operator must enable explicitly.
+        operator.start().onTrue(shooter.runOnce(shooter::toggleStandby).withName("ToggleStandby"));
+
         // Back (View ⧉): Reset odometry to botpose — use when robot rides up on a ball
         operator.back().onTrue(drivetrain.resetPoseFromVisionCommand());
     
