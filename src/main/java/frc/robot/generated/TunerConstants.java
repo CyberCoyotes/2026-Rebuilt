@@ -52,7 +52,7 @@ public class TunerConstants {
     // The stator current at which the wheels start to slip;
     // This needs to be tuned to your individual robot.
     // Start conservative (60–80 A on carpet) and raise only if acceleration feels too limited.
-    private static final Current kSlipCurrent = Amps.of(70);
+    private static final Current kSlipCurrent = Amps.of(80); // TODO tune drive slip current as needed
 
     // Initial configs for the drive and steer motors and the azimuth encoder; these cannot be null.
     // Some configs will be overwritten; check the `with*InitialConfigs()` API documentation.
@@ -60,7 +60,7 @@ public class TunerConstants {
         // Ramp voltage over 0.15 s to reduce wheel spin on hard acceleration.
         // Lower this value (e.g. 0.08) if acceleration feels sluggish.
         .withOpenLoopRamps(new OpenLoopRampsConfigs()
-            .withVoltageOpenLoopRampPeriod(0.15));
+            .withVoltageOpenLoopRampPeriod(0.15)); // TODO tune drive open-loop ramp as needed
     private static final TalonFXConfiguration steerInitialConfigs = new TalonFXConfiguration()
         .withCurrentLimits(
             new CurrentLimitsConfigs()
@@ -288,4 +288,4 @@ public class TunerConstants {
             );
         }
     }
-}
+}
