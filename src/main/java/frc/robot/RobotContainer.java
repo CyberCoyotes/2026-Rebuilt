@@ -121,11 +121,12 @@ public class RobotContainer {
             FuelCommands.poseAlignAndShoot(shooter, indexer, /*intake,*/ drivetrain,
                 () -> -driver.getLeftY() * MaxSpeed,
                 () -> -driver.getLeftX() * MaxSpeed)); 
-        
-        driver.rightBumper().whileTrue(intake.retractSlidesSlowHeldCmd());
 
         driver.leftTrigger(0.5).whileTrue(intake.intakeFuel());
-        // Press once to partially retract slides
+        driver.a().onTrue(intake.extendSlidesFastCmd());
+        driver.b().onTrue(intake.retractSlidesFastCmd());
+        driver.x().onTrue(intake.fuelCompression());
+        driver.y().whileTrue(intake.fuelPumpCycleDelayed());
         driver.leftBumper().onTrue(intake.retractSlidesIncrementalCmd());
 
         driver.povLeft().whileTrue(
@@ -151,13 +152,16 @@ public class RobotContainer {
 
         operator.rightTrigger(0.5).whileTrue(indexer.reverse());
         operator.leftTrigger(0.5).whileTrue(intake.intakeFuel());
-        operator.rightBumper().whileTrue(intake.retractSlidesSlowHeldCmd());
+        operator.rightBumper().onTrue(intake.retractSlidesFastCmd());
+        operator.leftBumper().onTrue(intake.fuelCompression());
 
         // Back (View ⧉): Reset odometry to botpose — use when robot rides up on a ball
         operator.back().onTrue(drivetrain.resetPoseFromVisionCommand());
     
         operator.povUp().whileTrue(intake.manualSlideExtendHoldCmd());
         operator.povDown().whileTrue(intake.manualSlideRetractHoldCmd());
+        operator.povLeft().onTrue(intake.extendSlidesFastCmd());
+        operator.povRight().whileTrue(intake.fuelPumpCycleDelayed());
 
     }
 

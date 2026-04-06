@@ -587,28 +587,16 @@ public class FuelCommands {
          * @param indexer The IndexerSubsystem that owns the chute CANrange sensor.
          */
         public static Command fuelPumpCycleSensor(IntakeSubsystem intake, IndexerSubsystem indexer) {
-            Timer cycleTimer = new Timer();
             return Commands.sequence(
                 // Phase 1: wait for first fuel — no subsystem required, intake can run freely
                 Commands.runOnce(indexer::resetChuteTracking),
                 Commands.waitUntil(indexer::isFuelDetected),
                 // Phase 2: pump until chute clears (or hard timeout)
-                Commands.run(() -> {
-                    intake.runRoller();
-                    double t = cycleTimer.get();
-                    if (t < 0.5) { // pump out for 0.5s to ensure fuel is moving, then retract for 0.5s to help dislodge if stuck
-                        intake.setSlidesToPosition(Constants.Intake.SLIDE_PUMP_OUT_POS);
-                    } else if (t < 1.0) { // retract slides to help dislodge fuel if it's stuck, then repeat cycle
-                        intake.setSlidesToPosition(Constants.Intake.SLIDE_PUMP_IN_POS);
-                    } else {
-                        cycleTimer.restart();
-                    }
-                }, intake)
-                    .beforeStarting(cycleTimer::restart)
-                    .until(indexer::isChuteEmpty)
-                    .withTimeout(5.0) // Tune or remove once reliable
+                intake.fuelPumpCycleUntil(
+                        indexer::isChuteEmpty,
+                        Constants.Intake.SLIDE_FUEL_PUMP_WAIT_SECONDS,
+                        Constants.Intake.SLIDE_FUEL_PUMP_SENSOR_TIMEOUT_SECONDS)
             )
-            .finallyDo(intake::stopRoller)
             .withName("FuelPumpCycleSensor");
         }
 
