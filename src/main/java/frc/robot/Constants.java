@@ -339,7 +339,7 @@ public final class Constants {
     public static final double KD = 0.000;  // Tuned 4-4-2026
     public static final double KA = 0.000;  // Tuned 4-4-2026
 
-    public static final double TOLERANCE_PERCENT = 0.05; // TODO verify Flywheel TOLERANCE_PERCENT 3% tolerance
+    public static final double TOLERANCE_PERCENT = 0.05;
 
     /* Flywheel limits */
     public static final double SUPPLY_CURRENT_LIMIT = 60;
@@ -499,10 +499,9 @@ public final class Constants {
      * Proportional gain for rotational alignment: (rad/s output) per (degree of tx
      * error).
      *
-     * Tuning starting point: 0.06
      * - Too low → slow to center, may not reach ALIGNED before timeout
      * - Too high → oscillates left/right around the target
-     * See TUNING.md §5 for step-by-step procedure.
+     * See TUNING.md for step-by-step procedure.
      */
 
     /*
@@ -511,11 +510,15 @@ public final class Constants {
      * Chassis front must point 180° away from the hub when aligning to shoot.
      */
 
-    public final static double ALIGNMENT_OFFSET_DEGREES = 00.0;
+    public final static double ALIGNMENT_OFFSET_DEGREES = 00;
 
-    public static final double ROTATIONAL_KP = 0.005; // FIXME
+    // TODO Tune the Vision parameters
+    // 0.10 way too much oscillation
+    // 0.05 smaller variance, but still a lot oscillations
+    // 0.005 way too slow but still oscillating
+    public static final double ROTATIONAL_KP = 0.005;
 
-    /**
+    /*
      * Maximum rotational rate the vision command will apply to the drivetrain (rad/s).
      * Default: 3.0 rad/s (~172°/s). Reduce if the robot swings too aggressively.
      */
@@ -525,9 +528,9 @@ public final class Constants {
     public static final double MAX_DISTANCE_M = 8.0;
 
 
-        /* Tune up from 0 — 50 degrees of aim offset per m/s of lateral velocity 
-         * At this point, its not a high priority
-        */
+    /* Tune up from 0 — 50 degrees of aim offset per m/s of lateral velocity 
+    * At this point, its not a high priority
+    */
     public static final double LEAD_COMPENSATION_DEG_PER_MPS = 00; 
 
 
@@ -587,8 +590,8 @@ public final class Constants {
     }
 
     // How long to wait after driving before doing something else
-    public static final double DRIVE_WAIT = 1.0; // Cut 2.0 -> 1.0 or less
-    public static final double SCORE_WAIT = 1.0; // Cut 2.0 -> 1.0 or less
+    public static final double DRIVE_WAIT = 1.0;
+    public static final double SCORE_WAIT = 1.0;
 
   }
 }
