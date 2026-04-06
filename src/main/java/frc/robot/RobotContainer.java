@@ -33,8 +33,9 @@ public class RobotContainer {
     // =====================================================================
     // Drive Tuning
     // =====================================================================
-    private double MaxSpeed = TunerConstants.kSpeedAt12Volts.in(MetersPerSecond);
-    private double MaxAngularRate = RotationsPerSecond.of(1.0).in(RadiansPerSecond);
+    private double DRIVE_CLAMP = 0.80;
+    private double MaxSpeed = DRIVE_CLAMP * TunerConstants.kSpeedAt12Volts.in(MetersPerSecond);
+    private double MaxAngularRate = DRIVE_CLAMP * RotationsPerSecond.of(1.0).in(RadiansPerSecond);
 
     private final SwerveRequest.FieldCentric drive = new SwerveRequest.FieldCentric()
             // Deadband of 15% on translation and rotation inputs to prevent unintended movement when joysticks are near their centers. 
