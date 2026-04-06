@@ -76,7 +76,7 @@ public final class Constants {
     // Slide setpoints and tuning values
     public static final double SLIDE_RETRACTED_POS = 0.0;
     public static final double SLIDE_HOME_POS = 19.18;
-    public static final double SLIDE_EXTENDED_POS = 60.00; // TODO Confirm SLIDE_EXTENDED_POS || 63.0
+    public static final double SLIDE_EXTENDED_POS = 58.00; // TODO Confirm SLIDE_EXTENDED_POS || 63.0 | 60
     public static final double SLIDE_MAX_POS = 65.75; // TODO Confirm SLIDE_MAX_POS
     public static final double SLIDE_ROLLER_SAFE_MARGIN = 1.5;
     public static final double SLIDE_ROLLER_SAFE_POS = SLIDE_HOME_POS + SLIDE_ROLLER_SAFE_MARGIN;
@@ -186,7 +186,7 @@ public final class Constants {
      * Add a "Tuned" note when each value is confirmed.
      */
     // Conveyor voltage setpoints for feeding fuel to the shooter.
-    public static final double CONVEYOR_FORWARD_VOLTAGE = 3.5;
+    public static final double CONVEYOR_FORWARD_VOLTAGE = 3.5; // was 3.5 on Saturday
     public static final double CONVEYOR_REVERSE_VOLTAGE = -2;
     
     // Probably don't need anymore
@@ -201,7 +201,7 @@ public final class Constants {
      */
     
     // Kicker-indexer voltage setpoints for feeding fuel to the shooter.
-    public static final double KICKER_FORWARD_VOLTAGE = 2.5;
+    public static final double KICKER_FORWARD_VOLTAGE = 5.0; // was 2.5 on Saturday
     public static final double KICKER_REVERSE_VOLTAGE = -4.0;
     public static final double KICKER_POPPER_VOLTAGE = 3.0;
 
@@ -299,7 +299,7 @@ public final class Constants {
     public static final double STANDBY_RPM = 1000;
     
     // Bumpers against the hub if possible, note robot position if not
-    public static final double CLOSE_RPM = 3000;  // TODO tune CLOSE_RPM || Tuned 4-4-2026
+    public static final double CLOSE_RPM = 3200;  // TODO tune CLOSE_RPM || Tuned 4-4-2026
 
     // Bumpers against the tower
     public static final double TOWER_RPM = 3200;  // TODO tune TOWER_RPM ||
@@ -509,9 +509,9 @@ public final class Constants {
      * Chassis front must point 180° away from the hub when aligning to shoot.
      */
 
-    public final static double ALIGNMENT_OFFSET_DEGREES = 180.0;
+    public final static double ALIGNMENT_OFFSET_DEGREES = 00.0;
 
-    public static final double ROTATIONAL_KP = 0.05;
+    public static final double ROTATIONAL_KP = 0.005; // FIXME
 
     /**
      * Maximum rotational rate the vision command will apply to the drivetrain (rad/s).
