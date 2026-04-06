@@ -61,6 +61,8 @@ public final class Constants {
    * 42 Chute ToF CANrange (Indexer.CHUTE_TOF_ID)
    */
 
+  public static final double DRIVE_CLAMP = 0.75;
+
   // =====================================================================
   // Intake
   // =====================================================================
