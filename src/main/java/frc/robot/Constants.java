@@ -61,6 +61,8 @@ public final class Constants {
    * 42 Chute ToF CANrange (Indexer.CHUTE_TOF_ID)
    */
 
+  public static final double DRIVE_CLAMP = 0.75;
+
   // =====================================================================
   // Intake
   // =====================================================================
@@ -76,7 +78,7 @@ public final class Constants {
     // Slide setpoints and tuning values
     public static final double SLIDE_RETRACTED_POS = 0.0;
     public static final double SLIDE_HOME_POS = 19.18;
-    public static final double SLIDE_EXTENDED_POS = 60.00; // TODO Confirm SLIDE_EXTENDED_POS || 63.0
+    public static final double SLIDE_EXTENDED_POS = 58.00; // TODO Confirm SLIDE_EXTENDED_POS || 63.0 | 60
     public static final double SLIDE_MAX_POS = 65.75; // TODO Confirm SLIDE_MAX_POS
     public static final double SLIDE_ROLLER_SAFE_MARGIN = 1.5;
     public static final double SLIDE_ROLLER_SAFE_POS = SLIDE_HOME_POS + SLIDE_ROLLER_SAFE_MARGIN;
@@ -186,7 +188,7 @@ public final class Constants {
      * Add a "Tuned" note when each value is confirmed.
      */
     // Conveyor voltage setpoints for feeding fuel to the shooter.
-    public static final double CONVEYOR_FORWARD_VOLTAGE = 3.5;
+    public static final double CONVEYOR_FORWARD_VOLTAGE = 3.5; // was 3.5 on Saturday
     public static final double CONVEYOR_REVERSE_VOLTAGE = -2;
     
     // Probably don't need anymore
@@ -201,7 +203,7 @@ public final class Constants {
      */
     
     // Kicker-indexer voltage setpoints for feeding fuel to the shooter.
-    public static final double KICKER_FORWARD_VOLTAGE = 2.5;
+    public static final double KICKER_FORWARD_VOLTAGE = 5.0; // was 2.5 on Saturday
     public static final double KICKER_REVERSE_VOLTAGE = -4.0;
     public static final double KICKER_POPPER_VOLTAGE = 3.0;
 
@@ -299,7 +301,7 @@ public final class Constants {
     public static final double STANDBY_RPM = 1000;
     
     // Bumpers against the hub if possible, note robot position if not
-    public static final double CLOSE_RPM = 3000;  // TODO tune CLOSE_RPM || Tuned 4-4-2026
+    public static final double CLOSE_RPM = 3200;  // TODO tune CLOSE_RPM || Tuned 4-4-2026
 
     // Bumpers against the tower
     public static final double TOWER_RPM = 3200;  // TODO tune TOWER_RPM ||
@@ -337,7 +339,7 @@ public final class Constants {
     public static final double KD = 0.000;  // Tuned 4-4-2026
     public static final double KA = 0.000;  // Tuned 4-4-2026
 
-    public static final double TOLERANCE_PERCENT = 0.03; // TODO verify Flywheel TOLERANCE_PERCENT 3% tolerance
+    public static final double TOLERANCE_PERCENT = 0.05;
 
     /* Flywheel limits */
     public static final double SUPPLY_CURRENT_LIMIT = 60;
@@ -348,7 +350,7 @@ public final class Constants {
      * Tune acceleration to shape spin-up, then refine Slot0 gains.
      * Probably ok to wait until Saturday
      */
-    public static final double MM_ACCELERATION_RPS_PER_SEC = 150.0; // Tuned 4-4-2026
+    public static final double MM_ACCELERATION_RPS_PER_SEC = 200.0; // Tuned 4-4-2026
     public static final double MM_JERK_RPS_PER_SEC_CUBED = 0.0;     // Tuned 4-4-2026
     public static final double MM_EXPO_KV = 0.12;                   // Tuned 4-4-2026 // TODO Implement MM_EXPO_KV in config and test if it improves performance, especially at lower RPMs.
     public static final double MM_EXPO_KA = 0.06;                   // Tuned 4-4-2026 // TODO Implement MM_EXPO_KA in config and test if it improves performance, especially at lower RPMs.            
@@ -497,10 +499,9 @@ public final class Constants {
      * Proportional gain for rotational alignment: (rad/s output) per (degree of tx
      * error).
      *
-     * Tuning starting point: 0.06
      * - Too low → slow to center, may not reach ALIGNED before timeout
      * - Too high → oscillates left/right around the target
-     * See TUNING.md §5 for step-by-step procedure.
+     * See `tuning-guide_vision.md` for step-by-step procedure.
      */
 
     /*
@@ -509,11 +510,15 @@ public final class Constants {
      * Chassis front must point 180° away from the hub when aligning to shoot.
      */
 
-    public final static double ALIGNMENT_OFFSET_DEGREES = 180.0;
+    public final static double ALIGNMENT_OFFSET_DEGREES = 00;
 
-    public static final double ROTATIONAL_KP = 0.05;
+    // TODO Tune the Vision parameters
+    // 0.10 way too much oscillation
+    // 0.05 smaller variance, but still a lot oscillations
+    // 0.005 way too slow but still oscillating
+    public static final double ROTATIONAL_KP = 0.005;
 
-    /**
+    /*
      * Maximum rotational rate the vision command will apply to the drivetrain (rad/s).
      * Default: 3.0 rad/s (~172°/s). Reduce if the robot swings too aggressively.
      */
@@ -523,9 +528,9 @@ public final class Constants {
     public static final double MAX_DISTANCE_M = 8.0;
 
 
-        /* Tune up from 0 — 50 degrees of aim offset per m/s of lateral velocity 
-         * At this point, its not a high priority
-        */
+    /* Tune up from 0 — 50 degrees of aim offset per m/s of lateral velocity 
+    * At this point, its not a high priority
+    */
     public static final double LEAD_COMPENSATION_DEG_PER_MPS = 00; 
 
 
@@ -585,8 +590,8 @@ public final class Constants {
     }
 
     // How long to wait after driving before doing something else
-    public static final double DRIVE_WAIT = 1.0; // Cut 2.0 -> 1.0 or less
-    public static final double SCORE_WAIT = 1.0; // Cut 2.0 -> 1.0 or less
+    public static final double DRIVE_WAIT = 1.0;
+    public static final double SCORE_WAIT = 1.0;
 
   }
 }
