@@ -339,7 +339,7 @@ public final class Constants {
     public static final double KD = 0.000;  // Tuned 4-4-2026
     public static final double KA = 0.000;  // Tuned 4-4-2026
 
-    public static final double TOLERANCE_PERCENT = 0.03; // TODO verify Flywheel TOLERANCE_PERCENT 3% tolerance
+    public static final double TOLERANCE_PERCENT = 0.05; // TODO verify Flywheel TOLERANCE_PERCENT 3% tolerance
 
     /* Flywheel limits */
     public static final double SUPPLY_CURRENT_LIMIT = 60;
