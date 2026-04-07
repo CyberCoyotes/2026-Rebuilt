@@ -525,14 +525,14 @@ public final class Constants {
 
     // TODO Tune the Vision parameters
     // Keep this moderate; aggressive values amplify pose-estimator jitter during alignment.
-    public static final double ROTATIONAL_KP = 0.01;
+    public static final double ROTATIONAL_KP = 0.1;
 
     /*
      * Maximum rotational rate the vision command will apply to the drivetrain (rad/s).
      * Default: 3.0 rad/s (~172°/s). Reduce if the robot swings too aggressively.
      */
     public static final double MIN_ALIGNMENT_ROTATION_RAD_PER_SEC = 0.15; // tune to just above static friction
-    public static final double MAX_ALIGNMENT_ROTATION_RAD_PER_SEC = 2.0;
+    public static final double MAX_ALIGNMENT_ROTATION_RAD_PER_SEC = 1.0;
     public static final double MIN_DISTANCE_M = 0.25;
     public static final double MAX_DISTANCE_M = 8.0;
 
