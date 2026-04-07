@@ -114,7 +114,9 @@ public class RobotContainer {
         driver.start().onTrue(drivetrain.runOnce(drivetrain::seedFieldCentric));
 
         // Back: Reset odometry to Limelight botpose (use when robot rides up on a ball and wheels lose contact)
-        driver.back().onTrue(drivetrain.resetPoseFromVisionCommand());
+        // driver.back().onTrue(drivetrain.resetPoseFromVisionCommand());
+        driver.back().onTrue(Commands.runOnce(shooter::toggleStandbyMode, shooter)); // TODO Move to Operator Controller
+
 
         drivetrain.registerTelemetry(logger::telemeterize);
         
