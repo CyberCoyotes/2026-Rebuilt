@@ -188,7 +188,7 @@ public final class Constants {
      * Add a "Tuned" note when each value is confirmed.
      */
     // Conveyor voltage setpoints for feeding fuel to the shooter.
-    public static final double CONVEYOR_FORWARD_VOLTAGE = 3.5; // was 3.5 on Saturday
+    public static final double CONVEYOR_FORWARD_VOLTAGE = 5.0; // was 3.5 on Saturday may need to increase voltage with added roller
     public static final double CONVEYOR_REVERSE_VOLTAGE = -2;
     
     // Probably don't need anymore
@@ -301,19 +301,19 @@ public final class Constants {
     public static final double STANDBY_RPM = 1000;
     
     // Bumpers against the hub if possible, note robot position if not
-    public static final double CLOSE_RPM = 3200;  // TODO tune CLOSE_RPM || Tuned 4-4-2026
+    public static final double CLOSE_RPM = 1600;  // TODO tune CLOSE_RPM || Tuned 4-8-2026
 
     // Bumpers against the tower
-    public static final double TOWER_RPM = 3200;  // TODO tune TOWER_RPM ||
+    public static final double TOWER_RPM = 1750;  // TODO tune TOWER_RPM || Tuned 4-8-2026
 
     // In the trench, mostly against the wall, but turned slightly towards the hub
-    public static final double TRENCH_RPM = 3200; // TODO tune TRENCH_RPM ||
+    public static final double TRENCH_RPM = 1750; // TODO tune TRENCH_RPM || Tuned 4-8-2026
 
     // In a corner by human player station or depot-corner, angled towards the hub, but not against anything
-    public static final double FAR_RPM = 3800;    // TODO tune FAR_RPM ||
+    public static final double FAR_RPM = 2224;    // TODO tune FAR_RPM || OnyxTronyx reference :)
 
     // For passing passing from midfield
-    public static final double PASS_RPM = 4000;   // TODO tune PASS_RPM ||
+    public static final double PASS_RPM = 2250;   // TODO tune PASS_RPM || Tuned 4-8-2026
 
     /*
      * Reverse Flywheel RPM for jam clearing.
@@ -334,12 +334,12 @@ public final class Constants {
      */
  
     // Flywheel PID and feedforward gains.
-    public static final double KV = 0.130;  // Tuned 4-4-2026
+    public static final double KV = 0.130;  // Tuned 4-8-2026
     public static final double KP = 0.050;  // Tuned 4-4-2026
     public static final double KD = 0.000;  // Tuned 4-4-2026
     public static final double KA = 0.000;  // Tuned 4-4-2026
 
-    public static final double TOLERANCE_PERCENT = 0.05;
+    public static final double TOLERANCE_PERCENT = 0.03;
 
     /* Flywheel limits */
     public static final double SUPPLY_CURRENT_LIMIT = 60;
@@ -396,14 +396,14 @@ public final class Constants {
      * TODO: Verify hood setpoints
      * Add an end-of-line "Tuned" note when each value is confirmed.
      */
-    public static final double CLOSE_HOOD = 3.50; // 1.5
+    public static final double CLOSE_HOOD = 5.00; //
     // was 3
     
-    public static final double POPPER_HOOD = 4.20; //
-    public static final double TOWER_HOOD = 1.5; //3.5
-    public static final double TRENCH_HOOD = 2.20;
-    public static final double FAR_HOOD = 4.20; // Was 5.50
-    public static final double PASS_HOOD = 2.00;
+    public static final double POPPER_HOOD = 4.20; //  PASS HOODS INVERTED. RETEST ALL
+    public static final double TOWER_HOOD = 5.0; //
+    public static final double TRENCH_HOOD = 5.0; //
+    public static final double FAR_HOOD = 4.00; //
+    public static final double PASS_HOOD = 4.5; //
 
     // Manual tuning increments used for bring-up and testing.
     public static final double TEST_INCREMENT = 0.2;
