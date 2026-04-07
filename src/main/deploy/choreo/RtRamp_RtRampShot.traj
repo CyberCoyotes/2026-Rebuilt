@@ -4,7 +4,7 @@
  "snapshot":{
   "waypoints":[
     {"x":6.0, "y":2.5, "heading":3.9269908169872414, "intervals":31, "split":false, "fixTranslation":true, "fixHeading":true, "overrideIntervals":false},
-    {"x":3.0, "y":2.5, "heading":3.9269908169872414, "intervals":36, "split":false, "fixTranslation":true, "fixHeading":true, "overrideIntervals":false}],
+    {"x":3.0, "y":2.5, "heading":3.9269908169872414, "intervals":20, "split":false, "fixTranslation":true, "fixHeading":true, "overrideIntervals":false}],
   "constraints":[
     {"from":"first", "to":null, "data":{"type":"StopPoint", "props":{}}, "enabled":true},
     {"from":1, "to":null, "data":{"type":"StopPoint", "props":{}}, "enabled":true},
@@ -15,7 +15,7 @@
  "params":{
   "waypoints":[
     {"x":{"exp":"RtRampAlign.x", "val":6.0}, "y":{"exp":"RtRampAlign.y", "val":2.5}, "heading":{"exp":"RtRampAlign.heading", "val":3.9269908169872414}, "intervals":31, "split":false, "fixTranslation":true, "fixHeading":true, "overrideIntervals":false},
-    {"x":{"exp":"RtRampShot.x", "val":3.0}, "y":{"exp":"RtRampShot.y", "val":2.5}, "heading":{"exp":"RtRampShot.heading", "val":3.9269908169872414}, "intervals":36, "split":false, "fixTranslation":true, "fixHeading":true, "overrideIntervals":false}],
+    {"x":{"exp":"RtRampShot.x", "val":3.0}, "y":{"exp":"RtRampShot.y", "val":2.5}, "heading":{"exp":"RtRampShot.heading", "val":3.9269908169872414}, "intervals":20, "split":false, "fixTranslation":true, "fixHeading":true, "overrideIntervals":false}],
   "constraints":[
     {"from":"first", "to":null, "data":{"type":"StopPoint", "props":{}}, "enabled":true},
     {"from":1, "to":null, "data":{"type":"StopPoint", "props":{}}, "enabled":true},

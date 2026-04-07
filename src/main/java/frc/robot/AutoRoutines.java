@@ -55,12 +55,16 @@ public class AutoRoutines {
                 public AutoRoutine RtTrench_Ramp_Double() {
 
                 final AutoRoutine routine = m_factory.newRoutine("Rt x2 Trench-Ramp");
+
                 // RightTrench to RightMiddle to RightRampAlign
                 final AutoTrajectory RtTr_RtMid = routine.trajectory("RtTr_RtMid", 0);
+                
                 // RightRampAlign to RightRampShot
                 final AutoTrajectory RtMid_RtRampShot = routine.trajectory("RtMid_RtRampShot", 0);
+                
                 // RightRampShoot to RightTrench
                 final AutoTrajectory RtRampShot_RtTr = routine.trajectory("RtRampShot_RtTr", 0);                        
+                
                 // RightTrench to RightSweep to RightRampShot
                 final AutoTrajectory RtTr_RtSweep = routine.trajectory("RtTr_RtSweep", 0);
 
