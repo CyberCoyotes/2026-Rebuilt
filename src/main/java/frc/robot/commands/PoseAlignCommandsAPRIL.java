@@ -20,7 +20,7 @@ import frc.robot.subsystems.CommandSwerveDrivetrain;
 /**
  * Standalone pose-alignment command based on today's poseAlignAndShoot behavior.
  *
- * <p>This keeps the current odometry-based angle math, lead compensation, rotation
+ * This keeps the current odometry-based angle math, lead compensation, rotation
  * control, and reduced driver translation scaling, but does not touch shooter or
  * indexer state.
  */
@@ -66,6 +66,13 @@ public final class PoseAlignCommandsAPRIL {
                     Math.hypot(dx, dy),
                     Constants.Vision.MIN_DISTANCE_M,
                     Constants.Vision.MAX_DISTANCE_M);
+        
+         /* This is both shooter and vision related
+            shooter.updateFromDistance(distance);
+            if (shooter.getState() != ShooterSubsystem.ShooterState.READY) {
+                shooter.beginSpinUp(); // void — only transitions state; never call spinUp() (returns Command) here
+            }
+        */
 
             double angleToHubDeg = Math.toDegrees(Math.atan2(dy, dx));
 
@@ -93,10 +100,12 @@ public final class PoseAlignCommandsAPRIL {
             ntDistance.set(distance);
             ntLeadOffset.set(leadOffsetDeg);
 
+
+
             drivetrain.setControl(
                     alignRequest
-                            .withVelocityX(xSupplier.getAsDouble() * .40)
-                            .withVelocityY(ySupplier.getAsDouble() * .40)
+                            .withVelocityX(xSupplier.getAsDouble() * Constants.Vision.ALIGNMENT_DRIVETRAIN_CLAMP) // Clamp drive speed while aligning
+                            .withVelocityY(ySupplier.getAsDouble() * Constants.Vision.ALIGNMENT_DRIVETRAIN_CLAMP) // Clamp drive speed while aligning
                             .withRotationalRate(rotRate));
         }, drivetrain).withName("PoseAlignRebuilt");
     }

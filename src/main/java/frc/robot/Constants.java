@@ -533,6 +533,9 @@ public final class Constants {
      */
     public static final double MIN_ALIGNMENT_ROTATION_RAD_PER_SEC = 0.15; // tune to just above static friction
     public static final double MAX_ALIGNMENT_ROTATION_RAD_PER_SEC = 1.0;
+
+    public static final double ALIGNMENT_DRIVETRAIN_CLAMP = 0.40;
+
     public static final double MIN_DISTANCE_M = 0.25;
     public static final double MAX_DISTANCE_M = 8.0;
 
