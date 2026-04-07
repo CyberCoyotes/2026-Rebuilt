@@ -18,14 +18,14 @@ import frc.robot.Constants;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
 
 /**
- * Standalone pose-alignment command based on today's poseAlignAndShoot behavior.
+ * Standalone pose-alignment-only commands.
  *
- * <p>This keeps the current odometry-based angle math, lead compensation, rotation
- * control, and reduced driver translation scaling, but does not touch shooter or
- * indexer state.
+ * <p>This class intentionally keeps a copy of the March 14-15 pose-alignment behavior
+ * that existed inside {@code FuelCommands.poseAlignAndShoot(...)} before later changes.
+ * It does not touch shooter/indexer and can be run as a pure vision/odometry align command.
  */
-public final class PoseAlignCommandsRebuilt {
-    private PoseAlignCommandsRebuilt() {}
+public final class PoseAlignCommandsMARCH {
+    private PoseAlignCommandsMARCH() {}
 
     /** Returns the hub center for the current alliance (defaults to blue if FMS not connected). */
     private static Translation2d getHubLocation() {
@@ -36,11 +36,18 @@ public final class PoseAlignCommandsRebuilt {
     }
 
     /**
-     * Today's standalone pose alignment extracted from the live poseAlignAndShoot command.
+     * March 14-15 style pose alignment extracted from the old poseAlignAndShoot command.
      *
-     * <p>Driver keeps translation control while the command owns rotational aiming.
+     * <p>Characteristics preserved from that version:
+     * <ul>
+     *   <li>Heading error is computed directly as angleToHub + leadOffset - currentHeading.</li>
+     *   <li>Error wrap uses while-loop normalization to [-180, 180].</li>
+     *   <li>No shooter-facing alignment offset and no minimum rotation clamp behavior.</li>
+     * </ul>
+     *
+     * <p>Driver keeps translation control while command owns rotational aiming.
      */
-    public static Command poseAlignRebuilt(
+    public static Command poseAlignLegacyMarch2026(
             CommandSwerveDrivetrain drivetrain,
             DoubleSupplier xSupplier,
             DoubleSupplier ySupplier) {
@@ -48,7 +55,7 @@ public final class PoseAlignCommandsRebuilt {
         final SwerveRequest.FieldCentric alignRequest = new SwerveRequest.FieldCentric()
                 .withDriveRequestType(DriveRequestType.OpenLoopVoltage);
 
-        final NetworkTable visionTable = NetworkTableInstance.getDefault().getTable("VisionAlignRebuilt");
+        final NetworkTable visionTable = NetworkTableInstance.getDefault().getTable("VisionAlignLegacy");
         final DoublePublisher ntAngleToHub = visionTable.getDoubleTopic("angleToHub_deg").publish();
         final DoublePublisher ntCurrentHeading = visionTable.getDoubleTopic("currentHeading_deg").publish();
         final DoublePublisher ntHeadingError = visionTable.getDoubleTopic("headingError_deg").publish();
@@ -98,6 +105,7 @@ public final class PoseAlignCommandsRebuilt {
                             .withVelocityX(xSupplier.getAsDouble() * .40)
                             .withVelocityY(ySupplier.getAsDouble() * .40)
                             .withRotationalRate(rotRate));
-        }, drivetrain).withName("PoseAlignRebuilt");
+
+        }, drivetrain).withName("PoseAlignLegacyMarch2026");
     }
 }

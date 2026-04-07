@@ -34,7 +34,7 @@ import static edu.wpi.first.units.Units.MetersPerSecond;
  * Using a factory pattern keeps command creation centralized and reusable.
  * 
  */
-public class FuelCommands_March14th {
+public class FuelCommandsMARCH {
 
     /** Returns the hub center for the current alliance (defaults to blue if FMS not connected). */
     private static Translation2d getHubLocation() {
