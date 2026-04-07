@@ -65,7 +65,7 @@ public class FuelCommands {
                 Commands.runOnce(shooter::beginSpinUp, shooter),
                 Commands.waitUntil(shooter::isReady).withTimeout(3.0),
                 indexer.feed())
-                .finallyDo(() -> shooter.setIdle())
+                .finallyDo(() -> shooter.setPostShotState())
                 .withName("ShootAtCurrentTarget");
     }
 
@@ -104,7 +104,7 @@ public class FuelCommands {
                 .finallyDo(() -> {
                     indexer.indexerStop();
                     indexer.conveyorStop();
-                    shooter.setIdle();
+                    shooter.setPostShotState();
                 }).withName("ShootWithPreset[" + rpm + "rpm]");
     }
 
@@ -147,7 +147,7 @@ public class FuelCommands {
                 .finallyDo(() -> {
                     indexer.indexerStop();
                     indexer.conveyorStop();
-                    shooter.setIdle();
+                    shooter.setPostShotState();
                 }).withName("ShootPresetAuton[" + preset.label + "]");
     }
 
@@ -186,7 +186,7 @@ public class FuelCommands {
                 .finallyDo(() -> {
                     indexer.indexerStop();
                     indexer.conveyorStop();
-                    shooter.setIdle();
+                    shooter.setPostShotState();
                 }).withName("RunAirPopperWithIntake");
     }
 
@@ -234,7 +234,7 @@ public class FuelCommands {
                 .finallyDo(() -> {
                     indexer.indexerStop();
                     indexer.conveyorStop();
-                    shooter.setIdle();
+                    shooter.setPostShotState();
                 }).withName("ShootPass");
     }
 
@@ -358,7 +358,7 @@ public class FuelCommands {
                 .finallyDo(() -> {
                     indexer.indexerStop();
                     indexer.conveyorStop();
-                    shooter.setIdle();
+                    shooter.setPostShotState();
                 })
                 .withName("PoseAlignAndShoot");
     }
@@ -496,7 +496,7 @@ public class FuelCommands {
             ).finallyDo(() -> {
                 indexer.indexerStop();
                 indexer.conveyorStop();
-                shooter.setIdle();
+                shooter.setPostShotState();
             }).withName("Auto.PoseAlignAndShoot");
         }
 
@@ -516,7 +516,7 @@ public class FuelCommands {
             ).finallyDo(() -> {
                 indexer.indexerStop();
                 indexer.conveyorStop();
-                shooter.setIdle();
+                shooter.setPostShotState();
             }).withName("ShootTrenchAuton");
         }
 
@@ -532,7 +532,7 @@ public class FuelCommands {
                     indexer.feedUntilChuteEmpty(safetyTimeout)).finallyDo(() -> {
                         indexer.indexerStop();
                         indexer.conveyorStop();
-                        shooter.setIdle();
+                        shooter.setPostShotState();
                     }).withName("ShootHubAuton");
         }
 
@@ -548,7 +548,7 @@ public class FuelCommands {
                     indexer.feedUntilChuteEmpty(safetyTimeout)).finallyDo(() -> {
                         indexer.indexerStop();
                         indexer.conveyorStop();
-                        shooter.setIdle();
+                        shooter.setPostShotState();
                     }).withName("ShootTowerAuton");
         } // end of command
 
@@ -564,7 +564,7 @@ public class FuelCommands {
                     indexer.feedUntilChuteEmpty(safetyTimeout)).finallyDo(() -> {
                         indexer.indexerStop();
                         indexer.conveyorStop();
-                        shooter.setIdle();
+                        shooter.setPostShotState();
                     }).withName("ShootFarAuton");
         } // end of command
 

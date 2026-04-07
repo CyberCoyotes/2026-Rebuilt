@@ -308,8 +308,8 @@ public final class Constants {
     // Probably not needed anymore
     public static final double POPPER_RPM = 650;
     
-    // Not currently used
-    public static final double STANDBY_RPM = 1000;
+    // Low pre-rev speed used to reduce shot latency and current spikes.
+    public static final double STANDBY_RPM = 1800;
     
     // Bumpers against the hub if possible, note robot position if not
     public static final double CLOSE_RPM = 1600;  // TODO tune CLOSE_RPM || Tuned 4-8-2026

@@ -15,6 +15,7 @@ import choreo.auto.AutoChooser;
 import choreo.auto.AutoFactory;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.RobotModeTriggers;
 import frc.robot.commands.FuelCommands;
@@ -113,7 +114,9 @@ public class RobotContainer {
         driver.start().onTrue(drivetrain.runOnce(drivetrain::seedFieldCentric));
 
         // Back: Reset odometry to Limelight botpose (use when robot rides up on a ball and wheels lose contact)
-        driver.back().onTrue(drivetrain.resetPoseFromVisionCommand());
+        // driver.back().onTrue(drivetrain.resetPoseFromVisionCommand());
+        driver.back().onTrue(Commands.runOnce(shooter::toggleStandbyMode, shooter)); // TODO Move to Operator Controller
+
 
         drivetrain.registerTelemetry(logger::telemeterize);
         
@@ -159,6 +162,7 @@ public class RobotContainer {
 
         // Back (View ⧉): Reset odometry to botpose — use when robot rides up on a ball
         operator.back().onTrue(drivetrain.resetPoseFromVisionCommand());
+        operator.start().onTrue(Commands.runOnce(shooter::toggleStandbyMode, shooter));
     
         operator.povUp().whileTrue(intake.manualSlideExtendHoldCmd());
         operator.povDown().whileTrue(intake.manualSlideRetractHoldCmd());
