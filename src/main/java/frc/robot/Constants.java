@@ -166,6 +166,8 @@ public final class Constants {
       public static final double KI = 0.0;
       public static final double KD = 0.0;
       public static final double KS = 0.7;
+      public static final double KV = 0.0;
+      public static final double KA = 0.0;
     }
 
   }

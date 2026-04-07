@@ -73,6 +73,8 @@ public class IntakeIOHardware implements IntakeIO {
             config.Slot0.kI = Constants.Intake.SlideConfig.KI;
             config.Slot0.kD = Constants.Intake.SlideConfig.KD;
             config.Slot0.kS = Constants.Intake.SlideConfig.KS;
+            config.Slot0.kV = Constants.Intake.SlideConfig.KV;
+            config.Slot0.kA = Constants.Intake.SlideConfig.KA;
 
             /* MotionMagic profile */
             config.MotionMagic.MotionMagicCruiseVelocity = Constants.Intake.SLIDE_MM_CRUISE_VELOCITY;
