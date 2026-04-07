@@ -310,7 +310,7 @@ public final class Constants {
     public static final double TRENCH_RPM = 1750; // TODO tune TRENCH_RPM || Tuned 4-8-2026
 
     // In a corner by human player station or depot-corner, angled towards the hub, but not against anything
-    public static final double FAR_RPM = 2125;    // TODO tune FAR_RPM || Tuned 4-8-2026
+    public static final double FAR_RPM = 2224;    // TODO tune FAR_RPM || OnyxTronyx reference :)
 
     // For passing passing from midfield
     public static final double PASS_RPM = 2250;   // TODO tune PASS_RPM || Tuned 4-8-2026
@@ -334,12 +334,12 @@ public final class Constants {
      */
  
     // Flywheel PID and feedforward gains.
-    public static final double KV = 0.130;  // Tuned 4-4-2026
+    public static final double KV = 0.135;  // Tuned 4-8-2026
     public static final double KP = 0.050;  // Tuned 4-4-2026
     public static final double KD = 0.000;  // Tuned 4-4-2026
     public static final double KA = 0.000;  // Tuned 4-4-2026
 
-    public static final double TOLERANCE_PERCENT = 0.05;
+    public static final double TOLERANCE_PERCENT = 0.03;
 
     /* Flywheel limits */
     public static final double SUPPLY_CURRENT_LIMIT = 60;
@@ -396,10 +396,10 @@ public final class Constants {
      * TODO: Verify hood setpoints
      * Add an end-of-line "Tuned" note when each value is confirmed.
      */
-    public static final double CLOSE_HOOD = 5.25; //
+    public static final double CLOSE_HOOD = 5.00; //
     // was 3
     
-    public static final double POPPER_HOOD = 4.20; //  PASS HOODS INVERTED. RETEST
+    public static final double POPPER_HOOD = 4.20; //  PASS HOODS INVERTED. RETEST ALL
     public static final double TOWER_HOOD = 5.0; //
     public static final double TRENCH_HOOD = 5.0; //
     public static final double FAR_HOOD = 4.00; //
