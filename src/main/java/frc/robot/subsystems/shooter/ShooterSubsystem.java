@@ -485,13 +485,13 @@ public class ShooterSubsystem extends SubsystemBase {
         * Adding a distance to one map without adding it to the other produces
         * inconsistent RPM/hood pairings at that distance. Always update both.
         */
-        FLYWHEEL_RPM_MAP.put(1.5,  2700.0);
-        FLYWHEEL_RPM_MAP.put(3.55, 3200.0);
-        FLYWHEEL_RPM_MAP.put(5.5,  3800.0);
+        FLYWHEEL_RPM_MAP.put(2.9,  1600.0);
+        FLYWHEEL_RPM_MAP.put(3.55, 1750.0);
+        FLYWHEEL_RPM_MAP.put(5.5,  2224.0);
         
-        HOOD_ROT_MAP.put(1.5,  0.00);
-        HOOD_ROT_MAP.put(3.55, 4.30);
-        HOOD_ROT_MAP.put(5.5,  5.50);
+        HOOD_ROT_MAP.put(2.9,  5.00);
+        HOOD_ROT_MAP.put(3.55, 5.00);
+        HOOD_ROT_MAP.put(5.5,  4.00);
     }
 
     /**
@@ -511,7 +511,7 @@ public class ShooterSubsystem extends SubsystemBase {
                 || currentState == ShooterState.PASS) {
             return;
         }
-        double dist = Math.max(1.0, Math.min(8.0, distanceMeters)); // bumped to 8
+        double dist = Math.max(3.0, Math.min(8.0, distanceMeters)); // max bumped to 8, minimum set to 3, as of 4-7-2026, we cannot make shots closer than this 
         setTargetVelocity(FLYWHEEL_RPM_MAP.get(dist));
         setTargetHoodPose(HOOD_ROT_MAP.get(dist));
 

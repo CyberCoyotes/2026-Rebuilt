@@ -493,7 +493,7 @@ public final class Constants {
     public static final double CAMERA_ANGLE_DEGREES = 15.5;
 
     /** Tolerance for horizontal alignment in degrees used in FuelCommands.java */
-    public static final double ALIGNMENT_TOLERANCE_DEGREES = 1.0;
+    public static final double ALIGNMENT_TOLERANCE_DEGREES = 0.75;
      
     /** Minimum target area to consider target valid (prevents false positives) */
     public static final double MIN_TARGET_AREA_PERCENT = 0.1;
@@ -521,18 +521,18 @@ public final class Constants {
      * Chassis front must point 180° away from the hub when aligning to shoot.
      */
 
-    public final static double ALIGNMENT_OFFSET_DEGREES = 00;
+    public final static double ALIGNMENT_OFFSET_DEGREES = 180; // KEEP AT 180 DEGREES
 
     // TODO Tune the Vision parameters
     // Keep this moderate; aggressive values amplify pose-estimator jitter during alignment.
-    public static final double ROTATIONAL_KP = 0.1;
+    public static final double ROTATIONAL_KP = 0.15;
 
     /*
      * Maximum rotational rate the vision command will apply to the drivetrain (rad/s).
      * Default: 3.0 rad/s (~172°/s). Reduce if the robot swings too aggressively.
      */
     public static final double MIN_ALIGNMENT_ROTATION_RAD_PER_SEC = 0.15; // tune to just above static friction
-    public static final double MAX_ALIGNMENT_ROTATION_RAD_PER_SEC = 1.0;
+    public static final double MAX_ALIGNMENT_ROTATION_RAD_PER_SEC = 6.0;
 
     public static final double ALIGNMENT_DRIVETRAIN_CLAMP = 0.40;
 
