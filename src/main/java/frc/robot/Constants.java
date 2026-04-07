@@ -524,15 +524,15 @@ public final class Constants {
     public final static double ALIGNMENT_OFFSET_DEGREES = 00;
 
     // TODO Tune the Vision parameters
-    // March-era values for poseAlignAndShoot were more aggressive and settled better.
-    public static final double ROTATIONAL_KP = 0.10;
+    // Keep this moderate; aggressive values amplify pose-estimator jitter during alignment.
+    public static final double ROTATIONAL_KP = 0.01;
 
     /*
      * Maximum rotational rate the vision command will apply to the drivetrain (rad/s).
      * Default: 3.0 rad/s (~172°/s). Reduce if the robot swings too aggressively.
      */
     public static final double MIN_ALIGNMENT_ROTATION_RAD_PER_SEC = 0.15; // tune to just above static friction
-    public static final double MAX_ALIGNMENT_ROTATION_RAD_PER_SEC = 5.0;
+    public static final double MAX_ALIGNMENT_ROTATION_RAD_PER_SEC = 2.0;
     public static final double MIN_DISTANCE_M = 0.25;
     public static final double MAX_DISTANCE_M = 8.0;
 
@@ -540,7 +540,7 @@ public final class Constants {
     /* Tune up from 0 — 50 degrees of aim offset per m/s of lateral velocity 
     * At this point, its not a high priority
     */
-    public static final double LEAD_COMPENSATION_DEG_PER_MPS = 10; 
+    public static final double LEAD_COMPENSATION_DEG_PER_MPS = 0; 
 
 
     // == Valid tag IDs =========================
