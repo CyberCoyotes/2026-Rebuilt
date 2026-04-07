@@ -160,6 +160,7 @@ public class RobotContainer {
     
         operator.povUp().whileTrue(intake.manualSlideExtendHoldCmd());
         operator.povDown().whileTrue(intake.manualSlideRetractHoldCmd());
+        
         operator.povLeft().onTrue(intake.extendSlidesFastCmd());
         operator.povRight().whileTrue(intake.fuelPumpCycleDelayed());
 

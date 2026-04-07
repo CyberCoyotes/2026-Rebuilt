@@ -147,6 +147,8 @@ public final class Constants {
 
       /* Intake slide Limits */
       public static final double SUPPLY_CURRENT_LIMIT = 30.0;
+      // public static final double SUPPLY_CURRENT_LOWER_LIMIT = 40.0;
+      // public static final double SUPPLY_CURRENT_LOWER_TIME = 1.0;
       public static final double STATOR_CURRENT_LIMIT = 60.0;
       public static final double REVERSE_SOFT_LIMIT = SLIDE_RETRACTED_POS;
       public static final double FORWARD_SOFT_LIMIT = SLIDE_MAX_POS;
