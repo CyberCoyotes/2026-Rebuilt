@@ -78,8 +78,8 @@ public final class Constants {
     // Slide setpoints and tuning values
     public static final double SLIDE_RETRACTED_POS = 0.0;
     public static final double SLIDE_HOME_POS = 19.18;
-    public static final double SLIDE_EXTENDED_POS = 58.00; // TODO Confirm SLIDE_EXTENDED_POS || 63.0 | 60
-    public static final double SLIDE_MAX_POS = 65.75; // TODO Confirm SLIDE_MAX_POS
+    public static final double SLIDE_EXTENDED_POS = 60.00; // 
+    public static final double SLIDE_MAX_POS = 65.75; // Confirmed 4-6-26
     public static final double SLIDE_ROLLER_SAFE_MARGIN = 1.5;
     public static final double SLIDE_ROLLER_SAFE_POS = SLIDE_HOME_POS + SLIDE_ROLLER_SAFE_MARGIN;
     public static final double SLIDE_TOLERANCE = 0.05;
@@ -101,8 +101,8 @@ public final class Constants {
      * Normal Motion Magic values for moving the slide quickly to position.
      * Add an end-of-line "Tuned" note when confirmed.
      */
-    public static final double SLIDE_MM_CRUISE_VELOCITY = 64;
-    public static final double SLIDE_MM_ACCELERATION = 64;
+    public static final double SLIDE_MM_CRUISE_VELOCITY = 20;
+    public static final double SLIDE_MM_ACCELERATION = 30;
     public static final double SLIDE_MM_JERK = 0.0;
 
     /*
@@ -162,12 +162,13 @@ public final class Constants {
        * Tune to minimize overshoot and oscillation while being snappy 
        * Add an end-of-line "Tuned" note when confirmed.
        */
-      public static final double KP = 2.0;
-      public static final double KI = 0.0;
+      public static final double KS = 0.0;
+      public static final double KV = 0.50; // Tuned 4-8-2026
+      public static final double KP = 0.05; // Tuned 4-8-2026
       public static final double KD = 0.0;
-      public static final double KS = 0.7;
-      public static final double KV = 0.0;
       public static final double KA = 0.0;
+      public static final double KI = 0.0;
+
     }
 
   }
