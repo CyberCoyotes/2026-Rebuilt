@@ -334,7 +334,7 @@ public final class Constants {
      */
  
     // Flywheel PID and feedforward gains.
-    public static final double KV = 0.135;  // Tuned 4-8-2026
+    public static final double KV = 0.130;  // Tuned 4-8-2026
     public static final double KP = 0.050;  // Tuned 4-4-2026
     public static final double KD = 0.000;  // Tuned 4-4-2026
     public static final double KA = 0.000;  // Tuned 4-4-2026
