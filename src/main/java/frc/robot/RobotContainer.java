@@ -121,13 +121,15 @@ public class RobotContainer {
             FuelCommands.poseAlignAndShoot(shooter, indexer, /*intake,*/ drivetrain,
                 () -> -driver.getLeftY() * MaxSpeed,
                 () -> -driver.getLeftX() * MaxSpeed)); 
+        driver.rightBumper().onTrue(intake.fuelCompression());
 
         driver.leftTrigger(0.5).whileTrue(intake.intakeFuel());
+        driver.leftBumper().onTrue(intake.retractSlidesIncrementalCmd());
+        
         driver.a().onTrue(intake.extendSlidesFastCmd());
         driver.b().onTrue(intake.retractSlidesFastCmd());
         driver.x().onTrue(intake.fuelCompression());
         driver.y().whileTrue(intake.fuelPumpCycleDelayed());
-        driver.leftBumper().onTrue(intake.retractSlidesIncrementalCmd());
 
         driver.povLeft().whileTrue(
             FuelCommands.shootWithPreset(shooter, indexer, ShooterSubsystem.ShotPreset.CLOSE));
@@ -160,7 +162,7 @@ public class RobotContainer {
     
         operator.povUp().whileTrue(intake.manualSlideExtendHoldCmd());
         operator.povDown().whileTrue(intake.manualSlideRetractHoldCmd());
-        
+
         operator.povLeft().onTrue(intake.extendSlidesFastCmd());
         operator.povRight().whileTrue(intake.fuelPumpCycleDelayed());
 
