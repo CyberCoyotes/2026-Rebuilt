@@ -300,9 +300,7 @@ public class FuelCommands {
                 shooter.beginSpinUp(); // void — only transitions state; never call spinUp() (returns Command) here
             }
 
-            // 2. Apply velocity offset for movement.
-            // Keep the raw hub bearing here; the rear-shooter 180 deg correction is
-            // applied once in getRobotFrontTargetHeadingDegrees(...).
+            // 2. Apply velocity offset for movement
             double angleToHubDeg = Math.toDegrees(Math.atan2(dy, dx));
             
             // Velocity lead compensation — offsets aim opposite to lateral movement
@@ -314,21 +312,17 @@ public class FuelCommands {
             double leadOffsetDeg = -lateralVelocity * Constants.Vision.LEAD_COMPENSATION_DEG_PER_MPS;
 
             double currentHeadingDeg = pose.getRotation().getDegrees();
-            double targetHeadingDeg = getRobotFrontTargetHeadingDegrees(angleToHubDeg, leadOffsetDeg);
-            double headingErrorDeg = getHeadingErrorDegrees(targetHeadingDeg, currentHeadingDeg);
+            double headingErrorDeg   = angleToHubDeg + leadOffsetDeg - currentHeadingDeg;
+            while (headingErrorDeg >  180) headingErrorDeg -= 360;
+            while (headingErrorDeg < -180) headingErrorDeg += 360;
 
             ntLeadOffset.set(leadOffsetDeg);
 
             // 3. Rotation correction
-            double rawRotRate = headingErrorDeg * Constants.Vision.ROTATIONAL_KP;
             double rotRate = MathUtil.clamp(
-                rawRotRate,
-                -Constants.Vision.MAX_ALIGNMENT_ROTATION_RAD_PER_SEC,
-                Constants.Vision.MAX_ALIGNMENT_ROTATION_RAD_PER_SEC);
-
-            if (Math.abs(headingErrorDeg) > 1.0 && Math.abs(rotRate) < Constants.Vision.MIN_ALIGNMENT_ROTATION_RAD_PER_SEC) {
-                rotRate = Math.copySign(Constants.Vision.MIN_ALIGNMENT_ROTATION_RAD_PER_SEC, rotRate);
-            }
+                    headingErrorDeg * Constants.Vision.ROTATIONAL_KP,
+                    -Constants.Vision.MAX_ALIGNMENT_ROTATION_RAD_PER_SEC,
+                    Constants.Vision.MAX_ALIGNMENT_ROTATION_RAD_PER_SEC);
             
             ntAngleToHub.set(angleToHubDeg);
             ntCurrentHeading.set(currentHeadingDeg);

@@ -62,8 +62,16 @@ public class Robot extends LoggedRobot {
         var driveState = m_robotContainer.drivetrain.getState();
         double headingDeg = driveState.Pose.getRotation().getDegrees();
         double omegaRps = Units.radiansToRotations(driveState.Speeds.omegaRadiansPerSecond);
+        double yawRateDegPerSec = Units.radiansToDegrees(driveState.Speeds.omegaRadiansPerSecond);
 
-        LimelightHelpers.SetRobotOrientation(Constants.Vision.LIMELIGHT4_NAME, headingDeg, 0, 0, 0, 0, 0);
+        LimelightHelpers.SetRobotOrientation(
+                Constants.Vision.LIMELIGHT4_NAME,
+                headingDeg,
+                yawRateDegPerSec,
+                0,
+                0,
+                0,
+                0);
         var llMeasurement = LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2(Constants.Vision.LIMELIGHT4_NAME);
         if (llMeasurement != null && llMeasurement.tagCount > 0 && Math.abs(omegaRps) < 2.0) {
             double dist = llMeasurement.avgTagDist; // meters
