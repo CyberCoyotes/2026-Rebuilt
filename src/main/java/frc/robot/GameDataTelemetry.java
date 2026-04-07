@@ -1,6 +1,7 @@
 package frc.robot;
 
 import edu.wpi.first.networktables.BooleanPublisher;
+import edu.wpi.first.networktables.DoublePublisher;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.networktables.StringPublisher;
@@ -18,6 +19,8 @@ import edu.wpi.first.wpilibj.DriverStation;
  *   IsBlue                 (boolean) - true if Blue goal goes inactive first
  *   DataReceived           (boolean) - true once FMS has sent valid data
  *   ActiveHub              (string)  - "RED", "BLUE", or "UNKNOWN"
+ *   CurrentShift           (string)  - "Shift 1" through "Shift 4" or "UNKNOWN"
+ *   TimeUntilShiftEnd      (double)  - seconds remaining until the current shift ends
  *   IsRedHubActive         (boolean) - true when Red hub is currently active
  *   IsBlueHubActive        (boolean) - true when Blue hub is currently active
  *
@@ -52,6 +55,8 @@ public class GameDataTelemetry {
     private final StringPublisher activeHubPublisher;
     private final BooleanPublisher isRedHubActivePublisher;
     private final BooleanPublisher isBlueHubActivePublisher;
+    private final StringPublisher currentShiftPublisher;
+    private final DoublePublisher timeUntilShiftEndPublisher;
 
     private InactiveAlliance inactiveFirstAlliance = InactiveAlliance.NONE;
     private boolean dataReceived = false;
@@ -68,6 +73,8 @@ public class GameDataTelemetry {
         activeHubPublisher = gameDataTable.getStringTopic("ActiveHub").publish();
         isRedHubActivePublisher = gameDataTable.getBooleanTopic("IsRedHubActive").publish();
         isBlueHubActivePublisher = gameDataTable.getBooleanTopic("IsBlueHubActive").publish();
+        currentShiftPublisher = gameDataTable.getStringTopic("CurrentShift").publish();
+        timeUntilShiftEndPublisher = gameDataTable.getDoubleTopic("TimeUntilShiftEnd").publish();
 
         update();
     }
@@ -104,13 +111,13 @@ public class GameDataTelemetry {
             }
         }
 
-        int shift = computeShift(DriverStation.getMatchTime());
+        double matchTimeSec = DriverStation.getMatchTime();
+        int shift = computeShift(matchTimeSec);
         activeHub = computeActiveHub(shift);
-
-        publishState(activeHub);
+        publishState(activeHub, shift, matchTimeSec);
     }
 
-    private void publishState(String activeHub) {
+    private void publishState(String activeHub, int shift, double matchTimeSec) {
         switch (inactiveFirstAlliance) {
             case RED:
                 inactiveAlliancePublisher.set("R");
@@ -130,6 +137,8 @@ public class GameDataTelemetry {
         activeHubPublisher.set(activeHub);
         isRedHubActivePublisher.set("RED".equals(activeHub));
         isBlueHubActivePublisher.set("BLUE".equals(activeHub));
+        currentShiftPublisher.set(shift > 0 ? "Shift " + shift : "UNKNOWN");
+        timeUntilShiftEndPublisher.set(computeTimeUntilShiftEnd(shift, matchTimeSec));
     }
 
     /**
@@ -144,6 +153,20 @@ public class GameDataTelemetry {
         return 4;
     }
 
+    /**
+     * Returns seconds remaining until the current shift ends, or -1 if match time is unavailable.
+     */
+    private double computeTimeUntilShiftEnd(int shift, double matchTimeSec) {
+        if (matchTimeSec < 0) return -1;
+
+        switch (shift) {
+            case 1: return matchTimeSec - SHIFT_2_START_SEC;
+            case 2: return matchTimeSec - SHIFT_3_START_SEC;
+            case 3: return matchTimeSec - SHIFT_4_START_SEC;
+            case 4: return matchTimeSec; // Shift 4 ends when match time hits 0
+            default: return -1;
+        }
+    }
     /**
      * Returns which hub is currently active based on who won auto and the current shift.
      * The winner's hub is active in shifts 2 and 4; the other alliance in shifts 1 and 3.
