@@ -92,7 +92,7 @@ public class ShooterSubsystem extends SubsystemBase {
     private ShooterState currentState     = ShooterState.IDLE;
     private ShotPreset   displayPreset    = null; // null = Vision mode (no operator button held)
     private String currentStateString     = ShooterState.IDLE.toString();
-    private boolean standbyEnabled        = false; // operator toggled, defaults OFF at boot
+    // private boolean standbyEnabled        = false; // operator toggled, defaults OFF at boot
     private double targetFlywheelMotorRPM = 0.0;
     private double targetHoodPoseRot      = 0.0;
 
@@ -227,12 +227,12 @@ public class ShooterSubsystem extends SubsystemBase {
             case SPINNING_UP:
                 break;
 
-            case STANDBY:
-                targetFlywheelMotorRPM = Constants.Flywheel.STANDBY_RPM;
-                targetHoodPoseRot = Constants.Hood.MIN_POSE;
-                commandFlywheelVelocity(Constants.Flywheel.STANDBY_RPM);
-                io.setHoodPose(Constants.Hood.MIN_POSE);
-                break;
+            // case STANDBY:
+            //     targetFlywheelMotorRPM = Constants.Flywheel.STANDBY_RPM;
+            //     targetHoodPoseRot = Constants.Hood.MIN_POSE;
+            //     commandFlywheelVelocity(Constants.Flywheel.STANDBY_RPM);
+            //     io.setHoodPose(Constants.Hood.MIN_POSE);
+            //     break;
 
             case READY:
                 commandFlywheelVelocity(targetFlywheelMotorRPM);
@@ -292,10 +292,10 @@ public class ShooterSubsystem extends SubsystemBase {
         }
     }
 
-    /** Returns true if standby pre-rev mode is currently enabled. */
-    public boolean isStandbyEnabled() {
-        return standbyEnabled;
-    }
+    // /** Returns true if standby pre-rev mode is currently enabled. */
+    // public boolean isStandbyEnabled() {
+    //     return standbyEnabled;
+    // }
 
     /** Holds the flywheel at standby RPM and homes the hood. */
     public void setStandby() {
