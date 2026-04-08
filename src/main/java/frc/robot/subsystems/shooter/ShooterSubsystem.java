@@ -593,4 +593,19 @@ public class ShooterSubsystem extends SubsystemBase {
         ).withName("TuneFlywheelRPM");
     }
 
+    // Use for testing Flywheel RPM only
+    public Command setHoodFixed(double rotations) {
+        return Commands.startEnd(
+            () -> {
+                targetHoodPoseRot = rotations;
+                io.setHoodPose(rotations);
+            },
+            () -> {
+                io.setHoodPose(Constants.Hood.MIN_POSE);
+                targetHoodPoseRot = Constants.Hood.MIN_POSE;
+            },
+            this
+        ).withName("TuneHoodPose");
+    }
+
 }

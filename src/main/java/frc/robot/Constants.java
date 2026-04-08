@@ -313,7 +313,7 @@ public final class Constants {
     public static final double STANDBY_RPM = 1200;
     
     // Bumpers against the hub if possible, note robot position if not
-    public static final double CLOSE_RPM = 2000;  // TODO tune CLOSE_RPM || Tuned 4-8-2026
+    public static final double CLOSE_RPM = 1800;  // TODO tune CLOSE_RPM || Tuned 4-8-2026
 
     // Bumpers against the tower
     public static final double TOWER_RPM = 2500;  // TODO tune TOWER_RPM || Tuned 4-8-2026
@@ -351,7 +351,7 @@ public final class Constants {
     public static final double KD = 0.000;  // Tuned 4-4-2026
     public static final double KA = 0.000;  // Tuned 4-4-2026
 
-    public static final double TOLERANCE_PERCENT = 0.1; // 10% tolerance for considering flywheel at target speed
+    public static final double TOLERANCE_PERCENT = 0.05; // 10% tolerance for considering flywheel at target speed
 
     /* Flywheel limits */
     public static final double SUPPLY_CURRENT_LIMIT = 60;
@@ -399,7 +399,7 @@ public final class Constants {
 
     // Mechanism setpoints and tuning
     public static final double MIN_POSE = 0.00; // Mechanical limit, also use to set in Configs
-    public static final double MAX_POSE = 5.50; // Mechanical limit; also used to set in Configs
+    public static final double MAX_POSE = 5.00; // Mechanical limit; also used to set in Configs
 
     // TODO: Verify hood tolerance
     public static final double TOLERANCE_POSE = 0.2;
@@ -408,7 +408,7 @@ public final class Constants {
      * TODO: Verify hood setpoints
      * Add an end-of-line "Tuned" note when each value is confirmed.
      */
-    public static final double CLOSE_HOOD = 5.50; //
+    public static final double CLOSE_HOOD = 5.00; //
     public static final double POPPER_HOOD = 4.20; //  PASS HOODS INVERTED. RETEST ALL
     public static final double TOWER_HOOD = 4.50; //
     public static final double TRENCH_HOOD = 4.65; //

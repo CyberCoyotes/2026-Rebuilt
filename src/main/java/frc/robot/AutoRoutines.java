@@ -37,9 +37,8 @@ public class AutoRoutines {
 
                 routine.active().onTrue(
                                 Commands.sequence(
-                                                RtTrench_RtMid_RtTrench.resetOdometry(), // Always reset odometry first
-                                                RtTrench_RtMid_RtTrench.cmd() // Follow the path
-
+                                                RtTrench_RtMid_RtTrench.resetOdometry(),
+                                                RtTrench_RtMid_RtTrench.cmd()
                                 ));
                 // Routine Events
                 RtTrench_RtMid_RtTrench.atTime("Intake").onTrue(m_intake.intakeFuelTimer(6));
@@ -47,39 +46,44 @@ public class AutoRoutines {
                 RtTrench_RtMid_RtTrench.atTime("Shoot")
                                 .onTrue(FuelCommands.Auto.poseAlignAndShoot(m_shooter, m_indexer, m_drivetrain, 6.0));
                 RtTrench_RtMid_RtTrench.atTime("FuelPump").onTrue(FuelCommands.Auto.fuelPumpCycleSensor(m_intake, m_indexer));
-                return routine;
+                return routine; 
         }
 
-// FIXME: Validate this routine 1st
-                // Right Trench to Middle to Ramp Shot
-                public AutoRoutine RtTrench_Ramp_Double() {
+        // FIXME: Validate this routine 1st
+        // Right Trench to Middle to Ramp Shot
+        public AutoRoutine RtTrench_Ramp_Double() {
 
                 final AutoRoutine routine = m_factory.newRoutine("Rt x2 Trench-Ramp");
 
-                // RightTrench to RightMiddle to RightRampAlign
+                // Segment 1: Trench to Middle, comeback to line up for a ramp crossing
                 final AutoTrajectory RtTr_RtMid = routine.trajectory("RtTr_RtMid", 0);
                 
-                // RightRampAlign to RightRampShot
-                // final AutoTrajectory RtMid_RtRampShot = routine.trajectory("RtMid_RtRampShot", 0);
-                
+                // Segment 2: Cross the ramp to Alliance side                
                 final AutoTrajectory RtRampMid_RtRampZone = routine.trajectory("RtRampMid_RtRampZone", 0);
                 
-                // RightRampShoot to RightTrench
+                // Segment 3: Alliance side to shot, and trench
                 final AutoTrajectory RtRampZone_RtTr = routine.trajectory("RtRampZone_RtTr", 0);                        
                 
-                // RightTrench to RightSweep to RightRampShot
+                // Trench to Curl and line up for a ramp crossing
                 final AutoTrajectory RtTr_RtCurlSweep = routine.trajectory("RtTr_RtCurlSweep", 0);
+
+                // Cross the ramp to Alliance side and prepare to shoot
+                // The call does not need to be called again. Only in the sequence
 
                 routine.active().onTrue(
                                 Commands.sequence(
                                                 RtTr_RtMid.resetOdometry(), // Always reset odometry first
 
+                                                // Segment 1
                                                 RtTr_RtMid.cmd(), // 3.6 seconds                                                
+                
+                                                // Segment 2
                                                 RtRampMid_RtRampZone.cmd(),
+
                                                 // TODO: Test and tune this shooting + pumping sequence
                                                 // TODO: Measure time to unload in Auton. It will vary depending on the number of balls, but measuring should give a better estimate
-                                                // Commands.parallel(
-                                                        
+                                                
+                                                // Commands.parallel(        
                                                 //         /* TODO: Not sure if this will end on it's own or rely on the safety timeout. 
                                                 //         * One possible fix is the CHUTE_SENSOR or literally integrate the fuelPumpCycleSensor() into the autonomous Shooting
                                                 //         */
@@ -88,22 +92,23 @@ public class AutoRoutines {
                                                 //         // TODO: Test fuel pump cycle sensor and if it ends on its own, based on sensor. 
                                                 //         FuelCommands.Auto.fuelPumpCycleSensor(m_intake, m_indexer) 
                                                 // ), // Approximately 4.0 seconds total for alignment + shooting + pumping
+                                                
+                                                // Segment 3
                                                 RtRampZone_RtTr.cmd(), // 1.2 seconds
                                                 
+                                                // Segment 4
                                                 RtTr_RtCurlSweep.cmd() // 2.0 seconds
-                                                
-                                                // RtMid_RtRampShot.cmd(), // 1.6 seconds
+
+                                                // Segment 5: Repeat of Segment 2
+                                                // RtRampMid_RtRampZone.cmd(),
                                                 
                                                 // Commands.parallel( 
                                                 //         FuelCommands.Auto.poseAlignAndShoot(m_shooter, m_indexer, m_drivetrain, 6.0), 
                                                 //         FuelCommands.Auto.fuelPumpCycleSensor(m_intake, m_indexer)
-                                                ) // Approximately 4.0 seconds total for alignment + shooting + pumping
-
-                                                // ---------------------- 10.0 seconds total (est) without shooting ----------------------
-                                                // ----------------------- 18.0 seconds total (est) with shooting ----------------------
-
+                                                )
 
                                 );
+
                 // Routine Events
                 RtTr_RtMid.atTime("Intake").onTrue(m_intake.intakeFuelTimer(6));
 
