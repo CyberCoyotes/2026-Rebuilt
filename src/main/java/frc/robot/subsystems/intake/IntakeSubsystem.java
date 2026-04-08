@@ -147,6 +147,11 @@ public class IntakeSubsystem extends SubsystemBase {
         rollerState = RollerState.REVERSED;
     }
 
+    public void purgeRoller() {
+        io.setRollerVoltage(Constants.Intake.ROLLER_PURGE_VOLTS);
+        rollerState = RollerState.REVERSED;
+    }
+
     public void stopRoller() {
         io.stopRoller();
         rollerState = RollerState.STOPPED;
@@ -235,6 +240,24 @@ public class IntakeSubsystem extends SubsystemBase {
         return Commands.run(this::reverseRoller, this)
                 .finallyDo(this::stopRoller)
                 .withName("ReverseIntakeRoller");
+    }
+
+    /**
+     * While held: extends the intake slide and reverses roller at purge voltage.
+     * On release: stops roller and retracts slides.
+     */
+    public Command purgeFuelHeld() {
+        return Commands.runEnd(
+                () -> {
+                    extendSlidesFast();
+                    purgeRoller();
+                },
+                () -> {
+                    stopRoller();
+                    retractSlidesFast();
+                },
+                this)
+                .withName("PurgeFuelHeld");
     }
 
     // =========================================================================
