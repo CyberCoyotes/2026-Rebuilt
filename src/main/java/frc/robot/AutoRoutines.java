@@ -3,7 +3,6 @@ package frc.robot;
 import choreo.auto.AutoFactory;
 import choreo.auto.AutoRoutine;
 import choreo.auto.AutoTrajectory;
-import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import frc.robot.commands.FuelCommands;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
@@ -66,10 +65,10 @@ public class AutoRoutines {
                 final AutoTrajectory RtRampMid_RtRampZone = routine.trajectory("RtRampMid_RtRampZone", 0);
                 
                 // RightRampShoot to RightTrench
-                final AutoTrajectory RtRampZone_RtTr = routine.trajectory("RtRampShot_RtTr", 0);                        
+                final AutoTrajectory RtRampZone_RtTr = routine.trajectory("RtRampZone_RtTr", 0);                        
                 
                 // RightTrench to RightSweep to RightRampShot
-                final AutoTrajectory RtTr_RtSweep = routine.trajectory("RtTr_RtSweep", 0);
+                final AutoTrajectory RtTr_RtCurlSweep = routine.trajectory("RtTr_RtCurlSweep", 0);
 
                 routine.active().onTrue(
                                 Commands.sequence(
@@ -91,7 +90,7 @@ public class AutoRoutines {
                                                 // ), // Approximately 4.0 seconds total for alignment + shooting + pumping
                                                 RtRampZone_RtTr.cmd() // 1.2 seconds
                                                 
-                                                // RtTr_RtSweep.cmd(), // 2.0 seconds
+                                                // RtTr_RtCurlSweep.cmd(), // 2.0 seconds
                                                 
                                                 // RtMid_RtRampShot.cmd(), // 1.6 seconds
                                                 
