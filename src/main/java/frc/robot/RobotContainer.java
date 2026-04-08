@@ -136,7 +136,7 @@ public class RobotContainer {
         // driver.y().whileTrue(intake.fuelPumpCycleDelayed());
        
         // TODO Remove after testing. Set the hood to a fixed position for testing purposes Flywheel RPMS
-        driver.y().onTrue(Commands.runOnce(() -> shooter.setHoodFixed(Constants.Hood.CLOSE_HOOD), shooter));
+        driver.y().whileTrue(shooter.setHoodFixed(Constants.Hood.CLOSE_HOOD));
 
         driver.povLeft().whileTrue(
             FuelCommands.shootWithPreset(shooter, indexer, ShooterSubsystem.ShotPreset.CLOSE));
