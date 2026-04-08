@@ -88,9 +88,9 @@ public class AutoRoutines {
                                                 //         // TODO: Test fuel pump cycle sensor and if it ends on its own, based on sensor. 
                                                 //         FuelCommands.Auto.fuelPumpCycleSensor(m_intake, m_indexer) 
                                                 // ), // Approximately 4.0 seconds total for alignment + shooting + pumping
-                                                RtRampZone_RtTr.cmd() // 1.2 seconds
+                                                RtRampZone_RtTr.cmd(), // 1.2 seconds
                                                 
-                                                // RtTr_RtCurlSweep.cmd(), // 2.0 seconds
+                                                RtTr_RtCurlSweep.cmd() // 2.0 seconds
                                                 
                                                 // RtMid_RtRampShot.cmd(), // 1.6 seconds
                                                 
