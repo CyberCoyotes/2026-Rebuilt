@@ -117,6 +117,7 @@ public final class Constants {
 
     public static final double ROLLER_FORWARD_VOLTS = 8;
     public static final double ROLLER_REVERSE_VOLTS = -8;
+    public static final double ROLLER_PURGE_VOLTS = -9;
 
     public static final class RollerConfig {
       private RollerConfig() {

@@ -176,6 +176,8 @@ public class RobotContainer {
 
         operator.povLeft().onTrue(intake.extendSlidesFastCmd());
         operator.povRight().whileTrue(intake.fuelPumpCycleDelayed());
+        // TODO: Bind purgeFuelHeld() once final operator button is chosen.
+        // operator.<button>().whileTrue(intake.purgeFuelHeld());
 
     }
 
