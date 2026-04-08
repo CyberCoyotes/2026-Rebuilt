@@ -99,9 +99,9 @@ public class RobotContainer {
 
         drivetrain.setDefaultCommand(
             drivetrain.applyRequest(() ->
-                drive.withVelocityX(driver.getLeftY() * MaxSpeed)
-                    .withVelocityY(driver.getLeftX() * MaxSpeed)
-                    .withRotationalRate(driver.getRightX() * MaxAngularRate)
+                drive.withVelocityX(-driver.getLeftY() * MaxSpeed)
+                    .withVelocityY(-driver.getLeftX() * MaxSpeed)
+                    .withRotationalRate(-driver.getRightX() * MaxAngularRate)
             )
         );
 
