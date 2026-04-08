@@ -97,6 +97,7 @@ public class RobotContainer {
         // Driver Controller
         // =====================================================================
 
+        // It is critical that these inputs are (-). Do not change them.
         drivetrain.setDefaultCommand(
             drivetrain.applyRequest(() ->
                 drive.withVelocityX(-driver.getLeftY() * MaxSpeed)
