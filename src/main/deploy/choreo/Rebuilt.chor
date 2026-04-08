@@ -71,8 +71,8 @@
    },
    "HubCloseShot":{
     "x":{
-     "exp":"2.55 m",
-     "val":2.55
+     "exp":"1.75 m",
+     "val":1.75
     },
     "y":{
      "exp":"4 m",
@@ -251,20 +251,6 @@
      "val":1.57
     }
    },
-   "RtRampAlign":{
-    "x":{
-     "exp":"6 m",
-     "val":6.0
-    },
-    "y":{
-     "exp":"2.5 m",
-     "val":2.5
-    },
-    "heading":{
-     "exp":"1 rad",
-     "val":1.0
-    }
-   },
    "RtRampAlignHalf":{
     "x":{
      "exp":"6.95 m",
@@ -279,7 +265,21 @@
      "val":1.57
     }
    },
-   "RtRampShot":{
+   "RtRampNeutral":{
+    "x":{
+     "exp":"6 m",
+     "val":6.0
+    },
+    "y":{
+     "exp":"2.5 m",
+     "val":2.5
+    },
+    "heading":{
+     "exp":"0 rad",
+     "val":0.0
+    }
+   },
+   "RtRampZone":{
     "x":{
      "exp":"3 m",
      "val":3.0
@@ -289,8 +289,8 @@
      "val":2.5
     },
     "heading":{
-     "exp":"225 deg",
-     "val":3.9269908169872414
+     "exp":"0 rad",
+     "val":0.0
     }
    },
    "RtTr":{

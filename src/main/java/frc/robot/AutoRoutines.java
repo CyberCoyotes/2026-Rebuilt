@@ -63,10 +63,10 @@ public class AutoRoutines {
                 // RightRampAlign to RightRampShot
                 // final AutoTrajectory RtMid_RtRampShot = routine.trajectory("RtMid_RtRampShot", 0);
                 
-                final AutoTrajectory RtRamp_RtRampShot = routine.trajectory("RtRamp_RtRampShot", 0);
+                final AutoTrajectory RtRampMid_RtRampZone = routine.trajectory("RtRampMid_RtRampZone", 0);
                 
                 // RightRampShoot to RightTrench
-                final AutoTrajectory RtRampShot_RtTr = routine.trajectory("RtRampShot_RtTr", 0);                        
+                final AutoTrajectory RtRampZone_RtTr = routine.trajectory("RtRampShot_RtTr", 0);                        
                 
                 // RightTrench to RightSweep to RightRampShot
                 final AutoTrajectory RtTr_RtSweep = routine.trajectory("RtTr_RtSweep", 0);
@@ -79,7 +79,7 @@ public class AutoRoutines {
 
                                                 Commands.waitSeconds(1), // Short wait to ensure we are settled before shooting, may need tuning
                                                 
-                                                RtRamp_RtRampShot.cmd(),
+                                                RtRampMid_RtRampZone.cmd(),
                                                 
                                                 Commands.waitSeconds(1), // Short wait to ensure we are settled before shooting, may need tuning
 
@@ -101,7 +101,7 @@ public class AutoRoutines {
                                                 
                                                 Commands.waitSeconds(1), // Short wait to ensure we are settled before shooting, may need tuning
 
-                                                RtRampShot_RtTr.cmd() // 1.2 seconds
+                                                RtRampZone_RtTr.cmd() // 1.2 seconds
                                                 
                                                 // RtTr_RtSweep.cmd(), // 2.0 seconds
                                                 
