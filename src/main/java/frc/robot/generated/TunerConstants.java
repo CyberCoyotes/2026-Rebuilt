@@ -50,12 +50,17 @@ public class TunerConstants {
     private static final SteerFeedbackType kSteerFeedbackType = SteerFeedbackType.FusedCANcoder;
 
     // The stator current at which the wheels start to slip;
-    // This needs to be tuned to your individual robot
-    private static final Current kSlipCurrent = Amps.of(120);
+    // This needs to be tuned to your individual robot.
+    // Start conservative (60–80 A on carpet) and raise only if acceleration feels too limited.
+    private static final Current kSlipCurrent = Amps.of(80); // TODO tune drive slip current as needed
 
     // Initial configs for the drive and steer motors and the azimuth encoder; these cannot be null.
     // Some configs will be overwritten; check the `with*InitialConfigs()` API documentation.
-    private static final TalonFXConfiguration driveInitialConfigs = new TalonFXConfiguration();
+    private static final TalonFXConfiguration driveInitialConfigs = new TalonFXConfiguration()
+        // Ramp voltage over 0.15 s to reduce wheel spin on hard acceleration.
+        // Lower this value (e.g. 0.08) if acceleration feels sluggish.
+        .withOpenLoopRamps(new OpenLoopRampsConfigs()
+            .withVoltageOpenLoopRampPeriod(0.15)); // TODO tune drive open-loop ramp as needed
     private static final TalonFXConfiguration steerInitialConfigs = new TalonFXConfiguration()
         .withCurrentLimits(
             new CurrentLimitsConfigs()
@@ -84,8 +89,8 @@ public class TunerConstants {
     private static final double kSteerGearRatio = 26.09090909090909;
     private static final Distance kWheelRadius = Inches.of(2);
 
-    private static final boolean kInvertLeftSide = false;
-    private static final boolean kInvertRightSide = true;
+    private static final boolean kInvertLeftSide = true; // Critical Fix for auton and teleop
+    private static final boolean kInvertRightSide = false; // Critical Fix for auton and teleop
 
     private static final int kPigeonId = 14;
 
@@ -283,4 +288,4 @@ public class TunerConstants {
             );
         }
     }
-}
+}

@@ -64,6 +64,10 @@ public class ShooterIOHardware implements ShooterIO {
 
       config.MotionMagic.MotionMagicAcceleration = Constants.Flywheel.MM_ACCELERATION_RPS_PER_SEC;
       config.MotionMagic.MotionMagicJerk = Constants.Flywheel.MM_JERK_RPS_PER_SEC_CUBED;
+       
+      // After doing addition research, these are not used in current motor control request
+      config.MotionMagic.MotionMagicExpo_kV = Constants.Flywheel.MM_EXPO_KV;
+      config.MotionMagic.MotionMagicExpo_kA = Constants.Flywheel.MM_EXPO_KA;
 
       // Slot 0 gains for Motion Magic velocity control.
       config.Slot0.kP = Constants.Flywheel.KP;

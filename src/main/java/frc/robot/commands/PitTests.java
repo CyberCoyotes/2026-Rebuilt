@@ -2,70 +2,92 @@ package frc.robot.commands;
 
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
-import frc.robot.Constants;
 import frc.robot.subsystems.shooter.ShooterSubsystem;
+import frc.robot.subsystems.shooter.ShooterSubsystem.ShotPreset;
 
-
+/**
+ * Self-contained pit test sequences that exercise the robot using the same
+ * command paths used during a match.  No special test-only methods required —
+ * every step goes through the standard ShooterSubsystem state machine.
+ *
+ * Usage (in RobotContainer or a dashboard button binding):
+ *   new JoystickButton(panel, 1).onTrue(PitTests.testAll(m_shooter));
+ */
 public class PitTests {
 
-    /* Methods that build commands should return commands; 
-    * the caller decides when and how to schedule them. 
-    * It also makes the method composable and could chain it into a larger test sequence later wanted. 
-    */
+    /** Seconds to wait for isReady() before giving up and moving on. */
+    private static final double SPIN_UP_TIMEOUT = 5.0;
 
-    private final double testTime = 2; //seconds
-    
-    //Run the flywheel at each preset speed for 4 (s)
-    public Command testShooterPresets(ShooterSubsystem shooter) {
-        Command close = Commands.run(() -> shooter.setTargetVelocity(Constants.Shooter.CLOSE_RPM), shooter); 
-        Command trench = Commands.run(() -> shooter.setTargetVelocity(Constants.Shooter.TRENCH_RPM), shooter);
-        Command pass = Commands.run(() -> shooter.setTargetVelocity(Constants.Shooter.PASS_RPM), shooter);
-        Command far = Commands.run(() -> shooter.setTargetVelocity(Constants.Shooter.FAR_RPM), shooter);
+    /** Seconds to hold at each target so the operator can observe it. */
+    private static final double HOLD_TIME = 2.0;
 
-        // Ideally it should have something like a `isReady` type check, otherwise it just runs until timeout
+    /** Seconds to let the flywheel coast down before entering eject. */
+    private static final double SPINDOWN_WAIT = 3.0;
+
+    // Prevent instantiation — all methods are static.
+    private PitTests() {}
+
+    // =====================================================================
+    // Public sequences
+    // =====================================================================
+
+    /**
+     * Sequences through every ShotPreset: spins up, waits until ready (or
+     * times out), holds briefly, then idles before the next preset.
+     */
+    public static Command testShooterPresets(ShooterSubsystem shooter) {
+        Command[] steps = new Command[ShotPreset.values().length];
+        ShotPreset[] presets = ShotPreset.values();
+        for (int i = 0; i < presets.length; i++) {
+            steps[i] = testPreset(shooter, presets[i]);
+        }
+        return Commands.sequence(steps).withName("PitTest: Shooter Presets");
+    }
+
+    /**
+     * Exercises eject mode.  Waits for the flywheel to spin down first so the
+     * velocity guard in eject() doesn't block entry.
+     */
+    public static Command testShooterEject(ShooterSubsystem shooter) {
         return Commands.sequence(
-            close.withTimeout(testTime),
-            trench.withTimeout(testTime),
-            pass.withTimeout(testTime),
-            far.withTimeout(testTime)
-        );
-
-        // Popper.withTimeout(4).andThen(Standby.withTimeout(4)).andThen(Close.withTimeout(4)).andThen(Tower.withTimeout(4)).andThen(Trench.withTimeout(4)).andThen(Far.withTimeout(4)).andThen(Pass.withTimeout(4)).schedule();
+            Commands.waitSeconds(SPINDOWN_WAIT),
+            Commands.runOnce(shooter::eject, shooter),
+            Commands.waitSeconds(HOLD_TIME),
+            Commands.runOnce(shooter::setIdle, shooter)
+        ).withName("PitTest: Eject");
     }
 
-    //Wait 6 (s)
-    //Run the flywheel in reverse for 4 (s)
-    public void testShooterEject(ShooterSubsystem shooter) {
-        Command Eject = Commands.run(() -> shooter.setTargetVelocity(Constants.Shooter.EJECT_RPM), shooter);
-
-        Eject.withTimeout(4).schedule();
-    }
-    //Wait 4 (s)
-    //test hood presets
-    public void testHoodPresets(ShooterSubsystem shooter) {
-        Command Close = Commands.run(() -> shooter.setTargetVelocity(Constants.Shooter.CLOSE_HOOD), shooter);
-        Command Tower = Commands.run(() -> shooter.setTargetVelocity(Constants.Shooter.TOWER_HOOD), shooter); 
-        Command Trench = Commands.run(() -> shooter.setTargetVelocity(Constants.Shooter.TRENCH_HOOD), shooter);
-        Command Far = Commands.run(() -> shooter.setTargetVelocity(Constants.Shooter.FAR_HOOD), shooter);
-        Command Pass = Commands.run(() -> shooter.setTargetVelocity(Constants.Shooter.PASS_HOOD), shooter);
-
-        Commands.sequence(
-            Close.withTimeout(testTime),
-            Tower.withTimeout(testTime),
-            Trench.withTimeout(testTime),
-            Far.withTimeout(testTime),
-            Pass.withTimeout(testTime)
-        ).schedule();}
-
-    /*
-    public static Command testShooterAndHood(ShooterSubsystem shooter) {
-        return Commands.sequence( 
-            Commands.runOnce(() -> testShooterForwardPresets(shooter)),
-            Commands.waitSeconds(6),
-            Commands.runOnce(() -> testShooterEject(shooter)),
-            Commands.waitSeconds(4),
-            Commands.runOnce(() -> testHoodPresets(shooter))
-                );
-                */
+    /**
+     * Full pit test: all shot presets followed by an eject cycle.
+     */
+    public static Command testAll(ShooterSubsystem shooter) {
+        return Commands.sequence(
+            testShooterPresets(shooter),
+            testShooterEject(shooter)
+        ).withName("PitTest: All");
     }
 
+    // =====================================================================
+    // Private helpers
+    // =====================================================================
+
+    /**
+     * Tests a single ShotPreset end-to-end through the normal state machine:
+     *   1. Set targets (rpm + hood) and begin spinning up.
+     *   2. Wait until isReady() — same gate used during a match shot.
+     *   3. Hold at target so the operator can observe.
+     *   4. Return to idle.
+     */
+    private static Command testPreset(ShooterSubsystem shooter, ShotPreset preset) {
+        return Commands.sequence(
+            Commands.runOnce(() -> {
+                shooter.setTargetVelocity(preset.rpm);
+                shooter.setTargetHoodPose(preset.hood);
+                shooter.beginSpinUp();
+            }, shooter),
+            Commands.waitUntil(shooter::isReady).withTimeout(SPIN_UP_TIMEOUT),
+            Commands.waitSeconds(HOLD_TIME),
+            Commands.runOnce(shooter::setIdle, shooter)
+        ).withName("PitTest: " + preset.label);
+    }
+}

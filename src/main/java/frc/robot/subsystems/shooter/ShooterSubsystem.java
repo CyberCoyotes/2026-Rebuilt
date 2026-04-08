@@ -17,7 +17,7 @@ import frc.robot.subsystems.shooter.ShooterIO.ShooterIOInputs;
 /**
  * STATE MACHINE:
  * - IDLE: All motors off, hood at home position
- * - STANDBY: Reserved for future pre-rev use — not active, flywheel command is commented out
+ * - STANDBY: Flywheel holds a modest pre-rev speed for faster follow-up shots
  * - SPINNING_UP: Flywheel ramping to target after trigger pull — transitions to READY when at speed
  * - READY: Flywheel and hood at preset targets, ready to shoot
  * - PASS: Passing shot at PASS_RPM, hood at PASS_HOOD
@@ -90,6 +90,7 @@ public class ShooterSubsystem extends SubsystemBase {
     private ShooterState currentState     = ShooterState.IDLE;
     private ShotPreset   displayPreset    = null; // null = Vision mode (no operator button held)
     private String currentStateString     = ShooterState.IDLE.toString();
+    private boolean standbyEnabled        = false; // operator toggled, defaults OFF at boot
     private double targetFlywheelMotorRPM = 0.0;
     private double targetHoodPoseRot      = 0.0;
 
@@ -124,6 +125,7 @@ public class ShooterSubsystem extends SubsystemBase {
     /* Defines what mode the shooter is in. Each value represents a distinct operational mode with different hardware behavior */
     public enum ShooterState {
         IDLE,    // Motors off — only used on explicit stop, not during normal match play
+        STANDBY, // Hold a modest flywheel RPM so next shot reaches speed faster
         SPINNING_UP, // Flywheel ramping to target after trigger pull — transitions to READY when at speed
         READY,   // Flywheel and hood at preset targets, ready to shoot
         PASS,    // Passing shot at PASS_RPM, hood at PASS_HOOD
@@ -170,6 +172,10 @@ public class ShooterSubsystem extends SubsystemBase {
         switch (currentState) {
             case IDLE:
                 break;
+            case STANDBY:
+                commandFlywheelVelocity(Constants.Flywheel.STANDBY_RPM);
+                io.setHoodPose(Constants.Hood.MIN_POSE);
+                break;
             case SPINNING_UP:
                 commandFlywheelVelocity(targetFlywheelMotorRPM);
                 io.setHoodPose(targetHoodPoseRot);
@@ -213,6 +219,13 @@ public class ShooterSubsystem extends SubsystemBase {
             case SPINNING_UP:
                 break;
 
+            case STANDBY:
+                targetFlywheelMotorRPM = Constants.Flywheel.STANDBY_RPM;
+                targetHoodPoseRot = Constants.Hood.MIN_POSE;
+                commandFlywheelVelocity(Constants.Flywheel.STANDBY_RPM);
+                io.setHoodPose(Constants.Hood.MIN_POSE);
+                break;
+
             case READY:
                 commandFlywheelVelocity(targetFlywheelMotorRPM);
                 io.setHoodPose(targetHoodPoseRot);
@@ -241,6 +254,34 @@ public class ShooterSubsystem extends SubsystemBase {
     /** Full stop — stops flywheels and returns hood to home. */
     public void setIdle() {
         setState(ShooterState.IDLE);
+    }
+
+    /** Holds the flywheel at standby RPM and homes the hood. */
+    public void setStandby() {
+        setState(ShooterState.STANDBY);
+    }
+
+    /** Teleop shot-end behavior: standby when enabled, otherwise full idle. */
+    public void setPostShotState() {
+        if (standbyEnabled) {
+            setStandby();
+        } else {
+            setIdle();
+        }
+    }
+
+    /** Toggle standby mode ON/OFF from an operator button. */
+    public void toggleStandbyMode() {
+        standbyEnabled = !standbyEnabled;
+        if (standbyEnabled && currentState == ShooterState.IDLE) {
+            setStandby();
+        } else if (!standbyEnabled && currentState == ShooterState.STANDBY) {
+            setIdle();
+        }
+    }
+
+    public boolean isStandbyEnabled() {
+        return standbyEnabled;
     }
 
     /**
@@ -510,19 +551,5 @@ public class ShooterSubsystem extends SubsystemBase {
             this
         ).withName("TuneFlywheelRPM");
     }
-
-        // ====== TEST COMMANDS ======
-public Command testFunctionality(){
-    return Commands.sequence(
-        tuneFlywheelCommand(Constants.Flywheel.CLOSE_RPM).withTimeout(4), //TODO: Unsure if these are correct speeds
-        tuneFlywheelCommand(Constants.Flywheel.TOWER_RPM).withTimeout(4),
-        tuneFlywheelCommand(Constants.Flywheel.FAR_RPM).withTimeout(4),
-        tuneFlywheelCommand(-Constants.Flywheel.FAR_RPM).withTimeout(4),
-
-        Commands.run(() -> io.setHoodPose(Constants.Hood.FAR_HOOD), this),
-        Commands.waitSeconds(1),
-        Commands.run(() -> io.setHoodPose(Constants.Hood.CLOSE_HOOD), this)
-);
-}
 
 }
