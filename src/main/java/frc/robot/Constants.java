@@ -199,7 +199,7 @@ public final class Constants {
      * Add a "Tuned" note when each value is confirmed.
      */
     // Conveyor voltage setpoints for feeding fuel to the shooter.
-    public static final double CONVEYOR_FORWARD_VOLTAGE = 5.0; // was 3.5 on Saturday may need to increase voltage with added roller
+    public static final double CONVEYOR_FORWARD_VOLTAGE = 6.5; // was 3.5 on Saturday may need to increase voltage with added roller
     public static final double CONVEYOR_REVERSE_VOLTAGE = -2;
     
     // Probably don't need anymore
@@ -312,19 +312,19 @@ public final class Constants {
     public static final double STANDBY_RPM = 1200;
     
     // Bumpers against the hub if possible, note robot position if not
-    public static final double CLOSE_RPM = 1600;  // TODO tune CLOSE_RPM || Tuned 4-8-2026
+    public static final double CLOSE_RPM = 2050;  // TODO tune CLOSE_RPM || Tuned 4-7-2026
 
     // Bumpers against the tower
-    public static final double TOWER_RPM = 1750;  // TODO tune TOWER_RPM || Tuned 4-8-2026
+    public static final double TOWER_RPM = 2375;  // TODO tune TOWER_RPM || Tuned 4-7-2026
 
     // In the trench, mostly against the wall, but turned slightly towards the hub
-    public static final double TRENCH_RPM = 1750; // TODO tune TRENCH_RPM || Tuned 4-8-2026
+    public static final double TRENCH_RPM = 2250; // TODO tune TRENCH_RPM || Tuned 4-7-2026
 
     // In a corner by human player station or depot-corner, angled towards the hub, but not against anything
-    public static final double FAR_RPM = 2224;    // TODO tune FAR_RPM || OnyxTronyx reference :)
+    public static final double FAR_RPM = 3000;    // TODO tune FAR_RPM || Tuned 4-7-2026
 
     // For passing passing from midfield
-    public static final double PASS_RPM = 2250;   // TODO tune PASS_RPM || Tuned 4-8-2026
+    public static final double PASS_RPM = 3000;   // TODO tune PASS_RPM || Tuned 4-7-2026
 
     /*
      * Reverse Flywheel RPM for jam clearing.
@@ -345,12 +345,12 @@ public final class Constants {
      */
  
     // Flywheel PID and feedforward gains.
-    public static final double KV = 0.130;  // Tuned 4-8-2026
-    public static final double KP = 0.050;  // Tuned 4-4-2026
+    public static final double KV = 0.130;  // Tuned 4-6-2026
+    public static final double KP = 0.055;  // Tuned 4-7-2026
     public static final double KD = 0.000;  // Tuned 4-4-2026
     public static final double KA = 0.000;  // Tuned 4-4-2026
 
-    public static final double TOLERANCE_PERCENT = 0.03;
+    public static final double TOLERANCE_PERCENT = 0.1; // 10% tolerance for considering flywheel at target speed
 
     /* Flywheel limits */
     public static final double SUPPLY_CURRENT_LIMIT = 60;
@@ -398,22 +398,20 @@ public final class Constants {
 
     // Mechanism setpoints and tuning
     public static final double MIN_POSE = 0.00; // Mechanical limit, also use to set in Configs
-    public static final double MAX_POSE = 5.0; // Mechanical limit; also used to set in Configs
+    public static final double MAX_POSE = 5.50; // Mechanical limit; also used to set in Configs
 
     // TODO: Verify hood tolerance
-    public static final double TOLERANCE_POSE = 0.05;
+    public static final double TOLERANCE_POSE = 0.2;
 
     /*
      * TODO: Verify hood setpoints
      * Add an end-of-line "Tuned" note when each value is confirmed.
      */
-    public static final double CLOSE_HOOD = 5.00; //
-    // was 3
-    
+    public static final double CLOSE_HOOD = 5.50; //
     public static final double POPPER_HOOD = 4.20; //  PASS HOODS INVERTED. RETEST ALL
-    public static final double TOWER_HOOD = 5.0; //
-    public static final double TRENCH_HOOD = 5.0; //
-    public static final double FAR_HOOD = 4.00; //
+    public static final double TOWER_HOOD = 4.50; //
+    public static final double TRENCH_HOOD = 4.65; //
+    public static final double FAR_HOOD = 3.75; //
     public static final double PASS_HOOD = 4.5; //
 
     // Manual tuning increments used for bring-up and testing.
@@ -426,7 +424,7 @@ public final class Constants {
     * Currently not being used
     * NOT a Friday testing priority!
     */ 
-    public static final double KP = 0.5;
+    public static final double KP = 1.2;
     public static final double KI = 0;
     public static final double KD = 0;
 
@@ -493,7 +491,7 @@ public final class Constants {
     public static final double CAMERA_ANGLE_DEGREES = 15.5;
 
     /** Tolerance for horizontal alignment in degrees used in FuelCommands.java */
-    public static final double ALIGNMENT_TOLERANCE_DEGREES = 1.0;
+    public static final double ALIGNMENT_TOLERANCE_DEGREES = 0.75;
      
     /** Minimum target area to consider target valid (prevents false positives) */
     public static final double MIN_TARGET_AREA_PERCENT = 0.1;
@@ -521,20 +519,21 @@ public final class Constants {
      * Chassis front must point 180° away from the hub when aligning to shoot.
      */
 
-    public final static double ALIGNMENT_OFFSET_DEGREES = 00;
+    public final static double ALIGNMENT_OFFSET_DEGREES = 180; // KEEP AT 180 DEGREES
 
     // TODO Tune the Vision parameters
-    // 0.10 way too much oscillation
-    // 0.05 smaller variance, but still a lot oscillations
-    // 0.005 way too slow but still oscillating
-    public static final double ROTATIONAL_KP = 0.005;
+    // Keep this moderate; aggressive values amplify pose-estimator jitter during alignment.
+    public static final double ROTATIONAL_KP = 0.15;
 
     /*
      * Maximum rotational rate the vision command will apply to the drivetrain (rad/s).
      * Default: 3.0 rad/s (~172°/s). Reduce if the robot swings too aggressively.
      */
     public static final double MIN_ALIGNMENT_ROTATION_RAD_PER_SEC = 0.15; // tune to just above static friction
-    public static final double MAX_ALIGNMENT_ROTATION_RAD_PER_SEC = 2.0;
+    public static final double MAX_ALIGNMENT_ROTATION_RAD_PER_SEC = 4.5;
+
+    public static final double ALIGNMENT_DRIVETRAIN_CLAMP = 0.40;
+
     public static final double MIN_DISTANCE_M = 0.25;
     public static final double MAX_DISTANCE_M = 8.0;
 
@@ -542,7 +541,7 @@ public final class Constants {
     /* Tune up from 0 — 50 degrees of aim offset per m/s of lateral velocity 
     * At this point, its not a high priority
     */
-    public static final double LEAD_COMPENSATION_DEG_PER_MPS = 00; 
+    public static final double LEAD_COMPENSATION_DEG_PER_MPS = 0; 
 
 
     // == Valid tag IDs =========================
