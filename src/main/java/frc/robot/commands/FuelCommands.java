@@ -317,7 +317,7 @@ public class FuelCommands {
             // Target heading is 180° from hub + lead offset. Error centered around 0°.
             double targetHeadingDeg = MathUtil.inputModulus(angleToHubDeg + leadOffsetDeg + Constants.Vision.ALIGNMENT_OFFSET_DEGREES, -180.0, 180.0);
             double currentHeadingDeg = pose.getRotation().getDegrees();
-            double headingErrorDeg = MathUtil.inputModulus(currentHeadingDeg - targetHeadingDeg, -180.0, 180.0);
+            double headingErrorDeg = MathUtil.inputModulus(targetHeadingDeg - currentHeadingDeg, -180.0, 180.0);
 
             ntLeadOffset.set(leadOffsetDeg);
 

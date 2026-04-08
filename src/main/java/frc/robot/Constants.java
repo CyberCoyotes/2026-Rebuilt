@@ -200,7 +200,7 @@ public final class Constants {
      * Add a "Tuned" note when each value is confirmed.
      */
     // Conveyor voltage setpoints for feeding fuel to the shooter.
-    public static final double CONVEYOR_FORWARD_VOLTAGE = 6.5; // was 3.5 on Saturday may need to increase voltage with added roller
+    public static final double CONVEYOR_FORWARD_VOLTAGE = 8; // at 6.5 was struggling, increased to 8 to try to help with feeding the shooter, but may need to be tuned down || Tuned 4-8-2026
     public static final double CONVEYOR_REVERSE_VOLTAGE = -2;
     
     // Probably don't need anymore
@@ -313,10 +313,10 @@ public final class Constants {
     public static final double STANDBY_RPM = 1200;
     
     // Bumpers against the hub if possible, note robot position if not
-    public static final double CLOSE_RPM = 2050;  // TODO tune CLOSE_RPM || Tuned 4-7-2026
+    public static final double CLOSE_RPM = 2000;  // TODO tune CLOSE_RPM || Tuned 4-8-2026
 
     // Bumpers against the tower
-    public static final double TOWER_RPM = 2375;  // TODO tune TOWER_RPM || Tuned 4-7-2026
+    public static final double TOWER_RPM = 2500;  // TODO tune TOWER_RPM || Tuned 4-8-2026
 
     // In the trench, mostly against the wall, but turned slightly towards the hub
     public static final double TRENCH_RPM = 2250; // TODO tune TRENCH_RPM || Tuned 4-7-2026
@@ -492,7 +492,7 @@ public final class Constants {
     public static final double CAMERA_ANGLE_DEGREES = 15.5;
 
     /** Tolerance for horizontal alignment in degrees used in FuelCommands.java */
-    public static final double ALIGNMENT_TOLERANCE_DEGREES = 0.75;
+    public static final double ALIGNMENT_TOLERANCE_DEGREES = 1.00;
      
     /** Minimum target area to consider target valid (prevents false positives) */
     public static final double MIN_TARGET_AREA_PERCENT = 0.1;
@@ -524,14 +524,14 @@ public final class Constants {
 
     // TODO Tune the Vision parameters
     // Keep this moderate; aggressive values amplify pose-estimator jitter during alignment.
-    public static final double ROTATIONAL_KP = 0.15;
+    public static final double ROTATIONAL_KP = 0.12; // Tuned 4-8-2026
 
     /*
      * Maximum rotational rate the vision command will apply to the drivetrain (rad/s).
      * Default: 3.0 rad/s (~172°/s). Reduce if the robot swings too aggressively.
      */
     public static final double MIN_ALIGNMENT_ROTATION_RAD_PER_SEC = 0.15; // tune to just above static friction
-    public static final double MAX_ALIGNMENT_ROTATION_RAD_PER_SEC = 4.5;
+    public static final double MAX_ALIGNMENT_ROTATION_RAD_PER_SEC = 4.5; // tune to prevent overshooting and oscillation
 
     public static final double ALIGNMENT_DRIVETRAIN_CLAMP = 0.40;
 
