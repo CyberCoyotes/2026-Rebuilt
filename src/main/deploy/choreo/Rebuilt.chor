@@ -10,6 +10,20 @@
      "exp":"1.5 m / s",
      "val":1.5
     }
+   },
+   "MediumVel":{
+    "dimension":"LinVel",
+    "var":{
+     "exp":"2 m / s",
+     "val":2.0
+    }
+   },
+   "TestVel":{
+    "dimension":"LinVel",
+    "var":{
+     "exp":"0.75 m / s",
+     "val":0.75
+    }
    }
   },
   "poses":{
@@ -57,8 +71,8 @@
    },
    "HubCloseShot":{
     "x":{
-     "exp":"2.55 m",
-     "val":2.55
+     "exp":"1.75 m",
+     "val":1.75
     },
     "y":{
      "exp":"4 m",
@@ -233,22 +247,22 @@
      "val":3.5
     },
     "heading":{
-     "exp":"90 deg",
-     "val":1.5707963267948966
+     "exp":"3.14 / 2 rad",
+     "val":1.57
     }
    },
-   "RtRampAlign":{
+   "RtPostRampShot":{
     "x":{
-     "exp":"6 m",
-     "val":6.0
+     "exp":"2.75 m",
+     "val":2.75
     },
     "y":{
-     "exp":"2.5 m",
-     "val":2.5
+     "exp":"1.35 m",
+     "val":1.35
     },
     "heading":{
-     "exp":"225 deg",
-     "val":3.9269908169872414
+     "exp":"4.14 rad",
+     "val":4.14
     }
    },
    "RtRampAlignHalf":{
@@ -261,11 +275,25 @@
      "val":3.5
     },
     "heading":{
-     "exp":"-3.14 rad",
-     "val":-3.14
+     "exp":"3.14 / 2 rad",
+     "val":1.57
     }
    },
-   "RtRampShot":{
+   "RtRampNeutral":{
+    "x":{
+     "exp":"6 m",
+     "val":6.0
+    },
+    "y":{
+     "exp":"2.5 m",
+     "val":2.5
+    },
+    "heading":{
+     "exp":"-0.75 rad",
+     "val":-0.75
+    }
+   },
+   "RtRampZone":{
     "x":{
      "exp":"3 m",
      "val":3.0
@@ -275,8 +303,8 @@
      "val":2.5
     },
     "heading":{
-     "exp":"225 deg",
-     "val":3.9269908169872414
+     "exp":"-0.75 rad",
+     "val":-0.75
     }
    },
    "RtTr":{
@@ -289,8 +317,8 @@
      "val":0.47
     },
     "heading":{
-     "exp":"0 rad",
-     "val":0.0
+     "exp":"3.14 / 2 rad",
+     "val":1.57
     }
    },
    "RtTrAlign":{
@@ -395,8 +423,8 @@
    "val":6.1
   },
   "gearing":{
-   "exp":"6.746031746031747",
-   "val":6.746031746031747
+   "exp":"5.2734375",
+   "val":5.2734375
   },
   "radius":{
    "exp":"2 in",
