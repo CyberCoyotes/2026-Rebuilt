@@ -87,8 +87,8 @@ public class GameDataTelemetry {
 
         
         // vvv CANCEL FOR COMPETITION - remove these two lines before competing vvv
-        // inactiveFirstAlliance = InactiveAlliance.BLUE;
-        // dataReceived = true;
+        inactiveFirstAlliance = InactiveAlliance.BLUE;
+        dataReceived = true;
         // ^^^ CANCEL FOR COMPETITION ^^^
 
         if (!dataReceived) {
