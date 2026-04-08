@@ -29,18 +29,39 @@ import edu.wpi.first.wpilibj.DriverStation;
  *   - Boolean Box on IsBlueHubActive (color blue) -> lights up when Blue hub is active
  *   - Text Display on ActiveHub -> shows "RED" or "BLUE"
  *
+<<<<<<< Updated upstream
+=======
+ * * Match structure (teleop counts DOWN from ~160s to 0):
+ *   Transition  160s -> 150s  (10s)
+ *   Shift 1     150s -> 120s  (30s)
+ *   Shift 2     120s ->  90s  (30s)
+ *   Shift 3      90s ->  60s  (30s)
+ *   Shift 4      60s ->  30s  (30s)
+ *   Endgame      30s ->   0s  (30s)
+ * 
+>>>>>>> Stashed changes
  * Shift logic (winner = InactiveFirstAlliance):
  *   Shifts 1 & 3 -> opposite alliance hub active
  *   Shifts 2 & 4 -> winner's hub active
  */
 public class GameDataTelemetry {
 
+<<<<<<< Updated upstream
     // NOTE: Fill these in from the game manual before competition.
     // These are seconds REMAINING in the match (DriverStation.getMatchTime() counts down).
     private static final double SHIFT_2_START_SEC = 90.0;
     private static final double SHIFT_3_START_SEC = 60.0;
     private static final double SHIFT_4_START_SEC = 30.0;
 
+=======
+   // Seconds REMAINING in teleop when each period begins (getMatchTime() counts down).
+    private static final double TRANSITION_END_SEC  = 150.0; // transition ends, shift 1 begins
+    private static final double SHIFT_2_START_SEC   = 120.0;
+    private static final double SHIFT_3_START_SEC   =  90.0;
+    private static final double SHIFT_4_START_SEC   =  60.0;
+    private static final double ENDGAME_START_SEC   =  30.0;
+   
+>>>>>>> Stashed changes
     public enum InactiveAlliance {
         NONE,
         RED,
@@ -137,14 +158,37 @@ public class GameDataTelemetry {
         activeHubPublisher.set(activeHub);
         isRedHubActivePublisher.set("RED".equals(activeHub));
         isBlueHubActivePublisher.set("BLUE".equals(activeHub));
+<<<<<<< Updated upstream
         currentShiftPublisher.set(shift > 0 ? "Shift " + shift : "UNKNOWN");
+=======
+       
+        String shiftLabel;
+        if (shift == -1)     shiftLabel = "UNKNOWN";
+        else if (shift == 0) shiftLabel = "Transition";
+        else if (shift == 5) shiftLabel = "Endgame";
+        else                 shiftLabel = "Shift " + shift;
+        currentShiftPublisher.set(shiftLabel);
+
+>>>>>>> Stashed changes
         timeUntilShiftEndPublisher.set(computeTimeUntilShiftEnd(shift, matchTimeSec));
     }
 
     /**
+<<<<<<< Updated upstream
      * Returns the current shift number (1-4) based on seconds remaining.
      * Returns 0 if match time is unavailable.
      */
+=======
+    * Returns the current period:
+     *  -1 = match time unavailable
+     *   0 = Transition (150-160s remaining)
+     *   1 = Shift 1    (120-150s remaining)
+     *   2 = Shift 2    ( 90-120s remaining)
+     *   3 = Shift 3    ( 60- 90s remaining)
+     *   4 = Shift 4    ( 30- 60s remaining)
+     *   5 = Endgame    (  0- 30s remaining)
+     *  */
+>>>>>>> Stashed changes
     private int computeShift(double matchTimeSec) {
         if (matchTimeSec < 0) return 0;
         if (matchTimeSec > SHIFT_2_START_SEC) return 1;
@@ -154,7 +198,11 @@ public class GameDataTelemetry {
     }
 
     /**
+<<<<<<< Updated upstream
      * Returns seconds remaining until the current shift ends, or -1 if match time is unavailable.
+=======
+     * Returns seconds remaining until the current  period ends, or -1 if unavailable.
+>>>>>>> Stashed changes
      */
     private double computeTimeUntilShiftEnd(int shift, double matchTimeSec) {
         if (matchTimeSec < 0) return -1;
