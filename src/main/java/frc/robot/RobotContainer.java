@@ -15,6 +15,7 @@ import choreo.auto.AutoChooser;
 import choreo.auto.AutoFactory;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.RobotModeTriggers;
 import frc.robot.commands.FuelCommands;
@@ -80,9 +81,9 @@ public class RobotContainer {
         // Verified autoRoutines to chooser
         // =====================================================================
 
-        // autoChooser.addRoutine("L Trench-Mid-Trench", autoRoutines::LtTrench_Mid_Trench);
+        // autoChooser.addRoutine("Lt x2 Trench-Ramp", autoRoutines::LtTrench_Ramp_Double);
         // autoChooser.addRoutine("R Trench-Mid-Trench", autoRoutines::RtTrench_RtMid_RtTrench);
-        // autoChooser.addRoutine("R Trench-Mid-Ramp", autoRoutines::RtTrench_Mid_Ramp);
+        autoChooser.addRoutine("Rt x2 Trench-Ramp", autoRoutines::RtTrench_Ramp_Double);
         // autoChooser.addRoutine("R Trench-Mid-Ramp", autoRoutines::RtTrench_Mid_Ramp);
         autoChooser.addRoutine("Center", autoRoutines::Center);
         
@@ -96,11 +97,12 @@ public class RobotContainer {
         // Driver Controller
         // =====================================================================
 
+        // It is critical that these inputs are (-). Do not change them.
         drivetrain.setDefaultCommand(
             drivetrain.applyRequest(() ->
-                drive.withVelocityX(driver.getLeftY() * MaxSpeed)
-                    .withVelocityY(driver.getLeftX() * MaxSpeed)
-                    .withRotationalRate(driver.getRightX() * MaxAngularRate)
+                drive.withVelocityX(-driver.getLeftY() * MaxSpeed)
+                    .withVelocityY(-driver.getLeftX() * MaxSpeed)
+                    .withRotationalRate(-driver.getRightX() * MaxAngularRate)
             )
         );
 
@@ -113,7 +115,9 @@ public class RobotContainer {
         driver.start().onTrue(drivetrain.runOnce(drivetrain::seedFieldCentric));
 
         // Back: Reset odometry to Limelight botpose (use when robot rides up on a ball and wheels lose contact)
-        driver.back().onTrue(drivetrain.resetPoseFromVisionCommand());
+        // driver.back().onTrue(drivetrain.resetPoseFromVisionCommand());
+        driver.back().onTrue(Commands.runOnce(shooter::toggleStandbyMode, shooter)); // TODO Move to Operator Controller
+
 
         drivetrain.registerTelemetry(logger::telemeterize);
         
@@ -121,12 +125,15 @@ public class RobotContainer {
             FuelCommands.poseAlignAndShoot(shooter, indexer, /*intake,*/ drivetrain,
                 () -> -driver.getLeftY() * MaxSpeed,
                 () -> -driver.getLeftX() * MaxSpeed)); 
-        
-        driver.rightBumper().whileTrue(intake.retractSlidesSlowHeldCmd());
+        driver.rightBumper().onTrue(intake.fuelCompression());
 
         driver.leftTrigger(0.5).whileTrue(intake.intakeFuel());
-        // Press once to partially retract slides
         driver.leftBumper().onTrue(intake.retractSlidesIncrementalCmd());
+        
+        driver.a().onTrue(intake.extendSlidesFastCmd());
+        driver.b().onTrue(intake.retractSlidesFastCmd());
+        driver.x().onTrue(intake.fuelCompression());
+        driver.y().whileTrue(intake.fuelPumpCycleDelayed());
 
         driver.povLeft().whileTrue(
             FuelCommands.shootWithPreset(shooter, indexer, ShooterSubsystem.ShotPreset.CLOSE));
@@ -151,7 +158,8 @@ public class RobotContainer {
 
         operator.rightTrigger(0.5).whileTrue(indexer.reverse());
         operator.leftTrigger(0.5).whileTrue(intake.intakeFuel());
-        operator.rightBumper().whileTrue(intake.retractSlidesSlowHeldCmd());
+        operator.rightBumper().onTrue(intake.retractSlidesFastCmd());
+        operator.leftBumper().onTrue(intake.fuelCompression());
 
         // Start (Menu ☰): Toggle flywheel standby pre-rev — operator sets once and forgets.
         // When ON: flywheel holds at STANDBY_RPM (1800) between shots instead of stopping.
@@ -161,9 +169,13 @@ public class RobotContainer {
 
         // Back (View ⧉): Reset odometry to botpose — use when robot rides up on a ball
         operator.back().onTrue(drivetrain.resetPoseFromVisionCommand());
+        operator.start().onTrue(Commands.runOnce(shooter::toggleStandbyMode, shooter));
     
         operator.povUp().whileTrue(intake.manualSlideExtendHoldCmd());
         operator.povDown().whileTrue(intake.manualSlideRetractHoldCmd());
+
+        operator.povLeft().onTrue(intake.extendSlidesFastCmd());
+        operator.povRight().whileTrue(intake.fuelPumpCycleDelayed());
 
     }
 
