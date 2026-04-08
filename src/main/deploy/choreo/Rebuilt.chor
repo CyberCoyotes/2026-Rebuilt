@@ -18,6 +18,13 @@
      "val":2.0
     }
    },
+   "RtRampAngle":{
+    "dimension":"Number",
+    "var":{
+     "exp":"0",
+     "val":0.0
+    }
+   },
    "TestVel":{
     "dimension":"LinVel",
     "var":{
@@ -275,8 +282,8 @@
      "val":2.5
     },
     "heading":{
-     "exp":"0 rad",
-     "val":0.0
+     "exp":"-0.75 rad",
+     "val":-0.75
     }
    },
    "RtRampZone":{
@@ -289,8 +296,8 @@
      "val":2.5
     },
     "heading":{
-     "exp":"0 rad",
-     "val":0.0
+     "exp":"-0.75 rad",
+     "val":-0.75
     }
    },
    "RtTr":{
@@ -409,8 +416,8 @@
    "val":6.1
   },
   "gearing":{
-   "exp":"6.746031746031747",
-   "val":6.746031746031747
+   "exp":"5.2734375",
+   "val":5.2734375
   },
   "radius":{
    "exp":"2 in",
