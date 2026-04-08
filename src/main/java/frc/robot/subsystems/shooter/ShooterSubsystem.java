@@ -17,7 +17,7 @@ import frc.robot.subsystems.shooter.ShooterIO.ShooterIOInputs;
 /**
  * STATE MACHINE:
  * - IDLE: All motors off, hood at home position
- * - STANDBY: Flywheel holds a modest pre-rev speed for faster follow-up shots
+ * - STANDBY: Flywheel held at STANDBY_RPM (1800), hood at home — operator-toggled pre-rev mode
  * - SPINNING_UP: Flywheel ramping to target after trigger pull — transitions to READY when at speed
  * - READY: Flywheel and hood at preset targets, ready to shoot
  * - PASS: Passing shot at PASS_RPM, hood at PASS_HOOD
@@ -83,10 +83,12 @@ public class ShooterSubsystem extends SubsystemBase {
     private final BooleanPublisher hoodAtPosePublisher;
     private final BooleanPublisher flywheelAtRpmPublisher;
     private final StringPublisher  selectedPresetPublisher;
+    private final BooleanPublisher standbyEnabledPublisher;
 
     // =====================================================================
     // State
     // =====================================================================
+    private boolean      standbyEnabled   = false; // operator-toggled — does NOT default on at startup
     private ShooterState currentState     = ShooterState.IDLE;
     private ShotPreset   displayPreset    = null; // null = Vision mode (no operator button held)
     private String currentStateString     = ShooterState.IDLE.toString();
@@ -117,6 +119,7 @@ public class ShooterSubsystem extends SubsystemBase {
         hoodAtPosePublisher          = shooterTable.getBooleanTopic("HoodAtPose").publish();
         flywheelAtRpmPublisher       = shooterTable.getBooleanTopic("FlywheelAtRPM").publish();
         selectedPresetPublisher       = shooterTable.getStringTopic("SelectedPreset").publish();
+        standbyEnabledPublisher       = shooterTable.getBooleanTopic("StandbyEnabled").publish();
     }
 
     // =====================================================================
@@ -124,8 +127,8 @@ public class ShooterSubsystem extends SubsystemBase {
     // =====================================================================
     /* Defines what mode the shooter is in. Each value represents a distinct operational mode with different hardware behavior */
     public enum ShooterState {
-        IDLE,    // Motors off — only used on explicit stop, not during normal match play
-        STANDBY, // Hold a modest flywheel RPM so next shot reaches speed faster
+        IDLE,        // Motors off, hood at home — default state, not used during active match play
+        STANDBY,     // Flywheel held at STANDBY_RPM, hood at home — operator-toggled pre-rev
         SPINNING_UP, // Flywheel ramping to target after trigger pull — transitions to READY when at speed
         READY,   // Flywheel and hood at preset targets, ready to shoot
         PASS,    // Passing shot at PASS_RPM, hood at PASS_HOOD
@@ -165,6 +168,7 @@ public class ShooterSubsystem extends SubsystemBase {
         hoodAtPosePublisher.set(isHoodAtPose());
         flywheelAtRpmPublisher.set(isFlywheelAtVelocity());
         selectedPresetPublisher.set(displayPreset != null ? displayPreset.label : "Vision");
+        standbyEnabledPublisher.set(standbyEnabled);
     }
 
     // State Machine Logic
@@ -174,7 +178,6 @@ public class ShooterSubsystem extends SubsystemBase {
                 break;
             case STANDBY:
                 commandFlywheelVelocity(Constants.Flywheel.STANDBY_RPM);
-                io.setHoodPose(Constants.Hood.MIN_POSE);
                 break;
             case SPINNING_UP:
                 commandFlywheelVelocity(targetFlywheelMotorRPM);
@@ -215,6 +218,11 @@ public class ShooterSubsystem extends SubsystemBase {
                 io.setHoodPose(Constants.Hood.MIN_POSE);
                 break;
 
+            case STANDBY:
+                commandFlywheelVelocity(Constants.Flywheel.STANDBY_RPM);
+                io.setHoodPose(Constants.Hood.MIN_POSE);
+                break;
+
             // The flywheel and hood targets set, and BOTH flywheel and hood are in progress to getting to those values and READY
             case SPINNING_UP:
                 break;
@@ -251,9 +259,42 @@ public class ShooterSubsystem extends SubsystemBase {
     // Public Command Methods
     // =====================================================================
 
-    /** Full stop — stops flywheels and returns hood to home. */
+    /**
+     * Returns shooter to its resting state after a shot.
+     * If standby mode is enabled, holds flywheel at STANDBY_RPM instead of full stop.
+     * This is the method called by all finallyDo() shot endings.
+     */
     public void setIdle() {
-        setState(ShooterState.IDLE);
+        if (standbyEnabled) {
+            setState(ShooterState.STANDBY);
+        } else {
+            setState(ShooterState.IDLE);
+        }
+    }
+
+    /**
+     * Toggles standby pre-rev mode on/off.
+     * - Toggle ON:  immediately enters STANDBY (flywheel spins up to STANDBY_RPM).
+     * - Toggle OFF: drops to IDLE if currently in STANDBY; flag clears so next
+     *               shot ending returns to IDLE instead of STANDBY.
+     * Bound to operator Start button — operator sets it and forgets it.
+     */
+    public void toggleStandby() {
+        standbyEnabled = !standbyEnabled;
+        if (standbyEnabled) {
+            if (currentState == ShooterState.IDLE) {
+                setState(ShooterState.STANDBY);
+            }
+        } else {
+            if (currentState == ShooterState.STANDBY) {
+                setState(ShooterState.IDLE);
+            }
+        }
+    }
+
+    /** Returns true if standby pre-rev mode is currently enabled. */
+    public boolean isStandbyEnabled() {
+        return standbyEnabled;
     }
 
     /** Holds the flywheel at standby RPM and homes the hood. */
