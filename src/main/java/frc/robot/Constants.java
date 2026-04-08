@@ -424,7 +424,7 @@ public final class Constants {
     * Currently not being used
     * NOT a Friday testing priority!
     */ 
-    public static final double KP = 0.5;
+    public static final double KP = 1.2;
     public static final double KI = 0;
     public static final double KD = 0;
 
