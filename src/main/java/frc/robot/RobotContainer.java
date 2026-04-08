@@ -81,9 +81,9 @@ public class RobotContainer {
         // Verified autoRoutines to chooser
         // =====================================================================
 
-        // autoChooser.addRoutine("L Trench-Mid-Trench", autoRoutines::LtTrench_Mid_Trench);
+        // autoChooser.addRoutine("Lt x2 Trench-Ramp", autoRoutines::LtTrench_Ramp_Double);
         // autoChooser.addRoutine("R Trench-Mid-Trench", autoRoutines::RtTrench_RtMid_RtTrench);
-        // autoChooser.addRoutine("R Trench-Mid-Ramp", autoRoutines::RtTrench_Mid_Ramp);
+        autoChooser.addRoutine("Rt x2 Trench-Ramp", autoRoutines::RtTrench_Ramp_Double);
         // autoChooser.addRoutine("R Trench-Mid-Ramp", autoRoutines::RtTrench_Mid_Ramp);
         autoChooser.addRoutine("Center", autoRoutines::Center);
         
@@ -97,11 +97,12 @@ public class RobotContainer {
         // Driver Controller
         // =====================================================================
 
+        // It is critical that these inputs are (-). Do not change them.
         drivetrain.setDefaultCommand(
             drivetrain.applyRequest(() ->
-                drive.withVelocityX(driver.getLeftY() * MaxSpeed)
-                    .withVelocityY(driver.getLeftX() * MaxSpeed)
-                    .withRotationalRate(driver.getRightX() * MaxAngularRate)
+                drive.withVelocityX(-driver.getLeftY() * MaxSpeed)
+                    .withVelocityY(-driver.getLeftX() * MaxSpeed)
+                    .withRotationalRate(-driver.getRightX() * MaxAngularRate)
             )
         );
 
