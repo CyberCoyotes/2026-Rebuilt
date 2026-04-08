@@ -83,7 +83,7 @@ public class RobotContainer {
 
         // autoChooser.addRoutine("L Trench-Mid-Trench", autoRoutines::LtTrench_Mid_Trench);
         // autoChooser.addRoutine("R Trench-Mid-Trench", autoRoutines::RtTrench_RtMid_RtTrench);
-        // autoChooser.addRoutine("R Trench-Mid-Ramp", autoRoutines::RtTrench_Mid_Ramp);
+        autoChooser.addRoutine("Rt x2 Trench-Ramp", autoRoutines::RtTrench_Ramp_Double);
         // autoChooser.addRoutine("R Trench-Mid-Ramp", autoRoutines::RtTrench_Mid_Ramp);
         autoChooser.addRoutine("Center", autoRoutines::Center);
         

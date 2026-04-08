@@ -7,8 +7,8 @@
    "IntakeVel":{
     "dimension":"LinVel",
     "var":{
-     "exp":"1.5 m / s",
-     "val":1.5
+     "exp":"0.75 m / s",
+     "val":0.75
     }
    }
   },
@@ -233,8 +233,8 @@
      "val":3.5
     },
     "heading":{
-     "exp":"90 deg",
-     "val":1.5707963267948966
+     "exp":"3.14 / 2 rad",
+     "val":1.57
     }
    },
    "RtRampAlign":{
@@ -247,8 +247,8 @@
      "val":2.5
     },
     "heading":{
-     "exp":"225 deg",
-     "val":3.9269908169872414
+     "exp":"1 rad",
+     "val":1.0
     }
    },
    "RtRampAlignHalf":{
@@ -261,8 +261,8 @@
      "val":3.5
     },
     "heading":{
-     "exp":"-3.14 rad",
-     "val":-3.14
+     "exp":"3.14 / 2 rad",
+     "val":1.57
     }
    },
    "RtRampShot":{

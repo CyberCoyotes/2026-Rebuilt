@@ -36,7 +36,7 @@
     {"from":2, "to":null, "data":{"type":"StopPoint", "props":{}}, "enabled":true},
     {"from":3, "to":5, "data":{"type":"KeepOutCircle", "props":{"x":{"exp":"5.124785736203194 m", "val":5.124785736203194}, "y":{"exp":"1.4191824095323682 m", "val":1.4191824095323682}, "r":{"exp":"0.1881749394473852 m", "val":0.1881749394473852}}}, "enabled":true},
     {"from":2, "to":3, "data":{"type":"KeepInLane", "props":{"tolerance":{"exp":"0.01 m", "val":0.01}}}, "enabled":true},
-    {"from":2, "to":3, "data":{"type":"MaxVelocity", "props":{"max":{"exp":"IntakeVel", "val":1.5}}}, "enabled":true}],
+    {"from":2, "to":3, "data":{"type":"MaxVelocity", "props":{"max":{"exp":"IntakeVel", "val":0.75}}}, "enabled":true}],
   "targetDt":{
    "exp":"0.05 s",
    "val":0.05
