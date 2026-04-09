@@ -198,7 +198,7 @@ public final class Constants {
      */
     // Conveyor voltage setpoints for feeding fuel to the shooter.
     public static final double CONVEYOR_FORWARD_VOLTAGE = 8; // at 6.5 was struggling, increased to 8 to try to help with feeding the shooter, but may need to be tuned down || Tuned 4-8-2026
-    public static final double CONVEYOR_REVERSE_VOLTAGE = -6;
+    public static final double CONVEYOR_REVERSE_VOLTAGE = -12;
     
     // Probably don't need anymore
     public static final double CONVEYOR_POPPER_VOLTAGE = 1.0;
