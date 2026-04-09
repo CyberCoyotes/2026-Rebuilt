@@ -96,12 +96,13 @@ public class IntakeIOHardware implements IntakeIO {
     // MotionMagic control for slide — set position, motor holds after command ends
     private final MotionMagicVoltage slideRequest = new MotionMagicVoltage(0);
 
-    // DynamicMotionMagic for slower slide movement 
+    // DynamicMotionMagic for slower slide movement
     private final DynamicMotionMagicVoltage slideRequestSlow =
             new DynamicMotionMagicVoltage(
                     0,
                     Constants.Intake.SLIDE_SLOW_MM_CRUISE_VELOCITY,
-                    Constants.Intake.SLIDE_SLOW_MM_ACCELERATION);
+                    Constants.Intake.SLIDE_SLOW_MM_ACCELERATION,
+                    Constants.Intake.SLIDE_SLOW_MM_JERK);
 
     // == Status Signals =============================================================
     // Current, voltage, and temp are captured by CTRE Hoot for diagnostics.
@@ -166,9 +167,12 @@ public class IntakeIOHardware implements IntakeIO {
 
     @Override
     public void setSlidePositionSlow(double position) {
-        // This request carries its own cruise/accel limits, so we can tune slow
-        // retract independently from the normal Motion Magic profile in config.
-        slide.setControl(slideRequestSlow.withPosition(position));
+        // Explicitly set velocity/acceleration every call to guarantee the slow
+        // profile overrides the config-based MotionMagic values (320/320).
+        slide.setControl(slideRequestSlow
+                .withPosition(position)
+                .withVelocity(Constants.Intake.SLIDE_SLOW_MM_CRUISE_VELOCITY)
+                .withAcceleration(Constants.Intake.SLIDE_SLOW_MM_ACCELERATION));
     }
 
     // This was not following the IO pattern and was being called directly by the subsystem
