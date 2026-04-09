@@ -126,7 +126,7 @@ public class RobotContainer {
                 FuelCommands.poseAlignAndShoot(shooter, indexer, /*intake,*/ drivetrain,
                     () -> -driver.getLeftY() * MaxSpeed,
                     () -> -driver.getLeftX() * MaxSpeed),
-                intake.fuelCompression())); 
+                fuelCompressionWhenShooterReady())); 
         driver.rightBumper().onTrue(intake.fuelCompression());
 
         driver.leftTrigger(0.5).whileTrue(intake.intakeFuel());
@@ -140,19 +140,19 @@ public class RobotContainer {
         driver.povLeft().whileTrue(
             Commands.deadline(
                 FuelCommands.shootWithPreset(shooter, indexer, ShooterSubsystem.ShotPreset.CLOSE),
-                intake.fuelCompression()));
+                fuelCompressionWhenShooterReady()));
         driver.povRight().whileTrue(
             Commands.deadline(
                 FuelCommands.shootWithPreset(shooter, indexer, ShooterSubsystem.ShotPreset.TRENCH),
-                intake.fuelCompression()));
+                fuelCompressionWhenShooterReady()));
         driver.povUp().whileTrue(
             Commands.deadline(
                 FuelCommands.shootWithPreset(shooter, indexer, ShooterSubsystem.ShotPreset.FAR),
-                intake.fuelCompression()));
+                fuelCompressionWhenShooterReady()));
         driver.povDown().whileTrue(
             Commands.deadline(
                 FuelCommands.shootWithPreset(shooter, indexer, ShooterSubsystem.ShotPreset.TOWER),
-                intake.fuelCompression()));
+                fuelCompressionWhenShooterReady()));
 
         // =====================================================================
         // Operator Controller
@@ -160,19 +160,19 @@ public class RobotContainer {
         operator.a().whileTrue(
             Commands.deadline(
                 FuelCommands.shootWithPreset(shooter, indexer, ShooterSubsystem.ShotPreset.TRENCH),
-                intake.fuelCompression()));
+                fuelCompressionWhenShooterReady()));
         operator.b().whileTrue(
             Commands.deadline(
                 FuelCommands.shootWithPreset(shooter, indexer, ShooterSubsystem.ShotPreset.CLOSE),
-                intake.fuelCompression()));
+                fuelCompressionWhenShooterReady()));
         operator.x().whileTrue(
             Commands.deadline(
                 FuelCommands.shootWithPreset(shooter, indexer, ShooterSubsystem.ShotPreset.TOWER),
-                intake.fuelCompression()));
+                fuelCompressionWhenShooterReady()));
         operator.y().whileTrue(
             Commands.deadline(
                 FuelCommands.shootWithPreset(shooter, indexer, ShooterSubsystem.ShotPreset.FAR),
-                intake.fuelCompression()));
+                fuelCompressionWhenShooterReady()));
 
         operator.rightTrigger(0.5).whileTrue(indexer.reverse());
         operator.leftTrigger(0.5).whileTrue(intake.intakeFuel());
@@ -202,6 +202,17 @@ public class RobotContainer {
 
     public Command getAutonomousCommand() {
         return autoChooser.selectedCommand();
+    }
+
+    /**
+     * Runs intake fuel compression only after the shooter reports ready.
+     * If the shooting command is cancelled before ready, compression never starts.
+     */
+    private Command fuelCompressionWhenShooterReady() {
+        return Commands.sequence(
+                Commands.waitUntil(shooter::isReady),
+                intake.fuelCompression())
+                .withName("FuelCompressionWhenShooterReady");
     }
 
     public void updateGameData() {
