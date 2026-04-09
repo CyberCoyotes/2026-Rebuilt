@@ -158,7 +158,8 @@ public class RobotContainer {
 
         operator.rightTrigger(0.5).whileTrue(indexer.reverse());
         operator.leftTrigger(0.5).whileTrue(intake.intakeFuel());
-        operator.rightBumper().onTrue(intake.retractSlidesFastCmd());
+
+        // operator.rightBumper().onTrue(intake.retractSlidesFastCmd());
         operator.leftBumper().onTrue(intake.fuelCompression());
 
         // Start (Menu ☰): Toggle flywheel standby pre-rev — operator sets once and forgets.
@@ -177,7 +178,7 @@ public class RobotContainer {
         operator.povLeft().onTrue(intake.extendSlidesFastCmd());
         operator.povRight().whileTrue(intake.fuelPumpCycleDelayed());
         // TODO: Bind purgeFuelHeld() once final operator button is chosen.
-        // operator.<button>().whileTrue(intake.purgeFuelHeld());
+        operator.rightBumper().whileTrue(intake.purgeFuelHeld());
 
     }
 
