@@ -19,7 +19,7 @@
  "params":{
   "waypoints":[
     {"x":{"exp":"R_Mid.x", "val":7.75}, "y":{"exp":"R_Mid.y", "val":3.55}, "heading":{"exp":"R_Mid.heading", "val":1.5707963267948966}, "intervals":51, "split":false, "fixTranslation":true, "fixHeading":true, "overrideIntervals":false},
-    {"x":{"exp":"RtTrAlign.x", "val":6.25}, "y":{"exp":"RtTrAlign.y", "val":0.55}, "heading":{"exp":"-90 deg", "val":-1.5707963267948966}, "intervals":26, "split":false, "fixTranslation":true, "fixHeading":true, "overrideIntervals":false},
+    {"x":{"exp":"RtTrAlign.x", "val":6.25}, "y":{"exp":"RtTrAlign.y", "val":0.65}, "heading":{"exp":"-90 deg", "val":-1.5707963267948966}, "intervals":26, "split":false, "fixTranslation":true, "fixHeading":true, "overrideIntervals":false},
     {"x":{"exp":"3.86 m", "val":3.86}, "y":{"exp":"0.54 m", "val":0.54}, "heading":{"exp":"-90 deg", "val":-1.5707963267948966}, "intervals":17, "split":false, "fixTranslation":true, "fixHeading":true, "overrideIntervals":false},
     {"x":{"exp":"3.25 m", "val":3.25}, "y":{"exp":"0.61 m", "val":0.61}, "heading":{"exp":"-2.1 rad", "val":-2.1}, "intervals":35, "split":false, "fixTranslation":true, "fixHeading":true, "overrideIntervals":false}],
   "constraints":[
