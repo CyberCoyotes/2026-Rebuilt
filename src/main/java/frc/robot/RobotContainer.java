@@ -68,8 +68,8 @@ public class RobotContainer {
     // Constructor
     // =====================================================================
     public RobotContainer() {
-        intake = new IntakeSubsystem(new IntakeIOHardware());
         indexer = new IndexerSubsystem(new IndexerIOHardware());
+        intake = new IntakeSubsystem(new IntakeIOHardware());
         shooter = new ShooterSubsystem(new ShooterIOHardware());
         vision = new VisionSubsystem(new VisionIOLimelight(Constants.Vision.LIMELIGHT4_NAME));
 
@@ -178,7 +178,7 @@ public class RobotContainer {
         operator.povLeft().onTrue(intake.extendSlidesFastCmd());
         operator.povRight().whileTrue(intake.fuelPumpCycleDelayed());
         // TODO: Bind purgeFuelHeld() once final operator button is chosen.
-        operator.rightBumper().whileTrue(intake.purgeFuel());
+        operator.rightBumper().whileTrue(FuelCommands.purgeFuel(intake, indexer));
 
     }
 
