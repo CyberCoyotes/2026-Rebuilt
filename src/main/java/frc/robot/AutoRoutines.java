@@ -62,20 +62,23 @@ public class AutoRoutines {
                 // RightRampAlign to RightRampShot
                 // final AutoTrajectory RtMid_RtRampShot = routine.trajectory("RtMid_RtRampShot", 0);
                 
-                final AutoTrajectory RtRampMid_RtRampZone = routine.trajectory("RtRampMid_RtRampZone", 0);
+                final AutoTrajectory RtRampMid_RtRampAlli = routine.trajectory("RtRampMid_RtRampAlli", 0);
                 
                 // RightRampShoot to RightTrench
-                final AutoTrajectory RtRampZone_RtTr = routine.trajectory("RtRampZone_RtTr", 0);                        
+                final AutoTrajectory RtRampAlli_Shot = routine.trajectory("RtRampAlli_Shot", 0);                        
                 
                 // RightTrench to RightSweep to RightRampShot
-                final AutoTrajectory RtTr_RtCurlSweep = routine.trajectory("RtTr_RtCurlSweep", 0);
+                // final AutoTrajectory RtTr_RtCurlSweep = routine.trajectory("RtTr_RtCurlSweep", 0);
 
                 routine.active().onTrue(
                                 Commands.sequence(
                                                 RtTr_RtMid.resetOdometry(), // Always reset odometry first
 
-                                                RtTr_RtMid.cmd(), // 3.6 seconds                                                
-                                                RtRampMid_RtRampZone.cmd(),
+                                                RtTr_RtMid.cmd(), // 3.6 seconds  
+
+                                                RtRampMid_RtRampAlli.cmd(),
+
+                                                RtRampAlli_Shot.cmd() // 1.6 seconds
                                                 // TODO: Test and tune this shooting + pumping sequence
                                                 // TODO: Measure time to unload in Auton. It will vary depending on the number of balls, but measuring should give a better estimate
                                                 // Commands.parallel(
@@ -88,9 +91,10 @@ public class AutoRoutines {
                                                 //         // TODO: Test fuel pump cycle sensor and if it ends on its own, based on sensor. 
                                                 //         FuelCommands.Auto.fuelPumpCycleSensor(m_intake, m_indexer) 
                                                 // ), // Approximately 4.0 seconds total for alignment + shooting + pumping
-                                                RtRampZone_RtTr.cmd(), // 1.2 seconds
                                                 
-                                                RtTr_RtCurlSweep.cmd() // 2.0 seconds
+                                                // RtShot_RtTr.cmd()  
+
+                                                // RtTr_RtCurlSweep.cmd() // 2.0 seconds
                                                 
                                                 // RtMid_RtRampShot.cmd(), // 1.6 seconds
                                                 
@@ -106,6 +110,8 @@ public class AutoRoutines {
                                 );
                 // Routine Events
                 RtTr_RtMid.atTime("Intake").onTrue(m_intake.intakeFuelTimer(6));
+                RtRampAlli_Shot.atTime("Shoot").onTrue(FuelCommands.Auto.poseAlignAndShoot(m_shooter, m_indexer, m_drivetrain, 6.0));
+                // LtTrench_Mid_Trench.atTime("FuelPump").onTrue(FuelCommands.Auto.fuelPumpCycleSensor(m_intake, m_indexer));
 
                 return routine;
         }
@@ -148,6 +154,7 @@ public class AutoRoutines {
                                 ));
                 // Routine Events
                 LtTr_LtMid.atTime("Intake").onTrue(m_intake.intakeFuelTimer(6));
+                
 
                 return routine;
         }
