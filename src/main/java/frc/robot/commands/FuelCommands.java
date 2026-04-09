@@ -53,6 +53,29 @@ public class FuelCommands {
     // =========================================================================
 
     /**
+     * While held: extends intake slides, runs intake purge roller, and reverses the conveyor.
+     * On release: stops intake roller/conveyor and retracts the slides.
+     *
+     * This lives in the shared command factory because it coordinates two subsystems
+     * (intake + indexer) and should own both requirements.
+     */
+    public static Command purgeFuel(IntakeSubsystem intake, IndexerSubsystem indexer) {
+        return Commands.runEnd(
+                () -> {
+                    intake.extendSlidesFast();
+                    intake.purgeRoller();
+                    indexer.conveyorReverse();
+                },
+                () -> {
+                    intake.stopRoller();
+                    indexer.conveyorStop();
+                    intake.retractSlidesFast();
+                },
+                intake, indexer)
+                .withName("PurgeFuelHeld");
+    }
+
+    /**
      * Shoots at whatever preset is currently selected.
      *
      * @param shooter The shooter subsystem
