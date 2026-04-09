@@ -165,7 +165,7 @@ public final class Constants {
        */
       public static final double KS = 0.0;
       public static final double KV = 0.50; // Tuned 4-8-2026
-      public static final double KP = 0.05; // Tuned 4-8-2026
+      public static final double KP = 2.4;  // Was 0.05 (too low for voltage output); 2.4 V/rot gives real position authority
       public static final double KD = 0.0;
       public static final double KA = 0.0;
       public static final double KI = 0.0;
