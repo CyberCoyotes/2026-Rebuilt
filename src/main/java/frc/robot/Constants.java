@@ -88,7 +88,7 @@ public final class Constants {
     public static final double SLIDE_MANUAL_REPEAT_SECONDS = 0.15;
     public static final double SLIDE_PUMP_OUT_POS = 60.0;
     public static final double SLIDE_PUMP_IN_POS = 40.0;
-    public static final double SLIDE_FUEL_COMPRESSION_WAIT_SECONDS = 1.0;
+    public static final double SLIDE_FUEL_COMPRESSION_WAIT_SECONDS = 2;
     public static final double SLIDE_FUEL_COMPRESSION_DURATION_SECONDS = 6.0;
     public static final double SLIDE_FUEL_PUMP_WAIT_SECONDS = 3.0;
     public static final double SLIDE_FUEL_PUMP_OUT_SECONDS = 0.5;
@@ -116,8 +116,7 @@ public final class Constants {
     public static final double SLIDE_SLOW_MM_JERK = 0.0;
 
     public static final double ROLLER_FORWARD_VOLTS = 8;
-    public static final double ROLLER_REVERSE_VOLTS = -8;
-    public static final double ROLLER_PURGE_VOLTS = -9;
+    public static final double ROLLER_REVERSE_VOLTS = -10;
 
     public static final class RollerConfig {
       private RollerConfig() {
@@ -191,7 +190,6 @@ public final class Constants {
     public static final int CHUTE_TOF_ID = 42;
 
     /*
-     * TODO: Tune and verify conveyor values
      * Test with empty hopper, light hopper load,
      * and full hopper load.
      * Visually assess performance for now.
@@ -199,7 +197,7 @@ public final class Constants {
      */
     // Conveyor voltage setpoints for feeding fuel to the shooter.
     public static final double CONVEYOR_FORWARD_VOLTAGE = 8; // at 6.5 was struggling, increased to 8 to try to help with feeding the shooter, but may need to be tuned down || Tuned 4-8-2026
-    public static final double CONVEYOR_REVERSE_VOLTAGE = -2;
+    public static final double CONVEYOR_REVERSE_VOLTAGE = -12;
     
     // Probably don't need anymore
     public static final double CONVEYOR_POPPER_VOLTAGE = 1.0;
