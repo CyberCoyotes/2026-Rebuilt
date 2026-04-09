@@ -27,15 +27,16 @@ public class HubActiveState {
             return time >= start && time <= end;
         }
     }
+    // Teleop counts down from -160s to 0s, so these times are all based on that. These are the times that our hub is active during teleop based on if we won or lost auto, which we get from the DS message. The reason for the different times is to give teams a chance to swap out their auto and teleop routines if they won or lost auto, since that can impact what they want to do in teleop. The times are based on the manual, but also take into account that shift 4 and end game overlap, so we start a little earlier to give teams a chance to react to that.
+    //Winner active: Shift 2 (90-120s), Shift 4 (25-55s), Transition Shift (130-140s)
     private final TimeSegment[] TeleopHubActiveTimesForAutoWinner = new TimeSegment[] {
-        new TimeSegment(0, 55), // Shift 4 combines with End game
-        new TimeSegment((1 * 60) + 20, (1 * 60) + 45), // Shift 2
-        new TimeSegment((2 * 60) + 10, (2 * 60) + 20) // Transition Shift
+        new TimeSegment(0,   60),  // Shift 4 (30-60s) + Endgame (0-30s)
+        new TimeSegment(90, 120),  // Shift 2
     };
+    // Loser active: Shift 3 (20-50s), Shift 1 (80-110s), Transition Shift (130-140s)
     private final TimeSegment[] TeleopHubActiveTimesForAutoLoser = new TimeSegment[] {
-        new TimeSegment(0, 30), // End game
-        new TimeSegment(55, (1 * 60) + 20), // Shift 3
-        new TimeSegment((1 * 60) + 45, (2 * 60) + 20) // Shift 1 combines with transition shift
+        new TimeSegment(60, 90),   // Shift 3
+        new TimeSegment(120, 150),  // Shift 1
     };
 
     /* True when our hub is active */
