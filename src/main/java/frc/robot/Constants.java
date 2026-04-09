@@ -157,15 +157,13 @@ public final class Constants {
       public static final double PEAK_REVERSE_VOLTAGE = -12.0;
 
       /*
-       * TODO: Tune the slide PID values for the slide mechanism.
-       * 
        * Initial PID values for slide position control.
        * Tune to minimize overshoot and oscillation while being snappy 
        * Add an end-of-line "Tuned" note when confirmed.
        */
       public static final double KS = 0.0;
       public static final double KV = 0.50; // Tuned 4-8-2026
-      public static final double KP = 2.4;  // Was 0.05 (too low for voltage output); 2.4 V/rot gives real position authority
+      public static final double KP = 8.0;  // Tuned 4-9-2026
       public static final double KD = 0.0;
       public static final double KA = 0.0;
       public static final double KI = 0.0;
