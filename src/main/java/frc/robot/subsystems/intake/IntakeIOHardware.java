@@ -117,6 +117,7 @@ public class IntakeIOHardware implements IntakeIO {
         PhoenixUtil.applyConfig("Roller Lead",   () -> rollerLead.getConfigurator().apply(RollerConfig.roller()));
         PhoenixUtil.applyConfig("Roller Follow", () -> rollerFollow.getConfigurator().apply(RollerConfig.roller()));
         PhoenixUtil.applyConfig("Slide",         () -> slide.getConfigurator().apply(SlideConfig.slide()));
+        PhoenixUtil.applyConfig("Slide Position Zero", () -> slide.setPosition(Constants.Intake.SLIDE_RETRACTED_POS));
 
         // Cache signal references — slide needs position and velocity for MotionMagic
         // and at-target checks. Roller has no control-critical signals to read.
@@ -126,8 +127,7 @@ public class IntakeIOHardware implements IntakeIO {
         rollerFollow.setControl(
                 new Follower(rollerLead.getDeviceID(), Constants.Intake.RollerConfig.FOLLOWER_ALIGNMENT));
 
-        // Zero slide encoder at startup
-        // slide.setPosition(Constants.Intake.ENCODER_ZERO_POSITION);
+        // Zero slide encoder at startup so MotionMagic setpoints line up with Constants.
     }
 
     @Override
@@ -161,14 +161,20 @@ public class IntakeIOHardware implements IntakeIO {
     // ==== Slide Methods ====
     @Override
     public void setSlidePosition(double position) {
-        slide.setControl(slideRequest.withPosition(position));
+        double clampedPosition = Math.max(
+                Constants.Intake.SlideConfig.REVERSE_SOFT_LIMIT,
+                Math.min(position, Constants.Intake.SLIDE_MAX_POS));
+        slide.setControl(slideRequest.withPosition(clampedPosition));
     }
 
     @Override
     public void setSlidePositionSlow(double position) {
         // This request carries its own cruise/accel limits, so we can tune slow
         // retract independently from the normal Motion Magic profile in config.
-        slide.setControl(slideRequestSlow.withPosition(position));
+        double clampedPosition = Math.max(
+                Constants.Intake.SlideConfig.REVERSE_SOFT_LIMIT,
+                Math.min(position, Constants.Intake.SLIDE_MAX_POS));
+        slide.setControl(slideRequestSlow.withPosition(clampedPosition));
     }
 
     // This was not following the IO pattern and was being called directly by the subsystem
