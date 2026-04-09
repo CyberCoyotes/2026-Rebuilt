@@ -89,7 +89,7 @@ public final class Constants {
     public static final double SLIDE_PUMP_OUT_POS = 60.0;
     public static final double SLIDE_PUMP_IN_POS = 40.0;
     public static final double SLIDE_FUEL_COMPRESSION_WAIT_SECONDS = 1.0;
-    public static final double SLIDE_FUEL_COMPRESSION_DURATION_SECONDS = 10.0;
+    public static final double SLIDE_FUEL_COMPRESSION_DURATION_SECONDS = 6.0;
     public static final double SLIDE_FUEL_PUMP_WAIT_SECONDS = 3.0;
     public static final double SLIDE_FUEL_PUMP_OUT_SECONDS = 0.5;
     public static final double SLIDE_FUEL_PUMP_IN_SECONDS = 0.5;
@@ -101,8 +101,8 @@ public final class Constants {
      * Normal Motion Magic values for moving the slide quickly to position.
      * Add an end-of-line "Tuned" note when confirmed.
      */
-    public static final double SLIDE_MM_CRUISE_VELOCITY = 20;
-    public static final double SLIDE_MM_ACCELERATION = 30;
+    public static final double SLIDE_MM_CRUISE_VELOCITY = 320;
+    public static final double SLIDE_MM_ACCELERATION = 320;
     public static final double SLIDE_MM_JERK = 0.0;
 
     /*
@@ -111,8 +111,8 @@ public final class Constants {
      * Slow Motion Magic values for moving the slide slowly to position.
      * Add an end-of-line "Tuned" note when confirmed.
      */
-    public static final double SLIDE_SLOW_MM_CRUISE_VELOCITY = 4.0;
-    public static final double SLIDE_SLOW_MM_ACCELERATION = 4.0;
+    public static final double SLIDE_SLOW_MM_CRUISE_VELOCITY = 20;
+    public static final double SLIDE_SLOW_MM_ACCELERATION = 40;
     public static final double SLIDE_SLOW_MM_JERK = 0.0;
 
     public static final double ROLLER_FORWARD_VOLTS = 8;
@@ -157,15 +157,13 @@ public final class Constants {
       public static final double PEAK_REVERSE_VOLTAGE = -12.0;
 
       /*
-       * TODO: Tune the slide PID values for the slide mechanism.
-       * 
        * Initial PID values for slide position control.
        * Tune to minimize overshoot and oscillation while being snappy 
        * Add an end-of-line "Tuned" note when confirmed.
        */
       public static final double KS = 0.0;
       public static final double KV = 0.50; // Tuned 4-8-2026
-      public static final double KP = 0.05; // Tuned 4-8-2026
+      public static final double KP = 8.0;  // Tuned 4-9-2026
       public static final double KD = 0.0;
       public static final double KA = 0.0;
       public static final double KI = 0.0;
