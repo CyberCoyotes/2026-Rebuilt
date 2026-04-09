@@ -191,7 +191,6 @@ public final class Constants {
     public static final int CHUTE_TOF_ID = 42;
 
     /*
-     * TODO: Tune and verify conveyor values
      * Test with empty hopper, light hopper load,
      * and full hopper load.
      * Visually assess performance for now.
