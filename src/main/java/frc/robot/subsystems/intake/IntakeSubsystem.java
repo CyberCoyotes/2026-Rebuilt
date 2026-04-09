@@ -240,26 +240,6 @@ public class IntakeSubsystem extends SubsystemBase {
                 .withName("ReverseIntakeRoller");
     }
 
-    /**
-     * While held: extends the intake slide and reverses roller at purge voltage.
-     * On release: stops roller and retracts slides.
-     */
-    public Command purgeFuel() {
-        return Commands.runEnd(
-                () -> {
-                    extendSlidesFast();
-                    reverseRoller();;      // Reverse normal direction
-                    indexer.conveyorReverse();
-                },
-                () -> {
-                    stopRoller();
-                    indexer.conveyorStop();
-                    retractSlidesFast();
-                },
-                this)
-                .withName("PurgeFuelHeld");
-    }
-
     // =========================================================================
     // COMMAND FACTORIES — SLIDE
     // =========================================================================
