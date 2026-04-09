@@ -101,8 +101,8 @@ public final class Constants {
      * Normal Motion Magic values for moving the slide quickly to position.
      * Add an end-of-line "Tuned" note when confirmed.
      */
-    public static final double SLIDE_MM_CRUISE_VELOCITY = 20;
-    public static final double SLIDE_MM_ACCELERATION = 30;
+    public static final double SLIDE_MM_CRUISE_VELOCITY = 320;
+    public static final double SLIDE_MM_ACCELERATION = 320;
     public static final double SLIDE_MM_JERK = 0.0;
 
     /*
@@ -111,8 +111,8 @@ public final class Constants {
      * Slow Motion Magic values for moving the slide slowly to position.
      * Add an end-of-line "Tuned" note when confirmed.
      */
-    public static final double SLIDE_SLOW_MM_CRUISE_VELOCITY = 4.0;
-    public static final double SLIDE_SLOW_MM_ACCELERATION = 4.0;
+    public static final double SLIDE_SLOW_MM_CRUISE_VELOCITY = 20;
+    public static final double SLIDE_SLOW_MM_ACCELERATION = 40;
     public static final double SLIDE_SLOW_MM_JERK = 0.0;
 
     public static final double ROLLER_FORWARD_VOLTS = 8;
