@@ -48,6 +48,15 @@ public class FuelCommands {
         return MathUtil.inputModulus(targetHeadingDeg - currentHeadingDeg, -180.0, 180.0);
     }
 
+    private static double getDistanceToHubMeters(Pose2d pose, Translation2d hub) {
+        double dx = hub.getX() - pose.getX();
+        double dy = hub.getY() - pose.getY();
+        return MathUtil.clamp(
+                Math.hypot(dx, dy),
+                Constants.Vision.MIN_DISTANCE_M,
+                Constants.Vision.MAX_DISTANCE_M);
+    }
+
     // =========================================================================
     // PRIMARY SHOOT COMMANDS
     // =========================================================================
@@ -469,6 +478,15 @@ public class FuelCommands {
             final SwerveRequest.FieldCentric alignRequest = new SwerveRequest.FieldCentric()
                     .withDriveRequestType(DriveRequestType.OpenLoopVoltage);
 
+            // NT diagnostics for auton analysis (separate table from teleop for easy replay filtering)
+            final NetworkTable visionTable = NetworkTableInstance.getDefault().getTable("AutoPoseAlignShoot");
+            final DoublePublisher ntAngleToHub = visionTable.getDoubleTopic("angleToHub_deg").publish();
+            final DoublePublisher ntCurrentHeading = visionTable.getDoubleTopic("currentHeading_deg").publish();
+            final DoublePublisher ntTargetHeading = visionTable.getDoubleTopic("targetHeading_deg").publish();
+            final DoublePublisher ntHeadingError = visionTable.getDoubleTopic("headingError_deg").publish();
+            final DoublePublisher ntRotRate = visionTable.getDoubleTopic("rotRate_radps").publish();
+            final DoublePublisher ntDistance = visionTable.getDoubleTopic("distanceToHub_m").publish();
+
             return Commands.sequence(
                     // Phase 1: rotate to hub + spin up — both must be ready before feeding
                     Commands.deadline(
@@ -484,16 +502,13 @@ public class FuelCommands {
                                         pose.getRotation().getDegrees());
                                 return Math.abs(headingErrorDeg) <= Constants.Vision.ALIGNMENT_TOLERANCE_DEGREES
                                         && shooter.isReady();
-                                    }).withTimeout(1.0), 
+                                    }).withTimeout(safetyTimeout), 
                             Commands.run(() -> {
                                 Translation2d hub = getHubLocation();
                                 Pose2d pose = drivetrain.getState().Pose;
                                 double dx = hub.getX() - pose.getX();
                                 double dy = hub.getY() - pose.getY();
-                                double distance = MathUtil.clamp(
-                                        Math.hypot(dx, dy),
-                                        Constants.Vision.MIN_DISTANCE_M,
-                                        Constants.Vision.MAX_DISTANCE_M);
+                                double distance = getDistanceToHubMeters(pose, hub);
                                 shooter.updateFromDistance(distance);
                                 if (shooter.getState() != ShooterSubsystem.ShooterState.READY) {
                                     shooter.beginSpinUp();
@@ -503,10 +518,18 @@ public class FuelCommands {
                                 double headingErrorDeg = getHeadingErrorDegrees(
                                         targetHeadingDeg,
                                         pose.getRotation().getDegrees());
-                                double rotRate = MathUtil.clamp(
-                                        headingErrorDeg * Constants.Vision.ROTATIONAL_KP,
-                                        -Constants.Vision.MAX_ALIGNMENT_ROTATION_RAD_PER_SEC,
-                                        Constants.Vision.MAX_ALIGNMENT_ROTATION_RAD_PER_SEC);
+                                double rotRate = Math.abs(headingErrorDeg) <= Constants.Vision.ALIGNMENT_TOLERANCE_DEGREES ? 0.0
+                                        : MathUtil.clamp(
+                                                headingErrorDeg * Constants.Vision.ROTATIONAL_KP,
+                                                -Constants.Vision.MAX_ALIGNMENT_ROTATION_RAD_PER_SEC,
+                                                Constants.Vision.MAX_ALIGNMENT_ROTATION_RAD_PER_SEC);
+
+                                ntAngleToHub.set(angleToHubDeg);
+                                ntCurrentHeading.set(pose.getRotation().getDegrees());
+                                ntTargetHeading.set(targetHeadingDeg);
+                                ntHeadingError.set(headingErrorDeg);
+                                ntRotRate.set(rotRate);
+                                ntDistance.set(distance);
                                 drivetrain.setControl(alignRequest
                                         .withVelocityX(0)
                                         .withVelocityY(0)
