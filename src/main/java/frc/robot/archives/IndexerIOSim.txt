@@ -1,6 +1,8 @@
-package frc.robot.subsystems.indexer;
+package frc.robot.archives;
 
 import frc.robot.Constants;
+import frc.robot.subsystems.indexer.IndexerIO;
+import frc.robot.subsystems.indexer.IndexerIO.IndexerIOInputs;
 
 /**
  * IndexerIOSim - Simulation implementation of IndexerIO.

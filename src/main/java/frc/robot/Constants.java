@@ -495,15 +495,16 @@ public final class Constants {
     public static final double ALIGNMENT_TOLERANCE_DEGREES = 0.75;
 
     /** Indexer feeds once heading error is within this window. Wider than ALIGNMENT_TOLERANCE_DEGREES
-     *  so the rotation deadband guarantees the robot lands inside it. */
+     *  so the rotation deadband guarantees the robot lands inside it. KEEP THIS AT LEAST DOUBLE OF ALIGNMENT_TOLERANCE_DEGREES*/
     public static final double FEED_TOLERANCE_DEGREES = 1.5;
 
     /**
      * How long the heading error must stay within ALIGNMENT_TOLERANCE_DEGREES
      * before the indexer feeds. Prevents micro-corrections from blocking shots.
      * Start at 0.1s and reduce if shots feel delayed on real hardware.
+     * Experimental, don't touch for now
      */
-    public static final double ALIGNMENT_SETTLED_SECONDS = 0.1;
+    // public static final double ALIGNMENT_SETTLED_SECONDS = 0.1;
      
     /** Minimum target area to consider target valid (prevents false positives) */
     public static final double MIN_TARGET_AREA_PERCENT = 0.1;
