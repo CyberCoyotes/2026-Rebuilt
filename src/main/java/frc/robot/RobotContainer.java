@@ -68,8 +68,8 @@ public class RobotContainer {
     // Constructor
     // =====================================================================
     public RobotContainer() {
-        intake = new IntakeSubsystem(new IntakeIOHardware());
         indexer = new IndexerSubsystem(new IndexerIOHardware());
+        intake = new IntakeSubsystem(new IntakeIOHardware(), indexer);
         shooter = new ShooterSubsystem(new ShooterIOHardware());
         vision = new VisionSubsystem(new VisionIOLimelight(Constants.Vision.LIMELIGHT4_NAME));
 

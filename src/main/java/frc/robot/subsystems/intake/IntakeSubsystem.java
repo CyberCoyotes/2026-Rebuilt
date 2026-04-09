@@ -11,6 +11,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
+import frc.robot.subsystems.indexer.IndexerSubsystem;
 import frc.robot.subsystems.intake.IntakeIO.IntakeIOInputs;
 
 public class IntakeSubsystem extends SubsystemBase {
@@ -19,6 +20,7 @@ public class IntakeSubsystem extends SubsystemBase {
     // IO Layer
     // =====================================================================
     private final IntakeIO io;
+    private final IndexerSubsystem indexer;
     private final IntakeIOInputs inputs = new IntakeIOInputs();
 
     // =====================================================================
@@ -51,8 +53,9 @@ public class IntakeSubsystem extends SubsystemBase {
     // =====================================================================
     // Constructor
     // =====================================================================
-    public IntakeSubsystem(IntakeIO intakeIO) {
+    public IntakeSubsystem(IntakeIO intakeIO, IndexerSubsystem indexerSubsystem) {
         this.io = intakeIO;
+        this.indexer = indexerSubsystem;
 
         NetworkTableInstance inst = NetworkTableInstance.getDefault();
         intakeTable = inst.getTable("Intake");
@@ -251,10 +254,11 @@ public class IntakeSubsystem extends SubsystemBase {
                 () -> {
                     extendSlidesFast();
                     purgeRoller();      // Reverse normal direction
-                    conveyorReverse();   // TODO Add Reverse the conveyor to help clear fuel out of the system
+                    indexer.conveyorReverse();
                 },
                 () -> {
                     stopRoller();
+                    indexer.conveyorStop();
                     retractSlidesFast();
                 },
                 this)
