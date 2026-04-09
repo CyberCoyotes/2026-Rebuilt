@@ -150,11 +150,6 @@ public class IntakeSubsystem extends SubsystemBase {
         rollerState = RollerState.REVERSED;
     }
 
-    public void purgeRoller() {
-        io.setRollerVoltage(Constants.Intake.ROLLER_PURGE_VOLTS);
-        rollerState = RollerState.REVERSED;
-    }
-
     public void stopRoller() {
         io.stopRoller();
         rollerState = RollerState.STOPPED;
@@ -253,7 +248,7 @@ public class IntakeSubsystem extends SubsystemBase {
         return Commands.runEnd(
                 () -> {
                     extendSlidesFast();
-                    purgeRoller();      // Reverse normal direction
+                    reverseRoller();;      // Reverse normal direction
                     indexer.conveyorReverse();
                 },
                 () -> {
