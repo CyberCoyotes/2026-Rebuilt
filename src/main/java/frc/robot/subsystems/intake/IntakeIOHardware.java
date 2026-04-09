@@ -101,8 +101,7 @@ public class IntakeIOHardware implements IntakeIO {
             new DynamicMotionMagicVoltage(
                     0,
                     Constants.Intake.SLIDE_SLOW_MM_CRUISE_VELOCITY,
-                    Constants.Intake.SLIDE_SLOW_MM_ACCELERATION,
-                    Constants.Intake.SLIDE_SLOW_MM_JERK);
+                    Constants.Intake.SLIDE_SLOW_MM_ACCELERATION);
 
     // == Status Signals =============================================================
     // Current, voltage, and temp are captured by CTRE Hoot for diagnostics.
