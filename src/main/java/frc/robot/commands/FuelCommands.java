@@ -63,8 +63,8 @@ public class FuelCommands {
         return Commands.runEnd(
                 () -> {
                     intake.extendSlidesFast();
-                    intake.purgeRoller();
-                    indexer.conveyorReverse();
+                    intake.reverseRoller();;
+                    indexer.reverseConveyor();
                 },
                 () -> {
                     intake.stopRoller();
