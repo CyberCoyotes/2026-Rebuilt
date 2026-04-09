@@ -119,7 +119,7 @@ public class FuelCommands {
                     shooter.setTargetHoodPose(hood); // Set Constants._HOOD
                     shooter.beginSpinUp();         // void — transitions state machine to SPINNING_UP
                 }, shooter),
-                Commands.waitUntil(shooter::isReady).withTimeout(3.0),
+                Commands.waitUntil(shooter::isReady).withTimeout(3.0), // TODO double check
                 Commands.run(() -> {
                     indexer.conveyorForward();
                     indexer.kickerForward();
