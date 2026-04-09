@@ -59,6 +59,10 @@ public class IndexerSubsystem extends SubsystemBase {
     private final DoublePublisher chuteDistancePublisher;
     private final StringPublisher fuelStatusColorPublisher;
     private final BooleanPublisher chuteEmptyPublisher;
+    private final BooleanPublisher isFeedingPublisher;
+
+    // Tracks whether motors are actively commanded on
+    private boolean isFeeding = false;
 
     // =====================================================================
     // Constructor
@@ -72,6 +76,7 @@ public class IndexerSubsystem extends SubsystemBase {
         chuteDistancePublisher   = indexerTable.getDoubleTopic("Chute/DistanceMeters").publish();
         fuelStatusColorPublisher = indexerTable.getStringTopic("Chute/FuelStatus").publish();
         chuteEmptyPublisher      = indexerTable.getBooleanTopic("Chute/IsChuteEmpty").publish();
+        isFeedingPublisher       = indexerTable.getBooleanTopic("IsFeeding").publish();
     }
 
     // =====================================================================
@@ -108,6 +113,7 @@ public class IndexerSubsystem extends SubsystemBase {
         // YELLOW = fuel present, RED = no fuel (matches Elastic Dashboard color widget)
         fuelStatusColorPublisher.set(isFuelDetected ? "YELLOW" : "RED");
         chuteEmptyPublisher.set(isChuteEmpty());
+        isFeedingPublisher.set(isFeeding);
     }
 
     // =====================================================================
@@ -126,18 +132,22 @@ public class IndexerSubsystem extends SubsystemBase {
     // =====================================================================
     public void conveyorForward() {
         io.setConveyorMotor(Constants.Indexer.CONVEYOR_FORWARD_VOLTAGE);
+        isFeeding = true;
     }
 
     public void conveyorReverse() {
         io.setConveyorMotor(Constants.Indexer.CONVEYOR_REVERSE_VOLTAGE);
+        isFeeding = false;
     }
 
     public void conveyorAirPopper() {
         io.setConveyorMotor(Constants.Indexer.CONVEYOR_POPPER_VOLTAGE);
+        isFeeding = false;
     }
 
     public void conveyorStop() {
         io.setConveyorMotor(0.0);
+        isFeeding = false;
     }
 
     public void kickerForward() {
@@ -158,6 +168,7 @@ public class IndexerSubsystem extends SubsystemBase {
 
     public void stop() {
         io.stop();
+        isFeeding = false;
     }
 
     public void setConveyorVolts(double volts) {

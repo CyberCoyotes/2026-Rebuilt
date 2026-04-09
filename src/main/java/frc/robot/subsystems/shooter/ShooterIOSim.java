@@ -59,9 +59,9 @@ public class ShooterIOSim implements ShooterIO {
         inputs.hoodAngleDegrees = currentHoodPosition * 360.0;
 
         // Simulated ThroughBore — always connected in sim
-        inputs.hoodThroughBorePositionRotations = currentHoodPosition;
-        inputs.hoodThroughBorePositionDegrees = currentHoodPosition * 360.0;
-        inputs.hoodThroughBoreConnected = true;
+        // inputs.hoodThroughBorePositionRotations = currentHoodPosition;
+        // inputs.hoodThroughBorePositionDegrees = currentHoodPosition * 360.0;
+        // inputs.hoodThroughBoreConnected = true;
     }
 
     @Override

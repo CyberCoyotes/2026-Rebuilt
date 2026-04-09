@@ -552,7 +552,7 @@ public class ShooterSubsystem extends SubsystemBase {
                 || currentState == ShooterState.PASS) {
             return;
         }
-        double dist = Math.max(3.0, Math.min(8.0, distanceMeters)); // max bumped to 8, minimum set to 3, as of 4-7-2026, we cannot make shots closer than this 
+        double dist = Math.max(2.0, Math.min(8.0, distanceMeters)); // max bumped to 8, minimum set to 2, as of 4-2-2026, we cannot make shots closer than 3m anyways
         setTargetVelocity(FLYWHEEL_RPM_MAP.get(dist));
         setTargetHoodPose(HOOD_ROT_MAP.get(dist));
 

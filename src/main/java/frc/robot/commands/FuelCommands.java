@@ -323,10 +323,12 @@ public class FuelCommands {
 
             // 3. Rotation correction — zero output inside deadband so robot settles cleanly
             double rotRate = Math.abs(headingErrorDeg) <= Constants.Vision.ALIGNMENT_TOLERANCE_DEGREES ? 0.0
-                    : MathUtil.clamp(
-                            headingErrorDeg * Constants.Vision.ROTATIONAL_KP,
-                            -Constants.Vision.MAX_ALIGNMENT_ROTATION_RAD_PER_SEC,
-                            Constants.Vision.MAX_ALIGNMENT_ROTATION_RAD_PER_SEC);
+                    : Math.copySign(
+                            MathUtil.clamp(
+                                    Math.abs(headingErrorDeg) * Constants.Vision.ROTATIONAL_KP,
+                                    Constants.Vision.MIN_ALIGNMENT_ROTATION_RAD_PER_SEC,
+                                    Constants.Vision.MAX_ALIGNMENT_ROTATION_RAD_PER_SEC),
+                            headingErrorDeg);
 
             ntAngleToHub.set(angleToHubDeg);
             ntCurrentHeading.set(currentHeadingDeg);
@@ -340,8 +342,11 @@ public class FuelCommands {
                             .withVelocityY(-ySupplier.getAsDouble() * .40) // Made negative to correct backwards driving when vision-assisted
                             .withRotationalRate(rotRate));
 
-            // 4. Feed: aligned within ALIGNMENT_TOLERANCE_DEGREES AND flywheel/hood settled
-            if (shooter.isReady() && Math.abs(headingErrorDeg) <= Constants.Vision.ALIGNMENT_TOLERANCE_DEGREES) {
+            // 4. Feed: shooter ready AND heading error within the wider feed tolerance
+            //    Rotation stops at ALIGNMENT_TOLERANCE_DEGREES (0.75°) so the robot
+            //    always settles well inside FEED_TOLERANCE_DEGREES (1.5°).
+            boolean withinFeedTolerance = Math.abs(headingErrorDeg) <= Constants.Vision.FEED_TOLERANCE_DEGREES;
+            if (shooter.isReady() && withinFeedTolerance) {
                 indexer.conveyorForward();
                 indexer.kickerForward();
             } else {

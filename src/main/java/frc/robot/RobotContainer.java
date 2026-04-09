@@ -14,6 +14,7 @@ import com.ctre.phoenix6.swerve.SwerveRequest;
 import choreo.auto.AutoChooser;
 import choreo.auto.AutoFactory;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
@@ -21,10 +22,12 @@ import edu.wpi.first.wpilibj2.command.button.RobotModeTriggers;
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
 import frc.robot.subsystems.indexer.IndexerIOHardware;
+import frc.robot.subsystems.indexer.IndexerIOSim;
 import frc.robot.subsystems.indexer.IndexerSubsystem;
 import frc.robot.subsystems.intake.IntakeIOHardware;
 import frc.robot.subsystems.intake.IntakeSubsystem;
 import frc.robot.subsystems.shooter.ShooterIOHardware;
+import frc.robot.subsystems.shooter.ShooterIOSim;
 import frc.robot.subsystems.shooter.ShooterSubsystem;
 import frc.robot.subsystems.vision.VisionIOLimelight;
 import frc.robot.subsystems.vision.VisionSubsystem;
@@ -69,8 +72,8 @@ public class RobotContainer {
     // =====================================================================
     public RobotContainer() {
         intake = new IntakeSubsystem(new IntakeIOHardware());
-        indexer = new IndexerSubsystem(new IndexerIOHardware());
-        shooter = new ShooterSubsystem(new ShooterIOHardware());
+        indexer = new IndexerSubsystem(RobotBase.isSimulation() ? new IndexerIOSim() : new IndexerIOHardware());
+        shooter = new ShooterSubsystem(RobotBase.isSimulation() ? new ShooterIOSim() : new ShooterIOHardware());
         vision = new VisionSubsystem(new VisionIOLimelight(Constants.Vision.LIMELIGHT4_NAME));
 
         autoFactory = drivetrain.createAutoFactory();

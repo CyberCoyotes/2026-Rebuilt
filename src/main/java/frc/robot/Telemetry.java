@@ -15,7 +15,9 @@ import edu.wpi.first.networktables.StringPublisher;
 import edu.wpi.first.networktables.StructArrayPublisher;
 import edu.wpi.first.networktables.StructPublisher;
 import edu.wpi.first.util.sendable.SendableRegistry;
+import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.Mechanism2d;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.smartdashboard.MechanismLigament2d;
 import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj.util.Color8Bit;
@@ -31,6 +33,9 @@ public class Telemetry {
     public Telemetry(double maxSpeed) {
         MaxSpeed = maxSpeed;
         SignalLogger.start();
+
+        /* Register Field2d with SmartDashboard so Elastic can find it */
+        SmartDashboard.putData("Field", m_field);
 
         /* Set up the module state Mechanism2d telemetry - publish directly to NetworkTables for Elastic */
         for (int i = 0; i < 4; ++i) {
@@ -62,6 +67,9 @@ public class Telemetry {
     private final NetworkTable table = inst.getTable("Pose");
     private final DoubleArrayPublisher fieldPub = table.getDoubleArrayTopic("robotPose").publish();
     private final StringPublisher fieldTypePub = table.getStringTopic(".type").publish();
+
+    /* Field2d for Elastic dashboard display */
+    private final Field2d m_field = new Field2d();
 
     /* Mechanisms to represent the swerve module states */
     private final Mechanism2d[] m_moduleMechanisms = new Mechanism2d[] {
@@ -117,6 +125,9 @@ public class Telemetry {
         m_poseArray[1] = state.Pose.getY();
         m_poseArray[2] = state.Pose.getRotation().getDegrees();
         fieldPub.set(m_poseArray);
+
+        /* Also update the SmartDashboard Field2d for Elastic */
+        m_field.setRobotPose(state.Pose);
 
         /* Telemeterize each module state to a Mechanism2d */
         for (int i = 0; i < 4; ++i) {

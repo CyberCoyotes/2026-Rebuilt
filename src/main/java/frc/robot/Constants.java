@@ -491,8 +491,19 @@ public final class Constants {
     // measured for accuracy.
     public static final double CAMERA_ANGLE_DEGREES = 15.5;
 
-    /** Tolerance for horizontal alignment in degrees used in FuelCommands.java */
-    public static final double ALIGNMENT_TOLERANCE_DEGREES = 1.00;
+    /** Rotation stops correcting within this deadband — robot should always settle inside FEED_TOLERANCE_DEGREES. */
+    public static final double ALIGNMENT_TOLERANCE_DEGREES = 0.75;
+
+    /** Indexer feeds once heading error is within this window. Wider than ALIGNMENT_TOLERANCE_DEGREES
+     *  so the rotation deadband guarantees the robot lands inside it. */
+    public static final double FEED_TOLERANCE_DEGREES = 1.5;
+
+    /**
+     * How long the heading error must stay within ALIGNMENT_TOLERANCE_DEGREES
+     * before the indexer feeds. Prevents micro-corrections from blocking shots.
+     * Start at 0.1s and reduce if shots feel delayed on real hardware.
+     */
+    public static final double ALIGNMENT_SETTLED_SECONDS = 0.1;
      
     /** Minimum target area to consider target valid (prevents false positives) */
     public static final double MIN_TARGET_AREA_PERCENT = 0.1;
@@ -520,11 +531,13 @@ public final class Constants {
      * Chassis front must point 180° away from the hub when aligning to shoot.
      */
 
-    public final static double ALIGNMENT_OFFSET_DEGREES = 180; // KEEP AT 180 DEGREES
+    // 0   = robot FRONT faces the hub (shooter on front)
+    // 180 = robot BACK faces the hub (shooter on back)
+    public final static double ALIGNMENT_OFFSET_DEGREES = 0; // Set to 180 if shooter is on the back of the robot
 
     // TODO Tune the Vision parameters
     // Keep this moderate; aggressive values amplify pose-estimator jitter during alignment.
-    public static final double ROTATIONAL_KP = 0.12; // Tuned 4-8-2026
+    public static final double ROTATIONAL_KP = 0.20; // Tuned 4-8-2026
 
     /*
      * Maximum rotational rate the vision command will apply to the drivetrain (rad/s).
