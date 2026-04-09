@@ -179,12 +179,12 @@ public class RobotContainer {
 
         // operator.rightBumper().onTrue(intake.retractSlidesFastCmd());
         operator.leftBumper().onTrue(intake.fuelCompression());
+        operator.rightBumper().whileTrue(FuelCommands.purgeFuel(intake, indexer));
 
         // Start (Menu ☰): Toggle flywheel standby pre-rev — operator sets once and forgets.
         // When ON: flywheel holds at STANDBY_RPM (1800) between shots instead of stopping.
         // When OFF: flywheel returns to full idle after each shot.
         // Defaults OFF at robot startup — operator must enable explicitly.
-        operator.start().onTrue(shooter.runOnce(shooter::toggleStandby).withName("ToggleStandby"));
 
         // Back (View ⧉): Reset odometry to botpose — use when robot rides up on a ball
         operator.back().onTrue(drivetrain.resetPoseFromVisionCommand());
@@ -195,8 +195,6 @@ public class RobotContainer {
 
         operator.povLeft().onTrue(intake.extendSlidesFastCmd());
         operator.povRight().whileTrue(intake.fuelPumpCycleDelayed());
-        // TODO: Bind purgeFuelHeld() once final operator button is chosen.
-        operator.rightBumper().whileTrue(FuelCommands.purgeFuel(intake, indexer));
 
     }
 
