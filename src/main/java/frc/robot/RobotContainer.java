@@ -126,15 +126,16 @@ public class RobotContainer {
                     () -> -driver.getLeftY() * MaxSpeed,
                     () -> -driver.getLeftX() * MaxSpeed),
                 fuelCompressionWhenShooterReady())); 
-        driver.rightBumper().onTrue(intake.fuelCompression());
-
+        // driver.rightBumper().onTrue(intake.fuelCompression());
+        driver.rightBumper().whileTrue(FuelCommands.purgeFuel(intake, indexer));
+        
         driver.leftTrigger(0.5).whileTrue(intake.intakeFuel());
         driver.leftBumper().onTrue(intake.retractSlidesIncrementalCmd());
         
-        driver.a().onTrue(intake.extendSlidesFastCmd());
-        driver.b().onTrue(intake.retractSlidesFastCmd());
-        driver.x().onTrue(intake.fuelCompression());
-        driver.y().whileTrue(intake.fuelPumpCycleDelayed());
+        // driver.a().onTrue(intake.extendSlidesFastCmd());
+        // driver.b().onTrue(intake.retractSlidesFastCmd());
+        // driver.x().onTrue(intake.fuelCompression());
+        // driver.y().whileTrue(intake.fuelPumpCycleDelayed());
 
         driver.povLeft().whileTrue(
             Commands.deadline(
@@ -178,7 +179,7 @@ public class RobotContainer {
 
         // operator.rightBumper().onTrue(intake.retractSlidesFastCmd());
         operator.leftBumper().onTrue(intake.fuelCompression());
-        operator.rightBumper().whileTrue(FuelCommands.purgeFuel(intake, indexer));
+        
 
         // Start (Menu ☰): Toggle flywheel standby pre-rev — operator sets once and forgets.
         // When ON: flywheel holds at STANDBY_RPM (1800) between shots instead of stopping.
