@@ -122,9 +122,11 @@ public class RobotContainer {
         drivetrain.registerTelemetry(logger::telemeterize);
         
         driver.rightTrigger(0.5).whileTrue(
-            FuelCommands.poseAlignAndShoot(shooter, indexer, /*intake,*/ drivetrain,
-                () -> -driver.getLeftY() * MaxSpeed,
-                () -> -driver.getLeftX() * MaxSpeed)); 
+            Commands.deadline(
+                FuelCommands.poseAlignAndShoot(shooter, indexer, /*intake,*/ drivetrain,
+                    () -> -driver.getLeftY() * MaxSpeed,
+                    () -> -driver.getLeftX() * MaxSpeed),
+                fuelCompressionWhenShooterReady())); 
         driver.rightBumper().onTrue(intake.fuelCompression());
 
         driver.leftTrigger(0.5).whileTrue(intake.intakeFuel());
@@ -136,37 +138,53 @@ public class RobotContainer {
         driver.y().whileTrue(intake.fuelPumpCycleDelayed());
 
         driver.povLeft().whileTrue(
-            FuelCommands.shootWithPreset(shooter, indexer, ShooterSubsystem.ShotPreset.CLOSE));
+            Commands.deadline(
+                FuelCommands.shootWithPreset(shooter, indexer, ShooterSubsystem.ShotPreset.CLOSE),
+                fuelCompressionWhenShooterReady()));
         driver.povRight().whileTrue(
-            FuelCommands.shootWithPreset(shooter, indexer, ShooterSubsystem.ShotPreset.TRENCH));
+            Commands.deadline(
+                FuelCommands.shootWithPreset(shooter, indexer, ShooterSubsystem.ShotPreset.TRENCH),
+                fuelCompressionWhenShooterReady()));
         driver.povUp().whileTrue(
-            FuelCommands.shootWithPreset(shooter, indexer, ShooterSubsystem.ShotPreset.FAR));
+            Commands.deadline(
+                FuelCommands.shootWithPreset(shooter, indexer, ShooterSubsystem.ShotPreset.FAR),
+                fuelCompressionWhenShooterReady()));
         driver.povDown().whileTrue(
-            FuelCommands.shootWithPreset(shooter, indexer, ShooterSubsystem.ShotPreset.TOWER));
+            Commands.deadline(
+                FuelCommands.shootWithPreset(shooter, indexer, ShooterSubsystem.ShotPreset.TOWER),
+                fuelCompressionWhenShooterReady()));
 
         // =====================================================================
         // Operator Controller
         // =====================================================================
         operator.a().whileTrue(
-            FuelCommands.shootWithPreset(shooter, indexer, ShooterSubsystem.ShotPreset.TRENCH));
+            Commands.deadline(
+                FuelCommands.shootWithPreset(shooter, indexer, ShooterSubsystem.ShotPreset.TRENCH),
+                fuelCompressionWhenShooterReady()));
         operator.b().whileTrue(
-            FuelCommands.shootWithPreset(shooter, indexer, ShooterSubsystem.ShotPreset.CLOSE));
+            Commands.deadline(
+                FuelCommands.shootWithPreset(shooter, indexer, ShooterSubsystem.ShotPreset.CLOSE),
+                fuelCompressionWhenShooterReady()));
         operator.x().whileTrue(
-            FuelCommands.shootWithPreset(shooter, indexer, ShooterSubsystem.ShotPreset.TOWER));
+            Commands.deadline(
+                FuelCommands.shootWithPreset(shooter, indexer, ShooterSubsystem.ShotPreset.TOWER),
+                fuelCompressionWhenShooterReady()));
         operator.y().whileTrue(
-            FuelCommands.shootWithPreset(shooter, indexer, ShooterSubsystem.ShotPreset.FAR));
+            Commands.deadline(
+                FuelCommands.shootWithPreset(shooter, indexer, ShooterSubsystem.ShotPreset.FAR),
+                fuelCompressionWhenShooterReady()));
 
         operator.rightTrigger(0.5).whileTrue(indexer.reverse());
         operator.leftTrigger(0.5).whileTrue(intake.intakeFuel());
 
         // operator.rightBumper().onTrue(intake.retractSlidesFastCmd());
         operator.leftBumper().onTrue(intake.fuelCompression());
+        operator.rightBumper().whileTrue(FuelCommands.purgeFuel(intake, indexer));
 
         // Start (Menu ☰): Toggle flywheel standby pre-rev — operator sets once and forgets.
         // When ON: flywheel holds at STANDBY_RPM (1800) between shots instead of stopping.
         // When OFF: flywheel returns to full idle after each shot.
         // Defaults OFF at robot startup — operator must enable explicitly.
-        operator.start().onTrue(shooter.runOnce(shooter::toggleStandby).withName("ToggleStandby"));
 
         // Back (View ⧉): Reset odometry to botpose — use when robot rides up on a ball
         operator.back().onTrue(drivetrain.resetPoseFromVisionCommand());
@@ -177,13 +195,22 @@ public class RobotContainer {
 
         operator.povLeft().onTrue(intake.extendSlidesFastCmd());
         operator.povRight().whileTrue(intake.fuelPumpCycleDelayed());
-        // TODO: Bind purgeFuelHeld() once final operator button is chosen.
-        operator.rightBumper().whileTrue(FuelCommands.purgeFuel(intake, indexer));
 
     }
 
     public Command getAutonomousCommand() {
         return autoChooser.selectedCommand();
+    }
+
+    /**
+     * Runs intake fuel compression only after the shooter reports ready.
+     * If the shooting command is cancelled before ready, compression never starts.
+     */
+    private Command fuelCompressionWhenShooterReady() {
+        return Commands.sequence(
+                Commands.waitUntil(shooter::isReady),
+                intake.fuelCompression())
+                .withName("FuelCompressionWhenShooterReady");
     }
 
     public void updateGameData() {

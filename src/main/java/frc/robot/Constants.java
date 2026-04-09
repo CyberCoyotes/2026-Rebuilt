@@ -88,7 +88,7 @@ public final class Constants {
     public static final double SLIDE_MANUAL_REPEAT_SECONDS = 0.15;
     public static final double SLIDE_PUMP_OUT_POS = 60.0;
     public static final double SLIDE_PUMP_IN_POS = 40.0;
-    public static final double SLIDE_FUEL_COMPRESSION_WAIT_SECONDS = 1.0;
+    public static final double SLIDE_FUEL_COMPRESSION_WAIT_SECONDS = 0.5;
     public static final double SLIDE_FUEL_COMPRESSION_DURATION_SECONDS = 6.0;
     public static final double SLIDE_FUEL_PUMP_WAIT_SECONDS = 3.0;
     public static final double SLIDE_FUEL_PUMP_OUT_SECONDS = 0.5;
