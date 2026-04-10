@@ -2,8 +2,8 @@ package frc.robot.subsystems.intake;
 
 import com.ctre.phoenix6.BaseStatusSignal;
 import com.ctre.phoenix6.StatusSignal;
+import com.ctre.phoenix6.configs.MotionMagicConfigs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
-import com.ctre.phoenix6.controls.DynamicMotionMagicVoltage;
 import com.ctre.phoenix6.controls.Follower;
 import com.ctre.phoenix6.controls.MotionMagicVoltage;
 import com.ctre.phoenix6.controls.VoltageOut;
@@ -76,7 +76,7 @@ public class IntakeIOHardware implements IntakeIO {
             config.Slot0.kV = Constants.Intake.SlideConfig.KV;
             config.Slot0.kA = Constants.Intake.SlideConfig.KA;
 
-            /* MotionMagic profile */
+            /* MotionMagic profile — starts with the fast (default) values */
             config.MotionMagic.MotionMagicCruiseVelocity = Constants.Intake.SLIDE_MM_CRUISE_VELOCITY;
             config.MotionMagic.MotionMagicAcceleration = Constants.Intake.SLIDE_MM_ACCELERATION;
             config.MotionMagic.MotionMagicJerk = Constants.Intake.SLIDE_MM_JERK;
@@ -93,15 +93,16 @@ public class IntakeIOHardware implements IntakeIO {
     // == Control Requests =====================================================
     private final VoltageOut rollerRequest = new VoltageOut(0);
 
-    // MotionMagic control for slide — set position, motor holds after command ends
+    // Single MotionMagic request used for both fast and slow slide movement.
+    // The speed difference comes from swapping the motor's MotionMagic config.
     private final MotionMagicVoltage slideRequest = new MotionMagicVoltage(0);
 
-    // DynamicMotionMagic for slower slide movement 
-    private final DynamicMotionMagicVoltage slideRequestSlow =
-            new DynamicMotionMagicVoltage(
-                    0,
-                    Constants.Intake.SLIDE_SLOW_MM_CRUISE_VELOCITY,
-                    Constants.Intake.SLIDE_SLOW_MM_ACCELERATION);
+    // == MotionMagic Profile Configs ==========================================
+    // Pre-built configs for swapping between fast and slow slide profiles.
+    // Only the MotionMagic section is applied — PID, current limits, etc. stay unchanged.
+    private final MotionMagicConfigs fastProfile = new MotionMagicConfigs();
+    private final MotionMagicConfigs slowProfile = new MotionMagicConfigs();
+    private boolean slowProfileActive = false;
 
     // == Status Signals =============================================================
     // Current, voltage, and temp are captured by CTRE Hoot for diagnostics.
@@ -117,6 +118,15 @@ public class IntakeIOHardware implements IntakeIO {
         PhoenixUtil.applyConfig("Roller Lead",   () -> rollerLead.getConfigurator().apply(RollerConfig.roller()));
         PhoenixUtil.applyConfig("Roller Follow", () -> rollerFollow.getConfigurator().apply(RollerConfig.roller()));
         PhoenixUtil.applyConfig("Slide",         () -> slide.getConfigurator().apply(SlideConfig.slide()));
+
+        // Build fast/slow MotionMagic configs for runtime profile swapping
+        fastProfile.MotionMagicCruiseVelocity = Constants.Intake.SLIDE_MM_CRUISE_VELOCITY;
+        fastProfile.MotionMagicAcceleration = Constants.Intake.SLIDE_MM_ACCELERATION;
+        fastProfile.MotionMagicJerk = Constants.Intake.SLIDE_MM_JERK;
+
+        slowProfile.MotionMagicCruiseVelocity = Constants.Intake.SLIDE_SLOW_MM_CRUISE_VELOCITY;
+        slowProfile.MotionMagicAcceleration = Constants.Intake.SLIDE_SLOW_MM_ACCELERATION;
+        slowProfile.MotionMagicJerk = Constants.Intake.SLIDE_SLOW_MM_JERK;
 
         // Cache signal references — slide needs position and velocity for MotionMagic
         // and at-target checks. Roller has no control-critical signals to read.
@@ -149,7 +159,7 @@ public class IntakeIOHardware implements IntakeIO {
         rollerLead.setControl(rollerRequest.withOutput(volts));
         // Follower will automatically oppose lead motor, so no need to set voltage here.
         // Calling the motor directly a "follower break"
-        // rollerFollow.setControl(rollerRequest.withOutput(-volts)); 
+        // rollerFollow.setControl(rollerRequest.withOutput(-volts));
     }
 
     @Override
@@ -161,14 +171,20 @@ public class IntakeIOHardware implements IntakeIO {
     // ==== Slide Methods ====
     @Override
     public void setSlidePosition(double position) {
+        if (slowProfileActive) {
+            slide.getConfigurator().apply(fastProfile);
+            slowProfileActive = false;
+        }
         slide.setControl(slideRequest.withPosition(position));
     }
 
     @Override
     public void setSlidePositionSlow(double position) {
-        // This request carries its own cruise/accel limits, so we can tune slow
-        // retract independently from the normal Motion Magic profile in config.
-        slide.setControl(slideRequestSlow.withPosition(position));
+        if (!slowProfileActive) {
+            slide.getConfigurator().apply(slowProfile);
+            slowProfileActive = true;
+        }
+        slide.setControl(slideRequest.withPosition(position));
     }
 
     // This was not following the IO pattern and was being called directly by the subsystem

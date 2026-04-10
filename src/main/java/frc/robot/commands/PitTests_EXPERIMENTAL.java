@@ -13,7 +13,7 @@ import frc.robot.subsystems.shooter.ShooterSubsystem.ShotPreset;
  * Usage (in RobotContainer or a dashboard button binding):
  *   new JoystickButton(panel, 1).onTrue(PitTests.testAll(m_shooter));
  */
-public class PitTests {
+public class PitTests_EXPERIMENTAL {
 
     /** Seconds to wait for isReady() before giving up and moving on. */
     private static final double SPIN_UP_TIMEOUT = 5.0;
@@ -25,7 +25,7 @@ public class PitTests {
     private static final double SPINDOWN_WAIT = 3.0;
 
     // Prevent instantiation — all methods are static.
-    private PitTests() {}
+    private PitTests_EXPERIMENTAL() {}
 
     // =====================================================================
     // Public sequences

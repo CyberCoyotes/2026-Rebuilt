@@ -1,196 +1,190 @@
-# Vision Shooter Tuning Guide
+# Vision Tuning Guide (MegaTag2 + PoseAlignAndShoot)
 
-This document covers everything needed to tune the vision-based shooting system end-to-end:
-camera constants → distance verification → shooter lookup table → rotational alignment.
+This guide is updated for the current architecture:
 
-Work through the sections in order. Each section depends on the previous one being correct.
+- **Aim command:** `FuelCommands.poseAlignAndShoot(...)` (odometry + hub pose aiming)
+- **Vision localization:** Limelight **MegaTag2** fused into drivetrain pose in `Robot.robotPeriodic()`
+- **Shooter setpoints:** `ShooterSubsystem.updateFromDistance(distance)` from field pose distance to hub
+
+Because your mechanical setup and camera orientation changed, you should tune in two places:
+
+1. **Limelight configuration** (camera pose + pipeline + field map) → foundation
+2. **Robot code constants** (alignment gains, tolerance, hub location, shooter map) → behavior
+
+If Limelight pose is wrong, code tuning will never feel stable.
 
 ---
 
-## § 1  Pre-Session: One-Time Physical Measurements
+## Quick Answer: How much is Limelight vs code?
 
-Measure these before any on-robot tuning. Get them right once and you will not need to revisit them unless the camera mount changes.
+For a new camera mount/orientation, expect roughly:
 
-| Measurement | Location in code | How to measure |
+- **60–70% Limelight setup** (camera pose, orientation correctness, pipeline/tag settings)
+- **30–40% code tuning** (`ROTATIONAL_KP`, alignment tolerance, shooter distance map)
+
+The order matters more than the percentage:
+
+1. Fix Limelight geometry first.
+2. Verify fused robot pose quality.
+3. Tune code gains and shooter map last.
+
+---
+
+## §1 What is tuned in Limelight (not code)
+
+Do this in Limelight web UI first.
+
+## 1) Camera Pose (Robot Space)
+
+Set the Limelight **camera pose relative to robot center** (forward, side, up, roll, pitch, yaw) to match your new mechanical mount.
+
+If yaw/roll/pitch are wrong, MegaTag2 pose will be biased and `poseAlignAndShoot` will aim incorrectly even if `ROTATIONAL_KP` is perfect.
+
+## 2) AprilTag pipeline and map
+
+- Use your AprilTag pipeline (code expects `APRILTAG_PIPELINE = 0`).
+- Verify field layout/year is correct on Limelight.
+- Verify the camera is actually tracking hub-side tags with good consistency.
+
+## 3) Basic quality checks on Limelight dashboard
+
+With robot still + level:
+
+- Botpose heading should match gyro heading directionally.
+- Translation should not jump when stationary.
+- Tag count should be > 0 when a hub tag is visible.
+
+If these fail, do **not** tune code yet.
+
+---
+
+## §2 What is tuned in code
+
+After Limelight pose is trustworthy, tune these in code:
+
+### High-priority constants
+
+- `Constants.Vision.ROTATIONAL_KP`
+- `Constants.Vision.MIN_ALIGNMENT_ROTATION_RAD_PER_SEC`
+- `Constants.Vision.MAX_ALIGNMENT_ROTATION_RAD_PER_SEC`
+- `Constants.Vision.ALIGNMENT_TOLERANCE_DEGREES`
+- `Constants.Vision.BLUE_HUB_LOCATION` / `RED_HUB_LOCATION` (verify field coordinates)
+- Shooter distance maps in `ShooterSubsystem` (`updateFromDistance` source table)
+
+### Lower-priority / optional
+
+- `Constants.Vision.LEAD_COMPENSATION_DEG_PER_MPS` (only if shooting while translating fast)
+
+---
+
+## §3 Important architecture note (why old ty tuning is less critical now)
+
+Current aim flow does **not** use `ty` trig distance for shooting. It uses:
+
+1. Limelight MegaTag2 → robot `Pose2d`
+2. Drivetrain pose estimator fusion
+3. Hub field coordinate distance (`hypot(dx,dy)`) in `poseAlignAndShoot`
+4. Shooter lookup from that distance
+
+That means camera height/angle (`CAMERA_HEIGHT_METERS`, `CAMERA_ANGLE_DEGREES`) are no longer the primary distance-tuning knobs for the active shoot command.
+
+Keep them documented, but prioritize Limelight camera pose + fused odometry correctness instead.
+
+---
+
+## §4 Bring-up sequence for a new mechanical orientation
+
+Run this in order.
+
+### Step A — Mechanical/geometry verification (Limelight)
+
+1. Measure camera offsets from robot center (forward/left/up) and mount angles (roll/pitch/yaw).
+2. Enter/update Limelight camera pose (Robot Space).
+3. Confirm AprilTag pipeline and field map/year.
+4. Reboot Limelight and verify botpose is stable when stationary.
+
+### Step B — Fusion sanity check (robot code + NT)
+
+1. Put robot on carpet, point at known field landmark.
+2. Compare drivetrain field pose with expected location.
+3. Drive 2–3 m and return; check drift and correction behavior.
+4. Ensure vision updates are actually accepted (tagCount > 0, not spinning too fast).
+
+### Step C — Align controller tune (`ROTATIONAL_KP`)
+
+At ~3–5 m from hub:
+
+1. Start ~15–25° off heading.
+2. Hold aim/shoot trigger.
+3. Watch `VisionShoot/headingError_deg` and `VisionShoot/rotRate_radps`.
+
+Adjust:
+
+- Slow to converge → increase `ROTATIONAL_KP` by small steps (e.g., +0.002 to +0.005)
+- Oscillation/hunting → decrease `ROTATIONAL_KP`
+- Stiction near zero error → raise `MIN_ALIGNMENT_ROTATION_RAD_PER_SEC` slightly
+- Too aggressive snap → lower `MAX_ALIGNMENT_ROTATION_RAD_PER_SEC`
+
+Target behavior: quick settle without bouncing.
+
+### Step D — Feed/ready threshold
+
+Tune `ALIGNMENT_TOLERANCE_DEGREES` to balance speed vs precision:
+
+- Too strict: robot waits forever to feed
+- Too loose: early feed while still mis-aimed
+
+Start with current value and adjust in small increments (0.25–0.5°).
+
+### Step E — Shooter distance map
+
+Now tune shot results by distance (because distance comes from pose now):
+
+1. Test fixed distances (e.g., 2 m, 3.5 m, 5 m, 6 m).
+2. Adjust flywheel RPM + hood map entries.
+3. Add extra interpolation points where miss pattern changes rapidly.
+
+---
+
+## §5 Symptoms → likely fix location
+
+| Symptom | Usually fix in Limelight | Usually fix in code |
 |---|---|---|
-| `CAMERA_HEIGHT_METERS` | `Constants.Vision` | Floor to the center of the Limelight 4 lens, robot on a level surface |
-| `CAMERA_ANGLE_DEGREES` | `Constants.Vision` | Angle of camera from horizontal, positive = tilted up. Use a digital angle gauge or protractor against the camera face |
-| `APRILTAG_HEIGHT_METERS` | `Constants.Vision` | Floor to center of the hub AprilTag face. Look this up in the 2026 game manual field drawings |
-
-Also verify in Limelight web UI that the camera pose is configured to match physical mounting (used by MegaTag2 odometry). These values are separate from the robot code constants but must reflect the same physical reality.
-
----
-
-## § 2  Hub AprilTag IDs
-
-**Before any testing, verify these against the 2026 game manual and the WPILib field layout JSON.**
-
-The WPILib field layout JSON is included with the WPILib release (usually `2026-crescendo.json` or equivalent) and lists every tag ID with its field position.
-
-| Alliance | Constant | Current placeholder |
-|---|---|---|
-| Blue hub | `BLUE_HUB_MIN/MAX_TAG_ID` | 23 – 28 |
-| Red hub  | `RED_HUB_MIN/MAX_TAG_ID`  | 1 – 6 (NOT verified) |
-
-Wrong IDs → `isHubTarget()` returns false → vision targeting never activates. Verify first.
+| Robot aims to consistently wrong angle at many spots | ✅ Camera pose yaw/roll/pitch, field map | ✅ (sometimes) hub coordinates/offset constants |
+| Pose jumps while stationary | ✅ Pipeline/tag quality, camera pose, exposure/setup | ❌ |
+| Robot rotates too slowly/too fast around target | ❌ | ✅ `ROTATIONAL_KP`, min/max rot clamps |
+| Robot says aligned but misses left/right slightly | ⚠️ maybe pose bias | ✅ `ALIGNMENT_TOLERANCE_DEGREES`, shooter map |
+| Shots are high/low by distance | ❌ | ✅ shooter RPM/hood lookup table |
+| Misses only while driving sideways | ❌ | ✅ `LEAD_COMPENSATION_DEG_PER_MPS` |
 
 ---
 
-## § 3  Distance Verification
+## §6 Current-code references (for pit debugging)
 
-Before filling in the shooter lookup table you need to confirm that `Vision/Distance_m` on the Elastic dashboard matches the real floor distance to the hub.
-
-**Procedure:**
-
-1. Place the robot on a level floor, directly facing a hub AprilTag.
-2. Use a tape measure to record the distance from the bumper (or a consistent reference point on the robot) to the tag face. Write down: `1.0 m`, `2.0 m`, `3.0 m`, `4.0 m`, `5.0 m`, `6.0 m`.
-3. Enable Teleop. Watch `Vision/Distance_m` and `Vision/State` on Elastic.
-4. For each measured distance, compare `Vision/Distance_m` to the tape measure reading.
-
-**If values do not match:**
-
-The distance formula is:
-```
-distance = (APRILTAG_HEIGHT_METERS - CAMERA_HEIGHT_METERS) / tan(CAMERA_ANGLE_DEGREES + ty)
-```
-- Reads too **far**: camera height is understated OR camera angle is overstated.
-- Reads too **close**: camera height is overstated OR camera angle is understated.
-- Adjust `CAMERA_HEIGHT_METERS` and `CAMERA_ANGLE_DEGREES` in `Constants.Vision` and retest.
-
-**Acceptance criterion:** `Vision/Distance_m` within ±0.1 m of tape measure at all tested distances before proceeding.
-
-**Also verify:**
-- `Vision/State` shows `TARGET_ACQUIRED` or `ALIGNED` (not `NO_TARGET`).
-- `Vision/TagID` shows the expected hub tag number.
-- `Vision/IsHubTarget` (add to Elastic if desired, or check via NT Browser) is `true`.
+- MegaTag2 fusion path: `Robot.robotPeriodic()`
+  - sets robot orientation to Limelight
+  - reads `getBotPoseEstimate_wpiBlue_MegaTag2(...)`
+  - adds vision measurement to drivetrain estimator with distance-scaled XY std dev
+- Aim + shoot command: `FuelCommands.poseAlignAndShoot(...)`
+  - computes hub distance from drivetrain pose
+  - computes heading error and applies `ROTATIONAL_KP` + rate clamps
+  - only feeds when shooter is ready
+- Vision constants: `Constants.Vision`
 
 ---
 
-## § 4  Shooter Lookup Table Tuning
+## §7 Practical recommendation for your current situation
 
-Fill in `FLYWHEEL_RPM_MAP` and `HOOD_ROT_MAP` in `ShooterSubsystem.java`.
+Since you said you're currently using:
 
-**Setup:**
-- Level floor, robot facing hub tag directly (tx ≈ 0°).
-- Balls/fuel loaded in hopper.
-- Operator controller available to nudge RPM/hood between shots (or use POV cycling for preset reference).
+- vision align
+- pose-command 3D pose
+- MegaTag2
 
-**Procedure (repeat at each distance row):**
+with a new mechanical setup/orientation:
 
-1. Place robot at the target distance (confirmed via `Vision/Distance_m`).
-2. Hold RT. Robot enters `VisionAlignAndShoot` — flywheel spins to the current map value.
-3. Watch `Shooter/FlywheelRPM`, `Shooter/TargetFlywheelRPM`, `Shooter/HoodRotations`, `Shooter/TargetHoodRotations` on Elastic.
-4. Wait for `Shooter/IsReady = true`. The indexer will feed automatically.
-5. Observe where the shot lands:
-   - **Short / hits low**: increase RPM and/or decrease hood (lower number = flatter/closer angle).
-   - **Long / hits high**: decrease RPM and/or increase hood.
-   - **Correct but arc is wrong**: adjust hood angle primarily; adjust RPM secondarily to correct carry.
-6. Adjust values in the map and rebuild. Repeat until shots land center target consistently.
-7. Mark the row as `// Tuned` in the source.
+1. Spend your first session almost entirely on **Limelight camera pose correctness** and pose sanity.
+2. Spend second session on **`ROTATIONAL_KP` + alignment tolerance**.
+3. Spend third session on **distance-to-shot map polish**.
 
-**Data table — fill in as you go:**
-
-| Distance (m) | RPM (measured) | Hood rot (measured) | Notes |
-|---|---|---|---|
-| 1.0 | | | |
-| 2.0 | | | |
-| 3.0 | | | |
-| 4.0 | | | |
-| 5.0 | | | |
-| 6.0 | | | |
-
-**Tips:**
-- Tune the endpoints (1.0 m and 6.0 m) first. The interpolation will give you reasonable in-between values to start from.
-- The flywheel RPM map changes slowly with distance; the hood angle map changes more aggressively. Expect the hood to do most of the work.
-- If shots are consistently biased in one direction across all distances, recheck camera angle or tag height — there may be a systematic distance error.
-- Add extra rows at any distance where interpolation produces noticeably poor results. `InterpolatingDoubleTreeMap` handles arbitrary key counts.
-
----
-
-## § 5  Rotational Alignment (kP) Tuning
-
-Constant: `Constants.Vision.ROTATIONAL_KP` (default: `0.06` rad/s per degree of tx error)
-
-**Objective:** The drivetrain should smoothly center on the hub tag within ~1 second with no oscillation.
-
-**Dashboard values to watch:**
-- `Vision/HorizontalAngle_deg` — tx error in degrees
-- `Vision/IsAligned` — becomes true when within ±2° (see `ALIGNMENT_TOLERANCE_DEGREES`)
-- `Vision/State` — should reach `ALIGNED` before `Shooter/IsReady` for optimal flow
-
-**Procedure:**
-
-1. Place robot ~3 m from hub tag, offset to one side by ~20°.
-2. Hold RT. Observe how the robot rotates to center.
-3. Watch `Vision/HorizontalAngle_deg` converge toward 0.
-
-| Symptom | Adjustment |
-|---|---|
-| Rotates but takes 2–3+ seconds to center | Increase `ROTATIONAL_KP` by 0.01 steps |
-| Oscillates left/right past center | Decrease `ROTATIONAL_KP` by 0.01 steps |
-| Snaps hard to target then overshoots once | Reduce `MAX_ALIGNMENT_ROTATION_RAD_PER_SEC` |
-| Barely moves even with large tx error | Check `Vision/HorizontalAngle_deg` is publishing non-zero values |
-
-**Acceptance criterion:**
-- Robot centers from 20° offset in under 1.5 seconds.
-- No steady-state oscillation.
-- `Vision/IsAligned` holds true once centered.
-
-**Tolerance adjustment:**
-`ALIGNMENT_TOLERANCE_DEGREES` is currently `2.0°`. This is the threshold for `isAligned()` to return true and for feeding to begin. If shots are landing off-center, tighten this (e.g., `1.5°`). If the robot is spending too much time waiting to align before it can fire, loosen it (e.g., `2.5°`). Always re-check shot accuracy after changing it.
-
----
-
-## § 6  Combined System Test
-
-Once §3–5 are complete:
-
-1. Position robot at random locations and angles relative to hub, 1–5 m away.
-2. Enable Teleop, hold RT.
-3. Verify sequence:
-   - Flywheel spins up immediately (preset baseline).
-   - Robot rotates to center hub tag.
-   - `Vision/State` reaches `ALIGNED`.
-   - `Shooter/IsReady` becomes true.
-   - Indexer fires automatically.
-   - Shot lands on target.
-4. Drive around while holding RT. Verify:
-   - Left stick translation still works freely.
-   - Rotation tracks the tag as robot moves.
-   - `Shooter/TargetFlywheelRPM` and `Shooter/TargetHoodRotations` update continuously as distance changes.
-5. Test LOST_TARGET grace period: block the camera briefly while aligned. Robot should hold last-known targets for 0.5 s (`TARGET_TIMEOUT_SECONDS`) before resetting.
-
----
-
-## § 7  Elastic Dashboard Recommended Widgets
-
-| NT Key | Widget type | Purpose |
-|---|---|---|
-| `Vision/State` | Text display | Current alignment state machine state |
-| `Vision/Distance_m` | Number bar (0–8) | Real-time distance to hub |
-| `Vision/HorizontalAngle_deg` | Number bar (−30 to 30) | tx error — watch during kP tuning |
-| `Vision/IsAligned` | Boolean indicator | Green when feeding is permitted |
-| `Vision/TagID` | Integer display | Confirm correct hub tag is tracked |
-| `Shooter/FlywheelRPM` | Graph | Actual vs. target convergence |
-| `Shooter/TargetFlywheelRPM` | Number display | Current interpolated target |
-| `Shooter/HoodRotations` | Number display | Actual hood position |
-| `Shooter/TargetHoodRotations` | Number display | Current interpolated target |
-| `Shooter/IsReady` | Boolean indicator | Green when both flywheel and hood are on-target |
-| `Shooter/SelectedPreset` | Text display | Active fallback preset name |
-
----
-
-## § 8  Quick Reference: Key Constants
-
-| Constant | File | Purpose |
-|---|---|---|
-| `CAMERA_HEIGHT_METERS` | Constants.Vision | ty-based distance formula |
-| `CAMERA_ANGLE_DEGREES` | Constants.Vision | ty-based distance formula |
-| `APRILTAG_HEIGHT_METERS` | Constants.Vision | ty-based distance formula |
-| `BLUE/RED_HUB_MIN/MAX_TAG_ID` | Constants.Vision | Hub tag filter (must match 2026 game manual) |
-| `ALIGNMENT_TOLERANCE_DEGREES` | Constants.Vision | Threshold for isAligned() |
-| `TARGET_TIMEOUT_SECONDS` | Constants.Vision | Grace period on LOST_TARGET |
-| `ROTATIONAL_KP` | Constants.Vision | Rotation tracking aggressiveness |
-| `MAX_ALIGNMENT_ROTATION_RAD_PER_SEC` | Constants.Vision | Rotation rate clamp |
-| `FLYWHEEL_RPM_MAP` | ShooterSubsystem | Distance → RPM lookup |
-| `HOOD_ROT_MAP` | ShooterSubsystem | Distance → hood position lookup |
+If you skip step 1, you'll keep “retuning” code to compensate for a geometry error and it will break again in different field positions.

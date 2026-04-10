@@ -62,12 +62,26 @@ public class Robot extends LoggedRobot {
         var driveState = m_robotContainer.drivetrain.getState();
         double headingDeg = driveState.Pose.getRotation().getDegrees();
         double omegaRps = Units.radiansToRotations(driveState.Speeds.omegaRadiansPerSecond);
+        double yawRateDegPerSec = Units.radiansToDegrees(driveState.Speeds.omegaRadiansPerSecond);
 
-        LimelightHelpers.SetRobotOrientation(Constants.Vision.LIMELIGHT4_NAME, headingDeg, 0, 0, 0, 0, 0);
+        LimelightHelpers.SetRobotOrientation(
+                Constants.Vision.LIMELIGHT4_NAME,
+                headingDeg,
+                yawRateDegPerSec,
+                0,
+                0,
+                0,
+                0);
         var llMeasurement = LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2(Constants.Vision.LIMELIGHT4_NAME);
         if (llMeasurement != null && llMeasurement.tagCount > 0 && Math.abs(omegaRps) < 2.0) {
             double dist = llMeasurement.avgTagDist; // meters
-            double xyStdDev = 0.10 * Math.pow(dist, 2.0); // trust drops fast with distance
+            /* 
+            * This is the vision weighting formula. 
+            * The xyStdDevcoefficient controls how much trust is given to vision
+            * A lower value = more trust in vision (smaller std deviation = higher confidence). 
+            * It scales with dist² so trust drops off quickly as tags get farther away.
+            */
+            double xyStdDev = 0.35 * Math.pow(dist, 2.0); // trust drops fast with distance, lower number weighs to vision, higher weighs to odometry
             m_robotContainer.drivetrain.addVisionMeasurement(
                     llMeasurement.pose,
                     llMeasurement.timestampSeconds,
