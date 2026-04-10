@@ -463,6 +463,7 @@ public class FuelCommands {
         public static Command poseAlignAndShoot(
                 ShooterSubsystem shooter,
                 IndexerSubsystem indexer,
+                IntakeSubsystem intake,
                 CommandSwerveDrivetrain drivetrain,
                 double safetyTimeout) {
 
@@ -512,13 +513,24 @@ public class FuelCommands {
                                         .withVelocityY(0)
                                         .withRotationalRate(rotRate));
                             }, shooter, drivetrain)),
-                    // Phase 2: feed until chute clears (safetyTimeout is the fallback)
-                    indexer.feedUntilChuteEmpty(safetyTimeout)
+                    // Phase 2: feed until chute clears while compressing fuel once shooter is ready
+                    Commands.deadline(
+                            indexer.feedUntilChuteEmpty(safetyTimeout),
+                            fuelCompressionWhenShooterReady(shooter, intake))
             ).finallyDo(() -> {
                 indexer.indexerStop();
                 indexer.conveyorStop();
                 shooter.setPostShotState();
             }).withName("Auto.PoseAlignAndShoot");
+        }
+
+        private static Command fuelCompressionWhenShooterReady(
+                ShooterSubsystem shooter,
+                IntakeSubsystem intake) {
+            return Commands.sequence(
+                    Commands.waitUntil(shooter::isReady),
+                    intake.fuelCompression())
+                    .withName("FuelCompressionWhenShooterReady");
         }
 
         // =============================================================================
