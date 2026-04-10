@@ -191,10 +191,11 @@ public class RobotContainer {
         // When ON: flywheel holds at STANDBY_RPM (1800) between shots instead of stopping.
         // When OFF: flywheel returns to full idle after each shot.
         // Defaults OFF at robot startup — operator must enable explicitly.
+        operator.start().onTrue(Commands.runOnce(shooter::toggleStandbyMode, shooter));
+
 
         // Back (View ⧉): Reset odometry to botpose — use when robot rides up on a ball
         operator.back().onTrue(drivetrain.resetPoseFromVisionCommand());
-        operator.start().onTrue(Commands.runOnce(shooter::toggleStandbyMode, shooter));
     
         operator.povUp().whileTrue(intake.manualSlideExtendHoldCmd());
         operator.povDown().whileTrue(intake.manualSlideRetractHoldCmd());
