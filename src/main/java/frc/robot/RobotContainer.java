@@ -137,19 +137,19 @@ public class RobotContainer {
         // driver.x().onTrue(intake.fuelCompression());
         // driver.y().whileTrue(intake.fuelPumpCycleDelayed());
 
-        driver.povLeft().whileTrue(
+        driver.a().whileTrue(
             Commands.deadline(
                 FuelCommands.shootWithPreset(shooter, indexer, ShooterSubsystem.ShotPreset.CLOSE),
                 fuelCompressionWhenShooterReady()));
-        driver.povRight().whileTrue(
+        driver.x().whileTrue(
             Commands.deadline(
                 FuelCommands.shootWithPreset(shooter, indexer, ShooterSubsystem.ShotPreset.TRENCH),
                 fuelCompressionWhenShooterReady()));
-        driver.povUp().whileTrue(
+        driver.y().whileTrue(
             Commands.deadline(
                 FuelCommands.shootWithPreset(shooter, indexer, ShooterSubsystem.ShotPreset.FAR),
                 fuelCompressionWhenShooterReady()));
-        driver.povDown().whileTrue(
+        driver.b().whileTrue(
             Commands.deadline(
                 FuelCommands.shootWithPreset(shooter, indexer, ShooterSubsystem.ShotPreset.TOWER),
                 fuelCompressionWhenShooterReady()));
