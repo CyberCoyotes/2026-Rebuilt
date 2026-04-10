@@ -88,8 +88,9 @@ public final class Constants {
     public static final double SLIDE_MANUAL_REPEAT_SECONDS = 0.15;
     public static final double SLIDE_PUMP_OUT_POS = 60.0;
     public static final double SLIDE_PUMP_IN_POS = 40.0;
-    public static final double SLIDE_FUEL_COMPRESSION_WAIT_SECONDS = 1.0; 
-    // Previously 0.5, increased to try to help with feeding the shooter, but may need to be tuned down || Tuned 4-8-2026
+    public static final double SLIDE_FUEL_COMPRESSION_WAIT_SECONDS = 2.0; 
+    // 0.5 too quick
+    // 1.0 still seems quick
     
     public static final double SLIDE_FUEL_COMPRESSION_DURATION_SECONDS = 6.0;
     public static final double SLIDE_FUEL_PUMP_WAIT_SECONDS = 3.0;
