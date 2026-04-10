@@ -128,7 +128,7 @@ public class IndexerSubsystem extends SubsystemBase {
         io.setConveyorMotor(Constants.Indexer.CONVEYOR_FORWARD_VOLTAGE);
     }
 
-    public void conveyorReverse() {
+    public void reverseConveyor() {
         io.setConveyorMotor(Constants.Indexer.CONVEYOR_REVERSE_VOLTAGE);
     }
 
@@ -276,7 +276,7 @@ public class IndexerSubsystem extends SubsystemBase {
         return Commands.sequence(
                 Commands.runOnce(() -> {
                     setState(IndexerState.EJECTING);
-                    conveyorReverse();
+                    reverseConveyor();
                     indexerReverse();
                 }, this),
                 Commands.waitSeconds(durationSeconds),

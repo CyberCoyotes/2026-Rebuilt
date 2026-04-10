@@ -88,8 +88,8 @@ public final class Constants {
     public static final double SLIDE_MANUAL_REPEAT_SECONDS = 0.15;
     public static final double SLIDE_PUMP_OUT_POS = 60.0;
     public static final double SLIDE_PUMP_IN_POS = 40.0;
-    public static final double SLIDE_FUEL_COMPRESSION_WAIT_SECONDS = 1.0;
-    public static final double SLIDE_FUEL_COMPRESSION_DURATION_SECONDS = 10.0;
+    public static final double SLIDE_FUEL_COMPRESSION_WAIT_SECONDS = 0.5;
+    public static final double SLIDE_FUEL_COMPRESSION_DURATION_SECONDS = 6.0;
     public static final double SLIDE_FUEL_PUMP_WAIT_SECONDS = 3.0;
     public static final double SLIDE_FUEL_PUMP_OUT_SECONDS = 0.5;
     public static final double SLIDE_FUEL_PUMP_IN_SECONDS = 0.5;
@@ -101,8 +101,8 @@ public final class Constants {
      * Normal Motion Magic values for moving the slide quickly to position.
      * Add an end-of-line "Tuned" note when confirmed.
      */
-    public static final double SLIDE_MM_CRUISE_VELOCITY = 20;
-    public static final double SLIDE_MM_ACCELERATION = 30;
+    public static final double SLIDE_MM_CRUISE_VELOCITY = 320;
+    public static final double SLIDE_MM_ACCELERATION = 320;
     public static final double SLIDE_MM_JERK = 0.0;
 
     /*
@@ -111,12 +111,12 @@ public final class Constants {
      * Slow Motion Magic values for moving the slide slowly to position.
      * Add an end-of-line "Tuned" note when confirmed.
      */
-    public static final double SLIDE_SLOW_MM_CRUISE_VELOCITY = 4.0;
-    public static final double SLIDE_SLOW_MM_ACCELERATION = 4.0;
+    public static final double SLIDE_SLOW_MM_CRUISE_VELOCITY = 20;
+    public static final double SLIDE_SLOW_MM_ACCELERATION = 40;
     public static final double SLIDE_SLOW_MM_JERK = 0.0;
 
     public static final double ROLLER_FORWARD_VOLTS = 8;
-    public static final double ROLLER_REVERSE_VOLTS = -8;
+    public static final double ROLLER_REVERSE_VOLTS = -10;
 
     public static final class RollerConfig {
       private RollerConfig() {
@@ -156,15 +156,13 @@ public final class Constants {
       public static final double PEAK_REVERSE_VOLTAGE = -12.0;
 
       /*
-       * TODO: Tune the slide PID values for the slide mechanism.
-       * 
        * Initial PID values for slide position control.
        * Tune to minimize overshoot and oscillation while being snappy 
        * Add an end-of-line "Tuned" note when confirmed.
        */
       public static final double KS = 0.0;
       public static final double KV = 0.50; // Tuned 4-8-2026
-      public static final double KP = 0.05; // Tuned 4-8-2026
+      public static final double KP = 8.0;  // Tuned 4-9-2026
       public static final double KD = 0.0;
       public static final double KA = 0.0;
       public static final double KI = 0.0;
@@ -192,15 +190,14 @@ public final class Constants {
     public static final int CHUTE_TOF_ID = 42;
 
     /*
-     * TODO: Tune and verify conveyor values
      * Test with empty hopper, light hopper load,
      * and full hopper load.
      * Visually assess performance for now.
      * Add a "Tuned" note when each value is confirmed.
      */
     // Conveyor voltage setpoints for feeding fuel to the shooter.
-    public static final double CONVEYOR_FORWARD_VOLTAGE = 5.0; // was 3.5 on Saturday may need to increase voltage with added roller
-    public static final double CONVEYOR_REVERSE_VOLTAGE = -2;
+    public static final double CONVEYOR_FORWARD_VOLTAGE = 8; // at 6.5 was struggling, increased to 8 to try to help with feeding the shooter, but may need to be tuned down || Tuned 4-8-2026
+    public static final double CONVEYOR_REVERSE_VOLTAGE = -12;
     
     // Probably don't need anymore
     public static final double CONVEYOR_POPPER_VOLTAGE = 1.0;
@@ -309,22 +306,22 @@ public final class Constants {
     public static final double POPPER_RPM = 650;
     
     // Low pre-rev speed used to reduce shot latency and current spikes.
-    public static final double STANDBY_RPM = 1800;
+    public static final double STANDBY_RPM = 1200;
     
     // Bumpers against the hub if possible, note robot position if not
-    public static final double CLOSE_RPM = 1600;  // TODO tune CLOSE_RPM || Tuned 4-8-2026
+    public static final double CLOSE_RPM = 2000;  // TODO tune CLOSE_RPM || Tuned 4-8-2026
 
     // Bumpers against the tower
-    public static final double TOWER_RPM = 1750;  // TODO tune TOWER_RPM || Tuned 4-8-2026
+    public static final double TOWER_RPM = 2500;  // TODO tune TOWER_RPM || Tuned 4-8-2026
 
     // In the trench, mostly against the wall, but turned slightly towards the hub
-    public static final double TRENCH_RPM = 1750; // TODO tune TRENCH_RPM || Tuned 4-8-2026
+    public static final double TRENCH_RPM = 2250; // TODO tune TRENCH_RPM || Tuned 4-7-2026
 
     // In a corner by human player station or depot-corner, angled towards the hub, but not against anything
-    public static final double FAR_RPM = 2224;    // TODO tune FAR_RPM || OnyxTronyx reference :)
+    public static final double FAR_RPM = 3000;    // TODO tune FAR_RPM || Tuned 4-7-2026
 
     // For passing passing from midfield
-    public static final double PASS_RPM = 2250;   // TODO tune PASS_RPM || Tuned 4-8-2026
+    public static final double PASS_RPM = 3000;   // TODO tune PASS_RPM || Tuned 4-7-2026
 
     /*
      * Reverse Flywheel RPM for jam clearing.
@@ -345,12 +342,12 @@ public final class Constants {
      */
  
     // Flywheel PID and feedforward gains.
-    public static final double KV = 0.130;  // Tuned 4-8-2026
-    public static final double KP = 0.050;  // Tuned 4-4-2026
+    public static final double KV = 0.130;  // Tuned 4-6-2026
+    public static final double KP = 0.055;  // Tuned 4-7-2026
     public static final double KD = 0.000;  // Tuned 4-4-2026
     public static final double KA = 0.000;  // Tuned 4-4-2026
 
-    public static final double TOLERANCE_PERCENT = 0.03;
+    public static final double TOLERANCE_PERCENT = 0.1; // 10% tolerance for considering flywheel at target speed
 
     /* Flywheel limits */
     public static final double SUPPLY_CURRENT_LIMIT = 60;
@@ -398,22 +395,20 @@ public final class Constants {
 
     // Mechanism setpoints and tuning
     public static final double MIN_POSE = 0.00; // Mechanical limit, also use to set in Configs
-    public static final double MAX_POSE = 5.0; // Mechanical limit; also used to set in Configs
+    public static final double MAX_POSE = 5.50; // Mechanical limit; also used to set in Configs
 
     // TODO: Verify hood tolerance
-    public static final double TOLERANCE_POSE = 0.05;
+    public static final double TOLERANCE_POSE = 0.2;
 
     /*
      * TODO: Verify hood setpoints
      * Add an end-of-line "Tuned" note when each value is confirmed.
      */
-    public static final double CLOSE_HOOD = 5.00; //
-    // was 3
-    
+    public static final double CLOSE_HOOD = 5.50; //
     public static final double POPPER_HOOD = 4.20; //  PASS HOODS INVERTED. RETEST ALL
-    public static final double TOWER_HOOD = 5.0; //
-    public static final double TRENCH_HOOD = 5.0; //
-    public static final double FAR_HOOD = 4.00; //
+    public static final double TOWER_HOOD = 4.50; //
+    public static final double TRENCH_HOOD = 4.65; //
+    public static final double FAR_HOOD = 3.75; //
     public static final double PASS_HOOD = 4.5; //
 
     // Manual tuning increments used for bring-up and testing.
@@ -426,7 +421,7 @@ public final class Constants {
     * Currently not being used
     * NOT a Friday testing priority!
     */ 
-    public static final double KP = 0.5;
+    public static final double KP = 1.2;
     public static final double KI = 0;
     public static final double KD = 0;
 
@@ -493,7 +488,7 @@ public final class Constants {
     public static final double CAMERA_ANGLE_DEGREES = 15.5;
 
     /** Tolerance for horizontal alignment in degrees used in FuelCommands.java */
-    public static final double ALIGNMENT_TOLERANCE_DEGREES = 1.0;
+    public static final double ALIGNMENT_TOLERANCE_DEGREES = 1.00;
      
     /** Minimum target area to consider target valid (prevents false positives) */
     public static final double MIN_TARGET_AREA_PERCENT = 0.1;
@@ -521,20 +516,21 @@ public final class Constants {
      * Chassis front must point 180° away from the hub when aligning to shoot.
      */
 
-    public final static double ALIGNMENT_OFFSET_DEGREES = 00;
+    public final static double ALIGNMENT_OFFSET_DEGREES = 180; // KEEP AT 180 DEGREES
 
     // TODO Tune the Vision parameters
-    // 0.10 way too much oscillation
-    // 0.05 smaller variance, but still a lot oscillations
-    // 0.005 way too slow but still oscillating
-    public static final double ROTATIONAL_KP = 0.005;
+    // Keep this moderate; aggressive values amplify pose-estimator jitter during alignment.
+    public static final double ROTATIONAL_KP = 0.12; // Tuned 4-8-2026
 
     /*
      * Maximum rotational rate the vision command will apply to the drivetrain (rad/s).
      * Default: 3.0 rad/s (~172°/s). Reduce if the robot swings too aggressively.
      */
     public static final double MIN_ALIGNMENT_ROTATION_RAD_PER_SEC = 0.15; // tune to just above static friction
-    public static final double MAX_ALIGNMENT_ROTATION_RAD_PER_SEC = 2.0;
+    public static final double MAX_ALIGNMENT_ROTATION_RAD_PER_SEC = 4.5; // tune to prevent overshooting and oscillation
+
+    public static final double ALIGNMENT_DRIVETRAIN_CLAMP = 0.40;
+
     public static final double MIN_DISTANCE_M = 0.25;
     public static final double MAX_DISTANCE_M = 8.0;
 
@@ -542,7 +538,7 @@ public final class Constants {
     /* Tune up from 0 — 50 degrees of aim offset per m/s of lateral velocity 
     * At this point, its not a high priority
     */
-    public static final double LEAD_COMPENSATION_DEG_PER_MPS = 00; 
+    public static final double LEAD_COMPENSATION_DEG_PER_MPS = 0; 
 
 
     // == Valid tag IDs =========================
