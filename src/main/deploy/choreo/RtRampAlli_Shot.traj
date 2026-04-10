@@ -120,5 +120,5 @@
   "splits":[0]
  },
  "events":[
-   {"name":"Shot", "from":{"target":1, "targetTimestamp":1.34671, "offset":{"exp":"0 s", "val":0.0}}, "event":null}]
+   {"name":"Shoot", "from":{"target":1, "targetTimestamp":1.34671, "offset":{"exp":"0 s", "val":0.0}}, "event":null}]
 }
