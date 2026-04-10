@@ -526,9 +526,14 @@ public class ShooterSubsystem extends SubsystemBase {
         * Adding a distance to one map without adding it to the other produces
         * inconsistent RPM/hood pairings at that distance. Always update both.
         */
-        FLYWHEEL_RPM_MAP.put(2.6, 2000.0);
-        FLYWHEEL_RPM_MAP.put(3.50, 2250.0);
-        FLYWHEEL_RPM_MAP.put(4.50,  3000.0);
+        FLYWHEEL_RPM_MAP.put(2.6, 2200.0);
+        // 2.6, 2000 previously and short
+
+        FLYWHEEL_RPM_MAP.put(3.50, 2500.0);
+        // 3.5, 2250 previously and short
+
+        FLYWHEEL_RPM_MAP.put(4.50,  3300.0);
+        // 4.5, 3000 previously and short
         
         HOOD_ROT_MAP.put(2.6,  5.50);
         HOOD_ROT_MAP.put(3.50, 4.65);
