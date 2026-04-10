@@ -50,7 +50,6 @@ public class AutoRoutines {
                 return routine;
         }
 
-// FIXME: Validate this routine 1st
                 // Right Trench to Middle to Ramp Shot
                 public AutoRoutine RtTrench_Ramp_Double() {
 
@@ -72,40 +71,14 @@ public class AutoRoutines {
 
                 routine.active().onTrue(
                                 Commands.sequence(
-                                                RtTr_RtMid.resetOdometry(), // Always reset odometry first
+                                                RtTr_RtMid.resetOdometry(),
 
-                                                RtTr_RtMid.cmd(), // 3.6 seconds  
+                                                RtTr_RtMid.cmd(),  
 
                                                 RtRampMid_RtRampAlli.cmd(),
 
-                                                RtRampAlli_Shot.cmd() // 1.6 seconds
-                                                // TODO: Test and tune this shooting + pumping sequence
-                                                // TODO: Measure time to unload in Auton. It will vary depending on the number of balls, but measuring should give a better estimate
-                                                // Commands.parallel(
-                                                        
-                                                //         /* TODO: Not sure if this will end on it's own or rely on the safety timeout. 
-                                                //         * One possible fix is the CHUTE_SENSOR or literally integrate the fuelPumpCycleSensor() into the autonomous Shooting
-                                                //         */
-                                                //         FuelCommands.Auto.poseAlignAndShoot(m_shooter, m_indexer, m_drivetrain, 6.0),
-
-                                                //         // TODO: Test fuel pump cycle sensor and if it ends on its own, based on sensor. 
-                                                //         FuelCommands.Auto.fuelPumpCycleSensor(m_intake, m_indexer) 
-                                                // ), // Approximately 4.0 seconds total for alignment + shooting + pumping
-                                                
-                                                // RtShot_RtTr.cmd()  
-
-                                                // RtTr_RtCurlSweep.cmd() // 2.0 seconds
-                                                
-                                                // RtMid_RtRampShot.cmd(), // 1.6 seconds
-                                                
-                                                // Commands.parallel( 
-                                                //         FuelCommands.Auto.poseAlignAndShoot(m_shooter, m_indexer, m_drivetrain, 6.0), 
-                                                //         FuelCommands.Auto.fuelPumpCycleSensor(m_intake, m_indexer)
-                                                ) // Approximately 4.0 seconds total for alignment + shooting + pumping
-
-                                                // ---------------------- 10.0 seconds total (est) without shooting ----------------------
-                                                // ----------------------- 18.0 seconds total (est) with shooting ----------------------
-
+                                                RtRampAlli_Shot.cmd()
+                                                )
 
                                 );
                 // Routine Events
@@ -116,7 +89,6 @@ public class AutoRoutines {
                 return routine;
         }
         
-        // FIXME: Validate this routine 2nd
         // Left Trench to Middle to Ramp Shot
         public AutoRoutine LtTrench_Ramp_Double() {
 
@@ -248,7 +220,6 @@ public class AutoRoutines {
                                                 Bulldozer.resetOdometry(),
                                                 Bulldozer.cmd(),
                                                 RtRamp_RtRampShot.cmd()
-
                                                 // TODO Add shooting after confirming path
 
                                 ));
