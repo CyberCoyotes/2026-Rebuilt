@@ -116,45 +116,39 @@ public class AutoRoutines {
                 return routine;
         }
         
+        // FIXME: Validate this routine 2nd
         // Left Trench to Middle to Ramp Shot
         public AutoRoutine LtTrench_Ramp_Double() {
 
                 final AutoRoutine routine = m_factory.newRoutine("Lt x2 Trench-Ramp");
                 // LeftTrench to LeftMiddle to LeftRampAlign
                 final AutoTrajectory LtTr_LtMid = routine.trajectory("LtTr_LtMid", 0);
+                
                 // LeftRampAlign to LeftRampShot
-                final AutoTrajectory LtMid_LtRampShot = routine.trajectory("LtMid_LtRampShot", 0);
+                final AutoTrajectory LtRampMid_LtRampAlli = routine.trajectory("LtRampMid_LtRampAlli", 0);
+                
                 // LeftRampShoot to LeftTrench
-                final AutoTrajectory LtRampShot_LtTr = routine.trajectory("LtRampShot_LtTr", 0);                        
+                final AutoTrajectory LtRampAlli_Shot = routine.trajectory("LtRampAlli_Shot", 0); 
+
                 // LeftTrench to LeftSweep to LeftRampShot
-                final AutoTrajectory LtTr_LtSweep = routine.trajectory("LtTr_LtSweep", 0);
+                // final AutoTrajectory LtTr_LtSweep = routine.trajectory("LtTr_LtSweep", 0);
 
                 routine.active().onTrue(
                                 Commands.sequence(
                                                 LtTr_LtMid.resetOdometry(), // Always reset odometry first
                                                 
-                                                LtTr_LtMid.cmd(), // 3.6 seconds
+                                                LtTr_LtMid.cmd(),
                                                 
-                                                LtMid_LtRampShot.cmd(), // 1.6 seconds
+                                                LtRampMid_LtRampAlli.cmd(),
 
-                                                // TODO: Add shoot after confirming with Liam and testing right side. 
-                                                // If the timing is already tight, we may need to optimize the path or reduce the wait time after driving to fit it in.
-
-                                                LtRampShot_LtTr.cmd(), // 1.2 seconds
-                                                
-                                                LtTr_LtSweep.cmd(), // 2.0 seconds
-                                                
-                                                LtMid_LtRampShot.cmd() // 1.6 seconds
-
-                                                // TODO: Add shooting
-
-                                                // ---------------------- 10.0 seconds total (est) without shooting ----------------------
-
+                                                LtRampAlli_Shot.cmd()
 
                                 ));
+
                 // Routine Events
                 LtTr_LtMid.atTime("Intake").onTrue(m_intake.intakeFuelTimer(6));
-                
+
+                LtRampAlli_Shot.atTime("Shoot").onTrue(FuelCommands.Auto.poseAlignAndShoot(m_shooter, m_indexer, m_drivetrain, 6.0));
 
                 return routine;
         }
