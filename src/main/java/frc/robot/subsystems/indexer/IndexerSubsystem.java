@@ -5,6 +5,7 @@ import edu.wpi.first.networktables.DoublePublisher;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.networktables.StringPublisher;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -349,5 +350,63 @@ public class IndexerSubsystem extends SubsystemBase {
             ).until(this::isChuteEmpty)
              .withTimeout(safetyTimeout)
         ).withName("FeedUntilChuteEmpty");
+    }
+
+    /**
+     * Ramps conveyor voltage from 0 V to {@code targetVolts} across
+     * {@code rampSeconds}, then holds at target until interrupted.
+     */
+    public Command conveyorRampUp(double rampSeconds, double targetVolts) {
+        final double[] startTimeSec = new double[1];
+
+        return Commands.startRun(
+                () -> {
+                    setState(IndexerState.SENDING_FUEL);
+                    startTimeSec[0] = Timer.getFPGATimestamp();
+                },
+                () -> {
+                    double elapsed = Timer.getFPGATimestamp() - startTimeSec[0];
+                    double progress = Math.min(1.0, elapsed / Math.max(0.001, rampSeconds));
+                    setConveyorVolts(targetVolts * progress);
+                },
+                this)
+                .finallyDo(() -> {
+                    conveyorStop();
+                    setState(IndexerState.IDLE);
+                })
+                .withName("ConveyorRampUp");
+    }
+
+    /** Test profile: -8 V for 250 ms, then +2 V until interrupted. */
+    public Command conveyorReverseThenForwardHold() {
+        return Commands.sequence(
+                Commands.runOnce(() -> {
+                    setState(IndexerState.SENDING_FUEL);
+                    setConveyorVolts(-8.0);
+                }, this),
+                Commands.waitSeconds(0.250),
+                Commands.run(() -> setConveyorVolts(2.0), this))
+                .finallyDo(() -> {
+                    conveyorStop();
+                    setState(IndexerState.IDLE);
+                })
+                .withName("ConveyorReverseThenForwardHold");
+    }
+
+    /** Test profile: 4 V for 1 s, then 2 V for 2 s, repeated until interrupted. */
+    public Command conveyorPulseProfile() {
+        return Commands.repeatingSequence(
+                Commands.runOnce(() -> {
+                    setState(IndexerState.SENDING_FUEL);
+                    setConveyorVolts(4.0);
+                }, this),
+                Commands.waitSeconds(1.0),
+                Commands.runOnce(() -> setConveyorVolts(2.0), this),
+                Commands.waitSeconds(2.0))
+                .finallyDo(() -> {
+                    conveyorStop();
+                    setState(IndexerState.IDLE);
+                })
+                .withName("ConveyorPulseProfile");
     }
 }
