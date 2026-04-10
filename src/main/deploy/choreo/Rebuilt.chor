@@ -149,11 +149,11 @@
      "val":5.55
     },
     "heading":{
-     "exp":"-0.95 rad",
-     "val":-0.95
+     "exp":"0.75 rad",
+     "val":0.75
     }
    },
-   "LtRampShot":{
+   "LtRampAlli":{
     "x":{
      "exp":"3 m",
      "val":3.0
@@ -164,7 +164,7 @@
     },
     "heading":{
      "exp":"LtRampAlign.heading",
-     "val":-0.95
+     "val":0.75
     }
    },
    "LtTr":{
@@ -281,8 +281,8 @@
    },
    "RtRampAlli":{
     "x":{
-     "exp":"3 m",
-     "val":3.0
+     "exp":"2.5 m",
+     "val":2.5
     },
     "y":{
      "exp":"2.5 m",

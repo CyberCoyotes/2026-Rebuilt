@@ -81,10 +81,11 @@ public class RobotContainer {
         // Verified autoRoutines to chooser
         // =====================================================================
 
-        // autoChooser.addRoutine("Lt x2 Trench-Ramp", autoRoutines::LtTrench_Ramp_Double);
+        autoChooser.addRoutine("Lt x2 Trench-Ramp", autoRoutines::LtTrench_Ramp_Double);
         // autoChooser.addRoutine("R Trench-Mid-Trench", autoRoutines::RtTrench_RtMid_RtTrench);
         autoChooser.addRoutine("Rt x2 Trench-Ramp", autoRoutines::RtTrench_Ramp_Double);
         // autoChooser.addRoutine("R Trench-Mid-Ramp", autoRoutines::RtTrench_Mid_Ramp);
+        autoChooser.addRoutine("Bulldozer 2026", autoRoutines::Bulldozer);
         autoChooser.addRoutine("Center", autoRoutines::Center);
         
         configureBindings();
@@ -115,7 +116,7 @@ public class RobotContainer {
         driver.start().onTrue(drivetrain.runOnce(drivetrain::seedFieldCentric));
 
         // Back: Reset odometry to Limelight botpose (use when robot rides up on a ball and wheels lose contact)
-        // driver.back().onTrue(drivetrain.resetPoseFromVisionCommand());
+        driver.back().onTrue(drivetrain.resetPoseFromVisionCommand());
 
 
         drivetrain.registerTelemetry(logger::telemeterize);
