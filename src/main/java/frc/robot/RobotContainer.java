@@ -138,48 +138,53 @@ public class RobotContainer {
         // driver.x().onTrue(intake.fuelCompression());
         // driver.y().whileTrue(intake.fuelPumpCycleDelayed());
 
-        driver.a().whileTrue(
-            Commands.deadline(
-                FuelCommands.shootWithPreset(shooter, indexer, ShooterSubsystem.ShotPreset.CLOSE),
-                fuelCompressionWhenShooterReady()));
-        driver.x().whileTrue(
-            Commands.deadline(
-                FuelCommands.shootWithPreset(shooter, indexer, ShooterSubsystem.ShotPreset.TRENCH),
-                fuelCompressionWhenShooterReady()));
-        driver.y().whileTrue(
-            Commands.deadline(
-                FuelCommands.shootWithPreset(shooter, indexer, ShooterSubsystem.ShotPreset.FAR),
-                fuelCompressionWhenShooterReady()));
-        driver.b().whileTrue(
-            Commands.deadline(
-                FuelCommands.shootWithPreset(shooter, indexer, ShooterSubsystem.ShotPreset.TOWER),
-                fuelCompressionWhenShooterReady()));
+        // driver.a().whileTrue(
+        //     Commands.deadline(
+        //         FuelCommands.shootWithPreset(shooter, indexer, ShooterSubsystem.ShotPreset.CLOSE),
+        //         fuelCompressionWhenShooterReady()));
+        // driver.x().whileTrue(
+        //     Commands.deadline(
+        //         FuelCommands.shootWithPreset(shooter, indexer, ShooterSubsystem.ShotPreset.TRENCH),
+        //         fuelCompressionWhenShooterReady()));
+        // driver.y().whileTrue(
+        //     Commands.deadline(
+        //         FuelCommands.shootWithPreset(shooter, indexer, ShooterSubsystem.ShotPreset.FAR),
+        //         fuelCompressionWhenShooterReady()));
+        // driver.b().whileTrue(
+        //     Commands.deadline(
+        //         FuelCommands.shootWithPreset(shooter, indexer, ShooterSubsystem.ShotPreset.TOWER),
+        //         fuelCompressionWhenShooterReady()));
 
         // =====================================================================
         // Operator Controller
         // =====================================================================
         operator.a().whileTrue(
             Commands.deadline(
-                FuelCommands.shootWithPreset(shooter, indexer, ShooterSubsystem.ShotPreset.TRENCH),
-                fuelCompressionWhenShooterReady()));
+                FuelCommands.shootWithPreset(shooter, indexer, ShooterSubsystem.ShotPreset.TRENCH)
+                // fuelCompressionWhenShooterReady())
+                ));
         operator.b().whileTrue(
             Commands.deadline(
-                FuelCommands.shootWithPreset(shooter, indexer, ShooterSubsystem.ShotPreset.CLOSE),
-                fuelCompressionWhenShooterReady()));
+                FuelCommands.shootWithPreset(shooter, indexer, ShooterSubsystem.ShotPreset.CLOSE)
+                // fuelCompressionWhenShooterReady())
+                ));
         operator.x().whileTrue(
             Commands.deadline(
-                FuelCommands.shootWithPreset(shooter, indexer, ShooterSubsystem.ShotPreset.TOWER),
-                fuelCompressionWhenShooterReady()));
+                FuelCommands.shootWithPreset(shooter, indexer, ShooterSubsystem.ShotPreset.TOWER)
+                // fuelCompressionWhenShooterReady())
+                ));
         operator.y().whileTrue(
             Commands.deadline(
-                FuelCommands.shootWithPreset(shooter, indexer, ShooterSubsystem.ShotPreset.FAR),
-                fuelCompressionWhenShooterReady()));
+                FuelCommands.shootWithPreset(shooter, indexer, ShooterSubsystem.ShotPreset.FAR)
+                // fuelCompressionWhenShooterReady())
+                ));
 
         operator.rightTrigger(0.5).whileTrue(indexer.reverse());
         operator.leftTrigger(0.5).whileTrue(intake.intakeFuel());
 
         // operator.rightBumper().onTrue(intake.retractSlidesFastCmd());
         operator.leftBumper().onTrue(intake.fuelCompression());
+        operator.rightBumper().onTrue(intake.fuelCompression());
         
 
         // Start (Menu ☰): Toggle flywheel standby pre-rev — operator sets once and forgets.
