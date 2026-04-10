@@ -29,7 +29,7 @@
     {"x":{"exp":"RtMidIntakeStop.x", "val":7.8}, "y":{"exp":"RtMidIntakeStop.y", "val":3.5}, "heading":{"exp":"RtMidIntakeStop.heading", "val":1.57}, "intervals":37, "split":false, "fixTranslation":true, "fixHeading":true, "overrideIntervals":false},
     {"x":{"exp":"RtRampNeutral.x", "val":6.0}, "y":{"exp":"RtRampNeutral.y", "val":2.5}, "heading":{"exp":"RtRampNeutral.heading", "val":-0.75}, "intervals":31, "split":false, "fixTranslation":true, "fixHeading":true, "overrideIntervals":false},
     {"x":{"exp":"3.1011769771575928 m", "val":3.1011769771575928}, "y":{"exp":"2.496180534362793 m", "val":2.496180534362793}, "heading":{"exp":"0 deg", "val":0.0}, "intervals":5, "split":false, "fixTranslation":false, "fixHeading":false, "overrideIntervals":false},
-    {"x":{"exp":"RtRampAlli.x", "val":3.0}, "y":{"exp":"RtRampAlli.y", "val":2.5}, "heading":{"exp":"RtRampAlli.heading", "val":-0.75}, "intervals":35, "split":false, "fixTranslation":true, "fixHeading":true, "overrideIntervals":false}],
+    {"x":{"exp":"RtRampAlli.x", "val":2.5}, "y":{"exp":"RtRampAlli.y", "val":2.5}, "heading":{"exp":"RtRampAlli.heading", "val":-0.75}, "intervals":35, "split":false, "fixTranslation":true, "fixHeading":true, "overrideIntervals":false}],
   "constraints":[
     {"from":"first", "to":null, "data":{"type":"StopPoint", "props":{}}, "enabled":true},
     {"from":"last", "to":null, "data":{"type":"StopPoint", "props":{}}, "enabled":true},
