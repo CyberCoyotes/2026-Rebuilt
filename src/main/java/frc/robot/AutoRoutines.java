@@ -46,8 +46,10 @@ public class AutoRoutines {
                 // RightRampShoot to RightTrench
                 final AutoTrajectory RtRampAlli_Shot = routine.trajectory("RtRampAlli_Shot", 0);                        
                 
+                final AutoTrajectory RtShot_Trench = routine.trajectory("RtShot_Trench", 0);
+
                 // RightTrench to RightSweep to RightRampShot
-                // final AutoTrajectory RtTr_RtCurlSweep = routine.trajectory("RtTr_RtCurlSweep", 0);
+                final AutoTrajectory RtTr_CurlSweep = routine.trajectory("RtTr_CurlSweep", 0);
 
                 routine.active().onTrue(
                                 Commands.sequence(
@@ -57,7 +59,20 @@ public class AutoRoutines {
 
                                                 RtRampMid_RtRampAlli.cmd(),
 
+                                                RtRampAlli_Shot.cmd(),
+
+                                                // Back to trench, intake first
+                                                RtShot_Trench.cmd(),
+
+                                                // Sweep out second time
+                                                RtTr_CurlSweep.cmd(),
+
+                                                // Come across 2nd time
+                                                RtRampMid_RtRampAlli.cmd(), 
+
+                                                // Shoot 2nd time
                                                 RtRampAlli_Shot.cmd()
+
                                                 )
 
                                 );
@@ -117,6 +132,10 @@ public class AutoRoutines {
                 // LeftRampShoot to LeftTrench
                 final AutoTrajectory LtRampAlli_Shot = routine.trajectory("LtRampAlli_Shot", 0); 
 
+                // TODO Confirm final AutoTrajectory LtShot_Trench = routine.trajectory("LtShot_Trench", 0);
+
+                // TODO Confirm final AutoTrajectory LtTr_CurlSweep = routine.trajectory("LtTr_CurlSweep", 0);
+
                 // LeftTrench to LeftSweep to LeftRampShot
                 // final AutoTrajectory LtTr_LtSweep = routine.trajectory("LtTr_LtSweep", 0);
 
@@ -129,6 +148,18 @@ public class AutoRoutines {
                                                 LtRampMid_LtRampAlli.cmd(),
 
                                                 LtRampAlli_Shot.cmd()
+
+                                                // Back to trench, intake first
+                                                // TODO Confirm LtShot_Trench.cmd(),
+
+                                                // Sweep out second time
+                                                // TODO ConfirmLtTr_CurlSweep.cmd(),
+
+                                                // Come across 2nd time
+                                                // LtRampMid_RtRampAlli.cmd(), 
+
+                                                // Shoot 2nd time
+                                                // LtRampAlli_Shot.cmd()
 
                                 ));
 
