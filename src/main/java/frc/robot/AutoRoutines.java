@@ -39,10 +39,10 @@ public class AutoRoutines {
                 final AutoTrajectory RtTr_RtMid = routine.trajectory("RtTr_RtMid", 0);
                
                 final AutoTrajectory RtRampMid_RtRampAlli = routine.trajectory("RtRampMid_RtRampAlli", 0);
-                
+                 final AutoTrajectory RtRampMid_RtRampAlli2 = routine.trajectory("RtRampMid_RtRampAlli", 0);
                 // RightRampShoot to RightTrench
                 final AutoTrajectory RtRampAlli_Shot = routine.trajectory("RtRampAlli_Shot", 0);                        
-                
+                final AutoTrajectory RtRampAlli_Shot2 = routine.trajectory("RtRampAlli_Shot", 0);     
                 final AutoTrajectory RtShot_Trench = routine.trajectory("RtShot_Trench", 0);
 
                 // RightTrench to RightSweep to RightRampShot
@@ -58,24 +58,26 @@ public class AutoRoutines {
 
                                                 RtRampAlli_Shot.cmd(),
 
-                                                // Back to trench, intake first
+                                                // Back to trench
                                                 RtShot_Trench.cmd(),
 
                                                 // Sweep out second time
                                                 RtTr_CurlSweep.cmd(),
 
                                                 // Come across 2nd time
-                                                RtRampMid_RtRampAlli.cmd(), 
+                                                RtRampMid_RtRampAlli2.cmd(), 
 
                                                 // Shoot 2nd time
-                                                RtRampAlli_Shot.cmd()
+                                                RtRampAlli_Shot2.cmd()
 
                                                 )
 
                                 );
                 // Routine Events
                 RtTr_RtMid.atTime("Intake").onTrue(m_intake.intakeFuelTimer(6));
-                RtRampAlli_Shot.atTime("Shoot").onTrue(FuelCommands.Auto.poseAlignAndShoot(m_shooter, m_indexer, m_intake, m_drivetrain, 6.0));
+                RtRampAlli_Shot.atTime("Shoot").onTrue(FuelCommands.Auto.poseAlignAndShoot(m_shooter, m_indexer, m_intake, m_drivetrain, 5.0));
+                RtTr_CurlSweep.atTime("Intake").onTrue(m_intake.intakeFuelTimer(6));
+                RtRampAlli_Shot2.atTime("Shoot").onTrue(FuelCommands.Auto.poseAlignAndShoot(m_shooter, m_indexer, m_intake, m_drivetrain, 5.0));
                 // LtTrench_Mid_Trench.atTime("FuelPump").onTrue(FuelCommands.Auto.fuelPumpCycleSensor(m_intake, m_indexer));
 
                 return routine;
