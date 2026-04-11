@@ -43,7 +43,8 @@ public class AutoRoutines {
                                 ));
                 // Routine Events
                 RtTrench_RtMid_RtTrench.atTime("Intake").onTrue(m_intake.intakeFuelTimer(6));
-
+                
+                // dependencies are fine in this version
                 RtTrench_RtMid_RtTrench.atTime("Shoot")
                                 .onTrue(FuelCommands.Auto.poseAlignAndShoot(m_shooter, m_indexer, m_intake, m_drivetrain, 6.0));
                 RtTrench_RtMid_RtTrench.atTime("FuelPump").onTrue(FuelCommands.Auto.fuelPumpCycleSensor(m_intake, m_indexer));
