@@ -202,7 +202,8 @@ public class TunerConstants {
      */
     public static CommandSwerveDrivetrain createDrivetrain() {
         return new CommandSwerveDrivetrain(
-            DrivetrainConstants, FrontLeft, FrontRight, BackLeft, BackRight
+            DrivetrainConstants, 100, // Hz — reduced from default 250 Hz to lower CAN bus utilization
+            FrontLeft, FrontRight, BackLeft, BackRight
         );
     }
 

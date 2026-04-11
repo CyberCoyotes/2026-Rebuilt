@@ -81,7 +81,7 @@ public class Robot extends LoggedRobot {
             * A lower value = more trust in vision (smaller std deviation = higher confidence). 
             * It scales with dist² so trust drops off quickly as tags get farther away.
             */
-            double xyStdDev = 0.35 * Math.pow(dist, 2.0); // trust drops fast with distance, lower number weighs to vision, higher weighs to odometry
+            double xyStdDev = 0.10 * Math.pow(dist, 2.0); // trust drops fast with distance, lower number weighs to vision, higher weighs to odometry
             m_robotContainer.drivetrain.addVisionMeasurement(
                     llMeasurement.pose,
                     llMeasurement.timestampSeconds,

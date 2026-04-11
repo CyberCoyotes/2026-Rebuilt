@@ -138,22 +138,22 @@ public class RobotContainer {
         // driver.x().onTrue(intake.fuelCompression());
         // driver.y().whileTrue(intake.fuelPumpCycleDelayed());
 
-        driver.povLeft().whileTrue(
-            Commands.deadline(
-                FuelCommands.shootWithPreset(shooter, indexer, ShooterSubsystem.ShotPreset.CLOSE),
-                fuelCompressionWhenShooterReady()));
-        driver.povRight().whileTrue(
-            Commands.deadline(
-                FuelCommands.shootWithPreset(shooter, indexer, ShooterSubsystem.ShotPreset.TRENCH),
-                fuelCompressionWhenShooterReady()));
-        driver.povUp().whileTrue(
-            Commands.deadline(
-                FuelCommands.shootWithPreset(shooter, indexer, ShooterSubsystem.ShotPreset.FAR),
-                fuelCompressionWhenShooterReady()));
-        driver.povDown().whileTrue(
-            Commands.deadline(
-                FuelCommands.shootWithPreset(shooter, indexer, ShooterSubsystem.ShotPreset.TOWER),
-                fuelCompressionWhenShooterReady()));
+        // driver.a().whileTrue(
+        //     Commands.deadline(
+        //         FuelCommands.shootWithPreset(shooter, indexer, ShooterSubsystem.ShotPreset.CLOSE),
+        //         fuelCompressionWhenShooterReady()));
+        // driver.x().whileTrue(
+        //     Commands.deadline(
+        //         FuelCommands.shootWithPreset(shooter, indexer, ShooterSubsystem.ShotPreset.TRENCH),
+        //         fuelCompressionWhenShooterReady()));
+        // driver.y().whileTrue(
+        //     Commands.deadline(
+        //         FuelCommands.shootWithPreset(shooter, indexer, ShooterSubsystem.ShotPreset.FAR),
+        //         fuelCompressionWhenShooterReady()));
+        // driver.b().whileTrue(
+        //     Commands.deadline(
+        //         FuelCommands.shootWithPreset(shooter, indexer, ShooterSubsystem.ShotPreset.TOWER),
+        //         fuelCompressionWhenShooterReady()));
 
         // =====================================================================
         // Operator Controller
@@ -161,35 +161,41 @@ public class RobotContainer {
         operator.a().whileTrue(
             Commands.deadline(
                 FuelCommands.shootWithPreset(shooter, indexer, ShooterSubsystem.ShotPreset.TRENCH),
-                fuelCompressionWhenShooterReady()));
+                fuelCompressionWhenShooterReady()
+                ));
         operator.b().whileTrue(
             Commands.deadline(
                 FuelCommands.shootWithPreset(shooter, indexer, ShooterSubsystem.ShotPreset.CLOSE),
-                fuelCompressionWhenShooterReady()));
+                fuelCompressionWhenShooterReady()
+                ));
         operator.x().whileTrue(
             Commands.deadline(
                 FuelCommands.shootWithPreset(shooter, indexer, ShooterSubsystem.ShotPreset.TOWER),
-                fuelCompressionWhenShooterReady()));
+                fuelCompressionWhenShooterReady()
+                ));
         operator.y().whileTrue(
             Commands.deadline(
                 FuelCommands.shootWithPreset(shooter, indexer, ShooterSubsystem.ShotPreset.FAR),
-                fuelCompressionWhenShooterReady()));
+                fuelCompressionWhenShooterReady()
+                ));
 
         operator.rightTrigger(0.5).whileTrue(indexer.reverse());
         operator.leftTrigger(0.5).whileTrue(intake.intakeFuel());
 
         // operator.rightBumper().onTrue(intake.retractSlidesFastCmd());
         operator.leftBumper().onTrue(intake.fuelCompression());
+        operator.rightBumper().onTrue(intake.fuelCompression());
         
 
         // Start (Menu ☰): Toggle flywheel standby pre-rev — operator sets once and forgets.
         // When ON: flywheel holds at STANDBY_RPM (1800) between shots instead of stopping.
         // When OFF: flywheel returns to full idle after each shot.
         // Defaults OFF at robot startup — operator must enable explicitly.
+        operator.start().onTrue(Commands.runOnce(shooter::toggleStandbyMode, shooter));
+
 
         // Back (View ⧉): Reset odometry to botpose — use when robot rides up on a ball
         operator.back().onTrue(drivetrain.resetPoseFromVisionCommand());
-        operator.start().onTrue(Commands.runOnce(shooter::toggleStandbyMode, shooter));
     
         operator.povUp().whileTrue(intake.manualSlideExtendHoldCmd());
         operator.povDown().whileTrue(intake.manualSlideRetractHoldCmd());
