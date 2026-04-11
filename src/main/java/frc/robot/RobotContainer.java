@@ -85,7 +85,7 @@ public class RobotContainer {
         autoChooser.addRoutine("Lt Single Trench-Ramp", autoRoutines::LtTrench_Ramp_Single);
 
         // autoChooser.addRoutine("R Trench-Mid-Trench", autoRoutines::RtTrench_RtMid_RtTrench);
-        // autoChooser.addRoutine("Rt x2 Trench-Ramp", autoRoutines::RtTrench_Ramp_Double);
+        autoChooser.addRoutine("Rt x2 Trench-Ramp", autoRoutines::RtTrench_Ramp_Double);
         autoChooser.addRoutine("Rt Single Trench-Ramp", autoRoutines::RtTrench_Ramp_Single);
         // autoChooser.addRoutine("R Trench-Mid-Ramp", autoRoutines::RtTrench_Mid_Ramp);
         autoChooser.addRoutine("Bulldozer 2026", autoRoutines::Bulldozer);
