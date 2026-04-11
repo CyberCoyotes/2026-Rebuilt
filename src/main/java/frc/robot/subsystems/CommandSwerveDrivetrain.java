@@ -354,7 +354,8 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
             });
         }
 
-        boolean pigeonConnected = getPigeon2().isConnected().getValue();
+        // Added, trying to seed the field-centric rotation controller with a heading from the Pigeon when it first connects
+        boolean pigeonConnected = getPigeon2().isConnected();
         if (pigeonConnected && !m_wasPigeonConnected) {
             seedFieldCentric();
         }
