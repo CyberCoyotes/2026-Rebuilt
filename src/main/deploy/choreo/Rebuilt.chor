@@ -18,6 +18,13 @@
      "val":2.0
     }
    },
+   "RampVel":{
+    "dimension":"LinVel",
+    "var":{
+     "exp":"2.25 m / s",
+     "val":2.25
+    }
+   },
    "TestVel":{
     "dimension":"LinVel",
     "var":{
@@ -141,8 +148,8 @@
    },
    "LtRampAlign":{
     "x":{
-     "exp":"6 m",
-     "val":6.0
+     "exp":"6.2 m",
+     "val":6.2
     },
     "y":{
      "exp":"5.55 m",
@@ -295,8 +302,8 @@
    },
    "RtRampNeutral":{
     "x":{
-     "exp":"6 m",
-     "val":6.0
+     "exp":"6.3 m",
+     "val":6.3
     },
     "y":{
      "exp":"2.5 m",
