@@ -52,11 +52,14 @@ public class AutoRoutines {
                                 Commands.sequence(
                                                 RtTr_RtMid.resetOdometry(),
 
-                                                RtTr_RtMid.cmd(),  
+                                                RtTr_RtMid.cmd(),
 
                                                 RtRampMid_RtRampAlli.cmd(),
 
                                                 RtRampAlli_Shot.cmd(),
+
+                                                // Shoot 1st time
+                                                FuelCommands.Auto.poseAlignAndShoot(m_shooter, m_indexer, m_intake, m_drivetrain, 5.0),
 
                                                 // Back to trench
                                                 RtShot_Trench.cmd(),
@@ -65,19 +68,19 @@ public class AutoRoutines {
                                                 RtTr_CurlSweep.cmd(),
 
                                                 // Come across 2nd time
-                                                RtRampMid_RtRampAlli2.cmd(), 
+                                                RtRampMid_RtRampAlli2.cmd(),
 
                                                 // Shoot 2nd time
-                                                RtRampAlli_Shot2.cmd()
+                                                RtRampAlli_Shot2.cmd(),
+
+                                                FuelCommands.Auto.poseAlignAndShoot(m_shooter, m_indexer, m_intake, m_drivetrain, 5.0)
 
                                                 )
 
                                 );
                 // Routine Events
                 RtTr_RtMid.atTime("Intake").onTrue(m_intake.intakeFuelTimer(6));
-                RtRampAlli_Shot.atTime("Shoot").onTrue(FuelCommands.Auto.poseAlignAndShoot(m_shooter, m_indexer, m_intake, m_drivetrain, 5.0));
                 RtTr_CurlSweep.atTime("Intake").onTrue(m_intake.intakeFuelTimer(6));
-                RtRampAlli_Shot2.atTime("Shoot").onTrue(FuelCommands.Auto.poseAlignAndShoot(m_shooter, m_indexer, m_intake, m_drivetrain, 5.0));
                 // LtTrench_Mid_Trench.atTime("FuelPump").onTrue(FuelCommands.Auto.fuelPumpCycleSensor(m_intake, m_indexer));
 
                 return routine;
