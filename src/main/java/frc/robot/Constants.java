@@ -72,7 +72,7 @@ public final class Constants {
 
     /* Kraken X44 with TalonFX controller (x3) */
     public static final int ROLLER_LEFT_MOTOR_ID = 20;
-    public static final int ROLLER_RIGHT_MOTOR_ID = 21;
+    // public static final int ROLLER_RIGHT_MOTOR_ID = 21; // TODO Take out for a single motor now
     public static final int SLIDE_MOTOR_ID = 22;
 
     // Slide setpoints and tuning values
