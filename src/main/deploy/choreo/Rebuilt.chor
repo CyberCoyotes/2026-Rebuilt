@@ -18,6 +18,13 @@
      "val":2.0
     }
    },
+   "RampVel":{
+    "dimension":"LinVel",
+    "var":{
+     "exp":"2.25 m / s",
+     "val":2.25
+    }
+   },
    "TestVel":{
     "dimension":"LinVel",
     "var":{
@@ -139,20 +146,6 @@
      "val":-1.5707963267948966
     }
    },
-   "LtRampAlign":{
-    "x":{
-     "exp":"6 m",
-     "val":6.0
-    },
-    "y":{
-     "exp":"5.4 m",
-     "val":5.4
-    },
-    "heading":{
-     "exp":"0.75 rad",
-     "val":0.75
-    }
-   },
    "LtRampAlli":{
     "x":{
      "exp":"3 m",
@@ -163,7 +156,21 @@
      "val":5.4
     },
     "heading":{
-     "exp":"LtRampAlign.heading",
+     "exp":"LtRampNeutral.heading",
+     "val":0.75
+    }
+   },
+   "LtRampNeutral":{
+    "x":{
+     "exp":"6.19 m",
+     "val":6.19
+    },
+    "y":{
+     "exp":"5.4 m",
+     "val":5.4
+    },
+    "heading":{
+     "exp":"0.75 rad",
      "val":0.75
     }
    },
@@ -295,8 +302,8 @@
    },
    "RtRampNeutral":{
     "x":{
-     "exp":"6 m",
-     "val":6.0
+     "exp":"6.3 m",
+     "val":6.3
     },
     "y":{
      "exp":"2.75 m",
