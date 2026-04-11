@@ -127,10 +127,10 @@ public class RobotContainer {
                     () -> -driver.getLeftX() * MaxSpeed),
                 fuelCompressionWhenShooterReady())); 
         // driver.rightBumper().onTrue(intake.fuelCompression());
-        driver.rightBumper().whileTrue(FuelCommands.purgeFuel(intake, indexer));
+        // driver.rightBumper().whileTrue(FuelCommands.purgeFuel(intake, indexer));
         
         driver.leftTrigger(0.5).whileTrue(intake.intakeFuel());
-        driver.leftBumper().onTrue(intake.retractSlidesIncrementalCmd());
+        // driver.leftBumper().onTrue(intake.retractSlidesIncrementalCmd());
         
         // driver.a().onTrue(intake.extendSlidesFastCmd());
         // driver.b().onTrue(intake.retractSlidesFastCmd());
@@ -182,8 +182,10 @@ public class RobotContainer {
         operator.leftTrigger(0.5).whileTrue(intake.intakeFuel());
 
         // operator.rightBumper().onTrue(intake.retractSlidesFastCmd());
-        operator.leftBumper().onTrue(intake.fuelCompression());
-        operator.rightBumper().onTrue(intake.fuelCompression());
+        // operator.leftBumper().onTrue(intake.fuelCompression());
+        operator.leftBumper().onTrue(intake.retractSlidesIncrementalCmd());
+
+        operator.rightBumper().whileTrue(FuelCommands.purgeFuel(intake, indexer));
         
 
         // Start (Menu ☰): Toggle flywheel standby pre-rev — operator sets once and forgets.
