@@ -72,7 +72,7 @@ public final class Constants {
 
     /* Kraken X44 with TalonFX controller (x3) */
     public static final int ROLLER_LEFT_MOTOR_ID = 20;
-    // public static final int ROLLER_RIGHT_MOTOR_ID = 21; // TODO Take out for a single motor now
+    // public static final int ROLLER_RIGHT_MOTOR_ID = 21; // TODO Take out, using a single motor now
     public static final int SLIDE_MOTOR_ID = 22;
 
     // Slide setpoints and tuning values
@@ -99,8 +99,7 @@ public final class Constants {
     public static final double SLIDE_FUEL_PUMP_SENSOR_TIMEOUT_SECONDS = 5.0;
 
     /*
-     * TODO: Adjust these motion magic values for normal slide modes.
-     * 
+     * Adjust these motion magic values for normal slide modes.
      * Normal Motion Magic values for moving the slide quickly to position.
      * Add an end-of-line "Tuned" note when confirmed.
      */
@@ -109,8 +108,7 @@ public final class Constants {
     public static final double SLIDE_MM_JERK = 0.0;
 
     /*
-     * TODO: Adjust these motion magic values for slow slide modes.
-     * 
+     * Adjust these motion magic values for slow slide modes.
      * Slow Motion Magic values for moving the slide slowly to position.
      * Add an end-of-line "Tuned" note when confirmed.
      */
@@ -210,7 +208,6 @@ public final class Constants {
     public static final double CONVEYOR_POPPER_VOLTAGE = 1.0;
 
     /*
-     * TODO: Tune and verify kicker values
      * Test with empty hopper, solo games, light hopper load,
      * and full hopper load.
      * Visually assess performance for now.
@@ -223,7 +220,6 @@ public final class Constants {
     public static final double KICKER_POPPER_VOLTAGE = 3.0;
 
     /*
-     * TODO: Verify these values on the new chute sensor hardware.
      * Add a "Tuned" note when each value is confirmed.
      * 
      * Used as the CANrange ProximityThreshold so the hardware "detected" signal
@@ -305,7 +301,6 @@ public final class Constants {
     public static final double IDLE_RPM = 0;
 
     /**
-     * TODO: Verify shot RPMs on the current shooter.
      * Add an end-of-line "Tuned" note when confirmed.
      */
 
@@ -316,19 +311,19 @@ public final class Constants {
     public static final double STANDBY_RPM = 1200;
     
     // Bumpers against the hub if possible, note robot position if not
-    public static final double CLOSE_RPM = 2000;  // TODO tune CLOSE_RPM || Tuned 4-8-2026
+    public static final double CLOSE_RPM = 2000;
 
     // Bumpers against the tower
-    public static final double TOWER_RPM = 2500;  // TODO tune TOWER_RPM || Tuned 4-8-2026
+    public static final double TOWER_RPM = 2500;
 
     // In the trench, mostly against the wall, but turned slightly towards the hub
-    public static final double TRENCH_RPM = 2250; // TODO tune TRENCH_RPM || Tuned 4-7-2026
+    public static final double TRENCH_RPM = 2250;
 
     // In a corner by human player station or depot-corner, angled towards the hub, but not against anything
-    public static final double FAR_RPM = 3000;    // TODO tune FAR_RPM || Tuned 4-7-2026
+    public static final double FAR_RPM = 3000;
 
     // For passing passing from midfield
-    public static final double PASS_RPM = 3000;   // TODO tune PASS_RPM || Tuned 4-7-2026
+    public static final double PASS_RPM = 3000;
 
     /*
      * Reverse Flywheel RPM for jam clearing.
@@ -361,7 +356,6 @@ public final class Constants {
     public static final double STATOR_CURRENT_LIMIT = 90;
 
     /*
-     * TODO: Tune Motion Magic Velocity starting point for the rebuilt two-Kraken flywheel.
      * Tune acceleration to shape spin-up, then refine Slot0 gains.
      * Probably ok to wait until Saturday
      */
@@ -404,11 +398,9 @@ public final class Constants {
     public static final double MIN_POSE = 0.00; // Mechanical limit, also use to set in Configs
     public static final double MAX_POSE = 5.50; // Mechanical limit; also used to set in Configs
 
-    // TODO: Verify hood tolerance
     public static final double TOLERANCE_POSE = 0.2;
 
     /*
-     * TODO: Verify hood setpoints
      * Add an end-of-line "Tuned" note when each value is confirmed.
      */
     public static final double CLOSE_HOOD = 5.50; //
@@ -473,7 +465,6 @@ public final class Constants {
     // Camera Mounting
     // =================================================================
 
-    /* TODO: Verify camera mounting offsets on the current robot. */
     /*
      * Height of Limelight lens from floor in meters is 19.25 inches = 0.489 meters
      */
@@ -525,7 +516,6 @@ public final class Constants {
 
     public final static double ALIGNMENT_OFFSET_DEGREES = 180; // KEEP AT 180 DEGREES
 
-    // TODO Tune the Vision parameters
     // Keep this moderate; aggressive values amplify pose-estimator jitter during alignment.
     public static final double ROTATIONAL_KP = 0.12; // Tuned 4-8-2026
 
