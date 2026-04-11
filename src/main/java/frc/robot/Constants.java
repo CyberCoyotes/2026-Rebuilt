@@ -127,7 +127,9 @@ public final class Constants {
 
       // At first competigion, this Brake, but work trying Coast
       public static final NeutralModeValue NEUTRAL_MODE = NeutralModeValue.Coast;
-      public static final InvertedValue INVERTED = InvertedValue.CounterClockwise_Positive;
+      // Changed to Clockwise_Positive to match the new motor orientation on the robot (Right side LEAD)
+      // Swap to CounterClockwise_Positive if LEFT is lead 
+       public static final InvertedValue INVERTED = InvertedValue.Clockwise_Positive;
 
       /* Intake roller limits */
       public static final double SUPPLY_CURRENT_LIMIT = 30.0;
