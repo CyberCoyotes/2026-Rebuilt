@@ -145,8 +145,8 @@
      "val":6.0
     },
     "y":{
-     "exp":"5.55 m",
-     "val":5.55
+     "exp":"5.4 m",
+     "val":5.4
     },
     "heading":{
      "exp":"0.75 rad",
@@ -159,8 +159,8 @@
      "val":3.0
     },
     "y":{
-     "exp":"5.55 m",
-     "val":5.55
+     "exp":"5.4 m",
+     "val":5.4
     },
     "heading":{
      "exp":"LtRampAlign.heading",
@@ -285,8 +285,8 @@
      "val":2.5
     },
     "y":{
-     "exp":"2.5 m",
-     "val":2.5
+     "exp":"2.75 m",
+     "val":2.75
     },
     "heading":{
      "exp":"-0.75 rad",
@@ -299,8 +299,8 @@
      "val":6.0
     },
     "y":{
-     "exp":"2.5 m",
-     "val":2.5
+     "exp":"2.75 m",
+     "val":2.75
     },
     "heading":{
      "exp":"-0.75 rad",

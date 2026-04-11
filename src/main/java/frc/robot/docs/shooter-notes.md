@@ -1,3 +1,22 @@
+Shooter NOTES
+
+    // Bumpers against the hub if possible, note robot position if not
+    public static final double CLOSE_RPM = 2000;  // TODO tune CLOSE_RPM || Tuned 4-8-2026
+    // 
+
+    // Bumpers against the tower
+    public static final double TOWER_RPM = 2500;  // TODO tune TOWER_RPM || Tuned 4-8-2026
+    // 4 meters is too long 
+
+    // In the trench, mostly against the wall, but turned slightly towards the hub
+    public static final double TRENCH_RPM = 2250; // TODO tune TRENCH_RPM || Tuned 4-7-2026
+    // 4 meters was short
+    
+    // In a corner by human player station or depot-corner, angled towards the hub, but not against anything
+    public static final double FAR_RPM = 3000;    // TODO tune FAR_RPM || Tuned 4-7-2026
+    // 4 meters
+
+
 package frc.robot.subsystems.shooter;
 
 // import org.littletonrobotics.junction.Logger;
@@ -526,21 +545,24 @@ public class ShooterSubsystem extends SubsystemBase {
         * Adding a distance to one map without adding it to the other produces
         * inconsistent RPM/hood pairings at that distance. Always update both.
         */
-        FLYWHEEL_RPM_MAP.put(2.6, 2310.0);
+        FLYWHEEL_RPM_MAP.put(2.6, 2000.0); // inches
         // Was 2200
         // 2.6, 2000 previously and short
         //
 
-        FLYWHEEL_RPM_MAP.put(3.50, 2625.0);
+        // FLYWHEEL_RPM_MAP.put(3.50, 2625.0);
         // Was 2500
         // 3.5, 2250 previously and short
 
-        FLYWHEEL_RPM_MAP.put(4.50,  3465.0);
+        FLYWHEEL_RPM_MAP.put(4.0,  3000.0); 
+
+        // FLYWHEEL_RPM_MAP.put(4.50,  3465.0); 
         // 3300
         // 4.5, 3000 previously and short
         
         HOOD_ROT_MAP.put(2.6,  5.50);
-        HOOD_ROT_MAP.put(3.50, 4.65);
+        // HOOD_ROT_MAP.put(3.50, 4.65);
+        
         HOOD_ROT_MAP.put(4.50,  3.50);
     }
 
