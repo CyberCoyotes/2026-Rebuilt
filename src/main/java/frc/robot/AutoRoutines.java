@@ -37,10 +37,7 @@ public class AutoRoutines {
 
                 // RightTrench to RightMiddle to RightRampAlign
                 final AutoTrajectory RtTr_RtMid = routine.trajectory("RtTr_RtMid", 0);
-                
-                // RightRampAlign to RightRampShot
-                // final AutoTrajectory RtMid_RtRampShot = routine.trajectory("RtMid_RtRampShot", 0);
-                
+               
                 final AutoTrajectory RtRampMid_RtRampAlli = routine.trajectory("RtRampMid_RtRampAlli", 0);
                 
                 // RightRampShoot to RightTrench
@@ -296,14 +293,23 @@ public class AutoRoutines {
         public AutoRoutine Bulldozer() {
                 final AutoRoutine routine = m_factory.newRoutine("Bulldozer 2026");
                 final AutoTrajectory Bulldozer = routine.trajectory("Bulldozer2026", 0);
-                final AutoTrajectory RtRamp_RtRampShot = routine.trajectory("RtRamp_RtRampShot", 0);
+
+                final AutoTrajectory RtRampMid_RtRampAlli = routine.trajectory("RtRampMid_RtRampAlli", 0);
+                
+                final AutoTrajectory RtRampAlli_Shot = routine.trajectory("RtRampAlli_Shot", 0);                        
+                
+                // final AutoTrajectory RtShot_Trench = routine.trajectory("RtShot_Trench", 0);
 
                 routine.active().onTrue(
                                 Commands.sequence(
                                                 Bulldozer.resetOdometry(),
+                                                
                                                 Bulldozer.cmd(),
-                                                RtRamp_RtRampShot.cmd()
-                                                // TODO Add shooting after confirming path
+                                                
+                                                RtRampMid_RtRampAlli.cmd(),
+
+                                                RtRampAlli_Shot.cmd()
+                                                
 
                                 ));
                 // Routine Events
