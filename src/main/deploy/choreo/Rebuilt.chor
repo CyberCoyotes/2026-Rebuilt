@@ -146,20 +146,6 @@
      "val":-1.5707963267948966
     }
    },
-   "LtRampAlign":{
-    "x":{
-     "exp":"6.2 m",
-     "val":6.2
-    },
-    "y":{
-     "exp":"5.4 m",
-     "val":5.4
-    },
-    "heading":{
-     "exp":"0.75 rad",
-     "val":0.75
-    }
-   },
    "LtRampAlli":{
     "x":{
      "exp":"3 m",
@@ -170,7 +156,21 @@
      "val":5.4
     },
     "heading":{
-     "exp":"LtRampAlign.heading",
+     "exp":"LtRampNeutral.heading",
+     "val":0.75
+    }
+   },
+   "LtRampNeutral":{
+    "x":{
+     "exp":"6.19 m",
+     "val":6.19
+    },
+    "y":{
+     "exp":"5.4 m",
+     "val":5.4
+    },
+    "heading":{
+     "exp":"0.75 rad",
      "val":0.75
     }
    },
