@@ -354,7 +354,7 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
             });
         }
 
-        boolean pigeonConnected = getPigeon2().isConnected();
+        boolean pigeonConnected = getPigeon2().isConnected().getValue();
         if (pigeonConnected && !m_wasPigeonConnected) {
             seedFieldCentric();
         }
