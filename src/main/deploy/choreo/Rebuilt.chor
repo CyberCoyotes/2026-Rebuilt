@@ -380,8 +380,8 @@
      "val":1.3
     },
     "heading":{
-     "exp":"RtCrossingHeading rad",
-     "val":0.785
+     "exp":"RtTrenchHeading rad",
+     "val":1.57
     }
    },
    "RtNeutralIntakeStartB":{
