@@ -111,9 +111,8 @@ public class AutoRoutines {
 
                                                 // 7. Shoot (2nd)
                                                 RtShootRamp.cmd() 
-                                                )
 
-                                );
+                                ));
                 // Routine Events
                 RtTrench_Middle.atTime("Intake").onTrue(m_intake.intakeFuelTimer(intakeTimeout));
                 RtShootRamp.atTime("Shoot").onTrue(FuelCommands.Auto.poseAlignAndShoot(m_shooter, m_indexer, m_intake, m_drivetrain, shootTimeout));
@@ -133,86 +132,81 @@ public class AutoRoutines {
 
                 final AutoRoutine routine = m_factory.newRoutine("Lt Single Trench-Ramp");
 
-                final AutoTrajectory LtTr_LtMid = routine.trajectory("LtTrench_Middle", 0);
+                // Trajectories
+                final AutoTrajectory LtTrench_Middle = routine.trajectory("LtTrench_Middle", 0);
+                final AutoTrajectory LtRampMiddle_Alliance = routine.trajectory("LtRampMiddle_Alliance", 0);
+                final AutoTrajectory LtShootRamp = routine.trajectory("LtShootRamp", 0);                        
                 
-                // LeftRampAlign to LeftRampShot
-                final AutoTrajectory LtRampMid_LtRampAlli = routine.trajectory("LtRampMid_LtRampAlli", 0);
-                
-                // LeftRampShoot to LeftTrench
-                final AutoTrajectory LtRampAlli_Shot = routine.trajectory("LtRampAlli_Shot", 0); 
-
-                // LeftTrench to LeftSweep to LeftRampShot
-                // final AutoTrajectory LtTr_LtSweep = routine.trajectory("LtTr_LtSweep", 0);
-
                 routine.active().onTrue(
                                 Commands.sequence(
-                                                LtTr_LtMid.resetOdometry(), // Always reset odometry first
+                                                LtTrench_Middle.resetOdometry(),
                                                 
-                                                LtTr_LtMid.cmd(),
-                                                
-                                                LtRampMid_LtRampAlli.cmd(),
+                                                // 1. Trench to Middle, setup for Ramp Crossing
+                                                LtTrench_Middle.cmd(),
 
-                                                LtRampAlli_Shot.cmd()
+                                                // 2. Ramp crossing
+                                                LtRampMiddle_Alliance.cmd(),
+                                                
+                                                // 3. Shoot
+                                                LtShootRamp.cmd()
 
                                 ));
-
                 // Routine Events
-                LtTr_LtMid.atTime("Intake").onTrue(m_intake.intakeFuelTimer(intakeTimeout));
-
-                LtRampAlli_Shot.atTime("Shoot").onTrue(FuelCommands.Auto.poseAlignAndShoot(m_shooter, m_indexer, m_intake,m_drivetrain, shootTimeout));
+                LtTrench_Middle.atTime("Intake").onTrue(m_intake.intakeFuelTimer(intakeTimeout));
+                LtShootRamp.atTime("Shoot").onTrue(FuelCommands.Auto.poseAlignAndShoot(m_shooter, m_indexer, m_intake, m_drivetrain, shootTimeout));
 
                 return routine;
         }
 
-        
+        // FIXME
         // Left Trench to Middle to Ramp Shot
         public AutoRoutine LtTrench_Ramp_Double() {
 
                 final AutoRoutine routine = m_factory.newRoutine("Lt x2 Trench-Ramp");
-                // LeftTrench to LeftMiddle to LeftRampAlign
-                final AutoTrajectory LtTr_LtMid = routine.trajectory("LtTr_LtMid", 0);
                 
-                // LeftRampAlign to LeftRampShot
-                final AutoTrajectory LtRampMid_LtRampAlli = routine.trajectory("LtRampMid_LtRampAlli", 0);
-                
-                // LeftRampShoot to LeftTrench
-                final AutoTrajectory LtRampAlli_Shot = routine.trajectory("LtRampAlli_Shot", 0); 
+                // Trajectories
+                final AutoTrajectory LtTrench_Middle = routine.trajectory("LtTrench_Middle", 0);
+                final AutoTrajectory LtRampMiddle_Alliance = routine.trajectory("LtRampMiddle_Alliance", 0);
+                final AutoTrajectory LtShootRamp = routine.trajectory("LtShootRamp", 0);
 
-                // TODO Confirm final AutoTrajectory LtShot_Trench = routine.trajectory("LtShot_Trench", 0);
-
-                // TODO Confirm final AutoTrajectory LtTr_CurlSweep = routine.trajectory("LtTr_CurlSweep", 0);
+                // FIXME: These trajectories need to be validated in Choreo, they are placeholders for now
+                final AutoTrajectory LtShootRamp_Trench = routine.trajectory("LtShootRamp_Trench", 0);
+                // final AutoTrajectory LtTr_CurlSweep = routine.trajectory("LtTr_CurlSweep", 0);
 
                 // LeftTrench to LeftSweep to LeftRampShot
                 // final AutoTrajectory LtTr_LtSweep = routine.trajectory("LtTr_LtSweep", 0);
 
                 routine.active().onTrue(
                                 Commands.sequence(
-                                                LtTr_LtMid.resetOdometry(), // Always reset odometry first
+                                                LtTrench_Middle.resetOdometry(), // Always reset odometry first
                                                 
-                                                LtTr_LtMid.cmd(),
+                                                // 1. Trench to Middle, setup for Ramp Crossing
+                                                LtTrench_Middle.cmd(),
                                                 
-                                                LtRampMid_LtRampAlli.cmd(),
+                                                // 2. Ramp crossing
+                                                LtRampMiddle_Alliance.cmd(),
+                                                
+                                                // 3. Shoot
+                                                LtShootRamp.cmd(),
 
-                                                LtRampAlli_Shot.cmd()
+                                                // 4. Back to trench
+                                                LtShootRamp_Trench.cmd(),
 
-                                                // Back to trench, intake first
-                                                // TODO Confirm LtShot_Trench.cmd(),
+                                                // 5. Trench to Middle, setup for Ramp Crossing (2nd)
+                                                LtTrench_Middle.cmd(),
 
-                                                // Sweep out second time
-                                                // TODO ConfirmLtTr_CurlSweep.cmd(),
+                                                // 6. Ramp crossing to Alliance side (2nd)
+                                                LtRampMiddle_Alliance.cmd(),
 
-                                                // Come across 2nd time
-                                                // LtRampMid_RtRampAlli.cmd(), 
-
-                                                // Shoot 2nd time
-                                                // LtRampAlli_Shot.cmd()
+                                                // 7. Shoot (2nd)
+                                                LtShootRamp.cmd() 
+                                                
 
                                 ));
 
                 // Routine Events
-                LtTr_LtMid.atTime("Intake").onTrue(m_intake.intakeFuelTimer(intakeTimeout));
-
-                LtRampAlli_Shot.atTime("Shoot").onTrue(FuelCommands.Auto.poseAlignAndShoot(m_shooter, m_indexer, m_intake,m_drivetrain, shootTimeout));
+                LtTrench_Middle.atTime("Intake").onTrue(m_intake.intakeFuelTimer(intakeTimeout));
+                LtShootRamp.atTime("Shoot").onTrue(FuelCommands.Auto.poseAlignAndShoot(m_shooter, m_indexer, m_intake, m_drivetrain, shootTimeout));
 
                 return routine;
         }
