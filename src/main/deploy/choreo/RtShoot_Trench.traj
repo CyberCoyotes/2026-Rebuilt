@@ -1,5 +1,5 @@
 {
- "name":"RtShot_Trench",
+ "name":"RtShoot_Trench",
  "version":3,
  "snapshot":{
   "waypoints":[
@@ -15,9 +15,9 @@
  },
  "params":{
   "waypoints":[
-    {"x":{"exp":"RtPostRampShot.x", "val":2.71}, "y":{"exp":"RtPostRampShot.y", "val":1.6}, "heading":{"exp":"RtPostRampShot.heading", "val":-2.26}, "intervals":26, "split":false, "fixTranslation":true, "fixHeading":true, "overrideIntervals":false},
+    {"x":{"exp":"RtShootRamp.x", "val":2.71}, "y":{"exp":"RtShootRamp.y", "val":1.6}, "heading":{"exp":"RtShootRamp.heading", "val":-2.26}, "intervals":26, "split":false, "fixTranslation":true, "fixHeading":true, "overrideIntervals":false},
     {"x":{"exp":"3.0190279483795166 m", "val":3.0190279483795166}, "y":{"exp":"0.8674746751785278 m", "val":0.8674746751785278}, "heading":{"exp":"0 rad", "val":0.0}, "intervals":16, "split":false, "fixTranslation":true, "fixHeading":true, "overrideIntervals":false},
-    {"x":{"exp":"RtTr.x", "val":4.42}, "y":{"exp":"RtTr.y", "val":0.47}, "heading":{"exp":"0 rad", "val":0.0}, "intervals":15, "split":false, "fixTranslation":true, "fixHeading":true, "overrideIntervals":false}],
+    {"x":{"exp":"RtTrench.x", "val":4.42}, "y":{"exp":"RtTrench.y", "val":0.47}, "heading":{"exp":"0 rad", "val":0.0}, "intervals":15, "split":false, "fixTranslation":true, "fixHeading":true, "overrideIntervals":false}],
   "constraints":[
     {"from":"first", "to":null, "data":{"type":"StopPoint", "props":{}}, "enabled":true},
     {"from":"last", "to":null, "data":{"type":"StopPoint", "props":{}}, "enabled":true},

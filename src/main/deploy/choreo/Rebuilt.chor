@@ -258,20 +258,6 @@
      "val":1.57
     }
    },
-   "RtPostRampShot":{
-    "x":{
-     "exp":"2.71 m",
-     "val":2.71
-    },
-    "y":{
-     "exp":"1.6 m",
-     "val":1.6
-    },
-    "heading":{
-     "exp":"-2.26 rad",
-     "val":-2.26
-    }
-   },
    "RtRampAlignHalf":{
     "x":{
      "exp":"6.95 m",
@@ -314,35 +300,21 @@
      "val":-0.75
     }
    },
-   "RtTr":{
+   "RtShootRamp":{
     "x":{
-     "exp":"4.42 m",
-     "val":4.42
+     "exp":"2.71 m",
+     "val":2.71
     },
     "y":{
-     "exp":"0.47 m",
-     "val":0.47
+     "exp":"1.6 m",
+     "val":1.6
     },
     "heading":{
-     "exp":"3.14 / 2 rad",
-     "val":1.57
+     "exp":"-2.26 rad",
+     "val":-2.26
     }
    },
-   "RtTrAlign":{
-    "x":{
-     "exp":"6.25 m",
-     "val":6.25
-    },
-    "y":{
-     "exp":"0.65 m",
-     "val":0.65
-    },
-    "heading":{
-     "exp":"0 rad",
-     "val":0.0
-    }
-   },
-   "RtTrShot":{
+   "RtShootTrench":{
     "x":{
      "exp":"4.1 m",
      "val":4.1
@@ -354,6 +326,34 @@
     "heading":{
      "exp":"1.5 rad",
      "val":1.5
+    }
+   },
+   "RtTrAlign":{
+    "x":{
+     "exp":"6.5 m",
+     "val":6.5
+    },
+    "y":{
+     "exp":"0.65 m",
+     "val":0.65
+    },
+    "heading":{
+     "exp":"3.14 / 2 rad",
+     "val":1.57
+    }
+   },
+   "RtTrench":{
+    "x":{
+     "exp":"4.42 m",
+     "val":4.42
+    },
+    "y":{
+     "exp":"0.47 m",
+     "val":0.47
+    },
+    "heading":{
+     "exp":"3.14 / 2 rad",
+     "val":1.57
     }
    },
    "Station":{
@@ -384,7 +384,7 @@
      "val":3.14
     }
    },
-   "StationShot":{
+   "StationShoot":{
     "x":{
      "exp":"1.14 m",
      "val":1.14

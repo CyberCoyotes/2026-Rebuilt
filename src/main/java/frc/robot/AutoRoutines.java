@@ -30,93 +30,137 @@ public class AutoRoutines {
                 // m_vision = vision;
         }
 
+        // ============================================================================
+        // Main Auto Routines
+        // ============================================================================
+                
+        // Right Trench to Middle to Ramp Shot
+                public AutoRoutine RtTrench_Ramp_Single() {
+                
+                final AutoRoutine routine = m_factory.newRoutine("Rt Single Trench-Ramp");
+
+                // Trajectories
+                final AutoTrajectory RtTrench_Middle = routine.trajectory("RtTrench_Middle", 0);
+                final AutoTrajectory RtMiddleRamp_Alliance = routine.trajectory("RtMiddleRamp_Alliance", 0);
+                final AutoTrajectory RtShot = routine.trajectory("RtShot", 0);                        
+                
+                routine.active().onTrue(
+                                Commands.sequence(
+                                                RtTrench_Middle.resetOdometry(),
+                                                
+                                                // 1. Trench to Middle, setup for Ramp Crossing
+                                                RtTrench_Middle.cmd(),
+
+                                                // 2. Ramp crossing
+                                                RtMiddleRamp_Alliance.cmd(),
+                                                
+                                                // 3. Shoot
+                                                RtShot.cmd()
+
+                                                )
+
+                                );
+                // Routine Events
+                RtTrench_Middle.atTime("Intake").onTrue(m_intake.intakeFuelTimer(6));
+                RtShot.atTime("Shoot").onTrue(FuelCommands.Auto.poseAlignAndShoot(m_shooter, m_indexer, m_intake, m_drivetrain, 6.0));
+
+                return routine;
+        }
                 // Right Trench to Middle to Ramp Shot
                 public AutoRoutine RtTrench_Ramp_Double() {
 
                 final AutoRoutine routine = m_factory.newRoutine("Rt x2 Trench-Ramp");
 
-                // RightTrench to RightMiddle to RightRampAlign
-                final AutoTrajectory RtTr_RtMid = routine.trajectory("RtTr_RtMid", 0);
-               
-                final AutoTrajectory RtRampMid_RtRampAlli = routine.trajectory("RtRampMid_RtRampAlli", 0);
-                 final AutoTrajectory RtRampMid_RtRampAlli2 = routine.trajectory("RtRampMid_RtRampAlli", 0);
-                // RightRampShoot to RightTrench
-                final AutoTrajectory RtRampAlli_Shot = routine.trajectory("RtRampAlli_Shot", 0);                        
-                final AutoTrajectory RtRampAlli_Shot2 = routine.trajectory("RtRampAlli_Shot", 0);     
-                final AutoTrajectory RtShot_Trench = routine.trajectory("RtShot_Trench", 0);
+                // Trajectories
+                final AutoTrajectory RtTrench_Middle = routine.trajectory("RtTrench_Middle", 0);
+                final AutoTrajectory RtMiddleRamp_Alliance = routine.trajectory("RtMiddleRamp_Alliance", 0);
+                final AutoTrajectory RtShot = routine.trajectory("RtShot", 0);    
 
-                // RightTrench to RightSweep to RightRampShot
-                final AutoTrajectory RtTr_CurlSweep = routine.trajectory("RtTr_CurlSweep", 0);
+                final AutoTrajectory RtShot_Trench = routine.trajectory("RtShot_Trench", 0);
+                // final AutoTrajectory RtTrench_CurlSweep = routine.trajectory("RtTrench_CurlSweep", 0);
+
+                /* Probably not needed?
+                final AutoTrajectory RtRampMiddle_RtRampAlliance2 = routine.trajectory("RtRampMiddle_RtRampAlliance", 0);
+                final AutoTrajectory RtShot2 = routine.trajectory("RtRampAlli_Shot", 0);     
+                */
 
                 routine.active().onTrue(
                                 Commands.sequence(
-                                                RtTr_RtMid.resetOdometry(),
+                                                RtTrench_Middle.resetOdometry(),
+                                                
+                                                 // 1. Trench to Middle, setup for Ramp Crossing
+                                                RtTrench_Middle.cmd(),
 
-                                                RtTr_RtMid.cmd(),  
+                                                 // 2. Ramp crossing to Alliance side
+                                                RtMiddleRamp_Alliance.cmd(),
 
-                                                RtRampMid_RtRampAlli.cmd(),
+                                                // 3. Shoot
+                                                RtShot.cmd(),
 
-                                                RtRampAlli_Shot.cmd(),
-
-                                                // Back to trench
+                                                // 4. Back to trench
                                                 RtShot_Trench.cmd(),
 
-                                                // Sweep out second time
-                                                RtTr_CurlSweep.cmd(),
+                                                // 5. Trench to Middle, setup for Ramp Crossing (2nd)
+                                                RtTrench_Middle.cmd(),
 
-                                                // Come across 2nd time
-                                                RtRampMid_RtRampAlli2.cmd(), 
+                                                // 6. Ramp crossing to Alliance side (2nd)
+                                                RtMiddleRamp_Alliance.cmd(),
 
-                                                // Shoot 2nd time
-                                                RtRampAlli_Shot2.cmd()
-
+                                                // 7. Shoot (2nd)
+                                                RtShot.cmd() 
                                                 )
 
                                 );
                 // Routine Events
-                RtTr_RtMid.atTime("Intake").onTrue(m_intake.intakeFuelTimer(6));
-                RtRampAlli_Shot.atTime("Shoot").onTrue(FuelCommands.Auto.poseAlignAndShoot(m_shooter, m_indexer, m_intake, m_drivetrain, 5.0));
-                RtTr_CurlSweep.atTime("Intake").onTrue(m_intake.intakeFuelTimer(6));
-                RtRampAlli_Shot2.atTime("Shoot").onTrue(FuelCommands.Auto.poseAlignAndShoot(m_shooter, m_indexer, m_intake, m_drivetrain, 5.0));
+                RtTrench_Middle.atTime("Intake").onTrue(m_intake.intakeFuelTimer(6));
+                RtShot.atTime("Shoot").onTrue(FuelCommands.Auto.poseAlignAndShoot(m_shooter, m_indexer, m_intake, m_drivetrain, 5.0));
+                // RtTr_CurlSweep.atTime("Intake").onTrue(m_intake.intakeFuelTimer(6));
+                // RtRampAlli_Shot2.atTime("Shoot").onTrue(FuelCommands.Auto.poseAlignAndShoot(m_shooter, m_indexer, m_intake, m_drivetrain, 5.0));
                 // LtTrench_Mid_Trench.atTime("FuelPump").onTrue(FuelCommands.Auto.fuelPumpCycleSensor(m_intake, m_indexer));
 
                 return routine;
         }
         
-        // Right Trench to Middle to Ramp Shot
-                public AutoRoutine RtTrench_Ramp_Single() {
 
-                final AutoRoutine routine = m_factory.newRoutine("Rt Single Trench-Ramp");
+        
 
-                // RightTrench to RightMiddle to RightRampAlign
-                final AutoTrajectory RtTr_RtMid = routine.trajectory("RtTr_RtMid", 0);
+
+        // Left Trench to Middle to Ramp Shot
+        public AutoRoutine LtTrench_Ramp_Single() {
+
+                final AutoRoutine routine = m_factory.newRoutine("Lt Single Trench-Ramp");
+
+                final AutoTrajectory LtTr_LtMid = routine.trajectory("LtTrench_Middle", 0);
                 
-                // RightRampAlign to RightRampShot
-                // final AutoTrajectory RtMid_RtRampShot = routine.trajectory("RtMid_RtRampShot", 0);
+                // LeftRampAlign to LeftRampShot
+                final AutoTrajectory LtRampMid_LtRampAlli = routine.trajectory("LtRampMid_LtRampAlli", 0);
                 
-                final AutoTrajectory RtRampMid_RtRampAlli = routine.trajectory("RtRampMid_RtRampAlli", 0);
-                
-                // RightRampShoot to RightTrench
-                final AutoTrajectory RtRampAlli_Shot = routine.trajectory("RtRampAlli_Shot", 0);                        
-                
+                // LeftRampShoot to LeftTrench
+                final AutoTrajectory LtRampAlli_Shot = routine.trajectory("LtRampAlli_Shot", 0); 
+
+                // LeftTrench to LeftSweep to LeftRampShot
+                // final AutoTrajectory LtTr_LtSweep = routine.trajectory("LtTr_LtSweep", 0);
+
                 routine.active().onTrue(
                                 Commands.sequence(
-                                                RtTr_RtMid.resetOdometry(),
+                                                LtTr_LtMid.resetOdometry(), // Always reset odometry first
+                                                
+                                                LtTr_LtMid.cmd(),
+                                                
+                                                LtRampMid_LtRampAlli.cmd(),
 
-                                                RtTr_RtMid.cmd(),  
+                                                LtRampAlli_Shot.cmd()
 
-                                                RtRampMid_RtRampAlli.cmd(),
+                                ));
 
-                                                RtRampAlli_Shot.cmd()
-                                                )
-
-                                );
                 // Routine Events
-                RtTr_RtMid.atTime("Intake").onTrue(m_intake.intakeFuelTimer(6));
-                RtRampAlli_Shot.atTime("Shoot").onTrue(FuelCommands.Auto.poseAlignAndShoot(m_shooter, m_indexer, m_intake, m_drivetrain, 6.0));
+                LtTr_LtMid.atTime("Intake").onTrue(m_intake.intakeFuelTimer(6));
+
+                LtRampAlli_Shot.atTime("Shoot").onTrue(FuelCommands.Auto.poseAlignAndShoot(m_shooter, m_indexer, m_intake,m_drivetrain, 6.0));
 
                 return routine;
         }
+
         
         // Left Trench to Middle to Ramp Shot
         public AutoRoutine LtTrench_Ramp_Double() {
@@ -170,42 +214,49 @@ public class AutoRoutines {
                 return routine;
         }
 
-        // Left Trench to Middle to Ramp Shot
-        public AutoRoutine LtTrench_Ramp_Single() {
+        // ============================================================================
+        // Secondary Auto Routines
+        // ============================================================================
+        
 
-                final AutoRoutine routine = m_factory.newRoutine("Lt Single Trench-Ramp");
-                // LeftTrench to LeftMiddle to LeftRampAlign
-                final AutoTrajectory LtTr_LtMid = routine.trajectory("LtTr_LtMid", 0);
-                
-                // LeftRampAlign to LeftRampShot
-                final AutoTrajectory LtRampMid_LtRampAlli = routine.trajectory("LtRampMid_LtRampAlli", 0);
-                
-                // LeftRampShoot to LeftTrench
-                final AutoTrajectory LtRampAlli_Shot = routine.trajectory("LtRampAlli_Shot", 0); 
 
-                // LeftTrench to LeftSweep to LeftRampShot
-                // final AutoTrajectory LtTr_LtSweep = routine.trajectory("LtTr_LtSweep", 0);
+
+        
+
+
+        // ============================================================================
+        // Experimental
+        // ============================================================================
+
+        // Inner class for testing new auto features without affecting existing routines
+        public class Test {
+                        public AutoRoutine Bulldozer() {
+                final AutoRoutine routine = m_factory.newRoutine("Bulldozer 2026");
+                final AutoTrajectory Bulldozer = routine.trajectory("Bulldozer2026", 0);
+
+                final AutoTrajectory RtRampMid_RtRampAlli = routine.trajectory("RtRampMid_RtRampAlli", 0);
+                
+                final AutoTrajectory RtRampAlli_Shot = routine.trajectory("RtRampAlli_Shot", 0);                        
+                
+                // final AutoTrajectory RtShot_Trench = routine.trajectory("RtShot_Trench", 0);
 
                 routine.active().onTrue(
                                 Commands.sequence(
-                                                LtTr_LtMid.resetOdometry(), // Always reset odometry first
+                                                Bulldozer.resetOdometry(),
                                                 
-                                                LtTr_LtMid.cmd(),
+                                                Bulldozer.cmd(),
                                                 
-                                                LtRampMid_LtRampAlli.cmd(),
+                                                RtRampMid_RtRampAlli.cmd(),
 
-                                                LtRampAlli_Shot.cmd()
+                                                RtRampAlli_Shot.cmd()
+                                                
 
                                 ));
-
                 // Routine Events
-                LtTr_LtMid.atTime("Intake").onTrue(m_intake.intakeFuelTimer(6));
-
-                LtRampAlli_Shot.atTime("Shoot").onTrue(FuelCommands.Auto.poseAlignAndShoot(m_shooter, m_indexer, m_intake,m_drivetrain, 6.0));
+                Bulldozer.atTime("Intake").onTrue(m_intake.intakeFuelTimer(8));
 
                 return routine;
         }
-
 
         // FIXME: This routine needs validation
         public AutoRoutine Full_RtTrench_Mid_Ramp() {
@@ -292,36 +343,7 @@ public class AutoRoutines {
                 return routine;
         }
 
-        public AutoRoutine Bulldozer() {
-                final AutoRoutine routine = m_factory.newRoutine("Bulldozer 2026");
-                final AutoTrajectory Bulldozer = routine.trajectory("Bulldozer2026", 0);
-
-                final AutoTrajectory RtRampMid_RtRampAlli = routine.trajectory("RtRampMid_RtRampAlli", 0);
-                
-                final AutoTrajectory RtRampAlli_Shot = routine.trajectory("RtRampAlli_Shot", 0);                        
-                
-                // final AutoTrajectory RtShot_Trench = routine.trajectory("RtShot_Trench", 0);
-
-                routine.active().onTrue(
-                                Commands.sequence(
-                                                Bulldozer.resetOdometry(),
-                                                
-                                                Bulldozer.cmd(),
-                                                
-                                                RtRampMid_RtRampAlli.cmd(),
-
-                                                RtRampAlli_Shot.cmd()
-                                                
-
-                                ));
-                // Routine Events
-                Bulldozer.atTime("Intake").onTrue(m_intake.intakeFuelTimer(8));
-
-                return routine;
-        }
-        
-        // FIXME: This routine needs validation
-        public AutoRoutine RtTrench_RtMid_RtTrench() {
+                public AutoRoutine RtTrench_RtMid_RtTrench() {
                 final AutoRoutine routine = m_factory.newRoutine("RtTrench_RtMid_RtTrench");
                 final AutoTrajectory RtTrench_RtMid_RtTrench = routine.trajectory("RtTrench_RtMid_RtTrench", 0);
 
@@ -339,14 +361,7 @@ public class AutoRoutines {
                                 .onTrue(FuelCommands.Auto.poseAlignAndShoot(m_shooter, m_indexer, m_intake, m_drivetrain, 6.0));
                 RtTrench_RtMid_RtTrench.atTime("FuelPump").onTrue(FuelCommands.Auto.fuelPumpCycleSensor(m_intake, m_indexer));
                 return routine;
-        }
-
-        // ============================================================================
-        // Experimental
-        // ============================================================================
-
-        // Inner class for testing new auto features without affecting existing routines
-        public class Test {
+                }
 
                 public AutoRoutine Lob() {
                         final AutoRoutine routine = m_factory.newRoutine("Lob");

@@ -458,6 +458,7 @@ public class FuelCommands {
          * @param indexer     Indexer subsystem
          * @param drivetrain  Drivetrain (odometry pose source)
          * @param feedSeconds How long to run the indexer/conveyor after alignment
+         * @param shotTimeout Timeout for the shooting sequence
          * @return Autonomous align-and-shoot command
          */
         public static Command poseAlignAndShoot(
@@ -465,7 +466,7 @@ public class FuelCommands {
                 IndexerSubsystem indexer,
                 IntakeSubsystem intake,
                 CommandSwerveDrivetrain drivetrain,
-                double safetyTimeout) {
+                double shotTimeout) {
 
             final SwerveRequest.FieldCentric alignRequest = new SwerveRequest.FieldCentric()
                     .withDriveRequestType(DriveRequestType.OpenLoopVoltage);
@@ -515,7 +516,7 @@ public class FuelCommands {
                             }, shooter, drivetrain)),
                     // Phase 2: feed until chute clears while compressing fuel once shooter is ready
                     Commands.deadline(
-                            indexer.feedUntilChuteEmpty(safetyTimeout),
+                            indexer.feedUntilChuteEmpty(shotTimeout),
                             fuelCompressionWhenShooterReady(shooter, intake))
             ).finallyDo(() -> {
                 indexer.indexerStop();
@@ -537,7 +538,7 @@ public class FuelCommands {
         // Presets
         // =============================================================================
         public static Command shootTrench(ShooterSubsystem shooter, IndexerSubsystem indexer,
-                double safetyTimeout) {
+                double shotTimeout) {
             return Commands.sequence(
                     Commands.runOnce(() -> {
                         shooter.setTargetVelocity(Constants.Flywheel.TRENCH_RPM);
@@ -545,7 +546,7 @@ public class FuelCommands {
                         shooter.beginSpinUp();
                     }, shooter),
                     Commands.waitUntil(shooter::isReady),
-                    indexer.feedUntilChuteEmpty(safetyTimeout)
+                    indexer.feedUntilChuteEmpty(shotTimeout)
             ).finallyDo(() -> {
                 indexer.indexerStop();
                 indexer.conveyorStop();
@@ -554,7 +555,7 @@ public class FuelCommands {
         }
 
         public static Command shootHub(ShooterSubsystem shooter, IndexerSubsystem indexer,
-                double safetyTimeout) {
+                double shotTimeout) {
             return Commands.sequence(
                     Commands.runOnce(() -> {
                         shooter.setTargetVelocity(Constants.Flywheel.CLOSE_RPM);
@@ -562,7 +563,7 @@ public class FuelCommands {
                         shooter.beginSpinUp();
                     }, shooter),
                     Commands.waitUntil(shooter::isReady),
-                    indexer.feedUntilChuteEmpty(safetyTimeout)).finallyDo(() -> {
+                    indexer.feedUntilChuteEmpty(shotTimeout)).finallyDo(() -> {
                         indexer.indexerStop();
                         indexer.conveyorStop();
                         shooter.setPostShotState();
@@ -570,7 +571,7 @@ public class FuelCommands {
         }
 
         public static Command shootTower(ShooterSubsystem shooter, IndexerSubsystem indexer,
-                double safetyTimeout) {
+                double shotTimeout) {
             return Commands.sequence(
                     Commands.runOnce(() -> {
                         shooter.setTargetVelocity(Constants.Flywheel.TOWER_RPM);
@@ -578,7 +579,7 @@ public class FuelCommands {
                         shooter.beginSpinUp();
                     }, shooter),
                     Commands.waitUntil(shooter::isReady).withTimeout(6.0),
-                    indexer.feedUntilChuteEmpty(safetyTimeout)).finallyDo(() -> {
+                    indexer.feedUntilChuteEmpty(shotTimeout)).finallyDo(() -> {
                         indexer.indexerStop();
                         indexer.conveyorStop();
                         shooter.setPostShotState();
@@ -586,7 +587,7 @@ public class FuelCommands {
         } // end of command
 
         public static Command shootFar(ShooterSubsystem shooter, IndexerSubsystem indexer,
-                double safetyTimeout) {
+                double shotTimeout) {
             return Commands.sequence(
                     Commands.runOnce(() -> {
                         shooter.setTargetVelocity(Constants.Flywheel.FAR_RPM);
@@ -594,7 +595,7 @@ public class FuelCommands {
                         shooter.beginSpinUp();
                     }, shooter),
                     Commands.waitUntil(shooter::isReady).withTimeout(6.0),
-                    indexer.feedUntilChuteEmpty(safetyTimeout)).finallyDo(() -> {
+                    indexer.feedUntilChuteEmpty(shotTimeout)).finallyDo(() -> {
                         indexer.indexerStop();
                         indexer.conveyorStop();
                         shooter.setPostShotState();
@@ -642,12 +643,3 @@ public class FuelCommands {
 // DEPRECATED/EXPERIMENTAL COMMANDS — use with caution and test thoroughly if re-enabling
 // =======================================================================================
 
-    /* Probably not needed
-        public static Command shootTrenchWithSlideRetract(ShooterSubsystem shooter,
-                IndexerSubsystem indexer, IntakeSubsystem intake, double safetyTimeout) {
-            return Commands.deadline(
-                    shootTrench(shooter, indexer, safetyTimeout),
-                    intake.retractSlidesAuton())
-                    .withName("ShootTrenchWithSlideRetract");
-        }
-    */
