@@ -101,6 +101,20 @@
      "exp":"7.8",
      "val":7.8
     }
+   },
+   "YLtCrossing":{
+    "dimension":"Number",
+    "var":{
+     "exp":"5.45",
+     "val":5.45
+    }
+   },
+   "YRtCrossing":{
+    "dimension":"Number",
+    "var":{
+     "exp":"2.6",
+     "val":2.6
+    }
    }
   },
   "poses":{
@@ -244,7 +258,7 @@
      "val":-1.57
     }
    },
-   "LtMidTr":{
+   "LtMidTrench":{
     "x":{
      "exp":"X3NeutralClose m",
      "val":6.25
