@@ -29,8 +29,8 @@ A central location for motors, motor controllers, sensors, and CAN devices for q
 
 | ID | Name | Type |
 |----|------|------|
-| 20 | Intake Roller Left | Kraken X44 (`Intake.ROLLER_LEFT_MOTOR_ID`) |
-| 21 | Intake Roller Right | Kraken X44 (`Intake.ROLLER_RIGHT_MOTOR_ID`) |
+| 20 | Intake Roller Left | Kraken X60 (`Intake.ROLLER_LEFT_MOTOR_ID`) |
+<!-- | 21 | Intake Roller Right | Kraken X44 (`Intake.ROLLER_RIGHT_MOTOR_ID`) | -->
 | 22 | Intake Slide | Kraken X44 (`Intake.SLIDE_MOTOR_ID`) |
 | 23 | Kicker Left | Kraken X60 (`Indexer.KICKER_LEFT_MOTOR_ID`) |
 | 24 | Kicker Right | Kraken X60 (`Indexer.KICKER_RIGHT_MOTOR_ID`) |
