@@ -301,31 +301,41 @@ public final class Constants {
     public static final double MAX_RPM = 6000.0;
     public static final double IDLE_RPM = 0;
 
-    /**
-     * Add an end-of-line "Tuned" note when confirmed.
-     */
-
-    // Probably not needed anymore
-    public static final double POPPER_RPM = 650;
     
-    // Low pre-rev speed used to reduce shot latency and current spikes.
-    public static final double STANDBY_RPM = 1200;
-    
-    // Bumpers against the hub if possible, note robot position if not
+    // FIXME Find the correct values for CLOSE SHOT.
+    // Bumpers against the hub if possible
+    public static final double CLOSE_DISTANCE = 1;
     public static final double CLOSE_RPM = 2000;
-
+    public static final double CLOSE_HOOD = 5.50;
+        
+    // FIXME Find the correct values for TOWER SHOT.
     // Bumpers against the tower
+    public static final double TOWER_DISTANCE = 3.5;
     public static final double TOWER_RPM = 2500;
-
+    public static final double TOWER_HOOD = 4.50; //
+    
+    // FIXME Find the correct values for TRENCH SHOT.
     // In the trench, mostly against the wall, but turned slightly towards the hub
+    public static final double TRENCH_DISTANCE = 3.7;
     public static final double TRENCH_RPM = 2250;
+    public static final double TRENCH_HOOD = 4.65;
 
+    // FIXME Find the correct values for FAR SHOT.
     // In a corner by human player station or depot-corner, angled towards the hub, but not against anything
+    public static final double FAR_DISTANCE = 5.5;
     public static final double FAR_RPM = 3000;
+    public static final double FAR_HOOD = 3.75;
+
+    // Low pre-rev speed used to reduce shot latency and current spikes.
+    public static final double STANDBY_RPM = CLOSE_RPM * 0.8;
 
     // For passing passing from midfield
     public static final double PASS_RPM = 3000;
+    public static final double PASS_HOOD = 4.5;
 
+    // Probably not needed anymore
+    public static final double POPPER_RPM = 650;
+    public static final double POPPER_HOOD = 4.20; 
     /*
      * Reverse Flywheel RPM for jam clearing.
      * Only reached through eject(), which gates on EJECT_MAX_ENTRY_RPM to prevent violent reversal at high speeds.
@@ -401,15 +411,14 @@ public final class Constants {
 
     public static final double TOLERANCE_POSE = 0.2;
 
-    /*
-     * Add an end-of-line "Tuned" note when each value is confirmed.
-     */
-    public static final double CLOSE_HOOD = 5.50; //
-    public static final double POPPER_HOOD = 4.20; //  PASS HOODS INVERTED. RETEST ALL
-    public static final double TOWER_HOOD = 4.50; //
-    public static final double TRENCH_HOOD = 4.65; //
-    public static final double FAR_HOOD = 3.75; //
-    public static final double PASS_HOOD = 4.5; //
+    /* Set these in the Flywheel inner class */
+    public static final double CLOSE_HOOD = Constants.Flywheel.CLOSE_HOOD;
+    public static final double TOWER_HOOD = Constants.Flywheel.TOWER_HOOD;
+    public static final double TRENCH_HOOD = Constants.Flywheel.TRENCH_HOOD;
+    public static final double FAR_HOOD = Constants.Flywheel.FAR_HOOD;
+
+    public static final double POPPER_HOOD = Constants.Flywheel.POPPER_HOOD;
+    public static final double PASS_HOOD = Constants.Flywheel.PASS_HOOD;
 
     // Manual tuning increments used for bring-up and testing.
     public static final double TEST_INCREMENT = 0.2;

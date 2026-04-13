@@ -12,6 +12,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
+import frc.robot.Constants.Flywheel;
 import frc.robot.subsystems.shooter.ShooterIO.ShooterIOInputs;
 
 /**
@@ -526,22 +527,24 @@ public class ShooterSubsystem extends SubsystemBase {
         * Adding a distance to one map without adding it to the other produces
         * inconsistent RPM/hood pairings at that distance. Always update both.
         */
-        FLYWHEEL_RPM_MAP.put(2.6, 2310.0);
-        // Was 2200
-        // 2.6, 2000 previously and short
-        //
+        FLYWHEEL_RPM_MAP.put(Constants.Flywheel.CLOSE_DISTANCE, Constants.Flywheel.CLOSE_RPM);
+        HOOD_ROT_MAP.put(Constants.Flywheel.CLOSE_DISTANCE, Constants.Hood.CLOSE_HOOD);
 
+        FLYWHEEL_RPM_MAP.put(Constants.Flywheel.TOWER_DISTANCE, Constants.Flywheel.TOWER_RPM);
+        HOOD_ROT_MAP.put(Constants.Flywheel.TOWER_DISTANCE, Constants.Hood.TOWER_HOOD);
+
+        FLYWHEEL_RPM_MAP.put(Constants.Flywheel.TRENCH_DISTANCE, Constants.Flywheel.TRENCH_RPM);
+        HOOD_ROT_MAP.put(Constants.Flywheel.TRENCH_DISTANCE, Constants.Hood.TRENCH_HOOD);
+
+        FLYWHEEL_RPM_MAP.put(Constants.Flywheel.FAR_DISTANCE, Constants.Flywheel.FAR_RPM);
+        HOOD_ROT_MAP.put(Constants.Flywheel.FAR_DISTANCE, Constants.Hood.FAR_HOOD);
+
+        // FIXME Find the distances for vision tree
         FLYWHEEL_RPM_MAP.put(3.50, 2625.0);
-        // Was 2500
-        // 3.5, 2250 previously and short
-
         FLYWHEEL_RPM_MAP.put(4.50,  3465.0);
-        // 3300
-        // 4.5, 3000 previously and short
-        
-        HOOD_ROT_MAP.put(2.6,  5.50);
         HOOD_ROT_MAP.put(3.50, 4.65);
         HOOD_ROT_MAP.put(4.50,  3.50);
+        
     }
 
     /**
@@ -561,7 +564,8 @@ public class ShooterSubsystem extends SubsystemBase {
                 || currentState == ShooterState.PASS) {
             return;
         }
-        double dist = Math.max(3.0, Math.min(8.0, distanceMeters)); // max bumped to 8, minimum set to 3, as of 4-7-2026, we cannot make shots closer than this 
+        double dist = Math.max(Constants.Vision.MIN_DISTANCE_M, Math.min(Constants.Vision.MAX_DISTANCE_M, distanceMeters));
+
         setTargetVelocity(FLYWHEEL_RPM_MAP.get(dist));
         setTargetHoodPose(HOOD_ROT_MAP.get(dist));
 
