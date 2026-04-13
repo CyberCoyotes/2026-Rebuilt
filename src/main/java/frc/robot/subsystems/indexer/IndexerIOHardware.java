@@ -173,4 +173,22 @@ public class IndexerIOHardware implements IndexerIO {
         // Stop lead only — follower mirrors the leader's NeutralOut automatically.
         kickerMotorLead.stopMotor();
     }
+
+    // == Individual Motor Test Methods =========================================
+
+    @Override
+    public void setKickerLeaderVolts(double volts) {
+        kickerMotorLead.setControl(kickerLeadVoltageRequest.withOutput(volts));
+    }
+
+    @Override
+    public void setKickerFollowerVolts(double volts) {
+        // Sending a direct control request to the follower overrides its Follower link.
+        kickerMotorFollow.setControl(new VoltageOut(volts).withEnableFOC(false));
+    }
+
+    @Override
+    public void reestablishKickerFollower() {
+        kickerMotorFollow.setControl(kickerFollowerRequest);
+    }
 }

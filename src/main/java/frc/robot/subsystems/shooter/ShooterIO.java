@@ -127,4 +127,32 @@ public interface ShooterIO {
      * Stops all shooter motors (flywheels, hood).
      */
     default void stop() {}
+
+    // ===== Individual Motor Test Methods ======================================
+    // These bypass the follower relationship so each motor can be verified
+    // independently. Calling setFlywheelFollowerVolts() overrides the follower
+    // control request — call reestablishFlywheelFollower() when done to re-lock it.
+
+    /**
+     * Runs the flywheel LEADER motor only at a fixed voltage (open-loop).
+     * The follower will still mirror this if it is in follower mode.
+     *
+     * @param volts Voltage to apply
+     */
+    default void setFlywheelLeaderVolts(double volts) {}
+
+    /**
+     * Runs the flywheel FOLLOWER motor independently at a fixed voltage.
+     * This BREAKS the follower link — the follower will no longer mirror the leader
+     * until {@link #reestablishFlywheelFollower()} is called.
+     *
+     * @param volts Voltage to apply
+     */
+    default void setFlywheelFollowerVolts(double volts) {}
+
+    /**
+     * Re-locks the flywheel follower to the leader after individual testing.
+     * Must be called after using setFlywheelFollowerVolts() to restore normal operation.
+     */
+    default void reestablishFlywheelFollower() {}
 }

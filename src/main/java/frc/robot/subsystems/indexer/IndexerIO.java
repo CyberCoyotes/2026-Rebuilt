@@ -80,4 +80,32 @@ public interface IndexerIO {
 
     /** Stops both motors. */
     default void stop() {}
+
+    // ===== Individual Motor Test Methods ======================================
+    // These bypass the follower relationship so each kicker motor can be verified
+    // independently. Calling setKickerFollowerVolts() overrides the follower
+    // control request — call reestablishKickerFollower() when done to re-lock it.
+
+    /**
+     * Runs the kicker LEADER motor only at a fixed voltage (open-loop).
+     * The follower will still mirror this if it is in follower mode.
+     *
+     * @param volts Voltage to apply
+     */
+    default void setKickerLeaderVolts(double volts) {}
+
+    /**
+     * Runs the kicker FOLLOWER motor independently at a fixed voltage.
+     * This BREAKS the follower link — the follower will no longer mirror the leader
+     * until {@link #reestablishKickerFollower()} is called.
+     *
+     * @param volts Voltage to apply
+     */
+    default void setKickerFollowerVolts(double volts) {}
+
+    /**
+     * Re-locks the kicker follower to the leader after individual testing.
+     * Must be called after using setKickerFollowerVolts() to restore normal operation.
+     */
+    default void reestablishKickerFollower() {}
 }

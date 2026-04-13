@@ -588,6 +588,42 @@ public class ShooterSubsystem extends SubsystemBase {
      *
      * @param rpm Target flywheel RPM
      */
+    // =====================================================================
+    // Individual Motor Test Commands
+    // =====================================================================
+
+    /**
+     * Runs ONLY the flywheel leader motor at a fixed voltage while held.
+     * The follower will still mirror the leader (this does NOT break the follower link).
+     * Use this first to verify the leader spins the correct direction.
+     */
+    public Command testFlywheelLeader(double volts) {
+        return Commands.startEnd(
+            () -> io.setFlywheelLeaderVolts(volts),
+            () -> io.stopFlywheels(),
+            this
+        ).withName("Test: Flywheel Leader @ " + volts + "V");
+    }
+
+    /**
+     * Runs ONLY the flywheel follower motor independently at a fixed voltage while held.
+     * This BREAKS the follower link for the duration of the test.
+     * The leader will NOT spin. Re-locks the follower on release.
+     */
+    public Command testFlywheelFollower(double volts) {
+        return Commands.startEnd(
+            () -> {
+                io.stopFlywheels();               // ensure leader is stopped
+                io.setFlywheelFollowerVolts(volts); // override follower with direct voltage
+            },
+            () -> {
+                io.stopFlywheels();
+                io.reestablishFlywheelFollower();  // re-lock follower to leader
+            },
+            this
+        ).withName("Test: Flywheel Follower @ " + volts + "V");
+    }
+
     public Command tuneFlywheelCommand(double rpm) {
         return Commands.startEnd(
             () -> {

@@ -393,6 +393,41 @@ public class IndexerSubsystem extends SubsystemBase {
                 .withName("ConveyorReverseThenForwardHold");
     }
 
+    // =====================================================================
+    // Individual Motor Test Commands
+    // =====================================================================
+
+    /**
+     * Runs ONLY the kicker leader motor at a fixed voltage while held.
+     * The follower will still mirror the leader (this does NOT break the follower link).
+     */
+    public Command testKickerLeader(double volts) {
+        return Commands.startEnd(
+            () -> io.setKickerLeaderVolts(volts),
+            () -> io.stop(),
+            this
+        ).withName("Test: Kicker Leader @ " + volts + "V");
+    }
+
+    /**
+     * Runs ONLY the kicker follower motor independently at a fixed voltage while held.
+     * This BREAKS the follower link for the duration of the test.
+     * The leader will NOT spin. Re-locks the follower on release.
+     */
+    public Command testKickerFollower(double volts) {
+        return Commands.startEnd(
+            () -> {
+                io.stop();                        // ensure leader is stopped
+                io.setKickerFollowerVolts(volts);  // override follower with direct voltage
+            },
+            () -> {
+                io.stop();
+                io.reestablishKickerFollower();    // re-lock follower to leader
+            },
+            this
+        ).withName("Test: Kicker Follower @ " + volts + "V");
+    }
+
     /** Test profile: 4 V for 1 s, then 2 V for 2 s, repeated until interrupted. */
     public Command conveyorPulseProfile() {
         return Commands.repeatingSequence(

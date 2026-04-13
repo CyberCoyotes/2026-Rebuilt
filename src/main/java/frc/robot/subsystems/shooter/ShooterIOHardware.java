@@ -7,6 +7,7 @@ import com.ctre.phoenix6.configs.TalonFXSConfiguration;
 import com.ctre.phoenix6.controls.Follower;
 import com.ctre.phoenix6.controls.MotionMagicVelocityVoltage;
 import com.ctre.phoenix6.controls.MotionMagicVoltage;
+import com.ctre.phoenix6.controls.VoltageOut;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.hardware.TalonFXS;
 
@@ -121,6 +122,7 @@ public class ShooterIOHardware implements ShooterIO {
   // == Control Requests =====================================================
  private final MotionMagicVelocityVoltage flywheelVelocityRequest = new MotionMagicVelocityVoltage(0.0).withEnableFOC(false);
 private final MotionMagicVoltage hoodPositionRequest = new MotionMagicVoltage(0.0).withEnableFOC(false);
+  private final VoltageOut testVoltageRequest = new VoltageOut(0.0).withEnableFOC(false);
 
   // Flywheel follower was mechanically flipped again, so it must oppose the
   // leader's shaft rotation while still producing the same flywheel surface
@@ -237,6 +239,24 @@ private final MotionMagicVoltage hoodPositionRequest = new MotionMagicVoltage(0.
     // Stop leader only - follower mirrors to neutral automatically (see stopFlywheels).
     flywheelLeader.stopMotor();
     hoodMotor.stopMotor();
+  }
+
+  // == Individual Motor Test Methods =========================================
+
+  @Override
+  public void setFlywheelLeaderVolts(double volts) {
+    flywheelLeader.setControl(testVoltageRequest.withOutput(volts));
+  }
+
+  @Override
+  public void setFlywheelFollowerVolts(double volts) {
+    // Sending a direct control request to the follower overrides its Follower link.
+    flywheelFollower.setControl(testVoltageRequest.withOutput(volts));
+  }
+
+  @Override
+  public void reestablishFlywheelFollower() {
+    flywheelFollower.setControl(flywheelFollowerRequest);
   }
 
   // == Unit Conversions ===================================================
