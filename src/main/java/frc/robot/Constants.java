@@ -530,7 +530,7 @@ public final class Constants {
     public static final double ALIGNMENT_DRIVETRAIN_CLAMP = 0.40;
 
     public static final double MIN_DISTANCE_M = 0.25;
-    public static final double MAX_DISTANCE_M = 8.0;
+    public static final double MAX_DISTANCE_M = 6.0; // Was 8.0, reduced to prevent unreliable vision readings at long range
 
 
     /* Tune up from 0 — 50 degrees of aim offset per m/s of lateral velocity 

@@ -271,6 +271,63 @@ public class FuelCommands {
     // =========================================================================
     // POSE ALIGN AND SHOOT (primary match command — replaces VisionShootCommand)
     // =========================================================================
+    /**
+     * Creates a Command that continuously aligns the swerve drivetrain to the field-relative hub
+     * target while allowing limited manual translation input.
+     *
+     * <p>Behavior:
+     * - Computes the 2D vector from the robot pose to the hub (field coordinates) via getHubLocation()
+     *   and drivetrain.getState().Pose.
+     * - Uses the Euclidean distance (meters) clamped to [Constants.Vision.MIN_DISTANCE_M,
+     *   Constants.Vision.MAX_DISTANCE_M] for any downstream diagnostics/logic.
+     * - Computes the bearing to the hub in degrees (angleToHubDeg = atan2(dy, dx) in degrees).
+     * - Target heading is set to angleToHubDeg + Constants.Vision.ALIGNMENT_OFFSET_DEGREES and
+     *   normalized to [-180, 180) degrees.
+     * - Heading error is the normalized difference between target heading and the current robot
+     *   heading (degrees) and is centered on 0°.
+     * - Rotational correction (rotRate):
+     *     - If |headingErrorDeg| <= Constants.Vision.ALIGNMENT_TOLERANCE_DEGREES then rotRate = 0.0
+     *       (deadband for settling).
+     *     - Otherwise rotRate = headingErrorDeg * Constants.Vision.ROTATIONAL_KP, then clamped to
+     *       ±Constants.Vision.MAX_ALIGNMENT_ROTATION_RAD_PER_SEC. Note: rotRate is in radians/second.
+     * - While the command is active it calls drivetrain.setControl(...) with a FieldCentric
+     *   SwerveRequest configured for DriveRequestType.OpenLoopVoltage:
+     *     - Velocity X = -xSupplier.getAsDouble() * 0.40
+     *     - Velocity Y = -ySupplier.getAsDouble() * 0.40
+     *     - Rotational rate = rotRate
+     *   The translation inputs are negated and scaled to 40% to limit motion while auto-aiming
+     *   (negation compensates for observed backward/forward inversion in vision-assisted mode).
+     *
+     * <p>Diagnostics and side effects:
+     * - Publishes the following keys to NetworkTables (table "VisionShoot"):
+     *     - "angleToHub_deg"         : angleToHubDeg (degrees)
+     *     - "currentHeading_deg"     : currentHeadingDeg (degrees)
+     *     - "headingError_deg"       : headingErrorDeg (degrees)
+     *     - "rotRate_radps"          : rotRate (radians per second)
+     *     - "distanceToHub_m"        : distance (meters, clamped)
+     * - Calls drivetrain.setControl(...) on every execution cycle.
+     *
+     * <p>Concurrency and lifetime:
+     * - The returned Command is non-blocking and runs repeatedly while scheduled. It requires the
+     *   provided drivetrain subsystem (is bound to it) and will typically be used as a repeatedly
+     *   executed/continuous command (e.g., whileTrue). It does not itself terminate based on
+     *   alignment; cancellation or scheduling logic must be handled by the caller.
+     *
+     * <p>Units and ranges:
+     * - Distances are in meters.
+     * - Intermediate and published angles are in degrees.
+     * - rotRate is in radians per second and is clamped to
+     *   ±Constants.Vision.MAX_ALIGNMENT_ROTATION_RAD_PER_SEC.
+     *
+     * @param drivetrain the CommandSwerveDrivetrain used to read pose and issue setControl(...) calls;
+     *                   this command will require that subsystem while active
+     * @param xSupplier  supplier for the desired X translation input (typically a joystick axis).
+     *                   The value is negated and scaled by 0.40 before being sent to the drivetrain.
+     * @param ySupplier  supplier for the desired Y translation input (typically a joystick axis).
+     *                   The value is negated and scaled by 0.40 before being sent to the drivetrain.
+     * @return a Command that, when scheduled, continuously orients the robot toward the field hub
+     *         while allowing scaled manual translation and publishing diagnostic values to NetworkTables.
+     */
     public static Command poseAlign(
             CommandSwerveDrivetrain drivetrain,
             DoubleSupplier xSupplier,
@@ -289,10 +346,27 @@ public class FuelCommands {
         final DoublePublisher ntDistance = visionTable.getDoubleTopic("distanceToHub_m").publish();
 
         return Commands.run(() -> {
+            /**
+             * Field-relative 2D translation of the hub target.
+             *
+             * Retrieved from getHubLocation() and used by fuel-related commands for aiming,
+             * trajectory generation, and proximity/interaction checks with the hub.
+             */
             Translation2d hub = getHubLocation();
             Pose2d pose = drivetrain.getState().Pose;
 
-            // Distance → update shooter targets live
+            /**
+             * Calculates the Euclidean distance from the robot to the target using the horizontal (dx)
+             * and vertical (dy) offsets, then constrains that distance to the valid vision range.
+             *
+             * - Computes the straight-line distance in meters via Math.hypot(dx, dy).
+             * - Ensures the returned distance lies within [Constants.Vision.MIN_DISTANCE_M,
+             *   Constants.Vision.MAX_DISTANCE_M] to respect sensor and algorithm limits.
+             *
+             * The final clamped value represents the effective distance (in meters) to be used by
+             * downstream logic.
+             */
+
             double dx = hub.getX() - pose.getX();
             double dy = hub.getY() - pose.getY();
             double distance = MathUtil.clamp(
