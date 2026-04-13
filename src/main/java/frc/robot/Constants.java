@@ -478,7 +478,7 @@ public final class Constants {
     /*
      * Height of Limelight lens from floor in meters is 19.25 inches = 0.489 meters
      */
-    public static final double CAMERA_HEIGHT_METERS = 0.5;
+    // public static final double CAMERA_HEIGHT_METERS = 0.5;
 
     /*
      * Camera is on the back of robot from center reference of Pigeon 2
@@ -493,13 +493,10 @@ public final class Constants {
     public static final double LL_FORWARD = 0; 
     public static final double LL_RIGHT= 0;
     public static final double LL_UP = 0;
-
  
     public static final double LL_ROLL = 0;     // Not rotated 
     public static final double LL_PITCH = 15.5; // FIXME Confirm the actual mounting angles of the camera "Nose points up"
     public static final double LL_YAW = 0;      // Not turned left or right
-
-    public static final double CAMERA_ANGLE_DEGREES = 15.5;
 
     /** Tolerance for horizontal alignment in degrees used in FuelCommands.java */
     public static final double ALIGNMENT_TOLERANCE_DEGREES = 1.00;
@@ -508,18 +505,19 @@ public final class Constants {
     public static final double MIN_TARGET_AREA_PERCENT = 0.1;
 
     /** Maximum distance to trust vision measurement in meters */
-    public static final double MAX_DISTANCE_METERS = 8.0;
+    public static final double MAX_DISTANCE_METERS = 6.0;
 
     // State tracking
     /** Time in seconds before considering target "lost" after losing sight */
     public static final double TARGET_TIMEOUT_SECONDS = 0.5;
 
+    
     public static final double HUB_TO_EDGE = 0.3302; // 13 inches from center to edge of hub
 
     // Limelight to front bumper
     // LL * 2 + 3" 
     public static final double LL_TO_BUMPER = LL_FORWARD * 2 + 0.0762; 
-    
+
     // Vision-driven drivetrain rotation
     /**
      * Proportional gain for rotational alignment: (rad/s output) per (degree of tx
