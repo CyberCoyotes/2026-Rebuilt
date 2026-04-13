@@ -6,6 +6,7 @@ import com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType;
 import com.ctre.phoenix6.swerve.SwerveRequest;
 
 import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.networktables.DoublePublisher;
@@ -40,6 +41,20 @@ public class FuelCommands {
                 .filter(a -> a == DriverStation.Alliance.Red)
                 .map(a -> Constants.Vision.RED_HUB_LOCATION)
                 .orElse(Constants.Vision.BLUE_HUB_LOCATION);
+    }
+
+    /**
+     * Creates a PID controller configured for heading alignment (degrees).
+     * Uses continuous input so it handles the -180/+180 wraparound correctly.
+     */
+    private static PIDController createAlignmentPID() {
+        PIDController pid = new PIDController(
+                Constants.Vision.ROTATIONAL_KP,
+                0.0,
+                Constants.Vision.ROTATIONAL_KD);
+        pid.enableContinuousInput(-180.0, 180.0);
+        pid.setTolerance(Constants.Vision.ALIGNMENT_TOLERANCE_DEGREES);
+        return pid;
     }
 
     private static double getRobotFrontTargetHeadingDegrees(double angleToHubDeg, double aimOffsetDeg) {
@@ -336,6 +351,9 @@ public class FuelCommands {
         final SwerveRequest.FieldCentric alignRequest = new SwerveRequest.FieldCentric()
                 .withDriveRequestType(DriveRequestType.OpenLoopVoltage);
 
+        // PID controller for heading — persists across loop iterations for D-term
+        final PIDController headingPID = createAlignmentPID();
+
         // NT diagnostics — created once per factory call (whileTrue caches the command
         // object)
         final NetworkTable visionTable = NetworkTableInstance.getDefault().getTable("VisionShoot");
@@ -346,26 +364,8 @@ public class FuelCommands {
         final DoublePublisher ntDistance = visionTable.getDoubleTopic("distanceToHub_m").publish();
 
         return Commands.run(() -> {
-            /**
-             * Field-relative 2D translation of the hub target.
-             *
-             * Retrieved from getHubLocation() and used by fuel-related commands for aiming,
-             * trajectory generation, and proximity/interaction checks with the hub.
-             */
             Translation2d hub = getHubLocation();
             Pose2d pose = drivetrain.getState().Pose;
-
-            /**
-             * Calculates the Euclidean distance from the robot to the target using the horizontal (dx)
-             * and vertical (dy) offsets, then constrains that distance to the valid vision range.
-             *
-             * - Computes the straight-line distance in meters via Math.hypot(dx, dy).
-             * - Ensures the returned distance lies within [Constants.Vision.MIN_DISTANCE_M,
-             *   Constants.Vision.MAX_DISTANCE_M] to respect sensor and algorithm limits.
-             *
-             * The final clamped value represents the effective distance (in meters) to be used by
-             * downstream logic.
-             */
 
             double dx = hub.getX() - pose.getX();
             double dy = hub.getY() - pose.getY();
@@ -376,16 +376,17 @@ public class FuelCommands {
 
             double angleToHubDeg = Math.toDegrees(Math.atan2(dy, dx));
 
-            // Target heading is 180° from hub + lead offset. Error centered around 0°.
             double targetHeadingDeg = MathUtil.inputModulus(angleToHubDeg + Constants.Vision.ALIGNMENT_OFFSET_DEGREES,
                     -180.0, 180.0);
             double currentHeadingDeg = pose.getRotation().getDegrees();
-            double headingErrorDeg = MathUtil.inputModulus(targetHeadingDeg - currentHeadingDeg, -180.0, 180.0);
+            double headingErrorDeg = getHeadingErrorDegrees(targetHeadingDeg, currentHeadingDeg);
 
-            // Rotation correction — zero output inside deadband so robot settles cleanly
-            double rotRate = Math.abs(headingErrorDeg) <= Constants.Vision.ALIGNMENT_TOLERANCE_DEGREES ? 0.0
-                    : MathUtil.clamp(
-                            headingErrorDeg * Constants.Vision.ROTATIONAL_KP,
+            // PID output — controller handles wraparound via enableContinuousInput.
+            // atSetpoint() replaces the manual deadband check.
+            headingPID.setSetpoint(targetHeadingDeg);
+            double pidOutput = headingPID.calculate(currentHeadingDeg);
+            double rotRate = headingPID.atSetpoint() ? 0.0
+                    : MathUtil.clamp(pidOutput,
                             -Constants.Vision.MAX_ALIGNMENT_ROTATION_RAD_PER_SEC,
                             Constants.Vision.MAX_ALIGNMENT_ROTATION_RAD_PER_SEC);
 
@@ -402,7 +403,9 @@ public class FuelCommands {
                                                                            // when vision-assisted
                             .withRotationalRate(rotRate));
 
-        }, drivetrain).withName("PoseAlign"); // End of command
+        }, drivetrain)
+                .beforeStarting(() -> headingPID.reset()) // clear D-term accumulator on start
+                .withName("PoseAlign");
 
     } // end of poseAlign command
 
@@ -438,6 +441,9 @@ public class FuelCommands {
         final SwerveRequest.FieldCentric alignRequest = new SwerveRequest.FieldCentric()
                 .withDriveRequestType(DriveRequestType.OpenLoopVoltage);
 
+        // PID controller for heading — persists across loop iterations for D-term
+        final PIDController headingPID = createAlignmentPID();
+
         // NT diagnostics — created once per factory call (whileTrue caches the command
         // object)
         final NetworkTable visionTable = NetworkTableInstance.getDefault().getTable("VisionShoot");
@@ -462,16 +468,10 @@ public class FuelCommands {
 
             shooter.updateFromDistance(distance);
             if (shooter.getState() != ShooterSubsystem.ShooterState.READY) {
-                shooter.beginSpinUp(); // void — only transitions state; never call spinUp() (returns Command) here
+                shooter.beginSpinUp();
             }
 
-            // 2. Compute target heading — shooter faces AWAY from hub (back of robot toward
-            // hub)
-            // angleToHubDeg points FROM robot TO hub.
-            // Adding 180° gives the direction opposite the hub — that's where the robot
-            // front must point.
-            // headingError is then (targetHeading - currentHeading), centered around 0°,
-            // so the deadband and P-controller both work correctly.
+            // 2. Compute target heading
             double angleToHubDeg = Math.toDegrees(Math.atan2(dy, dx));
 
             // Velocity lead compensation — offsets aim opposite to lateral movement
@@ -482,18 +482,18 @@ public class FuelCommands {
             double lateralVelocity = -vx * Math.sin(hubAngleRad) + vy * Math.cos(hubAngleRad);
             double leadOffsetDeg = -lateralVelocity * Constants.Vision.LEAD_COMPENSATION_DEG_PER_MPS;
 
-            // Target heading is 180° from hub + lead offset. Error centered around 0°.
             double targetHeadingDeg = MathUtil.inputModulus(
                     angleToHubDeg + leadOffsetDeg + Constants.Vision.ALIGNMENT_OFFSET_DEGREES, -180.0, 180.0);
             double currentHeadingDeg = pose.getRotation().getDegrees();
-            double headingErrorDeg = MathUtil.inputModulus(targetHeadingDeg - currentHeadingDeg, -180.0, 180.0);
+            double headingErrorDeg = getHeadingErrorDegrees(targetHeadingDeg, currentHeadingDeg);
 
             ntLeadOffset.set(leadOffsetDeg);
 
-            // 3. Rotation correction — zero output inside deadband so robot settles cleanly
-            double rotRate = Math.abs(headingErrorDeg) <= Constants.Vision.ALIGNMENT_TOLERANCE_DEGREES ? 0.0
-                    : MathUtil.clamp(
-                            headingErrorDeg * Constants.Vision.ROTATIONAL_KP,
+            // 3. PID rotation correction — atSetpoint() replaces manual deadband
+            headingPID.setSetpoint(targetHeadingDeg);
+            double pidOutput = headingPID.calculate(currentHeadingDeg);
+            double rotRate = headingPID.atSetpoint() ? 0.0
+                    : MathUtil.clamp(pidOutput,
                             -Constants.Vision.MAX_ALIGNMENT_ROTATION_RAD_PER_SEC,
                             Constants.Vision.MAX_ALIGNMENT_ROTATION_RAD_PER_SEC);
 
@@ -510,8 +510,8 @@ public class FuelCommands {
                                                                            // when vision-assisted
                             .withRotationalRate(rotRate));
 
-            // 4. Feed: aligned within ALIGNMENT_TOLERANCE_DEGREES AND flywheel/hood settled
-            if (shooter.isReady() && Math.abs(headingErrorDeg) <= Constants.Vision.ALIGNMENT_TOLERANCE_DEGREES) {
+            // 4. Feed: aligned (PID at setpoint) AND flywheel/hood settled
+            if (shooter.isReady() && headingPID.atSetpoint()) {
                 indexer.conveyorForward();
                 indexer.kickerForward();
             } else {
@@ -519,10 +519,11 @@ public class FuelCommands {
                 indexer.conveyorStop();
             }
 
-        }, shooter, indexer, drivetrain /* , intake */)
-                .beforeStarting(Commands.runOnce(() -> {
+        }, shooter, indexer, drivetrain)
+                .beforeStarting(() -> {
+                    headingPID.reset();
                     shooter.beginSpinUp();
-                }, shooter))
+                })
                 .finallyDo(() -> {
                     indexer.indexerStop();
                     indexer.conveyorStop();
@@ -617,22 +618,17 @@ public class FuelCommands {
             final SwerveRequest.FieldCentric alignRequest = new SwerveRequest.FieldCentric()
                     .withDriveRequestType(DriveRequestType.OpenLoopVoltage);
 
+            // PID controller for heading — shared between the waitUntil check and the run loop
+            final PIDController headingPID = createAlignmentPID();
+
             return Commands.sequence(
+                    Commands.runOnce(() -> headingPID.reset()),
                     // Phase 1: rotate to hub + spin up — both must be ready before feeding
                     Commands.deadline(
-                            Commands.waitUntil(() -> {
-                                Translation2d hub = getHubLocation();
-                                Pose2d pose = drivetrain.getState().Pose;
-                                double dx = hub.getX() - pose.getX();
-                                double dy = hub.getY() - pose.getY();
-                                double angleToHubDeg = Math.toDegrees(Math.atan2(dy, dx));
-                                double targetHeadingDeg = getRobotFrontTargetHeadingDegrees(angleToHubDeg, 0.0);
-                                double headingErrorDeg = getHeadingErrorDegrees(
-                                        targetHeadingDeg,
-                                        pose.getRotation().getDegrees());
-                                return Math.abs(headingErrorDeg) <= Constants.Vision.ALIGNMENT_TOLERANCE_DEGREES
-                                        && shooter.isReady();
-                            }).withTimeout(1.0),
+                            // waitUntil only checks atSetpoint() — the parallel run() loop
+                            // calls calculate() and updates PID state each iteration
+                            Commands.waitUntil(() -> headingPID.atSetpoint() && shooter.isReady())
+                                    .withTimeout(1.0),
                             Commands.run(() -> {
                                 Translation2d hub = getHubLocation();
                                 Pose2d pose = drivetrain.getState().Pose;
@@ -648,13 +644,12 @@ public class FuelCommands {
                                 }
                                 double angleToHubDeg = Math.toDegrees(Math.atan2(dy, dx));
                                 double targetHeadingDeg = getRobotFrontTargetHeadingDegrees(angleToHubDeg, 0.0);
-                                double headingErrorDeg = getHeadingErrorDegrees(
-                                        targetHeadingDeg,
-                                        pose.getRotation().getDegrees());
-                                double rotRate = MathUtil.clamp(
-                                        headingErrorDeg * Constants.Vision.ROTATIONAL_KP,
-                                        -Constants.Vision.MAX_ALIGNMENT_ROTATION_RAD_PER_SEC,
-                                        Constants.Vision.MAX_ALIGNMENT_ROTATION_RAD_PER_SEC);
+                                headingPID.setSetpoint(targetHeadingDeg);
+                                double pidOutput = headingPID.calculate(pose.getRotation().getDegrees());
+                                double rotRate = headingPID.atSetpoint() ? 0.0
+                                        : MathUtil.clamp(pidOutput,
+                                                -Constants.Vision.MAX_ALIGNMENT_ROTATION_RAD_PER_SEC,
+                                                Constants.Vision.MAX_ALIGNMENT_ROTATION_RAD_PER_SEC);
                                 drivetrain.setControl(alignRequest
                                         .withVelocityX(0)
                                         .withVelocityY(0)
