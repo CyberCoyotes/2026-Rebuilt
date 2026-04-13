@@ -482,17 +482,23 @@ public final class Constants {
 
     /*
      * Camera is on the back of robot from center reference of Pigeon 2
-     * The Shooter is on the back of robot from center reference of Pigeon 2 as well
      * -9.5 inches = 0.2413 meters
      */
-    public static final double CAMERA_BACK_OFFSET_METERS = 0;
 
-    // Camera is **now** center
-    public static final double CAMERA_LEFT_OFFSET_METERS = 0;
+    /* In Meters, relative to the robot center (Pigeon 2 location) 
+     * These are NOT still have to be manually entered into the Limelight web interface, 
+     * but should be accurate for the current mechanical design and mounting location of the camera.
+     * They are here for reference and doing other calculations in code, such as pose estimation and auto-alignment.
+    */
+    public static final double LL_FORWARD = 0; 
+    public static final double LL_RIGHT= 0;
+    public static final double LL_UP = 0;
 
-    /** Angle of camera from horizontal in degrees (positive = tilted up) */
-    // 25 degrees is a common starting point for angled vision setups, but should be
-    // measured for accuracy.
+ 
+    public static final double LL_ROLL = 0;     // Not rotated 
+    public static final double LL_PITCH = 15.5; // FIXME Confirm the actual mounting angles of the camera "Nose points up"
+    public static final double LL_YAW = 0;      // Not turned left or right
+
     public static final double CAMERA_ANGLE_DEGREES = 15.5;
 
     /** Tolerance for horizontal alignment in degrees used in FuelCommands.java */
@@ -508,6 +514,12 @@ public final class Constants {
     /** Time in seconds before considering target "lost" after losing sight */
     public static final double TARGET_TIMEOUT_SECONDS = 0.5;
 
+    public static final double HUB_TO_EDGE = 0.3302; // 13 inches from center to edge of hub
+
+    // Limelight to front bumper
+    // LL * 2 + 3" 
+    public static final double LL_TO_BUMPER = LL_FORWARD * 2 + 0.0762; 
+    
     // Vision-driven drivetrain rotation
     /**
      * Proportional gain for rotational alignment: (rad/s output) per (degree of tx
