@@ -525,6 +525,14 @@ public final class Constants {
 
     /** Tolerance for horizontal alignment in degrees used in FuelCommands.java */
     public static final double ALIGNMENT_TOLERANCE_DEGREES = 1.00;
+
+    /**
+     * Heading error threshold (degrees) below which shooter targets are frozen.
+     * Once within this band, updateFromDistance() stops being called so the
+     * flywheel has a stable goalpost to lock onto before feeding.
+     * Should be wider than ALIGNMENT_TOLERANCE_DEGREES — 5° is a good starting point.
+     */
+    public static final double TARGET_FREEZE_THRESHOLD_DEGREES = 5.0;
      
     /** Minimum target area to consider target valid (prevents false positives) */
     public static final double MIN_TARGET_AREA_PERCENT = 0.1;

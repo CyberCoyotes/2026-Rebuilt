@@ -458,7 +458,7 @@ public class FuelCommands {
             Translation2d hub = getHubLocation();
             Pose2d pose = drivetrain.getState().Pose;
 
-            // 1. Distance → update shooter targets live
+            // 1. Geometry — shared by both heading and distance logic
             double dx = hub.getX() - pose.getX();
             double dy = hub.getY() - pose.getY();
             double distance = MathUtil.clamp(
@@ -466,12 +466,7 @@ public class FuelCommands {
                     Constants.Vision.MIN_DISTANCE_M,
                     Constants.Vision.MAX_DISTANCE_M);
 
-            shooter.updateFromDistance(distance);
-            if (shooter.getState() != ShooterSubsystem.ShooterState.READY) {
-                shooter.beginSpinUp();
-            }
-
-            // 2. Compute target heading
+            // 2. Compute target heading (before distance update so we can gate on error)
             double angleToHubDeg = Math.toDegrees(Math.atan2(dy, dx));
 
             // Velocity lead compensation — offsets aim opposite to lateral movement
@@ -486,6 +481,15 @@ public class FuelCommands {
                     angleToHubDeg + leadOffsetDeg + Constants.Vision.ALIGNMENT_OFFSET_DEGREES, -180.0, 180.0);
             double currentHeadingDeg = pose.getRotation().getDegrees();
             double headingErrorDeg = getHeadingErrorDegrees(targetHeadingDeg, currentHeadingDeg);
+
+            // Update shooter targets only while still coarsely aligning — freeze once close
+            // so the flywheel has a stable goalpost to lock onto before we feed.
+            if (Math.abs(headingErrorDeg) > Constants.Vision.TARGET_FREEZE_THRESHOLD_DEGREES) {
+                shooter.updateFromDistance(distance);
+            }
+            if (shooter.getState() != ShooterSubsystem.ShooterState.READY) {
+                shooter.beginSpinUp();
+            }
 
             ntLeadOffset.set(leadOffsetDeg);
 
