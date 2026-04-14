@@ -397,14 +397,14 @@ public final class Constants {
 
     // Mechanism setpoints and tuning
     public static final double MIN_POSE = 0.00; // Mechanical limit, also use to set in Configs
-    public static final double MAX_POSE = 5.50; // Mechanical limit; also used to set in Configs
+    public static final double MAX_POSE = 7.25; // Mechanical limit; also used to set in Configs
 
-    public static final double TOLERANCE_POSE = 0.2;
+    public static final double TOLERANCE_POSE = 0.1;
 
     /*
      * Add an end-of-line "Tuned" note when each value is confirmed.
      */
-    public static final double CLOSE_HOOD = 5.50; //
+    public static final double CLOSE_HOOD = 0.00; //
     public static final double POPPER_HOOD = 4.20; //  PASS HOODS INVERTED. RETEST ALL
     public static final double TOWER_HOOD = 4.50; //
     public static final double TRENCH_HOOD = 4.65; //
