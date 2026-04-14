@@ -404,7 +404,7 @@ public final class Constants {
     /*
      * Add an end-of-line "Tuned" note when each value is confirmed.
      */
-    public static final double CLOSE_HOOD = 2.00; //
+    public static final double CLOSE_HOOD = 3.00; //
     public static final double POPPER_HOOD = 4.20; //  PASS HOODS INVERTED. RETEST ALL
     public static final double TOWER_HOOD = 4.50; //
     public static final double TRENCH_HOOD = 4.65; //
