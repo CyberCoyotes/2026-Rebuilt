@@ -312,10 +312,9 @@ public final class Constants {
     public static final double STANDBY_RPM = 1200;
     
     // Bumpers against the hub if possible, note robot position if not
-    public static final double CLOSE_RPM = 3600;
+    public static final double CLOSE_RPM = 3000;
 
     // Bumpers against the tower
-    public static final double TOWER_RPM = 3500;
 
     // In the trench, mostly against the wall, but turned slightly towards the hub
     public static final double TRENCH_RPM = 3500;
@@ -345,7 +344,7 @@ public final class Constants {
      */
  
     // Flywheel PID and feedforward gains.
-    public static final double KV = 0.130;  // Tuned 4-6-2026
+    public static final double KV = 0.133;  // Tuned 4-14-2026
     public static final double KP = 0.055;  // Tuned 4-7-2026
     public static final double KD = 0.000;  // Tuned 4-4-2026
     public static final double KA = 0.000;  // Tuned 4-4-2026
