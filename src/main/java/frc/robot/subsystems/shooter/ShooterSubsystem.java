@@ -50,6 +50,7 @@ public class ShooterSubsystem extends SubsystemBase {
         TRENCH ("Trench",   Constants.Shooter.TRENCH_RPM, Constants.Shooter.TRENCH_HOOD),
         PASS   ("Pass",     Constants.Shooter.PASS_RPM,   Constants.Shooter.PASS_HOOD),
         FAR    ("Corner",   Constants.Shooter.FAR_RPM,    Constants.Shooter.FAR_HOOD),
+        
         POPPER ("Popper",   Constants.Flywheel.POPPER_RPM, Constants.Hood.POPPER_HOOD);
 
         public final String label;

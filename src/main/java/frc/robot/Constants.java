@@ -8,6 +8,8 @@ import com.ctre.phoenix6.signals.NeutralModeValue;
 
 import edu.wpi.first.math.geometry.Translation2d;
 // import edu.wpi.first.units.measure.Current;
+import edu.wpi.first.math.util.Units;
+import edu.wpi.first.units.Unit;
 
 public final class Constants {
 
@@ -60,6 +62,15 @@ public final class Constants {
    */
 
   public static final double DRIVE_CLAMP = 0.75;
+
+  public static final double HUB_TO_CENTER = Units.inchesToMeters(23.5);
+
+  public static final double ROBOT_WIDTH = Units.inchesToMeters(27);
+
+  public static final double BUMPER_THICKNESS = Units.inchesToMeters(3.75);
+
+  public static final double LL_TO_FRONT = -Vision.LL_FORWARD + (ROBOT_WIDTH / 2);
+
 
   // =====================================================================
   // Intake
@@ -121,10 +132,7 @@ public final class Constants {
       private RollerLeaderConfig() {
       }
 
-      // At first competition, this Brake, but work trying Coast
       public static final NeutralModeValue NEUTRAL_MODE = NeutralModeValue.Coast;
-      // Swap to CounterClockwise_Positive if LEFT is lead; Clockwise_Positive if
-      // RIGHT is lead
       public static final InvertedValue INVERTED = InvertedValue.CounterClockwise_Positive;
 
       /* Intake roller limits */
@@ -137,7 +145,6 @@ public final class Constants {
       }
 
       // While in follower mode, direction is governed by the Follower request — no
-      // INVERTED needed
       public static final NeutralModeValue NEUTRAL_MODE = NeutralModeValue.Coast;
       public static final double SUPPLY_CURRENT_LIMIT = 30.0;
       public static final double STATOR_CURRENT_LIMIT = 40.0;
@@ -459,36 +466,35 @@ public final class Constants {
   public static final class Shooter {
 
     // Bumpers against the hub if possible
-    public static final double CLOSE_DISTANCE = 1;
+    public static final double CLOSE_DISTANCE = Units.inchesToMeters(18);
     public static final double CLOSE_RPM = 2850;
-    public static final double CLOSE_HOOD = 5.50;
+    public static final double CLOSE_HOOD = 2.25;
 
-    // FIXME Find the correct values for TOWER SHOT.
-    // Bumpers against the tower
-    public static final double TOWER_DISTANCE = 3.5;
-    public static final double TOWER_RPM = 3400;
-    public static final double TOWER_HOOD = 4.50; //
+    // Side Bumpers against the tower
+    public static final double TOWER_DISTANCE = Units.inchesToMeters(107);
+    public static final double TOWER_RPM = 3400; // FIXME Tower RPM
+    public static final double TOWER_HOOD = 4.50;
 
-    // FIXME Find the correct values for TRENCH SHOT.
     // In the trench, mostly against the wall, but turned slightly towards the hub
-    public static final double TRENCH_DISTANCE = 3.7;
-    public static final double TRENCH_RPM = 3500;
-    public static final double TRENCH_HOOD = 4.65;
+    public static final double TRENCH_DISTANCE = Units.inchesToMeters(133); // FIXME Trench distance
+    public static final double TRENCH_RPM = 3500; // FIXME Trench RPM
+    public static final double TRENCH_HOOD = 4.5; // FIXME Trench hood
 
     // FIXME Find the correct values for FAR SHOT.
     // In a corner by human player station or depot-corner, angled towards the hub,
     // but not against anything
-    public static final double FAR_DISTANCE = 4.0;
-    public static final double FAR_RPM = 3603;
-    public static final double FAR_HOOD = 4.75; 
+    public static final double FAR_DISTANCE = Units.inchesToMeters(144); // FIXME Far distance
+    public static final double FAR_RPM = 3603; // FIXME Far RPM
+    public static final double FAR_HOOD = 4.5; // FIXME Far hood
  
+    // Back Bumpers approximately against the driver station wall, angled towards the hub
+    public static final double DRIVER_STATION_DISTANCE = Units.inchesToMeters(182.11) - ROBOT_WIDTH - BUMPER_THICKNESS; // FIXME Driver station distance
+    public static final double DRIVER_STATION_RPM = 3700; // FIXME Driver station RPM
+    public static final double DRIVER_STATION_HOOD = 4.5; // FIXME Driver station hood
 
     // For passing passing from midfield
-    public static final double PASS_RPM = 3000;
-    public static final double PASS_HOOD = 4.5;
-
-    public static final double POPPER_HOOD = Constants.Flywheel.POPPER_HOOD;
-
+    public static final double PASS_RPM = 3000; // FIXME Pass RPM
+    public static final double PASS_HOOD = 4.5; // FIXME Pass hood
 
   }
 
@@ -512,26 +518,19 @@ public final class Constants {
     // Camera Mounting
     // =================================================================
 
-    /*
-     * Height of Limelight lens from floor in meters is 19.25 inches = 0.489 meters
-     */
-    public static final double CAMERA_HEIGHT_METERS = 0.5;
+    
+    // 9.75 inches = 0.24765 meters; negative because camera is behind the reference point
+    public static final double LL_FORWARD = -0.24765; 
+    
+    public static final double LL_RIGHT= 0;
 
-    /*
-     * Camera is on the back of robot from center reference of Pigeon 2
-     * The Shooter is on the back of robot from center reference of Pigeon 2 as well
-     * -9.5 inches = 0.2413 meters
-     */
-    public static final double CAMERA_BACK_OFFSET_METERS = 0;
-
-    // Camera is **now** center
-    public static final double CAMERA_LEFT_OFFSET_METERS = 0;
-
-    /** Angle of camera from horizontal in degrees (positive = tilted up) */
-    // 25 degrees is a common starting point for angled vision setups, but should be
-    // measured for accuracy.
-    public static final double CAMERA_ANGLE_DEGREES = 15.5;
-
+    // 20.75 inches = 0.52705 meters; but camera is mounted low, so using 0 for now until we can verify with measurements
+    public static final double LL_UP = 0.52705; 
+ 
+    public static final double LL_ROLL = 0;    
+    public static final double LL_PITCH = 15.4;
+    public static final double LL_YAW = 0;     
+   
     /** Tolerance for horizontal alignment in degrees used in FuelCommands.java */
     public static final double ALIGNMENT_TOLERANCE_DEGREES = 1.00;
 
@@ -539,7 +538,7 @@ public final class Constants {
     public static final double MIN_TARGET_AREA_PERCENT = 0.1;
 
     /** Maximum distance to trust vision measurement in meters */
-    public static final double MAX_DISTANCE_METERS = 8.0;
+    public static final double MAX_DISTANCE_METERS = 6.0;
 
     // State tracking
     /** Time in seconds before considering target "lost" after losing sight */
@@ -580,8 +579,7 @@ public final class Constants {
     public static final double ALIGNMENT_DRIVETRAIN_CLAMP = 0.40;
 
     public static final double MIN_DISTANCE_M = 0.25;
-    public static final double MAX_DISTANCE_M = 6.0; // Was 8.0, reduced to prevent unreliable vision readings at long
-                                                     // range
+    public static final double MAX_DISTANCE_M = 6.0;
 
     /*
      * Tune up from 0 — 50 degrees of aim offset per m/s of lateral velocity
