@@ -312,16 +312,16 @@ public final class Constants {
     public static final double STANDBY_RPM = 1200;
     
     // Bumpers against the hub if possible, note robot position if not
-    public static final double CLOSE_RPM = 2000;
+    public static final double CLOSE_RPM = 3600;
 
     // Bumpers against the tower
-    public static final double TOWER_RPM = 2500;
+    public static final double TOWER_RPM = 3500;
 
     // In the trench, mostly against the wall, but turned slightly towards the hub
-    public static final double TRENCH_RPM = 2250;
+    public static final double TRENCH_RPM = 3500;
 
     // In a corner by human player station or depot-corner, angled towards the hub, but not against anything
-    public static final double FAR_RPM = 3000;
+    public static final double FAR_RPM = 3603;
 
     // For passing passing from midfield
     public static final double PASS_RPM = 3000;
@@ -404,7 +404,7 @@ public final class Constants {
     /*
      * Add an end-of-line "Tuned" note when each value is confirmed.
      */
-    public static final double CLOSE_HOOD = 0.00; //
+    public static final double CLOSE_HOOD = 2.00; //
     public static final double POPPER_HOOD = 4.20; //  PASS HOODS INVERTED. RETEST ALL
     public static final double TOWER_HOOD = 4.50; //
     public static final double TRENCH_HOOD = 4.65; //
