@@ -438,7 +438,7 @@ public final class Constants {
 
       public static final MotorArrangementValue MOTOR_ARRANGEMENT = MotorArrangementValue.Minion_JST;
       public static final NeutralModeValue NEUTRAL_MODE = NeutralModeValue.Brake;
-      public static final InvertedValue INVERTED = InvertedValue.Clockwise_Positive;
+      public static final InvertedValue INVERTED = InvertedValue.CounterClockwise_Positive;
       public static final double REVERSE_SOFT_LIMIT = MIN_POSE;
       public static final double FORWARD_SOFT_LIMIT = MAX_POSE;
       
