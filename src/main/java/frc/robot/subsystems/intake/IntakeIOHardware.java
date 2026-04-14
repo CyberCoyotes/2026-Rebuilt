@@ -35,15 +35,29 @@ public class IntakeIOHardware implements IntakeIO {
     // == Roller Configuration =====================================
     private static class RollerConfig {
 
-        static TalonFXConfiguration roller() {
+        static TalonFXConfiguration leader() {
             TalonFXConfiguration config = new TalonFXConfiguration();
 
-            config.MotorOutput.NeutralMode = Constants.Intake.RollerConfig.NEUTRAL_MODE;
-            config.MotorOutput.Inverted = Constants.Intake.RollerConfig.INVERTED;
+            config.MotorOutput.NeutralMode = Constants.Intake.RollerLeaderConfig.NEUTRAL_MODE;
+            config.MotorOutput.Inverted = Constants.Intake.RollerLeaderConfig.INVERTED;
 
-            config.CurrentLimits.SupplyCurrentLimit = Constants.Intake.RollerConfig.SUPPLY_CURRENT_LIMIT;
+            config.CurrentLimits.SupplyCurrentLimit = Constants.Intake.RollerLeaderConfig.SUPPLY_CURRENT_LIMIT;
             config.CurrentLimits.SupplyCurrentLimitEnable = true;
-            config.CurrentLimits.StatorCurrentLimit = Constants.Intake.RollerConfig.STATOR_CURRENT_LIMIT;
+            config.CurrentLimits.StatorCurrentLimit = Constants.Intake.RollerLeaderConfig.STATOR_CURRENT_LIMIT;
+            config.CurrentLimits.StatorCurrentLimitEnable = true;
+
+            return config;
+        }
+
+        // While in follower mode, direction is governed by the Follower request — INVERTED not set.
+        static TalonFXConfiguration follower() {
+            TalonFXConfiguration config = new TalonFXConfiguration();
+
+            config.MotorOutput.NeutralMode = Constants.Intake.RollerFollowerConfig.NEUTRAL_MODE;
+
+            config.CurrentLimits.SupplyCurrentLimit = Constants.Intake.RollerFollowerConfig.SUPPLY_CURRENT_LIMIT;
+            config.CurrentLimits.SupplyCurrentLimitEnable = true;
+            config.CurrentLimits.StatorCurrentLimit = Constants.Intake.RollerFollowerConfig.STATOR_CURRENT_LIMIT;
             config.CurrentLimits.StatorCurrentLimitEnable = true;
 
             return config;
@@ -86,8 +100,8 @@ public class IntakeIOHardware implements IntakeIO {
     }
 
     // == Hardware =============================================================
-    private final TalonFX rollerLead; // Currently the left roller motor, but can be swapped if needed by changing motor IDs in Constants
-    // private final TalonFX rollerFollow; // TODO Take out for a single motor now
+    private final TalonFX rollerLead; // Currently the left roller motor
+    private final TalonFX rollerFollow; // Currently the right motor
     private final TalonFX slide;
 
     // == Control Requests =====================================================
@@ -111,12 +125,12 @@ public class IntakeIOHardware implements IntakeIO {
 
     public IntakeIOHardware() {
         rollerLead = new TalonFX(Constants.Intake.ROLLER_LEFT_MOTOR_ID, Constants.RIO_CANBUS);
-        // rollerFollow = new TalonFX(Constants.Intake.ROLLER_LEFT_MOTOR_ID, Constants.RIO_CANBUS);
+        rollerFollow = new TalonFX(Constants.Intake.ROLLER_RIGHT_MOTOR_ID, Constants.RIO_CANBUS);
 
         slide  = new TalonFX(Constants.Intake.SLIDE_MOTOR_ID, Constants.RIO_CANBUS);
 
-        PhoenixUtil.applyConfig("Roller Lead",   () -> rollerLead.getConfigurator().apply(RollerConfig.roller()));
-        // PhoenixUtil.applyConfig("Roller Follow", () -> rollerFollow.getConfigurator().apply(RollerConfig.roller())); // TODO Take out for a single motor now
+        PhoenixUtil.applyConfig("Roller Lead",   () -> rollerLead.getConfigurator().apply(RollerConfig.leader()));
+        PhoenixUtil.applyConfig("Roller Follow", () -> rollerFollow.getConfigurator().apply(RollerConfig.follower()));
         PhoenixUtil.applyConfig("Slide",         () -> slide.getConfigurator().apply(SlideConfig.slide()));
 
         // Build fast/slow MotionMagic configs for runtime profile swapping
@@ -133,12 +147,11 @@ public class IntakeIOHardware implements IntakeIO {
         slidePosition = slide.getPosition();
         slideVelocity = slide.getVelocity();
 
-        // TODO Take out for a single motor now
-        // rollerFollow.setControl(
-        //         new Follower(rollerLead.getDeviceID(), Constants.Intake.RollerConfig.FOLLOWER_ALIGNMENT));
+        rollerFollow.setControl(
+                new Follower(rollerLead.getDeviceID(), Constants.Intake.RollerFollowerConfig.FOLLOWER_ALIGNMENT));
 
         // Zero slide encoder at startup
-        // slide.setPosition(Constants.Intake.ENCODER_ZERO_POSITION);
+        slide.setPosition(0);
     }
 
     @Override
@@ -158,15 +171,11 @@ public class IntakeIOHardware implements IntakeIO {
     @Override
     public void setRollerVoltage(double volts) {
         rollerLead.setControl(rollerRequest.withOutput(volts));
-        // Follower will automatically oppose lead motor, so no need to set voltage here.
-        // Calling the motor directly a "follower break"
-        // rollerFollow.setControl(rollerRequest.withOutput(-volts));
     }
 
     @Override
     public void stopRoller() {
         rollerLead.stopMotor();
-        // rollerFollow.stopMotor();
     }
 
     // ==== Slide Methods ====

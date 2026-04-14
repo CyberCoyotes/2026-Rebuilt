@@ -72,7 +72,7 @@ public final class Constants {
 
     /* Kraken X44 with TalonFX controller (x3) */
     public static final int ROLLER_LEFT_MOTOR_ID = 20;
-    // public static final int ROLLER_RIGHT_MOTOR_ID = 21; // TODO Take out, using a single motor now
+    public static final int ROLLER_RIGHT_MOTOR_ID = 21;
     public static final int SLIDE_MOTOR_ID = 22;
 
     // Slide setpoints and tuning values
@@ -119,22 +119,28 @@ public final class Constants {
     public static final double ROLLER_FORWARD_VOLTS = 10;// increased from 8
     public static final double ROLLER_REVERSE_VOLTS = -11; // increased from -`10 to -11
 
-    public static final class RollerConfig {
-      private RollerConfig() {
+    public static final class RollerLeaderConfig {
+      private RollerLeaderConfig() {
       }
 
-      // At first competigion, this Brake, but work trying Coast
+      // At first competition, this Brake, but work trying Coast
       public static final NeutralModeValue NEUTRAL_MODE = NeutralModeValue.Coast;
-      // Changed to Clockwise_Positive to match the new motor orientation on the robot (Right side LEAD)
-     
-      // Swap to CounterClockwise_Positive if LEFT is lead 
-       public static final InvertedValue INVERTED = InvertedValue.CounterClockwise_Positive;
+      // Swap to CounterClockwise_Positive if LEFT is lead; Clockwise_Positive if RIGHT is lead
+      public static final InvertedValue INVERTED = InvertedValue.CounterClockwise_Positive;
 
       /* Intake roller limits */
       public static final double SUPPLY_CURRENT_LIMIT = 30.0;
       public static final double STATOR_CURRENT_LIMIT = 40.0;
-      public static final double PEAK_FORWARD_VOLTAGE = 12.0;
-      public static final double PEAK_REVERSE_VOLTAGE = -12.0;
+    }
+
+    public static final class RollerFollowerConfig {
+      private RollerFollowerConfig() {
+      }
+
+      // While in follower mode, direction is governed by the Follower request — no INVERTED needed
+      public static final NeutralModeValue NEUTRAL_MODE = NeutralModeValue.Coast;
+      public static final double SUPPLY_CURRENT_LIMIT = 30.0;
+      public static final double STATOR_CURRENT_LIMIT = 40.0;
       public static final MotorAlignmentValue FOLLOWER_ALIGNMENT = MotorAlignmentValue.Opposed;
     }
 
@@ -184,8 +190,8 @@ public final class Constants {
     }
 
     // Kraken X60 with TalonFX controller (x2); feeds game pieces to shooter
-    public static final int KICKER_LEFT_MOTOR_ID = 23;
-    public static final int KICKER_RIGHT_MOTOR_ID = 24;
+    public static final int KICKER_RIGHT_MOTOR_ID = 23;
+    public static final int KICKER_LEFT_MOTOR_ID = 24;
 
     // Kraken X44 with TalonFX controller; conveyor motor moves pieces along hopper
     public static final int CONVEYOR_MOTOR_ID = 27;
@@ -255,14 +261,26 @@ public final class Constants {
       public static final double PEAK_REVERSE_VOLTAGE = -12.0;
     }
 
-    public static final class KickerConfig {
-      private KickerConfig() {
+    public static final class KickerLeaderConfig {
+      private KickerLeaderConfig() {
       }
 
       public static final NeutralModeValue NEUTRAL_MODE = NeutralModeValue.Coast;
-      public static final InvertedValue INVERTED = InvertedValue.Clockwise_Positive;
+      public static final InvertedValue INVERTED = InvertedValue.CounterClockwise_Positive;
 
       /* Kicker Limits */
+      public static final double SUPPLY_CURRENT_LIMIT = 50.0;
+      public static final double STATOR_CURRENT_LIMIT = 90.0;
+      public static final double PEAK_FORWARD_VOLTAGE = 12.0;
+      public static final double PEAK_REVERSE_VOLTAGE = -12.0;
+    }
+
+    public static final class KickerFollowerConfig {
+      private KickerFollowerConfig() {
+      }
+
+      // While in follower mode, direction is governed by the Follower request — no INVERTED needed
+      public static final NeutralModeValue NEUTRAL_MODE = NeutralModeValue.Coast;
       public static final double SUPPLY_CURRENT_LIMIT = 50.0;
       public static final double STATOR_CURRENT_LIMIT = 90.0;
       public static final double PEAK_FORWARD_VOLTAGE = 12.0;
@@ -305,29 +323,21 @@ public final class Constants {
     // FIXME Find the correct values for CLOSE SHOT.
     // Bumpers against the hub if possible
     public static final double CLOSE_DISTANCE = 1;
-    public static final double CLOSE_RPM = 2000;
     public static final double CLOSE_HOOD = 5.50;
         
     // FIXME Find the correct values for TOWER SHOT.
     // Bumpers against the tower
     public static final double TOWER_DISTANCE = 3.5;
-    public static final double TOWER_RPM = 2500;
     public static final double TOWER_HOOD = 4.50; //
     
     // FIXME Find the correct values for TRENCH SHOT.
     // In the trench, mostly against the wall, but turned slightly towards the hub
     public static final double TRENCH_DISTANCE = 3.7;
-    public static final double TRENCH_RPM = 2250;
     public static final double TRENCH_HOOD = 4.65;
 
     // FIXME Find the correct values for FAR SHOT.
     // In a corner by human player station or depot-corner, angled towards the hub, but not against anything
-    public static final double FAR_DISTANCE = 5.5;
-    public static final double FAR_RPM = 3000;
-    public static final double FAR_HOOD = 3.75;
-
-    // Low pre-rev speed used to reduce shot latency and current spikes.
-    public static final double STANDBY_RPM = CLOSE_RPM * 0.8;
+    public static final double FAR_RPM = 3603;
 
     // For passing passing from midfield
     public static final double PASS_RPM = 3000;
@@ -355,7 +365,7 @@ public final class Constants {
      */
  
     // Flywheel PID and feedforward gains.
-    public static final double KV = 0.130;  // Tuned 4-6-2026
+    public static final double KV = 0.133;  // Tuned 4-14-2026
     public static final double KP = 0.055;  // Tuned 4-7-2026
     public static final double KD = 0.000;  // Tuned 4-4-2026
     public static final double KA = 0.000;  // Tuned 4-4-2026
@@ -374,13 +384,14 @@ public final class Constants {
     public static final double MM_JERK_RPS_PER_SEC_CUBED = 0.0;     // Tuned 4-4-2026
     public static final double MM_EXPO_KV = 0.12;                   // Tuned 4-4-2026
     public static final double MM_EXPO_KA = 0.06;                   // Tuned 4-4-2026
+    public static final double FAR_HOOD = 0;
 
     public static final class LeaderConfig {
       private LeaderConfig() {
       }
 
       public static final NeutralModeValue NEUTRAL_MODE = NeutralModeValue.Coast;
-      public static final InvertedValue INVERTED = InvertedValue.Clockwise_Positive;
+      public static final InvertedValue INVERTED = InvertedValue.CounterClockwise_Positive;
     }
 
     public static final class FollowerConfig {
@@ -407,9 +418,9 @@ public final class Constants {
 
     // Mechanism setpoints and tuning
     public static final double MIN_POSE = 0.00; // Mechanical limit, also use to set in Configs
-    public static final double MAX_POSE = 5.50; // Mechanical limit; also used to set in Configs
+    public static final double MAX_POSE = 7.25; // Mechanical limit; also used to set in Configs
 
-    public static final double TOLERANCE_POSE = 0.2;
+    public static final double TOLERANCE_POSE = 0.1;
 
     /* Set these in the Flywheel inner class */
     public static final double CLOSE_HOOD = Constants.Flywheel.CLOSE_HOOD;
@@ -447,7 +458,7 @@ public final class Constants {
 
       public static final MotorArrangementValue MOTOR_ARRANGEMENT = MotorArrangementValue.Minion_JST;
       public static final NeutralModeValue NEUTRAL_MODE = NeutralModeValue.Brake;
-      public static final InvertedValue INVERTED = InvertedValue.Clockwise_Positive;
+      public static final InvertedValue INVERTED = InvertedValue.CounterClockwise_Positive;
       public static final double REVERSE_SOFT_LIMIT = MIN_POSE;
       public static final double FORWARD_SOFT_LIMIT = MAX_POSE;
       
