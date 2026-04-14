@@ -157,15 +157,11 @@ public class IntakeIOHardware implements IntakeIO {
     @Override
     public void setRollerVoltage(double volts) {
         rollerLead.setControl(rollerRequest.withOutput(volts));
-        // Follower will automatically oppose lead motor, so no need to set voltage here.
-        // Calling the motor directly a "follower break"
-        // rollerFollow.setControl(rollerRequest.withOutput(-volts));
     }
 
     @Override
     public void stopRoller() {
         rollerLead.stopMotor();
-        // rollerFollow.stopMotor();
     }
 
     // ==== Slide Methods ====
