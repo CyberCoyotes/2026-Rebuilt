@@ -292,7 +292,11 @@ public final class Constants {
   public static final class Flywheel {
     private Flywheel() {
     }
+    
+    public static final double HUB_TO_CENTER = 0.5969; // 23.5"
 
+    public static final double ROBOT_WIDTH = 0.6858; // 27" to meters = 0.6858; // 27" = 0.6858 meters 
+    public static final double LL_TO_FRONT = -Vision.LL_FORWARD + (ROBOT_WIDTH / 2);
     // 23.5" + 23" + 18" = 64.5" from intake to hub
     // inches to meters: 64.5 * 0.0254 = 1.6383 meters 
     public static final double CLOSE_DISTANCE = 1.6383; // 64.5 inches from intake to hub
