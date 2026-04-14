@@ -315,7 +315,7 @@ public final class Constants {
     public static final double CLOSE_RPM = 2850; // 18"
 
     // Bumpers against the tower
-    public static final double TOWER_RPM = 3200;
+    public static final double TOWER_RPM = 3800;
 
     // In the trench, mostly against the wall, but turned slightly towards the hub
     public static final double TRENCH_RPM = 3500;
@@ -406,7 +406,7 @@ public final class Constants {
      */
     public static final double CLOSE_HOOD = 2.25; //
     public static final double POPPER_HOOD = 4.20; //  PASS HOODS INVERTED. RETEST ALL
-    public static final double TOWER_HOOD = 4.50; //
+    public static final double TOWER_HOOD = 4.25; //
     public static final double TRENCH_HOOD = 4.65; //
     public static final double FAR_HOOD = 3.75; //
     public static final double PASS_HOOD = 4.5; //
