@@ -40,7 +40,7 @@ public class AutoRoutines {
         // Right Trench to Middle to Ramp Shot
                 public AutoRoutine RtTrench_Ramp_Single() {
                 
-                final AutoRoutine routine = m_factory.newRoutine("Rt Single Trench-Ramp");
+                final AutoRoutine routine = m_factory.newRoutine("Right x1 Trench-Ramp");
 
                 // Trajectories
                 final AutoTrajectory RtTrench_Middle = routine.trajectory("RtTrench_Middle", 0);
@@ -72,7 +72,7 @@ public class AutoRoutines {
                 // Right Trench to Middle to Ramp Shot
                 public AutoRoutine RtTrench_Ramp_Double() {
 
-                final AutoRoutine routine = m_factory.newRoutine("Rt x2 Trench-Ramp");
+                final AutoRoutine routine = m_factory.newRoutine("Right x2 Trench-Ramp");
 
                 // Trajectories
                 final AutoTrajectory RtTrench_Middle = routine.trajectory("RtTrench_Middle", 0);
@@ -130,7 +130,7 @@ public class AutoRoutines {
         // Left Trench to Middle to Ramp Shot
         public AutoRoutine LtTrench_Ramp_Single() {
 
-                final AutoRoutine routine = m_factory.newRoutine("Lt Single Trench-Ramp");
+                final AutoRoutine routine = m_factory.newRoutine("Left x1 Trench-Ramp");
 
                 // Trajectories
                 final AutoTrajectory LtTrench_Middle = routine.trajectory("LtTrench_Middle", 0);
@@ -158,11 +158,10 @@ public class AutoRoutines {
                 return routine;
         }
 
-        // FIXME
         // Left Trench to Middle to Ramp Shot
         public AutoRoutine LtTrench_Ramp_Double() {
 
-                final AutoRoutine routine = m_factory.newRoutine("Lt x2 Trench-Ramp");
+                final AutoRoutine routine = m_factory.newRoutine("Left x2 Trench-Ramp");
                 
                 // Trajectories
                 final AutoTrajectory LtTrench_Middle = routine.trajectory("LtTrench_Middle", 0);
@@ -255,31 +254,8 @@ public class AutoRoutines {
                 return routine;
         }
 
-        // FIXME: This routine needs validation
-        public AutoRoutine Full_RtTrench_Mid_Ramp() {
-                final AutoRoutine routine = m_factory.newRoutine("FULL RtTrench_Mid_Ramp");
-                final AutoTrajectory RtTrench_Mid_Ramp = routine.trajectory("Full_RtTrench_Mid_Ramp", 0);
-
-                routine.active().onTrue(
-                                Commands.sequence(
-                                                RtTrench_Mid_Ramp.resetOdometry(), // Always reset odometry first
-                                                RtTrench_Mid_Ramp.cmd() // Follow the path
-                                // m_drivetrain.stop().withTimeout(3),
-
-
-                                ));
-                // Routine Events
-                RtTrench_Mid_Ramp.atTime("Intake").onTrue(m_intake.intakeFuelTimer(intakeTimeout));
-                RtTrench_Mid_Ramp.atTime("Shoot")
-                                .onTrue(FuelCommands.Auto.poseAlignAndShoot(m_shooter, m_indexer,m_intake, m_drivetrain, shootTimeout));
-                RtTrench_Mid_Ramp.atTime("FuelPump").onTrue(FuelCommands.Auto.fuelPumpCycleSensor(m_intake, m_indexer));
-
-                return routine;
-        }
-
-        // FIXME: This routine is currently broken in Choreo
         public AutoRoutine Full_LtTrench_Mid_Trench() {
-                final AutoRoutine routine = m_factory.newRoutine("FULL Lt Trench-Mid-Trench");
+                final AutoRoutine routine = m_factory.newRoutine("FULL Lt Trench-Mid-Trench"); 
                 final AutoTrajectory LtTrench_Mid_Trench = routine.trajectory("Full_LtTrench_Mid_Trench", 0);
 
                 routine.active().onTrue(
