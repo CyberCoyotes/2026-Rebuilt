@@ -628,7 +628,7 @@ public class FuelCommands {
                             // waitUntil only checks atSetpoint() — the parallel run() loop
                             // calls calculate() and updates PID state each iteration
                             Commands.waitUntil(() -> headingPID.atSetpoint() && shooter.isReady())
-                                    .withTimeout(1.0),
+                                    .withTimeout(1.0), // FIXME: Add this to the shooter only?
                             Commands.run(() -> {
                                 Translation2d hub = getHubLocation();
                                 Pose2d pose = drivetrain.getState().Pose;
