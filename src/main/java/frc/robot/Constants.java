@@ -119,22 +119,28 @@ public final class Constants {
     public static final double ROLLER_FORWARD_VOLTS = 10;// increased from 8
     public static final double ROLLER_REVERSE_VOLTS = -11; // increased from -`10 to -11
 
-    public static final class RollerConfig {
-      private RollerConfig() {
+    public static final class RollerLeaderConfig {
+      private RollerLeaderConfig() {
       }
 
-      // At first competigion, this Brake, but work trying Coast
+      // At first competition, this Brake, but work trying Coast
       public static final NeutralModeValue NEUTRAL_MODE = NeutralModeValue.Coast;
-      // Changed to Clockwise_Positive to match the new motor orientation on the robot (Right side LEAD)
-     
-      // Swap to CounterClockwise_Positive if LEFT is lead 
-       public static final InvertedValue INVERTED = InvertedValue.CounterClockwise_Positive;
+      // Swap to CounterClockwise_Positive if LEFT is lead; Clockwise_Positive if RIGHT is lead
+      public static final InvertedValue INVERTED = InvertedValue.CounterClockwise_Positive;
 
       /* Intake roller limits */
       public static final double SUPPLY_CURRENT_LIMIT = 30.0;
       public static final double STATOR_CURRENT_LIMIT = 40.0;
-      public static final double PEAK_FORWARD_VOLTAGE = 12.0;
-      public static final double PEAK_REVERSE_VOLTAGE = -12.0;
+    }
+
+    public static final class RollerFollowerConfig {
+      private RollerFollowerConfig() {
+      }
+
+      // While in follower mode, direction is governed by the Follower request — no INVERTED needed
+      public static final NeutralModeValue NEUTRAL_MODE = NeutralModeValue.Coast;
+      public static final double SUPPLY_CURRENT_LIMIT = 30.0;
+      public static final double STATOR_CURRENT_LIMIT = 40.0;
       public static final MotorAlignmentValue FOLLOWER_ALIGNMENT = MotorAlignmentValue.Opposed;
     }
 
@@ -255,14 +261,26 @@ public final class Constants {
       public static final double PEAK_REVERSE_VOLTAGE = -12.0;
     }
 
-    public static final class KickerConfig {
-      private KickerConfig() {
+    public static final class KickerLeaderConfig {
+      private KickerLeaderConfig() {
       }
 
       public static final NeutralModeValue NEUTRAL_MODE = NeutralModeValue.Coast;
       public static final InvertedValue INVERTED = InvertedValue.CounterClockwise_Positive;
 
       /* Kicker Limits */
+      public static final double SUPPLY_CURRENT_LIMIT = 50.0;
+      public static final double STATOR_CURRENT_LIMIT = 90.0;
+      public static final double PEAK_FORWARD_VOLTAGE = 12.0;
+      public static final double PEAK_REVERSE_VOLTAGE = -12.0;
+    }
+
+    public static final class KickerFollowerConfig {
+      private KickerFollowerConfig() {
+      }
+
+      // While in follower mode, direction is governed by the Follower request — no INVERTED needed
+      public static final NeutralModeValue NEUTRAL_MODE = NeutralModeValue.Coast;
       public static final double SUPPLY_CURRENT_LIMIT = 50.0;
       public static final double STATOR_CURRENT_LIMIT = 90.0;
       public static final double PEAK_FORWARD_VOLTAGE = 12.0;
