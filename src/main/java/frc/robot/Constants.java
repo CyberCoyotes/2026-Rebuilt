@@ -370,7 +370,7 @@ public final class Constants {
       }
 
       public static final NeutralModeValue NEUTRAL_MODE = NeutralModeValue.Coast;
-      public static final InvertedValue INVERTED = InvertedValue.Clockwise_Positive;
+      public static final InvertedValue INVERTED = InvertedValue.CounterClockwise_Positive;
     }
 
     public static final class FollowerConfig {
