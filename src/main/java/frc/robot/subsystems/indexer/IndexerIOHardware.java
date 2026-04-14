@@ -53,19 +53,36 @@ public class IndexerIOHardware implements IndexerIO {
         return config;
     }
 
-    private static TalonFXConfiguration indexerConfig() {
+    private static TalonFXConfiguration kickerLeaderConfig() {
         TalonFXConfiguration config = new TalonFXConfiguration();
 
-        config.MotorOutput.NeutralMode = Constants.Indexer.KickerConfig.NEUTRAL_MODE;
-        config.MotorOutput.Inverted    = Constants.Indexer.KickerConfig.INVERTED;
+        config.MotorOutput.NeutralMode = Constants.Indexer.KickerLeaderConfig.NEUTRAL_MODE;
+        config.MotorOutput.Inverted    = Constants.Indexer.KickerLeaderConfig.INVERTED;
 
-        config.CurrentLimits.SupplyCurrentLimit       = Constants.Indexer.KickerConfig.SUPPLY_CURRENT_LIMIT;
+        config.CurrentLimits.SupplyCurrentLimit       = Constants.Indexer.KickerLeaderConfig.SUPPLY_CURRENT_LIMIT;
         config.CurrentLimits.SupplyCurrentLimitEnable = true;
-        config.CurrentLimits.StatorCurrentLimit       = Constants.Indexer.KickerConfig.STATOR_CURRENT_LIMIT;
+        config.CurrentLimits.StatorCurrentLimit       = Constants.Indexer.KickerLeaderConfig.STATOR_CURRENT_LIMIT;
         config.CurrentLimits.StatorCurrentLimitEnable = true;
 
-        config.Voltage.PeakForwardVoltage = Constants.Indexer.KickerConfig.PEAK_FORWARD_VOLTAGE;
-        config.Voltage.PeakReverseVoltage = Constants.Indexer.KickerConfig.PEAK_REVERSE_VOLTAGE;
+        config.Voltage.PeakForwardVoltage = Constants.Indexer.KickerLeaderConfig.PEAK_FORWARD_VOLTAGE;
+        config.Voltage.PeakReverseVoltage = Constants.Indexer.KickerLeaderConfig.PEAK_REVERSE_VOLTAGE;
+
+        return config;
+    }
+
+    // While in follower mode, direction is governed by the Follower request — INVERTED not set.
+    private static TalonFXConfiguration kickerFollowerConfig() {
+        TalonFXConfiguration config = new TalonFXConfiguration();
+
+        config.MotorOutput.NeutralMode = Constants.Indexer.KickerFollowerConfig.NEUTRAL_MODE;
+
+        config.CurrentLimits.SupplyCurrentLimit       = Constants.Indexer.KickerFollowerConfig.SUPPLY_CURRENT_LIMIT;
+        config.CurrentLimits.SupplyCurrentLimitEnable = true;
+        config.CurrentLimits.StatorCurrentLimit       = Constants.Indexer.KickerFollowerConfig.STATOR_CURRENT_LIMIT;
+        config.CurrentLimits.StatorCurrentLimitEnable = true;
+
+        config.Voltage.PeakForwardVoltage = Constants.Indexer.KickerFollowerConfig.PEAK_FORWARD_VOLTAGE;
+        config.Voltage.PeakReverseVoltage = Constants.Indexer.KickerFollowerConfig.PEAK_REVERSE_VOLTAGE;
 
         return config;
     }
@@ -91,7 +108,7 @@ public class IndexerIOHardware implements IndexerIO {
     private final VoltageOut conveyorVoltageRequest = new VoltageOut(0.0).withEnableFOC(false);
     private final VoltageOut kickerLeadVoltageRequest  = new VoltageOut(0.0).withEnableFOC(false);
     private final Follower kickerFollowerRequest =
-        new Follower(Constants.Indexer.KICKER_LEFT_MOTOR_ID, Constants.Indexer.KickerConfig.FOLLOWER_ALIGNMENT);
+        new Follower(Constants.Indexer.KICKER_LEFT_MOTOR_ID, Constants.Indexer.KickerFollowerConfig.FOLLOWER_ALIGNMENT);
 
     // == Status Signals ===========================================================
     /* These Status Signals were not typed previously <?>, but trying Typed e.g. <AngularVelocity> */
@@ -115,12 +132,12 @@ public class IndexerIOHardware implements IndexerIO {
         // Five retries handles devices still booting when apply() is first called.
         PhoenixUtil.applyConfig("Conveyor",  () -> conveyorMotor.getConfigurator().apply(conveyorConfig()));
         PhoenixUtil.applyConfig("Kicker Lead", () -> {
-            StatusCode code = kickerMotorLead.getConfigurator().apply(indexerConfig());
+            StatusCode code = kickerMotorLead.getConfigurator().apply(kickerLeaderConfig());
             System.out.println("Kicker Lead config result: " + code.getName());
             return code;
         });                                                                         //TEMPORARY CHECK TO MAKE SURE MOTOR CONFIGS ARE BEING APPLIED CORRECTLY
         PhoenixUtil.applyConfig("Kicker Follow", () -> {
-            StatusCode code = kickerMotorFollow.getConfigurator().apply(indexerConfig());
+            StatusCode code = kickerMotorFollow.getConfigurator().apply(kickerFollowerConfig());
             System.out.println("Kicker Follow config result: " + code.getName());
             return code;
         });
