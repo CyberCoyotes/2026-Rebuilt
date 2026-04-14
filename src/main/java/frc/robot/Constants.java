@@ -72,7 +72,7 @@ public final class Constants {
 
     /* Kraken X44 with TalonFX controller (x3) */
     public static final int ROLLER_LEFT_MOTOR_ID = 20;
-    // public static final int ROLLER_RIGHT_MOTOR_ID = 21; // TODO Take out, using a single motor now
+    public static final int ROLLER_RIGHT_MOTOR_ID = 21;
     public static final int SLIDE_MOTOR_ID = 22;
 
     // Slide setpoints and tuning values
@@ -184,8 +184,8 @@ public final class Constants {
     }
 
     // Kraken X60 with TalonFX controller (x2); feeds game pieces to shooter
-    public static final int KICKER_LEFT_MOTOR_ID = 23;
-    public static final int KICKER_RIGHT_MOTOR_ID = 24;
+    public static final int KICKER_RIGHT_MOTOR_ID = 23;
+    public static final int KICKER_LEFT_MOTOR_ID = 24;
 
     // Kraken X44 with TalonFX controller; conveyor motor moves pieces along hopper
     public static final int CONVEYOR_MOTOR_ID = 27;
@@ -260,7 +260,7 @@ public final class Constants {
       }
 
       public static final NeutralModeValue NEUTRAL_MODE = NeutralModeValue.Coast;
-      public static final InvertedValue INVERTED = InvertedValue.Clockwise_Positive;
+      public static final InvertedValue INVERTED = InvertedValue.CounterClockwise_Positive;
 
       /* Kicker Limits */
       public static final double SUPPLY_CURRENT_LIMIT = 50.0;
@@ -301,41 +301,31 @@ public final class Constants {
     public static final double MAX_RPM = 6000.0;
     public static final double IDLE_RPM = 0;
 
-    
-    // FIXME Find the correct values for CLOSE SHOT.
-    // Bumpers against the hub if possible
-    public static final double CLOSE_DISTANCE = 1;
-    public static final double CLOSE_RPM = 2000;
-    public static final double CLOSE_HOOD = 5.50;
-        
-    // FIXME Find the correct values for TOWER SHOT.
-    // Bumpers against the tower
-    public static final double TOWER_DISTANCE = 3.5;
-    public static final double TOWER_RPM = 2500;
-    public static final double TOWER_HOOD = 4.50; //
-    
-    // FIXME Find the correct values for TRENCH SHOT.
-    // In the trench, mostly against the wall, but turned slightly towards the hub
-    public static final double TRENCH_DISTANCE = 3.7;
-    public static final double TRENCH_RPM = 2250;
-    public static final double TRENCH_HOOD = 4.65;
-
-    // FIXME Find the correct values for FAR SHOT.
-    // In a corner by human player station or depot-corner, angled towards the hub, but not against anything
-    public static final double FAR_DISTANCE = 5.5;
-    public static final double FAR_RPM = 3000;
-    public static final double FAR_HOOD = 3.75;
-
-    // Low pre-rev speed used to reduce shot latency and current spikes.
-    public static final double STANDBY_RPM = CLOSE_RPM * 0.8;
-
-    // For passing passing from midfield
-    public static final double PASS_RPM = 3000;
-    public static final double PASS_HOOD = 4.5;
+    /**
+     * Add an end-of-line "Tuned" note when confirmed.
+     */
 
     // Probably not needed anymore
     public static final double POPPER_RPM = 650;
-    public static final double POPPER_HOOD = 4.20; 
+    
+    // Low pre-rev speed used to reduce shot latency and current spikes.
+    public static final double STANDBY_RPM = 1200;
+    
+    // Bumpers against the hub if possible, note robot position if not
+    public static final double CLOSE_RPM = 2850; // 18"
+
+    // Bumpers against the tower
+    public static final double TOWER_RPM = 3200;
+
+    // In the trench, mostly against the wall, but turned slightly towards the hub
+    public static final double TRENCH_RPM = 3500;
+
+    // In a corner by human player station or depot-corner, angled towards the hub, but not against anything
+    public static final double FAR_RPM = 3603;
+
+    // For passing passing from midfield
+    public static final double PASS_RPM = 3000;
+
     /*
      * Reverse Flywheel RPM for jam clearing.
      * Only reached through eject(), which gates on EJECT_MAX_ENTRY_RPM to prevent violent reversal at high speeds.
@@ -355,7 +345,7 @@ public final class Constants {
      */
  
     // Flywheel PID and feedforward gains.
-    public static final double KV = 0.130;  // Tuned 4-6-2026
+    public static final double KV = 0.133;  // Tuned 4-14-2026
     public static final double KP = 0.055;  // Tuned 4-7-2026
     public static final double KD = 0.000;  // Tuned 4-4-2026
     public static final double KA = 0.000;  // Tuned 4-4-2026
@@ -380,7 +370,7 @@ public final class Constants {
       }
 
       public static final NeutralModeValue NEUTRAL_MODE = NeutralModeValue.Coast;
-      public static final InvertedValue INVERTED = InvertedValue.Clockwise_Positive;
+      public static final InvertedValue INVERTED = InvertedValue.CounterClockwise_Positive;
     }
 
     public static final class FollowerConfig {
@@ -407,18 +397,19 @@ public final class Constants {
 
     // Mechanism setpoints and tuning
     public static final double MIN_POSE = 0.00; // Mechanical limit, also use to set in Configs
-    public static final double MAX_POSE = 5.50; // Mechanical limit; also used to set in Configs
+    public static final double MAX_POSE = 7.25; // Mechanical limit; also used to set in Configs
 
-    public static final double TOLERANCE_POSE = 0.2;
+    public static final double TOLERANCE_POSE = 0.1;
 
-    /* Set these in the Flywheel inner class */
-    public static final double CLOSE_HOOD = Constants.Flywheel.CLOSE_HOOD;
-    public static final double TOWER_HOOD = Constants.Flywheel.TOWER_HOOD;
-    public static final double TRENCH_HOOD = Constants.Flywheel.TRENCH_HOOD;
-    public static final double FAR_HOOD = Constants.Flywheel.FAR_HOOD;
-
-    public static final double POPPER_HOOD = Constants.Flywheel.POPPER_HOOD;
-    public static final double PASS_HOOD = Constants.Flywheel.PASS_HOOD;
+    /*
+     * Add an end-of-line "Tuned" note when each value is confirmed.
+     */
+    public static final double CLOSE_HOOD = 2.25; //
+    public static final double POPPER_HOOD = 4.20; //  PASS HOODS INVERTED. RETEST ALL
+    public static final double TOWER_HOOD = 4.50; //
+    public static final double TRENCH_HOOD = 4.65; //
+    public static final double FAR_HOOD = 3.75; //
+    public static final double PASS_HOOD = 4.5; //
 
     // Manual tuning increments used for bring-up and testing.
     public static final double TEST_INCREMENT = 0.2;
@@ -447,7 +438,7 @@ public final class Constants {
 
       public static final MotorArrangementValue MOTOR_ARRANGEMENT = MotorArrangementValue.Minion_JST;
       public static final NeutralModeValue NEUTRAL_MODE = NeutralModeValue.Brake;
-      public static final InvertedValue INVERTED = InvertedValue.Clockwise_Positive;
+      public static final InvertedValue INVERTED = InvertedValue.CounterClockwise_Positive;
       public static final double REVERSE_SOFT_LIMIT = MIN_POSE;
       public static final double FORWARD_SOFT_LIMIT = MAX_POSE;
       
@@ -478,25 +469,22 @@ public final class Constants {
     /*
      * Height of Limelight lens from floor in meters is 19.25 inches = 0.489 meters
      */
-    // public static final double CAMERA_HEIGHT_METERS = 0.5;
+    public static final double CAMERA_HEIGHT_METERS = 0.5;
 
     /*
      * Camera is on the back of robot from center reference of Pigeon 2
+     * The Shooter is on the back of robot from center reference of Pigeon 2 as well
      * -9.5 inches = 0.2413 meters
      */
+    public static final double CAMERA_BACK_OFFSET_METERS = 0;
 
-    /* In Meters, relative to the robot center (Pigeon 2 location) 
-     * These are NOT still have to be manually entered into the Limelight web interface, 
-     * but should be accurate for the current mechanical design and mounting location of the camera.
-     * They are here for reference and doing other calculations in code, such as pose estimation and auto-alignment.
-    */
-    public static final double LL_FORWARD = 0; 
-    public static final double LL_RIGHT= 0;
-    public static final double LL_UP = 0;
- 
-    public static final double LL_ROLL = 0;     // Not rotated 
-    public static final double LL_PITCH = 15.5; // FIXME Confirm the actual mounting angles of the camera "Nose points up"
-    public static final double LL_YAW = 0;      // Not turned left or right
+    // Camera is **now** center
+    public static final double CAMERA_LEFT_OFFSET_METERS = 0;
+
+    /** Angle of camera from horizontal in degrees (positive = tilted up) */
+    // 25 degrees is a common starting point for angled vision setups, but should be
+    // measured for accuracy.
+    public static final double CAMERA_ANGLE_DEGREES = 15.5;
 
     /** Tolerance for horizontal alignment in degrees used in FuelCommands.java */
     public static final double ALIGNMENT_TOLERANCE_DEGREES = 1.00;
@@ -505,18 +493,11 @@ public final class Constants {
     public static final double MIN_TARGET_AREA_PERCENT = 0.1;
 
     /** Maximum distance to trust vision measurement in meters */
-    public static final double MAX_DISTANCE_METERS = 6.0;
+    public static final double MAX_DISTANCE_METERS = 8.0;
 
     // State tracking
     /** Time in seconds before considering target "lost" after losing sight */
     public static final double TARGET_TIMEOUT_SECONDS = 0.5;
-
-    
-    public static final double HUB_TO_EDGE = 0.3302; // 13 inches from center to edge of hub
-
-    // Limelight to front bumper
-    // LL * 2 + 3" 
-    public static final double LL_TO_BUMPER = LL_FORWARD * 2 + 0.0762; 
 
     // Vision-driven drivetrain rotation
     /**
@@ -534,11 +515,10 @@ public final class Constants {
      * Chassis front must point 180° away from the hub when aligning to shoot.
      */
 
-    public final static double ALIGNMENT_OFFSET_DEGREES = 0; // Updated to reflect the rebuild 4-12-2026
+    public final static double ALIGNMENT_OFFSET_DEGREES = 180; // KEEP AT 180 DEGREES
 
     // Keep this moderate; aggressive values amplify pose-estimator jitter during alignment.
     public static final double ROTATIONAL_KP = 0.12; // Tuned 4-8-2026
-    public static final double ROTATIONAL_KD = 0.005; // Dampens oscillation; increase if sluggish settling, decrease if jittery
 
     /*
      * Maximum rotational rate the vision command will apply to the drivetrain (rad/s).
@@ -550,7 +530,7 @@ public final class Constants {
     public static final double ALIGNMENT_DRIVETRAIN_CLAMP = 0.40;
 
     public static final double MIN_DISTANCE_M = 0.25;
-    public static final double MAX_DISTANCE_M = 6.0; // Was 8.0, reduced to prevent unreliable vision readings at long range
+    public static final double MAX_DISTANCE_M = 8.0;
 
 
     /* Tune up from 0 — 50 degrees of aim offset per m/s of lateral velocity 
@@ -578,8 +558,8 @@ public final class Constants {
     // Red hub is the field-length mirror of blue: x = 17.548 - 4.625 = 12.923 but
     // Choreo shows 11.923, so using that for now until we can verify with
     // measurements.
-    public static final Translation2d BLUE_HUB_LOCATION = new Translation2d(4.625, 4.025); 
-    public static final Translation2d RED_HUB_LOCATION = new Translation2d(11.923, 4.025);
+    public static final Translation2d BLUE_HUB_LOCATION = new Translation2d(4.625, 4.025); // FIXME Verify hub locations, 4.625 vs 4.025
+    public static final Translation2d RED_HUB_LOCATION = new Translation2d(11.923, 4.025); // FIXME Verify hub locations, 4.625 vs 4.025
 
   }
 
