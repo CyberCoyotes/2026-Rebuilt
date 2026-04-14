@@ -184,8 +184,8 @@ public final class Constants {
     }
 
     // Kraken X60 with TalonFX controller (x2); feeds game pieces to shooter
-    public static final int KICKER_LEFT_MOTOR_ID = 23;
-    public static final int KICKER_RIGHT_MOTOR_ID = 24;
+    public static final int KICKER_RIGHT_MOTOR_ID = 23;
+    public static final int KICKER_LEFT_MOTOR_ID = 24;
 
     // Kraken X44 with TalonFX controller; conveyor motor moves pieces along hopper
     public static final int CONVEYOR_MOTOR_ID = 27;
