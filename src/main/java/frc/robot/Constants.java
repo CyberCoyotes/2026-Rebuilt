@@ -293,6 +293,14 @@ public final class Constants {
     private Flywheel() {
     }
 
+    // 23.5" + 23" + 18" = 64.5" from intake to hub
+    // inches to meters: 64.5 * 0.0254 = 1.6383 meters 
+    public static final double CLOSE_DISTANCE = 1.6383; // 64.5 inches from intake to hub
+
+    // 23.5" + 23" + 107" =  153.5" from intake to tower
+    // inches to meters: 153.5 * 0.0254 = 3.8989 meters
+    public static final double TOWER_DISTANCE = 3.8989; // 
+
     // Kraken X60s with TalonFX controller (leader) and (follower)
     public static final int FLYWHEEL_LEFT_MOTOR_ID = 25;
     public static final int FLYWHEEL_RIGHT_MOTOR_ID = 26;
@@ -469,7 +477,14 @@ public final class Constants {
     /*
      * Height of Limelight lens from floor in meters is 19.25 inches = 0.489 meters
      */
-    public static final double CAMERA_HEIGHT_METERS = 0.5;
+    public static final double LL_FORWARD = -0.24765; // 9.75 inches = 0.24765 meters; negative because camera is behind the reference point
+    public static final double LL_RIGHT= 0;
+    public static final double LL_UP = 0.52705; // 20.75 inches = 0.52705 meters; but camera is mounted low, so using 0 for now until we can verify with measurements
+ 
+ 
+    public static final double LL_ROLL = 0;     // Not rotated 
+    public static final double LL_PITCH = 15.4; // FIXME Confirm the actual mounting angles of the camera "Nose points up"
+    public static final double LL_YAW = 0;      // Not turned left or right
 
     /*
      * Camera is on the back of robot from center reference of Pigeon 2
@@ -515,10 +530,11 @@ public final class Constants {
      * Chassis front must point 180° away from the hub when aligning to shoot.
      */
 
-    public final static double ALIGNMENT_OFFSET_DEGREES = 180; // KEEP AT 180 DEGREES
+    public final static double ALIGNMENT_OFFSET_DEGREES = 0; // KEEP AT 180 DEGREES
 
     // Keep this moderate; aggressive values amplify pose-estimator jitter during alignment.
     public static final double ROTATIONAL_KP = 0.12; // Tuned 4-8-2026
+    public static final double ROTATIONAL_KD = 0.0;
 
     /*
      * Maximum rotational rate the vision command will apply to the drivetrain (rad/s).
