@@ -7,9 +7,7 @@ import com.ctre.phoenix6.signals.MotorArrangementValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 
 import edu.wpi.first.math.geometry.Translation2d;
-// import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.math.util.Units;
-import edu.wpi.first.units.Unit;
 
 public final class Constants {
 
