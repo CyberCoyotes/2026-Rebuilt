@@ -260,7 +260,7 @@ public final class Constants {
       }
 
       public static final NeutralModeValue NEUTRAL_MODE = NeutralModeValue.Coast;
-      public static final InvertedValue INVERTED = InvertedValue.Clockwise_Positive;
+      public static final InvertedValue INVERTED = InvertedValue.CounterClockwise_Positive;
 
       /* Kicker Limits */
       public static final double SUPPLY_CURRENT_LIMIT = 50.0;
