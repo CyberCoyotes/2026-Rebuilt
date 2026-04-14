@@ -10,8 +10,6 @@ import edu.wpi.first.math.geometry.Translation2d;
 // import edu.wpi.first.units.measure.Current;
 
 public final class Constants {
-  private Constants() {
-  }
 
   // public static final CANBus RIO_CANBUS = new CANBus("rio");
   public static final CANBus RIO_CANBUS = CANBus.roboRIO("rio"); // native rio bus
@@ -44,7 +42,7 @@ public final class Constants {
    * 11 BR Steer Motor Kraken X60 (kBackRightSteerMotorId)
    * 12 BR CANcoder (kBackRightEncoderId)
    * 14 Pigeon 2 IMU (kPigeonId)
-  */
+   */
 
   // Rio bus
   /*
@@ -78,7 +76,7 @@ public final class Constants {
     // Slide setpoints and tuning values
     public static final double SLIDE_RETRACTED_POS = 0.0;
     public static final double SLIDE_HOME_POS = 19.18;
-    public static final double SLIDE_EXTENDED_POS = 60.00; // 
+    public static final double SLIDE_EXTENDED_POS = 60.00; //
     public static final double SLIDE_MAX_POS = 65.75; // Confirmed 4-6-26
     public static final double SLIDE_ROLLER_SAFE_MARGIN = 1.5;
     public static final double SLIDE_ROLLER_SAFE_POS = SLIDE_HOME_POS + SLIDE_ROLLER_SAFE_MARGIN;
@@ -88,10 +86,10 @@ public final class Constants {
     public static final double SLIDE_MANUAL_REPEAT_SECONDS = 0.15;
     public static final double SLIDE_PUMP_OUT_POS = 60.0;
     public static final double SLIDE_PUMP_IN_POS = 40.0;
-    public static final double SLIDE_FUEL_COMPRESSION_WAIT_SECONDS = 1.5; 
+    public static final double SLIDE_FUEL_COMPRESSION_WAIT_SECONDS = 1.5;
     // 0.5 too quick
     // 1.0 still seems quick
-    
+
     public static final double SLIDE_FUEL_COMPRESSION_DURATION_SECONDS = 6.0;
     public static final double SLIDE_FUEL_PUMP_WAIT_SECONDS = 3.0;
     public static final double SLIDE_FUEL_PUMP_OUT_SECONDS = 0.5;
@@ -125,7 +123,8 @@ public final class Constants {
 
       // At first competition, this Brake, but work trying Coast
       public static final NeutralModeValue NEUTRAL_MODE = NeutralModeValue.Coast;
-      // Swap to CounterClockwise_Positive if LEFT is lead; Clockwise_Positive if RIGHT is lead
+      // Swap to CounterClockwise_Positive if LEFT is lead; Clockwise_Positive if
+      // RIGHT is lead
       public static final InvertedValue INVERTED = InvertedValue.CounterClockwise_Positive;
 
       /* Intake roller limits */
@@ -137,7 +136,8 @@ public final class Constants {
       private RollerFollowerConfig() {
       }
 
-      // While in follower mode, direction is governed by the Follower request — no INVERTED needed
+      // While in follower mode, direction is governed by the Follower request — no
+      // INVERTED needed
       public static final NeutralModeValue NEUTRAL_MODE = NeutralModeValue.Coast;
       public static final double SUPPLY_CURRENT_LIMIT = 30.0;
       public static final double STATOR_CURRENT_LIMIT = 40.0;
@@ -167,12 +167,12 @@ public final class Constants {
 
       /*
        * Initial PID values for slide position control.
-       * Tune to minimize overshoot and oscillation while being snappy 
+       * Tune to minimize overshoot and oscillation while being snappy
        * Add an end-of-line "Tuned" note when confirmed.
        */
       public static final double KS = 0.0;
       public static final double KV = 0.50; // Tuned 4-8-2026
-      public static final double KP = 8.0;  // Tuned 4-9-2026
+      public static final double KP = 8.0; // Tuned 4-9-2026
       public static final double KD = 0.0;
       public static final double KA = 0.0;
       public static final double KI = 0.0;
@@ -207,10 +207,11 @@ public final class Constants {
      */
     // Conveyor voltage setpoints for feeding fuel to the shooter.
     public static final double CONVEYOR_FORWARD_VOLTAGE = 4;
-    // Was 2 
-    // at 6.5 was struggling, increased to 8 to try to help with feeding the shooter, but may need to be tuned down || Tuned 4-8-2026
+    // Was 2
+    // at 6.5 was struggling, increased to 8 to try to help with feeding the
+    // shooter, but may need to be tuned down || Tuned 4-8-2026
     public static final double CONVEYOR_REVERSE_VOLTAGE = -6;
-    
+
     // Probably don't need anymore
     public static final double CONVEYOR_POPPER_VOLTAGE = 1.0;
 
@@ -220,7 +221,7 @@ public final class Constants {
      * Visually assess performance for now.
      * Add a "Tuned" note when each value is confirmed.
      */
-    
+
     // Kicker-indexer voltage setpoints for feeding fuel to the shooter.
     public static final double KICKER_FORWARD_VOLTAGE = 5.0; // was 2.5 on Saturday
     public static final double KICKER_REVERSE_VOLTAGE = -4.0;
@@ -236,15 +237,18 @@ public final class Constants {
     public static final double CHUTE_MAX_DISTANCE = 0.6096; // 24" = 0.6096 m.
 
     // 60% of fuel size to account for sensor variance and ensure reliable detection
-    public static final double FUEL_DETECTION_THRESHOLD = FUEL_SIZE * 0.60; 
+    public static final double FUEL_DETECTION_THRESHOLD = FUEL_SIZE * 0.60;
     public static final double FUEL_DETECTION_DISTANCE = CHUTE_MAX_DISTANCE - FUEL_DETECTION_THRESHOLD; // ~10 inches
 
-    /* 
-    * Verify fuel clear time based on how long it takes for fuel to move through the chute after detection. 
-    * NOT a Friday priority testing, but should be verified before the next competition. 
-    */
+    /*
+     * Verify fuel clear time based on how long it takes for fuel to move through
+     * the chute after detection.
+     * NOT a Friday priority testing, but should be verified before the next
+     * competition.
+     */
 
-    // Time to wait after detecting fuel at the chute before considering it "cleared".
+    // Time to wait after detecting fuel at the chute before considering it
+    // "cleared".
     public static final double FUEL_CLEAR_TIME = 2.0; // seconds
 
     public static final class ConveyorConfig {
@@ -279,7 +283,8 @@ public final class Constants {
       private KickerFollowerConfig() {
       }
 
-      // While in follower mode, direction is governed by the Follower request — no INVERTED needed
+      // While in follower mode, direction is governed by the Follower request — no
+      // INVERTED needed
       public static final NeutralModeValue NEUTRAL_MODE = NeutralModeValue.Coast;
       public static final double SUPPLY_CURRENT_LIMIT = 50.0;
       public static final double STATOR_CURRENT_LIMIT = 90.0;
@@ -315,40 +320,22 @@ public final class Constants {
     public static final int FLYWHEEL_LEFT_MOTOR_ID = 25;
     public static final int FLYWHEEL_RIGHT_MOTOR_ID = 26;
 
-    // Kraken X60 free speed
-    public static final double MAX_RPM = 6000.0;
-    public static final double IDLE_RPM = 0;
-
-    
-    // FIXME Find the correct values for CLOSE SHOT.
-    // Bumpers against the hub if possible
-    public static final double CLOSE_DISTANCE = 1;
-    public static final double CLOSE_HOOD = 5.50;
-        
-    // FIXME Find the correct values for TOWER SHOT.
-    // Bumpers against the tower
-    public static final double TOWER_DISTANCE = 3.5;
-    public static final double TOWER_HOOD = 4.50; //
-    
-    // FIXME Find the correct values for TRENCH SHOT.
-    // In the trench, mostly against the wall, but turned slightly towards the hub
-    public static final double TRENCH_DISTANCE = 3.7;
-    public static final double TRENCH_HOOD = 4.65;
-
-    // FIXME Find the correct values for FAR SHOT.
-    // In a corner by human player station or depot-corner, angled towards the hub, but not against anything
-    public static final double FAR_RPM = 3603;
-
-    // For passing passing from midfield
-    public static final double PASS_RPM = 3000;
-    public static final double PASS_HOOD = 4.5;
-
     // Probably not needed anymore
     public static final double POPPER_RPM = 650;
-    public static final double POPPER_HOOD = 4.20; 
+    public static final double POPPER_HOOD = 4.20;
+    
+    // Kraken X60 free speed
+    public static final double MAX_RPM = 6000.0;
+
+    public static final double IDLE_RPM = 0;
+
+    /* 70% of close shot RPM */ 
+    public static final double STANDBY_RPM = Shooter.CLOSE_RPM * 0.70; 
+
     /*
      * Reverse Flywheel RPM for jam clearing.
-     * Only reached through eject(), which gates on EJECT_MAX_ENTRY_RPM to prevent violent reversal at high speeds.
+     * Only reached through eject(), which gates on EJECT_MAX_ENTRY_RPM to prevent
+     * violent reversal at high speeds.
      */
     public static final double EJECT_RPM = -1500;
     public static final double EJECT_MAX_ENTRY_RPM = 500.0;
@@ -360,15 +347,16 @@ public final class Constants {
      * These should be done in the prescribed order
      * Use Pheonix Tuner X to set values and graph results
      * Give Chat bot written feedback on the results or use a screenshot
-     * Adjust as needed until the flywheel is performing well at the target RPMs with minimal overshoot and minimal oscillation
+     * Adjust as needed until the flywheel is performing well at the target RPMs
+     * with minimal overshoot and minimal oscillation
      * See the /docs/tuning-guide_flywheel.md document for the full tuning process
      */
- 
+
     // Flywheel PID and feedforward gains.
-    public static final double KV = 0.133;  // Tuned 4-14-2026
-    public static final double KP = 0.055;  // Tuned 4-7-2026
-    public static final double KD = 0.000;  // Tuned 4-4-2026
-    public static final double KA = 0.000;  // Tuned 4-4-2026
+    public static final double KV = 0.133; // Tuned 4-14-2026
+    public static final double KP = 0.055; // Tuned 4-7-2026
+    public static final double KD = 0.000; // Tuned 4-4-2026
+    public static final double KA = 0.000; // Tuned 4-4-2026
 
     public static final double TOLERANCE_PERCENT = 0.1; // 10% tolerance for considering flywheel at target speed
 
@@ -381,10 +369,11 @@ public final class Constants {
      * Probably ok to wait until Saturday
      */
     public static final double MM_ACCELERATION_RPS_PER_SEC = 200.0; // Tuned 4-4-2026
-    public static final double MM_JERK_RPS_PER_SEC_CUBED = 0.0;     // Tuned 4-4-2026
-    public static final double MM_EXPO_KV = 0.12;                   // Tuned 4-4-2026
-    public static final double MM_EXPO_KA = 0.06;                   // Tuned 4-4-2026
+    public static final double MM_JERK_RPS_PER_SEC_CUBED = 0.0; // Tuned 4-4-2026
+    public static final double MM_EXPO_KV = 0.12; // Tuned 4-4-2026
+    public static final double MM_EXPO_KA = 0.06; // Tuned 4-4-2026
     public static final double FAR_HOOD = 0;
+    public static final double PASS_RPM = 0;
 
     public static final class LeaderConfig {
       private LeaderConfig() {
@@ -397,7 +386,7 @@ public final class Constants {
     public static final class FollowerConfig {
       private FollowerConfig() {
       }
-      
+
       public static final NeutralModeValue NEUTRAL_MODE = NeutralModeValue.Coast;
       public static final MotorAlignmentValue FOLLOWER_ALIGNMENT = MotorAlignmentValue.Opposed;
     }
@@ -422,25 +411,16 @@ public final class Constants {
 
     public static final double TOLERANCE_POSE = 0.1;
 
-    /* Set these in the Flywheel inner class */
-    public static final double CLOSE_HOOD = Constants.Flywheel.CLOSE_HOOD;
-    public static final double TOWER_HOOD = Constants.Flywheel.TOWER_HOOD;
-    public static final double TRENCH_HOOD = Constants.Flywheel.TRENCH_HOOD;
-    public static final double FAR_HOOD = Constants.Flywheel.FAR_HOOD;
-
-    public static final double POPPER_HOOD = Constants.Flywheel.POPPER_HOOD;
-    public static final double PASS_HOOD = Constants.Flywheel.PASS_HOOD;
-
     // Manual tuning increments used for bring-up and testing.
     public static final double TEST_INCREMENT = 0.2;
     public static final double ACCELERATION = 20;
     public static final double CRUISE_VELOCITY = 40;
 
-    /* 
-    * Tune these PID hood values if using motion magic
-    * Currently not being used
-    * NOT a Friday testing priority!
-    */ 
+    /*
+     * Tune these PID hood values if using motion magic
+     * Currently not being used
+     * NOT a Friday testing priority!
+     */
     public static final double KP = 1.2;
     public static final double KI = 0;
     public static final double KD = 0;
@@ -461,8 +441,54 @@ public final class Constants {
       public static final InvertedValue INVERTED = InvertedValue.CounterClockwise_Positive;
       public static final double REVERSE_SOFT_LIMIT = MIN_POSE;
       public static final double FORWARD_SOFT_LIMIT = MAX_POSE;
-      
+
     }
+
+    public static final double JOYSTICK_DEADBAND = 0.1;
+    public static final double MANUAL_STEP = 0.2;
+
+    public static final double POPPER_HOOD = 1.0;
+
+    public static final double PASS_HOOD = 0;
+
+  }
+
+  // =====================================================================
+  // Shooter Presets - These are combos of flywheel, hood values, and distance
+  // =====================================================================
+  public static final class Shooter {
+
+    // Bumpers against the hub if possible
+    public static final double CLOSE_DISTANCE = 1;
+    public static final double CLOSE_RPM = 2850;
+    public static final double CLOSE_HOOD = 5.50;
+
+    // FIXME Find the correct values for TOWER SHOT.
+    // Bumpers against the tower
+    public static final double TOWER_DISTANCE = 3.5;
+    public static final double TOWER_RPM = 3400;
+    public static final double TOWER_HOOD = 4.50; //
+
+    // FIXME Find the correct values for TRENCH SHOT.
+    // In the trench, mostly against the wall, but turned slightly towards the hub
+    public static final double TRENCH_DISTANCE = 3.7;
+    public static final double TRENCH_RPM = 3500;
+    public static final double TRENCH_HOOD = 4.65;
+
+    // FIXME Find the correct values for FAR SHOT.
+    // In a corner by human player station or depot-corner, angled towards the hub,
+    // but not against anything
+    public static final double FAR_DISTANCE = 4.0;
+    public static final double FAR_RPM = 3603;
+    public static final double FAR_HOOD = 4.75; 
+ 
+
+    // For passing passing from midfield
+    public static final double PASS_RPM = 3000;
+    public static final double PASS_HOOD = 4.5;
+
+    public static final double POPPER_HOOD = Constants.Flywheel.POPPER_HOOD;
+
 
   }
 
@@ -508,7 +534,7 @@ public final class Constants {
 
     /** Tolerance for horizontal alignment in degrees used in FuelCommands.java */
     public static final double ALIGNMENT_TOLERANCE_DEGREES = 1.00;
-     
+
     /** Minimum target area to consider target valid (prevents false positives) */
     public static final double MIN_TARGET_AREA_PERCENT = 0.1;
 
@@ -537,12 +563,15 @@ public final class Constants {
 
     public final static double ALIGNMENT_OFFSET_DEGREES = 0; // Updated to reflect the rebuild 4-12-2026
 
-    // Keep this moderate; aggressive values amplify pose-estimator jitter during alignment.
+    // Keep this moderate; aggressive values amplify pose-estimator jitter during
+    // alignment.
     public static final double ROTATIONAL_KP = 0.12; // Tuned 4-8-2026
-    public static final double ROTATIONAL_KD = 0.005; // Dampens oscillation; increase if sluggish settling, decrease if jittery
+    public static final double ROTATIONAL_KD = 0.005; // Dampens oscillation; increase if sluggish settling, decrease if
+                                                      // jittery
 
     /*
-     * Maximum rotational rate the vision command will apply to the drivetrain (rad/s).
+     * Maximum rotational rate the vision command will apply to the drivetrain
+     * (rad/s).
      * Default: 3.0 rad/s (~172°/s). Reduce if the robot swings too aggressively.
      */
     public static final double MIN_ALIGNMENT_ROTATION_RAD_PER_SEC = 0.15; // tune to just above static friction
@@ -551,14 +580,14 @@ public final class Constants {
     public static final double ALIGNMENT_DRIVETRAIN_CLAMP = 0.40;
 
     public static final double MIN_DISTANCE_M = 0.25;
-    public static final double MAX_DISTANCE_M = 6.0; // Was 8.0, reduced to prevent unreliable vision readings at long range
+    public static final double MAX_DISTANCE_M = 6.0; // Was 8.0, reduced to prevent unreliable vision readings at long
+                                                     // range
 
-
-    /* Tune up from 0 — 50 degrees of aim offset per m/s of lateral velocity 
-    * At this point, its not a high priority
-    */
-    public static final double LEAD_COMPENSATION_DEG_PER_MPS = 0; 
-
+    /*
+     * Tune up from 0 — 50 degrees of aim offset per m/s of lateral velocity
+     * At this point, its not a high priority
+     */
+    public static final double LEAD_COMPENSATION_DEG_PER_MPS = 0;
 
     // == Valid tag IDs =========================
     // NOTE: MIN/MAX here are used for general target validation in VisionSubsystem.
@@ -579,8 +608,10 @@ public final class Constants {
     // Red hub is the field-length mirror of blue: x = 17.548 - 4.625 = 12.923 but
     // Choreo shows 11.923, so using that for now until we can verify with
     // measurements.
-    public static final Translation2d BLUE_HUB_LOCATION = new Translation2d(4.625, 4.025); // FIXME Verify hub locations, 4.625 vs 4.025
-    public static final Translation2d RED_HUB_LOCATION = new Translation2d(11.923, 4.025); // FIXME Verify hub locations, 4.625 vs 4.025
+    public static final Translation2d BLUE_HUB_LOCATION = new Translation2d(4.625, 4.025); // FIXME Verify hub
+                                                                                           // locations, 4.625 vs 4.025
+    public static final Translation2d RED_HUB_LOCATION = new Translation2d(11.923, 4.025); // FIXME Verify hub
+                                                                                           // locations, 4.625 vs 4.025
 
   }
 

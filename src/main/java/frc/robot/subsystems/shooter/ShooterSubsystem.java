@@ -45,11 +45,11 @@ public class ShooterSubsystem extends SubsystemBase {
      * Published to NetworkTables as Shooter/SelectedPreset for Elastic display.
      */
     public enum ShotPreset {
-        CLOSE  ("Close",    Constants.Flywheel.CLOSE_RPM,  Constants.Hood.CLOSE_HOOD),
-        TOWER  ("Tower",    Constants.Flywheel.TOWER_RPM,  Constants.Hood.TOWER_HOOD),
-        TRENCH ("Trench",   Constants.Flywheel.TRENCH_RPM, Constants.Hood.TRENCH_HOOD),
-        PASS   ("Pass",     Constants.Flywheel.PASS_RPM,   Constants.Hood.PASS_HOOD),
-        FAR    ("Corner",   Constants.Flywheel.FAR_RPM,    Constants.Hood.FAR_HOOD),
+        CLOSE  ("Close",    Constants.Shooter.CLOSE_RPM,  Constants.Shooter.CLOSE_HOOD),
+        TOWER  ("Tower",    Constants.Shooter.TOWER_RPM,  Constants.Shooter.TOWER_HOOD),
+        TRENCH ("Trench",   Constants.Shooter.TRENCH_RPM, Constants.Shooter.TRENCH_HOOD),
+        PASS   ("Pass",     Constants.Shooter.PASS_RPM,   Constants.Shooter.PASS_HOOD),
+        FAR    ("Corner",   Constants.Shooter.FAR_RPM,    Constants.Shooter.FAR_HOOD),
         POPPER ("Popper",   Constants.Flywheel.POPPER_RPM, Constants.Hood.POPPER_HOOD);
 
         public final String label;
@@ -527,23 +527,22 @@ public class ShooterSubsystem extends SubsystemBase {
         * Adding a distance to one map without adding it to the other produces
         * inconsistent RPM/hood pairings at that distance. Always update both.
         */
-        FLYWHEEL_RPM_MAP.put(Constants.Flywheel.CLOSE_DISTANCE, Constants.Flywheel.CLOSE_RPM);
-        HOOD_ROT_MAP.put(Constants.Flywheel.CLOSE_DISTANCE, Constants.Hood.CLOSE_HOOD);
+        FLYWHEEL_RPM_MAP.put(Constants.Shooter.CLOSE_DISTANCE, Constants.Shooter.CLOSE_RPM);
+        HOOD_ROT_MAP.put(Constants.Shooter.CLOSE_DISTANCE, Constants.Shooter.CLOSE_HOOD);
 
-        FLYWHEEL_RPM_MAP.put(Constants.Flywheel.TOWER_DISTANCE, Constants.Flywheel.TOWER_RPM);
-        HOOD_ROT_MAP.put(Constants.Flywheel.TOWER_DISTANCE, Constants.Hood.TOWER_HOOD);
+        FLYWHEEL_RPM_MAP.put(Constants.Shooter.TOWER_DISTANCE, Constants.Shooter.TOWER_RPM);
+        HOOD_ROT_MAP.put(Constants.Shooter.TOWER_DISTANCE, Constants.Shooter.TOWER_HOOD);
+        FLYWHEEL_RPM_MAP.put(Constants.Shooter.TRENCH_DISTANCE, Constants.Shooter.TRENCH_RPM);
+        HOOD_ROT_MAP.put(Constants.Shooter.TRENCH_DISTANCE, Constants.Shooter.TRENCH_HOOD);
 
-        FLYWHEEL_RPM_MAP.put(Constants.Flywheel.TRENCH_DISTANCE, Constants.Flywheel.TRENCH_RPM);
-        HOOD_ROT_MAP.put(Constants.Flywheel.TRENCH_DISTANCE, Constants.Hood.TRENCH_HOOD);
+        FLYWHEEL_RPM_MAP.put(Constants.Shooter.FAR_DISTANCE, Constants.Shooter.FAR_RPM);
+        HOOD_ROT_MAP.put(Constants.Shooter.FAR_DISTANCE, Constants.Shooter.FAR_HOOD);
 
-        FLYWHEEL_RPM_MAP.put(Constants.Flywheel.FAR_DISTANCE, Constants.Flywheel.FAR_RPM);
-        HOOD_ROT_MAP.put(Constants.Flywheel.FAR_DISTANCE, Constants.Hood.FAR_HOOD);
-
-        // FIXME Find the distances for vision tree
-        FLYWHEEL_RPM_MAP.put(3.50, 2625.0);
-        FLYWHEEL_RPM_MAP.put(4.50,  3465.0);
-        HOOD_ROT_MAP.put(3.50, 4.65);
-        HOOD_ROT_MAP.put(4.50,  3.50);
+        // Find the distances for vision tree
+        // FLYWHEEL_RPM_MAP.put(3.50, 2625.0);
+        // FLYWHEEL_RPM_MAP.put(4.50,  3465.0);
+        // HOOD_ROT_MAP.put(3.50, 4.65);
+        // HOOD_ROT_MAP.put(4.50,  3.50);
         
     }
 

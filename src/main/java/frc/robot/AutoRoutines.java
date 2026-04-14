@@ -334,7 +334,7 @@ public class AutoRoutines {
                         // Routine Events
 
                 Center.atTime("Shoot")
-                                .onTrue(FuelCommands.Auto.shootHub(m_shooter, m_indexer,shootTimeout));
+                                .onTrue(FuelCommands.Auto.shootClose(m_shooter, m_indexer,shootTimeout));
                 // Center.atTime("FuelPump").onTrue(FuelCommands.Auto.fuelPumpCycleSensor(m_intake, m_indexer));
 
                 return routine;
