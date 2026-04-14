@@ -312,9 +312,10 @@ public final class Constants {
     public static final double STANDBY_RPM = 1200;
     
     // Bumpers against the hub if possible, note robot position if not
-    public static final double CLOSE_RPM = 3000;
+    public static final double CLOSE_RPM = 2850; // 18"
 
     // Bumpers against the tower
+    public static final double TOWER_RPM = 3200;
 
     // In the trench, mostly against the wall, but turned slightly towards the hub
     public static final double TRENCH_RPM = 3500;
