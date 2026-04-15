@@ -142,6 +142,12 @@ public class IntakeSubsystem extends SubsystemBase {
         rollerState = RollerState.RUNNING;
     }
 
+    // Reduced speed of roller for things like fuel compression where we want to agitate but not fling fuel around.
+    public void runSlowRoller() {
+        io.setRollerVoltage(Constants.Intake.ROLLER_FORWARD_VOLTS * 0.50);
+        rollerState = RollerState.RUNNING;
+    }
+
     public void reverseRoller() {
         io.setRollerVoltage(Constants.Intake.ROLLER_REVERSE_VOLTS);
         rollerState = RollerState.REVERSED;
