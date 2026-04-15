@@ -95,7 +95,7 @@ public final class Constants {
     public static final double SLIDE_MANUAL_REPEAT_SECONDS = 0.15;
     public static final double SLIDE_PUMP_OUT_POS = 60.0;
     public static final double SLIDE_PUMP_IN_POS = 40.0;
-    public static final double SLIDE_FUEL_COMPRESSION_WAIT_SECONDS = 1.5;
+    public static final double SLIDE_FUEL_COMPRESSION_WAIT_SECONDS = 1; // Was 1.5
     // 0.5 too quick
     // 1.0 still seems quick
 
@@ -119,8 +119,8 @@ public final class Constants {
      * Slow Motion Magic values for moving the slide slowly to position.
      * Add an end-of-line "Tuned" note when confirmed.
      */
-    public static final double SLIDE_SLOW_MM_CRUISE_VELOCITY = 20;
-    public static final double SLIDE_SLOW_MM_ACCELERATION = 40;
+    public static final double SLIDE_SLOW_MM_CRUISE_VELOCITY = 8; // 20
+    public static final double SLIDE_SLOW_MM_ACCELERATION = 16; // 40
     public static final double SLIDE_SLOW_MM_JERK = 0.0;
 
     public static final double ROLLER_FORWARD_VOLTS = 8;
@@ -363,7 +363,7 @@ public final class Constants {
     public static final double KD = 0.000; // Tuned 4-4-2026
     public static final double KA = 0.000; // Tuned 4-4-2026
 
-    public static final double TOLERANCE_PERCENT = 0.05; // TODO 5% tolerance for considering flywheel at target speed
+    public static final double TOLERANCE_PERCENT = 0.05; //
 
     /* Flywheel limits */
     public static final double SUPPLY_CURRENT_LIMIT = 60;
@@ -527,8 +527,9 @@ public final class Constants {
     public static final double LL_PITCH = 15.4;
     public static final double LL_YAW = 0;     
    
+    // TODO Consider loosening the alignment tolerance if the robot is having trouble reaching the aligned state
     /** Tolerance for horizontal alignment in degrees used in FuelCommands.java */
-    public static final double ALIGNMENT_TOLERANCE_DEGREES = 1.00;
+    public static final double ALIGNMENT_TOLERANCE_DEGREES = 1.00; // TODO 
 
     /** Minimum target area to consider target valid (prevents false positives) */
     public static final double MIN_TARGET_AREA_PERCENT = 0.1;
@@ -617,7 +618,7 @@ public final class Constants {
     }
 
     /** CANdle device ID */
-    public static final int CANDLE_ID = 15;
+    // public static final int CANDLE_ID = 15;
 
     /** WS2811 logical segments per meter */
     public static final int SEGMENTS_PER_METER = 20;

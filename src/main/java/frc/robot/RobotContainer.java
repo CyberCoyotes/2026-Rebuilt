@@ -139,55 +139,33 @@ public class RobotContainer {
         driver.leftTrigger(0.5).whileTrue(intake.intakeFuel());
         // driver.leftBumper().onTrue(intake.retractSlidesIncrementalCmd());
         
-        // driver.a().onTrue(intake.extendSlidesFastCmd());
-        // driver.b().onTrue(intake.retractSlidesFastCmd());
-        // driver.x().onTrue(intake.fuelCompression());
-        // driver.y().whileTrue(intake.fuelPumpCycleDelayed());
-
-        // driver.a().whileTrue(
-        //     Commands.deadline(
-        //         FuelCommands.shootWithPreset(shooter, indexer, ShooterSubsystem.ShotPreset.CLOSE),
-        //         fuelCompressionWhenShooterReady()));
-        // driver.x().whileTrue(
-        //     Commands.deadline(
-        //         FuelCommands.shootWithPreset(shooter, indexer, ShooterSubsystem.ShotPreset.TRENCH),
-        //         fuelCompressionWhenShooterReady()));
-        // driver.y().whileTrue(
-        //     Commands.deadline(
-        //         FuelCommands.shootWithPreset(shooter, indexer, ShooterSubsystem.ShotPreset.FAR),
-        //         fuelCompressionWhenShooterReady()));
-        // driver.b().whileTrue(
-        //     Commands.deadline(
-        //         FuelCommands.shootWithPreset(shooter, indexer, ShooterSubsystem.ShotPreset.TOWER),
-        //         fuelCompressionWhenShooterReady()));
-
         // =====================================================================
         // Operator Controller
         // =====================================================================
         operator.a().whileTrue(
             Commands.deadline(
                 drivetrain.applyRequest(() -> xBrake),
-                FuelCommands.shootWithPreset(shooter, indexer, ShooterSubsystem.ShotPreset.TRENCH),
-                intake.fuelCompression()
+                FuelCommands.shootWithPreset(shooter, indexer, ShooterSubsystem.ShotPreset.TRENCH)
+                // intake.fuelCompression()
                 ));
 
         operator.b().whileTrue(
             Commands.deadline(
                 drivetrain.applyRequest(() -> xBrake),    
-                FuelCommands.shootWithPreset(shooter, indexer, ShooterSubsystem.ShotPreset.CLOSE),
-                intake.fuelCompression()
+                FuelCommands.shootWithPreset(shooter, indexer, ShooterSubsystem.ShotPreset.CLOSE)
+                // intake.fuelCompression()
                 ));
         operator.x().whileTrue(
             Commands.deadline(
                 drivetrain.applyRequest(() -> xBrake),    
-                FuelCommands.shootWithPreset(shooter, indexer, ShooterSubsystem.ShotPreset.TOWER),
-                intake.fuelCompression()
+                FuelCommands.shootWithPreset(shooter, indexer, ShooterSubsystem.ShotPreset.TOWER)
+                // intake.fuelCompression()
                 ));
         operator.y().whileTrue(
             Commands.deadline(
                 drivetrain.applyRequest(() -> xBrake),
-                FuelCommands.shootWithPreset(shooter, indexer, ShooterSubsystem.ShotPreset.FAR),
-                intake.fuelCompression()
+                FuelCommands.shootWithPreset(shooter, indexer, ShooterSubsystem.ShotPreset.FAR)
+                // intake.fuelCompression()
                 ));
 
         operator.leftTrigger(0.5).whileTrue(intake.intakeFuel());
