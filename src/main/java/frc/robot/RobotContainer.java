@@ -128,8 +128,9 @@ public class RobotContainer {
             Commands.deadline(
                 FuelCommands.poseAlignAndShoot(shooter, indexer, /*intake,*/ drivetrain,
                     () -> -driver.getLeftY() * MaxSpeed,
-                    () -> -driver.getLeftX() * MaxSpeed),
-                fuelCompressionWhenShooterReady())); 
+                    () -> -driver.getLeftX() * MaxSpeed,
+                    5.0), // safety timeout — matches auton shootTimeout
+                fuelCompressionWhenShooterReady()));
         // driver.rightBumper().onTrue(intake.fuelCompression());
         // driver.rightBumper().whileTrue(FuelCommands.purgeFuel(intake, indexer));
         

@@ -424,19 +424,23 @@ public class FuelCommands {
      * isReady().
      * 5. On release: stops indexer, conveyor, returns shooter to idle.
      *
-     * @param shooter    Shooter subsystem
-     * @param indexer    Indexer subsystem
-     * @param drivetrain Swerve drivetrain (provides field pose via
-     *                   odometry/AprilTag fusion)
-     * @param xSupplier  Driver left-Y velocity in m/s (scaled by MaxSpeed)
-     * @param ySupplier  Driver left-X velocity in m/s (scaled by MaxSpeed)
+     * @param shooter       Shooter subsystem
+     * @param indexer       Indexer subsystem
+     * @param drivetrain    Swerve drivetrain (provides field pose via
+     *                      odometry/AprilTag fusion)
+     * @param xSupplier     Driver left-Y velocity in m/s (scaled by MaxSpeed)
+     * @param ySupplier     Driver left-X velocity in m/s (scaled by MaxSpeed)
+     * @param safetyTimeout Maximum seconds the command may run before forcibly
+     *                      terminating — prevents the robot from staying in shoot
+     *                      mode indefinitely if alignment or the shooter stalls.
      */
     public static Command poseAlignAndShoot(
             ShooterSubsystem shooter,
             IndexerSubsystem indexer,
             CommandSwerveDrivetrain drivetrain,
             DoubleSupplier xSupplier,
-            DoubleSupplier ySupplier) {
+            DoubleSupplier ySupplier,
+            double safetyTimeout) {
 
         final SwerveRequest.FieldCentric alignRequest = new SwerveRequest.FieldCentric()
                 .withDriveRequestType(DriveRequestType.OpenLoopVoltage);
@@ -529,6 +533,7 @@ public class FuelCommands {
                     indexer.conveyorStop();
                     shooter.setPostShotState();
                 })
+                .withTimeout(safetyTimeout)
                 .withName("PoseAlignAndShoot");
     }
 
