@@ -123,7 +123,7 @@ public final class Constants {
     public static final double SLIDE_SLOW_MM_ACCELERATION = 40;
     public static final double SLIDE_SLOW_MM_JERK = 0.0;
 
-    public static final double ROLLER_FORWARD_VOLTS = 10;// increased from 8
+    public static final double ROLLER_FORWARD_VOLTS = 7;// increased from 8
     public static final double ROLLER_REVERSE_VOLTS = -11; // increased from -`10 to -11
 
     public static final class RollerLeaderConfig {
@@ -358,12 +358,12 @@ public final class Constants {
      */
 
     // Flywheel PID and feedforward gains.
-    public static final double KV = 0.125; // Tuned 4-13-2026 0.132
+    public static final double KV = 0.132; // Tuned 4-13-2026 0.132
     public static final double KP = 0.055; // Tuned 4-13-2026  0.055
     public static final double KD = 0.000; // Tuned 4-4-2026
     public static final double KA = 0.000; // Tuned 4-4-2026
 
-    public static final double TOLERANCE_PERCENT = 0.1; // TODO10% tolerance for considering flywheel at target speed
+    public static final double TOLERANCE_PERCENT = 0.05; // TODO 5% tolerance for considering flywheel at target speed
 
     /* Flywheel limits */
     public static final double SUPPLY_CURRENT_LIMIT = 60;
@@ -464,31 +464,29 @@ public final class Constants {
   public static final class Shooter {
 
     // Bumpers against the hub if possible
-    public static final double CLOSE_DISTANCE = Units.inchesToMeters(18);
-    public static final double CLOSE_RPM = 2500;
+    public static final double CLOSE_DISTANCE = Units.inchesToMeters(18)+ HUB_TO_CENTER + LL_TO_FRONT;
+    public static final double CLOSE_RPM = 2350;
     public static final double CLOSE_HOOD = 2.25;
 
     // Side Bumpers against the tower
-    public static final double TOWER_DISTANCE = Units.inchesToMeters(107);
-    public static final double TOWER_RPM = 3400; // FIXME Tower RPM
+    public static final double TOWER_DISTANCE = Units.inchesToMeters(107) + HUB_TO_CENTER + LL_TO_FRONT;
+    public static final double TOWER_RPM = 3050; // FIXME Tower RPM // 3400
     public static final double TOWER_HOOD = 4.50;
 
     // In the trench, mostly against the wall, but turned slightly towards the hub
-    public static final double TRENCH_DISTANCE = Units.inchesToMeters(112); // FIXME Trench distance
-    public static final double TRENCH_RPM = 3500; // FIXME Trench RPM
+    public static final double TRENCH_DISTANCE = Units.inchesToMeters(112) + HUB_TO_CENTER + LL_TO_FRONT; // FIXME Trench distance
+    public static final double TRENCH_RPM = 3100; // FIXME Trench RPM
     public static final double TRENCH_HOOD = 5.0; // FIXME Trench hood
 
-    // FIXME Find the correct values for FAR SHOT.
-    // In a corner by human player station or depot-corner, angled towards the hub,
-    // but not against anything
-    public static final double FAR_DISTANCE = Units.inchesToMeters(176); // FIXME Far distance
+    // In a corner by human player station or depot-corner, angled towards the hub
+    public static final double FAR_DISTANCE = Units.inchesToMeters(176) + HUB_TO_CENTER + LL_TO_FRONT; // FIXME Far distance
     public static final double FAR_RPM = 4000; // FIXME Far RPM
     public static final double FAR_HOOD = 8.0; // FIXME Far hood
  
-    // Back Bumpers approximately against the driver station wall, angled towards the hub
-    public static final double DRIVER_STATION_DISTANCE = Units.inchesToMeters(182.11) - ROBOT_WIDTH - BUMPER_THICKNESS; // FIXME Driver station distance
-    public static final double DRIVER_STATION_RPM = 3700; // FIXME Driver station RPM
-    public static final double DRIVER_STATION_HOOD = 4.5; // FIXME Driver station hood
+    // // Back Bumpers approximately against the driver station wall, angled towards the hub
+    // public static final double DRIVER_STATION_DISTANCE = Units.inchesToMeters(182.11) - ROBOT_WIDTH - BUMPER_THICKNESS; // FIXME Driver station distance
+    // public static final double DRIVER_STATION_RPM = 3700; // FIXME Driver station RPM
+    // public static final double DRIVER_STATION_HOOD = 4.5; // FIXME Driver station hood
 
     // For passing passing from midfield
     public static final double PASS_RPM = 3000; // FIXME Pass RPM
