@@ -144,9 +144,9 @@ public class ShooterSubsystem extends SubsystemBase {
 
     // SPINNING_UP → READY promotion
     // Only periodic() earns the READY state — never set directly
+    // Hood moves near-instantly so flywheel velocity is the only meaningful gate
         if (currentState == ShooterState.SPINNING_UP
-                && isFlywheelAtVelocity()
-                && isHoodAtPose()) {
+                && isFlywheelAtVelocity()) {
             setState(ShooterState.READY);
         }
 
@@ -422,9 +422,9 @@ public class ShooterSubsystem extends SubsystemBase {
     // Status Queries
     // =====================================================================
 
-    /** Returns true if in READY state with flywheel and hood at targets. */
+    /** Returns true if in READY state (flywheel reached target — state machine is the source of truth). */
     public boolean isReady() {
-        return currentState == ShooterState.READY && isFlywheelAtVelocity() && isHoodAtPose();
+        return currentState == ShooterState.READY;
     }
 
     // isBusy() becomes possible
@@ -533,8 +533,10 @@ public class ShooterSubsystem extends SubsystemBase {
 
         FLYWHEEL_RPM_MAP.put(Constants.Shooter.TOWER_DISTANCE, Constants.Shooter.TOWER_RPM);
         HOOD_ROT_MAP.put(Constants.Shooter.TOWER_DISTANCE, Constants.Shooter.TOWER_HOOD);
-        FLYWHEEL_RPM_MAP.put(Constants.Shooter.TRENCH_DISTANCE, Constants.Shooter.TRENCH_RPM);
-        HOOD_ROT_MAP.put(Constants.Shooter.TRENCH_DISTANCE, Constants.Shooter.TRENCH_HOOD);
+
+        // So close to Tower, it might add confusion
+        // FLYWHEEL_RPM_MAP.put(Constants.Shooter.TRENCH_DISTANCE, Constants.Shooter.TRENCH_RPM); 
+        // HOOD_ROT_MAP.put(Constants.Shooter.TRENCH_DISTANCE, Constants.Shooter.TRENCH_HOOD);
 
         FLYWHEEL_RPM_MAP.put(Constants.Shooter.FAR_DISTANCE, Constants.Shooter.FAR_RPM);
         HOOD_ROT_MAP.put(Constants.Shooter.FAR_DISTANCE, Constants.Shooter.FAR_HOOD);
