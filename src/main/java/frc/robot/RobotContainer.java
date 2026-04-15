@@ -166,37 +166,34 @@ public class RobotContainer {
         // =====================================================================
         operator.a().whileTrue(
             Commands.deadline(
+                drivetrain.applyRequest(() -> xBrake),
                 FuelCommands.shootWithPreset(shooter, indexer, ShooterSubsystem.ShotPreset.TRENCH),
-                fuelCompressionWhenShooterReady(),
-                drivetrain.applyRequest(() -> xBrake)
+                intake.fuelCompression()
                 ));
 
         operator.b().whileTrue(
             Commands.deadline(
+                drivetrain.applyRequest(() -> xBrake),    
                 FuelCommands.shootWithPreset(shooter, indexer, ShooterSubsystem.ShotPreset.CLOSE),
-                fuelCompressionWhenShooterReady(),
-                drivetrain.applyRequest(() -> xBrake)
+                intake.fuelCompression()
                 ));
         operator.x().whileTrue(
             Commands.deadline(
+                drivetrain.applyRequest(() -> xBrake),    
                 FuelCommands.shootWithPreset(shooter, indexer, ShooterSubsystem.ShotPreset.TOWER),
-                fuelCompressionWhenShooterReady(),
-                drivetrain.applyRequest(() -> xBrake)
+                intake.fuelCompression()
                 ));
         operator.y().whileTrue(
             Commands.deadline(
+                drivetrain.applyRequest(() -> xBrake),
                 FuelCommands.shootWithPreset(shooter, indexer, ShooterSubsystem.ShotPreset.FAR),
-                fuelCompressionWhenShooterReady(),
-                drivetrain.applyRequest(() -> xBrake)
+                intake.fuelCompression()
                 ));
 
-        operator.rightTrigger(0.5).whileTrue(indexer.reverse());
         operator.leftTrigger(0.5).whileTrue(intake.intakeFuel());
+        operator.rightTrigger(0.5).whileTrue(indexer.reverse());
 
-        // operator.rightBumper().onTrue(intake.retractSlidesFastCmd());
-        // operator.leftBumper().onTrue(intake.fuelCompression());
         operator.leftBumper().onTrue(intake.retractSlidesIncrementalCmd());
-
         operator.rightBumper().whileTrue(FuelCommands.purgeFuel(intake, indexer));
         
 
