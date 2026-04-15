@@ -77,14 +77,12 @@ public class AutoRoutines {
                 // Trajectories — cycle 1
                 final AutoTrajectory RtTrench_Middle = routine.trajectory("RtTrench_Middle", 0);
                 final AutoTrajectory RtRampMiddle_Alliance = routine.trajectory("RtRampMiddle_Alliance", 0);
-                final AutoTrajectory RtShootRamp = routine.trajectory("RtShootRamp", 0);
                 final AutoTrajectory RtShootRamp_TrenchNEW = routine.trajectory("RtShootRamp_TrenchNEW", 0);
 
                 // Trajectories — cycle 2 (fresh instances; reusing the same AutoTrajectory object
                 // causes its event triggers to not re-fire on the second activation)
                 final AutoTrajectory RtTrench_Middle_2 = routine.trajectory("RtTrench_Middle", 0);
                 final AutoTrajectory RtRampMiddle_Alliance_2 = routine.trajectory("RtRampMiddle_Alliance", 0);
-                final AutoTrajectory RtShootRamp_2 = routine.trajectory("RtShootRamp", 0);
 
                 routine.active().onTrue(
                                 Commands.sequence(
@@ -98,9 +96,6 @@ public class AutoRoutines {
 
                                                 // 2. Ramp crossing to Alliance side
                                                 RtRampMiddle_Alliance.cmd(),
-
-                                                // 3. Drive to shoot position
-                                                // RtShootRamp.cmd(),
 
                                                 // 4. Shoot — starts only after RtShootRamp fully completes
                                                 FuelCommands.Auto.poseAlignAndShoot(m_shooter, m_indexer, m_intake, m_drivetrain, shootTimeout),
@@ -117,20 +112,12 @@ public class AutoRoutines {
                                                 // 7. Ramp crossing to Alliance side (2nd)
                                                 RtRampMiddle_Alliance_2.cmd(),
 
-                                                // 8. Drive to shoot position (2nd)
-                                                // RtShootRamp_2.cmd(),
-
                                                 // 9. Shoot (2nd) — starts only after RtShootRamp_2 fully completes
                                                 FuelCommands.Auto.poseAlignAndShoot(m_shooter, m_indexer, m_intake, m_drivetrain, shootTimeout)
                                 ));
 
                 return routine;
         }
-
-        
-
-        
-
 
         // Left Trench to Middle to Ramp Shot
         public AutoRoutine LtTrench_Ramp_Single() {
