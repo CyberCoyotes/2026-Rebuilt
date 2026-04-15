@@ -363,7 +363,7 @@ public final class Constants {
     public static final double KD = 0.000; // Tuned 4-4-2026
     public static final double KA = 0.000; // Tuned 4-4-2026
 
-    public static final double TOLERANCE_PERCENT = 0.05; // TODO 5% tolerance for considering flywheel at target speed
+    public static final double TOLERANCE_PERCENT = 0.05; //
 
     /* Flywheel limits */
     public static final double SUPPLY_CURRENT_LIMIT = 60;
@@ -527,8 +527,9 @@ public final class Constants {
     public static final double LL_PITCH = 15.4;
     public static final double LL_YAW = 0;     
    
+    // TODO Consider loosening the alignment tolerance if the robot is having trouble reaching the aligned state
     /** Tolerance for horizontal alignment in degrees used in FuelCommands.java */
-    public static final double ALIGNMENT_TOLERANCE_DEGREES = 1.00;
+    public static final double ALIGNMENT_TOLERANCE_DEGREES = 1.00; // TODO 
 
     /** Minimum target area to consider target valid (prevents false positives) */
     public static final double MIN_TARGET_AREA_PERCENT = 0.1;
