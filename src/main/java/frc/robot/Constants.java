@@ -95,7 +95,7 @@ public final class Constants {
     public static final double SLIDE_MANUAL_REPEAT_SECONDS = 0.15;
     public static final double SLIDE_PUMP_OUT_POS = 60.0;
     public static final double SLIDE_PUMP_IN_POS = 40.0;
-    public static final double SLIDE_FUEL_COMPRESSION_WAIT_SECONDS = 1.5;
+    public static final double SLIDE_FUEL_COMPRESSION_WAIT_SECONDS = 1; // Was 1.5
     // 0.5 too quick
     // 1.0 still seems quick
 
@@ -119,8 +119,8 @@ public final class Constants {
      * Slow Motion Magic values for moving the slide slowly to position.
      * Add an end-of-line "Tuned" note when confirmed.
      */
-    public static final double SLIDE_SLOW_MM_CRUISE_VELOCITY = 20;
-    public static final double SLIDE_SLOW_MM_ACCELERATION = 40;
+    public static final double SLIDE_SLOW_MM_CRUISE_VELOCITY = 8; // 20
+    public static final double SLIDE_SLOW_MM_ACCELERATION = 16; // 40
     public static final double SLIDE_SLOW_MM_JERK = 0.0;
 
     public static final double ROLLER_FORWARD_VOLTS = 8;
