@@ -559,12 +559,13 @@ public final class Constants {
 
     public final static double ALIGNMENT_OFFSET_DEGREES = 0; // Updated to reflect the rebuild 4-12-2026
 
-    // Keep this moderate; aggressive values amplify pose-estimator jitter during
-    // alignment.
+    // Keep this moderate
+    // aggressive values amplify pose-estimator jitter during alignment.
     public static final double ROTATIONAL_KP = 0.12; // Tuned 4-8-2026
-    public static final double ROTATIONAL_KD = 0.005; // Dampens oscillation; increase if sluggish settling, decrease if
-                                                      // jittery
 
+    // TODO: KD for vision not currently used
+    // Dampens oscillation; increase if sluggish settling, decrease if jittery
+    public static final double ROTATIONAL_KD = 0.005;
     /*
      * Maximum rotational rate the vision command will apply to the drivetrain
      * (rad/s).
