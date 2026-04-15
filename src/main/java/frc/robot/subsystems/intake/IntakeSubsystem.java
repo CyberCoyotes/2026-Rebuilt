@@ -387,7 +387,8 @@ public class IntakeSubsystem extends SubsystemBase {
                 Commands.run(
                         () -> {
                             retractSlidesSlow();
-                            runRoller();
+                            // Added to because roller doesn't need to run so aggressive during compression.
+                            runSlowRoller();
                         }, this)
                         .withTimeout(timeoutSeconds))
                 .finallyDo(() -> stopRoller())
@@ -416,7 +417,7 @@ public class IntakeSubsystem extends SubsystemBase {
         return Commands.runEnd(
                 () -> {
                     retractSlidesSlow();
-                    runRoller();
+                    runSlowRoller();
                 },
                 this::stopRoller,
                 this)
@@ -483,7 +484,7 @@ public class IntakeSubsystem extends SubsystemBase {
         return Commands.sequence(
                 Commands.waitSeconds(initialWaitSeconds),
                 Commands.run(() -> {
-                    runRoller();
+                    runSlowRoller();
                     double t = cycleTimer.get();
                     if (t < Constants.Intake.SLIDE_FUEL_PUMP_OUT_SECONDS) {
                         setSlidesToPosition(Constants.Intake.SLIDE_PUMP_OUT_POS);
@@ -533,12 +534,12 @@ public class IntakeSubsystem extends SubsystemBase {
     public Command fuelPumpBasic() {
         return Commands.sequence(
                 Commands.run(() -> {
-                    runRoller();
+                    runSlowRoller();
                     setSlidesToPosition(Constants.Intake.SLIDE_PUMP_OUT_POS);
                 }, this)
                         .withTimeout(0.5),
                 Commands.run(() -> {
-                    runRoller();
+                    runSlowRoller();
                     setSlidesToPosition(Constants.Intake.SLIDE_PUMP_IN_POS);
                 }, this)
                         .withTimeout(0.5))
@@ -550,14 +551,14 @@ public class IntakeSubsystem extends SubsystemBase {
         return Commands.sequence(
                 // ==== Cycle 1 ====
                 Commands.run(() -> {
-                    runRoller();
+                    runSlowRoller();
                     setSlidesToPosition(Constants.Intake.SLIDE_PUMP_OUT_POS);
                 }, this)
                         .withTimeout(0.5),
                 // Short pause between down and up to allow fuel to settle before bouncing back up again
                 Commands.waitSeconds(0.1),
                 Commands.run(() -> {
-                    runRoller();
+                    runSlowRoller();
                     setSlidesToPosition(Constants.Intake.SLIDE_PUMP_IN_POS);
                 }, this)
                     .withTimeout(0.5),
@@ -565,13 +566,13 @@ public class IntakeSubsystem extends SubsystemBase {
 
                 // ==== Cycle 2 ====
                 Commands.run(() -> {
-                    runRoller();
+                    runSlowRoller();
                     setSlidesToPosition(Constants.Intake.SLIDE_PUMP_OUT_POS);
                 }, this)
                         .withTimeout(0.5),
                 Commands.waitSeconds(0.1),
                 Commands.run(() -> {
-                    runRoller();
+                    runSlowRoller();
                     setSlidesToPosition(Constants.Intake.SLIDE_PUMP_IN_POS);
                 }, this)
                         .withTimeout(0.5),
@@ -639,7 +640,7 @@ public class IntakeSubsystem extends SubsystemBase {
     public Command intakeFuelTimer(double intakeTimeout) {
         return Commands.sequence(
                 extendSlidesFastCmd(),
-                Commands.run(this::runRoller, this)
+                Commands.run(this::runSlowRoller, this)
                         .withTimeout(intakeTimeout)
                         .finallyDo(this::stopRoller))
                 .withName("IntakeFuelTimer");
@@ -648,43 +649,10 @@ public class IntakeSubsystem extends SubsystemBase {
     public Command intakeFuelUntil(BooleanSupplier condition) {
         return Commands.sequence(
                 extendSlidesFastCmd(),
-                Commands.run(this::runRoller, this)
+                Commands.run(this::runSlowRoller, this)
                         .until(condition)
                         .finallyDo(this::stopRoller))
                 .withName("IntakeFuelUntil");
     }
-
-    /**
-     * Two-phase retraction with roller running — designed to be used as the
-     * non-deadline side of a Commands.deadline() alongside a shoot sequence.
-     *
-     * Phase 1 (runOnce): Quick 15-rotation jump back via normal MotionMagic.
-     *                    Roller starts here.
-     * Phase 2 (run loop): Slow DynamicMotionMagic finish to the bumper/stow pose
-     *                     while the roller keeps running.
-     *
-     * Roller is stopped in finallyDo so any interrupt (e.g. deadline finishing)
-        * still cleans up properly.
-        *
-     * Typical auton usage:
-     *   Commands.deadline(
-     *       FuelCommands.shootWithPreset(shooter, indexer, rpm, hood),
-     *       intake.retractSlidesWithRollerCmd());
-     */
-
-    // TODO revisit retractSlidesAuton() I don't think it's needed anymore
-    // public Command retractSlidesAuton() {
-    //     return Commands.sequence(
-    //             Commands.runOnce(() -> {
-    //                 retractSlidesIncremental();
-    //                 runRoller();
-    //             }, this),
-    //             Commands.run(() -> {
-    //                 retractSlidesSlow();
-    //                 runRoller();
-    //             }, this).until(this::isSlideRetracted))
-    //             .finallyDo(() -> stopRoller())
-    //             .withName("RetractSlidesWithRoller");
-    // }
 
 } // end of class
