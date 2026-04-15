@@ -36,7 +36,7 @@ public class AutoRoutines {
         public static final double purgeTimeout = 3.0; // seconds to purge fuel
 
         // ============================================================================
-        // Main Auto Routines
+        // RIGHT SIDE AUTOS - start in right trench
         // ============================================================================
                 
         // Right Trench to Middle to Ramp Shot
@@ -173,12 +173,61 @@ public class AutoRoutines {
                                 ));
 
                 return routine;
+         }
+
+                public AutoRoutine RtTrench_Ramp_Sweep_Purge() {
+
+                final AutoRoutine routine = m_factory.newRoutine("Right Trench-Ramp-Sweep_Purge");
+
+                // Cycle 1
+                final AutoTrajectory RtTrench_Middle = routine.trajectory("RtTrench_Middle", 0); // + Intake
+                final AutoTrajectory RtRampMiddle_Alliance = routine.trajectory("RtRampMiddle_Alliance", 0);
+                // Shoot
+                final AutoTrajectory RtShootRamp_Trench = routine.trajectory("RtShootRamp_Trench", 0);
+
+                // Cycle 2 (fresh instances; reusing the same AutoTrajectory object
+                // causes its event triggers to not re-fire on the second activation)
+                final AutoTrajectory RtTrench_HubSweep = routine.trajectory("RtTrench_HubSweep", 0);
+                final AutoTrajectory RtHub_Purge = routine.trajectory("RtHub_Purge", 0);
+
+                routine.active().onTrue(
+                                Commands.sequence(
+                                                RtTrench_Middle.resetOdometry(),
+
+                                                // --- Cycle 1 ---
+                                                // 1. Trench to Middle — intake runs in parallel while driving
+                                                Commands.deadline(
+                                                                RtTrench_Middle.cmd(),
+                                                                m_intake.intakeFuelTimer(intakeTimeout)),
+
+                                                // 2. Ramp crossing to Alliance side
+                                                RtRampMiddle_Alliance.cmd(),
+
+                                                // 4. Shoot — starts only after RtShootRamp fully completes
+                                                FuelCommands.Auto.poseAlignAndShoot(m_shooter, m_indexer, m_intake, m_drivetrain, shootTimeout),
+
+                                                // --- Cycle 2 ---
+                                                // 5. Back to trench
+                                                RtShootRamp_Trench.cmd(),
+
+                                                // 6. Trench to Middle (2nd) — intake runs in parallel
+                                                Commands.deadline(
+                                                                RtTrench_HubSweep.cmd(),
+                                                                m_intake.intakeFuelTimer(intakeTimeout)),
+
+                                                RtHub_Purge.cmd(),
+
+                                                FuelCommands.purgeFuel(m_intake, m_indexer).withTimeout(purgeTimeout) // purge command; adjust timeout as needed
+
+                                ));
+
+                return routine;
         }
 
-                        // Right Trench to Middle to Ramp Shot
-                public AutoRoutine RtTrench_Ramp_SweepPurge() {
+        // FIXME
+        public AutoRoutine RtTrench_Ramp_Sweep_AngryPurge() {
 
-                final AutoRoutine routine = m_factory.newRoutine("Right Trench-Ramp-SweepPurge");
+                final AutoRoutine routine = m_factory.newRoutine("Right Trench-Ramp-Sweep_AngryPurge");
 
                 // Cycle 1
                 final AutoTrajectory RtTrench_Middle = routine.trajectory("RtTrench_Middle", 0); // + Intake
@@ -226,7 +275,7 @@ public class AutoRoutines {
         }
 
         // =======================================================================
-        // LEFT SIDE AUTOS - mirror trajectories and adjust shooting positions as needed
+        // LEFT SIDE AUTOS - start in left trench
         // =======================================================================
 
                 // Left Trench to Middle to Ramp Shot
@@ -317,9 +366,9 @@ public class AutoRoutines {
         }
 
                 // Left Trench to Middle to Ramp Shot
-        public AutoRoutine LtTrench_Ramp_Sweep() {
+        public AutoRoutine LtTrench_Ramp_HubSweep() {
 
-                final AutoRoutine routine = m_factory.newRoutine("Left Trench-Ramp-Sweep");
+                final AutoRoutine routine = m_factory.newRoutine("Left Trench-Ramp-HubSweep");
 
                 // Trajectories — cycle 1
                 final AutoTrajectory LtTrench_Middle = routine.trajectory("LtTrench_Middle", 0);
@@ -374,7 +423,59 @@ public class AutoRoutines {
                 return routine;
         }
 
-                public AutoRoutine LtTrench_Ramp_SweepPurge() {
+                public AutoRoutine LtTrench_Ramp_Sweep_Purge() {
+
+                final AutoRoutine routine = m_factory.newRoutine("Left Trench-Ramp-Sweep");
+
+                // Trajectories — cycle 1
+                final AutoTrajectory LtTrench_Middle = routine.trajectory("LtTrench_Middle", 0);
+                final AutoTrajectory LtRampMiddle_Alliance = routine.trajectory("LtRampMiddle_Alliance", 0);
+
+                // 2nd segment 
+                final AutoTrajectory LtShootRamp_Trench = routine.trajectory("LtShootRamp_Trench", 0);
+
+                // Trajectories — cycle 2 (fresh instances; reusing the same AutoTrajectory object
+                // causes its event triggers to not re-fire on the second activation)
+                final AutoTrajectory LtTrench_HubSweep = routine.trajectory("LtTrench_HubSweep", 0);
+                final AutoTrajectory LtHub_Purge = routine.trajectory("LtHub_Purge", 0);
+
+                routine.active().onTrue(
+                                Commands.sequence(
+                                                LtTrench_Middle.resetOdometry(),
+
+                                                // --- Cycle 1 ---
+                                                // 1. Trench to Middle — intake runs in parallel while driving
+                                                Commands.deadline(
+                                                                LtTrench_Middle.cmd(),
+                                                                m_intake.intakeFuelTimer(intakeTimeout)),
+
+                                                // 2. Ramp crossing
+                                                LtRampMiddle_Alliance.cmd(),
+
+                                                // 3. Drive from ShootRamp position back to trench for cycle 2; placeholder trajectory for now
+                                                LtShootRamp_Trench.cmd(),
+
+                                                // 4. Shoot — starts only after LtShootRamp fully completes
+                                                FuelCommands.Auto.poseAlignAndShoot(m_shooter, m_indexer, m_intake, m_drivetrain, shootTimeout),
+
+                                        
+                                                // 5. Back to trench
+                                                LtShootRamp_Trench.cmd(),
+
+                                                // --- Cycle 2 ---
+                                                // 6. Trench to Middle (2nd) — intake runs in parallel
+                                                Commands.deadline(
+                                                                LtTrench_HubSweep.cmd(),
+                                                                m_intake.intakeFuelTimer(intakeTimeout)),
+                                                LtHub_Purge.cmd(),
+                                                
+                                                FuelCommands.purgeFuel(m_intake, m_indexer).withTimeout(purgeTimeout) // purge command; adjust timeout as needed
+                                ));
+
+                return routine;
+        }
+
+         public AutoRoutine LtTrench_Ramp_Sweep_AngryPurge() {
 
                 final AutoRoutine routine = m_factory.newRoutine("Left Trench-Ramp-Sweep");
 

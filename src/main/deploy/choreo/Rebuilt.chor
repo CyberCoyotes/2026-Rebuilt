@@ -4,6 +4,13 @@
  "type":"Swerve",
  "variables":{
   "expressions":{
+   "AngryOffset":{
+    "dimension":"Number",
+    "var":{
+     "exp":"0.35",
+     "val":0.35
+    }
+   },
    "IntakeVel":{
     "dimension":"LinVel",
     "var":{
@@ -105,8 +112,8 @@
    "YRtCrossing":{
     "dimension":"Number",
     "var":{
-     "exp":"2.6",
-     "val":2.6
+     "exp":"2.5",
+     "val":2.5
     }
    }
   },
@@ -230,7 +237,7 @@
     },
     "y":{
      "exp":"LtRampNeutral.y",
-     "val":5.4
+     "val":5.45
     },
     "heading":{
      "exp":"LtTrenchHeading rad",
@@ -299,8 +306,8 @@
      "val":3.0
     },
     "y":{
-     "exp":"5.4 m",
-     "val":5.4
+     "exp":"YLtCrossing m",
+     "val":5.45
     },
     "heading":{
      "exp":"LtCrossingHeading rad",
@@ -313,8 +320,8 @@
      "val":6.25
     },
     "y":{
-     "exp":"5.4 m",
-     "val":5.4
+     "exp":"YLtCrossing m",
+     "val":5.45
     },
     "heading":{
      "exp":"LtCrossingHeading rad",
@@ -412,7 +419,7 @@
     },
     "y":{
      "exp":"RtRampNeutral.y",
-     "val":2.6
+     "val":2.5
     },
     "heading":{
      "exp":"RtTrenchHeading rad",
@@ -453,8 +460,8 @@
      "val":3.0
     },
     "y":{
-     "exp":"2.6 m",
-     "val":2.6
+     "exp":"YRtCrossing m",
+     "val":2.5
     },
     "heading":{
      "exp":"RtCrossingHeading rad",
@@ -467,8 +474,8 @@
      "val":6.25
     },
     "y":{
-     "exp":"2.6 m",
-     "val":2.6
+     "exp":"YRtCrossing m",
+     "val":2.5
     },
     "heading":{
      "exp":"RtCrossingHeading rad",
