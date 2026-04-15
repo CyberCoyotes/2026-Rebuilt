@@ -13,7 +13,7 @@ import edu.wpi.first.networktables.DoublePublisher;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.DriverStation;
-// import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import frc.robot.Constants;
@@ -424,23 +424,19 @@ public class FuelCommands {
      * isReady().
      * 5. On release: stops indexer, conveyor, returns shooter to idle.
      *
-     * @param shooter       Shooter subsystem
-     * @param indexer       Indexer subsystem
-     * @param drivetrain    Swerve drivetrain (provides field pose via
-     *                      odometry/AprilTag fusion)
-     * @param xSupplier     Driver left-Y velocity in m/s (scaled by MaxSpeed)
-     * @param ySupplier     Driver left-X velocity in m/s (scaled by MaxSpeed)
-     * @param safetyTimeout Maximum seconds the command may run before forcibly
-     *                      terminating — prevents the robot from staying in shoot
-     *                      mode indefinitely if alignment or the shooter stalls.
+     * @param shooter    Shooter subsystem
+     * @param indexer    Indexer subsystem
+     * @param drivetrain Swerve drivetrain (provides field pose via
+     *                   odometry/AprilTag fusion)
+     * @param xSupplier  Driver left-Y velocity in m/s (scaled by MaxSpeed)
+     * @param ySupplier  Driver left-X velocity in m/s (scaled by MaxSpeed)
      */
     public static Command poseAlignAndShoot(
             ShooterSubsystem shooter,
             IndexerSubsystem indexer,
             CommandSwerveDrivetrain drivetrain,
             DoubleSupplier xSupplier,
-            DoubleSupplier ySupplier,
-            double safetyTimeout) {
+            DoubleSupplier ySupplier) {
 
         final SwerveRequest.FieldCentric alignRequest = new SwerveRequest.FieldCentric()
                 .withDriveRequestType(DriveRequestType.OpenLoopVoltage);
@@ -457,6 +453,9 @@ public class FuelCommands {
         final DoublePublisher ntRotRate = visionTable.getDoubleTopic("rotRate_radps").publish();
         final DoublePublisher ntDistance = visionTable.getDoubleTopic("distanceToHub_m").publish();
         final DoublePublisher ntLeadOffset = visionTable.getDoubleTopic("leadOffset_deg").publish();
+
+        // Safety timer — ends the command if shooter never becomes ready within 5 s
+        final Timer shooterReadyTimer = new Timer();
 
         return Commands.run(() -> {
             Translation2d hub = getHubLocation();
@@ -527,13 +526,14 @@ public class FuelCommands {
                 .beforeStarting(() -> {
                     headingPID.reset();
                     shooter.beginSpinUp();
+                    shooterReadyTimer.restart();
                 })
                 .finallyDo(() -> {
                     indexer.indexerStop();
                     indexer.conveyorStop();
                     shooter.setPostShotState();
                 })
-                .withTimeout(safetyTimeout)
+                .until(() -> !shooter.isReady() && shooterReadyTimer.hasElapsed(5.0))
                 .withName("PoseAlignAndShoot");
     }
 
