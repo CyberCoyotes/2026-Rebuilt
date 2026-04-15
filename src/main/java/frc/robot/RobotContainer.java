@@ -46,6 +46,9 @@ public class RobotContainer {
     private final Telemetry logger = new Telemetry(MaxSpeed);
     private final GameDataTelemetry gameDataTelemetry = new GameDataTelemetry();
 
+    private final SwerveRequest.SwerveDriveBrake xBrake = new SwerveRequest.SwerveDriveBrake();
+
+
     // =====================================================================
     // Controllers
     // =====================================================================
@@ -164,22 +167,27 @@ public class RobotContainer {
         operator.a().whileTrue(
             Commands.deadline(
                 FuelCommands.shootWithPreset(shooter, indexer, ShooterSubsystem.ShotPreset.TRENCH),
-                fuelCompressionWhenShooterReady()
+                fuelCompressionWhenShooterReady(),
+                drivetrain.applyRequest(() -> xBrake)
                 ));
+
         operator.b().whileTrue(
             Commands.deadline(
                 FuelCommands.shootWithPreset(shooter, indexer, ShooterSubsystem.ShotPreset.CLOSE),
-                fuelCompressionWhenShooterReady()
+                fuelCompressionWhenShooterReady(),
+                drivetrain.applyRequest(() -> xBrake)
                 ));
         operator.x().whileTrue(
             Commands.deadline(
                 FuelCommands.shootWithPreset(shooter, indexer, ShooterSubsystem.ShotPreset.TOWER),
-                fuelCompressionWhenShooterReady()
+                fuelCompressionWhenShooterReady(),
+                drivetrain.applyRequest(() -> xBrake)
                 ));
         operator.y().whileTrue(
             Commands.deadline(
                 FuelCommands.shootWithPreset(shooter, indexer, ShooterSubsystem.ShotPreset.FAR),
-                fuelCompressionWhenShooterReady()
+                fuelCompressionWhenShooterReady(),
+                drivetrain.applyRequest(() -> xBrake)
                 ));
 
         operator.rightTrigger(0.5).whileTrue(indexer.reverse());
