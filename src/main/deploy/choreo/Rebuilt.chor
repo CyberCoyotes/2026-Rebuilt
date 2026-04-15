@@ -265,6 +265,20 @@
      "val":-1.57
     }
    },
+   "LtNeutralHub":{
+    "x":{
+     "exp":"X3NeutralClose m",
+     "val":6.25
+    },
+    "y":{
+     "exp":"4.55 m",
+     "val":4.55
+    },
+    "heading":{
+     "exp":"-3.14 / 2 rad",
+     "val":-1.57
+    }
+   },
    "LtNeutralMid":{
     "x":{
      "exp":"X4NeutralMid m",
