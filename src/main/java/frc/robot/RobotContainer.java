@@ -84,10 +84,20 @@ public class RobotContainer {
         // Verified autoRoutines to chooser
         // =====================================================================
 
-        autoChooser.addRoutine("Left x1 Trench-Ramp", autoRoutines::LtTrench_Ramp_Single);
-        autoChooser.addRoutine("Left x2 Trench-Ramp", autoRoutines::LtTrench_Ramp_Double);
-        autoChooser.addRoutine("Right x1 Trench-Ramp", autoRoutines::RtTrench_Ramp_Single);
-        autoChooser.addRoutine("Right x2 Trench-Ramp", autoRoutines::RtTrench_Ramp_Double);
+        // == Left Side Autos ==
+        autoChooser.addRoutine("Left x1 Ramp", autoRoutines::LtTrench_Ramp_Single);
+        autoChooser.addRoutine("Left x2 Ramp", autoRoutines::LtTrench_Ramp_Double);
+        autoChooser.addRoutine("Left Ramp Sweep SHOT", autoRoutines::LtTrench_Ramp_HubSweep);
+        autoChooser.addRoutine("Left Ramp Sweep PURGE", autoRoutines::LtTrench_Ramp_Sweep_Purge);
+        // autoChooser.addRoutine("Left Ramp Sweep PURGE", autoRoutines::LtTrench_Ramp_Sweep_AngryPurge);
+        
+        // == Right Side Autos ==
+        autoChooser.addRoutine("Right x1 Ramp", autoRoutines::RtTrench_Ramp_Single);
+        autoChooser.addRoutine("Right x2 Ramp", autoRoutines::RtTrench_Ramp_Double);
+        autoChooser.addRoutine("Right Ramp Sweep SHOT", autoRoutines::RtTrench_Ramp_HubSweep);
+        autoChooser.addRoutine("Right Ramp Sweep PURGE", autoRoutines::RtTrench_Ramp_Sweep_Purge);
+        // autoChooser.addRoutine("Right Ramp Sweep ANGRY PURGE", autoRoutines::RtTrench_Ramp_Sweep_AngryPurge);
+
         autoChooser.addRoutine("Bullerdozer 2026", autoRoutines::Bulldozer);
 
         // Testing
