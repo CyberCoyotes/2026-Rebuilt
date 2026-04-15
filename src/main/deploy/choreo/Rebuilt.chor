@@ -341,8 +341,8 @@
      "val":4.42
     },
     "y":{
-     "exp":"7.62 m",
-     "val":7.62
+     "exp":"7.55 m",
+     "val":7.55
     },
     "heading":{
      "exp":"LtTrenchHeading rad",
