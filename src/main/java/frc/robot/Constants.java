@@ -617,7 +617,7 @@ public final class Constants {
     }
 
     /** CANdle device ID */
-    public static final int CANDLE_ID = 15;
+    // public static final int CANDLE_ID = 15;
 
     /** WS2811 logical segments per meter */
     public static final int SEGMENTS_PER_METER = 20;
