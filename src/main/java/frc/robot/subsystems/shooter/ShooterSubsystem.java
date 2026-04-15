@@ -534,11 +534,12 @@ public class ShooterSubsystem extends SubsystemBase {
         FLYWHEEL_RPM_MAP.put(Constants.Shooter.TOWER_DISTANCE, Constants.Shooter.TOWER_RPM);
         HOOD_ROT_MAP.put(Constants.Shooter.TOWER_DISTANCE, Constants.Shooter.TOWER_HOOD);
 
-        // FLYWHEEL_RPM_MAP.put(Constants.Shooter.TRENCH_DISTANCE, Constants.Shooter.TRENCH_RPM); // TODO Add Trench back in after tuning
-        // HOOD_ROT_MAP.put(Constants.Shooter.TRENCH_DISTANCE, Constants.Shooter.TRENCH_HOOD); // TODO Add Trench back in after tuning
+        // So close to Tower, it might add confusion
+        // FLYWHEEL_RPM_MAP.put(Constants.Shooter.TRENCH_DISTANCE, Constants.Shooter.TRENCH_RPM); 
+        // HOOD_ROT_MAP.put(Constants.Shooter.TRENCH_DISTANCE, Constants.Shooter.TRENCH_HOOD);
 
-        // FLYWHEEL_RPM_MAP.put(Constants.Shooter.FAR_DISTANCE, Constants.Shooter.FAR_RPM); // TODO Add Far back in after tuning
-        // HOOD_ROT_MAP.put(Constants.Shooter.FAR_DISTANCE, Constants.Shooter.FAR_HOOD);
+        FLYWHEEL_RPM_MAP.put(Constants.Shooter.FAR_DISTANCE, Constants.Shooter.FAR_RPM);
+        HOOD_ROT_MAP.put(Constants.Shooter.FAR_DISTANCE, Constants.Shooter.FAR_HOOD);
 
         // Find the distances for vision tree
         // FLYWHEEL_RPM_MAP.put(3.50, 2625.0);

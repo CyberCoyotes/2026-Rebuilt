@@ -480,7 +480,7 @@ public final class Constants {
 
     // In a corner by human player station or depot-corner, angled towards the hub
     public static final double FAR_DISTANCE = Units.inchesToMeters(176) + HUB_TO_CENTER + LL_TO_FRONT; // FIXME Far distance
-    public static final double FAR_RPM = 3603; // FIXME Far RPM
+    public static final double FAR_RPM = 3450; // FIXME Far RPM
     public static final double FAR_HOOD = 8.0; // FIXME Far hood
  
     // // Back Bumpers approximately against the driver station wall, angled towards the hub
