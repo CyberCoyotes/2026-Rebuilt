@@ -78,7 +78,7 @@ public class AutoRoutines {
                 final AutoTrajectory RtTrench_Middle = routine.trajectory("RtTrench_Middle", 0);
                 final AutoTrajectory RtRampMiddle_Alliance = routine.trajectory("RtRampMiddle_Alliance", 0);
                 final AutoTrajectory RtShootRamp = routine.trajectory("RtShootRamp", 0);
-                final AutoTrajectory RtShootRamp_Trench = routine.trajectory("RtShootRamp_Trench", 0);
+                final AutoTrajectory RtShootRamp_TrenchNEW = routine.trajectory("RtShootRamp_TrenchNEW", 0);
 
                 // Trajectories — cycle 2 (fresh instances; reusing the same AutoTrajectory object
                 // causes its event triggers to not re-fire on the second activation)
@@ -100,14 +100,14 @@ public class AutoRoutines {
                                                 RtRampMiddle_Alliance.cmd(),
 
                                                 // 3. Drive to shoot position
-                                                RtShootRamp.cmd(),
+                                                // RtShootRamp.cmd(),
 
                                                 // 4. Shoot — starts only after RtShootRamp fully completes
                                                 FuelCommands.Auto.poseAlignAndShoot(m_shooter, m_indexer, m_intake, m_drivetrain, shootTimeout),
 
                                                 // --- Cycle 2 ---
                                                 // 5. Back to trench
-                                                RtShootRamp_Trench.cmd(),
+                                                RtShootRamp_TrenchNEW.cmd(),
 
                                                 // 6. Trench to Middle (2nd) — intake runs in parallel
                                                 Commands.deadline(
@@ -118,7 +118,7 @@ public class AutoRoutines {
                                                 RtRampMiddle_Alliance_2.cmd(),
 
                                                 // 8. Drive to shoot position (2nd)
-                                                RtShootRamp_2.cmd(),
+                                                // RtShootRamp_2.cmd(),
 
                                                 // 9. Shoot (2nd) — starts only after RtShootRamp_2 fully completes
                                                 FuelCommands.Auto.poseAlignAndShoot(m_shooter, m_indexer, m_intake, m_drivetrain, shootTimeout)

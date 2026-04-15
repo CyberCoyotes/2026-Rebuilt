@@ -4,13 +4,6 @@
  "type":"Swerve",
  "variables":{
   "expressions":{
-   "FastVel":{
-    "dimension":"Number",
-    "var":{
-     "exp":"3",
-     "val":3.0
-    }
-   },
    "IntakeVel":{
     "dimension":"LinVel",
     "var":{
@@ -35,8 +28,8 @@
    "MediumVel":{
     "dimension":"LinVel",
     "var":{
-     "exp":"2 m / s",
-     "val":2.0
+     "exp":"2.5 m / s",
+     "val":2.5
     }
    },
    "RampVel":{
@@ -70,8 +63,8 @@
    "X1RampShoot":{
     "dimension":"Number",
     "var":{
-     "exp":"2.5",
-     "val":2.5
+     "exp":"3",
+     "val":3.0
     }
    },
    "X2Trench":{
@@ -289,7 +282,7 @@
    "LtRampAlliance":{
     "x":{
      "exp":"X1RampShoot m",
-     "val":2.5
+     "val":3.0
     },
     "y":{
      "exp":"5.4 m",
@@ -317,7 +310,7 @@
    "LtShootRamp":{
     "x":{
      "exp":"X1RampShoot m",
-     "val":2.5
+     "val":3.0
     },
     "y":{
      "exp":"6.5 m",
@@ -443,7 +436,7 @@
    "RtRampAlliance":{
     "x":{
      "exp":"X1RampShoot m",
-     "val":2.5
+     "val":3.0
     },
     "y":{
      "exp":"2.6 m",
@@ -471,7 +464,7 @@
    "RtShootRamp":{
     "x":{
      "exp":"X1RampShoot m",
-     "val":2.5
+     "val":3.0
     },
     "y":{
      "exp":"1.6 m",
