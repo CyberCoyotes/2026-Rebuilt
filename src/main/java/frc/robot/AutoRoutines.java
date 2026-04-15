@@ -214,7 +214,34 @@ public class AutoRoutines {
         // Secondary Auto Routines
         // ============================================================================
         
+ public AutoRoutine Bulldozer() {
+                final AutoRoutine routine = m_factory.newRoutine("Bulldozer 2026");
 
+                final AutoTrajectory Bulldozer = routine.trajectory("Bulldozer2026", 0);
+
+                final AutoTrajectory RtRampMiddle_Alliance = routine.trajectory("RtRampMiddle_Alliance", 0);
+                
+                final AutoTrajectory RtShootRamp = routine.trajectory("RtShootRamp", 0);                        
+                
+                // final AutoTrajectory RtShot_Trench = routine.trajectory("RtShot_Trench", 0);
+
+                routine.active().onTrue(
+                                Commands.sequence(
+                                                Bulldozer.resetOdometry(),
+                                                
+                                                Bulldozer.cmd(),
+                                                
+                                                RtRampMiddle_Alliance.cmd(),
+
+                                                RtShootRamp.cmd()
+                                                
+
+                                ));
+                // Routine Events
+                Bulldozer.atTime("Intake").onTrue(m_intake.intakeFuelTimer(intakeTimeout + 2));
+
+                return routine;
+        }
 
 
         
@@ -226,33 +253,7 @@ public class AutoRoutines {
 
         // Inner class for testing new auto features without affecting existing routines
         public class Test {
-                        public AutoRoutine Bulldozer() {
-                final AutoRoutine routine = m_factory.newRoutine("Bulldozer 2026");
-                final AutoTrajectory Bulldozer = routine.trajectory("Bulldozer2026", 0);
-
-                final AutoTrajectory RtRampMid_RtRampAlli = routine.trajectory("RtRampMid_RtRampAlli", 0);
-                
-                final AutoTrajectory RtRampAlli_Shot = routine.trajectory("RtRampAlli_Shot", 0);                        
-                
-                // final AutoTrajectory RtShot_Trench = routine.trajectory("RtShot_Trench", 0);
-
-                routine.active().onTrue(
-                                Commands.sequence(
-                                                Bulldozer.resetOdometry(),
-                                                
-                                                Bulldozer.cmd(),
-                                                
-                                                RtRampMid_RtRampAlli.cmd(),
-
-                                                RtRampAlli_Shot.cmd()
-                                                
-
-                                ));
-                // Routine Events
-                Bulldozer.atTime("Intake").onTrue(m_intake.intakeFuelTimer(intakeTimeout + 2));
-
-                return routine;
-        }
+        
 
         public AutoRoutine Full_LtTrench_Mid_Trench() {
                 final AutoRoutine routine = m_factory.newRoutine("FULL Lt Trench-Mid-Trench"); 
