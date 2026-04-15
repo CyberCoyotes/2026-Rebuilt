@@ -123,9 +123,9 @@ public final class Constants {
     public static final double SLIDE_SLOW_MM_ACCELERATION = 40;
     public static final double SLIDE_SLOW_MM_JERK = 0.0;
 
-    public static final double ROLLER_FORWARD_VOLTS = 7;// increased from 8
-    public static final double ROLLER_REVERSE_VOLTS = -11; // increased from -`10 to -11
-
+    public static final double ROLLER_FORWARD_VOLTS = 8;
+    public static final double ROLLER_REVERSE_VOLTS = -11; 
+    
     public static final class RollerLeaderConfig {
       private RollerLeaderConfig() {
       }
