@@ -474,14 +474,14 @@ public final class Constants {
     public static final double TOWER_HOOD = 4.50;
 
     // In the trench, mostly against the wall, but turned slightly towards the hub
-    public static final double TRENCH_DISTANCE = Units.inchesToMeters(133); // FIXME Trench distance
+    public static final double TRENCH_DISTANCE = Units.inchesToMeters(112); // FIXME Trench distance
     public static final double TRENCH_RPM = 3500; // FIXME Trench RPM
     public static final double TRENCH_HOOD = 5.0; // FIXME Trench hood
 
     // FIXME Find the correct values for FAR SHOT.
     // In a corner by human player station or depot-corner, angled towards the hub,
     // but not against anything
-    public static final double FAR_DISTANCE = Units.inchesToMeters(144); // FIXME Far distance
+    public static final double FAR_DISTANCE = Units.inchesToMeters(176); // FIXME Far distance
     public static final double FAR_RPM = 4000; // FIXME Far RPM
     public static final double FAR_HOOD = 8.0; // FIXME Far hood
  
