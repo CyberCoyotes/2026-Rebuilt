@@ -16,6 +16,7 @@ public class AutoRoutines {
         private final IntakeSubsystem m_intake;
         private final IndexerSubsystem m_indexer;
         private final ShooterSubsystem m_shooter;
+        
 
         public AutoRoutines(AutoFactory factory, 
                         CommandSwerveDrivetrain drivetrain,
@@ -34,6 +35,7 @@ public class AutoRoutines {
         public static final double intakeTimeout = 6.0; // seconds
         public static final double fuelPumpTimeout = 4.0; // seconds; adjust as needed based on testing
         public static final double purgeTimeout = 3.0; // seconds to purge fuel
+        public static final double intakeDelay = 0.75; //
 
         // ============================================================================
         // RIGHT SIDE AUTOS - start in right trench
@@ -56,7 +58,7 @@ public class AutoRoutines {
                                                 // 1. Trench to Middle — intake runs in parallel while driving
                                                 Commands.deadline(
                                                                 RtTrench_Middle.cmd(),
-                                                                m_intake.intakeFuelTimer(intakeTimeout)),
+                                                                m_intake.intakeFuelTimer(intakeTimeout, intakeDelay)),
 
                                                 // 2. Ramp crossing
                                                 RtRampMiddle_Alliance.cmd(),
@@ -94,7 +96,7 @@ public class AutoRoutines {
                                                 // 1. Trench to Middle — intake runs in parallel while driving
                                                 Commands.deadline(
                                                                 RtTrench_Middle.cmd(),
-                                                                m_intake.intakeFuelTimer(intakeTimeout)),
+                                                                m_intake.intakeFuelTimer(intakeTimeout, intakeDelay)),
 
                                                 // 2. Ramp crossing to Alliance side
                                                 RtRampMiddle_Alliance.cmd(),
@@ -109,7 +111,7 @@ public class AutoRoutines {
                                                 // 6. Trench to Middle (2nd) — intake runs in parallel
                                                 Commands.deadline(
                                                                 RtTrench_Middle_2.cmd(),
-                                                                m_intake.intakeFuelTimer(intakeTimeout)),
+                                                                m_intake.intakeFuelTimer(intakeTimeout, intakeDelay)),
 
                                                 // 7. Ramp crossing to Alliance side (2nd)
                                                 RtRampMiddle_Alliance_2.cmd(),
@@ -146,7 +148,7 @@ public class AutoRoutines {
                                                 // 1. Trench to Middle — intake runs in parallel while driving
                                                 Commands.deadline(
                                                                 RtTrench_Middle.cmd(),
-                                                                m_intake.intakeFuelTimer(intakeTimeout)),
+                                                                m_intake.intakeFuelTimer(intakeTimeout, intakeDelay)),
 
                                                 // 2. Ramp crossing to Alliance side
                                                 RtRampMiddle_Alliance.cmd(),
@@ -161,7 +163,7 @@ public class AutoRoutines {
                                                 // 6. Trench to Middle (2nd) — intake runs in parallel
                                                 Commands.deadline(
                                                                 RtTrench_HubSweep.cmd(),
-                                                                m_intake.intakeFuelTimer(intakeTimeout)),
+                                                                m_intake.intakeFuelTimer(intakeTimeout, intakeDelay)),
 
                                                 RtHub_Ramp.cmd(),
 
@@ -198,7 +200,7 @@ public class AutoRoutines {
                                                 // 1. Trench to Middle — intake runs in parallel while driving
                                                 Commands.deadline(
                                                                 RtTrench_Middle.cmd(),
-                                                                m_intake.intakeFuelTimer(intakeTimeout)),
+                                                                m_intake.intakeFuelTimer(intakeTimeout, intakeDelay)),
 
                                                 // 2. Ramp crossing to Alliance side
                                                 RtRampMiddle_Alliance.cmd(),
@@ -213,8 +215,7 @@ public class AutoRoutines {
                                                 // 6. Trench to Middle (2nd) — intake runs in parallel
                                                 Commands.deadline(
                                                                 RtTrench_HubSweep.cmd(),
-                                                                m_intake.intakeFuelTimer(intakeTimeout)),
-
+                                                                m_intake.intakeFuelTimer(intakeTimeout, intakeDelay)),
                                                 RtHub_Purge.cmd(),
 
                                                 FuelCommands.purgeFuel(m_intake, m_indexer).withTimeout(purgeTimeout) // purge command; adjust timeout as needed
@@ -248,7 +249,7 @@ public class AutoRoutines {
                                                 // 1. Trench to Middle — intake runs in parallel while driving
                                                 Commands.deadline(
                                                                 RtTrench_Middle.cmd(),
-                                                                m_intake.intakeFuelTimer(intakeTimeout)),
+                                                                m_intake.intakeFuelTimer(intakeTimeout, intakeDelay)),
 
                                                 // 2. Ramp crossing to Alliance side
                                                 RtRampMiddle_Alliance.cmd(),
@@ -263,7 +264,7 @@ public class AutoRoutines {
                                                 // 6. Trench to Middle (2nd) — intake runs in parallel
                                                 Commands.deadline(
                                                                 RtTrench_HubSweep.cmd(),
-                                                                m_intake.intakeFuelTimer(intakeTimeout)),
+                                                                m_intake.intakeFuelTimer(intakeTimeout, intakeDelay)),
 
                                                 RtHub_Purge.cmd(),
 
@@ -295,7 +296,7 @@ public class AutoRoutines {
                                                 // 1. Trench to Middle — intake runs in parallel while driving
                                                 Commands.deadline(
                                                                 LtTrench_Middle.cmd(),
-                                                                m_intake.intakeFuelTimer(intakeTimeout)),
+                                                                m_intake.intakeFuelTimer(intakeTimeout, intakeDelay)),
 
                                                 // 2. Ramp crossing
                                                 LtRampMiddle_Alliance.cmd(),
@@ -335,7 +336,7 @@ public class AutoRoutines {
                                                 // 1. Trench to Middle — intake runs in parallel while driving
                                                 Commands.deadline(
                                                                 LtTrench_Middle.cmd(),
-                                                                m_intake.intakeFuelTimer(intakeTimeout)),
+                                                                m_intake.intakeFuelTimer(intakeTimeout, intakeDelay)),
 
                                                 // 2. Ramp crossing
                                                 LtRampMiddle_Alliance.cmd(),
@@ -353,7 +354,7 @@ public class AutoRoutines {
                                                 // 6. Trench to Middle (2nd) — intake runs in parallel
                                                 Commands.deadline(
                                                                 LtTrench_Middle_2.cmd(),
-                                                                m_intake.intakeFuelTimer(intakeTimeout)),
+                                                                m_intake.intakeFuelTimer(intakeTimeout, intakeDelay)),
 
                                                 // 7. Ramp crossing to Alliance side (2nd)
                                                 LtRampMiddle_Alliance_2.cmd(),
@@ -391,7 +392,7 @@ public class AutoRoutines {
                                                 // 1. Trench to Middle — intake runs in parallel while driving
                                                 Commands.deadline(
                                                                 LtTrench_Middle.cmd(),
-                                                                m_intake.intakeFuelTimer(intakeTimeout)),
+                                                                m_intake.intakeFuelTimer(intakeTimeout, intakeDelay)),
 
                                                 // 2. Ramp crossing
                                                 LtRampMiddle_Alliance.cmd(),
@@ -410,7 +411,7 @@ public class AutoRoutines {
                                                 // 6. Trench to Middle (2nd) — intake runs in parallel
                                                 Commands.deadline(
                                                                 LtTrench_HubSweep.cmd(),
-                                                                m_intake.intakeFuelTimer(intakeTimeout)),
+                                                                m_intake.intakeFuelTimer(intakeTimeout, intakeDelay)),
                                                 LtHub_Ramp.cmd(),
 
                                                 // 7. Ramp crossing to Alliance side (2nd)
@@ -447,7 +448,7 @@ public class AutoRoutines {
                                                 // 1. Trench to Middle — intake runs in parallel while driving
                                                 Commands.deadline(
                                                                 LtTrench_Middle.cmd(),
-                                                                m_intake.intakeFuelTimer(intakeTimeout)),
+                                                                m_intake.intakeFuelTimer(intakeTimeout, intakeDelay)),
 
                                                 // 2. Ramp crossing
                                                 LtRampMiddle_Alliance.cmd(),
@@ -466,7 +467,7 @@ public class AutoRoutines {
                                                 // 6. Trench to Middle (2nd) — intake runs in parallel
                                                 Commands.deadline(
                                                                 LtTrench_HubSweep.cmd(),
-                                                                m_intake.intakeFuelTimer(intakeTimeout)),
+                                                                m_intake.intakeFuelTimer(intakeTimeout, intakeDelay)),
                                                 LtHub_Purge.cmd(),
                                                 
                                                 FuelCommands.purgeFuel(m_intake, m_indexer).withTimeout(purgeTimeout) // purge command; adjust timeout as needed
@@ -499,7 +500,7 @@ public class AutoRoutines {
                                                 // 1. Trench to Middle — intake runs in parallel while driving
                                                 Commands.deadline(
                                                                 LtTrench_Middle.cmd(),
-                                                                m_intake.intakeFuelTimer(intakeTimeout)),
+                                                                m_intake.intakeFuelTimer(intakeTimeout, intakeDelay)),
 
                                                 // 2. Ramp crossing
                                                 LtRampMiddle_Alliance.cmd(),
@@ -518,7 +519,7 @@ public class AutoRoutines {
                                                 // 6. Trench to Middle (2nd) — intake runs in parallel
                                                 Commands.deadline(
                                                                 LtTrench_HubSweep.cmd(),
-                                                                m_intake.intakeFuelTimer(intakeTimeout)),
+                                                                m_intake.intakeFuelTimer(intakeTimeout, intakeDelay)),
                                                 LtHub_Purge.cmd(),
                                                 
                                                 FuelCommands.purgeFuel(m_intake, m_indexer).withTimeout(purgeTimeout) // purge command; adjust timeout as needed
@@ -550,7 +551,7 @@ public class AutoRoutines {
 
                                 ));
                 // Routine Events
-                Bulldozer.atTime("Intake").onTrue(m_intake.intakeFuelTimer(intakeTimeout + 2));
+                Bulldozer.atTime("Intake").onTrue(m_intake.intakeFuelTimer(intakeTimeout + 2, intakeDelay));
 
                 return routine;
         }
@@ -578,7 +579,7 @@ public class AutoRoutines {
 
                                 ));
                 // Routine Events
-                LtTrench_Mid_Trench.atTime("Intake").onTrue(m_intake.intakeFuelTimer(intakeTimeout));
+                LtTrench_Mid_Trench.atTime("Intake").onTrue(m_intake.intakeFuelTimer(intakeTimeout, intakeDelay));
                 LtTrench_Mid_Trench.atTime("Shoot").onTrue(FuelCommands.Auto.poseAlignAndShoot(m_shooter, m_indexer, m_intake, m_drivetrain, shootTimeout));
                 LtTrench_Mid_Trench.atTime("FuelPump").onTrue(FuelCommands.Auto.fuelPumpCycleSensor(m_intake, m_indexer));
 
@@ -598,7 +599,7 @@ public class AutoRoutines {
 
                                 ));
                 // Routine Events
-                MidDepot.atTime("Intake").onTrue(m_intake.intakeFuelTimer(8));
+                MidDepot.atTime("Intake").onTrue(m_intake.intakeFuelTimer(8, intakeDelay));
                 MidDepot.atTime("Shoot").onTrue(FuelCommands.Auto.shootFar(m_shooter, m_indexer, shootTimeout)); // score
 
                 return routine;
@@ -640,7 +641,7 @@ public class AutoRoutines {
 
                                 ));
                 // Routine Events
-                RtTrench_RtMid_RtTrench.atTime("Intake").onTrue(m_intake.intakeFuelTimer(intakeTimeout));
+                RtTrench_RtMid_RtTrench.atTime("Intake").onTrue(m_intake.intakeFuelTimer(intakeTimeout, intakeDelay));
                 
                 // dependencies are fine in this version
                 RtTrench_RtMid_RtTrench.atTime("Shoot")
