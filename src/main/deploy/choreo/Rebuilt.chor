@@ -35,8 +35,8 @@
    "MediumVel":{
     "dimension":"LinVel",
     "var":{
-     "exp":"2.5 m / s",
-     "val":2.5
+     "exp":"2.2 m / s",
+     "val":2.2
     }
    },
    "RampVel":{
@@ -112,8 +112,8 @@
    "YRtCrossing":{
     "dimension":"Number",
     "var":{
-     "exp":"2.5",
-     "val":2.5
+     "exp":"2.4",
+     "val":2.4
     }
    }
   },
@@ -419,7 +419,7 @@
     },
     "y":{
      "exp":"RtRampNeutral.y",
-     "val":2.5
+     "val":2.4
     },
     "heading":{
      "exp":"RtTrenchHeading rad",
@@ -461,7 +461,7 @@
     },
     "y":{
      "exp":"YRtCrossing m",
-     "val":2.5
+     "val":2.4
     },
     "heading":{
      "exp":"RtCrossingHeading rad",
@@ -475,7 +475,7 @@
     },
     "y":{
      "exp":"YRtCrossing m",
-     "val":2.5
+     "val":2.4
     },
     "heading":{
      "exp":"RtCrossingHeading rad",

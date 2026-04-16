@@ -484,7 +484,7 @@ public class IntakeSubsystem extends SubsystemBase {
         return Commands.sequence(
                 Commands.waitSeconds(initialWaitSeconds),
                 Commands.run(() -> {
-                    runSlowRoller();
+                    runRoller();
                     double t = cycleTimer.get();
                     if (t < Constants.Intake.SLIDE_FUEL_PUMP_OUT_SECONDS) {
                         setSlidesToPosition(Constants.Intake.SLIDE_PUMP_OUT_POS);
@@ -534,12 +534,12 @@ public class IntakeSubsystem extends SubsystemBase {
     public Command fuelPumpBasic() {
         return Commands.sequence(
                 Commands.run(() -> {
-                    runSlowRoller();
+                    runRoller();
                     setSlidesToPosition(Constants.Intake.SLIDE_PUMP_OUT_POS);
                 }, this)
                         .withTimeout(0.5),
                 Commands.run(() -> {
-                    runSlowRoller();
+                    runRoller();
                     setSlidesToPosition(Constants.Intake.SLIDE_PUMP_IN_POS);
                 }, this)
                         .withTimeout(0.5))
@@ -645,7 +645,7 @@ public class IntakeSubsystem extends SubsystemBase {
         return Commands.sequence(
                 Commands.waitSeconds(delay),
                 extendSlidesFastCmd(),
-                Commands.run(this::runSlowRoller, this)
+                Commands.run(this::runRoller, this)
                         .withTimeout(intakeTimeout)
                         .finallyDo(this::stopRoller))
                 .withName("IntakeFuelTimer");
@@ -654,7 +654,7 @@ public class IntakeSubsystem extends SubsystemBase {
     public Command intakeFuelUntil(BooleanSupplier condition) {
         return Commands.sequence(
                 extendSlidesFastCmd(),
-                Commands.run(this::runSlowRoller, this)
+                Commands.run(this::runRoller, this)
                         .until(condition)
                         .finallyDo(this::stopRoller))
                 .withName("IntakeFuelUntil");
