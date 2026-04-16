@@ -638,7 +638,12 @@ public class IntakeSubsystem extends SubsystemBase {
      * @param intakeTimeout How long to run the roller after extending.
      */
     public Command intakeFuelTimer(double intakeTimeout) {
+        return intakeFuelTimer(intakeTimeout, 0);
+    }
+
+    public Command intakeFuelTimer(double intakeTimeout, double delay) {
         return Commands.sequence(
+                Commands.waitSeconds(delay),
                 extendSlidesFastCmd(),
                 Commands.run(this::runRoller, this)
                         .withTimeout(intakeTimeout)
