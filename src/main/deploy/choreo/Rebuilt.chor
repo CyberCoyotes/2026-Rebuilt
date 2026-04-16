@@ -184,8 +184,8 @@
      "val":4.0
     },
     "heading":{
-     "exp":"3.14 rad",
-     "val":3.14
+     "exp":"0 rad",
+     "val":0.0
     }
    },
    "HubCloseShot":{
@@ -198,8 +198,8 @@
      "val":4.0
     },
     "heading":{
-     "exp":"3.14 rad",
-     "val":3.14
+     "exp":"0 rad",
+     "val":0.0
     }
    },
    "LtMidHub":{

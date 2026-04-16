@@ -547,17 +547,17 @@ public class AutoRoutines {
         // Secondary Auto Routines
         // ============================================================================
         
- public AutoRoutine Bulldozer() {
-                final AutoRoutine routine = m_factory.newRoutine("Bulldozer 2026");
+ public AutoRoutine RtBulldozer() {
+                final AutoRoutine routine = m_factory.newRoutine("RtBulldozer 2026");
 
-                final AutoTrajectory Bulldozer = routine.trajectory("Bulldozer2026", 0);
+                final AutoTrajectory RtBulldozer = routine.trajectory("RtBulldozer2026", 0);
                 final AutoTrajectory RtRampMiddle_Alliance = routine.trajectory("RtRampMiddle_Alliance", 0);
                 
                 routine.active().onTrue(
                                 Commands.sequence(
-                                                Bulldozer.resetOdometry(),
+                                                RtBulldozer.resetOdometry(),
                                                 
-                                                Bulldozer.cmd(),
+                                                RtBulldozer.cmd(),
                                                 
                                                 RtRampMiddle_Alliance.cmd(),
                                                 
@@ -566,7 +566,7 @@ public class AutoRoutines {
 
                                 ));
                 // Routine Events
-                Bulldozer.atTime("Intake").onTrue(m_intake.intakeFuelTimer(intakeTimeout + 2, intakeDelay));
+                RtBulldozer.atTime("Intake").onTrue(m_intake.intakeFuelTimer(intakeTimeout + 2, 0)); // Event so timer not needed
 
                 return routine;
         }
