@@ -233,7 +233,10 @@ public class AutoRoutines {
                                                                 m_intake.intakeFuelTimer(intakeTimeout, intakeDelay)),
                                                 RtHub_Purge.cmd(),
 
-                                                FuelCommands.purgeFuel(m_intake, m_indexer).withTimeout(purgeTimeout) // purge command; adjust timeout as needed
+                                                Commands.deadline(
+                                                        FuelCommands.purgeFuel(m_intake, m_indexer).withTimeout(purgeTimeout),
+                                                        m_drivetrain.stop()
+                                                )
 
                                 ));
 
@@ -283,7 +286,10 @@ public class AutoRoutines {
 
                                                 RtHub_Purge.cmd(),
 
-                                                FuelCommands.purgeFuel(m_intake, m_indexer).withTimeout(purgeTimeout) // purge command; adjust timeout as needed
+                                                Commands.deadline(
+                                                        FuelCommands.purgeFuel(m_intake, m_indexer).withTimeout(purgeTimeout),
+                                                        m_drivetrain.stop()
+                                                )
 
                                 ));
 
@@ -484,8 +490,11 @@ public class AutoRoutines {
                                                                 LtTrench_HubSweep.cmd(),
                                                                 m_intake.intakeFuelTimer(intakeTimeout, intakeDelay)),
                                                 LtHub_Purge.cmd(),
-                                                
-                                                FuelCommands.purgeFuel(m_intake, m_indexer).withTimeout(purgeTimeout) // purge command; adjust timeout as needed
+
+                                                Commands.deadline(
+                                                        FuelCommands.purgeFuel(m_intake, m_indexer).withTimeout(purgeTimeout),
+                                                        m_drivetrain.stop()
+                                                )
                                 ));
 
                 return routine;
@@ -536,8 +545,11 @@ public class AutoRoutines {
                                                                 LtTrench_HubSweep.cmd(),
                                                                 m_intake.intakeFuelTimer(intakeTimeout, intakeDelay)),
                                                 LtHub_Purge.cmd(),
-                                                
-                                                FuelCommands.purgeFuel(m_intake, m_indexer).withTimeout(purgeTimeout) // purge command; adjust timeout as needed
+
+                                                Commands.deadline(
+                                                        FuelCommands.purgeFuel(m_intake, m_indexer).withTimeout(purgeTimeout),
+                                                        m_drivetrain.stop()
+                                                )
                                 ));
 
                 return routine;
