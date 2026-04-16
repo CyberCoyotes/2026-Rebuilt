@@ -217,7 +217,13 @@ public class AutoRoutines {
 
                                                 RtHub_Purge.cmd(),
 
-                                                FuelCommands.purgeFuel(m_intake, m_indexer).withTimeout(purgeTimeout) // purge command; adjust timeout as needed
+                                                // Purge while holding the drivetrain at zero velocity.
+                                                // purgeFuel only requires intake + indexer, so without the
+                                                // deadline the drivetrain has no command owner and the robot
+                                                // drifts from residual trajectory momentum.
+                                                Commands.deadline(
+                                                                FuelCommands.purgeFuel(m_intake, m_indexer).withTimeout(purgeTimeout),
+                                                                m_drivetrain.stop())
 
                                 ));
 
@@ -267,7 +273,9 @@ public class AutoRoutines {
 
                                                 RtHub_Purge.cmd(),
 
-                                                FuelCommands.purgeFuel(m_intake, m_indexer).withTimeout(purgeTimeout) // purge command; adjust timeout as needed
+                                                Commands.deadline(
+                                                                FuelCommands.purgeFuel(m_intake, m_indexer).withTimeout(purgeTimeout),
+                                                                m_drivetrain.stop())
 
                                 ));
 
