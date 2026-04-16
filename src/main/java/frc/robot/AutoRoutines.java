@@ -175,19 +175,34 @@ public class AutoRoutines {
                 return routine;
          }
 
+         /* CYCLE 1: Run to the middle - deploy intake shortly after start - and collect fuel. 
+         * It will line up and come over the ramp
+         * Shoot on the Alliance side
+         * Head back through the trench Come back over the ramp and line up to shoot again, using the fuel collected in the first cycle.
+         */ 
+
                 public AutoRoutine RtTrench_Ramp_Sweep_Purge() {
 
                 final AutoRoutine routine = m_factory.newRoutine("Right Trench-Ramp-Sweep_Purge");
 
                 // Cycle 1
-                final AutoTrajectory RtTrench_Middle = routine.trajectory("RtTrench_Middle", 0); // + Intake
+                // Run to the middle and while extened the intake, collect, and line up to cross the ramp
+                final AutoTrajectory RtTrench_Middle = routine.trajectory("RtTrench_Middle", 0);
+
+                // Cross the ramp to the Alliance side, and shoot with vision alignment
                 final AutoTrajectory RtRampMiddle_Alliance = routine.trajectory("RtRampMiddle_Alliance", 0);
-                // Shoot
+                
+                // Shoot the fuel (command below)
+
+                // Return back to the trench
                 final AutoTrajectory RtShootRamp_Trench = routine.trajectory("RtShootRamp_Trench", 0);
 
-                // Cycle 2 (fresh instances; reusing the same AutoTrajectory object
-                // causes its event triggers to not re-fire on the second activation)
+                // Cycle 2: Fresh instances; reusing the same AutoTrajectory object
+
+                // Sweep and collect fuel behind the hub
                 final AutoTrajectory RtTrench_HubSweep = routine.trajectory("RtTrench_HubSweep", 0);
+
+                // Turn and purge fuel over the ramp
                 final AutoTrajectory RtHub_Purge = routine.trajectory("RtHub_Purge", 0);
 
                 routine.active().onTrue(
