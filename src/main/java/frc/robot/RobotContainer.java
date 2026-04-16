@@ -98,7 +98,7 @@ public class RobotContainer {
         autoChooser.addRoutine("Right Ramp Sweep PURGE", autoRoutines::RtTrench_Ramp_Sweep_Purge);
         // autoChooser.addRoutine("Right Ramp Sweep ANGRY PURGE", autoRoutines::RtTrench_Ramp_Sweep_AngryPurge);
 
-        autoChooser.addRoutine("Bullerdozer 2026", autoRoutines::Bulldozer);
+        autoChooser.addRoutine("Right Bulldozer 2026", autoRoutines::RtBulldozer);
 
         // Testing
         // autoChooser.addRoutine("Rt Bulldozer 2026", autoRoutines.test::Bulldozer);
