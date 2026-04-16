@@ -571,6 +571,30 @@ public class AutoRoutines {
                 return routine;
         }
 
+         public AutoRoutine Center() {
+                        final AutoRoutine routine = m_factory.newRoutine("Center");
+                        final AutoTrajectory Center = routine.trajectory("Center", 0);
+                        // final AutoTrajectory TestRountine2 = routine.trajectory("Center", 1);
+
+                        routine.active().onTrue(
+                                        Commands.sequence(
+                                                        Center.resetOdometry(), // Always reset odometry first
+                                                        Center.cmd(), // Follow the path
+                                                        
+                                                        // TODO: Add shooting command
+
+                                                        m_drivetrain.stop().withTimeout(10.0)
+                                                        
+
+                                        ));
+                        // Routine Events
+
+                Center.atTime("Shoot")
+                                .onTrue(FuelCommands.Auto.shootClose(m_shooter, m_indexer,shootTimeout));
+                // Center.atTime("FuelPump").onTrue(FuelCommands.Auto.fuelPumpCycleSensor(m_intake, m_indexer));
+
+                return routine;
+        }
 
         
 
@@ -620,30 +644,6 @@ public class AutoRoutines {
                 return routine;
         }
 
-         public AutoRoutine Center() {
-                        final AutoRoutine routine = m_factory.newRoutine("Center");
-                        final AutoTrajectory Center = routine.trajectory("Center", 0);
-                        // final AutoTrajectory TestRountine2 = routine.trajectory("Center", 1);
-
-                        routine.active().onTrue(
-                                        Commands.sequence(
-                                                        Center.resetOdometry(), // Always reset odometry first
-                                                        Center.cmd(), // Follow the path
-                                                        
-                                                        // TODO: Add shooting command
-
-                                                        m_drivetrain.stop().withTimeout(10.0)
-                                                        
-
-                                        ));
-                        // Routine Events
-
-                Center.atTime("Shoot")
-                                .onTrue(FuelCommands.Auto.shootClose(m_shooter, m_indexer,shootTimeout));
-                // Center.atTime("FuelPump").onTrue(FuelCommands.Auto.fuelPumpCycleSensor(m_intake, m_indexer));
-
-                return routine;
-        }
 
                 public AutoRoutine RtTrench_RtMid_RtTrench() {
                 final AutoRoutine routine = m_factory.newRoutine("RtTrench_RtMid_RtTrench");

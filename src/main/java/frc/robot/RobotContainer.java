@@ -102,7 +102,7 @@ public class RobotContainer {
 
         // Testing
         // autoChooser.addRoutine("Rt Bulldozer 2026", autoRoutines.test::Bulldozer);
-        // autoChooser.addRoutine("Center", autoRoutines::Center);
+        autoChooser.addRoutine("Center", autoRoutines::Center);
         
         configureBindings();
 
@@ -154,26 +154,26 @@ public class RobotContainer {
         // =====================================================================
         operator.a().whileTrue(
             Commands.deadline(
-                drivetrain.applyRequest(() -> xBrake),
+                // drivetrain.applyRequest(() -> xBrake),
                 FuelCommands.shootWithPreset(shooter, indexer, ShooterSubsystem.ShotPreset.TRENCH),
                 intake.fuelCompression()
                 ));
 
         operator.b().whileTrue(
             Commands.deadline(
-                drivetrain.applyRequest(() -> xBrake),    
+                // drivetrain.applyRequest(() -> xBrake),    
                 FuelCommands.shootWithPreset(shooter, indexer, ShooterSubsystem.ShotPreset.CLOSE),
                 intake.fuelCompression()
                 ));
         operator.x().whileTrue(
             Commands.deadline(
-                drivetrain.applyRequest(() -> xBrake),    
+                // drivetrain.applyRequest(() -> xBrake),    
                 FuelCommands.shootWithPreset(shooter, indexer, ShooterSubsystem.ShotPreset.TOWER),
                 intake.fuelCompression()
                 ));
         operator.y().whileTrue(
             Commands.deadline(
-                drivetrain.applyRequest(() -> xBrake),
+                // drivetrain.applyRequest(() -> xBrake),
                 FuelCommands.shootWithPreset(shooter, indexer, ShooterSubsystem.ShotPreset.FAR),
                 intake.fuelCompression()
                 ));
