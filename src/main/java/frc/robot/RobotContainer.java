@@ -92,8 +92,8 @@ public class RobotContainer {
         // autoChooser.addRoutine("Left Ramp Sweep PURGE", autoRoutines::LtTrench_Ramp_Sweep_AngryPurge);
         
         // == Right Side Autos ==
-        autoChooser.addRoutine("Right x1 Ramp", autoRoutines::RtTrench_Ramp_Single);
-        autoChooser.addRoutine("Right x2 Ramp", autoRoutines::RtTrench_Ramp_Double);
+        autoChooser.addRoutine("Right x1 Ramp ANGRY", autoRoutines::RtTrench_Ramp_Single);
+        autoChooser.addRoutine("Right x2 Ramp ANGRY", autoRoutines::RtTrench_Ramp_Double);
         autoChooser.addRoutine("Right Ramp Sweep SHOT", autoRoutines::RtTrench_Ramp_HubSweep);
         autoChooser.addRoutine("Right Ramp Sweep PURGE", autoRoutines::RtTrench_Ramp_Sweep_Purge);
         // autoChooser.addRoutine("Right Ramp Sweep ANGRY PURGE", autoRoutines::RtTrench_Ramp_Sweep_AngryPurge);

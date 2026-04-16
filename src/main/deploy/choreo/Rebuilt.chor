@@ -35,8 +35,8 @@
    "MediumVel":{
     "dimension":"LinVel",
     "var":{
-     "exp":"2.2 m / s",
-     "val":2.2
+     "exp":"2.75 m / s",
+     "val":2.75
     }
    },
    "RampVel":{
