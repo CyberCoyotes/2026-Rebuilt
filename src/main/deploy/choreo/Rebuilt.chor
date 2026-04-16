@@ -42,8 +42,8 @@
    "RampVel":{
     "dimension":"LinVel",
     "var":{
-     "exp":"2.25 m / s",
-     "val":2.25
+     "exp":"2.5 m / s",
+     "val":2.5
     }
    },
    "RtCrossingHeading":{
