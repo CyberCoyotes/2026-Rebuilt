@@ -70,8 +70,8 @@
    "X1RampShoot":{
     "dimension":"Number",
     "var":{
-     "exp":"3",
-     "val":3.0
+     "exp":"2.4",
+     "val":2.4
     }
    },
    "X2Trench":{
@@ -84,8 +84,8 @@
    "X3NeutralClose":{
     "dimension":"Number",
     "var":{
-     "exp":"6.25",
-     "val":6.25
+     "exp":"6.4",
+     "val":6.4
     }
    },
    "X4NeutralMid":{
@@ -205,7 +205,7 @@
    "LtMidHub":{
     "x":{
      "exp":"X3NeutralClose m",
-     "val":6.25
+     "val":6.4
     },
     "y":{
      "exp":"4.55 m",
@@ -261,7 +261,7 @@
    "LtMidTrench":{
     "x":{
      "exp":"X3NeutralClose m",
-     "val":6.25
+     "val":6.4
     },
     "y":{
      "exp":"7.37 m",
@@ -275,7 +275,7 @@
    "LtNeutralHub":{
     "x":{
      "exp":"X3NeutralClose m",
-     "val":6.25
+     "val":6.4
     },
     "y":{
      "exp":"4.55 m",
@@ -303,7 +303,7 @@
    "LtRampAlliance":{
     "x":{
      "exp":"X1RampShoot m",
-     "val":3.0
+     "val":2.4
     },
     "y":{
      "exp":"YLtCrossing m",
@@ -317,7 +317,7 @@
    "LtRampNeutral":{
     "x":{
      "exp":"X3NeutralClose m",
-     "val":6.25
+     "val":6.4
     },
     "y":{
      "exp":"YLtCrossing m",
@@ -331,7 +331,7 @@
    "LtShootRamp":{
     "x":{
      "exp":"X1RampShoot m",
-     "val":3.0
+     "val":2.4
     },
     "y":{
      "exp":"6.5 m",
@@ -359,7 +359,7 @@
    "LtTrenchNeutralClose":{
     "x":{
      "exp":"X3NeutralClose m",
-     "val":6.25
+     "val":6.4
     },
     "y":{
      "exp":"7.55 m",
@@ -387,7 +387,7 @@
    "RtNeutralHub":{
     "x":{
      "exp":"X3NeutralClose m",
-     "val":6.25
+     "val":6.4
     },
     "y":{
      "exp":"3.5 m",
@@ -457,7 +457,7 @@
    "RtRampAlliance":{
     "x":{
      "exp":"X1RampShoot m",
-     "val":3.0
+     "val":2.4
     },
     "y":{
      "exp":"YRtCrossing m",
@@ -471,7 +471,7 @@
    "RtRampNeutral":{
     "x":{
      "exp":"X3NeutralClose m",
-     "val":6.25
+     "val":6.4
     },
     "y":{
      "exp":"YRtCrossing m",
@@ -485,7 +485,7 @@
    "RtShootRamp":{
     "x":{
      "exp":"X1RampShoot m",
-     "val":3.0
+     "val":2.4
     },
     "y":{
      "exp":"1.6 m",
@@ -527,7 +527,7 @@
    "RtTrenchNeutralClose":{
     "x":{
      "exp":"X3NeutralClose m",
-     "val":6.25
+     "val":6.4
     },
     "y":{
      "exp":"0.65 m",
