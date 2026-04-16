@@ -155,26 +155,26 @@ public class RobotContainer {
         operator.a().whileTrue(
             Commands.deadline(
                 drivetrain.applyRequest(() -> xBrake),
-                FuelCommands.shootWithPreset(shooter, indexer, ShooterSubsystem.ShotPreset.TRENCH)
+                FuelCommands.shootWithPreset(shooter, indexer, ShooterSubsystem.ShotPreset.TRENCH),
                 intake.fuelCompression()
                 ));
 
         operator.b().whileTrue(
             Commands.deadline(
                 drivetrain.applyRequest(() -> xBrake),    
-                FuelCommands.shootWithPreset(shooter, indexer, ShooterSubsystem.ShotPreset.CLOSE)
+                FuelCommands.shootWithPreset(shooter, indexer, ShooterSubsystem.ShotPreset.CLOSE),
                 intake.fuelCompression()
                 ));
         operator.x().whileTrue(
             Commands.deadline(
                 drivetrain.applyRequest(() -> xBrake),    
-                FuelCommands.shootWithPreset(shooter, indexer, ShooterSubsystem.ShotPreset.TOWER)
+                FuelCommands.shootWithPreset(shooter, indexer, ShooterSubsystem.ShotPreset.TOWER),
                 intake.fuelCompression()
                 ));
         operator.y().whileTrue(
             Commands.deadline(
                 drivetrain.applyRequest(() -> xBrake),
-                FuelCommands.shootWithPreset(shooter, indexer, ShooterSubsystem.ShotPreset.FAR)
+                FuelCommands.shootWithPreset(shooter, indexer, ShooterSubsystem.ShotPreset.FAR),
                 intake.fuelCompression()
                 ));
 
