@@ -85,8 +85,8 @@ public class RobotContainer {
         // =====================================================================
 
         // == Left Side Autos ==
-        autoChooser.addRoutine("Left x1 Ramp", autoRoutines::LtTrench_Ramp_Single);
-        autoChooser.addRoutine("Left x2 Ramp", autoRoutines::LtTrench_Ramp_Double);
+        autoChooser.addRoutine("Left x1 Ramp ANGRY", autoRoutines::LtTrench_Ramp_Single);
+        autoChooser.addRoutine("Left x2 Ramp ANGRY", autoRoutines::LtTrench_Ramp_Double);
         autoChooser.addRoutine("Left Ramp Sweep SHOT", autoRoutines::LtTrench_Ramp_HubSweep);
         autoChooser.addRoutine("Left Ramp Sweep PURGE", autoRoutines::LtTrench_Ramp_Sweep_Purge);
         // autoChooser.addRoutine("Left Ramp Sweep PURGE", autoRoutines::LtTrench_Ramp_Sweep_AngryPurge);
