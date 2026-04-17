@@ -119,7 +119,7 @@ public final class Constants {
      * Slow Motion Magic values for moving the slide slowly to position.
      * Add an end-of-line "Tuned" note when confirmed.
      */
-    public static final double SLIDE_SLOW_MM_CRUISE_VELOCITY = 18; // 20 // 8 // 12 
+    public static final double SLIDE_SLOW_MM_CRUISE_VELOCITY = 20; // 20 // 8 // 12 
     public static final double SLIDE_SLOW_MM_ACCELERATION = 30; // 40 // 16 // 18
     public static final double SLIDE_SLOW_MM_JERK = 0.0;
 

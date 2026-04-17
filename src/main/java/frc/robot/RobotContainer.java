@@ -200,7 +200,6 @@ public class RobotContainer {
 
         operator.povLeft().onTrue(intake.extendSlidesFastCmd());
         operator.povRight().whileTrue(intake.fuelPumpCycleDelayed());
-
     }
 
     public Command getAutonomousCommand() {
