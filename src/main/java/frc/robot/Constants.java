@@ -89,7 +89,7 @@ public final class Constants {
     public static final double SLIDE_MAX_POS = 65.75; // Confirmed 4-6-26
     public static final double SLIDE_ROLLER_SAFE_MARGIN = 1.5;
     public static final double SLIDE_ROLLER_SAFE_POS = SLIDE_HOME_POS + SLIDE_ROLLER_SAFE_MARGIN;
-    public static final double SLIDE_TOLERANCE = 0.05;
+    public static final double SLIDE_TOLERANCE = 0.025; // tighter
     public static final double SLIDE_INCREMENTAL_RETRACT_ROTATIONS = 15.0;
     public static final double SLIDE_MANUAL_STEP_ROTATIONS = 5.0;
     public static final double SLIDE_MANUAL_REPEAT_SECONDS = 0.15;
@@ -421,7 +421,7 @@ public final class Constants {
     public static final double MIN_POSE = 0.00; // Mechanical limit, also use to set in Configs
     public static final double MAX_POSE = 7.25; // Mechanical limit; also used to set in Configs
 
-    public static final double TOLERANCE_POSE = 0.1;
+    public static final double TOLERANCE_POSE = 0.05;
 
     // Manual tuning increments used for bring-up and testing.
     public static final double TEST_INCREMENT = 0.2;
@@ -479,14 +479,14 @@ public final class Constants {
     public static final double TOWER_DISTANCE = Units.inchesToMeters(107) + HUB_TO_CENTER + LL_TO_FRONT;
 
     // 3050 for the first 2 matches
-    public static final double TOWER_RPM = 3200;
-    public static final double TOWER_HOOD = 4.50;
+    public static final double TOWER_RPM = 3050;
+    public static final double TOWER_HOOD = 5.0;
 
     // In the trench, mostly against the wall, but turned slightly towards the hub
     public static final double TRENCH_DISTANCE = Units.inchesToMeters(110) + HUB_TO_CENTER + LL_TO_FRONT;
 
     // 3050 for the first 2 matches
-    public static final double TRENCH_RPM = 3200;
+    public static final double TRENCH_RPM = 3050;
     public static final double TRENCH_HOOD = 5.0;
 
     // In a corner by human player station or depot-corner, angled towards the hub
