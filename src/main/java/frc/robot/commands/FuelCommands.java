@@ -90,7 +90,8 @@ public class FuelCommands {
                 () -> {
                     intake.stopRoller();
                     indexer.conveyorStop();
-                    // intake.retractSlidesFast(); // Remove for now
+                    // Removed at request of drive team
+                    // intake.retractSlidesFast();
                 },
                 intake, indexer)
                 .withName("PurgeFuelHeld");
