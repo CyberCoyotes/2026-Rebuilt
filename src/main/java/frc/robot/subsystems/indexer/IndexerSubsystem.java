@@ -1,7 +1,6 @@
 package frc.robot.subsystems.indexer;
 
 import edu.wpi.first.networktables.BooleanPublisher;
-import edu.wpi.first.networktables.DoublePublisher;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.networktables.StringPublisher;
@@ -103,9 +102,8 @@ public class IndexerSubsystem extends SubsystemBase {
     }
 
     private void publishTelemetry() {
-        // TODO: Consider removing these debug publishers once chute tuning is finished.
         chuteDetectedPublisher.set(isFuelDetected);
-        // chuteDistancePublisher.set(inputs.chuteDistanceMeters);
+        
         // YELLOW = fuel present, RED = no fuel (matches Elastic Dashboard color widget)
         fuelStatusColorPublisher.set(isFuelDetected ? "YELLOW" : "RED");
         chuteEmptyPublisher.set(isChuteEmpty());
