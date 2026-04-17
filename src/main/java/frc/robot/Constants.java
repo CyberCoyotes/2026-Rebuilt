@@ -619,10 +619,10 @@ public final class Constants {
     // Choreo shows 11.923, so using that for now until we can verify with
     // measurements.
 
-    // FIXME Verify hub locations, 4.625 vs 4.025
+    // Verify BLUE hub locations, X 4.625 vs 4.025
     public static final Translation2d BLUE_HUB_LOCATION = new Translation2d(4.625, 4.025); 
 
-    // FIXME Verify hub locations, 4.625 vs 4.025
+    // Verify RED hub locations, X 4.625 vs 4.025
     public static final Translation2d RED_HUB_LOCATION = new Translation2d(11.923, 4.025); 
 
   }
