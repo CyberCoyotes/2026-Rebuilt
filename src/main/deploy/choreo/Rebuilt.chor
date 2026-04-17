@@ -11,6 +11,13 @@
      "val":0.35
     }
    },
+   "FastVel":{
+    "dimension":"LinVel",
+    "var":{
+     "exp":"3.5 m / s",
+     "val":3.5
+    }
+   },
    "IntakeVel":{
     "dimension":"LinVel",
     "var":{
@@ -35,8 +42,8 @@
    "MediumVel":{
     "dimension":"LinVel",
     "var":{
-     "exp":"2.75 m / s",
-     "val":2.75
+     "exp":"3 m / s",
+     "val":3.0
     }
    },
    "RampVel":{
@@ -58,6 +65,13 @@
     "var":{
      "exp":"3.14 / 2",
      "val":1.57
+    }
+   },
+   "SlowVel":{
+    "dimension":"LinVel",
+    "var":{
+     "exp":"1.5 m / s",
+     "val":1.5
     }
    },
    "TestVel":{
