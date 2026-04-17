@@ -140,7 +140,7 @@ public class FuelCommands {
                     shooter.setTargetHoodPose(hood); // Set Constants._HOOD
                     shooter.beginSpinUp(); // void — transitions state machine to SPINNING_UP
                 }, shooter),
-                Commands.waitUntil(shooter::isReady).withTimeout(3.0), // TODO double check
+                Commands.waitUntil(shooter::isReady).withTimeout(2.0), 
                 Commands.run(() -> {
                     indexer.conveyorForward();
                     indexer.kickerForward();
@@ -628,7 +628,7 @@ public class FuelCommands {
                             // waitUntil only checks atSetpoint() — the parallel run() loop
                             // calls calculate() and updates PID state each iteration
                             Commands.waitUntil(() -> headingPID.atSetpoint() && shooter.isReady())
-                                    .withTimeout(1.0), // FIXME: Add this to the shooter only?
+                                    .withTimeout(1.0),
                             Commands.run(() -> {
                                 Translation2d hub = getHubLocation();
                                 Pose2d pose = drivetrain.getState().Pose;

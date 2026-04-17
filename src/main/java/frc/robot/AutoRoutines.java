@@ -581,7 +581,7 @@ public class AutoRoutines {
                                                         Center.resetOdometry(), // Always reset odometry first
                                                         Center.cmd(), // Follow the path
                                                         
-                                                        // TODO: Add shooting command
+                                                        // TODO: Using the event trigger, add shooting command
 
                                                         m_drivetrain.stop().withTimeout(10.0)
                                                         
@@ -591,8 +591,7 @@ public class AutoRoutines {
 
                 Center.atTime("Shoot")
                                 .onTrue(FuelCommands.Auto.shootClose(m_shooter, m_indexer,shootTimeout));
-                // Center.atTime("FuelPump").onTrue(FuelCommands.Auto.fuelPumpCycleSensor(m_intake, m_indexer));
-
+                                // Fuel pump not needed with small load
                 return routine;
         }
 
@@ -627,19 +626,18 @@ public class AutoRoutines {
 
         public AutoRoutine MidDepot() {
                 final AutoRoutine routine = m_factory.newRoutine("MidDepot");
-                final AutoTrajectory MidDepot = routine.trajectory("MidDepot", 0);
+                final AutoTrajectory Center_MidDepot = routine.trajectory("Center_MidDepot", 0);
 
                 routine.active().onTrue(
                                 Commands.sequence(
-                                                MidDepot.resetOdometry(), // Always reset odometry first
-                                                MidDepot.cmd() // Follow the path
-
-                                                // TODO: Add shooting after confirming path
+                                                Center_MidDepot.resetOdometry(), // Always reset odometry first
+                                                Center_MidDepot.cmd() // Follow the path
 
                                 ));
                 // Routine Events
-                MidDepot.atTime("Intake").onTrue(m_intake.intakeFuelTimer(8, intakeDelay));
-                MidDepot.atTime("Shoot").onTrue(FuelCommands.Auto.shootFar(m_shooter, m_indexer, shootTimeout)); // score
+                Center_MidDepot.atTime("Intake").onTrue(m_intake.intakeFuelTimer(8, intakeDelay));
+                Center_MidDepot.atTime("Shoot").onTrue(FuelCommands.Auto.shootFar(m_shooter, m_indexer, shootTimeout)); // score
+                Center_MidDepot.atTime("FuelPump").onTrue(FuelCommands.Auto.fuelPumpCycleSensor(m_intake, m_indexer));
 
                 return routine;
         }

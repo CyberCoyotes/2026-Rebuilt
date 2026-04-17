@@ -211,11 +211,10 @@ public final class Constants {
      * Add a "Tuned" note when each value is confirmed.
      */
     // Conveyor voltage setpoints for feeding fuel to the shooter.
-    public static final double CONVEYOR_FORWARD_VOLTAGE = 5; // Was 4 before Q4 TODO
-    // Was 2
-    // at 6.5 was struggling, increased to 8 to try to help with feeding the
-    // shooter, but may need to be tuned down || Tuned 4-8-2026
-    public static final double CONVEYOR_REVERSE_VOLTAGE = -6;
+    public static final double CONVEYOR_FORWARD_VOLTAGE = 5; // TODO Consider increasing conveyor voltage
+    // Was 4 before Q4
+
+    public static final double CONVEYOR_REVERSE_VOLTAGE = -7;
 
     // Probably don't need anymore
     public static final double CONVEYOR_POPPER_VOLTAGE = 1.0;
@@ -229,7 +228,10 @@ public final class Constants {
 
     // Kicker-indexer voltage setpoints for feeding fuel to the shooter.
     public static final double KICKER_FORWARD_VOLTAGE = 5.0; // was 2.5 on Saturday
-    public static final double KICKER_REVERSE_VOLTAGE = -4.0;
+    
+    // Reverse voltage for ejecting fuel and clearing jams. 
+    public static final double KICKER_REVERSE_VOLTAGE = -6.0;
+
     public static final double KICKER_POPPER_VOLTAGE = 3.0;
 
     /*
