@@ -35,7 +35,7 @@ public class AutoRoutines {
         public static final double intakeTimeout = 6.0; // seconds
         public static final double fuelPumpTimeout = 4.0; // seconds; adjust as needed based on testing
         public static final double purgeTimeout = 3.0; // seconds to purge fuel
-        public static final double intakeDelay = 0.75; //
+        public static final double intakeDelay = 0.15; //
 
         // ============================================================================
         // RIGHT SIDE AUTOS - start in right trench
