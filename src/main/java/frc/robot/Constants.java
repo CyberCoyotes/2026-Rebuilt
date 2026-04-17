@@ -99,7 +99,7 @@ public final class Constants {
     // 0.5 too quick
     // 1.0 still seems quick
 
-    public static final double SLIDE_FUEL_COMPRESSION_DURATION_SECONDS = 4.0;
+    public static final double SLIDE_FUEL_COMPRESSION_DURATION_SECONDS = 3.5;
     public static final double SLIDE_FUEL_PUMP_WAIT_SECONDS = 3.0;
     public static final double SLIDE_FUEL_PUMP_OUT_SECONDS = 0.5;
     public static final double SLIDE_FUEL_PUMP_IN_SECONDS = 0.5;
@@ -211,7 +211,7 @@ public final class Constants {
      * Add a "Tuned" note when each value is confirmed.
      */
     // Conveyor voltage setpoints for feeding fuel to the shooter.
-    public static final double CONVEYOR_FORWARD_VOLTAGE = 5; // Was 4 before Q4 
+    public static final double CONVEYOR_FORWARD_VOLTAGE = 5; // Was 4 before Q4 TODO
     // Was 2
     // at 6.5 was struggling, increased to 8 to try to help with feeding the
     // shooter, but may need to be tuned down || Tuned 4-8-2026
