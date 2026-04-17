@@ -209,25 +209,30 @@ public final class Constants {
      * and full hopper load.
      * Visually assess performance for now.
      * Add a "Tuned" note when each value is confirmed.
+     * Conveyor voltage setpoints for feeding fuel to the shooter.
      */
-    // Conveyor voltage setpoints for feeding fuel to the shooter.
-    public static final double CONVEYOR_FORWARD_VOLTAGE = 5; // TODO Consider increasing conveyor voltage
-    // Was 4 before Q4
+    
+    // TODO Consider increasing conveyor voltage
+    // Increased to 4 -> 5 before Q4
+    public static final double CONVEYOR_FORWARD_VOLTAGE = 5;
 
     public static final double CONVEYOR_REVERSE_VOLTAGE = -7;
 
-    // Probably don't need anymore
+    // Not needed, but don't want to break dependencies
     public static final double CONVEYOR_POPPER_VOLTAGE = 1.0;
 
     /*
+     * Kicker-indexer voltage setpoints for feeding fuel to the shooter.
      * Test with empty hopper, solo games, light hopper load,
      * and full hopper load.
      * Visually assess performance for now.
      * Add a "Tuned" note when each value is confirmed.
+     * 
+     * VOLTAGE = 5 for first 4 Matches
      */
 
-    // Kicker-indexer voltage setpoints for feeding fuel to the shooter.
-    public static final double KICKER_FORWARD_VOLTAGE = 5.0; // was 2.5 on Saturday
+    // TODO Consider increasing kicker voltage
+    public static final double KICKER_FORWARD_VOLTAGE = 5.0;
     
     // Reverse voltage for ejecting fuel and clearing jams. 
     public static final double KICKER_REVERSE_VOLTAGE = -6.0;
@@ -472,27 +477,33 @@ public final class Constants {
 
     // Side Bumpers against the tower
     public static final double TOWER_DISTANCE = Units.inchesToMeters(107) + HUB_TO_CENTER + LL_TO_FRONT;
-    public static final double TOWER_RPM = 3200; // 3050 
+
+    // 3050 for the first 2 matches
+    public static final double TOWER_RPM = 3200;
     public static final double TOWER_HOOD = 4.50;
 
     // In the trench, mostly against the wall, but turned slightly towards the hub
-    public static final double TRENCH_DISTANCE = Units.inchesToMeters(110) + HUB_TO_CENTER + LL_TO_FRONT; // FIXME Trench distance
-    public static final double TRENCH_RPM = 3200; // // 3050 
-    public static final double TRENCH_HOOD = 5.0; //
+    public static final double TRENCH_DISTANCE = Units.inchesToMeters(110) + HUB_TO_CENTER + LL_TO_FRONT;
+
+    // 3050 for the first 2 matches
+    public static final double TRENCH_RPM = 3200;
+    public static final double TRENCH_HOOD = 5.0;
 
     // In a corner by human player station or depot-corner, angled towards the hub
-    public static final double FAR_DISTANCE = Units.inchesToMeters(176) + HUB_TO_CENTER + LL_TO_FRONT; // FIXME Far distance
-    public static final double FAR_RPM = 3600; // 3450
-    public static final double FAR_HOOD = 8.0; //
+    public static final double FAR_DISTANCE = Units.inchesToMeters(176) + HUB_TO_CENTER + LL_TO_FRONT;
+
+    // 3450 for the first 2 matches
+    public static final double FAR_RPM = 3600;
+    public static final double FAR_HOOD = 8.0;
  
     // // Back Bumpers approximately against the driver station wall, angled towards the hub
-    // public static final double DRIVER_STATION_DISTANCE = Units.inchesToMeters(182.11) - ROBOT_WIDTH - BUMPER_THICKNESS; // FIXME Driver station distance
-    // public static final double DRIVER_STATION_RPM = 3700; // FIXME Driver station RPM
-    // public static final double DRIVER_STATION_HOOD = 4.5; // FIXME Driver station hood
+    // public static final double DRIVER_STATION_DISTANCE = Units.inchesToMeters(182.11) - ROBOT_WIDTH - BUMPER_THICKNESS;
+    // public static final double DRIVER_STATION_RPM = 3700;
+    // public static final double DRIVER_STATION_HOOD = 4.5;
 
     // For passing passing from midfield
-    public static final double PASS_RPM = 3000; // FIXME Pass RPM
-    public static final double PASS_HOOD = 4.5; // FIXME Pass hood
+    public static final double PASS_RPM = 3000;
+    public static final double PASS_HOOD = 4.5;
 
   }
 
@@ -530,8 +541,9 @@ public final class Constants {
     public static final double LL_YAW = 0;     
    
     // TODO Consider loosening the alignment tolerance if the robot is having trouble reaching the aligned state
+
     /** Tolerance for horizontal alignment in degrees used in FuelCommands.java */
-    public static final double ALIGNMENT_TOLERANCE_DEGREES = 1.00; // TODO 
+    public static final double ALIGNMENT_TOLERANCE_DEGREES = 1.00; 
 
     /** Minimum target area to consider target valid (prevents false positives) */
     public static final double MIN_TARGET_AREA_PERCENT = 0.1;
@@ -559,13 +571,13 @@ public final class Constants {
      * Chassis front must point 180° away from the hub when aligning to shoot.
      */
 
-    public final static double ALIGNMENT_OFFSET_DEGREES = 0; // Updated to reflect the rebuild 4-12-2026
+    public final static double ALIGNMENT_OFFSET_DEGREES = 0;
 
     // Keep this moderate
     // aggressive values amplify pose-estimator jitter during alignment.
     public static final double ROTATIONAL_KP = 0.12; // Tuned 4-8-2026
 
-    // TODO: KD for vision not currently used
+    // TODO: Add KD for vision not currently used
     // Dampens oscillation; increase if sluggish settling, decrease if jittery
     public static final double ROTATIONAL_KD = 0.005;
     /*
@@ -606,10 +618,12 @@ public final class Constants {
     // Red hub is the field-length mirror of blue: x = 17.548 - 4.625 = 12.923 but
     // Choreo shows 11.923, so using that for now until we can verify with
     // measurements.
-    public static final Translation2d BLUE_HUB_LOCATION = new Translation2d(4.625, 4.025); // FIXME Verify hub
-                                                                                           // locations, 4.625 vs 4.025
-    public static final Translation2d RED_HUB_LOCATION = new Translation2d(11.923, 4.025); // FIXME Verify hub
-                                                                                           // locations, 4.625 vs 4.025
+
+    // FIXME Verify hub locations, 4.625 vs 4.025
+    public static final Translation2d BLUE_HUB_LOCATION = new Translation2d(4.625, 4.025); 
+
+    // FIXME Verify hub locations, 4.625 vs 4.025
+    public static final Translation2d RED_HUB_LOCATION = new Translation2d(11.923, 4.025); 
 
   }
 
