@@ -59,6 +59,7 @@ public class RobotContainer {
     // Subsystems
     // =====================================================================
     public final CommandSwerveDrivetrain drivetrain = TunerConstants.createDrivetrain();
+    private final SwerveRequest.SwerveDriveBrake xBrake = new SwerveRequest.SwerveDriveBrake();
     private final IntakeSubsystem intake;
     private final IndexerSubsystem indexer;
     private final ShooterSubsystem shooter;
@@ -96,6 +97,7 @@ public class RobotContainer {
         autoChooser.addRoutine("Right x2 Ramp ANGRY", autoRoutines::RtTrench_Ramp_Double);
         autoChooser.addRoutine("Right Ramp Sweep SHOT", autoRoutines::RtTrench_Ramp_HubSweep);
         autoChooser.addRoutine("Right Ramp Sweep PURGE", autoRoutines::RtTrench_Ramp_Sweep_Purge);
+        autoChooser.addRoutine("Right Angry Meep Meep", autoRoutines::RtTrench_Ramp_AngryMeepMeep);
         // autoChooser.addRoutine("Right Ramp Sweep ANGRY PURGE", autoRoutines::RtTrench_Ramp_Sweep_AngryPurge);
 
         autoChooser.addRoutine("Right Bulldozer 2026", autoRoutines::RtBulldozer);
@@ -195,11 +197,11 @@ public class RobotContainer {
         // Back (View ⧉): Reset odometry to botpose — use when robot rides up on a ball
         operator.back().onTrue(drivetrain.resetPoseFromVisionCommand());
     
-        operator.povUp().whileTrue(intake.manualSlideExtendHoldCmd());
-        operator.povDown().whileTrue(intake.manualSlideRetractHoldCmd());
+        operator.povUp().whileTrue(drivetrain.applyRequest(() -> xBrake));
+        // operator.povDown().whileTrue(intake.manualSlideRetractHoldCmd());
 
-        operator.povLeft().onTrue(intake.extendSlidesFastCmd());
-        operator.povRight().whileTrue(intake.fuelPumpCycleDelayed());
+        // operator.povLeft().onTrue(intake.extendSlidesFastCmd());
+        // operator.povRight().whileTrue(intake.fuelPumpCycleDelayed());
     }
 
     public Command getAutonomousCommand() {

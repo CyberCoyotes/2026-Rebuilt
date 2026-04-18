@@ -4,11 +4,11 @@ import choreo.auto.AutoFactory;
 import choreo.auto.AutoRoutine;
 import choreo.auto.AutoTrajectory;
 import edu.wpi.first.wpilibj2.command.Commands;
+import frc.robot.commands.FuelCommands;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
 import frc.robot.subsystems.indexer.IndexerSubsystem;
 import frc.robot.subsystems.intake.IntakeSubsystem;
 import frc.robot.subsystems.shooter.ShooterSubsystem;
-import frc.robot.commands.FuelCommands;
 
 public class AutoRoutines {
         private final AutoFactory m_factory;
@@ -290,6 +290,28 @@ public class AutoRoutines {
                 return routine;
         }
 
+        public AutoRoutine RtTrench_Ramp_AngryMeepMeep() {
+
+                final AutoRoutine routine = m_factory.newRoutine("AngryMeepMeep");
+
+                // Cycle 1
+                final AutoTrajectory AngryMeepMeep = routine.trajectory("RtTrench_AngryMeepMeep", 0); // + Intake
+
+                routine.active().onTrue(
+                                Commands.sequence(
+                                                AngryMeepMeep.resetOdometry(),
+
+                                                // --- Cycle 1 ---
+                                                Commands.deadline(
+                                                                AngryMeepMeep.cmd(),
+                                                                m_intake.intakeFuelTimer(intakeTimeout, intakeDelay)),
+
+                                                FuelCommands.Auto.poseAlignAndShoot(m_shooter, m_indexer, m_intake, m_drivetrain, shootTimeout)
+
+                                ));
+
+                return routine;
+        }
         // =======================================================================
         // LEFT SIDE AUTOS - start in left trench
         // =======================================================================
