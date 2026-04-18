@@ -11,18 +11,11 @@
      "val":0.35
     }
    },
-   "FastVel":{
-    "dimension":"LinVel",
-    "var":{
-     "exp":"3.5 m / s",
-     "val":3.5
-    }
-   },
    "IntakeVel":{
     "dimension":"LinVel",
     "var":{
-     "exp":"1.5 m / s",
-     "val":1.5
+     "exp":"2 m / s",
+     "val":2.0
     }
    },
    "LtCrossingHeading":{
@@ -44,6 +37,13 @@
     "var":{
      "exp":"3 m / s",
      "val":3.0
+    }
+   },
+   "MeepMeep":{
+    "dimension":"LinVel",
+    "var":{
+     "exp":"3.25 m / s",
+     "val":3.25
     }
    },
    "RampVel":{
