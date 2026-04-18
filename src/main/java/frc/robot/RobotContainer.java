@@ -59,6 +59,7 @@ public class RobotContainer {
     // Subsystems
     // =====================================================================
     public final CommandSwerveDrivetrain drivetrain = TunerConstants.createDrivetrain();
+     private final SwerveRequest.SwerveDriveBrake xBrake = new SwerveRequest.SwerveDriveBrake();
     private final IntakeSubsystem intake;
     private final IndexerSubsystem indexer;
     private final ShooterSubsystem shooter;
@@ -196,11 +197,11 @@ public class RobotContainer {
         // Back (View ⧉): Reset odometry to botpose — use when robot rides up on a ball
         operator.back().onTrue(drivetrain.resetPoseFromVisionCommand());
     
-        operator.povUp().whileTrue(intake.manualSlideExtendHoldCmd());
-        operator.povDown().whileTrue(intake.manualSlideRetractHoldCmd());
+        operator.povUp().whileTrue(drivetrain.applyRequest(() -> xBrake));
+        // operator.povDown().whileTrue(intake.manualSlideRetractHoldCmd());
 
-        operator.povLeft().onTrue(intake.extendSlidesFastCmd());
-        operator.povRight().whileTrue(intake.fuelPumpCycleDelayed());
+        // operator.povLeft().onTrue(intake.extendSlidesFastCmd());
+        // operator.povRight().whileTrue(intake.fuelPumpCycleDelayed());
     }
 
     public Command getAutonomousCommand() {
