@@ -41,13 +41,47 @@ public class AutoRoutines {
         // RIGHT SIDE AUTOS - start in right trench
         // ============================================================================
                 
-        // Right Trench to Middle to Ramp Shot
+        // Right Trench to Middle to Ramp Shot with a wait 
                 public AutoRoutine RtTrench_Ramp_Single() {
 
                 final AutoRoutine routine = m_factory.newRoutine("Right x1 Trench-Ramp");
 
                 // Trajectories
-                final AutoTrajectory RtTrench_Middle = routine.trajectory("RtTrench_Middle", 0);
+                final AutoTrajectory RtTrench_Middle = routine.trajectory("RtTrench_MiddleAngry", 0);
+                final AutoTrajectory RtRampMiddle_Alliance = routine.trajectory("RtRampMiddle_Alliance", 0);
+                final AutoTrajectory RtShootRamp = routine.trajectory("RtShootRamp", 0);
+
+                routine.active().onTrue(
+                                Commands.sequence(
+                                                RtTrench_Middle.resetOdometry(),
+
+                                                m_drivetrain.stop().withTimeout(4.0),
+                                                // 1. Trench to Middle — intake runs in parallel while driving
+                                                Commands.deadline(
+                                                                RtTrench_Middle.cmd(),
+                                                                m_intake.intakeFuelTimer(intakeTimeout, intakeDelay)),
+
+                                                // 2. Ramp crossing
+                                                RtRampMiddle_Alliance.cmd(),
+
+                                                // 3. Drive to shoot position
+                                                RtShootRamp.cmd(),
+
+                                                // 4. Shoot — starts only after RtShootRamp fully completes
+                                                FuelCommands.Auto.poseAlignAndShoot(m_shooter, m_indexer, m_intake, m_drivetrain, shootTimeout)
+                                                )
+                                );
+
+                return routine;
+        }
+
+        // Right Trench to Middle to Ramp Shot
+                public AutoRoutine RtTrench_Ramp_Meep() {
+
+                final AutoRoutine routine = m_factory.newRoutine("Right x1 Trench-Ramp");
+
+                // Trajectories
+                final AutoTrajectory RtTrench_Middle = routine.trajectory("RtTrench_MiddleAngry", 0);
                 final AutoTrajectory RtRampMiddle_Alliance = routine.trajectory("RtRampMiddle_Alliance", 0);
                 final AutoTrajectory RtShootRamp = routine.trajectory("RtShootRamp", 0);
 
