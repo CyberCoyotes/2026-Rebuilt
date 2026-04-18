@@ -35,7 +35,7 @@ public class AutoRoutines {
         public static final double intakeTimeout = 6.0; // seconds
         public static final double fuelPumpTimeout = 4.0; // seconds; adjust as needed based on testing
         public static final double purgeTimeout = 3.0; // seconds to purge fuel
-        public static final double intakeDelay = 0.75; //
+        public static final double intakeDelay = 0.25; //
 
         // ============================================================================
         // RIGHT SIDE AUTOS - start in right trench
@@ -302,15 +302,10 @@ public class AutoRoutines {
                                                 AngryMeepMeep.resetOdometry(),
 
                                                 // --- Cycle 1 ---
-                                                // 1. Trench to Middle — intake runs in parallel while driving
                                                 Commands.deadline(
                                                                 AngryMeepMeep.cmd(),
                                                                 m_intake.intakeFuelTimer(intakeTimeout, intakeDelay)),
 
-                                                // 2. Ramp crossing to Alliance side
-                                                AngryMeepMeep.cmd(),
-
-                                                // 4. Shoot — starts only after RtShootRamp fully completes
                                                 FuelCommands.Auto.poseAlignAndShoot(m_shooter, m_indexer, m_intake, m_drivetrain, shootTimeout)
 
                                 ));
