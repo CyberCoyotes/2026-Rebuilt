@@ -21,20 +21,36 @@
  },
  "params":{
   "waypoints":[
+<<<<<<< Updated upstream
     {"x":{"exp":"HubClose.x", "val":3.55}, "y":{"exp":"HubClose.y", "val":4.0}, "heading":{"exp":"HubClose.heading", "val":0.0}, "intervals":18, "split":false, "fixTranslation":true, "fixHeading":true, "overrideIntervals":false},
     {"x":{"exp":"3.14159265359 m", "val":3.14159265359}, "y":{"exp":"HubClose.y", "val":4.0}, "heading":{"exp":"HubClose.heading", "val":0.0}, "intervals":37, "split":false, "fixTranslation":true, "fixHeading":true, "overrideIntervals":false},
     {"x":{"exp":"DepotIntake.x", "val":1.58}, "y":{"exp":"DepotIntake.y", "val":5.95}, "heading":{"exp":"DepotIntake.heading", "val":3.141592653589793}, "intervals":17, "split":false, "fixTranslation":true, "fixHeading":true, "overrideIntervals":false},
     {"x":{"exp":"DepotWall.x", "val":0.6}, "y":{"exp":"DepotWall.y", "val":5.95}, "heading":{"exp":"DepotWall.heading", "val":3.141592653589793}, "intervals":22, "split":false, "fixTranslation":true, "fixHeading":true, "overrideIntervals":false},
     {"x":{"exp":"DepotIntake.x", "val":1.58}, "y":{"exp":"4.956559181213379 m", "val":4.956559181213379}, "heading":{"exp":"2.7238134092705995 rad", "val":2.7238134092705995}, "intervals":19, "split":false, "fixTranslation":true, "fixHeading":true, "overrideIntervals":false}],
+=======
+    {"x":{"exp":"HubClose.x", "val":3.55}, "y":{"exp":"HubClose.y", "val":4.0}, "heading":{"exp":"HubClose.heading", "val":0.0}, "intervals":9, "split":false, "fixTranslation":true, "fixHeading":true, "overrideIntervals":false},
+    {"x":{"exp":"3.14159265359 m", "val":3.14159265359}, "y":{"exp":"HubClose.y", "val":4.0}, "heading":{"exp":"HubClose.heading", "val":0.0}, "intervals":16, "split":false, "fixTranslation":true, "fixHeading":true, "overrideIntervals":false},
+    {"x":{"exp":"2.025237560272217 m", "val":2.025237560272217}, "y":{"exp":"4.890025615692139 m", "val":4.890025615692139}, "heading":{"exp":"DepotIntake.heading", "val":3.141592653589793}, "intervals":20, "split":false, "fixTranslation":true, "fixHeading":true, "overrideIntervals":false},
+    {"x":{"exp":"0.9197754859924316 m", "val":0.9197754859924316}, "y":{"exp":"5.9207940101623535 m", "val":5.9207940101623535}, "heading":{"exp":"DepotWall.heading", "val":3.141592653589793}, "intervals":22, "split":false, "fixTranslation":true, "fixHeading":true, "overrideIntervals":false},
+    {"x":{"exp":"DepotIntake.x", "val":1.58}, "y":{"exp":"4.956559181213379 m", "val":4.956559181213379}, "heading":{"exp":"2.7238134092705995 rad", "val":2.7238134092705995}, "intervals":19, "split":false, "fixTranslation":true, "fixHeading":true, "overrideIntervals":false},
+    {"x":{"exp":"1.7066842317581177 m", "val":1.7066842317581177}, "y":{"exp":"7.641114234924316 m", "val":7.641114234924316}, "heading":{"exp":"0 deg", "val":0.0}, "intervals":40, "split":false, "fixTranslation":true, "fixHeading":true, "overrideIntervals":false}],
+>>>>>>> Stashed changes
   "constraints":[
     {"from":"first", "to":null, "data":{"type":"StopPoint", "props":{}}, "enabled":true},
     {"from":"last", "to":null, "data":{"type":"StopPoint", "props":{}}, "enabled":true},
     {"from":"first", "to":"last", "data":{"type":"KeepInRectangle", "props":{"x":{"exp":"0 m", "val":0.0}, "y":{"exp":"0 m", "val":0.0}, "w":{"exp":"16.541 m", "val":16.541}, "h":{"exp":"8.0692 m", "val":8.0692}}}, "enabled":true},
     {"from":4, "to":null, "data":{"type":"StopPoint", "props":{}}, "enabled":true},
-    {"from":2, "to":3, "data":{"type":"MaxVelocity", "props":{"max":{"exp":"IntakeVel", "val":1.5}}}, "enabled":true},
+    {"from":2, "to":3, "data":{"type":"MaxVelocity", "props":{"max":{"exp":"IntakeVel", "val":2.0}}}, "enabled":true},
     {"from":2, "to":3, "data":{"type":"KeepInLane", "props":{"tolerance":{"exp":"0.01 m", "val":0.01}}}, "enabled":true},
     {"from":2, "to":3, "data":{"type":"MaxAngularVelocity", "props":{"max":{"exp":"0.1 rad / s", "val":0.1}}}, "enabled":true},
+<<<<<<< Updated upstream
     {"from":0, "to":1, "data":{"type":"MaxVelocity", "props":{"max":{"exp":"0.5 m / s", "val":0.5}}}, "enabled":true}],
+=======
+    {"from":0, "to":1, "data":{"type":"MaxVelocity", "props":{"max":{"exp":"IntakeVel", "val":2.0}}}, "enabled":true},
+    {"from":2, "to":4, "data":{"type":"MaxVelocity", "props":{"max":{"exp":"IntakeVel", "val":2.0}}}, "enabled":true},
+    {"from":1, "to":2, "data":{"type":"MaxVelocity", "props":{"max":{"exp":"MediumVel", "val":3.0}}}, "enabled":true},
+    {"from":1, "to":2, "data":{"type":"MaxVelocity", "props":{"max":{"exp":"0 m / s", "val":0.0}}}, "enabled":true}],
+>>>>>>> Stashed changes
   "targetDt":{
    "exp":"0.05 s",
    "val":0.05
