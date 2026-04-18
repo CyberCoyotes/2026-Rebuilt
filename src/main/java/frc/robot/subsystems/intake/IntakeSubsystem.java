@@ -72,7 +72,6 @@ public class IntakeSubsystem extends SubsystemBase {
 
     // Driver-facing telemetry pushed to NetworkTables for Elastic Dashboard.
     private void publishTelemetry() {
-        // TODO: Consider removing these debug publishers once intake bring-up is finished.
         intakeStatePublisher.set(getIntakeState());
         slidePositionPublisher.set(inputs.slidePositionRotations);
     }

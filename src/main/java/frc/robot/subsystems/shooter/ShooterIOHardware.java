@@ -6,7 +6,7 @@ import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.configs.TalonFXSConfiguration;
 import com.ctre.phoenix6.controls.Follower;
 import com.ctre.phoenix6.controls.MotionMagicVelocityVoltage;
-import com.ctre.phoenix6.controls.MotionMagicVoltage;
+import com.ctre.phoenix6.controls.PositionVoltage;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.hardware.TalonFXS;
 
@@ -100,8 +100,6 @@ public class ShooterIOHardware implements ShooterIO {
       config.Slot0.kP = Constants.Hood.KP;
       config.Slot0.kI = Constants.Hood.KI;
       config.Slot0.kD = Constants.Hood.KD;
-      config.MotionMagic.MotionMagicCruiseVelocity = Constants.Hood.CRUISE_VELOCITY;
-      config.MotionMagic.MotionMagicAcceleration = Constants.Hood.ACCELERATION;
 
       // Soft limits
       config.SoftwareLimitSwitch.ForwardSoftLimitEnable = true;
@@ -120,7 +118,7 @@ public class ShooterIOHardware implements ShooterIO {
 
   // == Control Requests =====================================================
  private final MotionMagicVelocityVoltage flywheelVelocityRequest = new MotionMagicVelocityVoltage(0.0).withEnableFOC(false);
-private final MotionMagicVoltage hoodPositionRequest = new MotionMagicVoltage(0.0).withEnableFOC(false);
+private final PositionVoltage hoodPositionRequest = new PositionVoltage(0.0).withEnableFOC(false);
 
   // Flywheel follower was mechanically flipped again, so it must oppose the
   // leader's shaft rotation while still producing the same flywheel surface
