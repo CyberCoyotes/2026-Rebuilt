@@ -1,7 +1,6 @@
 package frc.robot.subsystems.indexer;
 
 import edu.wpi.first.networktables.BooleanPublisher;
-import edu.wpi.first.networktables.DoublePublisher;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.networktables.StringPublisher;
@@ -57,7 +56,7 @@ public class IndexerSubsystem extends SubsystemBase {
     // =====================================================================
     private final NetworkTable indexerTable;
     private final BooleanPublisher chuteDetectedPublisher;
-    private final DoublePublisher chuteDistancePublisher;
+    // private final DoublePublisher chuteDistancePublisher;
     private final StringPublisher fuelStatusColorPublisher;
     private final BooleanPublisher chuteEmptyPublisher;
 
@@ -70,7 +69,7 @@ public class IndexerSubsystem extends SubsystemBase {
         NetworkTableInstance inst = NetworkTableInstance.getDefault();
         indexerTable = inst.getTable("Indexer");
         chuteDetectedPublisher   = indexerTable.getBooleanTopic("Chute/IsFuelDetected").publish();
-        chuteDistancePublisher   = indexerTable.getDoubleTopic("Chute/DistanceMeters").publish();
+        // chuteDistancePublisher   = indexerTable.getDoubleTopic("Chute/DistanceMeters").publish();
         fuelStatusColorPublisher = indexerTable.getStringTopic("Chute/FuelStatus").publish();
         chuteEmptyPublisher      = indexerTable.getBooleanTopic("Chute/IsChuteEmpty").publish();
     }
@@ -103,9 +102,8 @@ public class IndexerSubsystem extends SubsystemBase {
     }
 
     private void publishTelemetry() {
-        // TODO: Consider removing these debug publishers once chute tuning is finished.
         chuteDetectedPublisher.set(isFuelDetected);
-        chuteDistancePublisher.set(inputs.chuteDistanceMeters);
+        
         // YELLOW = fuel present, RED = no fuel (matches Elastic Dashboard color widget)
         fuelStatusColorPublisher.set(isFuelDetected ? "YELLOW" : "RED");
         chuteEmptyPublisher.set(isChuteEmpty());
