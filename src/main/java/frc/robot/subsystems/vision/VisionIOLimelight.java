@@ -34,10 +34,11 @@ public class VisionIOLimelight implements VisionIO {
     }
 
     @Override
-    public synchronized void updateInputs(VisionIOInputs inputs, double robotYawDegrees) {
+    public synchronized void updateInputs(VisionIOInputs inputs, double robotYawDegrees, double robotYawRateDegPerSec) {
 
-        // Must be sent before reading MegaTag2 — seeds the rotation-locked estimate
-        LimelightHelpers.SetRobotOrientation(limelightName, robotYawDegrees, 0, 0, 0, 0, 0);
+        // Must be sent before reading MegaTag2 — seeds the rotation-locked estimate.
+        // Yaw rate improves accuracy during rotation; the other rates are unnecessary.
+        LimelightHelpers.SetRobotOrientation(limelightName, robotYawDegrees, robotYawRateDegPerSec, 0, 0, 0, 0);
 
         // ── MegaTag2 (primary) ──────────────────────────────────────────────────
         LimelightHelpers.PoseEstimate mt2 =

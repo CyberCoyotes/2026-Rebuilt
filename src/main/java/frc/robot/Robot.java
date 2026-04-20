@@ -57,35 +57,29 @@ public class Robot extends LoggedRobot {
         // Update game data telemetry (polls FMS for scoring shift data)
         m_robotContainer.updateGameData();
 
-        // Vision pose estimation: std devs scale with distance so trust drops as tags get farther away.
-        // Theta std dev is set very high (9999999) since MegaTag2 uses the gyro for heading.
-        var driveState = m_robotContainer.drivetrain.getState();
-        double headingDeg = driveState.Pose.getRotation().getDegrees();
-        double omegaRps = Units.radiansToRotations(driveState.Speeds.omegaRadiansPerSecond);
-        double yawRateDegPerSec = Units.radiansToDegrees(driveState.Speeds.omegaRadiansPerSecond);
+        // Vision pose fusion — weighted std devs so trust drops with distance.
+        // SetRobotOrientation is handled by VisionSubsystem (with yaw + yaw rate)
+        // so we read immediately; the orientation was set earlier this cycle.
+        // Theta std dev = 9999999 for both modes: gyro always owns heading.
+        double omegaRps = Units.radiansToRotations(
+                m_robotContainer.drivetrain.getState().Speeds.omegaRadiansPerSecond);
+        boolean omegaOk = Math.abs(omegaRps) < Constants.Vision.OMEGA_FILTER_MAX_RPS;
 
-        LimelightHelpers.SetRobotOrientation(
-                Constants.Vision.LIMELIGHT4_NAME,
-                headingDeg,
-                yawRateDegPerSec,
-                0,
-                0,
-                0,
-                0);
-        var llMeasurement = LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2(Constants.Vision.LIMELIGHT4_NAME);
-        if (llMeasurement != null && llMeasurement.tagCount > 0 && Math.abs(omegaRps) < 2.0) {
-            double dist = llMeasurement.avgTagDist; // meters
-            /* 
-            * This is the vision weighting formula. 
-            * The xyStdDevcoefficient controls how much trust is given to vision
-            * A lower value = more trust in vision (smaller std deviation = higher confidence). 
-            * It scales with dist² so trust drops off quickly as tags get farther away.
-            */
-            double xyStdDev = 0.10 * Math.pow(dist, 2.0); // trust drops fast with distance, lower number weighs to vision, higher weighs to odometry
+        var mt2 = LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2(Constants.Vision.LIMELIGHT4_NAME);
+        if (mt2 != null && mt2.tagCount > 0 && omegaOk) {
+            double xyStdDev = Constants.Vision.VISION_MT2_STD_DEV_COEFF * Math.pow(mt2.avgTagDist, 2.0);
             m_robotContainer.drivetrain.addVisionMeasurement(
-                    llMeasurement.pose,
-                    llMeasurement.timestampSeconds,
+                    mt2.pose, mt2.timestampSeconds,
                     VecBuilder.fill(xyStdDev, xyStdDev, 9999999));
+        } else if ((mt2 == null || mt2.tagCount == 0) && omegaOk) {
+            // MT1 fallback (2D) — lower trust, higher std devs
+            var mt1 = LimelightHelpers.getBotPoseEstimate_wpiBlue(Constants.Vision.LIMELIGHT4_NAME);
+            if (mt1 != null && mt1.tagCount > 0) {
+                double xyStdDev = Constants.Vision.VISION_MT1_STD_DEV_COEFF * Math.pow(mt1.avgTagDist, 2.0);
+                m_robotContainer.drivetrain.addVisionMeasurement(
+                        mt1.pose, mt1.timestampSeconds,
+                        VecBuilder.fill(xyStdDev, xyStdDev, 9999999));
+            }
         }
     }
 

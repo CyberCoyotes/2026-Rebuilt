@@ -19,10 +19,11 @@ public interface VisionIO {
     /**
      * Reads all vision data into inputs.
      *
-     * @param inputs          Container to populate with current camera data
-     * @param robotYawDegrees Current robot heading from IMU — required for MegaTag2
+     * @param inputs                Container to populate with current camera data
+     * @param robotYawDegrees       Current robot heading from IMU — required for MegaTag2
+     * @param robotYawRateDegPerSec Current robot yaw rate — improves MT2 accuracy during rotation
      */
-    default void updateInputs(VisionIOInputs inputs, double robotYawDegrees) {}
+    default void updateInputs(VisionIOInputs inputs, double robotYawDegrees, double robotYawRateDegPerSec) {}
 
     default void setPipeline(int pipelineIndex) {}
 

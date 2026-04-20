@@ -78,7 +78,7 @@ public class RobotContainer {
         vision = new VisionSubsystem(
             new VisionIOLimelight(Constants.Vision.LIMELIGHT4_NAME),
             () -> drivetrain.getState().Pose.getRotation().getDegrees(),
-            drivetrain::addVisionMeasurement);
+            () -> Math.toDegrees(drivetrain.getState().Speeds.omegaRadiansPerSecond));
 
         autoFactory = drivetrain.createAutoFactory();
         autoRoutines = new AutoRoutines(autoFactory,drivetrain,indexer, intake, shooter);

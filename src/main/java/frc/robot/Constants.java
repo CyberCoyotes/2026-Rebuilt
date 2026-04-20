@@ -599,6 +599,23 @@ public final class Constants {
      */
     public static final double LEAD_COMPENSATION_DEG_PER_MPS = 0;
 
+    // == Pose-fusion weighting ==================
+    // xyStdDev = COEFF * dist²  (meters).  Lower = more trust in vision.
+    // MT2 is rotation-locked (IMU owns heading) so theta std dev is set to
+    // 9999999 for both modes — vision never overrides the gyro for yaw.
+    //
+    // Typical values at shooting distances (COEFF = 0.10):
+    //   1.5 m (close)  → xyStdDev ≈ 0.23  (roughly equal trust to odometry)
+    //   2.5 m (tower)  → xyStdDev ≈ 0.63  (odometry ~6x more trusted)
+    //
+    // Tune COEFF down (e.g. 0.05) to lean heavier on vision at mid-range.
+    public static final double VISION_MT2_STD_DEV_COEFF = 0.10; // ToDo: tune
+    public static final double VISION_MT1_STD_DEV_COEFF = 0.30; // MT1 fallback — less accurate than MT2
+
+    // Don't fuse vision measurements while rotating faster than this (rotations/sec).
+    // Fast rotation causes MT2 latency errors; 2.0 RPS ≈ 720 °/s.
+    public static final double OMEGA_FILTER_MAX_RPS = 2.0; // ToDo: tune
+
     // == Valid tag IDs =========================
     // NOTE: MIN/MAX here are used for general target validation in VisionSubsystem.
     // Hub-specific filtering uses BLUE_HUB_TAG_IDS / RED_HUB_TAG_IDS arrays below.
