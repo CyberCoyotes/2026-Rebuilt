@@ -140,7 +140,7 @@ public class IndexerSubsystem extends SubsystemBase {
     }
 
     public void kickerForward() {
-        io.setKickerMotorVolts(Constants.Indexer.KICKER_FORWARD_VOLTAGE);
+        io.setKickerVelocity(Constants.Indexer.KICKER_FORWARD_RPS);
     }
 
     public void indexerReverse() {

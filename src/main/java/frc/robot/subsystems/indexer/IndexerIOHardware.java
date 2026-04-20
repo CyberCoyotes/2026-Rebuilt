@@ -72,6 +72,10 @@ public class IndexerIOHardware implements IndexerIO {
         config.Voltage.PeakForwardVoltage = Constants.Indexer.KickerLeaderConfig.PEAK_FORWARD_VOLTAGE;
         config.Voltage.PeakReverseVoltage = Constants.Indexer.KickerLeaderConfig.PEAK_REVERSE_VOLTAGE;
 
+        // Slot 0 — used by VelocityVoltage for kicker forward
+        config.Slot0.kV = Constants.Indexer.KickerLeaderConfig.SLOT0_KV;
+        config.Slot0.kP = Constants.Indexer.KickerLeaderConfig.SLOT0_KP;
+
         return config;
     }
 
@@ -114,6 +118,9 @@ public class IndexerIOHardware implements IndexerIO {
     // Fallback: private final VoltageOut conveyorVoltageRequest = new VoltageOut(0.0).withEnableFOC(false);
     private final VelocityVoltage conveyorVelocityRequest = new VelocityVoltage(0.0).withSlot(0).withEnableFOC(false);
     private final VoltageOut conveyorVoltageRequest = new VoltageOut(0.0).withEnableFOC(false);
+    // Kicker forward uses VelocityVoltage (Slot 0). Reverse/popper still use VoltageOut.
+    // Fallback: private final VoltageOut kickerLeadVoltageRequest = new VoltageOut(0.0).withEnableFOC(false);
+    private final VelocityVoltage kickerLeadVelocityRequest = new VelocityVoltage(0.0).withSlot(0).withEnableFOC(false);
     private final VoltageOut kickerLeadVoltageRequest  = new VoltageOut(0.0).withEnableFOC(false);
     private final Follower kickerFollowerRequest =
         new Follower(Constants.Indexer.KICKER_LEFT_MOTOR_ID, Constants.Indexer.KickerFollowerConfig.FOLLOWER_ALIGNMENT);
@@ -190,6 +197,11 @@ public class IndexerIOHardware implements IndexerIO {
     @Override
     public void setConveyorMotor(double volts) {
         conveyorMotor.setControl(conveyorVoltageRequest.withOutput(volts));
+    }
+
+    @Override
+    public void setKickerVelocity(double rps) {
+        kickerMotorLead.setControl(kickerLeadVelocityRequest.withVelocity(rps));
     }
 
     @Override

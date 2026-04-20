@@ -235,10 +235,15 @@ public final class Constants {
      * VOLTAGE = 5 for first 4 Matches
      */
 
+    // Kicker forward velocity target: baseline 2440 RPM at 5V (Kraken X60 — verify on hardware).
+    // Kraken X60 free speed differs from X44; retune SLOT0_KV in KickerLeaderConfig if needed.
+    public static final double KICKER_FORWARD_RPS = 2440.0 / 60.0;
+
+    // Fallback voltage (VoltageOut) — kept for reference, not used in normal operation
     // TODO Consider increasing kicker voltage
-    public static final double KICKER_FORWARD_VOLTAGE = 5.0;
-    
-    // Reverse voltage for ejecting fuel and clearing jams. 
+    // public static final double KICKER_FORWARD_VOLTAGE = 5.0;
+
+    // Reverse voltage for ejecting fuel and clearing jams.
     public static final double KICKER_REVERSE_VOLTAGE = -6.0;
 
     public static final double KICKER_POPPER_VOLTAGE = 3.0;
@@ -299,6 +304,12 @@ public final class Constants {
       public static final double STATOR_CURRENT_LIMIT = 90.0;
       public static final double PEAK_FORWARD_VOLTAGE = 12.0;
       public static final double PEAK_REVERSE_VOLTAGE = -12.0;
+
+      /* VelocityVoltage PID — Slot 0 (kicker forward).
+       * kV baseline: 5V ÷ 40.67 RPS ≈ 0.123 V/RPS (Kraken X60 — tune on hardware).
+       * kP is a conservative starting point; tune with Phoenix Tuner X under load. */
+      public static final double SLOT0_KV = 0.123; // V per RPS feedforward
+      public static final double SLOT0_KP = 0.1;   // V per RPS error
     }
 
     public static final class KickerFollowerConfig {
