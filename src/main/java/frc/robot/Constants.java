@@ -540,63 +540,50 @@ public final class Constants {
     public static final double LL_PITCH = 15.4;
     public static final double LL_YAW = 0;     
    
-    // TODO Consider loosening the alignment tolerance if the robot is having trouble reaching the aligned state
-
-    /** Tolerance for horizontal alignment in degrees used in FuelCommands.java */
-    public static final double ALIGNMENT_TOLERANCE_DEGREES = 1.00; 
-
     /** Minimum target area to consider target valid (prevents false positives) */
     public static final double MIN_TARGET_AREA_PERCENT = 0.1;
 
     /** Maximum distance to trust vision measurement in meters */
     public static final double MAX_DISTANCE_METERS = 6.0;
 
-    // State tracking
     /** Time in seconds before considering target "lost" after losing sight */
     public static final double TARGET_TIMEOUT_SECONDS = 0.5;
 
-    // Vision-driven drivetrain rotation
-    /**
-     * Proportional gain for rotational alignment: (rad/s output) per (degree of tx
-     * error).
-     *
-     * - Too low → slow to center, may not reach ALIGNED before timeout
-     * - Too high → oscillates left/right around the target
-     * See `tuning-guide_vision.md` for step-by-step procedure.
-     */
+    // =================================================================
+    // Alignment tuning — AlignAndShootCommand
+    // =================================================================
 
-    /*
-     * Current mechanical layout: shooter and camera are mounted on the back of the
-     * robot and shooter faces backwards
-     * Chassis front must point 180° away from the hub when aligning to shoot.
-     */
-
+    // TODO: If AlignAndShootCommand rotates to the WRONG side of the hub, change
+    //       this to 180.0. Accounts for the shooter being on the robot rear:
+    //       0 = robot front faces hub, 180 = robot back faces hub.
     public final static double ALIGNMENT_OFFSET_DEGREES = 0;
 
-    // Keep this moderate
-    // aggressive values amplify pose-estimator jitter during alignment.
+    // TODO: If the robot oscillates left/right during alignment, raise KD slightly.
+    //       If it barely turns toward the target, raise KP in steps of 0.02.
+    //       Watch AlignShoot/rotRate_radps on Elastic while tuning.
     public static final double ROTATIONAL_KP = 0.12; // Tuned 4-8-2026
+    public static final double ROTATIONAL_KD = 0.005; // Dampens overshoot; 0 to disable
 
-    // TODO: Add KD for vision not currently used
-    // Dampens oscillation; increase if sluggish settling, decrease if jittery
-    public static final double ROTATIONAL_KD = 0.005;
-    /*
-     * Maximum rotational rate the vision command will apply to the drivetrain
-     * (rad/s).
-     * Default: 3.0 rad/s (~172°/s). Reduce if the robot swings too aggressively.
-     */
-    public static final double MIN_ALIGNMENT_ROTATION_RAD_PER_SEC = 0.15; // tune to just above static friction
-    public static final double MAX_ALIGNMENT_ROTATION_RAD_PER_SEC = 4.5; // tune to prevent overshooting and oscillation
+    // TODO: Raise MIN if the robot stalls before reaching target (static friction).
+    //       Lower MAX if the robot swings through the target and oscillates.
+    public static final double MIN_ALIGNMENT_ROTATION_RAD_PER_SEC = 0.15; // floor — just above static friction
+    public static final double MAX_ALIGNMENT_ROTATION_RAD_PER_SEC = 4.5;  // ceiling — prevents swing-through
 
+    // TODO: Tighten (lower) to require more precise alignment before feeding.
+    //       Loosen (raise, e.g. 2.0) if the robot never reaches aligned due to jitter.
+    //       Watch AlignShoot/aligned on Elastic — it should flick true before the shot.
+    public static final double ALIGNMENT_TOLERANCE_DEGREES = 1.00;
+
+    // TODO: Raise if you want the driver to be able to strafe more while auto-aiming.
+    //       0.40 = driver can push at 40% of max speed while the robot is auto-rotating.
     public static final double ALIGNMENT_DRIVETRAIN_CLAMP = 0.40;
 
     public static final double MIN_DISTANCE_M = 0.25;
     public static final double MAX_DISTANCE_M = 6.0;
 
-    /*
-     * Tune up from 0 — 50 degrees of aim offset per m/s of lateral velocity
-     * At this point, its not a high priority
-     */
+    // TODO: Tune up from 0 once alignment is solid — offsets aim opposite to lateral
+    //       motion so moving shots still hit. Units: degrees of offset per m/s of
+    //       lateral velocity. Start testing at 3–5 deg/(m/s).
     public static final double LEAD_COMPENSATION_DEG_PER_MPS = 0;
 
     // == Pose-fusion weighting ==================
