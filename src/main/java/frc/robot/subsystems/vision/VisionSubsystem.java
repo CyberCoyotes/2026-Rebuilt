@@ -1,275 +1,143 @@
 package frc.robot.subsystems.vision;
 
-import edu.wpi.first.math.util.Units;
-import edu.wpi.first.wpilibj.DriverStation;
+import java.util.function.BiConsumer;
+import java.util.function.DoubleSupplier;
+
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.networktables.BooleanPublisher;
 import edu.wpi.first.networktables.DoublePublisher;
 import edu.wpi.first.networktables.IntegerPublisher;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.networktables.StringPublisher;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import org.littletonrobotics.junction.Logger;
 
 /**
- * VisionSubsystem - Manages vision processing for robot alignment and shooting.
+ * VisionSubsystem — MegaTag2-first pose fusion and target tracking.
  *
- * PRIMARY PURPOSE (GOAL 1): Stationary shooting with vision alignment
- * - Provides distance and angle data to shooter for flywheel/hood adjustments
- * - Provides horizontal angle data to drivetrain for rotational alignment
- * - Tracks alignment state for command coordination
+ * Each periodic cycle:
+ *   1. Sends current IMU yaw to Limelight (required for MegaTag2).
+ *   2. Reads MegaTag2 pose estimate; feeds it to the drivetrain pose estimator.
+ *   3. Falls back to MegaTag1 (2D) when MegaTag2 has no tags.
+ *   4. Exposes TX and target validity so AlignAndShootCommand can drive TX → 0.
  *
- * ARCHITECTURE:
- * - Uses VisionIO interface for hardware abstraction
- * - Tracks AlignmentState for coordination with other subsystems
- * - Provides calculated values (distance, angles) derived from raw camera data
- * - Integrates with AdvantageKit for logging and replay
+ * Distance for shot tuning comes from the fused drivetrain pose (hub geometry),
+ * not from this subsystem — the drivetrain pose is already vision-corrected once
+ * addVisionMeasurement() is called here.
  *
- * STATE MACHINE:
- * - NO_TARGET: No valid AprilTag visible
- * - TARGET_ACQUIRED: Tag visible, not yet aligned
- * - ALIGNED: Robot aligned within tolerance, ready to shoot
- * - LOST_TARGET: Had target but lost it (uses last known values briefly)
- *
- * USAGE EXAMPLE:
- * // In ShooterSubsystem:
- * double distance = vision.getDistanceToTargetMeters();
- * double velocity = calculateVelocityFromDistance(distance);
- *
- * // In AlignToTargetCommand:
- * double angleError = vision.getHorizontalAngleDegrees();
- * drivetrain.rotate(angleError * kP);
- *
- * // In ShootCommand:
- * if (vision.isAligned() && shooter.isReady()) {
- *     indexer.feed();
- * }
+ * Constructor:
+ *   io                  — hardware or sim implementation
+ *   yawDegrees          — current robot heading supplier (e.g. drivetrain pose rotation)
+ *   addVisionMeasurement — drivetrain::addVisionMeasurement(Pose2d, Double)
  */
 public class VisionSubsystem extends SubsystemBase {
 
-    // ===== Hardware Interface =====
     private final VisionIO io;
     private final VisionIO.VisionIOInputs inputs = new VisionIO.VisionIOInputs();
+    private final DoubleSupplier yawDegrees;
+    private final BiConsumer<Pose2d, Double> addVisionMeasurement;
 
-    // ===== NetworkTables Publishers for Elastic Dashboard =====
-    private final NetworkTable visionTable;
-    private final StringPublisher statePublisher;
+    private double lastTargetSeenTime = Double.NEGATIVE_INFINITY;
+
+    // ── NT publishers for Elastic dashboard ───────────────────────────────────
+    private final StringPublisher  poseSourcePublisher;
     private final BooleanPublisher hasTargetPublisher;
-    private final BooleanPublisher isAlignedPublisher;
+    private final BooleanPublisher megaTag2ActivePublisher;
     private final IntegerPublisher tagIdPublisher;
-    private final DoublePublisher targetAreaPublisher;
-    // private final DoublePublisher distanceMetersPublisher;
-    // private final DoublePublisher distanceCmPublisher;
-    private final DoublePublisher horizontalAnglePublisher;
-    // private final DoublePublisher verticalAnglePublisher;
-    private final DoublePublisher latencyPublisher;
+    private final DoublePublisher  txPublisher;
+    private final DoublePublisher  targetAreaPublisher;
+    private final DoublePublisher  latencyPublisher;
 
-    // ===== State Tracking =====
-    /**
-     * Alignment state for the vision system.
-     * Tracks whether we have a target and if we're aligned to it.
-     */
-    public enum AlignmentState {
-        /** No valid target visible */
-        NO_TARGET,
+    public VisionSubsystem(
+            VisionIO io,
+            DoubleSupplier yawDegrees,
+            BiConsumer<Pose2d, Double> addVisionMeasurement) {
 
-        /** Target visible, robot not yet aligned */
-        TARGET_ACQUIRED,
-
-        /** Robot aligned to target within tolerance, ready to shoot */
-        ALIGNED,
-
-        /** Had a target but lost it (grace period using last known values) */
-        LOST_TARGET
-    }
-
-    private AlignmentState currentState = AlignmentState.NO_TARGET;
-    private AlignmentState previousState = AlignmentState.NO_TARGET;
-
-    // ===== Last Known Good Data =====
-    // When we lose a target, we briefly hold onto the last known values
-    // This prevents sudden jumps and allows smooth recovery
-    // private double lastKnownDistance = 0.0; // Replace with last known position
-    private double lastKnownHorizontalAngle = 0.0;
-    private double lastTargetSeenTime = 0.0;
-
-    /**
-     * Creates a new VisionSubsystem.
-     *
-     * @param io The VisionIO hardware interface implementation
-     */
-    public VisionSubsystem(VisionIO io) {
         this.io = io;
+        this.yawDegrees = yawDegrees;
+        this.addVisionMeasurement = addVisionMeasurement;
 
-        // Initialize NetworkTables publishers for Elastic dashboard
-        NetworkTableInstance inst = NetworkTableInstance.getDefault();
-        visionTable = inst.getTable("Vision");
+        NetworkTable table = NetworkTableInstance.getDefault().getTable("Vision");
+        poseSourcePublisher    = table.getStringTopic("PoseSource").publish();
+        hasTargetPublisher     = table.getBooleanTopic("HasTarget").publish();
+        megaTag2ActivePublisher = table.getBooleanTopic("MegaTag2Active").publish();
+        tagIdPublisher         = table.getIntegerTopic("TagID").publish();
+        txPublisher            = table.getDoubleTopic("TX_deg").publish();
+        targetAreaPublisher    = table.getDoubleTopic("TargetArea").publish();
+        latencyPublisher       = table.getDoubleTopic("TotalLatency_ms").publish();
 
-        statePublisher = visionTable.getStringTopic("State").publish();
-        hasTargetPublisher = visionTable.getBooleanTopic("HasTarget").publish();
-        isAlignedPublisher = visionTable.getBooleanTopic("IsAligned").publish();
-        tagIdPublisher = visionTable.getIntegerTopic("TagID").publish();
-        targetAreaPublisher = visionTable.getDoubleTopic("TargetArea").publish();
-        // distanceMetersPublisher = visionTable.getDoubleTopic("Distance_m").publish();
-        // distanceCmPublisher = visionTable.getDoubleTopic("Distance_cm").publish();
-        horizontalAnglePublisher = visionTable.getDoubleTopic("HorizontalAngle_deg").publish();
-        // verticalAnglePublisher = visionTable.getDoubleTopic("VerticalAngle_deg").publish();
-        latencyPublisher = visionTable.getDoubleTopic("TotalLatency_ms").publish();
-
-        // Initialize Limelight to known state
         io.setLEDMode(VisionIO.LEDMode.PIPELINE_DEFAULT);
         io.setPipeline(Constants.Vision.APRILTAG_PIPELINE);
     }
 
     @Override
     public void periodic() {
-        // Update inputs from hardware
-        io.updateInputs(inputs);
+        io.updateInputs(inputs, yawDegrees.getAsDouble());
         Logger.processInputs("Vision", inputs);
 
-        // Update state machine
-        updateAlignmentState();
+        // Feed pose estimate to drivetrain — MegaTag2 preferred, MegaTag1 as fallback
+        if (inputs.megaTag2Valid) {
+            addVisionMeasurement.accept(arrayToPose(inputs.megaTag2Pose), inputs.megaTag2Timestamp);
+            lastTargetSeenTime = Timer.getFPGATimestamp();
+        } else if (inputs.megaTag1Valid) {
+            addVisionMeasurement.accept(arrayToPose(inputs.megaTag1Pose), inputs.megaTag1Timestamp);
+            lastTargetSeenTime = Timer.getFPGATimestamp();
+        }
 
-        // Log telemetry
         logTelemetry();
     }
 
     // =========================================================================
-    // STATE MACHINE
+    // Public API
     // =========================================================================
 
     /**
-     * Updates the alignment state based on current vision data.
-     * Called automatically in periodic().
+     * True when the camera actively sees a valid target this cycle.
+     * TX is only reliable when this is true — check before calling getTX().
      */
-    private void updateAlignmentState() {
-        previousState = currentState;
-
-        if (inputs.hasTargets && isTargetValid()) {
-            // We have a valid target
-            lastTargetSeenTime = Timer.getFPGATimestamp();
-
-            // Update last known good values
-            // lastKnownDistance = calculateDistance();
-            lastKnownHorizontalAngle = getHorizontalAngleDegrees();
-
-            // Check if we're aligned
-            if (isWithinAlignmentTolerance()) {
-                currentState = AlignmentState.ALIGNED;
-            } else {
-                currentState = AlignmentState.TARGET_ACQUIRED;
-            }
-        } else {
-            // No valid target
-            double timeSinceLastTarget = Timer.getFPGATimestamp() - lastTargetSeenTime;
-
-            if (timeSinceLastTarget < Constants.Vision.TARGET_TIMEOUT_SECONDS &&
-                previousState != AlignmentState.NO_TARGET) {
-                // Grace period: use last known values
-                currentState = AlignmentState.LOST_TARGET;
-            } else {
-                // Definitely lost target
-                currentState = AlignmentState.NO_TARGET;
-                // lastKnownDistance = 0.0;
-                lastKnownHorizontalAngle = 0.0;
-            }
-        }
-
-        // Log state transitions
-        if (currentState != previousState) {
-            Logger.recordOutput("Vision/StateTransition",
-                previousState.name() + " -> " + currentState.name());
-        }
+    public boolean hasFreshTarget() {
+        return inputs.hasTargets && isHubTag(inputs.tagId);
     }
 
     /**
-     * Checks if the current target is valid (correct tag ID, reasonable distance, etc.)
+     * True when the most recent pose measurement came from MegaTag2 (vs MegaTag1).
+     * Useful for dashboard diagnostics and shot confidence decisions.
      */
-    private boolean isTargetValid() {
-        // Check tag ID is in valid range
-        if (inputs.tagId < Constants.Vision.MIN_VALID_TAG_ID ||
-            inputs.tagId > Constants.Vision.MAX_VALID_TAG_ID) {
-            return false;
-        }
-
-        // Check target area is reasonable (not too small = too far)
-        if (inputs.targetArea < Constants.Vision.MIN_TARGET_AREA_PERCENT) {
-            return false;
-        }
-
-        // Check calculated distance is reasonable
-        // double distance = calculateDistance();
-        // if (distance > Constants.Vision.MAX_DISTANCE_METERS || distance < 0.1) {
-        //     return false;
-        // }
-
-        return true;
+    public boolean isMegaTag2Active() {
+        return inputs.megaTag2Valid;
     }
 
     /**
-     * Checks if robot is aligned within tolerance for shooting.
+     * Horizontal angle from camera center to primary tag in degrees.
+     * Positive = target is to the right of center.
+     * Zero when no target. Always check hasFreshTarget() before using.
      */
-    private boolean isWithinAlignmentTolerance() {
-        double horizontalError = Math.abs(getHorizontalAngleDegrees());
-        return horizontalError <= Constants.Vision.ALIGNMENT_TOLERANCE_DEGREES;
+    public double getTX() {
+        return inputs.txDegrees;
     }
 
-    // =========================================================================
-    // PUBLIC API - State Queries
-    // =========================================================================
-
-    /**
-     * Gets the current alignment state.
-     *
-     * @return Current alignment state
-     */
-    // public AlignmentState getAlignmentState() {
-    //     return currentState;
-    // }
-
-    /**
-     * Checks if a valid target is currently visible.
-     *
-     * @return true if valid target is visible
-     */
-    public boolean hasTarget() {
-        return currentState == AlignmentState.TARGET_ACQUIRED ||
-               currentState == AlignmentState.ALIGNED;
-    }
-
-    /**
-     * Checks if robot is aligned to target and ready to shoot.
-     *
-     * @return true if aligned within tolerance
-     */
-    public boolean isAligned() {
-        return currentState == AlignmentState.ALIGNED;
-    }
-
-    /**
-     * Gets the AprilTag ID currently being tracked.
-     *
-     * @return Tag ID, or -1 if no valid target
-     */
+    /** Primary AprilTag ID visible this cycle, -1 if none. */
     public int getTagId() {
         return inputs.tagId;
     }
 
-    /**
-     * Returns true if the currently visible tag is a hub target for the active alliance.
-     *
-     * Reads alliance color from FMS via DriverStation.getAlliance().
-     * Defaults to blue alliance if FMS has not yet reported (e.g., practice without FMS).
-     *
-     * Blue hub tags: {18, 19, 20, 21, 24, 25, 26, 27}
-     * Red hub tags:  {2, 3, 4, 5, 8, 9, 10, 11}
-     */
-    public boolean isHubTarget() {
-        int id = inputs.tagId;
-        if (id < 0) return false;
+    // =========================================================================
+    // Internal helpers
+    // =========================================================================
 
+    /**
+     * Checks whether the given tag ID belongs to the current alliance's hub.
+     * Blue hub: {18, 19, 20, 21, 24, 25, 26, 27}
+     * Red hub:  {2, 3, 4, 5, 8, 9, 10, 11}
+     * Defaults to blue if FMS has not reported alliance.
+     */
+    private boolean isHubTag(int id) {
+        if (id < 0) return false;
         int[] hubTags;
         var alliance = DriverStation.getAlliance();
         if (alliance.isPresent() && alliance.get() == DriverStation.Alliance.Red) {
@@ -277,168 +145,32 @@ public class VisionSubsystem extends SubsystemBase {
         } else {
             hubTags = Constants.Vision.BLUE_HUB_TAG_IDS;
         }
-
         for (int hubTag : hubTags) {
             if (id == hubTag) return true;
         }
         return false;
     }
 
-    /**
-     * Returns true when vision data is safe to use for shooter parameter updates.
-     *
-     * True when:
-     *   - An active hub target is locked (TARGET_ACQUIRED or ALIGNED), OR
-     *   - We just lost a hub target and are in the grace period (LOST_TARGET with valid last-known distance)
-     *
-     * False when no target has ever been seen or the grace period has expired.
-     */
-    // public boolean isUsableForShooting() {
-    //     if (currentState == AlignmentState.LOST_TARGET) {
-    //         // Grace period: use last-known distance rather than resetting the shooter
-    //         return lastKnownDistance > 0.1;
-    //     }
-    //     return hasTarget() && isHubTarget() && getDistanceToTargetMeters() > 0.1;
-    // }
-
-    // =========================================================================
-    // PUBLIC API - Calculated Values for Shooter
-    // =========================================================================
-
-    /**
-     * Calculates distance to target in meters using camera geometry.
-     *
-     * Uses the formula: distance = (targetHeight - cameraHeight) / tan(cameraAngle + ty)
-     *
-     * For LOST_TARGET state, returns last known distance for smooth transitions.
-     *
-     * @return Distance to target in meters, or 0 if no target
-     */
-    // public double getDistanceToTargetMeters() {
-    //     if (currentState == AlignmentState.NO_TARGET) {
-    //         return 0.0;
-    //     }
-
-    //     if (currentState == AlignmentState.LOST_TARGET) {
-    //         return lastKnownDistance; // Use last known value during grace period
-    //     }
-
-    //     // return calculateDistance();
-    // }
-
-    /**
-     * Internal distance calculation from camera geometry.
-     */
-    // private double calculateDistance() {
-    //     double heightDiff = Constants.Vision.APRILTAG_HEIGHT_METERS -
-    //                       Constants.Vision.CAMERA_HEIGHT_METERS;
-
-    //     double verticalAngleDegrees = Units.radiansToDegrees(inputs.verticalAngleRadians);
-    //     double angleToTarget = Constants.Vision.CAMERA_ANGLE_DEGREES + verticalAngleDegrees;
-
-    //     return Math.abs(heightDiff / Math.tan(Math.toRadians(angleToTarget)));
-    // }
-
-    /**
-     * Gets distance to target in centimeters (for compatibility with older code).
-     *
-     * @return Distance in centimeters
-     */
-    // public double getDistanceToTargetCM() {
-    //     return getDistanceToTargetMeters() * 100.0;
-    // }
-
-    // =========================================================================
-    // PUBLIC API - Angle Values for Drivetrain Alignment
-    // =========================================================================
-
-    /**
-     * Gets horizontal angle to target in degrees.
-     *
-     * Positive = target is to the right
-     * Negative = target is to the left
-     *
-     * For LOST_TARGET state, returns last known angle for smooth transitions.
-     *
-     * @return Horizontal angle in degrees, or 0 if no target
-     */
-    public double getHorizontalAngleDegrees() {
-        if (currentState == AlignmentState.NO_TARGET) {
-            return 0.0;
-        }
-
-        if (currentState == AlignmentState.LOST_TARGET) {
-            return lastKnownHorizontalAngle; // Use last known value
-        }
-
-        return Units.radiansToDegrees(inputs.horizontalAngleRadians);
+    /** Converts a [x_m, y_m, yaw_deg] array to Pose2d. */
+    private static Pose2d arrayToPose(double[] arr) {
+        return new Pose2d(arr[0], arr[1], Rotation2d.fromDegrees(arr[2]));
     }
 
-    /**
-     * Gets horizontal angle to target in radians.
-     *
-     * @return Horizontal angle in radians
-     */
-    // public double getHorizontalAngleRadians() {
-    //     return Units.degreesToRadians(getHorizontalAngleDegrees());
-    // }
-
-    /**
-     * Gets vertical angle to target in degrees.
-     *
-     * @return Vertical angle in degrees
-     */
-    // public double getVerticalAngleDegrees() {
-    //     return Units.radiansToDegrees(inputs.verticalAngleRadians);
-    // }
-
-    // =========================================================================
-    // PUBLIC API - Camera Control
-    // =========================================================================
-
-    /**
-     * Sets the active vision pipeline. Valid API, just not called in current code since we only have one pipeline configured.
-     *
-     * @param pipelineIndex Pipeline index (0-9)
-     */
-    public void setPipeline(int pipelineIndex) {
-        io.setPipeline(pipelineIndex);
-    }
-
-    /**
-     * Sets the Camera LED mode. Valid API, but we currently just set it once in the constructor and never change it. 
-     *
-     * @param mode LED mode to set
-     */
-    public void setLEDMode(VisionIO.LEDMode mode) {
-        io.setLEDMode(mode);
-    }
-
-    // =========================================================================
-    // TELEMETRY
-    // =========================================================================
-
-    /**
-     * Logs comprehensive telemetry to NetworkTables (for Elastic) and AdvantageKit.
-     */
     private void logTelemetry() {
-        // Publish to NetworkTables for Elastic dashboard
-        statePublisher.set(currentState.name());
-        hasTargetPublisher.set(hasTarget());
-        isAlignedPublisher.set(isAligned());
-        tagIdPublisher.set(getTagId());
+        String poseSource = inputs.megaTag2Valid ? "MegaTag2"
+                          : inputs.megaTag1Valid ? "MegaTag1"
+                          : "None";
+
+        poseSourcePublisher.set(poseSource);
+        hasTargetPublisher.set(hasFreshTarget());
+        megaTag2ActivePublisher.set(inputs.megaTag2Valid);
+        tagIdPublisher.set(inputs.tagId);
+        txPublisher.set(inputs.txDegrees);
         targetAreaPublisher.set(inputs.targetArea);
-        // distanceMetersPublisher.set(getDistanceToTargetMeters());
-        // distanceCmPublisher.set(getDistanceToTargetCM());
-        horizontalAnglePublisher.set(getHorizontalAngleDegrees());
-        // verticalAnglePublisher.set(getVerticalAngleDegrees());
         latencyPublisher.set(inputs.totalLatencyMs);
 
-        // AdvantageKit logging (unchanged)
-        // Logger.recordOutput("Vision/State", currentState.name());
-        // Logger.recordOutput("Vision/HasTarget", hasTarget());
-        // Logger.recordOutput("Vision/IsAligned", isAligned());
-        // Logger.recordOutput("Vision/Distance_m", getDistanceToTargetMeters());
-        // Logger.recordOutput("Vision/HorizontalAngle_deg", getHorizontalAngleDegrees());
+        Logger.recordOutput("Vision/PoseSource", poseSource);
+        Logger.recordOutput("Vision/TX_deg",     inputs.txDegrees);
+        Logger.recordOutput("Vision/HasTarget",  hasFreshTarget());
     }
 }

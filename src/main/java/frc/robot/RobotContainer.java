@@ -75,7 +75,10 @@ public class RobotContainer {
         indexer = new IndexerSubsystem(new IndexerIOHardware());
         intake = new IntakeSubsystem(new IntakeIOHardware());
         shooter = new ShooterSubsystem(new ShooterIOHardware());
-        vision = new VisionSubsystem(new VisionIOLimelight(Constants.Vision.LIMELIGHT4_NAME));
+        vision = new VisionSubsystem(
+            new VisionIOLimelight(Constants.Vision.LIMELIGHT4_NAME),
+            () -> drivetrain.getState().Pose.getRotation().getDegrees(),
+            drivetrain::addVisionMeasurement);
 
         autoFactory = drivetrain.createAutoFactory();
         autoRoutines = new AutoRoutines(autoFactory,drivetrain,indexer, intake, shooter);
