@@ -124,7 +124,7 @@ public class IndexerSubsystem extends SubsystemBase {
     // Motor Control
     // =====================================================================
     public void conveyorForward() {
-        io.setConveyorMotor(Constants.Indexer.CONVEYOR_FORWARD_VOLTAGE);
+        io.setConveyorVelocity(Constants.Indexer.CONVEYOR_FORWARD_RPS);
     }
 
     public void reverseConveyor() {

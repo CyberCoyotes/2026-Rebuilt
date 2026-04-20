@@ -212,9 +212,13 @@ public final class Constants {
      * Conveyor voltage setpoints for feeding fuel to the shooter.
      */
     
+    // Conveyor forward velocity target: 2440 RPM observed at 5V → 2440/60 ≈ 40.67 RPS
+    public static final double CONVEYOR_FORWARD_RPS = 2440.0 / 60.0;
+
+    // Fallback voltage (VoltageOut) — kept for reference, not used in normal operation
     // TODO Consider increasing conveyor voltage
     // Increased to 4 -> 5 before Q4
-    public static final double CONVEYOR_FORWARD_VOLTAGE = 5;
+    // public static final double CONVEYOR_FORWARD_VOLTAGE = 5;
 
     public static final double CONVEYOR_REVERSE_VOLTAGE = -7;
 
@@ -275,6 +279,12 @@ public final class Constants {
       public static final double STATOR_CURRENT_LIMIT = 40.0;
       public static final double PEAK_FORWARD_VOLTAGE = 12.0;
       public static final double PEAK_REVERSE_VOLTAGE = -12.0;
+
+      /* VelocityVoltage PID — Slot 0 (conveyor forward).
+       * kV derived from observed 5V ≈ 2440 RPM (40.67 RPS): 5 / 40.67 ≈ 0.123 V/RPS.
+       * kP is a conservative starting point; tune with Phoenix Tuner X under load. */
+      public static final double SLOT0_KV = 0.123; // V per RPS feedforward
+      public static final double SLOT0_KP = 0.1;   // V per RPS error
     }
 
     public static final class KickerLeaderConfig {
