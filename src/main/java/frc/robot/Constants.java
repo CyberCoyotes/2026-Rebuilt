@@ -237,7 +237,11 @@ public final class Constants {
 
     // Kicker forward velocity target: baseline 2440 RPM at 5V (Kraken X60 — verify on hardware).
     // Kraken X60 free speed differs from X44; retune SLOT0_KV in KickerLeaderConfig if needed.
-    public static final double KICKER_FORWARD_RPS = 2440.0 / 60.0;
+    public static final double KICKER_FORWARD_RPS = 2700.0 / 60.0;
+    // 2440 RPM = 40.67 RPS
+    // 2600 RPM = 43.33 RPS
+    // 2800 RPM = 46.67 RPS
+    // 3000 RPM = 50 RPS
 
     // Fallback voltage (VoltageOut) — kept for reference, not used in normal operation
     // TODO Consider increasing kicker voltage
