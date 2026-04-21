@@ -91,16 +91,17 @@ public class RobotContainer {
         // == Left Side Autos ==
         autoChooser.addRoutine("Left x1 Ramp ANGRY", autoRoutines::LtTrench_Ramp_Single);
         autoChooser.addRoutine("Left x2 Ramp ANGRY", autoRoutines::LtTrench_Ramp_Double);
-        autoChooser.addRoutine("Left Ramp Sweep SHOT", autoRoutines::LtTrench_Ramp_HubSweep);
-        autoChooser.addRoutine("Left Ramp Sweep PURGE", autoRoutines::LtTrench_Ramp_Sweep_Purge);
+        autoChooser.addRoutine("Left x2 Ramp Sweep SHOT", autoRoutines::LtTrench_Ramp_HubSweep);
+        // autoChooser.addRoutine("Left Ramp Sweep PURGE", autoRoutines::LtTrench_Ramp_Sweep_Purge);
         // autoChooser.addRoutine("Left Ramp Sweep PURGE", autoRoutines::LtTrench_Ramp_Sweep_AngryPurge);
         
         // == Right Side Autos ==
-        autoChooser.addRoutine("Right x1 Ramp ANGRY", autoRoutines::RtTrench_Ramp_Single);
+        autoChooser.addRoutine("Right x1 Wait Ramp ANGRY", autoRoutines::RtTrench_Ramp_Single);
+        autoChooser.addRoutine("Right x1 Ramp MEEP", autoRoutines::RtTrench_Ramp_Meep);
         autoChooser.addRoutine("Right x2 Ramp ANGRY", autoRoutines::RtTrench_Ramp_Double);
-        autoChooser.addRoutine("Right Ramp Sweep SHOT", autoRoutines::RtTrench_Ramp_HubSweep);
-        autoChooser.addRoutine("Right Ramp Sweep PURGE", autoRoutines::RtTrench_Ramp_Sweep_Purge);
-        autoChooser.addRoutine("Right Angry Meep Meep", autoRoutines::RtTrench_Ramp_AngryMeepMeep);
+        autoChooser.addRoutine("Right x2 Ramp Sweep SHOT", autoRoutines::RtTrench_Ramp_HubSweep);
+        // autoChooser.addRoutine("Right Ramp Sweep PURGE", autoRoutines::RtTrench_Ramp_Sweep_Purge);
+        // autoChooser.addRoutine("Right Angry Meep Meep", autoRoutines::RtTrench_Ramp_AngryMeepMeep);
         // autoChooser.addRoutine("Right Ramp Sweep ANGRY PURGE", autoRoutines::RtTrench_Ramp_Sweep_AngryPurge);
 
         autoChooser.addRoutine("Right Bulldozer 2026", autoRoutines::RtBulldozer);
