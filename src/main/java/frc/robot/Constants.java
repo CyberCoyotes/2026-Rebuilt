@@ -215,6 +215,12 @@ public final class Constants {
     // TODO Consider increasing conveyor voltage
     // Increased to 4 -> 5 before Q4
     public static final double CONVEYOR_FORWARD_VOLTAGE = 5;
+    /**
+     * At 2400 flywheel motor RPM, desired conveyor speed is 2700 RPM.
+     * This is 112.5% of flywheel target speed.
+     */
+    public static final double CONVEYOR_TARGET_PERCENT_OF_FLYWHEEL = 2700.0 / 2400.0;
+    public static final double CONVEYOR_REFERENCE_FLYWHEEL_MOTOR_RPM = 2400.0;
 
     public static final double CONVEYOR_REVERSE_VOLTAGE = -7;
 
@@ -233,6 +239,12 @@ public final class Constants {
 
     // TODO Consider increasing kicker voltage
     public static final double KICKER_FORWARD_VOLTAGE = 5.0;
+    /**
+     * At 2400 flywheel motor RPM, desired kicker speed is 2700 RPM.
+     * This is 112.5% of flywheel target speed.
+     */
+    public static final double KICKER_TARGET_PERCENT_OF_FLYWHEEL = 2700.0 / 2400.0;
+    public static final double KICKER_REFERENCE_FLYWHEEL_MOTOR_RPM = 2400.0;
     
     // Reverse voltage for ejecting fuel and clearing jams. 
     public static final double KICKER_REVERSE_VOLTAGE = -6.0;
