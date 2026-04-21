@@ -65,14 +65,32 @@ public interface IndexerIO {
     default void updateInputs(IndexerIOInputs inputs) {}
 
     /**
-     * Sets the conveyor motor output voltage.
+     * Sets the conveyor motor to a closed-loop velocity target (VelocityVoltage, Slot 0).
+     * Use for normal forward operation.
+     *
+     * @param rps Target velocity in rotations per second (positive = toward indexer)
+     */
+    default void setConveyorVelocity(double rps) {}
+
+    /**
+     * Sets the conveyor motor output voltage (VoltageOut).
+     * Used for reverse and popper; kept as fallback for forward if needed.
      *
      * @param volts Positive = toward indexer, negative = reverse
      */
     default void setConveyorMotor(double volts) {}
 
     /**
-     * Sets the kicker motor output voltage.
+     * Sets the kicker leader motor to a closed-loop velocity target (VelocityVoltage, Slot 0).
+     * Use for normal forward operation. Follower mirrors automatically.
+     *
+     * @param rps Target velocity in rotations per second (positive = toward shooter)
+     */
+    default void setKickerVelocity(double rps) {}
+
+    /**
+     * Sets the kicker motor output voltage (VoltageOut).
+     * Used for reverse and popper; kept as fallback for forward if needed.
      *
      * @param volts Positive = toward shooter, negative = reverse
      */

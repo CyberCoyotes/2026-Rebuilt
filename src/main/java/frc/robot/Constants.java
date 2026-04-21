@@ -95,11 +95,17 @@ public final class Constants {
     public static final double SLIDE_MANUAL_REPEAT_SECONDS = 0.15;
     public static final double SLIDE_PUMP_OUT_POS = 60.0;
     public static final double SLIDE_PUMP_IN_POS = 40.0;
-    public static final double SLIDE_FUEL_COMPRESSION_WAIT_SECONDS = 1; // Was 1.5
+    public static final double SLIDE_FUEL_COMPRESSION_WAIT_SECONDS = 0.25; 
+    // Was 1.5
     // 0.5 too quick
     // 1.0 still seems quick
+    // At States running 1.0 and slow
+    // Trying 0.25
 
-    public static final double SLIDE_FUEL_COMPRESSION_DURATION_SECONDS = 3;
+    public static final double SLIDE_FUEL_COMPRESSION_DURATION_SECONDS = 2.75;
+    // lowered to 3 at States
+    // 2.5 seemed too fast
+
     public static final double SLIDE_FUEL_PUMP_WAIT_SECONDS = 3.0;
     public static final double SLIDE_FUEL_PUMP_OUT_SECONDS = 0.5;
     public static final double SLIDE_FUEL_PUMP_IN_SECONDS = 0.5;
@@ -212,15 +218,10 @@ public final class Constants {
      * Conveyor voltage setpoints for feeding fuel to the shooter.
      */
     
-    // TODO Consider increasing conveyor voltage
-    // Increased to 4 -> 5 before Q4
-    public static final double CONVEYOR_FORWARD_VOLTAGE = 5;
-    /**
-     * At 2400 flywheel motor RPM, desired conveyor speed is 2700 RPM.
-     * This is 112.5% of flywheel target speed.
-     */
-    public static final double CONVEYOR_TARGET_PERCENT_OF_FLYWHEEL = 2700.0 / 2400.0;
-    public static final double CONVEYOR_REFERENCE_FLYWHEEL_MOTOR_RPM = 2400.0;
+    // Conveyor forward velocity target: 2440 RPM observed at 5V → 2440/60 ≈ 40.67 RPS
+    public static final double CONVEYOR_FORWARD_RPS = 2700.0 / 60.0;
+    // 2440.0 / 60.0 = 40.67 RPS
+    // 2600.0 MUCH better
 
     public static final double CONVEYOR_REVERSE_VOLTAGE = -7;
 
@@ -237,8 +238,14 @@ public final class Constants {
      * VOLTAGE = 5 for first 4 Matches
      */
 
-    // TODO Consider increasing kicker voltage
-    public static final double KICKER_FORWARD_VOLTAGE = 5.0;
+    // Kicker forward velocity target: baseline 2440 RPM at 5V (Kraken X60 — verify on hardware).
+    // Kraken X60 free speed differs from X44; retune SLOT0_KV in KickerLeaderConfig if needed.
+    public static final double KICKER_FORWARD_RPS = 2700.0 / 60.0;
+    // 2440 RPM = 40.67 RPS
+    // 2600 RPM = 43.33 RPS
+    // 2800 RPM = 46.67 RPS
+    // 3000 RPM = 50 RPS
+    
     /**
      * At 2400 flywheel motor RPM, desired kicker speed is 2700 RPM.
      * This is 112.5% of flywheel target speed.
@@ -247,6 +254,9 @@ public final class Constants {
     public static final double KICKER_REFERENCE_FLYWHEEL_MOTOR_RPM = 2400.0;
     
     // Reverse voltage for ejecting fuel and clearing jams. 
+    // public static final double KICKER_FORWARD_VOLTAGE = 5.0;
+
+    // Reverse voltage for ejecting fuel and clearing jams.
     public static final double KICKER_REVERSE_VOLTAGE = -6.0;
 
     public static final double KICKER_POPPER_VOLTAGE = 3.0;
@@ -287,6 +297,12 @@ public final class Constants {
       public static final double STATOR_CURRENT_LIMIT = 40.0;
       public static final double PEAK_FORWARD_VOLTAGE = 12.0;
       public static final double PEAK_REVERSE_VOLTAGE = -12.0;
+
+      /* VelocityVoltage PID — Slot 0 (conveyor forward).
+       * kV derived from observed 5V ≈ 2440 RPM (40.67 RPS): 5 / 40.67 ≈ 0.123 V/RPS.
+       * kP is a conservative starting point; tune with Phoenix Tuner X under load. */
+      public static final double SLOT0_KV = 0.123; // V per RPS feedforward
+      public static final double SLOT0_KP = 0.1;   // V per RPS error
     }
 
     public static final class KickerLeaderConfig {
@@ -301,6 +317,12 @@ public final class Constants {
       public static final double STATOR_CURRENT_LIMIT = 90.0;
       public static final double PEAK_FORWARD_VOLTAGE = 12.0;
       public static final double PEAK_REVERSE_VOLTAGE = -12.0;
+
+      /* VelocityVoltage PID — Slot 0 (kicker forward).
+       * kV baseline: 5V ÷ 40.67 RPS ≈ 0.123 V/RPS (Kraken X60 — tune on hardware).
+       * kP is a conservative starting point; tune with Phoenix Tuner X under load. */
+      public static final double SLOT0_KV = 0.123; // V per RPS feedforward
+      public static final double SLOT0_KP = 0.1;   // V per RPS error
     }
 
     public static final class KickerFollowerConfig {
