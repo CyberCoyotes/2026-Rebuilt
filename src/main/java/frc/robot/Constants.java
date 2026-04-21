@@ -213,7 +213,9 @@ public final class Constants {
      */
     
     // Conveyor forward velocity target: 2440 RPM observed at 5V → 2440/60 ≈ 40.67 RPS
-    public static final double CONVEYOR_FORWARD_RPS = 2440.0 / 60.0;
+    public static final double CONVEYOR_FORWARD_RPS = 2700.0 / 60.0;
+    // 2440.0 / 60.0 = 40.67 RPS
+    // 2600.0 MUCH better
 
     // Fallback voltage (VoltageOut) — kept for reference, not used in normal operation
     // TODO Consider increasing conveyor voltage
