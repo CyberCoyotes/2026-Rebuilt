@@ -145,10 +145,18 @@ public class RobotContainer {
         
         driver.rightTrigger(0.5).whileTrue(
             Commands.deadline(
-                FuelCommands.poseAlignAndShoot(shooter, indexer, drivetrain, vision,
+                FuelCommands.poseAlignAndShoot(
+                    shooter,
+                    indexer,
+                    drivetrain,
+                    vision,
                     () -> -driver.getLeftY() * MaxSpeed,
-                    () -> -driver.getLeftX() * MaxSpeed),
-                fuelCompressionWhenShooterReady())); 
+                    () -> -driver.getLeftX() * MaxSpeed
+                ),
+                fuelCompressionWhenShooterReady()
+            )
+        );
+                
         // driver.rightBumper().onTrue(intake.fuelCompression());
         // driver.rightBumper().whileTrue(FuelCommands.purgeFuel(intake, indexer));
         
