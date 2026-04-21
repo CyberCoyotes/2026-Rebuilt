@@ -229,11 +229,6 @@ public final class Constants {
     // 2600.0 MUCH better
     public static final double CONVEYOR_FORWARD_RPS = 2700.0 / 60.0;
  
-
-    // Fallback voltage (VoltageOut) — kept for reference, not used in normal operation
-    // Increased to 4 -> 5 before Q4
-    // public static final double CONVEYOR_FORWARD_VOLTAGE = 5;
-
     public static final double CONVEYOR_REVERSE_VOLTAGE = -7;
 
     // Not needed, but don't want to break dependencies
@@ -257,8 +252,15 @@ public final class Constants {
     // 2600 RPM = 43.33 RPS
     // 2800 RPM = 46.67 RPS
     // 3000 RPM = 50 RPS
-
-    // Fallback voltage (VoltageOut) — kept for reference, not used in normal operation
+    
+    /**
+     * At 2400 flywheel motor RPM, desired kicker speed is 2700 RPM.
+     * This is 112.5% of flywheel target speed.
+     */
+    public static final double KICKER_TARGET_PERCENT_OF_FLYWHEEL = 2700.0 / 2400.0;
+    public static final double KICKER_REFERENCE_FLYWHEEL_MOTOR_RPM = 2400.0;
+    
+    // Reverse voltage for ejecting fuel and clearing jams. 
     // public static final double KICKER_FORWARD_VOLTAGE = 5.0;
 
     // Reverse voltage for ejecting fuel and clearing jams.

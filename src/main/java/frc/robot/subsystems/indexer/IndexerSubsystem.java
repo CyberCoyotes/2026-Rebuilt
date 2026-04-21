@@ -4,6 +4,7 @@ import edu.wpi.first.networktables.BooleanPublisher;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.networktables.StringPublisher;
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
@@ -141,6 +142,39 @@ public class IndexerSubsystem extends SubsystemBase {
 
     public void kickerForward() {
         io.setKickerVelocity(Constants.Indexer.KICKER_FORWARD_RPS);
+    }
+
+    /**
+     * Runs conveyor and kicker as a percent of the shooter flywheel target.
+     * Percent is anchored so 2400 flywheel motor RPM maps to 2700 indexer RPM
+     * intent (112.5%).
+     *
+     * Since indexer motors are currently open-loop voltage controlled, this scales
+     * the known-good feed voltages proportionally to flywheel target RPM.
+     *
+     * @param targetFlywheelMotorRPM shooter target in motor RPM
+     */
+    public void feedForwardScaledToFlywheel(double targetFlywheelMotorRPM) {
+        double desiredConveyorRpm = Math.abs(targetFlywheelMotorRPM) * Constants.Indexer.CONVEYOR_TARGET_PERCENT_OF_FLYWHEEL;
+        double conveyorReferenceRpm = Constants.Indexer.CONVEYOR_REFERENCE_FLYWHEEL_MOTOR_RPM
+                * Constants.Indexer.CONVEYOR_TARGET_PERCENT_OF_FLYWHEEL;
+        double flywheelRatio = desiredConveyorRpm / conveyorReferenceRpm;
+        double conveyorVolts = MathUtil.clamp(
+                Constants.Indexer.CONVEYOR_FORWARD_VOLTAGE * flywheelRatio,
+                0.0,
+                Constants.Indexer.ConveyorConfig.PEAK_FORWARD_VOLTAGE);
+
+        double desiredKickerRpm = Math.abs(targetFlywheelMotorRPM) * Constants.Indexer.KICKER_TARGET_PERCENT_OF_FLYWHEEL;
+        double kickerReferenceRpm = Constants.Indexer.KICKER_REFERENCE_FLYWHEEL_MOTOR_RPM
+                * Constants.Indexer.KICKER_TARGET_PERCENT_OF_FLYWHEEL;
+        flywheelRatio = desiredKickerRpm / kickerReferenceRpm;
+        double kickerVolts = MathUtil.clamp(
+                Constants.Indexer.KICKER_FORWARD_VOLTAGE * flywheelRatio,
+                0.0,
+                Constants.Indexer.KickerLeaderConfig.PEAK_FORWARD_VOLTAGE);
+
+        io.setConveyorMotor(conveyorVolts);
+        io.setKickerMotorVolts(kickerVolts);
     }
 
     public void indexerReverse() {
