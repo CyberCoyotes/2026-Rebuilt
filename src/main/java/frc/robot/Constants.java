@@ -95,11 +95,17 @@ public final class Constants {
     public static final double SLIDE_MANUAL_REPEAT_SECONDS = 0.15;
     public static final double SLIDE_PUMP_OUT_POS = 60.0;
     public static final double SLIDE_PUMP_IN_POS = 40.0;
-    public static final double SLIDE_FUEL_COMPRESSION_WAIT_SECONDS = 1; // Was 1.5
+    public static final double SLIDE_FUEL_COMPRESSION_WAIT_SECONDS = 0.25; 
+    // Was 1.5
     // 0.5 too quick
     // 1.0 still seems quick
+    // At States running 1.0 and slow
+    // Trying 0.25
 
-    public static final double SLIDE_FUEL_COMPRESSION_DURATION_SECONDS = 3;
+    public static final double SLIDE_FUEL_COMPRESSION_DURATION_SECONDS = 2.75;
+    // lowered to 3 at States
+    // 2.5 seemed too fast
+
     public static final double SLIDE_FUEL_PUMP_WAIT_SECONDS = 3.0;
     public static final double SLIDE_FUEL_PUMP_OUT_SECONDS = 0.5;
     public static final double SLIDE_FUEL_PUMP_IN_SECONDS = 0.5;
