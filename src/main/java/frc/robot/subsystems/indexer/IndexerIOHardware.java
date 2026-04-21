@@ -107,10 +107,22 @@ public class IndexerIOHardware implements IndexerIO {
         return config;
     }
 
+    private static CANrangeConfiguration hopperTopCANrangeConfig() {
+        CANrangeConfiguration config = new CANrangeConfiguration();
+
+        config.ProximityParams.ProximityThreshold = Constants.Indexer.FUEL_DETECTION_DISTANCE;
+        config.ProximityParams.ProximityHysteresis = Constants.Indexer.ChuteSensorConfig.PROXIMITY_HYSTERESIS;
+        config.FovParams.FOVRangeX = Constants.Indexer.ChuteSensorConfig.FOV_RANGE_X;
+        config.FovParams.FOVRangeY = Constants.Indexer.ChuteSensorConfig.FOV_RANGE_Y;
+
+        return config;
+    }
+
     // == Hardware =================================================================
     private final TalonFX conveyorMotor;
     private final TalonFX kickerMotorLead;
     private final TalonFX kickerMotorFollow;
+    private final CANrange hopperTopToF;
     private final CANrange chuteToF;
 
     // == Control Requests ==========================================================
@@ -133,6 +145,7 @@ public class IndexerIOHardware implements IndexerIO {
     private final StatusSignal<AngularVelocity> kickerFollowVelocity;
     private final StatusSignal<Current> kickerLeadCurrent;
     private final StatusSignal<Current> kickerFollowCurrent;
+    private final StatusSignal<Boolean> hopperTopIsDetected;
     private final StatusSignal<Distance> chuteDistance;
     private final StatusSignal<Boolean> chuteIsDetected;
 
@@ -141,6 +154,7 @@ public class IndexerIOHardware implements IndexerIO {
         conveyorMotor = new TalonFX(Constants.Indexer.CONVEYOR_MOTOR_ID, Constants.RIO_CANBUS);
         kickerMotorLead  = new TalonFX(Constants.Indexer.KICKER_LEFT_MOTOR_ID,   Constants.RIO_CANBUS);
         kickerMotorFollow = new TalonFX(Constants.Indexer.KICKER_RIGHT_MOTOR_ID,   Constants.RIO_CANBUS);
+        hopperTopToF  = new CANrange(Constants.Indexer.HOPPER_TOF_ID,       Constants.RIO_CANBUS);
         chuteToF      = new CANrange(Constants.Indexer.CHUTE_TOF_ID,       Constants.RIO_CANBUS);
 
        // Apply configs with retry logic — replaces the single-attempt local helper.
@@ -156,6 +170,7 @@ public class IndexerIOHardware implements IndexerIO {
             System.out.println("Kicker Follow config result: " + code.getName());
             return code;
         });
+        PhoenixUtil.applyConfig("Hopper Top ToF", () -> hopperTopToF.getConfigurator().apply(hopperTopCANrangeConfig()));
         PhoenixUtil.applyConfig("Chute ToF", () -> chuteToF.getConfigurator().apply(chuteCANrangeConfig()));
         // Follower must be set after configs are applied.
         kickerMotorFollow.setControl(kickerFollowerRequest);
@@ -166,6 +181,7 @@ public class IndexerIOHardware implements IndexerIO {
         kickerFollowVelocity = kickerMotorFollow.getVelocity();
         kickerLeadCurrent   = kickerMotorLead.getSupplyCurrent();
         kickerFollowCurrent = kickerMotorFollow.getSupplyCurrent();
+        hopperTopIsDetected = hopperTopToF.getIsDetected();
         chuteDistance    = chuteToF.getDistance();
         chuteIsDetected  = chuteToF.getIsDetected();
     }
@@ -177,6 +193,7 @@ public class IndexerIOHardware implements IndexerIO {
             conveyorVelocity,       conveyorCurrent,
             kickerLeadVelocity,     kickerLeadCurrent,
             kickerFollowCurrent,    kickerFollowVelocity,
+            hopperTopIsDetected,
             chuteDistance,          chuteIsDetected
         );
 
@@ -185,6 +202,7 @@ public class IndexerIOHardware implements IndexerIO {
         inputs.kickerLeadVelocityRPS  = kickerLeadVelocity.getValueAsDouble();
         inputs.kickerLeadCurrentAmps  = kickerLeadCurrent.getValueAsDouble();
         inputs.kickerFollowCurrentAmps = kickerFollowCurrent.getValueAsDouble();
+        inputs.hopperTopDetected = hopperTopIsDetected.getValue();
         inputs.chuteDistanceMeters = chuteDistance.getValueAsDouble();
         inputs.chuteDetected       = chuteIsDetected.getValue();
     }

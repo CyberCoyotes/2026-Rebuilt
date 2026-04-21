@@ -54,6 +54,9 @@ public interface IndexerIO {
         /** True if a game piece is detected in the indexer→shooter chute. */
         public boolean chuteDetected = false;
 
+        /** True if a game piece is detected at the top of the hopper (CANrange ID 41). */
+        public boolean hopperTopDetected = false;
+
     }
 
     /**

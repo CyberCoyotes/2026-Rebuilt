@@ -29,6 +29,7 @@ import frc.robot.subsystems.shooter.ShooterSubsystem;
 import frc.robot.subsystems.vision.VisionIOLimelight;
 import frc.robot.subsystems.vision.VisionSubsystem;
 import frc.robot.commands.FuelCommands;
+import java.util.function.BooleanSupplier;
 
 public class RobotContainer {
     // =====================================================================
@@ -145,7 +146,7 @@ public class RobotContainer {
                 FuelCommands.poseAlignAndShoot(shooter, indexer, /*intake,*/ drivetrain,
                     () -> -driver.getLeftY() * MaxSpeed,
                     () -> -driver.getLeftX() * MaxSpeed),
-                fuelCompressionWhenShooterReady())); 
+                fuelCompressionWhenShooterReadyWithHopperGuard(() -> operator.povDown().getAsBoolean()))); 
         // driver.rightBumper().onTrue(intake.fuelCompression());
         // driver.rightBumper().whileTrue(FuelCommands.purgeFuel(intake, indexer));
         
@@ -159,26 +160,26 @@ public class RobotContainer {
             Commands.deadline(
                 // drivetrain.applyRequest(() -> xBrake),
                 FuelCommands.shootWithPreset(shooter, indexer, ShooterSubsystem.ShotPreset.TRENCH),
-                intake.fuelCompression()
+                fuelCompressionWhenShooterReadyWithHopperGuard(() -> operator.povDown().getAsBoolean())
                 ));
 
         operator.b().whileTrue(
             Commands.deadline(
                 // drivetrain.applyRequest(() -> xBrake),    
                 FuelCommands.shootWithPreset(shooter, indexer, ShooterSubsystem.ShotPreset.CLOSE),
-                intake.fuelCompression()
+                fuelCompressionWhenShooterReadyWithHopperGuard(() -> operator.povDown().getAsBoolean())
                 ));
         operator.x().whileTrue(
             Commands.deadline(
                 // drivetrain.applyRequest(() -> xBrake),    
                 FuelCommands.shootWithPreset(shooter, indexer, ShooterSubsystem.ShotPreset.TOWER),
-                intake.fuelCompression()
+                fuelCompressionWhenShooterReadyWithHopperGuard(() -> operator.povDown().getAsBoolean())
                 ));
         operator.y().whileTrue(
             Commands.deadline(
                 // drivetrain.applyRequest(() -> xBrake),
                 FuelCommands.shootWithPreset(shooter, indexer, ShooterSubsystem.ShotPreset.FAR),
-                intake.fuelCompression()
+                fuelCompressionWhenShooterReadyWithHopperGuard(() -> operator.povDown().getAsBoolean())
                 ));
 
         operator.leftTrigger(0.5).whileTrue(intake.intakeFuel());
@@ -213,11 +214,12 @@ public class RobotContainer {
      * Runs intake fuel compression only after the shooter reports ready.
      * If the shooting command is cancelled before ready, compression never starts.
      */
-    private Command fuelCompressionWhenShooterReady() {
+    private Command fuelCompressionWhenShooterReadyWithHopperGuard(BooleanSupplier manualOverride) {
         return Commands.sequence(
                 Commands.waitUntil(shooter::isReady),
+                Commands.waitUntil(() -> manualOverride.getAsBoolean() || !indexer.isHopperTopDetected()),
                 intake.fuelCompression())
-                .withName("FuelCompressionWhenShooterReady");
+                .withName("FuelCompressionWhenShooterReadyWithHopperGuard");
     }
 
     public void updateGameData() {

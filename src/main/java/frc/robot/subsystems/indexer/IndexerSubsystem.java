@@ -45,6 +45,7 @@ public class IndexerSubsystem extends SubsystemBase {
     private IndexerState currentState = IndexerState.IDLE;
 
     private boolean isFuelDetected = false;
+    private boolean isHopperTopDetected = false;
     /** True once fuel has been seen at least once since last reset — guards donePassingFuel(). */
     private boolean hasSeenFuel = false;
 
@@ -85,6 +86,7 @@ public class IndexerSubsystem extends SubsystemBase {
 
         // Fuel detected when the beam distance is shorter than the ball threshold
         isFuelDetected = inputs.chuteDistanceMeters < Constants.Indexer.FUEL_DETECTION_DISTANCE;
+        isHopperTopDetected = inputs.hopperTopDetected;
 
         // --- Track first-ever detection and last detection time ---
         if (isFuelDetected) {
@@ -172,6 +174,10 @@ public class IndexerSubsystem extends SubsystemBase {
     // =====================================================================
     public boolean isFuelDetected() {
         return isFuelDetected;
+    }
+
+    public boolean isHopperTopDetected() {
+        return isHopperTopDetected;
     }
 
     public double getSecondsSinceLastDetection() {
