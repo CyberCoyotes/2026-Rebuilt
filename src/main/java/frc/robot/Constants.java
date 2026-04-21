@@ -224,8 +224,6 @@ public final class Constants {
     // 2600.0 MUCH better
 
     // Fallback voltage (VoltageOut) — kept for reference, not used in normal operation
-    // TODO Consider increasing conveyor voltage
-    // Increased to 4 -> 5 before Q4
     // public static final double CONVEYOR_FORWARD_VOLTAGE = 5;
 
     public static final double CONVEYOR_REVERSE_VOLTAGE = -7;
@@ -252,7 +250,6 @@ public final class Constants {
     // 3000 RPM = 50 RPS
 
     // Fallback voltage (VoltageOut) — kept for reference, not used in normal operation
-    // TODO Consider increasing kicker voltage
     // public static final double KICKER_FORWARD_VOLTAGE = 5.0;
 
     // Reverse voltage for ejecting fuel and clearing jams.
