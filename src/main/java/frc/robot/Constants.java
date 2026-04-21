@@ -57,6 +57,7 @@ public final class Constants {
    * 27 Conveyor Kraken X44 (Indexer.CONVEYOR_MOTOR_ID)
    * 28 Hood Minion/FXIS (Shooter.HOOD_MOTOR_ID)
    * 42 Chute ToF CANrange (Indexer.CHUTE_TOF_ID)
+   * 41 CANrange ToF for hopper top
    */
 
   public static final double DRIVE_CLAMP = 0.75;
@@ -207,8 +208,12 @@ public final class Constants {
     // Kraken X44 with TalonFX controller; conveyor motor moves pieces along hopper
     public static final int CONVEYOR_MOTOR_ID = 27;
 
+    // CANrange Time of Flight sensor; detects presence of fuel at the top of the hopper
+    public static final int HOPPER_TOF_ID = 41;
+
     // CANrange Time of Flight sensor; detects presence of fuel at indexer-kicker
     public static final int CHUTE_TOF_ID = 42;
+
 
     /*
      * Test with empty hopper, light hopper load,
