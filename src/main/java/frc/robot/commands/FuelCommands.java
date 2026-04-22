@@ -143,7 +143,8 @@ public class FuelCommands {
                 }, shooter),
                 Commands.waitUntil(shooter::isReady).withTimeout(2.0), 
                 Commands.run(() -> {
-                    indexer.feedForwardScaledToFlywheel(shooter.getTargetVelocityRPM());
+                    indexer.conveyorForward();
+                    indexer.kickerForward();
                 }, indexer))
                 .finallyDo(() -> {
                     indexer.indexerStop();
@@ -273,7 +274,8 @@ public class FuelCommands {
                 }, shooter),
                 Commands.waitUntil(shooter::isPassReady).withTimeout(3.0),
                 Commands.run(() -> {
-                    indexer.feedForwardScaledToFlywheel(shooter.getTargetVelocityRPM());
+                    indexer.conveyorForward();
+                    indexer.kickerForward();
                 }, indexer))
                 .finallyDo(() -> {
                     indexer.indexerStop();
@@ -511,7 +513,8 @@ public class FuelCommands {
 
             // 4. Feed: aligned (PID at setpoint) AND flywheel/hood settled
             if (shooter.isReady() && headingPID.atSetpoint()) {
-                indexer.feedForwardScaledToFlywheel(shooter.getTargetVelocityRPM());
+                indexer.conveyorForward();
+                indexer.kickerForward();
             } else {
                 indexer.indexerStop();
                 indexer.conveyorStop();
