@@ -563,7 +563,7 @@ public final class Constants {
     
     public static final double LL_RIGHT= 0;
 
-    // 20.75 inches = 0.52705 meters; but camera is mounted low, so using 0 for now until we can verify with measurements
+    // 20.75 inches = 0.52705 meters
     public static final double LL_UP = 0.52705; 
  
     public static final double LL_ROLL = 0;    
