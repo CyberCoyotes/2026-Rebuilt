@@ -57,6 +57,7 @@ public final class Constants {
    * 27 Conveyor Kraken X44 (Indexer.CONVEYOR_MOTOR_ID)
    * 28 Hood Minion/FXIS (Shooter.HOOD_MOTOR_ID)
    * 42 Chute ToF CANrange (Indexer.CHUTE_TOF_ID)
+   * 41 CANrange ToF for hopper top
    */
 
   public static final double DRIVE_CLAMP = 0.75;
@@ -207,8 +208,12 @@ public final class Constants {
     // Kraken X44 with TalonFX controller; conveyor motor moves pieces along hopper
     public static final int CONVEYOR_MOTOR_ID = 27;
 
+    // CANrange Time of Flight sensor; detects presence of fuel at the top of the hopper
+    public static final int HOPPER_TOF_ID = 41; // FIXME Add the CANrange ID to Tuner X
+
     // CANrange Time of Flight sensor; detects presence of fuel at indexer-kicker
     public static final int CHUTE_TOF_ID = 42;
+
 
     /*
      * Test with empty hopper, light hopper load,
@@ -218,13 +223,14 @@ public final class Constants {
      * Conveyor voltage setpoints for feeding fuel to the shooter.
      */
     
+    // TODO Adjust the CONVEYOR_FORWARD_RPS value based on testing
     // Conveyor forward velocity target: 2440 RPM observed at 5V → 2440/60 ≈ 40.67 RPS
-    public static final double CONVEYOR_FORWARD_RPS = 2700.0 / 60.0;
-    // 2440.0 / 60.0 = 40.67 RPS
+    // Starting 2440.0 / 60.0 = 40.67 RPS (same as previous voltage-based target)
     // 2600.0 MUCH better
+    public static final double CONVEYOR_FORWARD_RPS = 2700.0 / 60.0;
+ 
 
     // Fallback voltage (VoltageOut) — kept for reference, not used in normal operation
-    // TODO Consider increasing conveyor voltage
     // Increased to 4 -> 5 before Q4
     // public static final double CONVEYOR_FORWARD_VOLTAGE = 5;
 
@@ -243,6 +249,7 @@ public final class Constants {
      * VOLTAGE = 5 for first 4 Matches
      */
 
+    // TODO Adjust the KICKER_FORWARD_RPS value based on testing
     // Kicker forward velocity target: baseline 2440 RPM at 5V (Kraken X60 — verify on hardware).
     // Kraken X60 free speed differs from X44; retune SLOT0_KV in KickerLeaderConfig if needed.
     public static final double KICKER_FORWARD_RPS = 2700.0 / 60.0;
@@ -252,7 +259,6 @@ public final class Constants {
     // 3000 RPM = 50 RPS
 
     // Fallback voltage (VoltageOut) — kept for reference, not used in normal operation
-    // TODO Consider increasing kicker voltage
     // public static final double KICKER_FORWARD_VOLTAGE = 5.0;
 
     // Reverse voltage for ejecting fuel and clearing jams.
@@ -573,11 +579,11 @@ public final class Constants {
     public static final double LL_PITCH = 15.4;
     public static final double LL_YAW = 0;     
    
-    // TODO Consider loosening the alignment tolerance if the robot is having trouble reaching the aligned state
-
+    // TODO Vision - Consider loosening the alignment tolerance if the robot is having trouble reaching the aligned state
     /** Tolerance for horizontal alignment in degrees used in FuelCommands.java */
     public static final double ALIGNMENT_TOLERANCE_DEGREES = 1.00; 
 
+    // TODO Vision - Adjust min target areas as needed
     /** Minimum target area to consider target valid (prevents false positives) */
     public static final double MIN_TARGET_AREA_PERCENT = 0.1;
 
@@ -606,11 +612,12 @@ public final class Constants {
 
     public final static double ALIGNMENT_OFFSET_DEGREES = 0;
 
+    // TODO Vision kP
     // Keep this moderate
     // aggressive values amplify pose-estimator jitter during alignment.
     public static final double ROTATIONAL_KP = 0.12; // Tuned 4-8-2026
 
-    // TODO: Add KD for vision not currently used
+    // TODO Vision kD
     // Dampens oscillation; increase if sluggish settling, decrease if jittery
     public static final double ROTATIONAL_KD = 0.005;
     /*
