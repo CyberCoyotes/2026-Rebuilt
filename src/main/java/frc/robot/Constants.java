@@ -579,11 +579,11 @@ public final class Constants {
     public static final double LL_PITCH = 15.4;
     public static final double LL_YAW = 0;     
    
-    // TODO Consider loosening the alignment tolerance if the robot is having trouble reaching the aligned state
-
+    // TODO Vision - Consider loosening the alignment tolerance if the robot is having trouble reaching the aligned state
     /** Tolerance for horizontal alignment in degrees used in FuelCommands.java */
     public static final double ALIGNMENT_TOLERANCE_DEGREES = 1.00; 
 
+    // TODO Vision - Adjust min target areas as needed
     /** Minimum target area to consider target valid (prevents false positives) */
     public static final double MIN_TARGET_AREA_PERCENT = 0.1;
 
@@ -612,10 +612,12 @@ public final class Constants {
 
     public final static double ALIGNMENT_OFFSET_DEGREES = 0;
 
+    // TODO Vision kP
     // Keep this moderate
     // aggressive values amplify pose-estimator jitter during alignment.
     public static final double ROTATIONAL_KP = 0.12; // Tuned 4-8-2026
 
+    // TODO Vision kD
     // Dampens oscillation; increase if sluggish settling, decrease if jittery
     public static final double ROTATIONAL_KD = 0.005;
     /*
