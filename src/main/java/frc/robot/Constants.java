@@ -616,7 +616,6 @@ public final class Constants {
     // aggressive values amplify pose-estimator jitter during alignment.
     public static final double ROTATIONAL_KP = 0.12; // Tuned 4-8-2026
 
-    // TODO: Add KD for vision not currently used
     // Dampens oscillation; increase if sluggish settling, decrease if jittery
     public static final double ROTATIONAL_KD = 0.005;
     /*
