@@ -96,16 +96,18 @@ public final class Constants {
     public static final double SLIDE_MANUAL_REPEAT_SECONDS = 0.15;
     public static final double SLIDE_PUMP_OUT_POS = 60.0;
     public static final double SLIDE_PUMP_IN_POS = 40.0;
-    public static final double SLIDE_FUEL_COMPRESSION_WAIT_SECONDS = 0.25; 
+    public static final double SLIDE_FUEL_COMPRESSION_WAIT_SECONDS = 0.0; 
     // Was 1.5
     // 0.5 too quick
     // 1.0 still seems quick
     // At States running 1.0 and slow
     // Trying 0.25
+    // trying 0
 
-    public static final double SLIDE_FUEL_COMPRESSION_DURATION_SECONDS = 2.75;
+    public static final double SLIDE_FUEL_COMPRESSION_DURATION_SECONDS = 3.00;
     // lowered to 3 at States
     // 2.5 seemed too fast
+    // increased to 3.0
 
     public static final double SLIDE_FUEL_PUMP_WAIT_SECONDS = 3.0;
     public static final double SLIDE_FUEL_PUMP_OUT_SECONDS = 0.5;
@@ -619,7 +621,7 @@ public final class Constants {
     // TODO: Tighten (lower) to require more precise alignment before the rotation PID
     //       stops commanding rotation (deadband). If the robot oscillates and never settles,
     //       raise this. Watch AlignShoot/aligned on Elastic.
-    public static final double ALIGNMENT_TOLERANCE_DEGREES = 1.00;
+    public static final double ALIGNMENT_TOLERANCE_DEGREES = 1.50;
 
     // TODO: This is the actual "fire the shot" threshold — intentionally looser than
     //       ALIGNMENT_TOLERANCE_DEGREES so the robot feeds even if it can't hold sub-1°
