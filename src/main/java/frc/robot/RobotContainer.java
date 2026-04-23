@@ -193,7 +193,10 @@ public class RobotContainer {
                 ));
 
         operator.leftTrigger(0.5).whileTrue(intake.intakeFuel());
-        operator.rightTrigger(0.5).whileTrue(indexer.reverse());
+        
+        // operator.rightTrigger(0.5).whileTrue(Align indexer.reverse());
+        // operator.rightTrigger(0.5).whileTrue(indexer.reverse());
+
 
         operator.leftBumper().onTrue(intake.retractSlidesIncrementalCmd());
         operator.rightBumper().whileTrue(intake.fuelCompression()

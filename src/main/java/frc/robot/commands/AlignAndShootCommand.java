@@ -134,7 +134,7 @@ public class AlignAndShootCommand extends Command {
             // TODO: Verify TX sign on the robot. If alignment spins the WRONG way,
             //       change the + to a − on the getTX() term below.
             targetHeadingDeg = MathUtil.inputModulus(
-                    currentHeadingDeg + vision.getTX() + Constants.Vision.ALIGNMENT_OFFSET_DEGREES,
+                    currentHeadingDeg - vision.getTX() + Constants.Vision.ALIGNMENT_OFFSET_DEGREES,
                     -180.0, 180.0);
             rotSource = "Vision/TX";
         } else {
