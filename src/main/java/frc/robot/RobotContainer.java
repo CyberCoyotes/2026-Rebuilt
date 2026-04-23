@@ -176,8 +176,8 @@ public class RobotContainer {
         operator.b().whileTrue(
             Commands.deadline(
                 // drivetrain.applyRequest(() -> xBrake),    
-                FuelCommands.shootWithPreset(shooter, indexer, ShooterSubsystem.ShotPreset.CLOSE),
-                intake.fuelCompression()
+                FuelCommands.shootWithPreset(shooter, indexer, ShooterSubsystem.ShotPreset.CLOSE)//,
+                // intake.fuelCompression() // REMOVE for testin
                 ));
         operator.x().whileTrue(
             Commands.deadline(
@@ -196,7 +196,8 @@ public class RobotContainer {
         operator.rightTrigger(0.5).whileTrue(indexer.reverse());
 
         operator.leftBumper().onTrue(intake.retractSlidesIncrementalCmd());
-        operator.rightBumper().whileTrue(FuelCommands.purgeFuel(intake, indexer));
+        operator.rightBumper().whileTrue(intake.fuelCompression()
+        /*FuelCommands.purgeFuel(intake, indexer)*/);
         
 
         // Start (Menu ☰): Toggle flywheel standby pre-rev — operator sets once and forgets.
