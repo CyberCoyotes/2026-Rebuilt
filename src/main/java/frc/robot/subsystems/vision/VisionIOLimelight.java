@@ -25,7 +25,7 @@ import edu.wpi.first.math.util.Units;
  * - ty: Vertical offset to target in degrees
  * - ta: Target area (0-100% of image)
  * - tid: AprilTag ID
- * - botpose: Robot pose from AprilTag [x, y, z, roll, pitch, yaw]
+ * - botpose_orb_wpiblue: Robot pose (MegaTag2, WPILib blue-origin frame) [x, y, z, roll, pitch, yaw]
  * - tl: Pipeline latency (ms)
  * - cl: Capture latency (ms)
  */
@@ -59,7 +59,7 @@ public class VisionIOLimelight implements VisionIO {
         tyEntry = limelightTable.getEntry("ty");
         taEntry = limelightTable.getEntry("ta");
         tagIdEntry = limelightTable.getEntry("tid");
-        botposeEntry = limelightTable.getEntry("botpose");
+        botposeEntry = limelightTable.getEntry("botpose_orb_wpiblue");
         pipelineLatencyEntry = limelightTable.getEntry("tl");
         captureLatencyEntry = limelightTable.getEntry("cl");
         ledModeEntry = limelightTable.getEntry("ledMode");
