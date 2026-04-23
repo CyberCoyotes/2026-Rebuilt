@@ -227,7 +227,7 @@ public final class Constants {
     // Conveyor forward velocity target: 2440 RPM observed at 5V → 2440/60 ≈ 40.67 RPS
     // Starting 2440.0 / 60.0 = 40.67 RPS (same as previous voltage-based target)
     // 2600.0 MUCH better
-    public static final double CONVEYOR_FORWARD_RPS = 2700.0 / 60.0;
+    public static final double CONVEYOR_FORWARD_RPS = 3000.0 / 60.0;
  
 
     // Fallback voltage (VoltageOut) — kept for reference, not used in normal operation
@@ -252,7 +252,7 @@ public final class Constants {
     // TODO Adjust the KICKER_FORWARD_RPS value based on testing
     // Kicker forward velocity target: baseline 2440 RPM at 5V (Kraken X60 — verify on hardware).
     // Kraken X60 free speed differs from X44; retune SLOT0_KV in KickerLeaderConfig if needed.
-    public static final double KICKER_FORWARD_RPS = 2700.0 / 60.0;
+    public static final double KICKER_FORWARD_RPS = 3000.0 / 60.0;
     // 2440 RPM = 40.67 RPS
     // 2600 RPM = 43.33 RPS
     // 2800 RPM = 46.67 RPS
