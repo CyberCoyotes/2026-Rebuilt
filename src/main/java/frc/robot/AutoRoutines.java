@@ -636,9 +636,7 @@ public class AutoRoutines {
                                         Commands.sequence(
                                                         Center.resetOdometry(), // Always reset odometry first
                                                         Center.cmd(), // Follow the path
-                                                        
-                                                        // Using the event trigger, add shooting command
-
+        
                                                         m_drivetrain.stop().withTimeout(10.0)
                                                         
 
