@@ -510,29 +510,29 @@ public final class Constants {
   public static final class Shooter {
 
     // Bumpers against the hub if possible
-    public static final double CLOSE_DISTANCE = Units.inchesToMeters(18)+ HUB_TO_CENTER + LL_TO_FRONT;
+    public static final double CLOSE_DISTANCE = Units.inchesToMeters(18)+ HUB_TO_CENTER + LL_TO_FRONT; // 30 from front bumper to front of hub
     public static final double CLOSE_RPM = 2500; // 2350 was short
-    public static final double CLOSE_HOOD = 2.25;
+    public static final double CLOSE_HOOD = 1.50; // was 2.25
 
     // Side Bumpers against the tower
     public static final double TOWER_DISTANCE = Units.inchesToMeters(107) + HUB_TO_CENTER + LL_TO_FRONT;
 
     // 3050 for the first 2 matches
-    public static final double TOWER_RPM = 3050;
-    public static final double TOWER_HOOD = 5.0;
+    public static final double TOWER_RPM = 3150;
+    public static final double TOWER_HOOD = 6.00; //was 5.0
 
     // In the trench, mostly against the wall, but turned slightly towards the hub
-    public static final double TRENCH_DISTANCE = Units.inchesToMeters(110) + HUB_TO_CENTER + LL_TO_FRONT;
+    public static final double TRENCH_DISTANCE = Units.inchesToMeters(102) + HUB_TO_CENTER + LL_TO_FRONT;
 
     // 3050 for the first 2 matches
-    public static final double TRENCH_RPM = 3050;
-    public static final double TRENCH_HOOD = 5.0;
+    public static final double TRENCH_RPM = 3150;
+    public static final double TRENCH_HOOD = 6.0;
 
     // In a corner by human player station or depot-corner, angled towards the hub
     public static final double FAR_DISTANCE = Units.inchesToMeters(176) + HUB_TO_CENTER + LL_TO_FRONT;
 
     // 3450 for the first 2 matches
-    public static final double FAR_RPM = 3600;
+    public static final double FAR_RPM = 3700;
     public static final double FAR_HOOD = 8.0;
  
     // // Back Bumpers approximately against the driver station wall, angled towards the hub
@@ -544,6 +544,8 @@ public final class Constants {
     public static final double PASS_RPM = 3000;
     public static final double PASS_HOOD = 4.5;
 
+
+    // Asking for a "Far-Far_Shot" both corners of bumpers on wall
   }
 
   // =====================================================================
