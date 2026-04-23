@@ -132,8 +132,11 @@ public final class Constants {
     public static final double SLIDE_SLOW_MM_ACCELERATION = 30; // 40 // 16 // 18
     public static final double SLIDE_SLOW_MM_JERK = 0.0;
 
-    public static final double ROLLER_FORWARD_VOLTS = 9; //
-    public static final double ROLLER_REVERSE_VOLTS = -11; 
+    // Kraken X44 free speed ~96.7 RPS at 12V; 9V ≈ 72.5 RPS (rounded down to 70).
+    // Reverse was -11V ≈ 88.5 RPS.  Tune on hardware.
+    public static final double ROLLER_FORWARD_RPS = 70.0;
+    public static final double ROLLER_SLOW_RPS    = 35.0; // 50% of forward
+    public static final double ROLLER_REVERSE_RPS = -88.0;
 
     public static final class RollerLeaderConfig {
       private RollerLeaderConfig() {
@@ -145,6 +148,11 @@ public final class Constants {
       /* Intake roller limits */
       public static final double SUPPLY_CURRENT_LIMIT = 30.0;
       public static final double STATOR_CURRENT_LIMIT = 40.0;
+
+      /* VelocityVoltage feedforward — kV = 12V / 96.7 RPS ≈ 0.12; tune kS and kP on hardware */
+      public static final double KS = 0.0;
+      public static final double KV = 0.12;
+      public static final double KP = 0.0;
     }
 
     public static final class RollerFollowerConfig {

@@ -6,7 +6,7 @@ import com.ctre.phoenix6.configs.MotionMagicConfigs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 // import com.ctre.phoenix6.controls.Follower;
 import com.ctre.phoenix6.controls.MotionMagicVoltage;
-import com.ctre.phoenix6.controls.VoltageOut;
+import com.ctre.phoenix6.controls.VelocityVoltage;
 import com.ctre.phoenix6.hardware.TalonFX;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
@@ -45,6 +45,10 @@ public class IntakeIOHardware implements IntakeIO {
             config.CurrentLimits.SupplyCurrentLimitEnable = true;
             config.CurrentLimits.StatorCurrentLimit = Constants.Intake.RollerLeaderConfig.STATOR_CURRENT_LIMIT;
             config.CurrentLimits.StatorCurrentLimitEnable = true;
+
+            config.Slot0.kS = Constants.Intake.RollerLeaderConfig.KS;
+            config.Slot0.kV = Constants.Intake.RollerLeaderConfig.KV;
+            config.Slot0.kP = Constants.Intake.RollerLeaderConfig.KP;
 
             return config;
         }
@@ -107,7 +111,7 @@ public class IntakeIOHardware implements IntakeIO {
     private final TalonFX slide;
 
     // == Control Requests =====================================================
-    private final VoltageOut rollerRequest = new VoltageOut(0);
+    private final VelocityVoltage rollerRequest = new VelocityVoltage(0);
 
     // Single MotionMagic request used for both fast and slow slide movement.
     // The speed difference comes from swapping the motor's MotionMagic config.
@@ -171,8 +175,8 @@ public class IntakeIOHardware implements IntakeIO {
 
     // ==== Roller Methods ====
     @Override
-    public void setRollerVoltage(double volts) {
-        rollerLead.setControl(rollerRequest.withOutput(volts));
+    public void setRollerVelocity(double rps) {
+        rollerLead.setControl(rollerRequest.withVelocity(rps));
     }
 
     @Override
