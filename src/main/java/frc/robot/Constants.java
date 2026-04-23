@@ -605,7 +605,7 @@ public final class Constants {
     //       If it barely turns toward the target, raise KP in steps of 0.02.
     //       Watch AlignShoot/rotRate_radps on Elastic while tuning.
     public static final double ROTATIONAL_KP = 0.12; // Tuned 4-8-2026
-    public static final double ROTATIONAL_KD = 0.005; // Dampens overshoot; 0 to disable
+    public static final double ROTATIONAL_KD = 0.015; // Dampens overshoot; raise if oscillating near setpoint, 0 to disable
 
     // Dampens oscillation; increase if sluggish settling, decrease if jittery
     /*
@@ -613,7 +613,7 @@ public final class Constants {
      * (rad/s).
      * Default: 3.0 rad/s (~172°/s). Reduce if the robot swings too aggressively.
      */
-    public static final double MIN_ALIGNMENT_ROTATION_RAD_PER_SEC = 0.15; // tune to just above static friction
+    public static final double MIN_ALIGNMENT_ROTATION_RAD_PER_SEC = 0.07; // just above static friction; raise if stalling, lower if oscillating
     public static final double MAX_ALIGNMENT_ROTATION_RAD_PER_SEC = 4.5; // tune to prevent overshooting and oscillation
 
     // TODO: Tighten (lower) to require more precise alignment before the rotation PID
