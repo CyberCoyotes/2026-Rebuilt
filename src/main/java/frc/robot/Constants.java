@@ -616,9 +616,16 @@ public final class Constants {
     public static final double MIN_ALIGNMENT_ROTATION_RAD_PER_SEC = 0.15; // tune to just above static friction
     public static final double MAX_ALIGNMENT_ROTATION_RAD_PER_SEC = 4.5; // tune to prevent overshooting and oscillation
 
-    // TODO: Tighten (lower) to require more precise alignment before feeding.
-    //       Watch AlignShoot/aligned on Elastic — it should flick true before the shot.
+    // TODO: Tighten (lower) to require more precise alignment before the rotation PID
+    //       stops commanding rotation (deadband). If the robot oscillates and never settles,
+    //       raise this. Watch AlignShoot/aligned on Elastic.
     public static final double ALIGNMENT_TOLERANCE_DEGREES = 1.00;
+
+    // TODO: This is the actual "fire the shot" threshold — intentionally looser than
+    //       ALIGNMENT_TOLERANCE_DEGREES so the robot feeds even if it can't hold sub-1°
+    //       alignment due to drivetrain jitter or TX noise. Tighten if shots are missing;
+    //       loosen if the robot rarely fires. 2.0° is a good competition starting point.
+    public static final double FEED_TOLERANCE_DEGREES = 2.00;
 
     // TODO: Raise if you want the driver to be able to strafe more while auto-aiming.
     //       0.40 = driver can push at 40% of max speed while the robot is auto-rotating.

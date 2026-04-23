@@ -128,11 +128,9 @@ public class AlignAndShootCommand extends Command {
 
         if (vision.hasFreshTarget()) {
             // TX = 0 when the camera is perfectly centered on the tag.
-            // Adding TX to current heading makes the PID error equal TX,
+            // Subtracting TX from current heading makes the PID error equal TX,
             // so the robot rotates until TX → 0.
-            //
-            // TODO: Verify TX sign on the robot. If alignment spins the WRONG way,
-            //       change the + to a − on the getTX() term below.
+            // Sign confirmed on robot: negative = correct direction for rear-mounted camera.
             targetHeadingDeg = MathUtil.inputModulus(
                     currentHeadingDeg - vision.getTX() + Constants.Vision.ALIGNMENT_OFFSET_DEGREES,
                     -180.0, 180.0);
@@ -174,8 +172,13 @@ public class AlignAndShootCommand extends Command {
                         .withRotationalRate(rotRate));
 
         // ── Feed gate ────────────────────────────────────────────────────────
-        boolean aligned = headingPID.atSetpoint();
-        if (shooter.isReady() && aligned) {
+        // ALIGNMENT_TOLERANCE_DEGREES controls the rotation deadband (PID stops turning).
+        // FEED_TOLERANCE_DEGREES is checked independently and is intentionally looser —
+        // the shot fires when we're "close enough," not only when perfectly settled.
+        // This prevents the robot from never feeding because it can't hold sub-1° alignment.
+        boolean aligned  = headingPID.atSetpoint(); // used for dashboard only
+        boolean readyToFeed = Math.abs(headingErrorDeg) < Constants.Vision.FEED_TOLERANCE_DEGREES;
+        if (shooter.isReady() && readyToFeed) {
             indexer.conveyorForward();
             indexer.kickerForward();
         } else {
