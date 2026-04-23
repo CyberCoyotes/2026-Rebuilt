@@ -28,6 +28,7 @@ import frc.robot.subsystems.shooter.ShooterIOHardware;
 import frc.robot.subsystems.shooter.ShooterSubsystem;
 import frc.robot.subsystems.vision.VisionIOLimelight;
 import frc.robot.subsystems.vision.VisionSubsystem;
+import frc.robot.commands.AlignOnlyCommand;
 import frc.robot.commands.FuelCommands;
 
 public class RobotContainer {
@@ -162,7 +163,15 @@ public class RobotContainer {
         // driver.rightBumper().whileTrue(FuelCommands.purgeFuel(intake, indexer));
         
         driver.leftTrigger(0.5).whileTrue(intake.intakeFuel());
-        // driver.leftBumper().onTrue(intake.retractSlidesIncrementalCmd());
+        // Align-only: rotation + vision logic, no flywheel/hood — safe for PID tuning
+        driver.leftBumper().whileTrue(
+            new AlignOnlyCommand(
+                drivetrain,
+                vision,
+                () -> -driver.getLeftY() * MaxSpeed,
+                () -> -driver.getLeftX() * MaxSpeed
+            )
+        );
         
         // =====================================================================
         // Operator Controller
