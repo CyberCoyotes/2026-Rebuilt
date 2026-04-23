@@ -604,8 +604,8 @@ public final class Constants {
     // TODO: If the robot oscillates left/right during alignment, raise KD slightly.
     //       If it barely turns toward the target, raise KP in steps of 0.02.
     //       Watch AlignShoot/rotRate_radps on Elastic while tuning.
-    public static final double ROTATIONAL_KP = 0.12; // Tuned 4-8-2026
-    public static final double ROTATIONAL_KD = 0.015; // Dampens overshoot; raise if oscillating near setpoint, 0 to disable
+    public static final double ROTATIONAL_KP = 0.22; // raise if soft/sluggish, lower if overshooting
+    public static final double ROTATIONAL_KD = 0.020; // raise if oscillating on approach, scale with KP
 
     // Dampens oscillation; increase if sluggish settling, decrease if jittery
     /*
