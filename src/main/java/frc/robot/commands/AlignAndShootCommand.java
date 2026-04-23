@@ -126,22 +126,23 @@ public class AlignAndShootCommand extends Command {
         double targetHeadingDeg;
         String rotSource;
 
-        if (vision.hasFreshTarget()) {
-            // TX = 0 when the camera is perfectly centered on the tag.
-            // Subtracting TX from current heading makes the PID error equal TX,
-            // so the robot rotates until TX → 0.
-            // Sign confirmed on robot: negative = correct direction for rear-mounted camera.
+        double angleToHubDeg = Math.toDegrees(Math.atan2(dy, dx));
+        if (vision.hasFreshTarget() && vision.getTagCount() == 1) {
+            // Single hub tag: TX is a stable direct measurement — drive TX → 0.
+            // Sign confirmed on robot: negative = correct for rear-mounted camera.
             targetHeadingDeg = MathUtil.inputModulus(
                     currentHeadingDeg - vision.getTX() + Constants.Vision.ALIGNMENT_OFFSET_DEGREES,
                     -180.0, 180.0);
             rotSource = "Vision/TX";
         } else {
-            // Odometry fallback: aim robot toward hub bearing from fused pose
-            double angleToHubDeg = Math.toDegrees(Math.atan2(dy, dx));
+            // Two or more hub tags visible: Limelight primary-tag selection can flip
+            // between the pair, causing TX to jump 3–5°. MT2 pose with 2+ tags is
+            // highly accurate, so odometry bearing is the more stable reference.
+            // Also used as fallback when no hub tag is visible.
             targetHeadingDeg = MathUtil.inputModulus(
                     angleToHubDeg + Constants.Vision.ALIGNMENT_OFFSET_DEGREES,
                     -180.0, 180.0);
-            rotSource = "Odometry";
+            rotSource = vision.hasFreshTarget() ? "Odometry/MultiTag" : "Odometry";
         }
 
         // ── PID → rotational rate ────────────────────────────────────────────

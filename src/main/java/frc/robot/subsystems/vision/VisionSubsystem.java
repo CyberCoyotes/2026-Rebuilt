@@ -118,6 +118,17 @@ public class VisionSubsystem extends SubsystemBase {
         return inputs.tagId;
     }
 
+    /**
+     * Number of tags used in the current MegaTag2 estimate (0 if MT2 not active).
+     * Use this to decide whether TX or odometry bearing is more stable:
+     *   tagCount == 1 → TX is the best rotation reference (single tag, no flip risk)
+     *   tagCount >= 2 → odometry bearing from MT2 pose is more stable than TX
+     *                   (two tags on the same hub face cause primary-tag flipping)
+     */
+    public int getTagCount() {
+        return inputs.megaTag2TagCount;
+    }
+
     // =========================================================================
     // Internal helpers
     // =========================================================================

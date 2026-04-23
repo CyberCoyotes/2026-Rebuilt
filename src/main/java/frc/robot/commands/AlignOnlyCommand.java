@@ -99,17 +99,17 @@ public class AlignOnlyCommand extends Command {
         double targetHeadingDeg;
         String rotSource;
 
-        if (vision.hasFreshTarget()) {
+        double angleToHubDeg = Math.toDegrees(Math.atan2(dy, dx));
+        if (vision.hasFreshTarget() && vision.getTagCount() == 1) {
             targetHeadingDeg = MathUtil.inputModulus(
                     currentHeadingDeg - vision.getTX() + Constants.Vision.ALIGNMENT_OFFSET_DEGREES,
                     -180.0, 180.0);
             rotSource = "Vision/TX";
         } else {
-            double angleToHubDeg = Math.toDegrees(Math.atan2(dy, dx));
             targetHeadingDeg = MathUtil.inputModulus(
                     angleToHubDeg + Constants.Vision.ALIGNMENT_OFFSET_DEGREES,
                     -180.0, 180.0);
-            rotSource = "Odometry";
+            rotSource = vision.hasFreshTarget() ? "Odometry/MultiTag" : "Odometry";
         }
 
         headingPID.setSetpoint(targetHeadingDeg);
