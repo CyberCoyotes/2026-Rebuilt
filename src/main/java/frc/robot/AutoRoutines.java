@@ -274,7 +274,7 @@ public class AutoRoutines {
                 return routine;
         }
 
-        // FIXME
+        // This auton is not tested
         public AutoRoutine RtTrench_Ramp_Sweep_AngryPurge() {
 
                 final AutoRoutine routine = m_factory.newRoutine("Right Trench-Ramp-Sweep_AngryPurge");
@@ -636,9 +636,7 @@ public class AutoRoutines {
                                         Commands.sequence(
                                                         Center.resetOdometry(), // Always reset odometry first
                                                         Center.cmd(), // Follow the path
-                                                        
-                                                        // TODO: Using the event trigger, add shooting command
-
+        
                                                         m_drivetrain.stop().withTimeout(10.0)
                                                         
 

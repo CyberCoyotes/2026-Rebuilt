@@ -22,6 +22,7 @@ import frc.robot.subsystems.indexer.IndexerSubsystem;
 import frc.robot.subsystems.intake.IntakeSubsystem;
 import frc.robot.subsystems.shooter.ShooterSubsystem;
 import frc.robot.subsystems.shooter.ShooterSubsystem.ShotPreset;
+import frc.robot.subsystems.vision.VisionSubsystem;
 
 /**
  * Fuel Commands - Factory for shooter-related commands.
@@ -436,101 +437,10 @@ public class FuelCommands {
             ShooterSubsystem shooter,
             IndexerSubsystem indexer,
             CommandSwerveDrivetrain drivetrain,
+            VisionSubsystem vision,
             DoubleSupplier xSupplier,
             DoubleSupplier ySupplier) {
-
-        final SwerveRequest.FieldCentric alignRequest = new SwerveRequest.FieldCentric()
-                .withDriveRequestType(DriveRequestType.OpenLoopVoltage);
-
-        // PID controller for heading — persists across loop iterations for D-term
-        final PIDController headingPID = createAlignmentPID();
-
-        // NT diagnostics — created once per factory call (whileTrue caches the command
-        // object)
-        final NetworkTable visionTable = NetworkTableInstance.getDefault().getTable("VisionShoot");
-        final DoublePublisher ntAngleToHub = visionTable.getDoubleTopic("angleToHub_deg").publish();
-        final DoublePublisher ntCurrentHeading = visionTable.getDoubleTopic("currentHeading_deg").publish();
-        final DoublePublisher ntHeadingError = visionTable.getDoubleTopic("headingError_deg").publish();
-        final DoublePublisher ntRotRate = visionTable.getDoubleTopic("rotRate_radps").publish();
-        final DoublePublisher ntDistance = visionTable.getDoubleTopic("distanceToHub_m").publish();
-        final DoublePublisher ntLeadOffset = visionTable.getDoubleTopic("leadOffset_deg").publish();
-
-        return Commands.run(() -> {
-            Translation2d hub = getHubLocation();
-            Pose2d pose = drivetrain.getState().Pose;
-
-            // 1. Distance → update shooter targets live
-            double dx = hub.getX() - pose.getX();
-            double dy = hub.getY() - pose.getY();
-            double distance = MathUtil.clamp(
-                    Math.hypot(dx, dy),
-                    Constants.Vision.MIN_DISTANCE_M,
-                    Constants.Vision.MAX_DISTANCE_M);
-
-            shooter.updateFromDistance(distance);
-            if (shooter.getState() != ShooterSubsystem.ShooterState.READY) {
-                shooter.beginSpinUp();
-            }
-
-            // 2. Compute target heading
-            double angleToHubDeg = Math.toDegrees(Math.atan2(dy, dx));
-
-            // Velocity lead compensation — offsets aim opposite to lateral movement
-            var speeds = drivetrain.getState().Speeds;
-            double vx = speeds.vxMetersPerSecond;
-            double vy = speeds.vyMetersPerSecond;
-            double hubAngleRad = Math.atan2(dy, dx);
-            double lateralVelocity = -vx * Math.sin(hubAngleRad) + vy * Math.cos(hubAngleRad);
-            double leadOffsetDeg = -lateralVelocity * Constants.Vision.LEAD_COMPENSATION_DEG_PER_MPS;
-
-            double targetHeadingDeg = MathUtil.inputModulus(
-                    angleToHubDeg + leadOffsetDeg + Constants.Vision.ALIGNMENT_OFFSET_DEGREES, -180.0, 180.0);
-            double currentHeadingDeg = pose.getRotation().getDegrees();
-            double headingErrorDeg = getHeadingErrorDegrees(targetHeadingDeg, currentHeadingDeg);
-
-            ntLeadOffset.set(leadOffsetDeg);
-
-            // 3. PID rotation correction — atSetpoint() replaces manual deadband
-            headingPID.setSetpoint(targetHeadingDeg);
-            double pidOutput = headingPID.calculate(currentHeadingDeg);
-            double rotRate = headingPID.atSetpoint() ? 0.0
-                    : MathUtil.clamp(pidOutput,
-                            -Constants.Vision.MAX_ALIGNMENT_ROTATION_RAD_PER_SEC,
-                            Constants.Vision.MAX_ALIGNMENT_ROTATION_RAD_PER_SEC);
-
-            ntAngleToHub.set(angleToHubDeg);
-            ntCurrentHeading.set(currentHeadingDeg);
-            ntHeadingError.set(headingErrorDeg);
-            ntRotRate.set(rotRate);
-            ntDistance.set(distance);
-
-            drivetrain.setControl(
-                    alignRequest
-                            .withVelocityX(-xSupplier.getAsDouble() * .40) // Limit to 40% while auto-shooting
-                            .withVelocityY(-ySupplier.getAsDouble() * .40) // Made negative to correct backwards driving
-                                                                           // when vision-assisted
-                            .withRotationalRate(rotRate));
-
-            // 4. Feed: aligned (PID at setpoint) AND flywheel/hood settled
-            if (shooter.isReady() && headingPID.atSetpoint()) {
-                indexer.conveyorForward();
-                indexer.kickerForward();
-            } else {
-                indexer.indexerStop();
-                indexer.conveyorStop();
-            }
-
-        }, shooter, indexer, drivetrain)
-                .beforeStarting(() -> {
-                    headingPID.reset();
-                    shooter.beginSpinUp();
-                })
-                .finallyDo(() -> {
-                    indexer.indexerStop();
-                    indexer.conveyorStop();
-                    shooter.setPostShotState();
-                })
-                .withName("PoseAlignAndShoot");
+        return new AlignAndShootCommand(shooter, indexer, drivetrain, vision, xSupplier, ySupplier);
     }
 
     public static class Auto {

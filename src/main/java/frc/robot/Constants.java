@@ -209,7 +209,7 @@ public final class Constants {
     public static final int CONVEYOR_MOTOR_ID = 27;
 
     // CANrange Time of Flight sensor; detects presence of fuel at the top of the hopper
-    public static final int HOPPER_TOF_ID = 41;
+    public static final int HOPPER_TOF_ID = 41; // FIXME Add the CANrange ID to Tuner X
 
     // CANrange Time of Flight sensor; detects presence of fuel at indexer-kicker
     public static final int CHUTE_TOF_ID = 42;
@@ -223,13 +223,14 @@ public final class Constants {
      * Conveyor voltage setpoints for feeding fuel to the shooter.
      */
     
+    // TODO Adjust the CONVEYOR_FORWARD_RPS value based on testing
     // Conveyor forward velocity target: 2440 RPM observed at 5V → 2440/60 ≈ 40.67 RPS
-    public static final double CONVEYOR_FORWARD_RPS = 2700.0 / 60.0;
-    // 2440.0 / 60.0 = 40.67 RPS
+    // Starting 2440.0 / 60.0 = 40.67 RPS (same as previous voltage-based target)
     // 2600.0 MUCH better
+    public static final double CONVEYOR_FORWARD_RPS = 3200.0 / 60.0;
+ 
 
     // Fallback voltage (VoltageOut) — kept for reference, not used in normal operation
-    // TODO Consider increasing conveyor voltage
     // Increased to 4 -> 5 before Q4
     // public static final double CONVEYOR_FORWARD_VOLTAGE = 5;
 
@@ -248,16 +249,16 @@ public final class Constants {
      * VOLTAGE = 5 for first 4 Matches
      */
 
+    // TODO Adjust the KICKER_FORWARD_RPS value based on testing
     // Kicker forward velocity target: baseline 2440 RPM at 5V (Kraken X60 — verify on hardware).
     // Kraken X60 free speed differs from X44; retune SLOT0_KV in KickerLeaderConfig if needed.
-    public static final double KICKER_FORWARD_RPS = 2700.0 / 60.0;
+    public static final double KICKER_FORWARD_RPS = 3200.0 / 60.0;
     // 2440 RPM = 40.67 RPS
     // 2600 RPM = 43.33 RPS
     // 2800 RPM = 46.67 RPS
     // 3000 RPM = 50 RPS
 
     // Fallback voltage (VoltageOut) — kept for reference, not used in normal operation
-    // TODO Consider increasing kicker voltage
     // public static final double KICKER_FORWARD_VOLTAGE = 5.0;
 
     // Reverse voltage for ejecting fuel and clearing jams.
@@ -509,29 +510,29 @@ public final class Constants {
   public static final class Shooter {
 
     // Bumpers against the hub if possible
-    public static final double CLOSE_DISTANCE = Units.inchesToMeters(18)+ HUB_TO_CENTER + LL_TO_FRONT;
+    public static final double CLOSE_DISTANCE = Units.inchesToMeters(18)+ HUB_TO_CENTER + LL_TO_FRONT; // 30 from front bumper to front of hub
     public static final double CLOSE_RPM = 2500; // 2350 was short
-    public static final double CLOSE_HOOD = 2.25;
+    public static final double CLOSE_HOOD = 1.50; // was 2.25
 
     // Side Bumpers against the tower
     public static final double TOWER_DISTANCE = Units.inchesToMeters(107) + HUB_TO_CENTER + LL_TO_FRONT;
 
     // 3050 for the first 2 matches
-    public static final double TOWER_RPM = 3050;
-    public static final double TOWER_HOOD = 5.0;
+    public static final double TOWER_RPM = 3150;
+    public static final double TOWER_HOOD = 6.00; //was 5.0
 
     // In the trench, mostly against the wall, but turned slightly towards the hub
-    public static final double TRENCH_DISTANCE = Units.inchesToMeters(110) + HUB_TO_CENTER + LL_TO_FRONT;
+    public static final double TRENCH_DISTANCE = Units.inchesToMeters(102) + HUB_TO_CENTER + LL_TO_FRONT;
 
     // 3050 for the first 2 matches
-    public static final double TRENCH_RPM = 3050;
-    public static final double TRENCH_HOOD = 5.0;
+    public static final double TRENCH_RPM = 3150;
+    public static final double TRENCH_HOOD = 6.0;
 
     // In a corner by human player station or depot-corner, angled towards the hub
     public static final double FAR_DISTANCE = Units.inchesToMeters(176) + HUB_TO_CENTER + LL_TO_FRONT;
 
     // 3450 for the first 2 matches
-    public static final double FAR_RPM = 3600;
+    public static final double FAR_RPM = 3700;
     public static final double FAR_HOOD = 8.0;
  
     // // Back Bumpers approximately against the driver station wall, angled towards the hub
@@ -543,6 +544,8 @@ public final class Constants {
     public static final double PASS_RPM = 3000;
     public static final double PASS_HOOD = 4.5;
 
+
+    // Asking for a "Far-Far_Shot" both corners of bumpers on wall
   }
 
   // =====================================================================
@@ -571,71 +574,87 @@ public final class Constants {
     
     public static final double LL_RIGHT= 0;
 
-    // 20.75 inches = 0.52705 meters; but camera is mounted low, so using 0 for now until we can verify with measurements
+    // 20.75 inches = 0.52705 meters
     public static final double LL_UP = 0.52705; 
  
     public static final double LL_ROLL = 0;    
     public static final double LL_PITCH = 15.4;
     public static final double LL_YAW = 0;     
    
-    // TODO Consider loosening the alignment tolerance if the robot is having trouble reaching the aligned state
-
+    // TODO Vision - Consider loosening the alignment tolerance if the robot is having trouble reaching the aligned state
     /** Tolerance for horizontal alignment in degrees used in FuelCommands.java */
-    public static final double ALIGNMENT_TOLERANCE_DEGREES = 1.00; 
-
     /** Minimum target area to consider target valid (prevents false positives) */
     public static final double MIN_TARGET_AREA_PERCENT = 0.1;
 
     /** Maximum distance to trust vision measurement in meters */
     public static final double MAX_DISTANCE_METERS = 6.0;
 
-    // State tracking
     /** Time in seconds before considering target "lost" after losing sight */
     public static final double TARGET_TIMEOUT_SECONDS = 0.5;
 
-    // Vision-driven drivetrain rotation
-    /**
-     * Proportional gain for rotational alignment: (rad/s output) per (degree of tx
-     * error).
-     *
-     * - Too low → slow to center, may not reach ALIGNED before timeout
-     * - Too high → oscillates left/right around the target
-     * See `tuning-guide_vision.md` for step-by-step procedure.
-     */
+    // =================================================================
+    // Alignment tuning — AlignAndShootCommand
+    // =================================================================
 
-    /*
-     * Current mechanical layout: shooter and camera are mounted on the back of the
-     * robot and shooter faces backwards
-     * Chassis front must point 180° away from the hub when aligning to shoot.
-     */
-
+    // TODO: If AlignAndShootCommand rotates to the WRONG side of the hub, change
+    //       this to 180.0. Accounts for the shooter being on the robot rear:
+    //       0 = robot front faces hub, 180 = robot back faces hub.
     public final static double ALIGNMENT_OFFSET_DEGREES = 0;
 
-    // Keep this moderate
-    // aggressive values amplify pose-estimator jitter during alignment.
-    public static final double ROTATIONAL_KP = 0.12; // Tuned 4-8-2026
+    // TODO: If the robot oscillates left/right during alignment, raise KD slightly.
+    //       If it barely turns toward the target, raise KP in steps of 0.02.
+    //       Watch AlignShoot/rotRate_radps on Elastic while tuning.
+    public static final double ROTATIONAL_KP = 0.25; // raise if soft/sluggish, lower if overshooting
+    public static final double ROTATIONAL_KD = 0.035; // raise if oscillating on approach, scale with KP
 
-    // TODO: Add KD for vision not currently used
     // Dampens oscillation; increase if sluggish settling, decrease if jittery
-    public static final double ROTATIONAL_KD = 0.005;
     /*
      * Maximum rotational rate the vision command will apply to the drivetrain
      * (rad/s).
      * Default: 3.0 rad/s (~172°/s). Reduce if the robot swings too aggressively.
      */
-    public static final double MIN_ALIGNMENT_ROTATION_RAD_PER_SEC = 0.15; // tune to just above static friction
+    public static final double MIN_ALIGNMENT_ROTATION_RAD_PER_SEC = 0.07; // just above static friction; raise if stalling, lower if oscillating
     public static final double MAX_ALIGNMENT_ROTATION_RAD_PER_SEC = 4.5; // tune to prevent overshooting and oscillation
 
+    // TODO: Tighten (lower) to require more precise alignment before the rotation PID
+    //       stops commanding rotation (deadband). If the robot oscillates and never settles,
+    //       raise this. Watch AlignShoot/aligned on Elastic.
+    public static final double ALIGNMENT_TOLERANCE_DEGREES = 1.00;
+
+    // TODO: This is the actual "fire the shot" threshold — intentionally looser than
+    //       ALIGNMENT_TOLERANCE_DEGREES so the robot feeds even if it can't hold sub-1°
+    //       alignment due to drivetrain jitter or TX noise. Tighten if shots are missing;
+    //       loosen if the robot rarely fires. 2.0° is a good competition starting point.
+    public static final double FEED_TOLERANCE_DEGREES = 2.00;
+
+    // TODO: Raise if you want the driver to be able to strafe more while auto-aiming.
+    //       0.40 = driver can push at 40% of max speed while the robot is auto-rotating.
     public static final double ALIGNMENT_DRIVETRAIN_CLAMP = 0.40;
 
     public static final double MIN_DISTANCE_M = 0.25;
     public static final double MAX_DISTANCE_M = 6.0;
 
-    /*
-     * Tune up from 0 — 50 degrees of aim offset per m/s of lateral velocity
-     * At this point, its not a high priority
-     */
+    // TODO: Tune up from 0 once alignment is solid — offsets aim opposite to lateral
+    //       motion so moving shots still hit. Units: degrees of offset per m/s of
+    //       lateral velocity. Start testing at 3–5 deg/(m/s).
     public static final double LEAD_COMPENSATION_DEG_PER_MPS = 0;
+
+    // == Pose-fusion weighting ==================
+    // xyStdDev = COEFF * dist²  (meters).  Lower = more trust in vision.
+    // MT2 is rotation-locked (IMU owns heading) so theta std dev is set to
+    // 9999999 for both modes — vision never overrides the gyro for yaw.
+    //
+    // Typical values at shooting distances (COEFF = 0.10):
+    //   1.5 m (close)  → xyStdDev ≈ 0.23  (roughly equal trust to odometry)
+    //   2.5 m (tower)  → xyStdDev ≈ 0.63  (odometry ~6x more trusted)
+    //
+    // Tune COEFF down (e.g. 0.05) to lean heavier on vision at mid-range.
+    public static final double VISION_MT2_STD_DEV_COEFF = 0.10; // ToDo: tune
+    public static final double VISION_MT1_STD_DEV_COEFF = 0.30; // MT1 fallback — less accurate than MT2
+
+    // Don't fuse vision measurements while rotating faster than this (rotations/sec).
+    // Fast rotation causes MT2 latency errors; 2.0 RPS ≈ 720 °/s.
+    public static final double OMEGA_FILTER_MAX_RPS = 2.0; // ToDo: tune
 
     // == Valid tag IDs =========================
     // NOTE: MIN/MAX here are used for general target validation in VisionSubsystem.
