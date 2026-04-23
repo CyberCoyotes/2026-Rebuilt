@@ -219,10 +219,14 @@ public final class Constants {
     public static final int CONVEYOR_MOTOR_ID = 27;
 
     // CANrange Time of Flight sensor; detects presence of fuel at the top of the hopper
-    public static final int HOPPER_TOF_ID = 41; // FIXME Add the CANrange ID to Tuner X
+    public static final int HOPPER_TOF_ID = 41;
 
     // CANrange Time of Flight sensor; detects presence of fuel at indexer-kicker
     public static final int CHUTE_TOF_ID = 42;
+
+    // Hopper is considered full when the top sensor reads closer than this distance.
+    // Tune in Phoenix Tuner X; 0.20 m (~8 in) is the starting point.
+    public static final double HOPPER_FULL_DISTANCE_METERS = 0.20;
 
 
     /*
@@ -363,6 +367,15 @@ public final class Constants {
        * mounting location. Add an end-of-line "Tuned" note when each value is
        * confirmed.
        */
+      public static final double PROXIMITY_HYSTERESIS = 0.025;
+      public static final double FOV_RANGE_X = 6.75;
+      public static final double FOV_RANGE_Y = 6.75;
+    }
+
+    public static final class HopperSensorConfig {
+      private HopperSensorConfig() {
+      }
+
       public static final double PROXIMITY_HYSTERESIS = 0.025;
       public static final double FOV_RANGE_X = 6.75;
       public static final double FOV_RANGE_Y = 6.75;

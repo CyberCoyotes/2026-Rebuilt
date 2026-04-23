@@ -24,12 +24,9 @@ public interface IntakeIO {
         /** Slide motor temperature in Celsius */
         public double slideTempCelsius = 0.0;
 
-        // // Sensor Data
-        // // distance from nearest thing to intake sensor in mm
-        // public double intakeDistance = 0.0;
-
-        // // is a target detected
-        // public boolean intakeTarget = false;
+        // Hopper ToF (CANrange ID 41) — detects whether the top of the hopper is full
+        public double hopperDistanceMeters = 0.0;
+        public boolean hopperFull = false;
     }
 
     /**

@@ -2,6 +2,7 @@ package frc.robot.subsystems.intake;
 
 import java.util.function.BooleanSupplier;
 
+import edu.wpi.first.networktables.BooleanPublisher;
 import edu.wpi.first.networktables.DoublePublisher;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
@@ -47,6 +48,8 @@ public class IntakeSubsystem extends SubsystemBase {
     private final NetworkTable intakeTable;
     private final StringPublisher intakeStatePublisher;
     private final DoublePublisher slidePositionPublisher;
+    private final DoublePublisher hopperDistancePublisher;
+    private final BooleanPublisher hopperFullPublisher;
 
     // =====================================================================
     // Constructor
@@ -56,8 +59,10 @@ public class IntakeSubsystem extends SubsystemBase {
 
         NetworkTableInstance inst = NetworkTableInstance.getDefault();
         intakeTable = inst.getTable("Intake");
-        intakeStatePublisher = intakeTable.getStringTopic("State").publish();
-        slidePositionPublisher = intakeTable.getDoubleTopic("SlidePosition").publish();
+        intakeStatePublisher     = intakeTable.getStringTopic("State").publish();
+        slidePositionPublisher   = intakeTable.getDoubleTopic("SlidePosition").publish();
+        hopperDistancePublisher  = intakeTable.getDoubleTopic("HopperDistance").publish();
+        hopperFullPublisher      = intakeTable.getBooleanTopic("HopperFull").publish();
     }
 
     // =====================================================================
@@ -74,6 +79,8 @@ public class IntakeSubsystem extends SubsystemBase {
     private void publishTelemetry() {
         intakeStatePublisher.set(getIntakeState());
         slidePositionPublisher.set(inputs.slidePositionRotations);
+        hopperDistancePublisher.set(inputs.hopperDistanceMeters);
+        hopperFullPublisher.set(inputs.hopperFull);
     }
 
     // =====================================================================
@@ -109,6 +116,11 @@ public class IntakeSubsystem extends SubsystemBase {
     /** True when the slide is safely past the home position for roller operation. */
     public boolean isSlidePastHome() {
         return inputs.slidePositionRotations > Constants.Intake.SLIDE_ROLLER_SAFE_POS;
+    }
+
+    /** True when the hopper top sensor detects a ball within HOPPER_FULL_DISTANCE_METERS. */
+    public boolean isHopperFull() {
+        return inputs.hopperFull;
     }
 
     // Position accessor for commands and calculations.
@@ -400,6 +412,22 @@ public class IntakeSubsystem extends SubsystemBase {
                 Constants.Intake.SLIDE_FUEL_COMPRESSION_WAIT_SECONDS,
                 Constants.Intake.SLIDE_FUEL_COMPRESSION_DURATION_SECONDS)
                 .withName("FuelCompression");
+    }
+
+    /**
+     * Sensor-gated version of fuelCompression().
+     *
+     * Waits until the hopper top sensor (CANrange ID 41) reads NOT full, then
+     * runs the normal fuelCompression sequence. If the hopper is already empty
+     * when the command is scheduled, compression starts immediately.
+     *
+     * Use this in place of fuelCompression() to avoid compressing when the
+     * hopper is already loaded to the top.
+     */
+    public Command fuelCompressionWithSensor() {
+        return Commands.waitUntil(() -> !isHopperFull())
+                .andThen(fuelCompression())
+                .withName("FuelCompressionWithSensor");
     }
 
     /**
