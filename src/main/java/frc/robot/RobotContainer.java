@@ -28,6 +28,7 @@ import frc.robot.subsystems.shooter.ShooterIOHardware;
 import frc.robot.subsystems.shooter.ShooterSubsystem;
 import frc.robot.subsystems.vision.VisionIOLimelight;
 import frc.robot.subsystems.vision.VisionSubsystem;
+import frc.robot.commands.AlignOnlyCommand;
 import frc.robot.commands.FuelCommands;
 
 public class RobotContainer {
@@ -75,7 +76,10 @@ public class RobotContainer {
         indexer = new IndexerSubsystem(new IndexerIOHardware());
         intake = new IntakeSubsystem(new IntakeIOHardware());
         shooter = new ShooterSubsystem(new ShooterIOHardware());
-        vision = new VisionSubsystem(new VisionIOLimelight(Constants.Vision.LIMELIGHT4_NAME));
+        vision = new VisionSubsystem(
+            new VisionIOLimelight(Constants.Vision.LIMELIGHT4_NAME),
+            () -> drivetrain.getState().Pose.getRotation().getDegrees(),
+            () -> Math.toDegrees(drivetrain.getState().Speeds.omegaRadiansPerSecond));
 
         autoFactory = drivetrain.createAutoFactory();
         autoRoutines = new AutoRoutines(autoFactory,drivetrain,indexer, intake, shooter);
@@ -142,15 +146,32 @@ public class RobotContainer {
         
         driver.rightTrigger(0.5).whileTrue(
             Commands.deadline(
-                FuelCommands.poseAlignAndShoot(shooter, indexer, /*intake,*/ drivetrain,
+                FuelCommands.poseAlignAndShoot(
+                    shooter,
+                    indexer,
+                    drivetrain,
+                    vision,
                     () -> -driver.getLeftY() * MaxSpeed,
-                    () -> -driver.getLeftX() * MaxSpeed),
-                fuelCompressionWhenShooterReady())); 
+                    () -> -driver.getLeftX() * MaxSpeed
+                ),
+                /* fuelCompressionWhenShooterReady() */
+                intake.fuelCompression()
+            )
+        );
+                
         // driver.rightBumper().onTrue(intake.fuelCompression());
         // driver.rightBumper().whileTrue(FuelCommands.purgeFuel(intake, indexer));
         
         driver.leftTrigger(0.5).whileTrue(intake.intakeFuel());
-        // driver.leftBumper().onTrue(intake.retractSlidesIncrementalCmd());
+        // Align-only: rotation + vision logic, no flywheel/hood — safe for PID tuning
+        driver.leftBumper().whileTrue(
+            new AlignOnlyCommand(
+                drivetrain,
+                vision,
+                () -> -driver.getLeftY() * MaxSpeed,
+                () -> -driver.getLeftX() * MaxSpeed
+            )
+        );
         
         // =====================================================================
         // Operator Controller
@@ -165,8 +186,8 @@ public class RobotContainer {
         operator.b().whileTrue(
             Commands.deadline(
                 // drivetrain.applyRequest(() -> xBrake),    
-                FuelCommands.shootWithPreset(shooter, indexer, ShooterSubsystem.ShotPreset.CLOSE),
-                intake.fuelCompression()
+                FuelCommands.shootWithPreset(shooter, indexer, ShooterSubsystem.ShotPreset.CLOSE)//,
+                // intake.fuelCompression() // REMOVE for testin
                 ));
         operator.x().whileTrue(
             Commands.deadline(
@@ -182,10 +203,14 @@ public class RobotContainer {
                 ));
 
         operator.leftTrigger(0.5).whileTrue(intake.intakeFuel());
-        operator.rightTrigger(0.5).whileTrue(indexer.reverse());
+        
+        // operator.rightTrigger(0.5).whileTrue(Align indexer.reverse());
+        // operator.rightTrigger(0.5).whileTrue(indexer.reverse());
+
 
         operator.leftBumper().onTrue(intake.retractSlidesIncrementalCmd());
-        operator.rightBumper().whileTrue(FuelCommands.purgeFuel(intake, indexer));
+        operator.rightBumper().whileTrue(intake.fuelCompression()
+        /*FuelCommands.purgeFuel(intake, indexer)*/);
         
 
         // Start (Menu ☰): Toggle flywheel standby pre-rev — operator sets once and forgets.

@@ -4,60 +4,35 @@ import org.littletonrobotics.junction.LogTable;
 import org.littletonrobotics.junction.inputs.LoggableInputs;
 
 /**
- * VisionIO - Hardware abstraction interface for vision systems (Limelight, PhotonVision, etc.)
+ * VisionIO - Hardware abstraction interface for vision systems (Limelight, etc.)
  *
- * This interface defines the contract for vision hardware implementations, allowing the
- * VisionSubsystem to work with different camera systems without code changes.
+ * Implementations read from camera hardware and populate VisionIOInputs.
+ * VisionSubsystem consumes this via updateInputs() each periodic cycle.
  *
- * Pattern: IO Interface (inspired by FRC 2910, 254, 1678)
- * - VisionIO: Interface defining what vision hardware can do
- * - VisionIOLimelight: Implementation for Limelight cameras
- * - VisionIOSim: Implementation for simulation/testing
- *
- * Benefits:
- * - Hardware independence: Swap cameras without changing subsystem code
- * - Testability: Mock vision data for testing without hardware
- * - AdvantageKit integration: Clean logging and replay
+ * Pose data flows:
+ *   MegaTag2 (primary)  — IMU-seeded 3D pose, fed to drivetrain addVisionMeasurement()
+ *   MegaTag1 (fallback) — 2D pose, fed when MegaTag2 has no tags
+ *   TX (raw)            — Limelight horizontal offset in degrees, used for rotation correction
  */
 public interface VisionIO {
 
     /**
-     * Updates the vision inputs with the latest data from the camera.
-     * Called periodically (typically every 20ms) by VisionSubsystem.
+     * Reads all vision data into inputs.
      *
-     * @param inputs The VisionIOInputs object to populate with current data
+     * @param inputs                Container to populate with current camera data
+     * @param robotYawDegrees       Current robot heading from IMU — required for MegaTag2
+     * @param robotYawRateDegPerSec Current robot yaw rate — improves MT2 accuracy during rotation
      */
-    default void updateInputs(VisionIOInputs inputs) {}
+    default void updateInputs(VisionIOInputs inputs, double robotYawDegrees, double robotYawRateDegPerSec) {}
 
-    /**
-     * Sets the active vision pipeline on the camera.
-     * Different pipelines can be configured for different targets (AprilTags, game pieces, etc.)
-     *
-     * @param pipelineIndex The pipeline index to activate (0-9 for Limelight)
-     */
     default void setPipeline(int pipelineIndex) {}
 
-    /**
-     * Controls the camera's LED mode.
-     *
-     * @param mode The LED mode to set
-     */
     default void setLEDMode(LEDMode mode) {}
 
-    /**
-     * LED control modes for vision cameras.
-     */
     enum LEDMode {
-        /** Use the LED mode specified by the current pipeline */
         PIPELINE_DEFAULT(0),
-
-        /** Force LEDs off */
         FORCE_OFF(1),
-
-        /** Force LEDs to blink */
         FORCE_BLINK(2),
-
-        /** Force LEDs on */
         FORCE_ON(3);
 
         public final int value;
@@ -68,79 +43,73 @@ public interface VisionIO {
     }
 
     /**
-     * VisionIOInputs - Container for all vision data read from hardware.
+     * All camera data for one periodic cycle.
      *
-     * This class holds all the data we read from the camera each cycle.
-     * It implements LoggableInputs for automatic AdvantageKit logging.
-     *
-     * All fields are public for easy access by VisionSubsystem.
+     * Pose arrays are [x_meters, y_meters, yaw_degrees] in WPILib blue-origin field coordinates.
+     * Both maps must be updated together — they are co-indexed on timestamp.
      */
     class VisionIOInputs implements LoggableInputs {
-        // ===== Timestamp Data =====
-        /**
-         * Timestamp when this vision data was captured (FPGA time in seconds).
-         * Accounts for pipeline and capture latency for accurate pose estimation.
-         */
-        public double timestamp = 0.0;
 
-        // ===== Target Detection =====
-        /** True if the camera sees a valid target (tv = 1) */
-        public boolean hasTargets = false;
+        // ── MegaTag2 (primary — IMU-seeded, rotation-locked) ──────────────────
+        public boolean megaTag2Valid    = false;
+        public double[] megaTag2Pose    = new double[3]; // [x_m, y_m, yaw_deg]
+        public double megaTag2Timestamp = 0.0;
+        public int    megaTag2TagCount  = 0;
+        public double megaTag2AvgTagDistM = 0.0;
 
-        /** Horizontal angle to target in radians (tx converted from degrees) */
-        public double horizontalAngleRadians = 0.0;
+        // ── MegaTag1 (fallback — 2D, no IMU required) ─────────────────────────
+        public boolean megaTag1Valid    = false;
+        public double[] megaTag1Pose    = new double[3]; // [x_m, y_m, yaw_deg]
+        public double megaTag1Timestamp = 0.0;
+        public int    megaTag1TagCount  = 0;
 
-        /** Vertical angle to target in radians (ty converted from degrees) */
-        public double verticalAngleRadians = 0.0;
-
-        /** Target area as percentage of image (0.0 to 100.0) */
-        public double targetArea = 0.0;
-
-        // ===== AprilTag Specific Data =====
-        /** AprilTag fiducial ID (-1 if no tag detected) */
-        public int tagId = -1;
-
-        /**
-         * Robot pose in field coordinates from AprilTag (botpose).
-         * Array: [x, y, z, roll, pitch, yaw] in meters and degrees.
-         */
-        public double[] botpose = new double[6];
-
-        // ===== Latency Data =====
-        /** Pipeline processing latency in milliseconds */
-        public double pipelineLatencyMs = 0.0;
-
-        /** Image capture latency in milliseconds */
-        public double captureLatencyMs = 0.0;
-
-        /** Total latency (pipeline + capture) in milliseconds */
-        public double totalLatencyMs = 0.0;
+        // ── Raw target data (for rotation control and target validation) ───────
+        public boolean hasTargets  = false;
+        public double  txDegrees   = 0.0;  // horizontal offset to primary tag, + = right
+        public double  tyDegrees   = 0.0;  // vertical offset to primary tag,   + = up
+        public double  targetArea  = 0.0;  // % of image
+        public int     tagId       = -1;   // primary AprilTag ID, -1 = none
+        public double  totalLatencyMs = 0.0;
 
         @Override
         public void toLog(LogTable table) {
-            table.put("Timestamp", timestamp);
-            table.put("HasTargets", hasTargets);
-            table.put("HorizontalAngleRad", horizontalAngleRadians);
-            table.put("VerticalAngleRad", verticalAngleRadians);
-            table.put("TargetArea", targetArea);
-            table.put("TagId", tagId);
-            table.put("Botpose", botpose);
-            table.put("PipelineLatencyMs", pipelineLatencyMs);
-            table.put("CaptureLatencyMs", captureLatencyMs);
+            table.put("MegaTag2/Valid",        megaTag2Valid);
+            table.put("MegaTag2/Pose",         megaTag2Pose);
+            table.put("MegaTag2/Timestamp",    megaTag2Timestamp);
+            table.put("MegaTag2/TagCount",     megaTag2TagCount);
+            table.put("MegaTag2/AvgTagDistM",  megaTag2AvgTagDistM);
+
+            table.put("MegaTag1/Valid",        megaTag1Valid);
+            table.put("MegaTag1/Pose",         megaTag1Pose);
+            table.put("MegaTag1/Timestamp",    megaTag1Timestamp);
+            table.put("MegaTag1/TagCount",     megaTag1TagCount);
+
+            table.put("HasTargets",   hasTargets);
+            table.put("TX_deg",       txDegrees);
+            table.put("TY_deg",       tyDegrees);
+            table.put("TargetArea",   targetArea);
+            table.put("TagId",        tagId);
             table.put("TotalLatencyMs", totalLatencyMs);
         }
 
         @Override
         public void fromLog(LogTable table) {
-            timestamp = table.get("Timestamp", timestamp);
-            hasTargets = table.get("HasTargets", hasTargets);
-            horizontalAngleRadians = table.get("HorizontalAngleRad", horizontalAngleRadians);
-            verticalAngleRadians = table.get("VerticalAngleRad", verticalAngleRadians);
-            targetArea = table.get("TargetArea", targetArea);
-            tagId = table.get("TagId", tagId);
-            botpose = table.get("Botpose", botpose);
-            pipelineLatencyMs = table.get("PipelineLatencyMs", pipelineLatencyMs);
-            captureLatencyMs = table.get("CaptureLatencyMs", captureLatencyMs);
+            megaTag2Valid       = table.get("MegaTag2/Valid",       megaTag2Valid);
+            megaTag2Pose        = table.get("MegaTag2/Pose",        megaTag2Pose);
+            megaTag2Timestamp   = table.get("MegaTag2/Timestamp",   megaTag2Timestamp);
+            megaTag2TagCount    = table.get("MegaTag2/TagCount",    megaTag2TagCount);
+            megaTag2AvgTagDistM = table.get("MegaTag2/AvgTagDistM", megaTag2AvgTagDistM);
+
+            megaTag1Valid       = table.get("MegaTag1/Valid",       megaTag1Valid);
+            megaTag1Pose        = table.get("MegaTag1/Pose",        megaTag1Pose);
+            megaTag1Timestamp   = table.get("MegaTag1/Timestamp",   megaTag1Timestamp);
+            megaTag1TagCount    = table.get("MegaTag1/TagCount",    megaTag1TagCount);
+
+            hasTargets    = table.get("HasTargets",    hasTargets);
+            txDegrees     = table.get("TX_deg",        txDegrees);
+            tyDegrees     = table.get("TY_deg",        tyDegrees);
+            targetArea    = table.get("TargetArea",    targetArea);
+            tagId         = table.get("TagId",         tagId);
             totalLatencyMs = table.get("TotalLatencyMs", totalLatencyMs);
         }
     }
