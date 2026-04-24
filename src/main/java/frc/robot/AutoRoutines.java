@@ -47,7 +47,7 @@ public class AutoRoutines {
                 final AutoRoutine routine = m_factory.newRoutine("Right x1 Trench-Ramp");
 
                 // Trajectories
-                final AutoTrajectory RtTrench_Middle = routine.trajectory("RtTrench_MiddleAngry", 0);
+                final AutoTrajectory RtTrench_Middle = routine.trajectory("RtTrench_Middle", 0);
                 final AutoTrajectory RtRampMiddle_Alliance = routine.trajectory("RtRampMiddle_Alliance", 0);
                 final AutoTrajectory RtShootRamp = routine.trajectory("RtShootRamp", 0);
 
@@ -384,6 +384,7 @@ public class AutoRoutines {
         // =======================================================================
 
                 // Left Trench to Middle to Ramp Shot
+                // TODO Code checks; test it 
         public AutoRoutine LtTrench_Ramp_Single() {
 
                 final AutoRoutine routine = m_factory.newRoutine("Left x1 Trench-Ramp");
@@ -391,7 +392,7 @@ public class AutoRoutines {
                 // Trajectories
                 final AutoTrajectory LtTrench_Middle = routine.trajectory("LtTrench_Middle", 0);
                 final AutoTrajectory LtRampMiddle_Alliance = routine.trajectory("LtRampMiddle_Alliance", 0);
-                final AutoTrajectory LtShootRamp = routine.trajectory("LtShootRamp", 0);
+                final AutoTrajectory LtShootRamp_Trench = routine.trajectory("LtShootRamp_Trench", 0);
 
                 routine.active().onTrue(
                                 Commands.sequence(
@@ -405,11 +406,13 @@ public class AutoRoutines {
                                                 // 2. Ramp crossing
                                                 LtRampMiddle_Alliance.cmd(),
 
-                                                // 3. Drive to shoot position
-                                                LtShootRamp.cmd(),
+                                                 // 4. Shoot — starts only after LtShootRamp fully completes
+                                                FuelCommands.Auto.poseAlignAndShoot(m_shooter, m_indexer, m_intake, m_drivetrain, shootTimeout),
 
-                                                // 4. Shoot — starts only after LtShootRamp fully completes
-                                                FuelCommands.Auto.poseAlignAndShoot(m_shooter, m_indexer, m_intake, m_drivetrain, shootTimeout)
+                                                // 3. Drive to shoot position
+                                                LtShootRamp_Trench.cmd()
+
+                                               
                                 ));
 
                 return routine;
