@@ -526,13 +526,16 @@ public final class Constants {
 
     // Side Bumpers against the tower
     public static final double TOWER_DISTANCE = Units.inchesToMeters(107) + HUB_TO_CENTER + LL_TO_FRONT;
-
-    // 3050 for the first 2 matches
     public static final double TOWER_RPM = 3150;
     public static final double TOWER_HOOD = 6.00; //was 5.0
 
+    // In front of tower
+    public static final double TOWER_FRONT_DISTANCE = Units.inchesToMeters(82) + HUB_TO_CENTER + LL_TO_FRONT;
+    public static final double TOWER_FRONT_RPM = 3000;
+    public static final double TOWER_FRONT_HOOD = 6.00; //was 5.0
+
     // In the trench, mostly against the wall, but turned slightly towards the hub
-    public static final double TRENCH_DISTANCE = Units.inchesToMeters(102) + HUB_TO_CENTER + LL_TO_FRONT;
+    public static final double TRENCH_DISTANCE = Units.inchesToMeters(107) + HUB_TO_CENTER + LL_TO_FRONT;
 
     // 3050 for the first 2 matches
     public static final double TRENCH_RPM = 3150;

@@ -46,6 +46,7 @@ public class ShooterSubsystem extends SubsystemBase {
     public enum ShotPreset {
         CLOSE  ("Close",    Constants.Shooter.CLOSE_RPM,  Constants.Shooter.CLOSE_HOOD),
         TOWER  ("Tower",    Constants.Shooter.TOWER_RPM,  Constants.Shooter.TOWER_HOOD),
+        TOWER_FRONT ("Tower Front", Constants.Shooter.TOWER_FRONT_RPM, Constants.Shooter.TOWER_FRONT_HOOD),
         TRENCH ("Trench",   Constants.Shooter.TRENCH_RPM, Constants.Shooter.TRENCH_HOOD),
         PASS   ("Pass",     Constants.Shooter.PASS_RPM,   Constants.Shooter.PASS_HOOD),
         FAR    ("Corner",   Constants.Shooter.FAR_RPM,    Constants.Shooter.FAR_HOOD),
