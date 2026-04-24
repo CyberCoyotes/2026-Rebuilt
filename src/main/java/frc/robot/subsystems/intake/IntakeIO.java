@@ -41,7 +41,7 @@ public interface IntakeIO {
     void updateInputs(IntakeIOInputs inputs);
 
     // ===== Roller methods =====
-    void setRollerVoltage(double volts);
+    void setRollerVelocity(double rps);
 
     void stopRoller();
 

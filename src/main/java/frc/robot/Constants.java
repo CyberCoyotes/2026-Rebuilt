@@ -86,7 +86,7 @@ public final class Constants {
     // Slide setpoints and tuning values
     public static final double SLIDE_RETRACTED_POS = 0.0;
     public static final double SLIDE_HOME_POS = 19.18;
-    public static final double SLIDE_EXTENDED_POS = 60.00; //
+    public static final double SLIDE_EXTENDED_POS = 61.00; //
     public static final double SLIDE_MAX_POS = 65.75; // Confirmed 4-6-26
     public static final double SLIDE_ROLLER_SAFE_MARGIN = 1.5;
     public static final double SLIDE_ROLLER_SAFE_POS = SLIDE_HOME_POS + SLIDE_ROLLER_SAFE_MARGIN;
@@ -94,18 +94,20 @@ public final class Constants {
     public static final double SLIDE_INCREMENTAL_RETRACT_ROTATIONS = 15.0;
     public static final double SLIDE_MANUAL_STEP_ROTATIONS = 5.0;
     public static final double SLIDE_MANUAL_REPEAT_SECONDS = 0.15;
-    public static final double SLIDE_PUMP_OUT_POS = 60.0;
+    public static final double SLIDE_PUMP_OUT_POS = 55.0;
     public static final double SLIDE_PUMP_IN_POS = 40.0;
-    public static final double SLIDE_FUEL_COMPRESSION_WAIT_SECONDS = 0.25; 
+    public static final double SLIDE_FUEL_COMPRESSION_WAIT_SECONDS = 0.0; 
     // Was 1.5
     // 0.5 too quick
     // 1.0 still seems quick
     // At States running 1.0 and slow
     // Trying 0.25
+    // trying 0
 
-    public static final double SLIDE_FUEL_COMPRESSION_DURATION_SECONDS = 2.75;
+    public static final double SLIDE_FUEL_COMPRESSION_DURATION_SECONDS = 3.00;
     // lowered to 3 at States
     // 2.5 seemed too fast
+    // increased to 3.0
 
     public static final double SLIDE_FUEL_PUMP_WAIT_SECONDS = 3.0;
     public static final double SLIDE_FUEL_PUMP_OUT_SECONDS = 0.5;
@@ -130,8 +132,11 @@ public final class Constants {
     public static final double SLIDE_SLOW_MM_ACCELERATION = 30; // 40 // 16 // 18
     public static final double SLIDE_SLOW_MM_JERK = 0.0;
 
-    public static final double ROLLER_FORWARD_VOLTS = 9; //
-    public static final double ROLLER_REVERSE_VOLTS = -11; 
+    // Kraken X44 free speed ~96.7 RPS at 12V; 9V ≈ 72.5 RPS (rounded down to 70).
+    // Reverse was -11V ≈ 88.5 RPS.  Tune on hardware.
+    public static final double ROLLER_FORWARD_RPS = 70.0;
+    public static final double ROLLER_SLOW_RPS    = 35.0; // 50% of forward
+    public static final double ROLLER_REVERSE_RPS = -88.0;
 
     public static final class RollerLeaderConfig {
       private RollerLeaderConfig() {
@@ -143,6 +148,11 @@ public final class Constants {
       /* Intake roller limits */
       public static final double SUPPLY_CURRENT_LIMIT = 30.0;
       public static final double STATOR_CURRENT_LIMIT = 40.0;
+
+      /* VelocityVoltage feedforward — kV = 12V / 96.7 RPS ≈ 0.12; tune kS and kP on hardware */
+      public static final double KS = 0.0;
+      public static final double KV = 0.12;
+      public static final double KP = 0.0;
     }
 
     public static final class RollerFollowerConfig {
@@ -605,7 +615,7 @@ public final class Constants {
     //       If it barely turns toward the target, raise KP in steps of 0.02.
     //       Watch AlignShoot/rotRate_radps on Elastic while tuning.
     public static final double ROTATIONAL_KP = 0.25; // raise if soft/sluggish, lower if overshooting
-    public static final double ROTATIONAL_KD = 0.035; // raise if oscillating on approach, scale with KP
+    public static final double ROTATIONAL_KD = 0.045; // raise if oscillating on approach, scale with KP
 
     // Dampens oscillation; increase if sluggish settling, decrease if jittery
     /*
@@ -619,7 +629,7 @@ public final class Constants {
     // TODO: Tighten (lower) to require more precise alignment before the rotation PID
     //       stops commanding rotation (deadband). If the robot oscillates and never settles,
     //       raise this. Watch AlignShoot/aligned on Elastic.
-    public static final double ALIGNMENT_TOLERANCE_DEGREES = 1.00;
+    public static final double ALIGNMENT_TOLERANCE_DEGREES = 1.50;
 
     // TODO: This is the actual "fire the shot" threshold — intentionally looser than
     //       ALIGNMENT_TOLERANCE_DEGREES so the robot feeds even if it can't hold sub-1°
