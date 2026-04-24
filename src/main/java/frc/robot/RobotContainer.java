@@ -171,6 +171,11 @@ public class RobotContainer {
                 () -> -driver.getLeftX() * MaxSpeed
             )
         );
+
+        driver.a().whileTrue(
+                // drivetrain.applyRequest(() -> xBrake),    
+                FuelCommands.shootWithPreset(shooter, indexer, ShooterSubsystem.ShotPreset.PASS)
+                );
         
         // =====================================================================
         // Operator Controller

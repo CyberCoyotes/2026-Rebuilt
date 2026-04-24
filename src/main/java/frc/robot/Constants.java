@@ -456,7 +456,7 @@ public final class Constants {
 
     // Mechanism setpoints and tuning
     public static final double MIN_POSE = 0.00; // Mechanical limit, also use to set in Configs
-    public static final double MAX_POSE = 7.25; // Mechanical limit; also used to set in Configs
+    public static final double MAX_POSE = 8.05; // Mechanical limit; also used to set in Configs
 
     public static final double TOLERANCE_POSE = 0.05;
 
@@ -498,7 +498,6 @@ public final class Constants {
 
     public static final double POPPER_HOOD = 1.0;
 
-    public static final double PASS_HOOD = 0;
 
   }
 
@@ -523,6 +522,7 @@ public final class Constants {
     public static final double TOWER_FRONT_HOOD = 6.00; //was 5.0
 
     // In the trench, mostly against the wall, but turned slightly towards the hub
+    // Actual distance was 107 inches; cheating 10 inches added about 100-125 RPM, so adding 15 inches to be safe
     public static final double TRENCH_DISTANCE = Units.inchesToMeters(118) + HUB_TO_CENTER + LL_TO_FRONT;
 
     // 3050 for the first 2 matches
@@ -530,7 +530,8 @@ public final class Constants {
     public static final double TRENCH_HOOD = 6.0;
 
     // In a corner by human player station or depot-corner, angled towards the hub
-    public static final double FAR_DISTANCE = Units.inchesToMeters(176) + HUB_TO_CENTER + LL_TO_FRONT;
+    // Actual distance was 176 inches
+    public static final double FAR_DISTANCE = Units.inchesToMeters(190) + HUB_TO_CENTER + LL_TO_FRONT;
 
     // 3450 for the first 2 matches
     public static final double FAR_RPM = 3700;
@@ -542,8 +543,8 @@ public final class Constants {
     // public static final double DRIVER_STATION_HOOD = 4.5;
 
     // For passing passing from midfield
-    public static final double PASS_RPM = 3000;
-    public static final double PASS_HOOD = 4.5;
+    public static final double PASS_RPM = 4004;
+    public static final double PASS_HOOD = 8.0;
 
 
     // Asking for a "Far-Far_Shot" both corners of bumpers on wall

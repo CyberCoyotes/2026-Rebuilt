@@ -49,7 +49,7 @@ public class AutoRoutines {
                 // Trajectories
                 final AutoTrajectory RtTrench_Middle = routine.trajectory("RtTrench_Middle", 0);
                 final AutoTrajectory RtRampMiddle_Alliance = routine.trajectory("RtRampMiddle_Alliance", 0);
-                final AutoTrajectory RtShootRamp = routine.trajectory("RtShootRamp", 0);
+                final AutoTrajectory RtShootRamp_Trench = routine.trajectory("RtShootRamp_Trench", 0);
 
                 routine.active().onTrue(
                                 Commands.sequence(
@@ -64,11 +64,12 @@ public class AutoRoutines {
                                                 // 2. Ramp crossing
                                                 RtRampMiddle_Alliance.cmd(),
 
-                                                // 3. Drive to shoot position
-                                                RtShootRamp.cmd(),
-
                                                 // 4. Shoot starts only after RtShootRamp fully completes
-                                                FuelCommands.Auto.poseAlignAndShoot(m_shooter, m_indexer, m_intake, m_drivetrain, shootTimeout)
+                                                FuelCommands.Auto.poseAlignAndShoot(m_shooter, m_indexer, m_intake, m_drivetrain, shootTimeout),
+
+                                                // 3. Drive to shoot position
+                                                RtShootRamp_Trench.cmd()
+
                                                 )
                                 );
 
