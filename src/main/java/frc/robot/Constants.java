@@ -86,7 +86,7 @@ public final class Constants {
     // Slide setpoints and tuning values
     public static final double SLIDE_RETRACTED_POS = 0.0;
     public static final double SLIDE_HOME_POS = 19.18;
-    public static final double SLIDE_EXTENDED_POS = 60.00; //
+    public static final double SLIDE_EXTENDED_POS = 61.00; //
     public static final double SLIDE_MAX_POS = 65.75; // Confirmed 4-6-26
     public static final double SLIDE_ROLLER_SAFE_MARGIN = 1.5;
     public static final double SLIDE_ROLLER_SAFE_POS = SLIDE_HOME_POS + SLIDE_ROLLER_SAFE_MARGIN;
@@ -94,7 +94,7 @@ public final class Constants {
     public static final double SLIDE_INCREMENTAL_RETRACT_ROTATIONS = 15.0;
     public static final double SLIDE_MANUAL_STEP_ROTATIONS = 5.0;
     public static final double SLIDE_MANUAL_REPEAT_SECONDS = 0.15;
-    public static final double SLIDE_PUMP_OUT_POS = 60.0;
+    public static final double SLIDE_PUMP_OUT_POS = 55.0;
     public static final double SLIDE_PUMP_IN_POS = 40.0;
     public static final double SLIDE_FUEL_COMPRESSION_WAIT_SECONDS = 0.0; 
     // Was 1.5
@@ -615,7 +615,7 @@ public final class Constants {
     //       If it barely turns toward the target, raise KP in steps of 0.02.
     //       Watch AlignShoot/rotRate_radps on Elastic while tuning.
     public static final double ROTATIONAL_KP = 0.25; // raise if soft/sluggish, lower if overshooting
-    public static final double ROTATIONAL_KD = 0.035; // raise if oscillating on approach, scale with KP
+    public static final double ROTATIONAL_KD = 0.045; // raise if oscillating on approach, scale with KP
 
     // Dampens oscillation; increase if sluggish settling, decrease if jittery
     /*
