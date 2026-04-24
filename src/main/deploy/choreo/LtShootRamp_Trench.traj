@@ -16,7 +16,7 @@
  "params":{
   "waypoints":[
     {"x":{"exp":"LtRampAlliance.x", "val":2.4}, "y":{"exp":"LtRampAlliance.y", "val":5.45}, "heading":{"exp":"LtRampAlliance.heading", "val":-0.785}, "intervals":34, "split":false, "fixTranslation":true, "fixHeading":true, "overrideIntervals":false},
-    {"x":{"exp":"X1RampShoot m", "val":2.4}, "y":{"exp":"LtTrench.y", "val":7.55}, "heading":{"exp":"LtTrench.heading", "val":-1.57}, "intervals":25, "split":false, "fixTranslation":true, "fixHeading":true, "overrideIntervals":false},
+    {"x":{"exp":"X2RampShoot m", "val":2.4}, "y":{"exp":"LtTrench.y", "val":7.55}, "heading":{"exp":"LtTrench.heading", "val":-1.57}, "intervals":25, "split":false, "fixTranslation":true, "fixHeading":true, "overrideIntervals":false},
     {"x":{"exp":"LtTrench.x", "val":4.42}, "y":{"exp":"LtTrench.y", "val":7.55}, "heading":{"exp":"LtTrench.heading", "val":-1.57}, "intervals":40, "split":false, "fixTranslation":true, "fixHeading":true, "overrideIntervals":false}],
   "constraints":[
     {"from":"first", "to":null, "data":{"type":"StopPoint", "props":{}}, "enabled":true},
