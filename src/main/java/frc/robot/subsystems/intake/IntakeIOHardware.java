@@ -2,17 +2,14 @@ package frc.robot.subsystems.intake;
 
 import com.ctre.phoenix6.BaseStatusSignal;
 import com.ctre.phoenix6.StatusSignal;
-import com.ctre.phoenix6.configs.CANrangeConfiguration;
 import com.ctre.phoenix6.configs.MotionMagicConfigs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 // import com.ctre.phoenix6.controls.Follower;
 import com.ctre.phoenix6.controls.MotionMagicVoltage;
 import com.ctre.phoenix6.controls.VelocityVoltage;
-import com.ctre.phoenix6.hardware.CANrange;
 import com.ctre.phoenix6.hardware.TalonFX;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
-import edu.wpi.first.units.measure.Distance;
 
 import frc.robot.Constants;
 import frc.robot.utilities.PhoenixUtil;
@@ -57,7 +54,7 @@ public class IntakeIOHardware implements IntakeIO {
         }
 
         // While in follower mode, direction is governed by the Follower request — INVERTED not set.
-        /* 
+        /*
         static TalonFXConfiguration follower() {
             TalonFXConfiguration config = new TalonFXConfiguration();
 
@@ -108,21 +105,10 @@ public class IntakeIOHardware implements IntakeIO {
         }
     }
 
-    // == Hopper Sensor Configuration ==========================================
-    private static CANrangeConfiguration hopperCANrangeConfig() {
-        CANrangeConfiguration config = new CANrangeConfiguration();
-        config.ProximityParams.ProximityThreshold = Constants.Indexer.HOPPER_FULL_DISTANCE_METERS;
-        config.ProximityParams.ProximityHysteresis = Constants.Indexer.HopperSensorConfig.PROXIMITY_HYSTERESIS;
-        config.FovParams.FOVRangeX = Constants.Indexer.HopperSensorConfig.FOV_RANGE_X;
-        config.FovParams.FOVRangeY = Constants.Indexer.HopperSensorConfig.FOV_RANGE_Y;
-        return config;
-    }
-
     // == Hardware =============================================================
     private final TalonFX rollerLead; // Currently the left roller motor
     // private final TalonFX rollerFollow; // Currently the right motor
     private final TalonFX slide;
-    private final CANrange hopperToF;
 
     // == Control Requests =====================================================
     private final VelocityVoltage rollerRequest = new VelocityVoltage(0);
@@ -142,20 +128,16 @@ public class IntakeIOHardware implements IntakeIO {
     // Current, voltage, and temp are captured by CTRE Hoot for diagnostics.
     private final StatusSignal<Angle> slidePosition;
     private final StatusSignal<AngularVelocity> slideVelocity;
-    private final StatusSignal<Distance> hopperDistance;
-    private final StatusSignal<Boolean> hopperIsDetected;
 
     public IntakeIOHardware() {
         rollerLead = new TalonFX(Constants.Intake.ROLLER_LEFT_MOTOR_ID, Constants.RIO_CANBUS);
         // rollerFollow = new TalonFX(Constants.Intake.ROLLER_RIGHT_MOTOR_ID, Constants.RIO_CANBUS);
 
-        slide     = new TalonFX(Constants.Intake.SLIDE_MOTOR_ID,   Constants.RIO_CANBUS);
-        hopperToF = new CANrange(Constants.Indexer.HOPPER_TOF_ID,  Constants.RIO_CANBUS);
+        slide = new TalonFX(Constants.Intake.SLIDE_MOTOR_ID, Constants.RIO_CANBUS);
 
         PhoenixUtil.applyConfig("Roller Lead",   () -> rollerLead.getConfigurator().apply(RollerConfig.leader()));
         // PhoenixUtil.applyConfig("Roller Follow", () -> rollerFollow.getConfigurator().apply(RollerConfig.follower()));
         PhoenixUtil.applyConfig("Slide",         () -> slide.getConfigurator().apply(SlideConfig.slide()));
-        PhoenixUtil.applyConfig("Hopper ToF",    () -> hopperToF.getConfigurator().apply(hopperCANrangeConfig()));
 
         // Build fast/slow MotionMagic configs for runtime profile swapping
         fastProfile.MotionMagicCruiseVelocity = Constants.Intake.SLIDE_MM_CRUISE_VELOCITY;
@@ -168,10 +150,8 @@ public class IntakeIOHardware implements IntakeIO {
 
         // Cache signal references — slide needs position and velocity for MotionMagic
         // and at-target checks. Roller has no control-critical signals to read.
-        slidePosition    = slide.getPosition();
-        slideVelocity    = slide.getVelocity();
-        hopperDistance   = hopperToF.getDistance();
-        hopperIsDetected = hopperToF.getIsDetected();
+        slidePosition = slide.getPosition();
+        slideVelocity = slide.getVelocity();
 
         // rollerFollow.setControl(
         //         new Follower(rollerLead.getDeviceID(), Constants.Intake.RollerFollowerConfig.FOLLOWER_ALIGNMENT));
@@ -185,15 +165,11 @@ public class IntakeIOHardware implements IntakeIO {
         // Refresh cached signals before reading — same pattern as IndexerIOHardware.
         // Without this, slidePositionRotations is always 0 (startup value), so
         // isSlideFullyExtended() / isSlideFullyRetracted() never update correctly.
-        BaseStatusSignal.refreshAll(slidePosition, slideVelocity, hopperDistance, hopperIsDetected);
+        BaseStatusSignal.refreshAll(slidePosition, slideVelocity);
 
         // Slide position and velocity — needed every cycle for MotionMagic and at-target checks
         inputs.slidePositionRotations = slidePosition.getValueAsDouble();
-        inputs.slideVelocityRPS       = slideVelocity.getValueAsDouble();
-
-        // Hopper ToF
-        inputs.hopperDistanceMeters = hopperDistance.getValueAsDouble();
-        inputs.hopperFull           = hopperIsDetected.getValue();
+        inputs.slideVelocityRPS = slideVelocity.getValueAsDouble();
     }
 
     // ==== Roller Methods ====
@@ -225,12 +201,6 @@ public class IntakeIOHardware implements IntakeIO {
         }
         slide.setControl(slideRequest.withPosition(position));
     }
-
-    // This was not following the IO pattern and was being called directly by the subsystem
-    // @Override
-    // public double getSlidePosition() {
-    //     return slidePosition.getValueAsDouble();
-    // }
 
     @Override
     public void stopSlide() {

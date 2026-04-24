@@ -155,18 +155,18 @@ public class RobotContainer {
                     () -> -driver.getLeftX() * MaxSpeed
                 ),
                 /* fuelCompressionWhenShooterReady() */
-                intake.fuelCompression()
+                intake.fuelCompression().unless(indexer::isHopperFull)
             )
         );
         driver.rightBumper().whileTrue(
             Commands.deadline(
-                // drivetrain.applyRequest(() -> xBrake),    
+                // drivetrain.applyRequest(() -> xBrake),
                 FuelCommands.shootWithPreset(shooter, indexer, ShooterSubsystem.ShotPreset.CLOSE),
-                intake.fuelCompression() // REMOVE for testing
+                intake.fuelCompression().unless(indexer::isHopperFull) // REMOVE for testing
                 ));
 
         // driver.rightBumper().whileTrue(FuelCommands.purgeFuel(intake, indexer));
-        
+
         driver.leftTrigger(0.5).whileTrue(intake.intakeFuel());
         // Align-only: rotation + vision logic, no flywheel/hood — safe for PID tuning
         driver.leftBumper().whileTrue(
@@ -177,7 +177,7 @@ public class RobotContainer {
                 () -> -driver.getLeftX() * MaxSpeed
             )
         );
-        
+
         // =====================================================================
         // Operator Controller
         // =====================================================================
@@ -185,26 +185,26 @@ public class RobotContainer {
             Commands.deadline(
                 // drivetrain.applyRequest(() -> xBrake),
                 FuelCommands.shootWithPreset(shooter, indexer, ShooterSubsystem.ShotPreset.TRENCH),
-                intake.fuelCompression()
+                intake.fuelCompression().unless(indexer::isHopperFull)
                 ));
 
         operator.b().whileTrue(
             Commands.deadline(
-                // drivetrain.applyRequest(() -> xBrake),    
+                // drivetrain.applyRequest(() -> xBrake),
                 FuelCommands.shootWithPreset(shooter, indexer, ShooterSubsystem.ShotPreset.CLOSE),
-                intake.fuelCompression() // REMOVE for testing
+                intake.fuelCompression().unless(indexer::isHopperFull) // REMOVE for testing
                 ));
         operator.x().whileTrue(
             Commands.deadline(
-                // drivetrain.applyRequest(() -> xBrake),    
+                // drivetrain.applyRequest(() -> xBrake),
                 FuelCommands.shootWithPreset(shooter, indexer, ShooterSubsystem.ShotPreset.TOWER),
-                intake.fuelCompression()
+                intake.fuelCompression().unless(indexer::isHopperFull)
                 ));
         operator.y().whileTrue(
             Commands.deadline(
                 // drivetrain.applyRequest(() -> xBrake),
                 FuelCommands.shootWithPreset(shooter, indexer, ShooterSubsystem.ShotPreset.FAR),
-                intake.fuelCompression()
+                intake.fuelCompression().unless(indexer::isHopperFull)
                 ));
 
         operator.leftTrigger(0.5).whileTrue(intake.intakeFuel());

@@ -23,10 +23,6 @@ public interface IntakeIO {
 
         /** Slide motor temperature in Celsius */
         public double slideTempCelsius = 0.0;
-
-        // Hopper ToF (CANrange ID 41) — detects whether the top of the hopper is full
-        public double hopperDistanceMeters = 0.0;
-        public boolean hopperFull = false;
     }
 
     /**
@@ -42,19 +38,13 @@ public interface IntakeIO {
 
     void stopRoller();
 
-    
+
     // ===== Slide methods =====
     /** Position control via MotionMagic */
     void setSlidePosition(double position);
-    
+
     /** Position control via MotionMagic with slower velocity */
     void setSlidePositionSlow(double position);
 
     void stopSlide();
-
-    // double getSlidePosition();
-
-    // ===== Intake sensor methods =====
-    // double getIntakeDistance();
-    // boolean intakeTargetClose();
 }

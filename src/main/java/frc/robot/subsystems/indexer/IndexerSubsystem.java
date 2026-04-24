@@ -174,6 +174,11 @@ public class IndexerSubsystem extends SubsystemBase {
         return isFuelDetected;
     }
 
+    /** True when the hopper top sensor (CANrange ID 41) detects a ball closer than HOPPER_FULL_DISTANCE_METERS. */
+    public boolean isHopperFull() {
+        return inputs.hopperFull;
+    }
+
     public double getSecondsSinceLastDetection() {
         return secondsSinceLastDetection;
     }

@@ -54,6 +54,13 @@ public interface IndexerIO {
         /** True if a game piece is detected in the indexer→shooter chute. */
         public boolean chuteDetected = false;
 
+        // ===== Hopper CANrange (ID 41) =====
+        /** Raw distance from Hopper CANrange in meters. Watch in AdvantageScope to tune HOPPER_FULL_DISTANCE_METERS. */
+        public double hopperDistanceMeters = 0.0;
+
+        /** True when a ball is detected at the top of the hopper (distance < HOPPER_FULL_DISTANCE_METERS). */
+        public boolean hopperFull = false;
+
     }
 
     /**
