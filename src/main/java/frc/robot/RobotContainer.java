@@ -154,7 +154,6 @@ public class RobotContainer {
                     () -> -driver.getLeftY() * MaxSpeed,
                     () -> -driver.getLeftX() * MaxSpeed
                 ),
-                /* fuelCompressionWhenShooterReady() */
                 intake.fuelCompression()
             )
         );

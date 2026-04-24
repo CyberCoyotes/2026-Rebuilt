@@ -10,22 +10,9 @@ import edu.wpi.first.networktables.NetworkTableInstance;
  * Uses LimelightHelpers static methods for all pose estimation reads.
  * SetRobotOrientation() is called first each cycle — MegaTag2 requires it.
  *
- * Key Features:
- * - Caches NetworkTable entries for performance
- * - Accurately calculates timestamps accounting for latency
- * - Converts angles to radians for consistency
- * - Thread-safe synchronized methods
- * - Defensive copying of arrays
- *
- * NetworkTables Reference (Limelight):
- * - tv: Valid target (0 or 1)
- * - tx: Horizontal offset to target in degrees
- * - ty: Vertical offset to target in degrees
- * - ta: Target area (0-100% of image)
- * - tid: AprilTag ID
- * - botpose_orb_wpiblue: Robot pose (MegaTag2, WPILib blue-origin frame) [x, y, z, roll, pitch, yaw]
- * - tl: Pipeline latency (ms)
- * - cl: Capture latency (ms)
+ * Pose priority:
+ *   MegaTag2 (botpose_orb_wpiblue) → primary when tags visible
+ *   MegaTag1 (botpose_wpiblue)     → fallback when MegaTag2 has no tags
  */
 public class VisionIOLimelight implements VisionIO {
 
@@ -36,22 +23,12 @@ public class VisionIOLimelight implements VisionIO {
     private final NetworkTableEntry pipelineEntry;
 
     public VisionIOLimelight(String limelightName) {
-        // Get the Limelight's NetworkTable
-        limelightTable = NetworkTableInstance.getDefault().getTable(limelightName);
+        this.limelightName = limelightName;
 
-        // Cache NetworkTable entries for performance (avoid repeated lookups)
-        validEntry = limelightTable.getEntry("tv");
-        txEntry = limelightTable.getEntry("tx");
-        tyEntry = limelightTable.getEntry("ty");
-        taEntry = limelightTable.getEntry("ta");
-        tagIdEntry = limelightTable.getEntry("tid");
-        botposeEntry = limelightTable.getEntry("botpose_orb_wpiblue");
-        pipelineLatencyEntry = limelightTable.getEntry("tl");
-        captureLatencyEntry = limelightTable.getEntry("cl");
-        ledModeEntry = limelightTable.getEntry("ledMode");
-        pipelineEntry = limelightTable.getEntry("pipeline");
+        NetworkTable table = NetworkTableInstance.getDefault().getTable(limelightName);
+        ledModeEntry = table.getEntry("ledMode");
+        pipelineEntry = table.getEntry("pipeline");
 
-        // Initialize Limelight to known state
         setLEDMode(LEDMode.PIPELINE_DEFAULT);
         setPipeline(0);
     }
