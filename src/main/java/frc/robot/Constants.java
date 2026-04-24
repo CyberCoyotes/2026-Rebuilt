@@ -134,9 +134,9 @@ public final class Constants {
 
     // Kraken X44 free speed ~96.7 RPS at 12V; 9V ≈ 72.5 RPS (rounded down to 70).
     // Reverse was -11V ≈ 88.5 RPS.  Tune on hardware.
-    public static final double ROLLER_FORWARD_RPS = 70.0;
+    public static final double ROLLER_FORWARD_RPS = 80.0;
     public static final double ROLLER_SLOW_RPS    = 35.0; // 50% of forward
-    public static final double ROLLER_REVERSE_RPS = -88.0;
+    public static final double ROLLER_REVERSE_RPS = -92.0;
 
     public static final class RollerLeaderConfig {
       private RollerLeaderConfig() {
@@ -262,7 +262,7 @@ public final class Constants {
     // TODO Adjust the KICKER_FORWARD_RPS value based on testing
     // Kicker forward velocity target: baseline 2440 RPM at 5V (Kraken X60 — verify on hardware).
     // Kraken X60 free speed differs from X44; retune SLOT0_KV in KickerLeaderConfig if needed.
-    public static final double KICKER_FORWARD_RPS = 3200.0 / 60.0;
+    public static final double KICKER_FORWARD_RPS = 3000.0 / 60.0;
     // 2440 RPM = 40.67 RPS
     // 2600 RPM = 43.33 RPS
     // 2800 RPM = 46.67 RPS
@@ -526,13 +526,16 @@ public final class Constants {
 
     // Side Bumpers against the tower
     public static final double TOWER_DISTANCE = Units.inchesToMeters(107) + HUB_TO_CENTER + LL_TO_FRONT;
-
-    // 3050 for the first 2 matches
     public static final double TOWER_RPM = 3150;
     public static final double TOWER_HOOD = 6.00; //was 5.0
 
+    // In front of tower
+    public static final double TOWER_FRONT_DISTANCE = Units.inchesToMeters(82) + HUB_TO_CENTER + LL_TO_FRONT;
+    public static final double TOWER_FRONT_RPM = 3000;
+    public static final double TOWER_FRONT_HOOD = 6.00; //was 5.0
+
     // In the trench, mostly against the wall, but turned slightly towards the hub
-    public static final double TRENCH_DISTANCE = Units.inchesToMeters(102) + HUB_TO_CENTER + LL_TO_FRONT;
+    public static final double TRENCH_DISTANCE = Units.inchesToMeters(107) + HUB_TO_CENTER + LL_TO_FRONT;
 
     // 3050 for the first 2 matches
     public static final double TRENCH_RPM = 3150;
@@ -614,8 +617,8 @@ public final class Constants {
     // TODO: If the robot oscillates left/right during alignment, raise KD slightly.
     //       If it barely turns toward the target, raise KP in steps of 0.02.
     //       Watch AlignShoot/rotRate_radps on Elastic while tuning.
-    public static final double ROTATIONAL_KP = 0.25; // raise if soft/sluggish, lower if overshooting
-    public static final double ROTATIONAL_KD = 0.045; // raise if oscillating on approach, scale with KP
+    public static final double ROTATIONAL_KP = 0.20; // raise if soft/sluggish, lower if overshooting
+    public static final double ROTATIONAL_KD = 0.05; // raise if oscillating on approach, scale with KP
 
     // Dampens oscillation; increase if sluggish settling, decrease if jittery
     /*

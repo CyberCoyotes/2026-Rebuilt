@@ -154,12 +154,11 @@ public class RobotContainer {
                     () -> -driver.getLeftY() * MaxSpeed,
                     () -> -driver.getLeftX() * MaxSpeed
                 ),
-                intake.fuelCompression()
+                fuelCompressionWhenShooterReady()
             )
         );
                 
-        // driver.rightBumper().onTrue(intake.fuelCompression());
-        // driver.rightBumper().whileTrue(FuelCommands.purgeFuel(intake, indexer));
+        driver.rightBumper().whileTrue(FuelCommands.purgeFuel(intake, indexer));
         
         driver.leftTrigger(0.5).whileTrue(intake.intakeFuel());
         // Align-only: rotation + vision logic, no flywheel/hood — safe for PID tuning
@@ -179,26 +178,26 @@ public class RobotContainer {
             Commands.deadline(
                 // drivetrain.applyRequest(() -> xBrake),
                 FuelCommands.shootWithPreset(shooter, indexer, ShooterSubsystem.ShotPreset.TRENCH),
-                intake.fuelCompression()
+                fuelCompressionWhenShooterReady()
                 ));
 
         operator.b().whileTrue(
             Commands.deadline(
                 // drivetrain.applyRequest(() -> xBrake),    
-                FuelCommands.shootWithPreset(shooter, indexer, ShooterSubsystem.ShotPreset.CLOSE)//,
-                // intake.fuelCompression() // REMOVE for testin
+                FuelCommands.shootWithPreset(shooter, indexer, ShooterSubsystem.ShotPreset.CLOSE),
+                fuelCompressionWhenShooterReady()
                 ));
         operator.x().whileTrue(
             Commands.deadline(
-                // drivetrain.applyRequest(() -> xBrake),    
-                FuelCommands.shootWithPreset(shooter, indexer, ShooterSubsystem.ShotPreset.TOWER),
-                intake.fuelCompression()
+                // drivetrain.applyRequest(() -> xBrake),
+                FuelCommands.shootWithPreset(shooter, indexer, ShooterSubsystem.ShotPreset.TOWER_FRONT),
+                fuelCompressionWhenShooterReady()
                 ));
         operator.y().whileTrue(
             Commands.deadline(
                 // drivetrain.applyRequest(() -> xBrake),
                 FuelCommands.shootWithPreset(shooter, indexer, ShooterSubsystem.ShotPreset.FAR),
-                intake.fuelCompression()
+                fuelCompressionWhenShooterReady()
                 ));
 
         operator.leftTrigger(0.5).whileTrue(intake.intakeFuel());
