@@ -615,7 +615,7 @@ public final class Constants {
     //       If it barely turns toward the target, raise KP in steps of 0.02.
     //       Watch AlignShoot/rotRate_radps on Elastic while tuning.
     public static final double ROTATIONAL_KP = 0.25; // raise if soft/sluggish, lower if overshooting
-    public static final double ROTATIONAL_KD = 0.035; // raise if oscillating on approach, scale with KP
+    public static final double ROTATIONAL_KD = 0.045; // raise if oscillating on approach, scale with KP
 
     // Dampens oscillation; increase if sluggish settling, decrease if jittery
     /*
