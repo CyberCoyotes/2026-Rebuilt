@@ -406,24 +406,16 @@ public class IntakeSubsystem extends SubsystemBase {
                 .withName("CompressFuelDelayed");
     }
 
-    /** Default fuel-compression recipe for teleop and shot-sequence integration. */
+    /**
+     * Default fuel-compression recipe for teleop and shot-sequence integration.
+     * Skips automatically when the hopper top sensor (CANrange ID 41) reports full.
+     */
     public Command fuelCompression() {
         return compressFuel(
                 Constants.Intake.SLIDE_FUEL_COMPRESSION_WAIT_SECONDS,
                 Constants.Intake.SLIDE_FUEL_COMPRESSION_DURATION_SECONDS)
+                .unless(this::isHopperFull)
                 .withName("FuelCompression");
-    }
-
-    /**
-     * Sensor-gated version of fuelCompression().
-     *
-     * Skips compression entirely when the hopper top sensor (CANrange ID 41)
-     * reads full; runs the normal fuelCompression() sequence otherwise.
-     * Use this in place of fuelCompression() for preset and vision shots only.
-     */
-    public Command fuelCompressionWithSensor() {
-        return fuelCompression().unless(this::isHopperFull)
-                .withName("FuelCompressionWithSensor");
     }
 
     /**
