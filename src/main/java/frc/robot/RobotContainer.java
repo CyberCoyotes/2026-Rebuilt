@@ -184,8 +184,8 @@ public class RobotContainer {
         operator.b().whileTrue(
             Commands.deadline(
                 // drivetrain.applyRequest(() -> xBrake),    
-                FuelCommands.shootWithPreset(shooter, indexer, ShooterSubsystem.ShotPreset.CLOSE)//,
-                // intake.fuelCompression() // REMOVE for testin
+                FuelCommands.shootWithPreset(shooter, indexer, ShooterSubsystem.ShotPreset.CLOSE),
+                fuelCompressionWhenShooterReady()
                 ));
         operator.x().whileTrue(
             Commands.deadline(
