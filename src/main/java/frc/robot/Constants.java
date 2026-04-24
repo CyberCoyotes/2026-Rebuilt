@@ -255,21 +255,9 @@ public final class Constants {
      * and full hopper load.
      * Visually assess performance for now.
      * Add a "Tuned" note when each value is confirmed.
-     * 
-     * VOLTAGE = 5 for first 4 Matches
-     */
+     * */
 
-    // TODO Adjust the KICKER_FORWARD_RPS value based on testing
-    // Kicker forward velocity target: baseline 2440 RPM at 5V (Kraken X60 — verify on hardware).
-    // Kraken X60 free speed differs from X44; retune SLOT0_KV in KickerLeaderConfig if needed.
-    public static final double KICKER_FORWARD_RPS = 3100.0 / 60.0;
-    // 2440 RPM = 40.67 RPS
-    // 2600 RPM = 43.33 RPS
-    // 2800 RPM = 46.67 RPS
-    // 3000 RPM = 50 RPS
-
-    // Fallback voltage (VoltageOut) — kept for reference, not used in normal operation
-    // public static final double KICKER_FORWARD_VOLTAGE = 5.0;
+    public static final double KICKER_FORWARD_RPS = 3100.0 / 60.0; // Tuned 4-24
 
     // Reverse voltage for ejecting fuel and clearing jams.
     public static final double KICKER_REVERSE_VOLTAGE = -6.0;
