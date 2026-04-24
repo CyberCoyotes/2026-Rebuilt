@@ -67,7 +67,7 @@ public class AutoRoutines {
                                                 // 3. Drive to shoot position
                                                 RtShootRamp.cmd(),
 
-                                                // 4. Shoot — starts only after RtShootRamp fully completes
+                                                // 4. Shoot starts only after RtShootRamp fully completes
                                                 FuelCommands.Auto.poseAlignAndShoot(m_shooter, m_indexer, m_intake, m_drivetrain, shootTimeout)
                                                 )
                                 );
@@ -76,12 +76,45 @@ public class AutoRoutines {
         }
 
         // Right Trench to Middle to Ramp Shot
-                public AutoRoutine RtTrench_Ramp_Meep() {
+                public AutoRoutine RtTrench_Ramp() {
 
                 final AutoRoutine routine = m_factory.newRoutine("Right x1 Trench-Ramp");
 
                 // Trajectories
-                final AutoTrajectory RtTrench_Middle = routine.trajectory("RtTrench_MiddleAngry", 0);
+                final AutoTrajectory RtTrench_Middle = routine.trajectory("RtTrench_Middle", 0);
+                final AutoTrajectory RtRampMiddle_Alliance = routine.trajectory("RtRampMiddle_Alliance", 0);
+                final AutoTrajectory RtShootRamp = routine.trajectory("RtShootRamp", 0);
+
+                routine.active().onTrue(
+                                Commands.sequence(
+                                                RtTrench_Middle.resetOdometry(),
+
+                                                // 1. Trench to Middle — intake runs in parallel while driving
+                                                Commands.deadline(
+                                                                RtTrench_Middle.cmd(),
+                                                                m_intake.intakeFuelTimer(intakeTimeout, intakeDelay)),
+
+                                                // 2. Ramp crossing
+                                                RtRampMiddle_Alliance.cmd(),
+
+                                                // 3. Drive to shoot position
+                                                RtShootRamp.cmd(),
+
+                                                // 4. Shoot — starts only after RtShootRamp fully completes
+                                                FuelCommands.Auto.poseAlignAndShoot(m_shooter, m_indexer, m_intake, m_drivetrain, shootTimeout)
+                                                )
+                                );
+
+                return routine;
+        }
+
+                // Right Trench to Middle "Angry" to Ramp Shot
+                public AutoRoutine RtTrench_RampAngry() {
+
+                final AutoRoutine routine = m_factory.newRoutine("Right x1 Trench-Ramp ANGRY");
+
+                // Trajectories
+                final AutoTrajectory RtTrench_Middle = routine.trajectory("RtTrench_Middle", 0);
                 final AutoTrajectory RtRampMiddle_Alliance = routine.trajectory("RtRampMiddle_Alliance", 0);
                 final AutoTrajectory RtShootRamp = routine.trajectory("RtShootRamp", 0);
 
@@ -628,7 +661,7 @@ public class AutoRoutines {
         }
 
          public AutoRoutine Center() {
-                        final AutoRoutine routine = m_factory.newRoutine("Center");
+                        final AutoRoutine routine = m_factory.newRoutine("Center Simple");
                         final AutoTrajectory Center = routine.trajectory("Center", 0);
                         // final AutoTrajectory TestRountine2 = routine.trajectory("Center", 1);
 
@@ -649,6 +682,11 @@ public class AutoRoutines {
                 return routine;
         }
 
+        // TODO: Auton Implement Center to Mid Depot, with intake and shoot events
+
+        // TODO: Auton Implement Right PreTrench Starting position to middle, over the ramp, shoot at the center
+
+        // TODO: Auton Implement Left PreTrench Starting position to middle, over the ramp, shoot at the center
         
 
 
