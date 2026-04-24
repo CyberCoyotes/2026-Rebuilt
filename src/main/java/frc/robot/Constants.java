@@ -86,7 +86,7 @@ public final class Constants {
     // Slide setpoints and tuning values
     public static final double SLIDE_RETRACTED_POS = 0.0;
     public static final double SLIDE_HOME_POS = 19.18;
-    public static final double SLIDE_EXTENDED_POS = 61.00; //
+    public static final double SLIDE_EXTENDED_POS = 60.00; //
     public static final double SLIDE_MAX_POS = 65.75; // Confirmed 4-6-26
     public static final double SLIDE_ROLLER_SAFE_MARGIN = 1.5;
     public static final double SLIDE_ROLLER_SAFE_POS = SLIDE_HOME_POS + SLIDE_ROLLER_SAFE_MARGIN;
@@ -262,7 +262,7 @@ public final class Constants {
     // TODO Adjust the KICKER_FORWARD_RPS value based on testing
     // Kicker forward velocity target: baseline 2440 RPM at 5V (Kraken X60 — verify on hardware).
     // Kraken X60 free speed differs from X44; retune SLOT0_KV in KickerLeaderConfig if needed.
-    public static final double KICKER_FORWARD_RPS = 3000.0 / 60.0;
+    public static final double KICKER_FORWARD_RPS = 3100.0 / 60.0;
     // 2440 RPM = 40.67 RPS
     // 2600 RPM = 43.33 RPS
     // 2800 RPM = 46.67 RPS
@@ -414,12 +414,12 @@ public final class Constants {
      */
 
     // Flywheel PID and feedforward gains.
-    public static final double KV = 0.132; // Tuned 4-13-2026 0.132
-    public static final double KP = 0.055; // Tuned 4-13-2026  0.055
-    public static final double KD = 0.000; // Tuned 4-4-2026
+    public static final double KV = 0.131; // Tuned 4-24-2026
+    public static final double KP = 0.045; // Tuned 4-24-2026
+    public static final double KD = 0.030; // Tuned 4-24-2026
     public static final double KA = 0.000; // Tuned 4-4-2026
 
-    public static final double TOLERANCE_PERCENT = 0.05; //
+    public static final double TOLERANCE_PERCENT = 0.06; //
 
     /* Flywheel limits */
     public static final double SUPPLY_CURRENT_LIMIT = 60;

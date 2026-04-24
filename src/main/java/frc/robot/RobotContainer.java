@@ -91,23 +91,22 @@ public class RobotContainer {
 
         // == Left Side Autos ==
         autoChooser.addRoutine("Left x1 Ramp", autoRoutines::LtTrench_Ramp_Single);
-        autoChooser.addRoutine("Left x1 Ramp ANGRY", autoRoutines::LtTrench_Ramp_Angry);
+        // FIXME autoChooser.addRoutine("Left x1 Ramp ANGRY", autoRoutines::LtTrench_Ramp_Angry);
         autoChooser.addRoutine("Left x2 Ramp", autoRoutines::LtTrench_Ramp_Double);
         autoChooser.addRoutine("Left x2 Ramp Sweep SHOT", autoRoutines::LtTrench_Ramp_HubSweep);
         autoChooser.addRoutine("Left x2 Ramp PURGE", autoRoutines::LtTrench_Ramp_Sweep_Purge);
-        autoChooser.addRoutine("Left PreTrench Center Shot", autoRoutines::LtPreTrench_Center);
-        // autoChooser.addRoutine("Left Ramp Sweep PURGE", autoRoutines::LtTrench_Ramp_Sweep_AngryPurge);
+        // FIXME autoChooser.addRoutine("Left PreTrench Center Shot", autoRoutines::LtPreTrench_Center);
         
         // == Right Side Autos ==
         autoChooser.addRoutine("Right x1 Ramp", autoRoutines::RtTrench_Ramp_Single);
-        autoChooser.addRoutine("Right x1 Ramp ANGRY", autoRoutines::RtTrench_Ramp_Angry);
+        // FIXME autoChooser.addRoutine("Right x1 Ramp ANGRY", autoRoutines::RtTrench_Ramp_Angry);
         autoChooser.addRoutine("Right x2 Ramp", autoRoutines::RtTrench_Ramp_Double);
         autoChooser.addRoutine("Right x2 Ramp Sweep SHOT", autoRoutines::RtTrench_Ramp_HubSweep);
         autoChooser.addRoutine("Right x2 Ramp PURGE", autoRoutines::RtTrench_Ramp_Sweep_Purge);
-        autoChooser.addRoutine("Right PreTrench Center Shot", autoRoutines::RtPreTrench_Center);
+        // FIXME autoChooser.addRoutine("Right PreTrench Center Shot", autoRoutines::RtPreTrench_Center);
 
         autoChooser.addRoutine("Right Bulldozer 2026", autoRoutines::RtBulldozer);
-        autoChooser.addRoutine("Left Bulldozer 2026", autoRoutines::LtBulldozer);
+        // FIXME autoChooser.addRoutine("Left Bulldozer 2026", autoRoutines::LtBulldozer);
 
         // Testing
         // autoChooser.addRoutine("Rt Bulldozer 2026", autoRoutines.test::Bulldozer);
