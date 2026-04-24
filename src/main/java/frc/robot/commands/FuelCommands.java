@@ -443,6 +443,14 @@ public class FuelCommands {
         return new AlignAndShootCommand(shooter, indexer, drivetrain, vision, xSupplier, ySupplier);
     }
 
+    public static Command fuelCompressionWhenShooterReady(
+        ShooterSubsystem shooter,
+        IntakeSubsystem intake) {
+    return Commands.sequence(
+            Commands.waitUntil(shooter::isReady),
+            intake.fuelCompression())
+            .withName("FuelCompressionWhenShooterReady");
+        }
     public static class Auto {
 
         // ============================================================================
@@ -577,14 +585,7 @@ public class FuelCommands {
                     }).withName("Auto.PoseAlignAndShoot");
         }
 
-        public static Command fuelCompressionWhenShooterReady(
-                ShooterSubsystem shooter,
-                IntakeSubsystem intake) {
-            return Commands.sequence(
-                    Commands.waitUntil(shooter::isReady),
-                    intake.fuelCompression())
-                    .withName("FuelCompressionWhenShooterReady");
-        }
+
 
         // =============================================================================
         // Presets
