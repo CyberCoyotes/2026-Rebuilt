@@ -134,9 +134,9 @@ public final class Constants {
 
     // Kraken X44 free speed ~96.7 RPS at 12V; 9V ≈ 72.5 RPS (rounded down to 70).
     // Reverse was -11V ≈ 88.5 RPS.  Tune on hardware.
-    public static final double ROLLER_FORWARD_RPS = 70.0;
+    public static final double ROLLER_FORWARD_RPS = 80.0;
     public static final double ROLLER_SLOW_RPS    = 35.0; // 50% of forward
-    public static final double ROLLER_REVERSE_RPS = -95.0;
+    public static final double ROLLER_REVERSE_RPS = -92.0;
 
     public static final class RollerLeaderConfig {
       private RollerLeaderConfig() {
@@ -262,7 +262,7 @@ public final class Constants {
     // TODO Adjust the KICKER_FORWARD_RPS value based on testing
     // Kicker forward velocity target: baseline 2440 RPM at 5V (Kraken X60 — verify on hardware).
     // Kraken X60 free speed differs from X44; retune SLOT0_KV in KickerLeaderConfig if needed.
-    public static final double KICKER_FORWARD_RPS = 3500.0 / 60.0;
+    public static final double KICKER_FORWARD_RPS = 3000.0 / 60.0;
     // 2440 RPM = 40.67 RPS
     // 2600 RPM = 43.33 RPS
     // 2800 RPM = 46.67 RPS
