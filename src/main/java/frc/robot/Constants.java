@@ -419,7 +419,11 @@ public final class Constants {
     public static final double KD = 0.000; // Tuned 4-4-2026
     public static final double KA = 0.000; // Tuned 4-4-2026
 
-    public static final double TOLERANCE_PERCENT = 0.05; //
+    // Flywheel "at speed" hysteresis window:
+    // - Enter READY when error is inside ENTER tolerance
+    // - Stay READY until error exceeds EXIT tolerance
+    public static final double TOLERANCE_ENTER_PERCENT = 0.05;
+    public static final double TOLERANCE_EXIT_PERCENT = 0.06;
 
     /* Flywheel limits */
     public static final double SUPPLY_CURRENT_LIMIT = 60;

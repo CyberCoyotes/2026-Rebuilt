@@ -97,6 +97,7 @@ public class ShooterSubsystem extends SubsystemBase {
     // private boolean standbyEnabled        = false; // operator toggled, defaults OFF at boot
     private double targetFlywheelMotorRPM = 0.0;
     private double targetHoodPoseRot      = 0.0;
+    private boolean flywheelAtVelocityLatched = false;
 
     // Slow publish divider
     private int periodicCounter = 0;
@@ -213,6 +214,9 @@ public class ShooterSubsystem extends SubsystemBase {
 
         currentState = newState;
         currentStateString = newState.toString();
+        if (newState != ShooterState.SPINNING_UP && newState != ShooterState.READY && newState != ShooterState.PASS) {
+            flywheelAtVelocityLatched = false;
+        }
 
         switch (newState) {
             case IDLE:
@@ -379,6 +383,7 @@ public class ShooterSubsystem extends SubsystemBase {
     /** Sets target flywheel velocity (forward only — clamped to MAX_FLYWHEEL_RPM). Does NOT change state. */
     public void setTargetVelocity(double rpm) {
         targetFlywheelMotorRPM = Math.min(Math.abs(rpm), Constants.Flywheel.MAX_RPM);
+        flywheelAtVelocityLatched = false;
     }
 
     /**
@@ -440,10 +445,20 @@ public class ShooterSubsystem extends SubsystemBase {
     /** Returns true if flywheel is at target velocity within tolerance. */
     public boolean isFlywheelAtVelocity() {
         if (Math.abs(targetFlywheelMotorRPM) < 1.0) {
+            flywheelAtVelocityLatched = false;
             return Math.abs(inputs.flywheelLeaderMotorRPM) < 50.0;
         }
-        double tolerance = Math.abs(targetFlywheelMotorRPM) * Constants.Flywheel.TOLERANCE_PERCENT;
-        return Math.abs(inputs.flywheelLeaderMotorRPM - targetFlywheelMotorRPM) < tolerance;
+        double error = Math.abs(inputs.flywheelLeaderMotorRPM - targetFlywheelMotorRPM);
+        double enterTolerance = Math.abs(targetFlywheelMotorRPM) * Constants.Flywheel.TOLERANCE_ENTER_PERCENT;
+        double exitTolerance = Math.abs(targetFlywheelMotorRPM) * Constants.Flywheel.TOLERANCE_EXIT_PERCENT;
+
+        if (flywheelAtVelocityLatched) {
+            flywheelAtVelocityLatched = error < exitTolerance;
+        } else {
+            flywheelAtVelocityLatched = error < enterTolerance;
+        }
+
+        return flywheelAtVelocityLatched;
     }
 
     /** Returns true if hood is at target pose within tolerance. */
