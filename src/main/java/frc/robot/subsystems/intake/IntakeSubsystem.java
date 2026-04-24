@@ -417,16 +417,12 @@ public class IntakeSubsystem extends SubsystemBase {
     /**
      * Sensor-gated version of fuelCompression().
      *
-     * Waits until the hopper top sensor (CANrange ID 41) reads NOT full, then
-     * runs the normal fuelCompression sequence. If the hopper is already empty
-     * when the command is scheduled, compression starts immediately.
-     *
-     * Use this in place of fuelCompression() to avoid compressing when the
-     * hopper is already loaded to the top.
+     * Skips compression entirely when the hopper top sensor (CANrange ID 41)
+     * reads full; runs the normal fuelCompression() sequence otherwise.
+     * Use this in place of fuelCompression() for preset and vision shots only.
      */
     public Command fuelCompressionWithSensor() {
-        return Commands.waitUntil(() -> !isHopperFull())
-                .andThen(fuelCompression())
+        return fuelCompression().unless(this::isHopperFull)
                 .withName("FuelCompressionWithSensor");
     }
 
