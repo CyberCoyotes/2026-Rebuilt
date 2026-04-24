@@ -155,7 +155,7 @@ public class RobotContainer {
                     () -> -driver.getLeftY() * MaxSpeed,
                     () -> -driver.getLeftX() * MaxSpeed
                 ),
-                fuelCompressionWhenShooterReady()
+                FuelCommands.fuelCompressionWhenShooterReady(shooter, intake)
             )
         );
                 
@@ -179,26 +179,26 @@ public class RobotContainer {
             Commands.deadline(
                 // drivetrain.applyRequest(() -> xBrake),
                 FuelCommands.shootWithPreset(shooter, indexer, ShooterSubsystem.ShotPreset.TRENCH),
-                fuelCompressionWhenShooterReady()
+                FuelCommands.fuelCompressionWhenShooterReady(shooter, intake)
                 ));
 
         operator.b().whileTrue(
             Commands.deadline(
                 // drivetrain.applyRequest(() -> xBrake),    
                 FuelCommands.shootWithPreset(shooter, indexer, ShooterSubsystem.ShotPreset.CLOSE),
-                fuelCompressionWhenShooterReady()
+                FuelCommands.fuelCompressionWhenShooterReady(shooter, intake)
                 ));
         operator.x().whileTrue(
             Commands.deadline(
                 // drivetrain.applyRequest(() -> xBrake),
                 FuelCommands.shootWithPreset(shooter, indexer, ShooterSubsystem.ShotPreset.TOWER_FRONT),
-                fuelCompressionWhenShooterReady()
+                FuelCommands.fuelCompressionWhenShooterReady(shooter, intake)
                 ));
         operator.y().whileTrue(
             Commands.deadline(
                 // drivetrain.applyRequest(() -> xBrake),
                 FuelCommands.shootWithPreset(shooter, indexer, ShooterSubsystem.ShotPreset.FAR),
-                fuelCompressionWhenShooterReady()
+                FuelCommands.fuelCompressionWhenShooterReady(shooter, intake)
                 ));
 
         operator.leftTrigger(0.5).whileTrue(intake.intakeFuel());
@@ -231,17 +231,6 @@ public class RobotContainer {
 
     public Command getAutonomousCommand() {
         return autoChooser.selectedCommand();
-    }
-
-    /**
-     * Runs intake fuel compression only after the shooter reports ready.
-     * If the shooting command is cancelled before ready, compression never starts.
-     */
-    private Command fuelCompressionWhenShooterReady() {
-        return Commands.sequence(
-                Commands.waitUntil(shooter::isReady),
-                intake.fuelCompression())
-                .withName("FuelCompressionWhenShooterReady");
     }
 
     public void updateGameData() {

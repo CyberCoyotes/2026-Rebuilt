@@ -577,7 +577,7 @@ public class FuelCommands {
                     }).withName("Auto.PoseAlignAndShoot");
         }
 
-        private static Command fuelCompressionWhenShooterReady(
+        public static Command fuelCompressionWhenShooterReady(
                 ShooterSubsystem shooter,
                 IntakeSubsystem intake) {
             return Commands.sequence(
