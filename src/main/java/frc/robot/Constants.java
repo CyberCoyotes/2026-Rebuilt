@@ -523,7 +523,7 @@ public final class Constants {
     public static final double TOWER_FRONT_HOOD = 6.00; //was 5.0
 
     // In the trench, mostly against the wall, but turned slightly towards the hub
-    public static final double TRENCH_DISTANCE = Units.inchesToMeters(107) + HUB_TO_CENTER + LL_TO_FRONT;
+    public static final double TRENCH_DISTANCE = Units.inchesToMeters(118) + HUB_TO_CENTER + LL_TO_FRONT;
 
     // 3050 for the first 2 matches
     public static final double TRENCH_RPM = 3150;
