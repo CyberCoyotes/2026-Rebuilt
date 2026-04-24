@@ -86,7 +86,7 @@ public final class Constants {
     // Slide setpoints and tuning values
     public static final double SLIDE_RETRACTED_POS = 0.0;
     public static final double SLIDE_HOME_POS = 19.18;
-    public static final double SLIDE_EXTENDED_POS = 64.00; //
+    public static final double SLIDE_EXTENDED_POS = 61.00; //
     public static final double SLIDE_MAX_POS = 65.75; // Confirmed 4-6-26
     public static final double SLIDE_ROLLER_SAFE_MARGIN = 1.5;
     public static final double SLIDE_ROLLER_SAFE_POS = SLIDE_HOME_POS + SLIDE_ROLLER_SAFE_MARGIN;
@@ -94,7 +94,7 @@ public final class Constants {
     public static final double SLIDE_INCREMENTAL_RETRACT_ROTATIONS = 15.0;
     public static final double SLIDE_MANUAL_STEP_ROTATIONS = 5.0;
     public static final double SLIDE_MANUAL_REPEAT_SECONDS = 0.15;
-    public static final double SLIDE_PUMP_OUT_POS = 60.0;
+    public static final double SLIDE_PUMP_OUT_POS = 55.0;
     public static final double SLIDE_PUMP_IN_POS = 40.0;
     public static final double SLIDE_FUEL_COMPRESSION_WAIT_SECONDS = 0.0; 
     // Was 1.5
