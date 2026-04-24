@@ -728,6 +728,12 @@ public final class Constants {
     private Auto() {
     }
 
+    public static final double SHOOT_TIMEOUT = 5.0; // seconds
+    public static final double INTAKE_TIMEOUT = 6.0; // seconds
+    public static final double FUEL_PUMP_TIMEOUT = 4.0; // seconds
+    public static final double PURGE_TIMEOUT = 3.0; // seconds
+    public static final double INTAKE_DELAY = 0.15; // seconds
+
     // How long to wait after driving before doing something else
     public static final double DRIVE_WAIT = 1.0;
     public static final double SCORE_WAIT = 1.0;
