@@ -9,6 +9,7 @@ import frc.robot.subsystems.CommandSwerveDrivetrain;
 import frc.robot.subsystems.indexer.IndexerSubsystem;
 import frc.robot.subsystems.intake.IntakeSubsystem;
 import frc.robot.subsystems.shooter.ShooterSubsystem;
+import frc.robot.subsystems.vision.VisionSubsystem;
 
 public class AutoRoutines {
         private final AutoFactory m_factory;
@@ -16,19 +17,21 @@ public class AutoRoutines {
         private final IntakeSubsystem m_intake;
         private final IndexerSubsystem m_indexer;
         private final ShooterSubsystem m_shooter;
+        private final VisionSubsystem m_vision;
         
 
         public AutoRoutines(AutoFactory factory, 
                         CommandSwerveDrivetrain drivetrain,
                         IndexerSubsystem indexer, 
                         IntakeSubsystem intake, 
-                        ShooterSubsystem shooter) {
+                        ShooterSubsystem shooter,
+                        VisionSubsystem vision) {
                 m_factory = factory;
                 m_drivetrain = drivetrain;
                 m_indexer = indexer;
                 m_intake = intake;
                 m_shooter = shooter;
-                // m_vision = vision;
+                m_vision = vision;
         }
 
         public static final double shootTimeout = 5.0; // seconds
@@ -66,7 +69,11 @@ public class AutoRoutines {
                                                 RtRampMiddle_Alliance.cmd(),
 
                                                 // Shoot
-                                                FuelCommands.Auto.poseAlignAndShoot(m_shooter, m_indexer, m_intake, m_drivetrain, shootTimeout)
+                                                FuelCommands.Auto.poseAlignAndShoot(m_shooter, m_indexer, m_intake, m_drivetrain, m_vision, shootTimeout),
+
+                                                // Drive to Trench
+                                                RtShootRamp_Trench.cmd()
+
                                                 )
                                 );
 
@@ -106,21 +113,10 @@ public class AutoRoutines {
                                                 // Shoot
                                                 FuelCommands.Auto.poseAlignAndShoot(m_shooter, m_indexer, m_intake, m_drivetrain, shootTimeout),
 
-                                                // --- Cycle 2 ---
-                                                // 5. Back to trench
-                                                RtShootRamp_Trench.cmd(),
-
-                                                // 6. Trench to Middle (2nd) — intake runs in parallel
-                                                Commands.deadline(
-                                                                RtTrench_Middle_2.cmd(),
-                                                                m_intake.intakeFuelTimer(intakeTimeout, intakeDelay)),
-
-                                                // 7. Ramp crossing to Alliance side (2nd)
-                                                RtRampMiddle_Alliance_2.cmd(),
-
-                                                // 9. Shoot (2nd) — starts only after RtShootRamp_2 fully completes
-                                                FuelCommands.Auto.poseAlignAndShoot(m_shooter, m_indexer, m_intake, m_drivetrain, shootTimeout)
-                                ));
+                                                // 4. Shoot — starts only after RtShootRamp fully completes
+                                                FuelCommands.Auto.poseAlignAndShoot(m_shooter, m_indexer, m_intake, m_drivetrain, m_vision, shootTimeout)
+                                                )
+                                );
 
                 return routine;
         }
@@ -151,7 +147,7 @@ public class AutoRoutines {
                                                 RtShootRamp.cmd(),
 
                                                 // 4. Shoot — starts only after RtShootRamp fully completes
-                                                FuelCommands.Auto.poseAlignAndShoot(m_shooter, m_indexer, m_intake, m_drivetrain, shootTimeout)
+                                                FuelCommands.Auto.poseAlignAndShoot(m_shooter, m_indexer, m_intake, m_drivetrain, m_vision, shootTimeout)
                                                 )
                                 );
 
@@ -180,13 +176,24 @@ public class AutoRoutines {
                                                 // 2. Ramp crossing
                                                 RtRampMiddle_Alliance.cmd(),
 
-                                                // 3. Drive to shoot position
-                                                RtShootRamp.cmd(),
-
                                                 // 4. Shoot — starts only after RtShootRamp fully completes
-                                                FuelCommands.Auto.poseAlignAndShoot(m_shooter, m_indexer, m_intake, m_drivetrain, shootTimeout)
-                                                )
-                                );
+                                                FuelCommands.Auto.poseAlignAndShoot(m_shooter, m_indexer, m_intake, m_drivetrain, m_vision, shootTimeout),
+
+                                                // --- Cycle 2 ---
+                                                // 5. Back to trench
+                                                RtShootRamp_Trench.cmd(),
+
+                                                // 6. Trench to Middle (2nd) — intake runs in parallel
+                                                Commands.deadline(
+                                                                RtTrench_Middle_2.cmd(),
+                                                                m_intake.intakeFuelTimer(intakeTimeout, intakeDelay)),
+
+                                                // 7. Ramp crossing to Alliance side (2nd)
+                                                RtRampMiddle_Alliance_2.cmd(),
+
+                                                // 9. Shoot (2nd) — starts only after RtShootRamp_2 fully completes
+                                                FuelCommands.Auto.poseAlignAndShoot(m_shooter, m_indexer, m_intake, m_drivetrain, m_vision, shootTimeout)
+                                ));
 
                 return routine;
         }
@@ -222,7 +229,7 @@ public class AutoRoutines {
                                                 RtRampMiddle_Alliance.cmd(),
 
                                                 // 4. Shoot — starts only after RtShootRamp fully completes
-                                                FuelCommands.Auto.poseAlignAndShoot(m_shooter, m_indexer, m_intake, m_drivetrain, shootTimeout),
+                                                FuelCommands.Auto.poseAlignAndShoot(m_shooter, m_indexer, m_intake, m_drivetrain, m_vision, shootTimeout),
 
                                                 // --- Cycle 2 ---
                                                 // 5. Back to trench
@@ -239,7 +246,7 @@ public class AutoRoutines {
                                                 RtRampMiddle_Alliance_2.cmd(),
 
                                                 // 9. Shoot (2nd) — starts only after RtShootRamp_2 fully completes
-                                                FuelCommands.Auto.poseAlignAndShoot(m_shooter, m_indexer, m_intake, m_drivetrain, shootTimeout)
+                                                FuelCommands.Auto.poseAlignAndShoot(m_shooter, m_indexer, m_intake, m_drivetrain, m_vision, shootTimeout)
                                 ));
 
                 return routine;
@@ -289,7 +296,7 @@ public class AutoRoutines {
                                                 RtRampMiddle_Alliance.cmd(),
 
                                                 // 4. Shoot — starts only after RtShootRamp fully completes
-                                                FuelCommands.Auto.poseAlignAndShoot(m_shooter, m_indexer, m_intake, m_drivetrain, shootTimeout),
+                                                FuelCommands.Auto.poseAlignAndShoot(m_shooter, m_indexer, m_intake, m_drivetrain, m_vision, shootTimeout),
 
                                                 // --- Cycle 2 ---
                                                 // 5. Back to trench
@@ -338,7 +345,7 @@ public class AutoRoutines {
                                                 RtRampMiddle_Alliance.cmd(),
 
                                                 // 4. Shoot — starts only after RtShootRamp fully completes
-                                                FuelCommands.Auto.poseAlignAndShoot(m_shooter, m_indexer, m_intake, m_drivetrain, shootTimeout),
+                                                FuelCommands.Auto.poseAlignAndShoot(m_shooter, m_indexer, m_intake, m_drivetrain, m_vision, shootTimeout),
 
                                                 // --- Cycle 2 ---
                                                 // 5. Back to trench
@@ -374,7 +381,7 @@ public class AutoRoutines {
                                                                 AngryMeepMeep.cmd(),
                                                                 m_intake.intakeFuelTimer(intakeTimeout, intakeDelay)),
 
-                                                FuelCommands.Auto.poseAlignAndShoot(m_shooter, m_indexer, m_intake, m_drivetrain, shootTimeout)
+                                                FuelCommands.Auto.poseAlignAndShoot(m_shooter, m_indexer, m_intake, m_drivetrain, m_vision, shootTimeout)
 
                                 ));
 
@@ -408,7 +415,7 @@ public class AutoRoutines {
                                                 LtRampMiddle_Alliance.cmd(),
 
                                                  // Shoot — starts only after LtShootRamp fully completes
-                                                FuelCommands.Auto.poseAlignAndShoot(m_shooter, m_indexer, m_intake, m_drivetrain, shootTimeout),
+                                                FuelCommands.Auto.poseAlignAndShoot(m_shooter, m_indexer, m_intake, m_drivetrain, m_vision, shootTimeout),
 
                                                 // Drive to Trench
                                                 LtShootRamp_Trench.cmd()
@@ -453,7 +460,7 @@ public class AutoRoutines {
                                                 LtShootRamp_Trench.cmd(),
 
                                                 // 4. Shoot — starts only after LtShootRamp fully completes
-                                                FuelCommands.Auto.poseAlignAndShoot(m_shooter, m_indexer, m_intake, m_drivetrain, shootTimeout),
+                                                FuelCommands.Auto.poseAlignAndShoot(m_shooter, m_indexer, m_intake, m_drivetrain, m_vision, shootTimeout),
 
                                                 // --- Cycle 2 ---
                                                 // 5. Back to trench
@@ -468,7 +475,7 @@ public class AutoRoutines {
                                                 LtRampMiddle_Alliance_2.cmd(),
 
                                                 // 8. Shoot (2nd) — starts only after LtShootRamp_2 fully completes
-                                                FuelCommands.Auto.poseAlignAndShoot(m_shooter, m_indexer, m_intake, m_drivetrain, shootTimeout)
+                                                FuelCommands.Auto.poseAlignAndShoot(m_shooter, m_indexer, m_intake, m_drivetrain, m_vision, shootTimeout)
                                 ));
 
                 return routine;
@@ -509,7 +516,7 @@ public class AutoRoutines {
                                                 LtShootRamp_Trench.cmd(),
 
                                                 // 4. Shoot — starts only after LtShootRamp fully completes
-                                                FuelCommands.Auto.poseAlignAndShoot(m_shooter, m_indexer, m_intake, m_drivetrain, shootTimeout),
+                                                FuelCommands.Auto.poseAlignAndShoot(m_shooter, m_indexer, m_intake, m_drivetrain, m_vision, shootTimeout),
 
                                         
                                                 // 5. Back to trench
@@ -526,7 +533,7 @@ public class AutoRoutines {
                                                 LtRampMiddle_Alliance_2.cmd(),
 
                                                 // 8. Shoot (2nd) — starts only after LtShootRamp_2 fully completes
-                                                FuelCommands.Auto.poseAlignAndShoot(m_shooter, m_indexer, m_intake, m_drivetrain, shootTimeout)
+                                                FuelCommands.Auto.poseAlignAndShoot(m_shooter, m_indexer, m_intake, m_drivetrain, m_vision, shootTimeout)
                                 ));
 
                 return routine;
@@ -565,7 +572,7 @@ public class AutoRoutines {
                                                 LtShootRamp_Trench.cmd(),
 
                                                 // 4. Shoot — starts only after LtShootRamp fully completes
-                                                FuelCommands.Auto.poseAlignAndShoot(m_shooter, m_indexer, m_intake, m_drivetrain, shootTimeout),
+                                                FuelCommands.Auto.poseAlignAndShoot(m_shooter, m_indexer, m_intake, m_drivetrain, m_vision, shootTimeout),
 
                                         
                                                 // 5. Back to trench
@@ -617,7 +624,7 @@ public class AutoRoutines {
                                                 LtShootRamp_Trench.cmd(),
 
                                                 // 4. Shoot — starts only after LtShootRamp fully completes
-                                                FuelCommands.Auto.poseAlignAndShoot(m_shooter, m_indexer, m_intake, m_drivetrain, shootTimeout),
+                                                FuelCommands.Auto.poseAlignAndShoot(m_shooter, m_indexer, m_intake, m_drivetrain, m_vision, shootTimeout),
 
                                         
                                                 // 5. Back to trench
@@ -654,7 +661,7 @@ public class AutoRoutines {
                                                 
                                                 RtRampMiddle_Alliance.cmd(),
                                                 
-                                                FuelCommands.Auto.poseAlignAndShoot(m_shooter, m_indexer, m_intake, m_drivetrain, shootTimeout)
+                                                FuelCommands.Auto.poseAlignAndShoot(m_shooter, m_indexer, m_intake, m_drivetrain, m_vision, shootTimeout)
                                                 
 
                                 ));
@@ -714,7 +721,7 @@ public class AutoRoutines {
                                 ));
                 // Routine Events
                 LtTrench_Mid_Trench.atTime("Intake").onTrue(m_intake.intakeFuelTimer(intakeTimeout, intakeDelay));
-                LtTrench_Mid_Trench.atTime("Shoot").onTrue(FuelCommands.Auto.poseAlignAndShoot(m_shooter, m_indexer, m_intake, m_drivetrain, shootTimeout));
+                LtTrench_Mid_Trench.atTime("Shoot").onTrue(FuelCommands.Auto.poseAlignAndShoot(m_shooter, m_indexer, m_intake, m_drivetrain, m_vision, shootTimeout));
                 LtTrench_Mid_Trench.atTime("FuelPump").onTrue(FuelCommands.Auto.fuelPumpCycleSensor(m_intake, m_indexer));
 
                 return routine;
@@ -754,7 +761,7 @@ public class AutoRoutines {
                 
                 // dependencies are fine in this version
                 RtTrench_RtMid_RtTrench.atTime("Shoot")
-                                .onTrue(FuelCommands.Auto.poseAlignAndShoot(m_shooter, m_indexer, m_intake, m_drivetrain, shootTimeout));
+                                .onTrue(FuelCommands.Auto.poseAlignAndShoot(m_shooter, m_indexer, m_intake, m_drivetrain, m_vision, shootTimeout));
                 RtTrench_RtMid_RtTrench.atTime("FuelPump").onTrue(FuelCommands.Auto.fuelPumpCycleSensor(m_intake, m_indexer));
                 return routine;
                 }
@@ -801,8 +808,7 @@ public class AutoRoutines {
                         // Place the "Shoot" event marker at the END of the trajectory segment so the
                         // path finishes before this fires.
                         Experimental.atTime("Shoot")
-                                        .onTrue(FuelCommands.Auto.poseAlignAndShoot(m_shooter, m_indexer, m_intake,m_drivetrain,
-                                                        shootTimeout));
+                                        .onTrue(FuelCommands.Auto.poseAlignAndShoot(m_shooter, m_indexer, m_intake, m_drivetrain, m_vision, shootTimeout));
 
                         return routine;
                 }

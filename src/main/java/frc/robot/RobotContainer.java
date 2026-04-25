@@ -82,7 +82,7 @@ public class RobotContainer {
             () -> Math.toDegrees(drivetrain.getState().Speeds.omegaRadiansPerSecond));
 
         autoFactory = drivetrain.createAutoFactory();
-        autoRoutines = new AutoRoutines(autoFactory,drivetrain,indexer, intake, shooter);
+        autoRoutines = new AutoRoutines(autoFactory, drivetrain, indexer, intake, shooter, vision);
         SmartDashboard.putData("AutoChooser", autoChooser);
 
         // =====================================================================
