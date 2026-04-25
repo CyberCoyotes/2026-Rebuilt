@@ -65,12 +65,15 @@ public class AutoRoutines {
                                                                 RtTrench_Middle.cmd(),
                                                                 m_intake.intakeFuelTimer(intakeTimeout, intakeDelay)),
 
+                                                // FuelCommands.purgeFuel(m_intake, m_indexer).withTimeout(4), // FIXME Test only
+                
                                                 // Ramp crossing
                                                 RtRampMiddle_Alliance.cmd(),
 
+                                                // TODO Add before every shop to stop and settle before shooting
                                                 m_drivetrain.stop().withTimeout(0.75),
 
-                                                // Shoot
+                                                // TODO Check vision shoot
                                                 FuelCommands.Auto.poseAlignAndShoot(m_shooter, m_indexer, m_intake, m_drivetrain, m_vision, shootTimeout)
 
                                                 )
