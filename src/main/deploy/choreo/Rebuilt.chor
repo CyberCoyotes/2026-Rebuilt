@@ -14,8 +14,8 @@
    "IntakeVel":{
     "dimension":"LinVel",
     "var":{
-     "exp":"(2 / 2) m / s",
-     "val":1.0
+     "exp":"2 m / s",
+     "val":2.0
     }
    },
    "LtCrossingHeading":{
@@ -35,8 +35,8 @@
    "MediumVel":{
     "dimension":"LinVel",
     "var":{
-     "exp":"(3.25 / 2) m / s",
-     "val":1.625
+     "exp":"3.25 m / s",
+     "val":3.25
     }
    },
    "MeepMeep":{
@@ -70,8 +70,8 @@
    "SlowVel":{
     "dimension":"LinVel",
     "var":{
-     "exp":"(1.5 / 2) m / s",
-     "val":0.75
+     "exp":"1.5 m / s",
+     "val":1.5
     }
    },
    "TestVel":{

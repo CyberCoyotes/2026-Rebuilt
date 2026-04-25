@@ -504,15 +504,17 @@ public class FuelCommands {
 
         // =============================================================================
         /**
-         * Autonomous odometry-based align-and-shoot.
+         * Autonomous vision-assisted align-and-shoot.
          *
-         * Uses drivetrain odometry to compute heading error to the hub — no vision,
-         * no driver input, no lead compensation (robot is stopped).
+         * Uses Limelight TX when a single fresh tag is visible; otherwise falls back
+         * to drivetrain odometry heading to the hub. No driver input, no lead
+         * compensation (robot is stopped).
          *
          * Phase 1 (deadline): rotate toward hub + spin up shooter simultaneously.
          * Ends when heading error ≤ ALIGNMENT_TOLERANCE_DEGREES AND shooter isReady(),
          * or after a 3-second safety timeout.
-         * Phase 2: feed indexer for feedSeconds.
+         * Phase 2: feed indexer until chute sensor confirms ball passed
+         * ({@code isFuelDetected()} seen then clear), with timeout fallback.
          * finallyDo: stop indexer/conveyor, return shooter to idle.
          *
          * Use at Choreo "Shoot" event markers. Because this command requires the
@@ -523,7 +525,7 @@ public class FuelCommands {
          * @param shooter     Shooter subsystem
          * @param indexer     Indexer subsystem
          * @param drivetrain  Drivetrain (odometry pose source)
-         * @param feedSeconds How long to run the indexer/conveyor after alignment
+         * @param vision      Vision subsystem (fresh target + TX)
          * @param shotTimeout Timeout for the shooting sequence
          * @return Autonomous align-and-shoot command
          */
@@ -532,6 +534,7 @@ public class FuelCommands {
                 IndexerSubsystem indexer,
                 IntakeSubsystem intake,
                 CommandSwerveDrivetrain drivetrain,
+                VisionSubsystem vision,
                 double shotTimeout) {
 
             final SwerveRequest.FieldCentric alignRequest = new SwerveRequest.FieldCentric()
@@ -561,10 +564,20 @@ public class FuelCommands {
                                 if (shooter.getState() != ShooterSubsystem.ShooterState.READY) {
                                     shooter.beginSpinUp();
                                 }
+                                double currentHeadingDeg = pose.getRotation().getDegrees();
                                 double angleToHubDeg = Math.toDegrees(Math.atan2(dy, dx));
-                                double targetHeadingDeg = getRobotFrontTargetHeadingDegrees(angleToHubDeg, 0.0);
+                                double targetHeadingDeg;
+
+                                if (vision.hasFreshTarget() && vision.getTagCount() == 1) {
+                                    targetHeadingDeg = MathUtil.inputModulus(
+                                            currentHeadingDeg - vision.getTX() + Constants.Vision.ALIGNMENT_OFFSET_DEGREES,
+                                            -180.0, 180.0);
+                                } else {
+                                    targetHeadingDeg = getRobotFrontTargetHeadingDegrees(angleToHubDeg, 0.0);
+                                }
+
                                 headingPID.setSetpoint(targetHeadingDeg);
-                                double pidOutput = headingPID.calculate(pose.getRotation().getDegrees());
+                                double pidOutput = headingPID.calculate(currentHeadingDeg);
                                 double rotRate = headingPID.atSetpoint() ? 0.0
                                         : MathUtil.clamp(pidOutput,
                                                 -Constants.Vision.MAX_ALIGNMENT_ROTATION_RAD_PER_SEC,
