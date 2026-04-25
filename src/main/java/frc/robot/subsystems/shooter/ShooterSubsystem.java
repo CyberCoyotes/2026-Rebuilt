@@ -190,8 +190,8 @@ public class ShooterSubsystem extends SubsystemBase {
                 io.setHoodPose(targetHoodPoseRot);
                 break;
             case PASS:
-                commandFlywheelVelocity(Constants.Flywheel.PASS_RPM);
-                io.setHoodPose(Constants.Hood.PASS_HOOD);
+                commandFlywheelVelocity(Constants.Shooter.PASS_RPM);
+                io.setHoodPose(Constants.Shooter.PASS_HOOD);
                 break;
             case EJECT:
                 commandFlywheelVelocity(Constants.Flywheel.EJECT_RPM);
@@ -242,8 +242,8 @@ public class ShooterSubsystem extends SubsystemBase {
                 break;
 
             case PASS:
-                commandFlywheelVelocity(Constants.Flywheel.PASS_RPM);
-                io.setHoodPose(Constants.Hood.PASS_HOOD);
+                commandFlywheelVelocity(Constants.Shooter.PASS_RPM);
+                io.setHoodPose(Constants.Shooter.PASS_HOOD);
                 break;
 
             case EJECT:

@@ -86,7 +86,7 @@ public final class Constants {
     // Slide setpoints and tuning values
     public static final double SLIDE_RETRACTED_POS = 0.0;
     public static final double SLIDE_HOME_POS = 19.18;
-    public static final double SLIDE_EXTENDED_POS = 61.00; //
+    public static final double SLIDE_EXTENDED_POS = 60.00; //
     public static final double SLIDE_MAX_POS = 65.75; // Confirmed 4-6-26
     public static final double SLIDE_ROLLER_SAFE_MARGIN = 1.5;
     public static final double SLIDE_ROLLER_SAFE_POS = SLIDE_HOME_POS + SLIDE_ROLLER_SAFE_MARGIN;
@@ -255,21 +255,9 @@ public final class Constants {
      * and full hopper load.
      * Visually assess performance for now.
      * Add a "Tuned" note when each value is confirmed.
-     * 
-     * VOLTAGE = 5 for first 4 Matches
-     */
+     * */
 
-    // TODO Adjust the KICKER_FORWARD_RPS value based on testing
-    // Kicker forward velocity target: baseline 2440 RPM at 5V (Kraken X60 — verify on hardware).
-    // Kraken X60 free speed differs from X44; retune SLOT0_KV in KickerLeaderConfig if needed.
-    public static final double KICKER_FORWARD_RPS = 3000.0 / 60.0;
-    // 2440 RPM = 40.67 RPS
-    // 2600 RPM = 43.33 RPS
-    // 2800 RPM = 46.67 RPS
-    // 3000 RPM = 50 RPS
-
-    // Fallback voltage (VoltageOut) — kept for reference, not used in normal operation
-    // public static final double KICKER_FORWARD_VOLTAGE = 5.0;
+    public static final double KICKER_FORWARD_RPS = 3100.0 / 60.0; // Tuned 4-24
 
     // Reverse voltage for ejecting fuel and clearing jams.
     public static final double KICKER_REVERSE_VOLTAGE = -6.0;
@@ -414,12 +402,12 @@ public final class Constants {
      */
 
     // Flywheel PID and feedforward gains.
-    public static final double KV = 0.132; // Tuned 4-13-2026 0.132
-    public static final double KP = 0.055; // Tuned 4-13-2026  0.055
-    public static final double KD = 0.000; // Tuned 4-4-2026
+    public static final double KV = 0.131; // Tuned 4-24-2026
+    public static final double KP = 0.045; // Tuned 4-24-2026
+    public static final double KD = 0.030; // Tuned 4-24-2026
     public static final double KA = 0.000; // Tuned 4-4-2026
 
-    public static final double TOLERANCE_PERCENT = 0.05; //
+    public static final double TOLERANCE_PERCENT = 0.06; //
 
     /* Flywheel limits */
     public static final double SUPPLY_CURRENT_LIMIT = 60;
@@ -468,7 +456,7 @@ public final class Constants {
 
     // Mechanism setpoints and tuning
     public static final double MIN_POSE = 0.00; // Mechanical limit, also use to set in Configs
-    public static final double MAX_POSE = 7.25; // Mechanical limit; also used to set in Configs
+    public static final double MAX_POSE = 8.05; // Mechanical limit; also used to set in Configs
 
     public static final double TOLERANCE_POSE = 0.05;
 
@@ -510,7 +498,6 @@ public final class Constants {
 
     public static final double POPPER_HOOD = 1.0;
 
-    public static final double PASS_HOOD = 0;
 
   }
 
@@ -535,14 +522,16 @@ public final class Constants {
     public static final double TOWER_FRONT_HOOD = 6.00; //was 5.0
 
     // In the trench, mostly against the wall, but turned slightly towards the hub
-    public static final double TRENCH_DISTANCE = Units.inchesToMeters(107) + HUB_TO_CENTER + LL_TO_FRONT;
+    // Actual distance was 107 inches; cheating 10 inches added about 100-125 RPM, so adding 15 inches to be safe
+    public static final double TRENCH_DISTANCE = Units.inchesToMeters(118) + HUB_TO_CENTER + LL_TO_FRONT;
 
     // 3050 for the first 2 matches
     public static final double TRENCH_RPM = 3150;
     public static final double TRENCH_HOOD = 6.0;
 
     // In a corner by human player station or depot-corner, angled towards the hub
-    public static final double FAR_DISTANCE = Units.inchesToMeters(176) + HUB_TO_CENTER + LL_TO_FRONT;
+    // Actual distance was 176 inches
+    public static final double FAR_DISTANCE = Units.inchesToMeters(190) + HUB_TO_CENTER + LL_TO_FRONT;
 
     // 3450 for the first 2 matches
     public static final double FAR_RPM = 3700;
@@ -554,8 +543,8 @@ public final class Constants {
     // public static final double DRIVER_STATION_HOOD = 4.5;
 
     // For passing passing from midfield
-    public static final double PASS_RPM = 3000;
-    public static final double PASS_HOOD = 4.5;
+    public static final double PASS_RPM = 4004;
+    public static final double PASS_HOOD = 8.0;
 
 
     // Asking for a "Far-Far_Shot" both corners of bumpers on wall
@@ -597,7 +586,7 @@ public final class Constants {
     // TODO Vision - Consider loosening the alignment tolerance if the robot is having trouble reaching the aligned state
     /** Tolerance for horizontal alignment in degrees used in FuelCommands.java */
     /** Minimum target area to consider target valid (prevents false positives) */
-    public static final double MIN_TARGET_AREA_PERCENT = 0.1;
+    // public static final double MIN_TARGET_AREA_PERCENT = 0.005;
 
     /** Maximum distance to trust vision measurement in meters */
     public static final double MAX_DISTANCE_METERS = 6.0;
@@ -632,7 +621,7 @@ public final class Constants {
     // TODO: Tighten (lower) to require more precise alignment before the rotation PID
     //       stops commanding rotation (deadband). If the robot oscillates and never settles,
     //       raise this. Watch AlignShoot/aligned on Elastic.
-    public static final double ALIGNMENT_TOLERANCE_DEGREES = 1.50;
+    public static final double ALIGNMENT_TOLERANCE_DEGREES = 2.0;
 
     // TODO: This is the actual "fire the shot" threshold — intentionally looser than
     //       ALIGNMENT_TOLERANCE_DEGREES so the robot feeds even if it can't hold sub-1°

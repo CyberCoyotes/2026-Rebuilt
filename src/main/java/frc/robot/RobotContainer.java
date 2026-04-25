@@ -90,22 +90,23 @@ public class RobotContainer {
         // =====================================================================
 
         // == Left Side Autos ==
-        autoChooser.addRoutine("Left x1 Ramp ANGRY", autoRoutines::LtTrench_Ramp_Single);
-        autoChooser.addRoutine("Left x2 Ramp ANGRY", autoRoutines::LtTrench_Ramp_Double);
+        autoChooser.addRoutine("Left x1 Ramp", autoRoutines::LtTrench_Ramp_Single);
+        // FIXME autoChooser.addRoutine("Left x1 Ramp ANGRY", autoRoutines::LtTrench_Ramp_Angry);
+        autoChooser.addRoutine("Left x2 Ramp", autoRoutines::LtTrench_Ramp_Double);
         autoChooser.addRoutine("Left x2 Ramp Sweep SHOT", autoRoutines::LtTrench_Ramp_HubSweep);
-        // autoChooser.addRoutine("Left Ramp Sweep PURGE", autoRoutines::LtTrench_Ramp_Sweep_Purge);
-        // autoChooser.addRoutine("Left Ramp Sweep PURGE", autoRoutines::LtTrench_Ramp_Sweep_AngryPurge);
+        autoChooser.addRoutine("Left x2 Ramp PURGE", autoRoutines::LtTrench_Ramp_Sweep_Purge);
+        // FIXME autoChooser.addRoutine("Left PreTrench Center Shot", autoRoutines::LtPreTrench_Center);
         
         // == Right Side Autos ==
-        autoChooser.addRoutine("Right x1 Wait Ramp ANGRY", autoRoutines::RtTrench_Ramp_Single);
-        autoChooser.addRoutine("Right x1 Ramp MEEP", autoRoutines::RtTrench_Ramp_Meep);
-        autoChooser.addRoutine("Right x2 Ramp ANGRY", autoRoutines::RtTrench_Ramp_Double);
+        autoChooser.addRoutine("Right x1 Ramp", autoRoutines::RtTrench_Ramp_Single);
+        // FIXME autoChooser.addRoutine("Right x1 Ramp ANGRY", autoRoutines::RtTrench_Ramp_Angry);
+        autoChooser.addRoutine("Right x2 Ramp", autoRoutines::RtTrench_Ramp_Double);
         autoChooser.addRoutine("Right x2 Ramp Sweep SHOT", autoRoutines::RtTrench_Ramp_HubSweep);
-        // autoChooser.addRoutine("Right Ramp Sweep PURGE", autoRoutines::RtTrench_Ramp_Sweep_Purge);
-        // autoChooser.addRoutine("Right Angry Meep Meep", autoRoutines::RtTrench_Ramp_AngryMeepMeep);
-        // autoChooser.addRoutine("Right Ramp Sweep ANGRY PURGE", autoRoutines::RtTrench_Ramp_Sweep_AngryPurge);
+        autoChooser.addRoutine("Right x2 Ramp PURGE", autoRoutines::RtTrench_Ramp_Sweep_Purge);
+        // FIXME autoChooser.addRoutine("Right PreTrench Center Shot", autoRoutines::RtPreTrench_Center);
 
         autoChooser.addRoutine("Right Bulldozer 2026", autoRoutines::RtBulldozer);
+        // FIXME autoChooser.addRoutine("Left Bulldozer 2026", autoRoutines::LtBulldozer);
 
         // Testing
         // autoChooser.addRoutine("Rt Bulldozer 2026", autoRoutines.test::Bulldozer);
@@ -154,7 +155,7 @@ public class RobotContainer {
                     () -> -driver.getLeftY() * MaxSpeed,
                     () -> -driver.getLeftX() * MaxSpeed
                 ),
-                fuelCompressionWhenShooterReady()
+                FuelCommands.fuelCompressionWhenShooterReady(shooter, intake)
             )
         );
                 
@@ -170,6 +171,11 @@ public class RobotContainer {
                 () -> -driver.getLeftX() * MaxSpeed
             )
         );
+
+        driver.a().whileTrue(
+                // drivetrain.applyRequest(() -> xBrake),    
+                FuelCommands.shootWithPreset(shooter, indexer, ShooterSubsystem.ShotPreset.PASS)
+                );
         
         // =====================================================================
         // Operator Controller
@@ -178,26 +184,26 @@ public class RobotContainer {
             Commands.deadline(
                 // drivetrain.applyRequest(() -> xBrake),
                 FuelCommands.shootWithPreset(shooter, indexer, ShooterSubsystem.ShotPreset.TRENCH),
-                fuelCompressionWhenShooterReady()
+                FuelCommands.fuelCompressionWhenShooterReady(shooter, intake)
                 ));
 
         operator.b().whileTrue(
             Commands.deadline(
                 // drivetrain.applyRequest(() -> xBrake),    
                 FuelCommands.shootWithPreset(shooter, indexer, ShooterSubsystem.ShotPreset.CLOSE),
-                fuelCompressionWhenShooterReady()
+                FuelCommands.fuelCompressionWhenShooterReady(shooter, intake)
                 ));
         operator.x().whileTrue(
             Commands.deadline(
                 // drivetrain.applyRequest(() -> xBrake),
                 FuelCommands.shootWithPreset(shooter, indexer, ShooterSubsystem.ShotPreset.TOWER_FRONT),
-                fuelCompressionWhenShooterReady()
+                FuelCommands.fuelCompressionWhenShooterReady(shooter, intake)
                 ));
         operator.y().whileTrue(
             Commands.deadline(
                 // drivetrain.applyRequest(() -> xBrake),
                 FuelCommands.shootWithPreset(shooter, indexer, ShooterSubsystem.ShotPreset.FAR),
-                fuelCompressionWhenShooterReady()
+                FuelCommands.fuelCompressionWhenShooterReady(shooter, intake)
                 ));
 
         operator.leftTrigger(0.5).whileTrue(intake.intakeFuel());
@@ -230,17 +236,6 @@ public class RobotContainer {
 
     public Command getAutonomousCommand() {
         return autoChooser.selectedCommand();
-    }
-
-    /**
-     * Runs intake fuel compression only after the shooter reports ready.
-     * If the shooting command is cancelled before ready, compression never starts.
-     */
-    private Command fuelCompressionWhenShooterReady() {
-        return Commands.sequence(
-                Commands.waitUntil(shooter::isReady),
-                intake.fuelCompression())
-                .withName("FuelCompressionWhenShooterReady");
     }
 
     public void updateGameData() {
