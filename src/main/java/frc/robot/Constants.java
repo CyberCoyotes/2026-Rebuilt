@@ -586,7 +586,7 @@ public final class Constants {
     // TODO Vision - Consider loosening the alignment tolerance if the robot is having trouble reaching the aligned state
     /** Tolerance for horizontal alignment in degrees used in FuelCommands.java */
     /** Minimum target area to consider target valid (prevents false positives) */
-    public static final double MIN_TARGET_AREA_PERCENT = 0.1;
+    // public static final double MIN_TARGET_AREA_PERCENT = 0.005;
 
     /** Maximum distance to trust vision measurement in meters */
     public static final double MAX_DISTANCE_METERS = 6.0;
@@ -621,7 +621,7 @@ public final class Constants {
     // TODO: Tighten (lower) to require more precise alignment before the rotation PID
     //       stops commanding rotation (deadband). If the robot oscillates and never settles,
     //       raise this. Watch AlignShoot/aligned on Elastic.
-    public static final double ALIGNMENT_TOLERANCE_DEGREES = 1.50;
+    public static final double ALIGNMENT_TOLERANCE_DEGREES = 2.0;
 
     // TODO: This is the actual "fire the shot" threshold — intentionally looser than
     //       ALIGNMENT_TOLERANCE_DEGREES so the robot feeds even if it can't hold sub-1°

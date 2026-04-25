@@ -55,19 +55,21 @@ public class AutoRoutines {
                                 Commands.sequence(
                                                 RtTrench_Middle.resetOdometry(),
 
-                                                m_drivetrain.stop().withTimeout(4.0),
-                                                // 1. Trench to Middle — intake runs in parallel while driving
+                                                // Add delay if inteferring with alliance partner; adjust duration as needed based on testing
+                                                // m_drivetrain.stop().withTimeout(4.0),
+
+                                                // Trench to Middle — intake runs in parallel while driving
                                                 Commands.deadline(
                                                                 RtTrench_Middle.cmd(),
                                                                 m_intake.intakeFuelTimer(intakeTimeout, intakeDelay)),
 
-                                                // 2. Ramp crossing
+                                                // Ramp crossing
                                                 RtRampMiddle_Alliance.cmd(),
 
-                                                // 4. Shoot starts only after RtShootRamp fully completes
+                                                // Shoot
                                                 FuelCommands.Auto.poseAlignAndShoot(m_shooter, m_indexer, m_intake, m_drivetrain, shootTimeout),
 
-                                                // 3. Drive to shoot position
+                                                // Drive to Trench
                                                 RtShootRamp_Trench.cmd()
 
                                                 )
@@ -399,18 +401,18 @@ public class AutoRoutines {
                                 Commands.sequence(
                                                 LtTrench_Middle.resetOdometry(),
 
-                                                // 1. Trench to Middle — intake runs in parallel while driving
+                                                // Trench to Middle — intake runs in parallel while driving
                                                 Commands.deadline(
                                                                 LtTrench_Middle.cmd(),
                                                                 m_intake.intakeFuelTimer(intakeTimeout, intakeDelay)),
 
-                                                // 2. Ramp crossing
+                                                // Ramp crossing
                                                 LtRampMiddle_Alliance.cmd(),
 
-                                                 // 4. Shoot — starts only after LtShootRamp fully completes
+                                                 // Shoot — starts only after LtShootRamp fully completes
                                                 FuelCommands.Auto.poseAlignAndShoot(m_shooter, m_indexer, m_intake, m_drivetrain, shootTimeout),
 
-                                                // 3. Drive to shoot position
+                                                // Drive to Trench
                                                 LtShootRamp_Trench.cmd()
 
                                                
