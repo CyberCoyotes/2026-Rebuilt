@@ -68,6 +68,8 @@ public class AutoRoutines {
                                                 // Ramp crossing
                                                 RtRampMiddle_Alliance.cmd(),
 
+                                                m_drivetrain.stop().withTimeout(0.75),
+
                                                 // Shoot
                                                 FuelCommands.Auto.poseAlignAndShoot(m_shooter, m_indexer, m_intake, m_drivetrain, m_vision, shootTimeout)
 
@@ -107,18 +109,26 @@ public class AutoRoutines {
                                                 // Ramp crossing
                                                 RtRampMiddle_Alliance.cmd(),
 
+                                                m_drivetrain.stop().withTimeout(0.75),
+
                                                 // Shoot
                                                 FuelCommands.Auto.poseAlignAndShoot(m_shooter, m_indexer, m_intake, m_drivetrain, m_vision, shootTimeout)
 
                                                 // ================= Cycle 2 =================
+                                                , // KEEP THE COMMA! It's needed to separate the two cycles in the sequence
+
                                                 // Drive from ShootRamp position back to trench for cycle 2; placeholder trajectory for now
-                                                ,RtShootRamp_Trench.cmd(),
+                                                RtShootRamp_Trench.cmd(),
                                                 // Trench to Middle (2nd) — intake runs in parallel while driving
+                                                
                                                 Commands.deadline(
                                                                 RtTrench_Middle_2.cmd(),
                                                                 m_intake.intakeFuelTimer(intakeTimeout, intakeDelay)),  
                                                 // Ramp crossing to Alliance side (2nd)
                                                 RtRampMiddle_Alliance_2.cmd(),
+                                                
+                                                m_drivetrain.stop().withTimeout(0.75),
+
                                                 // Shoot (2nd) — starts only after RtShootRamp_2 fully completes
                                                 FuelCommands.Auto.poseAlignAndShoot(m_shooter, m_indexer, m_intake, m_drivetrain, m_vision, shootTimeout)
 
