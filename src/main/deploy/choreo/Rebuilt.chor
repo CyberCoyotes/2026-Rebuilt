@@ -130,18 +130,39 @@
      "val":7.8
     }
    },
-   "YLtCrossing":{
+   "YCrossingLt":{
     "dimension":"Number",
     "var":{
-     "exp":"5.45",
+     "exp":"YHUB + 1.425",
      "val":5.45
     }
    },
-   "YRtCrossing":{
+   "YCrossingRt":{
     "dimension":"Number",
     "var":{
-     "exp":"2.4",
-     "val":2.4
+     "exp":"YHUB - 1.425",
+     "val":2.6000000000000005
+    }
+   },
+   "YHUB":{
+    "dimension":"Number",
+    "var":{
+     "exp":"4.025",
+     "val":4.025
+    }
+   },
+   "YTrenchLt":{
+    "dimension":"Number",
+    "var":{
+     "exp":"YHUB + 3.52",
+     "val":7.545
+    }
+   },
+   "YTrenchRt":{
+    "dimension":"Number",
+    "var":{
+     "exp":"YHUB - 3.52",
+     "val":0.5050000000000003
     }
    }
   },
@@ -244,56 +265,14 @@
      "val":-1.5707963267948966
     }
    },
-   "LtMidIntakeStart":{
-    "x":{
-     "exp":"X7_8_NuetralFuel m",
-     "val":7.8
-    },
-    "y":{
-     "exp":"6.8 m",
-     "val":6.8
-    },
-    "heading":{
-     "exp":"LtTrenchHeading rad",
-     "val":-1.57
-    }
-   },
-   "LtMidIntakeStartB":{
-    "x":{
-     "exp":"X7_8_NuetralFuel m",
-     "val":7.8
-    },
-    "y":{
-     "exp":"LtRampNeutral.y",
-     "val":5.45
-    },
-    "heading":{
-     "exp":"LtTrenchHeading rad",
-     "val":-1.57
-    }
-   },
-   "LtMidIntakeStop":{
-    "x":{
-     "exp":"X7_8_NuetralFuel m",
-     "val":7.8
-    },
-    "y":{
-     "exp":"4.7 m",
-     "val":4.7
-    },
-    "heading":{
-     "exp":"LtTrenchHeading rad",
-     "val":-1.57
-    }
-   },
    "LtMidTrench":{
     "x":{
      "exp":"X6_4_NeutralClose m",
      "val":6.4
     },
     "y":{
-     "exp":"7.37 m",
-     "val":7.37
+     "exp":"7.35 m",
+     "val":7.35
     },
     "heading":{
      "exp":"LtTrenchHeading rad",
@@ -314,13 +293,55 @@
      "val":-1.57
     }
    },
+   "LtNeutralIntakeA":{
+    "x":{
+     "exp":"X7_8_NuetralFuel m",
+     "val":7.8
+    },
+    "y":{
+     "exp":"6.8 m",
+     "val":6.8
+    },
+    "heading":{
+     "exp":"LtTrenchHeading rad",
+     "val":-1.57
+    }
+   },
+   "LtNeutralIntakeB":{
+    "x":{
+     "exp":"X7_8_NuetralFuel m",
+     "val":7.8
+    },
+    "y":{
+     "exp":"LtRampNeutral.y",
+     "val":5.45
+    },
+    "heading":{
+     "exp":"LtTrenchHeading rad",
+     "val":-1.57
+    }
+   },
+   "LtNeutralIntakeC":{
+    "x":{
+     "exp":"X7_8_NuetralFuel m",
+     "val":7.8
+    },
+    "y":{
+     "exp":"4.7 m",
+     "val":4.7
+    },
+    "heading":{
+     "exp":"LtTrenchHeading rad",
+     "val":-1.57
+    }
+   },
    "LtNeutralMid":{
     "x":{
      "exp":"X7_0_NeutralMid m",
      "val":7.0
     },
     "y":{
-     "exp":"LtMidIntakeStop.y",
+     "exp":"LtNeutralIntakeC.y",
      "val":4.7
     },
     "heading":{
@@ -335,7 +356,7 @@
     },
     "y":{
      "exp":"LtTrench.y",
-     "val":7.55
+     "val":7.550000000000001
     },
     "heading":{
      "exp":"LtTrench.heading",
@@ -348,7 +369,7 @@
      "val":2.8
     },
     "y":{
-     "exp":"YLtCrossing m",
+     "exp":"YCrossingLt m",
      "val":5.45
     },
     "heading":{
@@ -362,7 +383,7 @@
      "val":6.4
     },
     "y":{
-     "exp":"YLtCrossing m",
+     "exp":"YCrossingLt m",
      "val":5.45
     },
     "heading":{
@@ -390,8 +411,8 @@
      "val":4.42
     },
     "y":{
-     "exp":"7.55 m",
-     "val":7.55
+     "exp":"(YHUB * 2 - 0.5) m",
+     "val":7.550000000000001
     },
     "heading":{
      "exp":"LtTrenchHeading rad",
@@ -432,8 +453,8 @@
      "val":6.4
     },
     "y":{
-     "exp":"0 m",
-     "val":0.0
+     "exp":"YHUB m",
+     "val":4.025
     },
     "heading":{
      "exp":"3.14 / 2 rad",
@@ -454,7 +475,7 @@
      "val":1.5707963267948966
     }
    },
-   "RtNeutralIntakeStart":{
+   "RtNeutralIntakeA":{
     "x":{
      "exp":"X7_8_NuetralFuel m",
      "val":7.8
@@ -468,21 +489,21 @@
      "val":1.57
     }
    },
-   "RtNeutralIntakeStartB":{
+   "RtNeutralIntakeB":{
     "x":{
      "exp":"X7_8_NuetralFuel m",
      "val":7.8
     },
     "y":{
      "exp":"RtRampNeutral.y",
-     "val":2.4
+     "val":2.6000000000000005
     },
     "heading":{
      "exp":"RtTrenchHeading rad",
      "val":1.57
     }
    },
-   "RtNeutralIntakeStop":{
+   "RtNeutralIntakeC":{
     "x":{
      "exp":"X7_8_NuetralFuel m",
      "val":7.8
@@ -517,7 +538,7 @@
     },
     "y":{
      "exp":"RtTrench.y",
-     "val":0.5
+     "val":0.5050000000000003
     },
     "heading":{
      "exp":"RtTrench.heading",
@@ -530,8 +551,8 @@
      "val":2.8
     },
     "y":{
-     "exp":"YRtCrossing m",
-     "val":2.4
+     "exp":"YCrossingRt m",
+     "val":2.6000000000000005
     },
     "heading":{
      "exp":"RtCrossingHeading rad",
@@ -544,8 +565,8 @@
      "val":6.4
     },
     "y":{
-     "exp":"YRtCrossing m",
-     "val":2.4
+     "exp":"YCrossingRt m",
+     "val":2.6000000000000005
     },
     "heading":{
      "exp":"RtCrossingHeading rad",
@@ -586,8 +607,8 @@
      "val":4.42
     },
     "y":{
-     "exp":"0.5 m",
-     "val":0.5
+     "exp":"YTrenchRt m",
+     "val":0.5050000000000003
     },
     "heading":{
      "exp":"RtTrenchHeading rad",
