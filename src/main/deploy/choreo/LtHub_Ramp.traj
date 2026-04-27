@@ -14,8 +14,8 @@
  },
  "params":{
   "waypoints":[
-    {"x":{"exp":"LtNeutralHub.x", "val":6.4}, "y":{"exp":"LtNeutralHub.y", "val":4.55}, "heading":{"exp":"LtNeutralHub.heading", "val":-1.57}, "intervals":25, "split":false, "fixTranslation":true, "fixHeading":true, "overrideIntervals":false},
-    {"x":{"exp":"LtRampNeutral.x", "val":6.4}, "y":{"exp":"LtRampNeutral.y", "val":5.45}, "heading":{"exp":"LtRampNeutral.heading", "val":3.14}, "intervals":40, "split":false, "fixTranslation":true, "fixHeading":true, "overrideIntervals":false}],
+    {"x":{"exp":"NeutralHubLt.x", "val":6.4}, "y":{"exp":"NeutralHubLt.y", "val":4.55}, "heading":{"exp":"NeutralHubLt.heading", "val":-1.57}, "intervals":25, "split":false, "fixTranslation":true, "fixHeading":true, "overrideIntervals":false},
+    {"x":{"exp":"RampNeutralLt.x", "val":6.4}, "y":{"exp":"RampNeutralLt.y", "val":5.45}, "heading":{"exp":"RampNeutralLt.heading", "val":3.14}, "intervals":40, "split":false, "fixTranslation":true, "fixHeading":true, "overrideIntervals":false}],
   "constraints":[
     {"from":"first", "to":null, "data":{"type":"StopPoint", "props":{}}, "enabled":true},
     {"from":"last", "to":null, "data":{"type":"StopPoint", "props":{}}, "enabled":true},

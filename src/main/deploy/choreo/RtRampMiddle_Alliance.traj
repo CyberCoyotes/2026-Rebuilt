@@ -14,8 +14,8 @@
  },
  "params":{
   "waypoints":[
-    {"x":{"exp":"RtRampNeutral.x", "val":6.4}, "y":{"exp":"RtRampNeutral.y", "val":2.6000000000000005}, "heading":{"exp":"RtRampNeutral.heading", "val":3.14}, "intervals":35, "split":false, "fixTranslation":true, "fixHeading":true, "overrideIntervals":false},
-    {"x":{"exp":"RtRampAlliance.x", "val":2.8}, "y":{"exp":"RtRampAlliance.y", "val":2.6000000000000005}, "heading":{"exp":"RtRampAlliance.heading", "val":3.14}, "intervals":20, "split":false, "fixTranslation":true, "fixHeading":true, "overrideIntervals":false}],
+    {"x":{"exp":"RampNeutralRt.x", "val":6.4}, "y":{"exp":"RampNeutralRt.y", "val":2.6000000000000005}, "heading":{"exp":"RampNeutralRt.heading", "val":3.14}, "intervals":35, "split":false, "fixTranslation":true, "fixHeading":true, "overrideIntervals":false},
+    {"x":{"exp":"RampAllianceRt.x", "val":2.8}, "y":{"exp":"RampAllianceRt.y", "val":2.6000000000000005}, "heading":{"exp":"RampAllianceRt.heading", "val":3.14}, "intervals":20, "split":false, "fixTranslation":true, "fixHeading":true, "overrideIntervals":false}],
   "constraints":[
     {"from":"first", "to":null, "data":{"type":"StopPoint", "props":{}}, "enabled":true},
     {"from":1, "to":null, "data":{"type":"StopPoint", "props":{}}, "enabled":true},

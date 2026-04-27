@@ -16,10 +16,10 @@
  },
  "params":{
   "waypoints":[
-    {"x":{"exp":"RtTrench.x", "val":4.42}, "y":{"exp":"RtTrench.y", "val":0.5050000000000003}, "heading":{"exp":"RtTrench.heading", "val":1.57}, "intervals":19, "split":false, "fixTranslation":true, "fixHeading":true, "overrideIntervals":false},
-    {"x":{"exp":"RtTrenchNeutralClose.x", "val":6.4}, "y":{"exp":"RtTrenchNeutralClose.y", "val":0.65}, "heading":{"exp":"RtTrenchNeutralClose.heading", "val":1.57}, "intervals":26, "split":false, "fixTranslation":true, "fixHeading":true, "overrideIntervals":false},
+    {"x":{"exp":"TrenchRt.x", "val":4.42}, "y":{"exp":"TrenchRt.y", "val":0.5050000000000003}, "heading":{"exp":"TrenchRt.heading", "val":1.57}, "intervals":19, "split":false, "fixTranslation":true, "fixHeading":true, "overrideIntervals":false},
+    {"x":{"exp":"TrenchNeutralCloseRt.x", "val":6.4}, "y":{"exp":"TrenchNeutralCloseRt.y", "val":0.65}, "heading":{"exp":"TrenchNeutralCloseRt.heading", "val":1.57}, "intervals":26, "split":false, "fixTranslation":true, "fixHeading":true, "overrideIntervals":false},
     {"x":{"exp":"6.25 m", "val":6.25}, "y":{"exp":"2.6 m", "val":2.6}, "heading":{"exp":"1.6 rad", "val":1.6}, "intervals":34, "split":false, "fixTranslation":true, "fixHeading":true, "overrideIntervals":false},
-    {"x":{"exp":"LtRampNeutral.x", "val":6.4}, "y":{"exp":"LtRampNeutral.y", "val":5.45}, "heading":{"exp":"LtRampNeutral.heading", "val":3.14}, "intervals":27, "split":false, "fixTranslation":true, "fixHeading":true, "overrideIntervals":false}],
+    {"x":{"exp":"RampNeutralLt.x", "val":6.4}, "y":{"exp":"RampNeutralLt.y", "val":5.45}, "heading":{"exp":"RampNeutralLt.heading", "val":3.14}, "intervals":27, "split":false, "fixTranslation":true, "fixHeading":true, "overrideIntervals":false}],
   "constraints":[
     {"from":"first", "to":null, "data":{"type":"StopPoint", "props":{}}, "enabled":true},
     {"from":"last", "to":null, "data":{"type":"StopPoint", "props":{}}, "enabled":true},

@@ -15,9 +15,9 @@
  },
  "params":{
   "waypoints":[
-    {"x":{"exp":"LtRampAlliance.x", "val":2.8}, "y":{"exp":"LtRampAlliance.y", "val":5.45}, "heading":{"exp":"LtShootRamp.heading", "val":-0.85}, "intervals":39, "split":false, "fixTranslation":true, "fixHeading":true, "overrideIntervals":false},
-    {"x":{"exp":"X2_8_RampShoot m", "val":2.8}, "y":{"exp":"LtTrench.y", "val":7.550000000000001}, "heading":{"exp":"LtTrench.heading", "val":-1.57}, "intervals":25, "split":false, "fixTranslation":true, "fixHeading":true, "overrideIntervals":false},
-    {"x":{"exp":"LtTrench.x", "val":4.42}, "y":{"exp":"LtTrench.y", "val":7.550000000000001}, "heading":{"exp":"LtTrench.heading", "val":-1.57}, "intervals":40, "split":false, "fixTranslation":true, "fixHeading":true, "overrideIntervals":false}],
+    {"x":{"exp":"RampAllianceLt.x", "val":2.8}, "y":{"exp":"RampAllianceLt.y", "val":5.45}, "heading":{"exp":"ShootRampLt.heading", "val":-0.85}, "intervals":39, "split":false, "fixTranslation":true, "fixHeading":true, "overrideIntervals":false},
+    {"x":{"exp":"X2_8_RampShoot m", "val":2.8}, "y":{"exp":"TrenchLt.y", "val":7.550000000000001}, "heading":{"exp":"TrenchLt.heading", "val":-1.57}, "intervals":25, "split":false, "fixTranslation":true, "fixHeading":true, "overrideIntervals":false},
+    {"x":{"exp":"TrenchLt.x", "val":4.42}, "y":{"exp":"TrenchLt.y", "val":7.550000000000001}, "heading":{"exp":"TrenchLt.heading", "val":-1.57}, "intervals":40, "split":false, "fixTranslation":true, "fixHeading":true, "overrideIntervals":false}],
   "constraints":[
     {"from":"first", "to":null, "data":{"type":"StopPoint", "props":{}}, "enabled":true},
     {"from":"last", "to":null, "data":{"type":"StopPoint", "props":{}}, "enabled":true},
