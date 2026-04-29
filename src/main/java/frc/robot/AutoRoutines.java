@@ -43,7 +43,29 @@ public class AutoRoutines {
         // ============================================================================
         // RIGHT SIDE AUTOS - start in right trench
         // ============================================================================
-                
+        
+        /*
+        TODO Trench_FullSwipeLt
+        RtShootRamp_Trench
+                                                        // TODO Add before every shot to stop and settle before shooting
+                                                m_drivetrain.stop().withTimeout(0.75),
+
+                                                // TODO Check vision shoot
+                                                FuelCommands.Auto.poseAlignAndShoot(m_shooter, m_indexer, m_intake, m_drivetrain, m_vision, shootTimeout)
+
+        */ 
+
+        /*
+        TODO Trench_FullSwipeRt
+        RtShootRamp_Trench
+                                                        // TODO Add before every shot to stop and settle before shooting
+                                                m_drivetrain.stop().withTimeout(0.75),
+
+                                                // TODO Check vision shoot
+                                                FuelCommands.Auto.poseAlignAndShoot(m_shooter, m_indexer, m_intake, m_drivetrain, m_vision, shootTimeout)
+
+        */ 
+        
         // Right Trench to Middle to Ramp Shot
                 public AutoRoutine RtTrench_Ramp_Single() {
 
@@ -70,7 +92,7 @@ public class AutoRoutines {
                                                 // Ramp crossing
                                                 RtRampMiddle_Alliance.cmd(),
 
-                                                // TODO Add before every shop to stop and settle before shooting
+                                                // TODO Add before every shot to stop and settle before shooting
                                                 m_drivetrain.stop().withTimeout(0.75),
 
                                                 // TODO Check vision shoot
