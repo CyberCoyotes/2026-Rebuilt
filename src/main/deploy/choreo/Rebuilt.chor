@@ -569,8 +569,8 @@
      "val":6.5
     },
     "heading":{
-     "exp":"-0.85 rad",
-     "val":-0.85
+     "exp":"-0.75 rad",
+     "val":-0.75
     }
    },
    "ShootRampRt":{
@@ -583,8 +583,8 @@
      "val":1.6
     },
     "heading":{
-     "exp":"0.9 rad",
-     "val":0.9
+     "exp":"0.75 rad",
+     "val":0.75
     }
    },
    "ShootStation":{

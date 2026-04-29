@@ -173,6 +173,11 @@ public class IntakeSubsystem extends SubsystemBase {
         io.setSlidePositionSlow(Constants.Intake.SLIDE_RETRACTED_POS);
     }
 
+    /** Graceful full retraction using the tunable slow DynamicMotionMagic profile. */
+    public void retractSlidesPartial() {
+        io.setSlidePositionSlow(Constants.Intake.SLIDE_PUMP_IN_POS); // TODO Adjust this to a partial retract position if we want a gentler retract that doesn't go all the way to the hard stop.
+    }
+
     /** Fast move to the normal operating home/stow setpoint using the default Motion Magic profile. */
     public void moveSlidesHome() {
         io.setSlidePosition(Constants.Intake.SLIDE_HOME_POS);
@@ -394,6 +399,19 @@ public class IntakeSubsystem extends SubsystemBase {
                 .withName("CompressFuelDelayed");
     }
 
+    public Command compressFuelCycle(double initialWaitSeconds, double timeoutSeconds) { // TODO Try
+        return Commands.sequence(
+                Commands.waitSeconds(initialWaitSeconds),
+                Commands.run(
+                        () -> {
+                            retractSlidesSlow();
+                            runSlowRoller();
+                        }, this)
+                        .withTimeout(timeoutSeconds))
+                .finallyDo(() -> stopRoller())
+                .withName("CompressFuelCycle");
+    }
+
     /** Default fuel-compression recipe for teleop and shot-sequence integration. */
     public Command fuelCompression() {
         return compressFuel(
@@ -547,6 +565,42 @@ public class IntakeSubsystem extends SubsystemBase {
 
     // Ideally set up to take an argument for number of cycles, but for now just a quick test of multiple repeats of the basic bounce sequence.
     public Command fuelPumpSetCycles() {
+        return Commands.sequence(
+                // ==== Cycle 1 ====
+                Commands.run(() -> {
+                    runSlowRoller();
+                    setSlidesToPosition(Constants.Intake.SLIDE_PUMP_OUT_POS);
+                }, this)
+                        .withTimeout(0.5),
+                // Short pause between down and up to allow fuel to settle before bouncing back up again
+                Commands.waitSeconds(0.1),
+                Commands.run(() -> {
+                    runSlowRoller();
+                    setSlidesToPosition(Constants.Intake.SLIDE_PUMP_IN_POS);
+                }, this)
+                    .withTimeout(0.5),
+                Commands.waitSeconds(0.1),
+
+                // ==== Cycle 2 ====
+                Commands.run(() -> {
+                    runSlowRoller();
+                    setSlidesToPosition(Constants.Intake.SLIDE_PUMP_OUT_POS);
+                }, this)
+                        .withTimeout(0.5),
+                Commands.waitSeconds(0.1),
+                Commands.run(() -> {
+                    runSlowRoller();
+                    setSlidesToPosition(Constants.Intake.SLIDE_PUMP_IN_POS);
+                }, this)
+                        .withTimeout(0.5),
+                Commands.waitSeconds(0.1)
+
+
+                .finallyDo(this::stopRoller).withName("FuelPumpBasic"));
+    }
+
+    // Ideally set up to take an argument for number of cycles, but for now just a quick test of multiple repeats of the basic bounce sequence.
+    public Command fuelPumpSetCyclesAlpha() {
         return Commands.sequence(
                 // ==== Cycle 1 ====
                 Commands.run(() -> {
