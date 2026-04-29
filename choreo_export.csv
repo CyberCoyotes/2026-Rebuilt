@@ -1,0 +1,114 @@
+TRAJECTORIES
+name
+Center
+CenterLob
+CenterMid_Depot
+CenterShot_TrenchLt
+CenterShot_TrenchRt
+LtAlliance_HubCloseShot
+LtHub_Purge
+LtHub_Ramp
+LtRampMiddle_Alliance
+LtShootRamp_Trench
+LtTrench_Curl
+LtTrench_Depot
+LtTrench_HubSweep
+LtTrench_Middle
+LtTrench_MiddleAngry
+PreTrench_FullSwipeLt
+PreTrench_FullSwipeRt
+RtAlliance_HubCloseShot
+RtBulldozer2026
+RtHub_Purge
+RtHub_Ramp
+RtMiddle_Trench
+RtRampMiddle_Alliance
+RtShootRamp_Trench
+RtShortBulldozer2026
+RtTrenchOnly
+RtTrench_AngryMeepMeep
+RtTrench_Curl
+RtTrench_HubSweep
+RtTrench_MeepMeep
+RtTrench_Middle
+RtTrench_MiddleAngry
+RtTrench_Middle_LtRamp
+RtTrench_Station
+RtTrench_Sweep_LtRamp
+Trench_FullSwipeLt
+Trench_FullSwipeRt
+xFourMeters
+xTwoMetersForward
+xVisionTest
+zREFERENCE_LEFT
+zREFERENCE_RIGHT
+z_HUBS
+
+VARIABLES (EXPRESSIONS)
+name,dimension,expression,value
+AngryOffset,Number,0.35,0.35
+HeadCrossingLt,Number,3.14,3.14
+HeadCrossingRt,Number,3.14,3.14
+HeadIntakeAngleLt,Number,(HeadTrenchLt - 0.75),-2.3200000000000003
+HeadIntakeAngleRt,Number,(HeadTrenchRt + 0.75),2.3200000000000003
+HeadTrenchLt,Number,-3.14 / 2,-1.57
+HeadTrenchRt,Number,3.14 / 2,1.57
+IntakeVel,LinVel,2 m / s,2.0
+MediumVel,LinVel,3.25 m / s,3.25
+MeepMeep,LinVel,3.75 m / s,3.75
+RampVel,LinVel,2.5 m / s,2.5
+SlowVel,LinVel,1.5 m / s,1.5
+TestVel,LinVel,0.75 m / s,0.75
+X2_8_RampShoot,Number,2.8,2.8
+X3_5_Trench,Number,3.55,3.55
+X4_4_Trench,Number,4.42,4.42
+X6_4_NeutralClose,Number,6.4,6.4
+X7_0_NeutralMid,Number,7,7.0
+X7_5_NeutralFuel,Number,7.5,7.5
+X7_8_NuetralFuel,Number,7.8,7.8
+YCrossingLt,Number,YHUB + 1.425,5.45
+YCrossingRt,Number,YHUB - 1.425,2.6000000000000005
+YHUB,Number,4.025,4.025
+YTrenchLt,Number,YHUB + 3.52,7.545
+YTrenchRt,Number,YHUB - 3.52,0.5050000000000003
+
+POSES
+name,x_expression,x_value (m),y_expression,y_value (m),heading_expression,heading_value (rad)
+DepotIntake,1.58 m,1.58,5.95 m,5.95,180 deg,3.141592653589793
+DepotWall,0.6 m,0.6,5.95 m,5.95,180 deg,3.141592653589793
+HUB_BLUE,4.625 m,4.625,4.025 m,4.025,0 rad,0.0
+HUB_RED,11.923 m,11.923,4.025 m,4.025,0 rad,0.0
+HubClose,3.55 m,3.55,4 m,4.0,0 rad,0.0
+HubCloseShot,2.75 m,2.75,4 m,4.0,0 rad,0.0
+MidHubLt,X6_4_NeutralClose m,6.4,4.55 m,4.55,-90 deg,-1.5707963267948966
+MidTrenchLt,X6_4_NeutralClose m,6.4,(YHUB + 3.325) m,7.35,HeadTrenchLt rad,-1.57
+MidTrenchRt,X6_4_NeutralClose m,6.4,(YHUB - 3.325) m,0.7000000000000002,HeadTrenchRt rad,1.57
+NeutralHubLt,X6_4_NeutralClose m,6.4,4.55 m,4.55,-3.14 / 2 rad,-1.57
+NeutralHubRt,X6_4_NeutralClose m,6.4,3.5 m,3.5,90 deg,1.5707963267948966
+NeutralIntakeAALt,X7_8_NuetralFuel m,7.8,RampNeutralLt.y,5.45,HeadTrenchLt rad,-1.57
+NeutralIntakeAARt,X7_8_NuetralFuel m,7.8,RampNeutralRt.y,2.6000000000000005,HeadTrenchRt rad,1.57
+NeutralIntakeALt,X7_8_NuetralFuel m,7.8,6.8 m,6.8,HeadTrenchLt rad,-1.57
+NeutralIntakeARt,X7_8_NuetralFuel m,7.8,RampNeutralRt.y,2.6000000000000005,HeadTrenchRt rad,1.57
+NeutralIntakeBLt,X7_8_NuetralFuel m,7.8,RampNeutralLt.y,5.45,HeadTrenchLt rad,-1.57
+NeutralIntakeBRt,X7_8_NuetralFuel m,7.8,RampNeutralRt.y,2.6000000000000005,HeadTrenchRt rad,1.57
+NeutralIntakeCLt,X7_8_NuetralFuel m,7.8,4.7 m,4.7,HeadTrenchLt rad,-1.57
+NeutralIntakeCRt,X7_8_NuetralFuel m,7.8,3.5 m,3.5,HeadTrenchRt rad,1.57
+NeutralMidLt,X7_0_NeutralMid m,7.0,NeutralIntakeCLt.y,4.7,HeadTrenchLt rad,-1.57
+NeutralMidRt,X7_0_NeutralMid m,7.0,3.5 m,3.5,HeadTrenchRt rad,1.57
+PreTrenchLt,X3_5_Trench m,3.55,TrenchLt.y,7.550000000000001,TrenchLt.heading,-1.57
+PreTrenchRt,X3_5_Trench m,3.55,TrenchRt.y,0.5050000000000003,TrenchRt.heading,1.57
+RampAllianceLt,X2_8_RampShoot m,2.8,YCrossingLt m,5.45,HeadCrossingLt rad,3.14
+RampAllianceRt,X2_8_RampShoot m,2.8,YCrossingRt m,2.6000000000000005,HeadCrossingRt rad,3.14
+RampNeutralLt,X6_4_NeutralClose m,6.4,YCrossingLt m,5.45,HeadCrossingLt rad,3.14
+RampNeutralRt,X6_4_NeutralClose m,6.4,YCrossingRt m,2.6000000000000005,HeadCrossingRt rad,3.14
+ShootRampLt,X2_8_RampShoot m,2.8,6.5 m,6.5,-0.75 rad,-0.75
+ShootRampRt,X2_8_RampShoot m,2.8,1.6 m,1.6,0.75 rad,0.75
+ShootStation,1.14 m,1.14,0.82 m,0.82,0.69 rad,0.69
+ShootTrenchRt,4.1 m,4.1,0.57 m,0.57,1.5 rad,1.5
+Station,0.65 m,0.65,0.65 m,0.65,-3.14 rad,-3.14
+StationIntake,1 m,1.0,0.65 m,0.65,3.14 rad,3.14
+TrenchLt,X4_4_Trench m,4.42,(YHUB * 2 - 0.5) m,7.550000000000001,HeadTrenchLt rad,-1.57
+TrenchNeutralCloseLt,X6_4_NeutralClose m,6.4,7.55 m,7.55,HeadTrenchLt rad,-1.57
+TrenchNeutralCloseRt,X6_4_NeutralClose m,6.4,0.65 m,0.65,HeadTrenchRt rad,1.57
+TrenchRt,X4_4_Trench m,4.42,YTrenchRt m,0.5050000000000003,HeadTrenchRt rad,1.57
+TrenchShootLt,4.1 m,4.1,7.48 m,7.48,-1.5 rad,-1.5
