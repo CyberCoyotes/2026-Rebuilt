@@ -90,6 +90,9 @@ public class RobotContainer {
         // =====================================================================
 
         // == Left Side Autos ==
+        autoChooser.addRoutine("Left x1 Full Swipe", autoRoutines::Trench_FullSwipeSingleLt);
+        autoChooser.addRoutine("Left x2 Full Swipe", autoRoutines::Trench_FullSwipeDoubleLt);
+
         autoChooser.addRoutine("Left x1 Ramp", autoRoutines::LtTrench_Ramp_Single);
         // FIXME autoChooser.addRoutine("Left x1 Ramp ANGRY", autoRoutines::LtTrench_Ramp_Angry);
         autoChooser.addRoutine("Left x2 Ramp", autoRoutines::LtTrench_Ramp_Double);
@@ -98,6 +101,8 @@ public class RobotContainer {
         // FIXME autoChooser.addRoutine("Left PreTrench Center Shot", autoRoutines::LtPreTrench_Center);
         
         // == Right Side Autos ==
+        autoChooser.addRoutine("Right x1 Full Swipe", autoRoutines::Trench_FullSwipeSingleRt);
+        autoChooser.addRoutine("Right x2 Full Swipe", autoRoutines::Trench_FullSwipeDoubleRt);
         autoChooser.addRoutine("Right x1 Ramp", autoRoutines::RtTrench_Ramp_Single);
         // FIXME autoChooser.addRoutine("Right x1 Ramp ANGRY", autoRoutines::RtTrench_Ramp_Angry);
         autoChooser.addRoutine("Right x2 Ramp", autoRoutines::RtTrench_Ramp_Double);

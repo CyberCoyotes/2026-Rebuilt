@@ -11,25 +11,53 @@
      "val":0.35
     }
    },
+   "HeadCrossingLt":{
+    "dimension":"Number",
+    "var":{
+     "exp":"3.14",
+     "val":3.14
+    }
+   },
+   "HeadCrossingRt":{
+    "dimension":"Number",
+    "var":{
+     "exp":"3.14",
+     "val":3.14
+    }
+   },
+   "HeadIntakeAngleLt":{
+    "dimension":"Number",
+    "var":{
+     "exp":"(HeadTrenchLt - 0.75)",
+     "val":-2.3200000000000003
+    }
+   },
+   "HeadIntakeAngleRt":{
+    "dimension":"Number",
+    "var":{
+     "exp":"(HeadTrenchRt + 0.75)",
+     "val":2.3200000000000003
+    }
+   },
+   "HeadTrenchLt":{
+    "dimension":"Number",
+    "var":{
+     "exp":"-3.14 / 2",
+     "val":-1.57
+    }
+   },
+   "HeadTrenchRt":{
+    "dimension":"Number",
+    "var":{
+     "exp":"3.14 / 2",
+     "val":1.57
+    }
+   },
    "IntakeVel":{
     "dimension":"LinVel",
     "var":{
      "exp":"2 m / s",
      "val":2.0
-    }
-   },
-   "LtCrossingHeading":{
-    "dimension":"Number",
-    "var":{
-     "exp":"-3.14 / 4",
-     "val":-0.785
-    }
-   },
-   "LtTrenchHeading":{
-    "dimension":"Number",
-    "var":{
-     "exp":"-3.14 / 2",
-     "val":-1.57
     }
    },
    "MediumVel":{
@@ -53,20 +81,6 @@
      "val":2.5
     }
    },
-   "RtCrossingHeading":{
-    "dimension":"Number",
-    "var":{
-     "exp":"3.14 / 4",
-     "val":0.785
-    }
-   },
-   "RtTrenchHeading":{
-    "dimension":"Number",
-    "var":{
-     "exp":"3.14 / 2",
-     "val":1.57
-    }
-   },
    "SlowVel":{
     "dimension":"LinVel",
     "var":{
@@ -81,60 +95,88 @@
      "val":0.75
     }
    },
-   "X2RampShoot":{
+   "X2_8_RampShoot":{
     "dimension":"Number",
     "var":{
-     "exp":"2.4",
-     "val":2.4
+     "exp":"2.8",
+     "val":2.8
     }
    },
-   "X3Trench":{
+   "X3_5_Trench":{
     "dimension":"Number",
     "var":{
      "exp":"3.55",
      "val":3.55
     }
    },
-   "X4Trench":{
+   "X4_4_Trench":{
     "dimension":"Number",
     "var":{
      "exp":"4.42",
      "val":4.42
     }
    },
-   "X6NeutralClose":{
+   "X6_4_NeutralClose":{
     "dimension":"Number",
     "var":{
      "exp":"6.4",
      "val":6.4
     }
    },
-   "X7NeutralMid":{
+   "X7_0_NeutralMid":{
     "dimension":"Number",
     "var":{
      "exp":"7",
      "val":7.0
     }
    },
-   "X8NuetralFuel":{
+   "X7_5_NeutralFuel":{
+    "dimension":"Number",
+    "var":{
+     "exp":"7.5",
+     "val":7.5
+    }
+   },
+   "X7_8_NuetralFuel":{
     "dimension":"Number",
     "var":{
      "exp":"7.8",
      "val":7.8
     }
    },
-   "YLtCrossing":{
+   "YCrossingLt":{
     "dimension":"Number",
     "var":{
-     "exp":"5.45",
+     "exp":"YHUB + 1.425",
      "val":5.45
     }
    },
-   "YRtCrossing":{
+   "YCrossingRt":{
     "dimension":"Number",
     "var":{
-     "exp":"2.4",
-     "val":2.4
+     "exp":"YHUB - 1.425",
+     "val":2.6000000000000005
+    }
+   },
+   "YHUB":{
+    "dimension":"Number",
+    "var":{
+     "exp":"4.025",
+     "val":4.025
+    }
+   },
+   "YTrenchLt":{
+    "dimension":"Number",
+    "var":{
+     "exp":"YHUB + 3.52",
+     "val":7.545
+    }
+   },
+   "YTrenchRt":{
+    "dimension":"Number",
+    "var":{
+     "exp":"YHUB - 3.52",
+     "val":0.5050000000000003
     }
    }
   },
@@ -223,9 +265,9 @@
      "val":0.0
     }
    },
-   "LtMidHub":{
+   "MidHubLt":{
     "x":{
-     "exp":"X6NeutralClose m",
+     "exp":"X6_4_NeutralClose m",
      "val":6.4
     },
     "y":{
@@ -237,65 +279,37 @@
      "val":-1.5707963267948966
     }
    },
-   "LtMidIntakeStart":{
+   "MidTrenchLt":{
     "x":{
-     "exp":"X8NuetralFuel m",
-     "val":7.8
-    },
-    "y":{
-     "exp":"6.8 m",
-     "val":6.8
-    },
-    "heading":{
-     "exp":"LtTrenchHeading rad",
-     "val":-1.57
-    }
-   },
-   "LtMidIntakeStartB":{
-    "x":{
-     "exp":"X8NuetralFuel m",
-     "val":7.8
-    },
-    "y":{
-     "exp":"LtRampNeutral.y",
-     "val":5.45
-    },
-    "heading":{
-     "exp":"LtTrenchHeading rad",
-     "val":-1.57
-    }
-   },
-   "LtMidIntakeStop":{
-    "x":{
-     "exp":"X8NuetralFuel m",
-     "val":7.8
-    },
-    "y":{
-     "exp":"4.55 m",
-     "val":4.55
-    },
-    "heading":{
-     "exp":"LtTrenchHeading rad",
-     "val":-1.57
-    }
-   },
-   "LtMidTrench":{
-    "x":{
-     "exp":"X6NeutralClose m",
+     "exp":"X6_4_NeutralClose m",
      "val":6.4
     },
     "y":{
-     "exp":"7.37 m",
-     "val":7.37
+     "exp":"(YHUB + 3.325) m",
+     "val":7.35
     },
     "heading":{
-     "exp":"LtTrenchHeading rad",
+     "exp":"HeadTrenchLt rad",
      "val":-1.57
     }
    },
-   "LtNeutralHub":{
+   "MidTrenchRt":{
     "x":{
-     "exp":"X6NeutralClose m",
+     "exp":"X6_4_NeutralClose m",
+     "val":6.4
+    },
+    "y":{
+     "exp":"(YHUB - 3.325) m",
+     "val":0.7000000000000002
+    },
+    "heading":{
+     "exp":"HeadTrenchRt rad",
+     "val":1.57
+    }
+   },
+   "NeutralHubLt":{
+    "x":{
+     "exp":"X6_4_NeutralClose m",
      "val":6.4
     },
     "y":{
@@ -307,121 +321,9 @@
      "val":-1.57
     }
    },
-   "LtNeutralMid":{
+   "NeutralHubRt":{
     "x":{
-     "exp":"X7NeutralMid m",
-     "val":7.0
-    },
-    "y":{
-     "exp":"LtMidIntakeStop.y",
-     "val":4.55
-    },
-    "heading":{
-     "exp":"LtTrenchHeading rad",
-     "val":-1.57
-    }
-   },
-   "LtPreTrench":{
-    "x":{
-     "exp":"X3Trench m",
-     "val":3.55
-    },
-    "y":{
-     "exp":"LtTrench.y",
-     "val":7.55
-    },
-    "heading":{
-     "exp":"LtTrench.heading",
-     "val":-1.57
-    }
-   },
-   "LtRampAlliance":{
-    "x":{
-     "exp":"X2RampShoot m",
-     "val":2.4
-    },
-    "y":{
-     "exp":"YLtCrossing m",
-     "val":5.45
-    },
-    "heading":{
-     "exp":"LtCrossingHeading rad",
-     "val":-0.785
-    }
-   },
-   "LtRampNeutral":{
-    "x":{
-     "exp":"X6NeutralClose m",
-     "val":6.4
-    },
-    "y":{
-     "exp":"YLtCrossing m",
-     "val":5.45
-    },
-    "heading":{
-     "exp":"LtCrossingHeading rad",
-     "val":-0.785
-    }
-   },
-   "LtShootRamp":{
-    "x":{
-     "exp":"X2RampShoot m",
-     "val":2.4
-    },
-    "y":{
-     "exp":"6.5 m",
-     "val":6.5
-    },
-    "heading":{
-     "exp":"-0.85 rad",
-     "val":-0.85
-    }
-   },
-   "LtTrench":{
-    "x":{
-     "exp":"X4Trench m",
-     "val":4.42
-    },
-    "y":{
-     "exp":"7.55 m",
-     "val":7.55
-    },
-    "heading":{
-     "exp":"LtTrenchHeading rad",
-     "val":-1.57
-    }
-   },
-   "LtTrenchNeutralClose":{
-    "x":{
-     "exp":"X6NeutralClose m",
-     "val":6.4
-    },
-    "y":{
-     "exp":"7.55 m",
-     "val":7.55
-    },
-    "heading":{
-     "exp":"LtTrenchHeading rad",
-     "val":-1.57
-    }
-   },
-   "LtTrenchShoot":{
-    "x":{
-     "exp":"4.1 m",
-     "val":4.1
-    },
-    "y":{
-     "exp":"7.48 m",
-     "val":7.48
-    },
-    "heading":{
-     "exp":"-1.5 rad",
-     "val":-1.5
-    }
-   },
-   "RtNeutralHub":{
-    "x":{
-     "exp":"X6NeutralClose m",
+     "exp":"X6_4_NeutralClose m",
      "val":6.4
     },
     "y":{
@@ -433,37 +335,107 @@
      "val":1.5707963267948966
     }
    },
-   "RtNeutralIntakeStart":{
+   "NeutralIntakeAALt":{
     "x":{
-     "exp":"X8NuetralFuel m",
+     "exp":"X7_8_NuetralFuel m",
      "val":7.8
     },
     "y":{
-     "exp":"1.3 m",
-     "val":1.3
+     "exp":"RampNeutralLt.y",
+     "val":5.45
     },
     "heading":{
-     "exp":"RtTrenchHeading rad",
-     "val":1.57
+     "exp":"HeadTrenchLt rad",
+     "val":-1.57
     }
    },
-   "RtNeutralIntakeStartB":{
+   "NeutralIntakeAARt":{
     "x":{
-     "exp":"X8NuetralFuel m",
+     "exp":"X7_8_NuetralFuel m",
      "val":7.8
     },
     "y":{
-     "exp":"RtRampNeutral.y",
-     "val":2.4
+     "exp":"RampNeutralRt.y",
+     "val":2.6000000000000005
     },
     "heading":{
-     "exp":"RtTrenchHeading rad",
+     "exp":"HeadTrenchRt rad",
      "val":1.57
     }
    },
-   "RtNeutralIntakeStop":{
+   "NeutralIntakeALt":{
     "x":{
-     "exp":"X8NuetralFuel m",
+     "exp":"X7_8_NuetralFuel m",
+     "val":7.8
+    },
+    "y":{
+     "exp":"6.8 m",
+     "val":6.8
+    },
+    "heading":{
+     "exp":"HeadTrenchLt rad",
+     "val":-1.57
+    }
+   },
+   "NeutralIntakeARt":{
+    "x":{
+     "exp":"X7_8_NuetralFuel m",
+     "val":7.8
+    },
+    "y":{
+     "exp":"RampNeutralRt.y",
+     "val":2.6000000000000005
+    },
+    "heading":{
+     "exp":"HeadTrenchRt rad",
+     "val":1.57
+    }
+   },
+   "NeutralIntakeBLt":{
+    "x":{
+     "exp":"X7_8_NuetralFuel m",
+     "val":7.8
+    },
+    "y":{
+     "exp":"RampNeutralLt.y",
+     "val":5.45
+    },
+    "heading":{
+     "exp":"HeadTrenchLt rad",
+     "val":-1.57
+    }
+   },
+   "NeutralIntakeBRt":{
+    "x":{
+     "exp":"X7_8_NuetralFuel m",
+     "val":7.8
+    },
+    "y":{
+     "exp":"RampNeutralRt.y",
+     "val":2.6000000000000005
+    },
+    "heading":{
+     "exp":"HeadTrenchRt rad",
+     "val":1.57
+    }
+   },
+   "NeutralIntakeCLt":{
+    "x":{
+     "exp":"X7_8_NuetralFuel m",
+     "val":7.8
+    },
+    "y":{
+     "exp":"4.7 m",
+     "val":4.7
+    },
+    "heading":{
+     "exp":"HeadTrenchLt rad",
+     "val":-1.57
+    }
+   },
+   "NeutralIntakeCRt":{
+    "x":{
+     "exp":"X7_8_NuetralFuel m",
      "val":7.8
     },
     "y":{
@@ -471,13 +443,27 @@
      "val":3.5
     },
     "heading":{
-     "exp":"RtTrenchHeading rad",
+     "exp":"HeadTrenchRt rad",
      "val":1.57
     }
    },
-   "RtNeutralMid":{
+   "NeutralMidLt":{
     "x":{
-     "exp":"X7NeutralMid m",
+     "exp":"X7_0_NeutralMid m",
+     "val":7.0
+    },
+    "y":{
+     "exp":"NeutralIntakeCLt.y",
+     "val":4.7
+    },
+    "heading":{
+     "exp":"HeadTrenchLt rad",
+     "val":-1.57
+    }
+   },
+   "NeutralMidRt":{
+    "x":{
+     "exp":"X7_0_NeutralMid m",
      "val":7.0
     },
     "y":{
@@ -485,106 +471,120 @@
      "val":3.5
     },
     "heading":{
-     "exp":"RtTrenchHeading rad",
+     "exp":"HeadTrenchRt rad",
      "val":1.57
     }
    },
-   "RtPreTrench":{
+   "PreTrenchLt":{
     "x":{
-     "exp":"X3Trench m",
+     "exp":"X3_5_Trench m",
      "val":3.55
     },
     "y":{
-     "exp":"RtTrench.y",
-     "val":0.5
+     "exp":"TrenchLt.y",
+     "val":7.550000000000001
     },
     "heading":{
-     "exp":"RtTrench.heading",
+     "exp":"TrenchLt.heading",
+     "val":-1.57
+    }
+   },
+   "PreTrenchRt":{
+    "x":{
+     "exp":"X3_5_Trench m",
+     "val":3.55
+    },
+    "y":{
+     "exp":"TrenchRt.y",
+     "val":0.5050000000000003
+    },
+    "heading":{
+     "exp":"TrenchRt.heading",
      "val":1.57
     }
    },
-   "RtRampAlliance":{
+   "RampAllianceLt":{
     "x":{
-     "exp":"X2RampShoot m",
-     "val":2.4
+     "exp":"X2_8_RampShoot m",
+     "val":2.8
     },
     "y":{
-     "exp":"YRtCrossing m",
-     "val":2.4
+     "exp":"YCrossingLt m",
+     "val":5.45
     },
     "heading":{
-     "exp":"RtCrossingHeading rad",
-     "val":0.785
+     "exp":"HeadCrossingLt rad",
+     "val":3.14
     }
    },
-   "RtRampNeutral":{
+   "RampAllianceRt":{
     "x":{
-     "exp":"X6NeutralClose m",
+     "exp":"X2_8_RampShoot m",
+     "val":2.8
+    },
+    "y":{
+     "exp":"YCrossingRt m",
+     "val":2.6000000000000005
+    },
+    "heading":{
+     "exp":"HeadCrossingRt rad",
+     "val":3.14
+    }
+   },
+   "RampNeutralLt":{
+    "x":{
+     "exp":"X6_4_NeutralClose m",
      "val":6.4
     },
     "y":{
-     "exp":"YRtCrossing m",
-     "val":2.4
+     "exp":"YCrossingLt m",
+     "val":5.45
     },
     "heading":{
-     "exp":"RtCrossingHeading rad",
-     "val":0.785
+     "exp":"HeadCrossingLt rad",
+     "val":3.14
     }
    },
-   "RtShootRamp":{
+   "RampNeutralRt":{
     "x":{
-     "exp":"X2RampShoot m",
-     "val":2.4
+     "exp":"X6_4_NeutralClose m",
+     "val":6.4
+    },
+    "y":{
+     "exp":"YCrossingRt m",
+     "val":2.6000000000000005
+    },
+    "heading":{
+     "exp":"HeadCrossingRt rad",
+     "val":3.14
+    }
+   },
+   "ShootRampLt":{
+    "x":{
+     "exp":"X2_8_RampShoot m",
+     "val":2.8
+    },
+    "y":{
+     "exp":"6.5 m",
+     "val":6.5
+    },
+    "heading":{
+     "exp":"-0.75 rad",
+     "val":-0.75
+    }
+   },
+   "ShootRampRt":{
+    "x":{
+     "exp":"X2_8_RampShoot m",
+     "val":2.8
     },
     "y":{
      "exp":"1.6 m",
      "val":1.6
     },
     "heading":{
-     "exp":"0.9 rad",
-     "val":0.9
-    }
-   },
-   "RtShootTrench":{
-    "x":{
-     "exp":"4.1 m",
-     "val":4.1
-    },
-    "y":{
-     "exp":"0.57 m",
-     "val":0.57
-    },
-    "heading":{
-     "exp":"1.5 rad",
-     "val":1.5
-    }
-   },
-   "RtTrench":{
-    "x":{
-     "exp":"X4Trench m",
-     "val":4.42
-    },
-    "y":{
-     "exp":"0.5 m",
-     "val":0.5
-    },
-    "heading":{
-     "exp":"RtTrenchHeading rad",
-     "val":1.57
-    }
-   },
-   "RtTrenchNeutralClose":{
-    "x":{
-     "exp":"X6NeutralClose m",
-     "val":6.4
-    },
-    "y":{
-     "exp":"0.65 m",
-     "val":0.65
-    },
-    "heading":{
-     "exp":"RtTrenchHeading rad",
-     "val":1.57
+     "exp":"0.75 rad",
+     "val":0.75
     }
    },
    "ShootStation":{
@@ -599,6 +599,20 @@
     "heading":{
      "exp":"0.69 rad",
      "val":0.69
+    }
+   },
+   "ShootTrenchRt":{
+    "x":{
+     "exp":"4.1 m",
+     "val":4.1
+    },
+    "y":{
+     "exp":"0.57 m",
+     "val":0.57
+    },
+    "heading":{
+     "exp":"1.5 rad",
+     "val":1.5
     }
    },
    "Station":{
@@ -627,6 +641,76 @@
     "heading":{
      "exp":"3.14 rad",
      "val":3.14
+    }
+   },
+   "TrenchLt":{
+    "x":{
+     "exp":"X4_4_Trench m",
+     "val":4.42
+    },
+    "y":{
+     "exp":"(YHUB * 2 - 0.5) m",
+     "val":7.550000000000001
+    },
+    "heading":{
+     "exp":"HeadTrenchLt rad",
+     "val":-1.57
+    }
+   },
+   "TrenchNeutralCloseLt":{
+    "x":{
+     "exp":"X6_4_NeutralClose m",
+     "val":6.4
+    },
+    "y":{
+     "exp":"7.55 m",
+     "val":7.55
+    },
+    "heading":{
+     "exp":"HeadTrenchLt rad",
+     "val":-1.57
+    }
+   },
+   "TrenchNeutralCloseRt":{
+    "x":{
+     "exp":"X6_4_NeutralClose m",
+     "val":6.4
+    },
+    "y":{
+     "exp":"0.65 m",
+     "val":0.65
+    },
+    "heading":{
+     "exp":"HeadTrenchRt rad",
+     "val":1.57
+    }
+   },
+   "TrenchRt":{
+    "x":{
+     "exp":"X4_4_Trench m",
+     "val":4.42
+    },
+    "y":{
+     "exp":"YTrenchRt m",
+     "val":0.5050000000000003
+    },
+    "heading":{
+     "exp":"HeadTrenchRt rad",
+     "val":1.57
+    }
+   },
+   "TrenchShootLt":{
+    "x":{
+     "exp":"4.1 m",
+     "val":4.1
+    },
+    "y":{
+     "exp":"7.48 m",
+     "val":7.48
+    },
+    "heading":{
+     "exp":"-1.5 rad",
+     "val":-1.5
     }
    }
   }
