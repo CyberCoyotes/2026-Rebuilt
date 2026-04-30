@@ -968,16 +968,17 @@ public class AutoRoutines {
                                         Commands.sequence(
                                                         Center.resetOdometry(), // Always reset odometry first
                                                         Center.cmd(), // Follow the path
-        
-                                                        m_drivetrain.stop().withTimeout(10.0)
+
+                                                        m_drivetrain.stop().withTimeout(0.5),
+
+                                                        FuelCommands.Auto.poseAlignAndShoot(m_shooter, m_indexer, m_intake, m_drivetrain, m_vision, shootTimeout),
+
+                                                        m_drivetrain.stop().withTimeout(6.0)
+                                                        
                                                         
 
                                         ));
-                        // Routine Events
-
-                Center.atTime("Shoot")
-                                .onTrue(FuelCommands.Auto.shootClose(m_shooter, m_indexer,shootTimeout));
-                                // Fuel pump not needed with small load
+      
                 return routine;
         }
 
