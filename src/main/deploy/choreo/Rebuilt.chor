@@ -140,8 +140,8 @@
    "X7_8_NuetralFuel":{
     "dimension":"Number",
     "var":{
-     "exp":"7.8",
-     "val":7.8
+     "exp":"7.65",
+     "val":7.65
     }
    },
    "YCrossingLt":{
@@ -352,7 +352,7 @@
    "NeutralIntakeAALt":{
     "x":{
      "exp":"X7_8_NuetralFuel m",
-     "val":7.8
+     "val":7.65
     },
     "y":{
      "exp":"RampNeutralLt.y",
@@ -366,7 +366,7 @@
    "NeutralIntakeAARt":{
     "x":{
      "exp":"X7_8_NuetralFuel m",
-     "val":7.8
+     "val":7.65
     },
     "y":{
      "exp":"RampNeutralRt.y",
@@ -380,7 +380,7 @@
    "NeutralIntakeALt":{
     "x":{
      "exp":"X7_8_NuetralFuel m",
-     "val":7.8
+     "val":7.65
     },
     "y":{
      "exp":"6.8 m",
@@ -394,7 +394,7 @@
    "NeutralIntakeARt":{
     "x":{
      "exp":"X7_8_NuetralFuel m",
-     "val":7.8
+     "val":7.65
     },
     "y":{
      "exp":"RampNeutralRt.y",
@@ -408,7 +408,7 @@
    "NeutralIntakeBLt":{
     "x":{
      "exp":"X7_8_NuetralFuel m",
-     "val":7.8
+     "val":7.65
     },
     "y":{
      "exp":"RampNeutralLt.y",
@@ -422,7 +422,7 @@
    "NeutralIntakeBRt":{
     "x":{
      "exp":"X7_8_NuetralFuel m",
-     "val":7.8
+     "val":7.65
     },
     "y":{
      "exp":"RampNeutralRt.y",
@@ -436,7 +436,7 @@
    "NeutralIntakeCLt":{
     "x":{
      "exp":"X7_8_NuetralFuel m",
-     "val":7.8
+     "val":7.65
     },
     "y":{
      "exp":"4.7 m",
@@ -450,7 +450,7 @@
    "NeutralIntakeCRt":{
     "x":{
      "exp":"X7_8_NuetralFuel m",
-     "val":7.8
+     "val":7.65
     },
     "y":{
      "exp":"3.5 m",
