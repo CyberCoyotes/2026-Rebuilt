@@ -45,7 +45,7 @@ public class AutoRoutines {
         // ============================================================================
         
         /*
-        TODO Trench_FullSwipeLt
+        TODO Trench_FullSwipeRt
         RtShootRamp_Trench
                                                         // TODO Add before every shot to stop and settle before shooting
                                                 m_drivetrain.stop().withTimeout(0.75),
@@ -64,7 +64,7 @@ public class AutoRoutines {
 
                 // Trajectories
                 final AutoTrajectory Trench_FullSwipeRt = routine.trajectory("Trench_FullSwipeRt", 0);
-                final AutoTrajectory RtRampMiddle_Alliance = routine.trajectory("RtRampMiddle_Alliance", 0);
+                final AutoTrajectory RtAlliance_Hide = routine.trajectory("RtAlliance_Hide", 0);
 
                 routine.active().onTrue(
                                 Commands.sequence(
@@ -79,9 +79,44 @@ public class AutoRoutines {
                                                                 m_intake.intakeFuelTimer(intakeTimeout, intakeDelay)),
 
                                                 // FuelCommands.purgeFuel(m_intake, m_indexer).withTimeout(4), // FIXME Test only
+        
+
+                                                // Add before every shot to stop and settle before shooting
+                                                m_drivetrain.stop().withTimeout(0.5),
+
+                                                // Check vision shoot
+                                                FuelCommands.Auto.poseAlignAndShoot(m_shooter, m_indexer, m_intake, m_drivetrain, m_vision, shootTimeout),
+                                                
+                                                RtAlliance_Hide.cmd()
+                                                
+                                                )
+                                );
+
+                return routine;
+        }
+
+        /* */
+        public AutoRoutine PreTrench_SwipeRt() {
+
+                final AutoRoutine routine = m_factory.newRoutine("PreTrench Right Swipe");
+
+                // Trajectories
+                final AutoTrajectory PreTrench_FullSwipeRt = routine.trajectory("PreTrench_FullSwipeRt", 0);
+
+                routine.active().onTrue(
+                                Commands.sequence(
+                                                PreTrench_FullSwipeRt.resetOdometry(),
+
+                                                // Add delay if inteferring with alliance partner; adjust duration as needed based on testing
+                                                m_drivetrain.stop().withTimeout(3),
+
+                                                // Trench to Middle — intake runs in parallel while driving
+                                                Commands.deadline(
+                                                                PreTrench_FullSwipeRt.cmd(),
+                                                                m_intake.intakeFuelTimer(intakeTimeout, intakeDelay + 0.1)),
+
+                                                // FuelCommands.purgeFuel(m_intake, m_indexer).withTimeout(4), // FIXME Test only
                 
-                                                // Ramp crossing
-                                                RtRampMiddle_Alliance.cmd(),
 
                                                 // Add before every shot to stop and settle before shooting
                                                 m_drivetrain.stop().withTimeout(0.5),
@@ -93,7 +128,7 @@ public class AutoRoutines {
                                 );
 
                 return routine;
-        }
+        } //
 
         /*
         Trench_FullSwipeRt
@@ -104,7 +139,6 @@ public class AutoRoutines {
 
                 // Trajectories
                 final AutoTrajectory Trench_FullSwipeRt = routine.trajectory("Trench_FullSwipeRt", 0);
-                final AutoTrajectory RtRampMiddle_Alliance = routine.trajectory("RtRampMiddle_Alliance", 0);
                 
                 final AutoTrajectory RtShootRamp_Trench = routine.trajectory("RtShootRamp_Trench", 0);
 
@@ -123,7 +157,6 @@ public class AutoRoutines {
                                                 // FuelCommands.purgeFuel(m_intake, m_indexer).withTimeout(4), // FIXME Test only
                 
                                                 // Ramp crossing
-                                                RtRampMiddle_Alliance.cmd(),
 
                                                 // Add before every shot to stop and settle before shooting
                                                 m_drivetrain.stop().withTimeout(0.5),
@@ -149,7 +182,6 @@ public class AutoRoutines {
                                                  */
                                                 
                                                 // Ramp crossing
-                                                RtRampMiddle_Alliance.cmd(),
 
                                                 // Add before every shot to stop and settle before shooting
                                                 m_drivetrain.stop().withTimeout(0.5),
@@ -522,7 +554,8 @@ public class AutoRoutines {
 
                 // Trajectories
                 final AutoTrajectory Trench_FullSwipeLt = routine.trajectory("Trench_FullSwipeLt", 0);
-                final AutoTrajectory LtRampMiddle_Alliance = routine.trajectory("LtRampMiddle_Alliance", 0);
+                final AutoTrajectory LtAlliance_Hide = routine.trajectory("LtAlliance_Hide", 0);
+                
                 routine.active().onTrue(
                                 Commands.sequence(
                                                 Trench_FullSwipeLt.resetOdometry(),
@@ -538,13 +571,13 @@ public class AutoRoutines {
                                                 // FuelCommands.purgeFuel(m_intake, m_indexer).withTimeout(4), // FIXME Test only
                 
                                                 // Ramp crossing
-                                                LtRampMiddle_Alliance.cmd(),
 
                                                 // Add before every shot to stop and settle before shooting
                                                 m_drivetrain.stop().withTimeout(0.5),
 
                                                 // Check vision shoot
-                                                FuelCommands.Auto.poseAlignAndShoot(m_shooter, m_indexer, m_intake, m_drivetrain, m_vision, shootTimeout)
+                                                FuelCommands.Auto.poseAlignAndShoot(m_shooter, m_indexer, m_intake, m_drivetrain, m_vision, shootTimeout),
+                                                LtAlliance_Hide.cmd()
 
                                                 )
                                 );
@@ -559,7 +592,6 @@ public class AutoRoutines {
 
                 // Trajectories
                 final AutoTrajectory Trench_FullSwipeLt = routine.trajectory("Trench_FullSwipeLt", 0);
-                final AutoTrajectory LtRampMiddle_Alliance = routine.trajectory("LtRampMiddle_Alliance", 0);
                 
                 final AutoTrajectory LtShootRamp_Trench = routine.trajectory("LtShootRamp_Trench", 0);
 
@@ -577,9 +609,6 @@ public class AutoRoutines {
 
                                                 // FuelCommands.purgeFuel(m_intake, m_indexer).withTimeout(4), // FIXME Test only
                 
-                                                // Ramp crossing
-                                                LtRampMiddle_Alliance.cmd(),
-
                                                 // Add before every shot to stop and settle before shooting
                                                 m_drivetrain.stop().withTimeout(0.5),
 
@@ -603,8 +632,6 @@ public class AutoRoutines {
                                                 FuelCommands.purgeFuel(m_intake, m_indexer).withTimeout(4), 
                                                  */
 
-                                                // Ramp crossing
-                                                LtRampMiddle_Alliance.cmd(),
 
                                                 // Add before every shot to stop and settle before shooting
                                                 m_drivetrain.stop().withTimeout(0.5),
@@ -617,6 +644,42 @@ public class AutoRoutines {
 
                 return routine;
         }
+
+          /* */
+        public AutoRoutine PreTrench_SwipeLt() {
+
+                final AutoRoutine routine = m_factory.newRoutine("PreTrench Left Swipe");
+
+                // Trajectories
+                final AutoTrajectory PreTrench_FullSwipeLt = routine.trajectory("PreTrench_FullSwipeLt", 0);
+
+                routine.active().onTrue(
+                                Commands.sequence(
+                                                PreTrench_FullSwipeLt.resetOdometry(),
+
+                                                // Add delay if inteferring with alliance partner; adjust duration as needed based on testing
+                                                m_drivetrain.stop().withTimeout(3),
+
+                                                // Trench to Middle — intake runs in parallel while driving
+                                                Commands.deadline(
+                                                                PreTrench_FullSwipeLt.cmd(),
+                                                                m_intake.intakeFuelTimer(intakeTimeout, intakeDelay + 0.1)),
+
+                                                // FuelCommands.purgeFuel(m_intake, m_indexer).withTimeout(4), // FIXME Test only
+                
+
+                                                // Add before every shot to stop and settle before shooting
+                                                m_drivetrain.stop().withTimeout(0.5),
+
+                                                // Check vision shoot
+                                                FuelCommands.Auto.poseAlignAndShoot(m_shooter, m_indexer, m_intake, m_drivetrain, m_vision, shootTimeout)
+
+                                                )
+                                );
+
+                return routine;
+        } //
+
 
         public AutoRoutine LtTrench_Ramp_Single() {
 
