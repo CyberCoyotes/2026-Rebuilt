@@ -18,6 +18,8 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.RobotModeTriggers;
+import frc.robot.commands.AlignOnlyCommand;
+import frc.robot.commands.FuelCommands;
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
 import frc.robot.subsystems.indexer.IndexerIOHardware;
@@ -28,8 +30,6 @@ import frc.robot.subsystems.shooter.ShooterIOHardware;
 import frc.robot.subsystems.shooter.ShooterSubsystem;
 import frc.robot.subsystems.vision.VisionIOLimelight;
 import frc.robot.subsystems.vision.VisionSubsystem;
-import frc.robot.commands.AlignOnlyCommand;
-import frc.robot.commands.FuelCommands;
 
 public class RobotContainer {
     // =====================================================================
@@ -92,22 +92,31 @@ public class RobotContainer {
         // == Left Side Autos ==
         autoChooser.addRoutine("Left x1 Full Swipe", autoRoutines::Trench_FullSwipeSingleLt);
         autoChooser.addRoutine("Left x2 Full Swipe", autoRoutines::Trench_FullSwipeDoubleLt);
+        autoChooser.addRoutine("PreTrench Left Swipe", autoRoutines::PreTrench_SwipeLt);
 
-        autoChooser.addRoutine("Left x1 Ramp", autoRoutines::LtTrench_Ramp_Single);
-        // FIXME autoChooser.addRoutine("Left x1 Ramp ANGRY", autoRoutines::LtTrench_Ramp_Angry);
-        autoChooser.addRoutine("Left x2 Ramp", autoRoutines::LtTrench_Ramp_Double);
-        autoChooser.addRoutine("Left x2 Ramp Sweep SHOT", autoRoutines::LtTrench_Ramp_HubSweep);
-        autoChooser.addRoutine("Left x2 Ramp PURGE", autoRoutines::LtTrench_Ramp_Sweep_Purge);
-        // FIXME autoChooser.addRoutine("Left PreTrench Center Shot", autoRoutines::LtPreTrench_Center);
+        // Original Single pass trench and over the rampy
+        // autoChooser.addRoutine("Left x1 Ramp", autoRoutines::LtTrench_Ramp_Single);
+
+        // autoChooser.addRoutine("Left x1 Ramp ANGRY", autoRoutines::LtTrench_Ramp_Angry);
+        // autoChooser.addRoutine("Left x2 Ramp", autoRoutines::LtTrench_Ramp_Double);
+
+        // autoChooser.addRoutine("Left x2 Ramp Sweep SHOT", autoRoutines::LtTrench_Ramp_HubSweep);
+        // FIXME autoChooser.addRoutine("Left x2 Ramp PURGE", autoRoutines::LtTrench_Ramp_Sweep_Purge);
+        
+        // autoChooser.addRoutine("Left PreTrench Center Shot", autoRoutines::LtPreTrench_Center);
         
         // == Right Side Autos ==
         autoChooser.addRoutine("Right x1 Full Swipe", autoRoutines::Trench_FullSwipeSingleRt);
         autoChooser.addRoutine("Right x2 Full Swipe", autoRoutines::Trench_FullSwipeDoubleRt);
-        autoChooser.addRoutine("Right x1 Ramp", autoRoutines::RtTrench_Ramp_Single);
-        // FIXME autoChooser.addRoutine("Right x1 Ramp ANGRY", autoRoutines::RtTrench_Ramp_Angry);
-        autoChooser.addRoutine("Right x2 Ramp", autoRoutines::RtTrench_Ramp_Double);
-        autoChooser.addRoutine("Right x2 Ramp Sweep SHOT", autoRoutines::RtTrench_Ramp_HubSweep);
-        autoChooser.addRoutine("Right x2 Ramp PURGE", autoRoutines::RtTrench_Ramp_Sweep_Purge);
+        autoChooser.addRoutine("PreTrench Right Swipe", autoRoutines::PreTrench_SwipeRt);
+
+        // Original Single pass trench and over the rampy
+        // autoChooser.addRoutine("Right x1 Ramp", autoRoutines::RtTrench_Ramp_Single);
+        // autoChooser.addRoutine("Right x1 Ramp ANGRY", autoRoutines::RtTrench_Ramp_Angry);
+        // autoChooser.addRoutine("Right x2 Ramp", autoRoutines::RtTrench_Ramp_Double);
+        // autoChooser.addRoutine("Right x2 Ramp Sweep SHOT", autoRoutines::RtTrench_Ramp_HubSweep);
+        // autoChooser.addRoutine("Right x2 Ramp PURGE", autoRoutines::RtTrench_Ramp_Sweep_Purge);
+        
         // FIXME autoChooser.addRoutine("Right PreTrench Center Shot", autoRoutines::RtPreTrench_Center);
 
         autoChooser.addRoutine("Right Bulldozer 2026", autoRoutines::RtBulldozer);
@@ -164,7 +173,7 @@ public class RobotContainer {
             )
         );
                 
-        driver.rightBumper().whileTrue(FuelCommands.purgeFuel(intake, indexer));
+        driver.rightBumper().whileTrue(FuelCommands.shootWithPreset(shooter, indexer, ShooterSubsystem.ShotPreset.PASS));
         
         driver.leftTrigger(0.5).whileTrue(intake.intakeFuel());
         // Align-only: rotation + vision logic, no flywheel/hood — safe for PID tuning
@@ -177,10 +186,10 @@ public class RobotContainer {
             )
         );
 
-        driver.a().whileTrue(
-                // drivetrain.applyRequest(() -> xBrake),    
-                FuelCommands.shootWithPreset(shooter, indexer, ShooterSubsystem.ShotPreset.PASS)
-                );
+        // driver.a().whileTrue(
+        //         // drivetrain.applyRequest(() -> xBrake),    
+        //         // FuelCommands.shootWithPreset(shooter, indexer, ShooterSubsystem.ShotPreset.PASS)
+        //         );
         
         // =====================================================================
         // Operator Controller
@@ -218,8 +227,7 @@ public class RobotContainer {
 
 
         operator.leftBumper().onTrue(intake.retractSlidesIncrementalCmd());
-        operator.rightBumper().whileTrue(intake.fuelCompression()
-        /*FuelCommands.purgeFuel(intake, indexer)*/);
+        operator.rightBumper().whileTrue(FuelCommands.purgeFuel(intake, indexer));
         
 
         // Start (Menu ☰): Toggle flywheel standby pre-rev — operator sets once and forgets.

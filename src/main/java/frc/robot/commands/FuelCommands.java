@@ -34,6 +34,31 @@ import frc.robot.subsystems.vision.VisionSubsystem;
 public class FuelCommands {
 
     /**
+     * Manual standby toggle command factory.
+     *
+     * <p>Useful for binding to an EventTrigger/NamedCommand in autonomous so you can
+     * intentionally toggle the flywheel standby policy at specific points in a path.
+     */
+    public static Command toggleStandbyMode(ShooterSubsystem shooter) {
+        return Commands.runOnce(shooter::toggleStandbyMode, shooter)
+                .withName("ToggleShooterStandbyMode");
+    }
+
+    /**
+     * Explicit standby policy setter for autonomous.
+     *
+     * <p>Prefer this over raw toggle when possible in auton so command order stays
+     * deterministic even if an event is replayed or skipped.
+     */
+    public static Command setStandbyMode(ShooterSubsystem shooter, boolean enabled) {
+        return Commands.runOnce(() -> {
+            if (shooter.isStandbyEnabled() != enabled) {
+                shooter.toggleStandbyMode();
+            }
+        }, shooter).withName(enabled ? "EnableShooterStandbyMode" : "DisableShooterStandbyMode");
+    }
+
+    /**
      * Returns the hub center for the current alliance (defaults to blue if FMS not
      * connected).
      */
