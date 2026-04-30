@@ -173,7 +173,7 @@ public class RobotContainer {
             )
         );
                 
-        driver.rightBumper().whileTrue(FuelCommands.purgeFuel(intake, indexer));
+        driver.rightBumper().whileTrue(FuelCommands.shootWithPreset(shooter, indexer, ShooterSubsystem.ShotPreset.PASS));
         
         driver.leftTrigger(0.5).whileTrue(intake.intakeFuel());
         // Align-only: rotation + vision logic, no flywheel/hood — safe for PID tuning
@@ -186,10 +186,10 @@ public class RobotContainer {
             )
         );
 
-        driver.a().whileTrue(
-                // drivetrain.applyRequest(() -> xBrake),    
-                FuelCommands.shootWithPreset(shooter, indexer, ShooterSubsystem.ShotPreset.PASS)
-                );
+        // driver.a().whileTrue(
+        //         // drivetrain.applyRequest(() -> xBrake),    
+        //         // FuelCommands.shootWithPreset(shooter, indexer, ShooterSubsystem.ShotPreset.PASS)
+        //         );
         
         // =====================================================================
         // Operator Controller
@@ -227,8 +227,7 @@ public class RobotContainer {
 
 
         operator.leftBumper().onTrue(intake.retractSlidesIncrementalCmd());
-        operator.rightBumper().whileTrue(intake.fuelCompression()
-        /*FuelCommands.purgeFuel(intake, indexer)*/);
+        operator.rightBumper().whileTrue(FuelCommands.purgeFuel(intake, indexer));
         
 
         // Start (Menu ☰): Toggle flywheel standby pre-rev — operator sets once and forgets.
