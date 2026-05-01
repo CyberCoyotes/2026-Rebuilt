@@ -612,10 +612,24 @@ public class FuelCommands {
                                         .withVelocityY(0)
                                         .withRotationalRate(rotRate));
                             }, shooter, drivetrain)),
-                    // Phase 2: feed until chute clears while compressing fuel once shooter is ready
+                    // Phase 2: feed until chute clears while holding heading + compressing fuel.
+                    // headingPID retains the last setpoint from Phase 1, so the drivetrain stays
+                    // locked on the hub — this prevents CCW drift when Phase 1 releases the drive.
                     Commands.deadline(
                             indexer.feedUntilChuteEmpty(shotTimeout),
-                            fuelCompressionWhenShooterReady(shooter, intake)))
+                            fuelCompressionWhenShooterReady(shooter, intake),
+                            Commands.run(() -> {
+                                double currentHeadingDeg = drivetrain.getState().Pose.getRotation().getDegrees();
+                                double pidOutput = headingPID.calculate(currentHeadingDeg);
+                                double rotRate = headingPID.atSetpoint() ? 0.0
+                                        : MathUtil.clamp(pidOutput,
+                                                -Constants.Vision.MAX_ALIGNMENT_ROTATION_RAD_PER_SEC,
+                                                Constants.Vision.MAX_ALIGNMENT_ROTATION_RAD_PER_SEC);
+                                drivetrain.setControl(alignRequest
+                                        .withVelocityX(0)
+                                        .withVelocityY(0)
+                                        .withRotationalRate(rotRate));
+                            }, drivetrain)))
                     .finallyDo(() -> {
                         indexer.indexerStop();
                         indexer.conveyorStop();
