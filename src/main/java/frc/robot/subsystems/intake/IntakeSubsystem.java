@@ -198,6 +198,11 @@ public class IntakeSubsystem extends SubsystemBase {
         io.stopSlide();
     }
 
+    /** Zeroes the slide encoder. Call only when the slide is physically at the retracted hard stop. */
+    public void resetSlideEncoder() {
+        io.resetSlideEncoder();
+    }
+
     /**
      * Moves slide to an arbitrary position via MotionMagic. Motor holds after.
      * Caller is responsible for clamping to valid range.
@@ -324,6 +329,15 @@ public class IntakeSubsystem extends SubsystemBase {
     /** Retracts the slide in small repeated steps while held. */
     public Command manualSlideRetractHoldCmd() {
         return manualSlideNudgeHoldCmd(-Constants.Intake.SLIDE_MANUAL_STEP_ROTATIONS);
+    }
+
+    /**
+     * Zeroes the slide encoder (runOnce). Use only when the slide is physically
+     * at the retracted hard stop — e.g. during a known-position initialization sequence.
+     */
+    public Command resetSlideEncoderCmd() {
+        return Commands.runOnce(this::resetSlideEncoder, this)
+                .withName("ResetSlideEncoder");
     }
 
      // =========================================================================

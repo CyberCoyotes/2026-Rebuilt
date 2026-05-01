@@ -213,4 +213,9 @@ public class IntakeIOHardware implements IntakeIO {
     public void stopSlide() {
         slide.stopMotor();
     }
+
+    @Override
+    public void resetSlideEncoder() {
+        slide.setPosition(0);
+    }
 }

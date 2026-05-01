@@ -55,6 +55,9 @@ public interface IntakeIO {
 
     void stopSlide();
 
+    /** Zeroes the slide encoder — call when slide is physically at the retracted hard stop. */
+    void resetSlideEncoder();
+
     // double getSlidePosition();
 
     // ===== Intake sensor methods =====
