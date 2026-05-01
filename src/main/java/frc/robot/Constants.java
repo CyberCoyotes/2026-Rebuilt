@@ -514,20 +514,20 @@ public final class Constants {
 
     // Side Bumpers against the tower
     // Increased RPM and - 45 inches on vision distance tested; trying 60
-    public static final double TOWER_DISTANCE = Units.inchesToMeters(107 - 60) + HUB_TO_CENTER + LL_TO_FRONT;
+    public static final double TOWER_DISTANCE = Units.inchesToMeters(107 - 45) + HUB_TO_CENTER + LL_TO_FRONT;
     public static final double TOWER_RPM = 3450; // 3150 was short
     public static final double TOWER_HOOD = 6.00; //was 5.0
 
     // In front of tower
     // 
-    public static final double TOWER_FRONT_DISTANCE = Units.inchesToMeters(82 - 60) + HUB_TO_CENTER + LL_TO_FRONT;
+    public static final double TOWER_FRONT_DISTANCE = Units.inchesToMeters(82 - 45) + HUB_TO_CENTER + LL_TO_FRONT;
     public static final double TOWER_FRONT_RPM = 3300; //3000 was short
     public static final double TOWER_FRONT_HOOD = 6.00; //was 5.0
 
     // In the trench, mostly against the wall, but turned slightly towards the hub
     // Actual distance was 107 inches; cheating 10 inches added about 100-125 RPM, so adding 15 inches to be safe
     // -45 tested; trying 60
-    public static final double TRENCH_DISTANCE = Units.inchesToMeters(118 - 60) + HUB_TO_CENTER + LL_TO_FRONT;
+    public static final double TRENCH_DISTANCE = Units.inchesToMeters(118 - 45) + HUB_TO_CENTER + LL_TO_FRONT;
 
     // 3050 for the first 2 matches
     public static final double TRENCH_RPM = 3450; // 3150 was short
@@ -535,7 +535,7 @@ public final class Constants {
 
     // In a corner by human player station or depot-corner, angled towards the hub
     // Actual distance was 176 inches
-    public static final double FAR_DISTANCE = Units.inchesToMeters(190 - 60) + HUB_TO_CENTER + LL_TO_FRONT;
+    public static final double FAR_DISTANCE = Units.inchesToMeters(190 - 45) + HUB_TO_CENTER + LL_TO_FRONT;
 
     // 3450 for the first 2 matches
     public static final double FAR_RPM = 4000; // 3700 was short
