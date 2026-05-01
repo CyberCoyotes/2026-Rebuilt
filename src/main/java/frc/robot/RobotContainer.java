@@ -241,8 +241,10 @@ public class RobotContainer {
         operator.back().onTrue(drivetrain.resetPoseFromVisionCommand());
     
         operator.povDown().whileTrue(drivetrain.applyRequest(() -> xBrake));
-        // operator.povUp().whileTrue(intake.resetSlideEncoderCmd()); // Only use if all the way in
-
+    
+        // Only use if know to be fully retracted
+        operator.povUp().whileTrue(intake.resetSlideEncoderCmd()); 
+        
         // operator.povLeft().onTrue(intake.extendSlidesFastCmd());
         // operator.povRight().whileTrue(intake.fuelPumpCycleDelayed());
 
