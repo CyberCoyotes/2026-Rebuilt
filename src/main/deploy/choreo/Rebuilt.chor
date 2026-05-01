@@ -147,15 +147,15 @@
    "YCrossingLt":{
     "dimension":"Number",
     "var":{
-     "exp":"YHUB + 1.425",
-     "val":5.45
+     "exp":"YHUB + 1.625",
+     "val":5.65
     }
    },
    "YCrossingRt":{
     "dimension":"Number",
     "var":{
-     "exp":"YHUB - 1.425",
-     "val":2.6000000000000005
+     "exp":"YHUB - 1.625",
+     "val":2.4000000000000004
     }
    },
    "YHUB":{
@@ -356,7 +356,7 @@
     },
     "y":{
      "exp":"RampNeutralLt.y",
-     "val":5.45
+     "val":5.65
     },
     "heading":{
      "exp":"HeadTrenchLt rad",
@@ -370,7 +370,7 @@
     },
     "y":{
      "exp":"RampNeutralRt.y",
-     "val":2.6000000000000005
+     "val":2.4000000000000004
     },
     "heading":{
      "exp":"HeadTrenchRt rad",
@@ -398,7 +398,7 @@
     },
     "y":{
      "exp":"RampNeutralRt.y",
-     "val":2.6000000000000005
+     "val":2.4000000000000004
     },
     "heading":{
      "exp":"HeadTrenchRt rad",
@@ -412,7 +412,7 @@
     },
     "y":{
      "exp":"RampNeutralLt.y",
-     "val":5.45
+     "val":5.65
     },
     "heading":{
      "exp":"HeadTrenchLt rad",
@@ -426,7 +426,7 @@
     },
     "y":{
      "exp":"RampNeutralRt.y",
-     "val":2.6000000000000005
+     "val":2.4000000000000004
     },
     "heading":{
      "exp":"HeadTrenchRt rad",
@@ -524,7 +524,7 @@
     },
     "y":{
      "exp":"YCrossingLt m",
-     "val":5.45
+     "val":5.65
     },
     "heading":{
      "exp":"HeadCrossingLt rad",
@@ -538,7 +538,7 @@
     },
     "y":{
      "exp":"YCrossingRt m",
-     "val":2.6000000000000005
+     "val":2.4000000000000004
     },
     "heading":{
      "exp":"HeadCrossingRt rad",
@@ -552,7 +552,7 @@
     },
     "y":{
      "exp":"YCrossingLt m",
-     "val":5.45
+     "val":5.65
     },
     "heading":{
      "exp":"HeadCrossingLt rad",
@@ -566,7 +566,7 @@
     },
     "y":{
      "exp":"YCrossingRt m",
-     "val":2.6000000000000005
+     "val":2.4000000000000004
     },
     "heading":{
      "exp":"HeadCrossingRt rad",

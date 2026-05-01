@@ -101,7 +101,7 @@ public class RobotContainer {
         // autoChooser.addRoutine("Left x2 Ramp", autoRoutines::LtTrench_Ramp_Double);
 
         // autoChooser.addRoutine("Left x2 Ramp Sweep SHOT", autoRoutines::LtTrench_Ramp_HubSweep);
-        // FIXME autoChooser.addRoutine("Left x2 Ramp PURGE", autoRoutines::LtTrench_Ramp_Sweep_Purge);
+        // autoChooser.addRoutine("Left x2 Ramp PURGE", autoRoutines::LtTrench_Ramp_Sweep_Purge);
         
         // autoChooser.addRoutine("Left PreTrench Center Shot", autoRoutines::LtPreTrench_Center);
         
@@ -117,10 +117,10 @@ public class RobotContainer {
         // autoChooser.addRoutine("Right x2 Ramp Sweep SHOT", autoRoutines::RtTrench_Ramp_HubSweep);
         // autoChooser.addRoutine("Right x2 Ramp PURGE", autoRoutines::RtTrench_Ramp_Sweep_Purge);
         
-        // FIXME autoChooser.addRoutine("Right PreTrench Center Shot", autoRoutines::RtPreTrench_Center);
+        // autoChooser.addRoutine("Right PreTrench Center Shot", autoRoutines::RtPreTrench_Center);
 
         autoChooser.addRoutine("Right Bulldozer 2026", autoRoutines::RtBulldozer);
-        // FIXME autoChooser.addRoutine("Left Bulldozer 2026", autoRoutines::LtBulldozer);
+        // autoChooser.addRoutine("Left Bulldozer 2026", autoRoutines::LtBulldozer);
 
         // Testing
         // autoChooser.addRoutine("Rt Bulldozer 2026", autoRoutines.test::Bulldozer);
