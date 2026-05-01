@@ -507,23 +507,23 @@ public final class Constants {
   public static final class Shooter {
 
     // Bumpers against the hub if possible
-    public static final double CLOSE_DISTANCE = Units.inchesToMeters(18)+ HUB_TO_CENTER + LL_TO_FRONT; // 30 from front bumper to front of hub
+    public static final double CLOSE_DISTANCE = Units.inchesToMeters(18 + 15)+ HUB_TO_CENTER + LL_TO_FRONT; // 30 from front bumper to front of hub
     public static final double CLOSE_RPM = 2500; // 2350 was short
     public static final double CLOSE_HOOD = 1.50; // was 2.25
 
     // Side Bumpers against the tower
-    public static final double TOWER_DISTANCE = Units.inchesToMeters(107) + HUB_TO_CENTER + LL_TO_FRONT;
+    public static final double TOWER_DISTANCE = Units.inchesToMeters(107 + 15) + HUB_TO_CENTER + LL_TO_FRONT;
     public static final double TOWER_RPM = 3150;
     public static final double TOWER_HOOD = 6.00; //was 5.0
 
     // In front of tower
-    public static final double TOWER_FRONT_DISTANCE = Units.inchesToMeters(82) + HUB_TO_CENTER + LL_TO_FRONT;
+    public static final double TOWER_FRONT_DISTANCE = Units.inchesToMeters(82 + 15) + HUB_TO_CENTER + LL_TO_FRONT;
     public static final double TOWER_FRONT_RPM = 3000;
     public static final double TOWER_FRONT_HOOD = 6.00; //was 5.0
 
     // In the trench, mostly against the wall, but turned slightly towards the hub
     // Actual distance was 107 inches; cheating 10 inches added about 100-125 RPM, so adding 15 inches to be safe
-    public static final double TRENCH_DISTANCE = Units.inchesToMeters(118) + HUB_TO_CENTER + LL_TO_FRONT;
+    public static final double TRENCH_DISTANCE = Units.inchesToMeters(118+ 15) + HUB_TO_CENTER + LL_TO_FRONT;
 
     // 3050 for the first 2 matches
     public static final double TRENCH_RPM = 3150;
@@ -583,7 +583,7 @@ public final class Constants {
     public static final double LL_PITCH = 15.4;
     public static final double LL_YAW = 0;     
    
-    // TODO Consider loosening the alignment tolerance if the robot is having trouble reaching the aligned state
+    // Consider loosening the alignment tolerance if the robot is having trouble reaching the aligned state
     /** Tolerance for horizontal alignment in degrees used in FuelCommands.java */
     /** Minimum target area to consider target valid (prevents false positives) */
     // public static final double MIN_TARGET_AREA_PERCENT = 0.005;

@@ -175,7 +175,8 @@ public class IntakeSubsystem extends SubsystemBase {
 
     /** Graceful full retraction using the tunable slow DynamicMotionMagic profile. */
     public void retractSlidesPartial() {
-        io.setSlidePositionSlow(Constants.Intake.SLIDE_PUMP_IN_POS); // TODO Adjust this to a partial retract position if we want a gentler retract that doesn't go all the way to the hard stop.
+        io.setSlidePositionSlow(Constants.Intake.SLIDE_PUMP_IN_POS); 
+        // Adjust this to a partial retract position if we want a gentler retract that doesn't go all the way to the hard stop.
     }
 
     /** Fast move to the normal operating home/stow setpoint using the default Motion Magic profile. */
@@ -399,7 +400,7 @@ public class IntakeSubsystem extends SubsystemBase {
                 .withName("CompressFuelDelayed");
     }
 
-    public Command compressFuelCycle(double initialWaitSeconds, double timeoutSeconds) { // TODO Try
+    public Command compressFuelCycle(double initialWaitSeconds, double timeoutSeconds) {
         return Commands.sequence(
                 Commands.waitSeconds(initialWaitSeconds),
                 Commands.run(
