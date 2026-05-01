@@ -219,7 +219,7 @@ public final class Constants {
     public static final int CONVEYOR_MOTOR_ID = 27;
 
     // CANrange Time of Flight sensor; detects presence of fuel at the top of the hopper
-    // public static final int HOPPER_TOF_ID = 41; // FIXME Add the CANrange ID to Tuner X
+    // public static final int HOPPER_TOF_ID = 41; 
 
     // CANrange Time of Flight sensor; detects presence of fuel at indexer-kicker
     public static final int CHUTE_TOF_ID = 42;
@@ -233,7 +233,7 @@ public final class Constants {
      * Conveyor voltage setpoints for feeding fuel to the shooter.
      */
     
-    // TODO Adjust the CONVEYOR_FORWARD_RPS value based on testing
+    // Adjust the CONVEYOR_FORWARD_RPS value based on testing
     // Conveyor forward velocity target: 2440 RPM observed at 5V → 2440/60 ≈ 40.67 RPS
     // Starting 2440.0 / 60.0 = 40.67 RPS (same as previous voltage-based target)
     // 2600.0 MUCH better
@@ -583,7 +583,7 @@ public final class Constants {
     public static final double LL_PITCH = 15.4;
     public static final double LL_YAW = 0;     
    
-    // TODO Vision - Consider loosening the alignment tolerance if the robot is having trouble reaching the aligned state
+    // TODO Consider loosening the alignment tolerance if the robot is having trouble reaching the aligned state
     /** Tolerance for horizontal alignment in degrees used in FuelCommands.java */
     /** Minimum target area to consider target valid (prevents false positives) */
     // public static final double MIN_TARGET_AREA_PERCENT = 0.005;
@@ -598,12 +598,12 @@ public final class Constants {
     // Alignment tuning — AlignAndShootCommand
     // =================================================================
 
-    // TODO: If AlignAndShootCommand rotates to the WRONG side of the hub, change
+    // If AlignAndShootCommand rotates to the WRONG side of the hub, change
     //       this to 180.0. Accounts for the shooter being on the robot rear:
     //       0 = robot front faces hub, 180 = robot back faces hub.
     public final static double ALIGNMENT_OFFSET_DEGREES = 0;
 
-    // TODO: If the robot oscillates left/right during alignment, raise KD slightly.
+    // If the robot oscillates left/right during alignment, raise KD slightly.
     //       If it barely turns toward the target, raise KP in steps of 0.02.
     //       Watch AlignShoot/rotRate_radps on Elastic while tuning.
     public static final double ROTATIONAL_KP = 0.20; // raise if soft/sluggish, lower if overshooting
@@ -618,25 +618,25 @@ public final class Constants {
     public static final double MIN_ALIGNMENT_ROTATION_RAD_PER_SEC = 0.07; // just above static friction; raise if stalling, lower if oscillating
     public static final double MAX_ALIGNMENT_ROTATION_RAD_PER_SEC = 4.5; // tune to prevent overshooting and oscillation
 
-    // TODO: Tighten (lower) to require more precise alignment before the rotation PID
+    // Tighten (lower) to require more precise alignment before the rotation PID
     //       stops commanding rotation (deadband). If the robot oscillates and never settles,
     //       raise this. Watch AlignShoot/aligned on Elastic.
     public static final double ALIGNMENT_TOLERANCE_DEGREES = 2.0;
 
-    // TODO: This is the actual "fire the shot" threshold — intentionally looser than
+    // This is the actual "fire the shot" threshold — intentionally looser than
     //       ALIGNMENT_TOLERANCE_DEGREES so the robot feeds even if it can't hold sub-1°
     //       alignment due to drivetrain jitter or TX noise. Tighten if shots are missing;
     //       loosen if the robot rarely fires. 2.0° is a good competition starting point.
-    public static final double FEED_TOLERANCE_DEGREES = 2.00;
+    public static final double FEED_TOLERANCE_DEGREES = 3.00;
 
-    // TODO: Raise if you want the driver to be able to strafe more while auto-aiming.
+    // Raise if you want the driver to be able to strafe more while auto-aiming.
     //       0.40 = driver can push at 40% of max speed while the robot is auto-rotating.
     public static final double ALIGNMENT_DRIVETRAIN_CLAMP = 0.40;
 
     public static final double MIN_DISTANCE_M = 0.25;
     public static final double MAX_DISTANCE_M = 6.0;
 
-    // TODO: Tune up from 0 once alignment is solid — offsets aim opposite to lateral
+    // Tune up from 0 once alignment is solid — offsets aim opposite to lateral
     //       motion so moving shots still hit. Units: degrees of offset per m/s of
     //       lateral velocity. Start testing at 3–5 deg/(m/s).
     public static final double LEAD_COMPENSATION_DEG_PER_MPS = 0;

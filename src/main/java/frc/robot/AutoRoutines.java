@@ -109,7 +109,7 @@ public class AutoRoutines {
                                                 // Trench to Middle — intake runs in parallel while driving
                                                 Commands.deadline(
                                                                 PreTrench_FullSwipeRt.cmd(),
-                                                                m_intake.intakeFuelTimer(intakeTimeout, intakeDelay + 0.1)),
+                                                                m_intake.intakeFuelTimer(intakeTimeout, intakeDelay)),
 
                                                 // FuelCommands.purgeFuel(m_intake, m_indexer).withTimeout(4), //  Test only
                 
@@ -168,7 +168,7 @@ public class AutoRoutines {
                                                 // Trench to Middle — intake runs in parallel while driving
                                                 Commands.deadline(
                                                                 Trench_FullSwipeRt.cmd(),
-                                                                m_intake.intakeFuelTimer(intakeTimeout, intakeDelay)),
+                                                                m_intake.intakeFuelTimer(intakeTimeout, intakeDelay - 0.15)),
 
                                                 /*
                                                 // Add before every shot to stop and settle before shooting
@@ -217,10 +217,8 @@ public class AutoRoutines {
                                                 // Ramp crossing
                                                 RtRampMiddle_Alliance.cmd(),
 
-                                                // TODO Add before every shot to stop and settle before shooting
                                                 m_drivetrain.stop().withTimeout(0.75),
 
-                                                // TODO Check vision shoot
                                                 FuelCommands.Auto.poseAlignAndShoot(m_shooter, m_indexer, m_intake, m_drivetrain, m_vision, shootTimeout)
 
                                                 )
@@ -248,7 +246,6 @@ public class AutoRoutines {
                                 Commands.sequence(
                                                 RtTrench_Middle.resetOdometry(),
 
-                                                // TODO Add delay if inteferring with alliance partner; adjust duration as needed based on testing
                                                 // m_drivetrain.stop().withTimeout(4.0),
 
                                                 // Trench to Middle — intake runs in parallel while driving
@@ -556,7 +553,6 @@ public class AutoRoutines {
                                 Commands.sequence(
                                                 Trench_FullSwipeLt.resetOdometry(),
 
-                                                // TODO Add delay if inteferring with alliance partner; adjust duration as needed based on testing
                                                 // m_drivetrain.stop().withTimeout(4.0),
 
                                                 // Trench to Middle — intake runs in parallel while driving
@@ -564,9 +560,7 @@ public class AutoRoutines {
                                                                 Trench_FullSwipeLt.cmd(),
                                                                 m_intake.intakeFuelTimer(intakeTimeout, intakeDelay)),
 
-                                                // FuelCommands.purgeFuel(m_intake, m_indexer).withTimeout(4), // FIXME Test only
-                
-                                                // Ramp crossing
+                                                // FuelCommands.purgeFuel(m_intake, m_indexer).withTimeout(4
 
                                                 // Add before every shot to stop and settle before shooting
                                                 m_drivetrain.stop().withTimeout(0.5),
@@ -595,7 +589,6 @@ public class AutoRoutines {
                                 Commands.sequence(
                                                 Trench_FullSwipeLt.resetOdometry(),
 
-                                                // TODO Add delay if inteferring with alliance partner; adjust duration as needed based on testing
                                                 // m_drivetrain.stop().withTimeout(4.0),
 
                                                 // Trench to Middle — intake runs in parallel while driving
@@ -603,8 +596,8 @@ public class AutoRoutines {
                                                                 Trench_FullSwipeLt.cmd(),
                                                                 m_intake.intakeFuelTimer(intakeTimeout, intakeDelay)),
 
-                                                // FuelCommands.purgeFuel(m_intake, m_indexer).withTimeout(4), // FIXME Test only
-                
+                                                // FuelCommands.purgeFuel(m_intake, m_indexer).withTimeout(4),
+
                                                 // Add before every shot to stop and settle before shooting
                                                 m_drivetrain.stop().withTimeout(0.5),
 
@@ -619,7 +612,7 @@ public class AutoRoutines {
                                                 // Trench to Middle — intake runs in parallel while driving
                                                 Commands.deadline(
                                                                 Trench_FullSwipeLt.cmd(),
-                                                                m_intake.intakeFuelTimer(intakeTimeout, intakeDelay)),
+                                                                m_intake.intakeFuelTimer(intakeTimeout, intakeDelay - 0.15)),
 
                                                 /*
                                                 // Add before every shot to stop and settle before shooting
@@ -661,8 +654,7 @@ public class AutoRoutines {
                                                                 PreTrench_FullSwipeLt.cmd(),
                                                                 m_intake.intakeFuelTimer(intakeTimeout, intakeDelay + 0.1)),
 
-                                                // FuelCommands.purgeFuel(m_intake, m_indexer).withTimeout(4), // FIXME Test only
-                
+                                                // FuelCommands.purgeFuel(m_intake, m_indexer).withTimeout(4)
 
                                                 // Add before every shot to stop and settle before shooting
                                                 m_drivetrain.stop().withTimeout(0.5),
@@ -978,11 +970,11 @@ public class AutoRoutines {
                 return routine;
         }
 
-        // TODO: Auton Implement Center to Mid Depot, with intake and shoot events
+        // Auton Implement Center to Mid Depot, with intake and shoot events
 
-        // TODO: Auton Implement Right PreTrench Starting position to middle, over the ramp, shoot at the center
+        // Auton Implement Right PreTrench Starting position to middle, over the ramp, shoot at the center
 
-        // TODO: Auton Implement Left PreTrench Starting position to middle, over the ramp, shoot at the center
+        // Auton Implement Left PreTrench Starting position to middle, over the ramp, shoot at the center
         
 
 
