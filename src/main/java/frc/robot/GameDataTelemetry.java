@@ -1,6 +1,7 @@
 package frc.robot;
 
 import edu.wpi.first.networktables.BooleanPublisher;
+import edu.wpi.first.networktables.DoublePublisher;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.networktables.StringPublisher;
@@ -52,6 +53,9 @@ public class GameDataTelemetry {
     private final StringPublisher activeHubPublisher;
     private final BooleanPublisher isRedHubActivePublisher;
     private final BooleanPublisher isBlueHubActivePublisher;
+    private final DoublePublisher shiftTimeRemainingPublisher;
+    private final StringPublisher nextHubPublisher;
+    private final StringPublisher matchPhasePublisher;
 
     private InactiveAlliance inactiveFirstAlliance = InactiveAlliance.NONE;
     private boolean dataReceived = false;
@@ -68,6 +72,9 @@ public class GameDataTelemetry {
         activeHubPublisher = gameDataTable.getStringTopic("ActiveHub").publish();
         isRedHubActivePublisher = gameDataTable.getBooleanTopic("IsRedHubActive").publish();
         isBlueHubActivePublisher = gameDataTable.getBooleanTopic("IsBlueHubActive").publish();
+        shiftTimeRemainingPublisher = gameDataTable.getDoubleTopic("ShiftTimeRemaining").publish();
+        nextHubPublisher = gameDataTable.getStringTopic("NextHub").publish();
+        matchPhasePublisher = gameDataTable.getStringTopic("MatchPhase").publish();
 
         update();
     }
@@ -104,13 +111,14 @@ public class GameDataTelemetry {
             }
         }
 
-        int shift = computeShift(DriverStation.getMatchTime());
+        double matchTime = DriverStation.getMatchTime();
+        int shift = computeShift(matchTime);
         activeHub = computeActiveHub(shift);
 
-        publishState(activeHub);
+        publishState(activeHub, shift, matchTime);
     }
 
-    private void publishState(String activeHub) {
+    private void publishState(String activeHub, int shift, double matchTimeSec) {
         switch (inactiveFirstAlliance) {
             case RED:
                 inactiveAlliancePublisher.set("R");
@@ -130,6 +138,12 @@ public class GameDataTelemetry {
         activeHubPublisher.set(activeHub);
         isRedHubActivePublisher.set("RED".equals(activeHub));
         isBlueHubActivePublisher.set("BLUE".equals(activeHub));
+
+        double shiftTime = Math.max(0.0, computeShiftTimeRemaining(shift, matchTimeSec));
+        shiftTime = Math.round(shiftTime * 10.0) / 10.0;
+        shiftTimeRemainingPublisher.set(shiftTime);
+        nextHubPublisher.set(computeNextHub(shift));
+        matchPhasePublisher.set(computeMatchPhase(matchTimeSec));
     }
 
     /**
@@ -187,5 +201,25 @@ public class GameDataTelemetry {
     /** Returns true when the Blue hub is currently the active scoring target. */
     public boolean isBlueHubActive() {
         return "BLUE".equals(activeHub);
+    }
+
+    private double computeShiftTimeRemaining(int shift, double matchTimeSec) {
+        switch (shift) {
+            case 1: return SHIFT_2_START_SEC - matchTimeSec;
+            case 2: return SHIFT_3_START_SEC - matchTimeSec;
+            case 3: return SHIFT_4_START_SEC - matchTimeSec;
+            default: return 0.0;
+        }
+    }
+
+    private String computeNextHub(int shift) {
+        if (shift >= 4) return "NONE";
+        return computeActiveHub(shift + 1);
+    }
+
+    private String computeMatchPhase(double matchTimeSec) {
+        if (DriverStation.isAutonomous()) return "AUTO";
+        if (matchTimeSec <= 30.0) return "ENDGAME";
+        return "TELEOP";
     }
 }
