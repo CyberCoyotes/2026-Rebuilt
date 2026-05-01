@@ -678,15 +678,13 @@ public final class Constants {
 
     // Hub center positions in WPILib blue-origin field coordinates (meters).
     // Used by poseAlignAndShoot / autoAlignAndShoot for odometry-based aiming.
-    // Red hub is the field-length mirror of blue: x = 17.548 - 4.625 = 12.923 but
-    // Choreo shows 11.923, so using that for now until we can verify with
-    // measurements.
+    // Red hub is the field-length mirror of blue: 17.548 - 4.625 = 12.923.
+    // 11.923 (from Choreo) was a robot *waypoint* in front of the hub, not the
+    // hub center — using it caused a ~1 m X error that biased odometry bearing
+    // ~10-12° left, consistently targeting tag 9 instead of the nearest face.
 
-    // Verify BLUE hub locations, X 4.625 vs 4.025
-    public static final Translation2d BLUE_HUB_LOCATION = new Translation2d(4.625, 4.025); 
-
-    // Verify RED hub locations, X 4.625 vs 4.025
-    public static final Translation2d RED_HUB_LOCATION = new Translation2d(11.923, 4.025); 
+    public static final Translation2d BLUE_HUB_LOCATION = new Translation2d(4.625, 4.025);
+    public static final Translation2d RED_HUB_LOCATION  = new Translation2d(12.923, 4.025);
 
   }
 
