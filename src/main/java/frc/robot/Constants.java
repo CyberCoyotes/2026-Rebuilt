@@ -684,7 +684,7 @@ public final class Constants {
     // ~10-12° left, consistently targeting tag 9 instead of the nearest face.
 
     public static final Translation2d BLUE_HUB_LOCATION = new Translation2d(4.625, 4.025);
-    public static final Translation2d RED_HUB_LOCATION  = new Translation2d(12.923, 4.025);
+    public static final Translation2d RED_HUB_LOCATION  = new Translation2d(10.923, 4.025);
 
   }
 
