@@ -240,11 +240,15 @@ public class RobotContainer {
         // Back (View ⧉): Reset odometry to botpose — use when robot rides up on a ball
         operator.back().onTrue(drivetrain.resetPoseFromVisionCommand());
     
-        operator.povUp().whileTrue(drivetrain.applyRequest(() -> xBrake));
-        // operator.povDown().whileTrue(intake.manualSlideRetractHoldCmd());
-
+        operator.povDown().whileTrue(drivetrain.applyRequest(() -> xBrake));
+    
+        // Only use if know to be fully retracted
+        operator.povUp().whileTrue(intake.resetSlideEncoderCmd()); 
+        
         // operator.povLeft().onTrue(intake.extendSlidesFastCmd());
         // operator.povRight().whileTrue(intake.fuelPumpCycleDelayed());
+
+
     }
 
     public Command getAutonomousCommand() {
