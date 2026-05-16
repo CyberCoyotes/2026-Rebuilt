@@ -4,7 +4,7 @@
 
 This binder is a code-level retrospective of the 2025-2026 FRC season. It contains twelve retrospective documents — one per major file or coherent grouping of files — each examining what worked, what didn't, and what the team should do differently for 2027.
 
-Unlike a typical season recap, these retrospectives are written *to be useful*, not to celebrate. Every finding is concrete, every recommendation is actionable, and every "open question" is something a student owner can answer with the codebase and the match logs in hand. The goal is that next year's programming team can read these documents and start build season already knowing what to do differently.
+Unlike a typical season recap, these retrospectives are written *to be useful*, not to celebrate. Every finding should be concrete, every recommendation is actionable, and every "open question" is something a we can answer with the codebase and data. The goal is that next year's programming team can read these documents and start build season already knowing what to do differently. It provides an opportunity to make changes before the offseason event and learn going forward.
 
 ## How this binder is structured
 
@@ -18,7 +18,7 @@ Each retrospective follows roughly the same template:
 6. **Open questions for the student owner** — drives the actual review conversation; answer these *in writing* before the binder is final.
 7. **Lessons for next season** — what the program should carry forward.
 
-The template flexed where the file demanded it. The vision retrospective is explicitly Part 1 of a vision *system* retrospective that continues into Robot.java. The commands retro is built around the user's annotations on each file. The PhoenixUtil retro opens with a direct answer to "good call or embed?" because that was the question that motivated it. The RobotContainer retro uses a Good / Bad / Ugly framing because that's what the user asked for.
+The template flexed where the file demanded it. The vision retrospective is explicitly Part 1 of a vision *system* retrospective that continues into Robot.java. The commands retro is built around the annotations on each file. The PhoenixUtil retro opens with a direct answer to "good call or embed?" because that was the question that motivated it. The RobotContainer retro uses a Good / Bad / Ugly framing because that's what was asked for.
 
 Read them as a set, not in isolation.
 
@@ -26,7 +26,7 @@ Read them as a set, not in isolation.
 
 This is the order that builds understanding from the ground up — sensor data to subsystems to coordination to top-level wiring.
 
-1. **`RETROSPECTIVE_indexer.md`** — the simplest subsystem, plus the team's most important pedagogical narrative: the state machine that became a status indicator. The model for the offseason FSM rewrite plan.
+1. **`RETROSPECTIVE_indexer.md`** — the simplest subsystem, plus the team's most important pedagogical narrative: the state machine that became a status indicator. The model for the offseason (FSM) full state machine rewrite plan.
 2. **`RETROSPECTIVE_intake.md`** — the file with the most concrete code-debt findings (fuel-pump command explosion, identical duplicate methods), plus genuine strengths (software soft limits, derived state).
 3. **`RETROSPECTIVE_shooter.md`** — the strongest code in the codebase. A real FSM. CAN bus optimization. Safety guards. This is the *answer key* for the patterns the team has been developing.
 4. **`RETROSPECTIVE_vision.md`** — Part 1 of the vision system retrospective. The data provider layer, the single-point-of-fusion architecture, alliance-aware tag validation. Pairs with Robot.java.
@@ -105,7 +105,7 @@ For the team as a whole:
 ## What this binder is not
 
 - It is not a celebration of the 2026 season. It's a clear-eyed review of what worked and what didn't.
-- It is not a critique of any individual programmer. The findings are about code and patterns, not people. Students who own subsystems should read the retros as professional review of their work, not as personal feedback.
+- It is not a critique of any individual programmer. The findings are about code and patterns, not people. People who own subsystems should read the retros as professional review of their work, not as personal feedback.
 - It is not exhaustive. LED was descoped during the season and is not retro'd. SysId routines are mentioned but not deeply analyzed. The `Telemetry.java` and `GameDataTelemetry.java` files are referenced but not retro'd.
 - It is not the last word. The "Open questions" sections are honest gaps — answered by students with the codebase and match logs in hand, not assumed away.
 
