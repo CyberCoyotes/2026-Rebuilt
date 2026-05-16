@@ -1,4 +1,4 @@
-package frc.robot;
+package frc.robot.utilities;
 
 import com.ctre.phoenix6.HootAutoReplay;
 import com.ctre.phoenix6.Utils;
