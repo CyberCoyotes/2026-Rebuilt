@@ -1,77 +1,140 @@
 package frc.robot.subsystems.intake;
 
+import com.ctre.phoenix6.configs.TalonFXConfiguration;
+import com.ctre.phoenix6.controls.MotionMagicVoltage;
+import com.ctre.phoenix6.controls.VelocityVoltage;
+import com.ctre.phoenix6.hardware.TalonFX;
+import com.ctre.phoenix6.sim.TalonFXSimState;
+
+import edu.wpi.first.math.system.plant.DCMotor;
+import edu.wpi.first.math.system.plant.LinearSystemId;
+import edu.wpi.first.wpilibj.RobotController;
+import edu.wpi.first.wpilibj.simulation.DCMotorSim;
+
 import frc.robot.Constants;
 
 /**
  * IntakeIOSim - Simulation implementation of IntakeIO.
  *
- * Models the slide as a proportional position controller and the roller as a
- * first-order velocity filter. No real hardware or CAN bus required.
+ * Instantiates real CTRE TalonFX objects (so they appear in the WPILib Sim GUI)
+ * and drives their SimState from DCMotorSim physics models. The TalonFX runs its
+ * own closed-loop on the simulated rotor data, matching the production behavior.
  */
 public class IntakeIOSim implements IntakeIO {
 
-    // Slide state
-    private double slidePositionRotations = 0.0;
-    private double slideTargetPosition = 0.0;
+    private static final double LOOP_PERIOD_SEC = 0.020;
+    private static final DCMotor ROLLER_GEARBOX = DCMotor.getKrakenX60(1);
+    private static final DCMotor SLIDE_GEARBOX = DCMotor.getKrakenX60(1);
 
-    // Roller state
-    private double rollerTargetRPS = 0.0;
-    private double rollerVelocityRPS = 0.0;
+    private final TalonFX roller;
+    private final TalonFX slide;
 
-    // Slide P-gain: position error (rot) → velocity (RPS), clamped to cruise velocity
-    private static final double SLIDE_KP = 10.0;
-    private static final double SLIDE_MAX_VEL_RPS = Constants.Intake.SLIDE_MM_CRUISE_VELOCITY;
+    private final TalonFXSimState rollerSim;
+    private final TalonFXSimState slideSim;
 
-    // Roller first-order time constant (seconds to approach setpoint)
-    private static final double ROLLER_TC_SEC = 0.1;
+    private final DCMotorSim rollerPlant;
+    private final DCMotorSim slidePlant;
 
-    private static final double DT = 0.02;
+    private final VelocityVoltage rollerRequest = new VelocityVoltage(0.0).withSlot(0);
+    private final MotionMagicVoltage slideRequest = new MotionMagicVoltage(0.0).withSlot(0);
+
+    public IntakeIOSim() {
+        roller = new TalonFX(Constants.Intake.ROLLER_LEFT_MOTOR_ID, Constants.RIO_CANBUS);
+        slide  = new TalonFX(Constants.Intake.SLIDE_MOTOR_ID, Constants.RIO_CANBUS);
+
+        roller.getConfigurator().apply(rollerConfig());
+        slide.getConfigurator().apply(slideConfig());
+        slide.setPosition(0.0);
+
+        rollerSim = roller.getSimState();
+        slideSim  = slide.getSimState();
+
+        rollerPlant = new DCMotorSim(
+            LinearSystemId.createDCMotorSystem(ROLLER_GEARBOX, 0.001, 1.0),
+            ROLLER_GEARBOX);
+        slidePlant = new DCMotorSim(
+            LinearSystemId.createDCMotorSystem(SLIDE_GEARBOX, 0.025, 1.0),
+            SLIDE_GEARBOX);
+    }
 
     @Override
     public void updateInputs(IntakeIOInputs inputs) {
-        // Slide: proportional controller → velocity → integrate position
-        double posError = slideTargetPosition - slidePositionRotations;
-        double slideVelRPS = Math.max(-SLIDE_MAX_VEL_RPS, Math.min(SLIDE_MAX_VEL_RPS, posError * SLIDE_KP));
-        slidePositionRotations += slideVelRPS * DT;
-        // Clamp to physical travel limits (mirrors hardware soft limits)
-        slidePositionRotations = Math.max(0.0, Math.min(Constants.Intake.SLIDE_MAX_POS, slidePositionRotations));
+        stepPhysics(rollerSim, rollerPlant);
+        stepPhysics(slideSim, slidePlant);
 
-        // Roller: first-order filter toward target velocity
-        double alpha = DT / ROLLER_TC_SEC;
-        rollerVelocityRPS += alpha * (rollerTargetRPS - rollerVelocityRPS);
-
-        inputs.slidePositionRotations = slidePositionRotations;
-        inputs.slideVelocityRPS = slideVelRPS;
+        inputs.slidePositionRotations = slide.getPosition().getValueAsDouble();
+        inputs.slideVelocityRPS = slide.getVelocity().getValueAsDouble();
     }
 
     @Override
     public void setRollerVelocity(double rps) {
-        rollerTargetRPS = rps;
+        roller.setControl(rollerRequest.withVelocity(rps));
     }
 
     @Override
     public void stopRoller() {
-        rollerTargetRPS = 0.0;
+        roller.stopMotor();
     }
 
     @Override
     public void setSlidePosition(double position) {
-        slideTargetPosition = position;
+        slide.setControl(slideRequest.withPosition(position));
     }
 
     @Override
     public void setSlidePositionSlow(double position) {
-        slideTargetPosition = position;
+        slide.setControl(slideRequest.withPosition(position));
     }
 
     @Override
     public void stopSlide() {
-        slideTargetPosition = slidePositionRotations;
+        slide.stopMotor();
     }
 
     @Override
     public void resetSlideEncoder() {
-        slidePositionRotations = 0.0;
-        slideTargetPosition = 0.0;
+        slide.setPosition(0.0);
+        slidePlant.setState(0.0, 0.0);
+    }
+
+    // == Helpers ==============================================================
+    private static void stepPhysics(TalonFXSimState simState, DCMotorSim plant) {
+        simState.setSupplyVoltage(RobotController.getBatteryVoltage());
+        plant.setInputVoltage(simState.getMotorVoltage());
+        plant.update(LOOP_PERIOD_SEC);
+        simState.setRawRotorPosition(plant.getAngularPositionRotations());
+        simState.setRotorVelocity(plant.getAngularVelocityRPM() / 60.0);
+    }
+
+    private static TalonFXConfiguration rollerConfig() {
+        TalonFXConfiguration config = new TalonFXConfiguration();
+        config.MotorOutput.NeutralMode = Constants.Intake.RollerLeaderConfig.NEUTRAL_MODE;
+        config.Slot0.kS = Constants.Intake.RollerLeaderConfig.KS;
+        config.Slot0.kV = Constants.Intake.RollerLeaderConfig.KV;
+        config.Slot0.kP = Constants.Intake.RollerLeaderConfig.KP;
+        return config;
+    }
+
+    private static TalonFXConfiguration slideConfig() {
+        TalonFXConfiguration config = new TalonFXConfiguration();
+        config.MotorOutput.NeutralMode = Constants.Intake.SlideConfig.NEUTRAL_MODE;
+
+        config.SoftwareLimitSwitch.ForwardSoftLimitEnable = true;
+        config.SoftwareLimitSwitch.ForwardSoftLimitThreshold = Constants.Intake.SLIDE_MAX_POS;
+        config.SoftwareLimitSwitch.ReverseSoftLimitEnable = true;
+        config.SoftwareLimitSwitch.ReverseSoftLimitThreshold = Constants.Intake.SlideConfig.REVERSE_SOFT_LIMIT;
+
+        config.Slot0.kP = Constants.Intake.SlideConfig.KP;
+        config.Slot0.kI = Constants.Intake.SlideConfig.KI;
+        config.Slot0.kD = Constants.Intake.SlideConfig.KD;
+        config.Slot0.kS = Constants.Intake.SlideConfig.KS;
+        config.Slot0.kV = Constants.Intake.SlideConfig.KV;
+        config.Slot0.kA = Constants.Intake.SlideConfig.KA;
+
+        config.MotionMagic.MotionMagicCruiseVelocity = Constants.Intake.SLIDE_MM_CRUISE_VELOCITY;
+        config.MotionMagic.MotionMagicAcceleration = Constants.Intake.SLIDE_MM_ACCELERATION;
+        config.MotionMagic.MotionMagicJerk = Constants.Intake.SLIDE_MM_JERK;
+
+        return config;
     }
 }
