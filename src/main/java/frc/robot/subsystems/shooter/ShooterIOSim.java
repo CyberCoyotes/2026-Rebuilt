@@ -70,7 +70,7 @@ public class ShooterIOSim implements ShooterIO {
         hoodSim = hood.getSimState();
 
         flywheelPlant = new FlywheelSim(
-            LinearSystemId.createFlywheelSystem(FLYWHEEL_GEARBOX, 0.005, 1.0),
+            LinearSystemId.createFlywheelSystem(FLYWHEEL_GEARBOX, Constants.Flywheel.FLYWHEEL_MOI_KG_M2, 1.0),
             FLYWHEEL_GEARBOX);
         hoodPlant = new DCMotorSim(
             LinearSystemId.createDCMotorSystem(HOOD_GEARBOX, 0.004, 1.0),
