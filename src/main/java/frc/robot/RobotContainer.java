@@ -22,13 +22,18 @@ import frc.robot.commands.AlignOnlyCommand;
 import frc.robot.commands.FuelCommands;
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
+import edu.wpi.first.wpilibj.RobotBase;
 import frc.robot.subsystems.indexer.IndexerIOHardware;
+import frc.robot.subsystems.indexer.IndexerIOSim;
 import frc.robot.subsystems.indexer.IndexerSubsystem;
 import frc.robot.subsystems.intake.IntakeIOHardware;
+import frc.robot.subsystems.intake.IntakeIOSim;
 import frc.robot.subsystems.intake.IntakeSubsystem;
 import frc.robot.subsystems.shooter.ShooterIOHardware;
+import frc.robot.subsystems.shooter.ShooterIOSim;
 import frc.robot.subsystems.shooter.ShooterSubsystem;
 import frc.robot.subsystems.vision.VisionIOLimelight;
+import frc.robot.subsystems.vision.VisionIOSim;
 import frc.robot.subsystems.vision.VisionSubsystem;
 import frc.robot.utilities.GameDataTelemetry;
 import frc.robot.utilities.Telemetry;
@@ -75,13 +80,23 @@ public class RobotContainer {
     // Constructor
     // =====================================================================
     public RobotContainer() {
-        indexer = new IndexerSubsystem(new IndexerIOHardware());
-        intake = new IntakeSubsystem(new IntakeIOHardware());
-        shooter = new ShooterSubsystem(new ShooterIOHardware());
-        vision = new VisionSubsystem(
-            new VisionIOLimelight(Constants.Vision.LIMELIGHT4_NAME),
-            () -> drivetrain.getState().Pose.getRotation().getDegrees(),
-            () -> Math.toDegrees(drivetrain.getState().Speeds.omegaRadiansPerSecond));
+        if (RobotBase.isSimulation()) {
+            indexer = new IndexerSubsystem(new IndexerIOSim());
+            intake = new IntakeSubsystem(new IntakeIOSim());
+            shooter = new ShooterSubsystem(new ShooterIOSim());
+            vision = new VisionSubsystem(
+                new VisionIOSim(),
+                () -> drivetrain.getState().Pose.getRotation().getDegrees(),
+                () -> Math.toDegrees(drivetrain.getState().Speeds.omegaRadiansPerSecond));
+        } else {
+            indexer = new IndexerSubsystem(new IndexerIOHardware());
+            intake = new IntakeSubsystem(new IntakeIOHardware());
+            shooter = new ShooterSubsystem(new ShooterIOHardware());
+            vision = new VisionSubsystem(
+                new VisionIOLimelight(Constants.Vision.LIMELIGHT4_NAME),
+                () -> drivetrain.getState().Pose.getRotation().getDegrees(),
+                () -> Math.toDegrees(drivetrain.getState().Speeds.omegaRadiansPerSecond));
+        }
 
         autoFactory = drivetrain.createAutoFactory();
         autoRoutines = new AutoRoutines(autoFactory, drivetrain, indexer, intake, shooter, vision);
