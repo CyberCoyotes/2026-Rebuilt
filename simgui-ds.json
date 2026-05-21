@@ -1,9 +1,4 @@
 {
-  "System Joysticks": {
-    "window": {
-      "enabled": false
-    }
-  },
   "keyboardJoysticks": [
     {
       "axisConfig": [
@@ -93,5 +88,6 @@
       "buttonCount": 0,
       "povCount": 0
     }
-  ]
+  ],
+  "zeroDisconnectedJoysticks": false
 }
