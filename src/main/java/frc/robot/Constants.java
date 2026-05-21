@@ -424,6 +424,17 @@ public final class Constants {
     public static final double FAR_HOOD = 0;
     public static final double PASS_RPM = 0;
 
+    // == Sim physics ========================================================
+    // Composite flywheel: two rim-weighted brass wheels (3 lbs total) + steel
+    // shaft (5 lbs) all at the same 3.25" OD. Brass modeled as thin rims
+    // (J = m·r²); steel shaft as a solid cylinder (J = ½·m·r²).
+    public static final double FLYWHEEL_BRASS_MASS_KG  = Units.lbsToKilograms(3.0);
+    public static final double FLYWHEEL_SHAFT_MASS_KG  = Units.lbsToKilograms(5.0);
+    public static final double FLYWHEEL_RADIUS_M       = Units.inchesToMeters(3.25 / 2.0);
+    public static final double FLYWHEEL_MOI_KG_M2 =
+        FLYWHEEL_BRASS_MASS_KG * FLYWHEEL_RADIUS_M * FLYWHEEL_RADIUS_M
+        + 0.5 * FLYWHEEL_SHAFT_MASS_KG * FLYWHEEL_RADIUS_M * FLYWHEEL_RADIUS_M;
+
     public static final class LeaderConfig {
       private LeaderConfig() {
       }
