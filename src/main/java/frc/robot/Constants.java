@@ -520,20 +520,35 @@ public final class Constants {
     // Bumpers against the hub if possible
     // Increased RPM and - 30 inches on vision distance
     public static final double CLOSE_DISTANCE = Units.inchesToMeters(18 - 30)+ HUB_TO_CENTER + LL_TO_FRONT; // 30 from front bumper to front of hub
-    public static final double CLOSE_RPM = 2750; // 2500 was short
-    public static final double CLOSE_HOOD = 1.50; // was 2.25
+    public static final double CLOSE_RPM = 2850; // 2500 was short     2750 on drum testing for ruber wheels
+    public static final double CLOSE_HOOD = 1.50; // was 2.25          1.50 on drum testing for ruber wheels
+    
+
+
+
+
+
+
+    // !!!!!! Not a actual command? Are we using this/ do we need this in here?!!!!!! 
+
+
+
+    //            |
+    //            \/
+
+
 
     // Side Bumpers against the tower
     // Increased RPM and - 45 inches on vision distance tested; trying 60
     public static final double TOWER_DISTANCE = Units.inchesToMeters(107 - 45) + HUB_TO_CENTER + LL_TO_FRONT;
-    public static final double TOWER_RPM = 3450; // 3150 was short
-    public static final double TOWER_HOOD = 6.00; //was 5.0
+    public static final double TOWER_RPM = 4750; // 3150 was short          3450 on drum testing for ruber wheels
+    public static final double TOWER_HOOD = 6.00; //was 5.0                 6.oo on drum testing for ruber wheels
 
     // In front of tower
     // 
     public static final double TOWER_FRONT_DISTANCE = Units.inchesToMeters(82 - 45) + HUB_TO_CENTER + LL_TO_FRONT;
-    public static final double TOWER_FRONT_RPM = 3300; //3000 was short
-    public static final double TOWER_FRONT_HOOD = 6.00; //was 5.0
+    public static final double TOWER_FRONT_RPM = 5500; //3000 was short      3300 on drum testing for ruber wheels
+    public static final double TOWER_FRONT_HOOD = 7.00; //was 5.0            6.00 on drum testing for ruber wheels
 
     // In the trench, mostly against the wall, but turned slightly towards the hub
     // Actual distance was 107 inches; cheating 10 inches added about 100-125 RPM, so adding 15 inches to be safe
@@ -541,15 +556,15 @@ public final class Constants {
     public static final double TRENCH_DISTANCE = Units.inchesToMeters(118 - 45) + HUB_TO_CENTER + LL_TO_FRONT;
 
     // 3050 for the first 2 matches
-    public static final double TRENCH_RPM = 3450; // 3150 was short
-    public static final double TRENCH_HOOD = 6.0;
+    public static final double TRENCH_RPM = 5250; // 3150 was short         2750 on drum testing for ruber wheels
+    public static final double TRENCH_HOOD = 7.0;                  //       6.0 on drum testing for ruber wheels
 
     // In a corner by human player station or depot-corner, angled towards the hub
     // Actual distance was 176 inches
     public static final double FAR_DISTANCE = Units.inchesToMeters(190 - 45) + HUB_TO_CENTER + LL_TO_FRONT;
 
     // 3450 for the first 2 matches
-    public static final double FAR_RPM = 4000; // 3700 was short
+    public static final double FAR_RPM = 7250; // 3700 was short
     public static final double FAR_HOOD = 8.0;
  
     // // Back Bumpers approximately against the driver station wall, angled towards the hub
