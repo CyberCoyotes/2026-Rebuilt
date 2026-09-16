@@ -190,11 +190,10 @@ public class RobotContainer {
             )
         );
                 
-        driver.rightBumper().whileTrue(FuelCommands.shootWithPreset(shooter, indexer, ShooterSubsystem.ShotPreset.PASS));
         
         driver.leftTrigger(0.5).whileTrue(intake.intakeFuel());
         // Align-only: rotation + vision logic, no flywheel/hood — safe for PID tuning
-        driver.leftBumper().whileTrue(
+        driver.rightBumper().whileTrue(
             new AlignOnlyCommand(
                 drivetrain,
                 vision,
@@ -202,6 +201,35 @@ public class RobotContainer {
                 () -> -driver.getLeftX() * MaxSpeed
             )
         );
+
+        driver.a().whileTrue(
+            Commands.deadline(
+                // drivetrain.applyRequest(() -> xBrake),
+                FuelCommands.shootWithPreset(shooter, indexer, ShooterSubsystem.ShotPreset.TRENCH),
+                FuelCommands.fuelCompressionWhenShooterReady(shooter, intake)
+                ));
+
+        driver.b().whileTrue(
+            Commands.deadline(
+                // drivetrain.applyRequest(() -> xBrake),    
+                FuelCommands.shootWithPreset(shooter, indexer, ShooterSubsystem.ShotPreset.CLOSE),
+                FuelCommands.fuelCompressionWhenShooterReady(shooter, intake)
+                ));
+        driver.x().whileTrue(
+            Commands.deadline(
+                // drivetrain.applyRequest(() -> xBrake),
+                FuelCommands.shootWithPreset(shooter, indexer, ShooterSubsystem.ShotPreset.TOWER_FRONT),
+                FuelCommands.fuelCompressionWhenShooterReady(shooter, intake)
+                ));
+        driver.y().whileTrue(
+            Commands.deadline(
+                // drivetrain.applyRequest(() -> xBrake),
+                FuelCommands.shootWithPreset(shooter, indexer, ShooterSubsystem.ShotPreset.FAR),
+                FuelCommands.fuelCompressionWhenShooterReady(shooter, intake)
+                ));
+
+    driver.rightBumper().whileTrue(FuelCommands.purgeFuel(intake, indexer));
+
 
         // driver.a().whileTrue(
         //         // drivetrain.applyRequest(() -> xBrake),    
@@ -211,31 +239,8 @@ public class RobotContainer {
         // =====================================================================
         // Operator Controller
         // =====================================================================
-        operator.a().whileTrue(
-            Commands.deadline(
-                // drivetrain.applyRequest(() -> xBrake),
-                FuelCommands.shootWithPreset(shooter, indexer, ShooterSubsystem.ShotPreset.TRENCH),
-                FuelCommands.fuelCompressionWhenShooterReady(shooter, intake)
-                ));
-
-        operator.b().whileTrue(
-            Commands.deadline(
-                // drivetrain.applyRequest(() -> xBrake),    
-                FuelCommands.shootWithPreset(shooter, indexer, ShooterSubsystem.ShotPreset.CLOSE),
-                FuelCommands.fuelCompressionWhenShooterReady(shooter, intake)
-                ));
-        operator.x().whileTrue(
-            Commands.deadline(
-                // drivetrain.applyRequest(() -> xBrake),
-                FuelCommands.shootWithPreset(shooter, indexer, ShooterSubsystem.ShotPreset.TOWER_FRONT),
-                FuelCommands.fuelCompressionWhenShooterReady(shooter, intake)
-                ));
-        operator.y().whileTrue(
-            Commands.deadline(
-                // drivetrain.applyRequest(() -> xBrake),
-                FuelCommands.shootWithPreset(shooter, indexer, ShooterSubsystem.ShotPreset.FAR),
-                FuelCommands.fuelCompressionWhenShooterReady(shooter, intake)
-                ));
+        
+        operator.rightBumper().whileTrue(FuelCommands.shootWithPreset(shooter, indexer, ShooterSubsystem.ShotPreset.PASS));
 
         operator.leftTrigger(0.5).whileTrue(intake.intakeFuel());
         
@@ -244,7 +249,7 @@ public class RobotContainer {
 
 
         operator.leftBumper().onTrue(intake.retractSlidesIncrementalCmd());
-        operator.rightBumper().whileTrue(FuelCommands.purgeFuel(intake, indexer));
+       // operator.rightBumper().whileTrue(FuelCommands.purgeFuel(intake, indexer));
         
 
         // Start (Menu ☰): Toggle flywheel standby pre-rev — operator sets once and forgets.
