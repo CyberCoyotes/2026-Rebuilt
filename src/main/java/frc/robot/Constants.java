@@ -520,7 +520,7 @@ public final class Constants {
     // Bumpers against the hub if possible
     // Increased RPM and - 30 inches on vision distance
     public static final double CLOSE_DISTANCE = Units.inchesToMeters(18 - 45)+ HUB_TO_CENTER + LL_TO_FRONT; // 30 from front bumper to front of hub
-    public static final double CLOSE_RPM = 2400; // 2500 was short     2750 on drum testing for ruber wheels
+    public static final double CLOSE_RPM = 3400; // 2500 was short     2750 on drum testing for ruber wheels
     public static final double CLOSE_HOOD = 2.25; // was 2.25          1.50 on drum testing for ruber wheels
     
 
@@ -541,13 +541,13 @@ public final class Constants {
     // Side Bumpers against the tower
     // Increased RPM and - 45 inches on vision distance tested; trying 60
     public static final double TOWER_DISTANCE = Units.inchesToMeters(107 - 60) + HUB_TO_CENTER + LL_TO_FRONT;
-    public static final double TOWER_RPM = 2800; // 3150 was short          3450 on drum testing for ruber wheels
+    public static final double TOWER_RPM = 3700; // 3150 was short          3450 on drum testing for ruber wheels
     public static final double TOWER_HOOD = 6.00; //was 5.0                 6.oo on drum testing for ruber wheels
 
     // In front of tower
     // 
     public static final double TOWER_FRONT_DISTANCE = Units.inchesToMeters(82 - 60) + HUB_TO_CENTER + LL_TO_FRONT;
-    public static final double TOWER_FRONT_RPM = 2500; //3000 was short      3300 on drum testing for ruber wheels
+    public static final double TOWER_FRONT_RPM = 4000; //3000 was short      3300 on drum testing for ruber wheels
     public static final double TOWER_FRONT_HOOD = 6.00; //was 5.0            6.00 on drum testing for ruber wheels
 
     // In the trench, mostly against the wall, but turned slightly towards the hub
@@ -556,7 +556,7 @@ public final class Constants {
     public static final double TRENCH_DISTANCE = Units.inchesToMeters(118 - 60) + HUB_TO_CENTER + LL_TO_FRONT;
 
     // 3050 for the first 2 matches
-    public static final double TRENCH_RPM = 2000; // 3150 was short         2750 on drum testing for ruber wheels
+    public static final double TRENCH_RPM = 4000; // 3150 was short         2750 on drum testing for ruber wheels
     public static final double TRENCH_HOOD = 6.5;                  //       6.0 on drum testing for ruber wheels
 
     // In a corner by human player station or depot-corner, angled towards the hub
