@@ -193,14 +193,14 @@ public class RobotContainer {
         
         driver.leftTrigger(0.5).whileTrue(intake.intakeFuel());
         // Align-only: rotation + vision logic, no flywheel/hood — safe for PID tuning
-        driver.rightBumper().whileTrue(
-            new AlignOnlyCommand(
-                drivetrain,
-                vision,
-                () -> -driver.getLeftY() * MaxSpeed,
-                () -> -driver.getLeftX() * MaxSpeed
-            )
-        );
+        // driver.rightBumper().whileTrue(
+        //     new AlignOnlyCommand(
+        //         drivetrain,
+        //         vision,
+        //         () -> -driver.getLeftY() * MaxSpeed,
+        //         () -> -driver.getLeftX() * MaxSpeed
+        //     )
+        // );
 
         driver.a().whileTrue(
             Commands.deadline(
