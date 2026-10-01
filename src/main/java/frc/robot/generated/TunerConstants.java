@@ -138,7 +138,7 @@ public class TunerConstants {
     private static final int kFrontLeftSteerMotorId = 5;
     private static final int kFrontLeftEncoderId = 3;
     private static final Angle kFrontLeftEncoderOffset = Rotations.of(-0.05322265625);
-    private static final boolean kFrontLeftSteerMotorInverted = false;
+    private static final boolean kFrontLeftSteerMotorInverted = true;
     private static final boolean kFrontLeftEncoderInverted = true;
 
     private static final Distance kFrontLeftXPos = Inches.of(10);
@@ -149,7 +149,7 @@ public class TunerConstants {
     private static final int kFrontRightSteerMotorId = 2;
     private static final int kFrontRightEncoderId = 6;
     private static final Angle kFrontRightEncoderOffset = Rotations.of(0.418701171875);
-    private static final boolean kFrontRightSteerMotorInverted = false;
+    private static final boolean kFrontRightSteerMotorInverted = true;
     private static final boolean kFrontRightEncoderInverted = true;
 
     private static final Distance kFrontRightXPos = Inches.of(10);
@@ -160,7 +160,7 @@ public class TunerConstants {
     private static final int kBackLeftSteerMotorId = 8;
     private static final int kBackLeftEncoderId = 9;
     private static final Angle kBackLeftEncoderOffset = Rotations.of(-0.232666015625);
-    private static final boolean kBackLeftSteerMotorInverted = false;
+    private static final boolean kBackLeftSteerMotorInverted = true;
     private static final boolean kBackLeftEncoderInverted = true;
 
     private static final Distance kBackLeftXPos = Inches.of(-10);
@@ -171,7 +171,7 @@ public class TunerConstants {
     private static final int kBackRightSteerMotorId = 11;
     private static final int kBackRightEncoderId = 12;
     private static final Angle kBackRightEncoderOffset = Rotations.of(-0.165771484375);
-    private static final boolean kBackRightSteerMotorInverted = false;
+    private static final boolean kBackRightSteerMotorInverted = true;
     private static final boolean kBackRightEncoderInverted = true;
 
     private static final Distance kBackRightXPos = Inches.of(-10);
