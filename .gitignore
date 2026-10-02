@@ -148,6 +148,9 @@ gradle-app.setting
 # Cache of project
 .gradletasknamecache
 
+# JVM heap dumps (written when Gradle/Java runs out of memory)
+*.hprof
+
 # # Work around https://youtrack.jetbrains.com/issue/IDEA-116898
 # gradle/wrapper/gradle-wrapper.properties
 
