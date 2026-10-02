@@ -9,7 +9,8 @@ import frc.robot.subsystems.CommandSwerveDrivetrain;
 import frc.robot.subsystems.indexer.IndexerSubsystem;
 import frc.robot.subsystems.intake.IntakeSubsystem;
 import frc.robot.subsystems.shooter.ShooterSubsystem;
-import frc.robot.subsystems.vision.VisionSubsystem;
+// DISABLED (Limelight removed): autos no longer take a vision subsystem.
+// import frc.robot.subsystems.vision.VisionSubsystem;
 
 public class AutoRoutines {
         private final AutoFactory m_factory;
@@ -17,21 +18,22 @@ public class AutoRoutines {
         private final IntakeSubsystem m_intake;
         private final IndexerSubsystem m_indexer;
         private final ShooterSubsystem m_shooter;
-        private final VisionSubsystem m_vision;
+        // private final VisionSubsystem m_vision;
         
 
         public AutoRoutines(AutoFactory factory, 
                         CommandSwerveDrivetrain drivetrain,
                         IndexerSubsystem indexer, 
                         IntakeSubsystem intake, 
-                        ShooterSubsystem shooter,
-                        VisionSubsystem vision) {
+                        ShooterSubsystem shooter
+                        // , VisionSubsystem vision  // DISABLED (Limelight removed)
+                        ) {
                 m_factory = factory;
                 m_drivetrain = drivetrain;
                 m_indexer = indexer;
                 m_intake = intake;
                 m_shooter = shooter;
-                m_vision = vision;
+                // m_vision = vision;
         }
 
         public static final double shootTimeout = 5.0; // seconds
@@ -39,6 +41,10 @@ public class AutoRoutines {
         public static final double fuelPumpTimeout = 4.0; // seconds; adjust as needed based on testing
         public static final double purgeTimeout = 3.0; // seconds to purge fuel
         public static final double intakeDelay = 0.15; //
+
+        // DISABLED (Limelight removed): every FuelCommands.Auto.poseAlignAndShoot(...) call below is commented out,
+        // so these routines drive and intake but do NOT shoot. Commands.none() placeholders keep each sequence valid.
+        // TODO: Choose a preset shot per routine (FuelCommands.Auto.shootTrench / shootClose / shootTower / shootFar).
 
         // ============================================================================
         // RIGHT SIDE AUTOS - start in right trench
@@ -81,7 +87,7 @@ public class AutoRoutines {
                                                 m_drivetrain.stop().withTimeout(0.5),
 
                                                 // Check vision shoot
-                                                FuelCommands.Auto.poseAlignAndShoot(m_shooter, m_indexer, m_intake, m_drivetrain, m_vision, shootTimeout),
+                                                // FuelCommands.Auto.poseAlignAndShoot(m_shooter, m_indexer, m_intake, m_drivetrain, m_vision, shootTimeout),
                                                 
                                                 RtAlliance_Hide.cmd()
                                                 
@@ -118,7 +124,8 @@ public class AutoRoutines {
                                                 m_drivetrain.stop().withTimeout(0.5),
 
                                                 // Check vision shoot
-                                                FuelCommands.Auto.poseAlignAndShoot(m_shooter, m_indexer, m_intake, m_drivetrain, m_vision, shootTimeout)
+                                                // FuelCommands.Auto.poseAlignAndShoot(m_shooter, m_indexer, m_intake, m_drivetrain, m_vision, shootTimeout)
+                                                Commands.none() // DISABLED (Limelight removed): was poseAlignAndShoot
 
                                                 )
                                 );
@@ -158,7 +165,7 @@ public class AutoRoutines {
                                                 m_drivetrain.stop().withTimeout(0.5),
 
                                                 // Check vision shoot
-                                                FuelCommands.Auto.poseAlignAndShoot(m_shooter, m_indexer, m_intake, m_drivetrain, m_vision, shootTimeout),
+                                                // FuelCommands.Auto.poseAlignAndShoot(m_shooter, m_indexer, m_intake, m_drivetrain, m_vision, shootTimeout),
 
                                                 // ================= Cycle 2 =================
 
@@ -183,7 +190,8 @@ public class AutoRoutines {
                                                 m_drivetrain.stop().withTimeout(0.5),
 
                                                 // Vision shoot
-                                                FuelCommands.Auto.poseAlignAndShoot(m_shooter, m_indexer, m_intake, m_drivetrain, m_vision, shootTimeout)
+                                                // FuelCommands.Auto.poseAlignAndShoot(m_shooter, m_indexer, m_intake, m_drivetrain, m_vision, shootTimeout)
+                                                Commands.none() // DISABLED (Limelight removed): was poseAlignAndShoot
 
                                                 )
                                 );
@@ -219,7 +227,8 @@ public class AutoRoutines {
 
                                                 m_drivetrain.stop().withTimeout(0.75),
 
-                                                FuelCommands.Auto.poseAlignAndShoot(m_shooter, m_indexer, m_intake, m_drivetrain, m_vision, shootTimeout)
+                                                // FuelCommands.Auto.poseAlignAndShoot(m_shooter, m_indexer, m_intake, m_drivetrain, m_vision, shootTimeout)
+                                                Commands.none() // DISABLED (Limelight removed): was poseAlignAndShoot
 
                                                 )
                                 );
@@ -259,7 +268,8 @@ public class AutoRoutines {
                                                 m_drivetrain.stop().withTimeout(0.75),
 
                                                 // Shoot
-                                                FuelCommands.Auto.poseAlignAndShoot(m_shooter, m_indexer, m_intake, m_drivetrain, m_vision, shootTimeout)
+                                                // FuelCommands.Auto.poseAlignAndShoot(m_shooter, m_indexer, m_intake, m_drivetrain, m_vision, shootTimeout)
+                                                Commands.none() // DISABLED (Limelight removed): was poseAlignAndShoot
 
                                                 // ================= Cycle 2 =================
                                                 , // KEEP THE COMMA! It's needed to separate the two cycles in the sequence
@@ -277,7 +287,8 @@ public class AutoRoutines {
                                                 m_drivetrain.stop().withTimeout(0.75),
 
                                                 // Shoot (2nd) — starts only after RtShootRamp_2 fully completes
-                                                FuelCommands.Auto.poseAlignAndShoot(m_shooter, m_indexer, m_intake, m_drivetrain, m_vision, shootTimeout)
+                                                // FuelCommands.Auto.poseAlignAndShoot(m_shooter, m_indexer, m_intake, m_drivetrain, m_vision, shootTimeout)
+                                                Commands.none() // DISABLED (Limelight removed): was poseAlignAndShoot
 
                                                 ));
 
@@ -310,7 +321,8 @@ public class AutoRoutines {
                                                 RtShootRamp.cmd(),
 
                                                 // 4. Shoot — starts only after RtShootRamp fully completes
-                                                FuelCommands.Auto.poseAlignAndShoot(m_shooter, m_indexer, m_intake, m_drivetrain, m_vision, shootTimeout)
+                                                // FuelCommands.Auto.poseAlignAndShoot(m_shooter, m_indexer, m_intake, m_drivetrain, m_vision, shootTimeout)
+                                                Commands.none() // DISABLED (Limelight removed): was poseAlignAndShoot
                                                 )
                                 );
 
@@ -339,7 +351,8 @@ public class AutoRoutines {
                                                 RtRampMiddle_Alliance.cmd(),
 
                                                 // 4. Shoot — starts only after RtShootRamp fully completes
-                                                FuelCommands.Auto.poseAlignAndShoot(m_shooter, m_indexer, m_intake, m_drivetrain, m_vision, shootTimeout)
+                                                // FuelCommands.Auto.poseAlignAndShoot(m_shooter, m_indexer, m_intake, m_drivetrain, m_vision, shootTimeout)
+                                                Commands.none() // DISABLED (Limelight removed): was poseAlignAndShoot
                                                 ));
 
                 return routine;
@@ -376,7 +389,7 @@ public class AutoRoutines {
                                                 RtRampMiddle_Alliance.cmd(),
 
                                                 // 4. Shoot — starts only after RtShootRamp fully completes
-                                                FuelCommands.Auto.poseAlignAndShoot(m_shooter, m_indexer, m_intake, m_drivetrain, m_vision, shootTimeout),
+                                                // FuelCommands.Auto.poseAlignAndShoot(m_shooter, m_indexer, m_intake, m_drivetrain, m_vision, shootTimeout),
 
                                                 // --- Cycle 2 ---
                                                 // 5. Back to trench
@@ -393,7 +406,8 @@ public class AutoRoutines {
                                                 RtRampMiddle_Alliance_2.cmd(),
 
                                                 // 9. Shoot (2nd) — starts only after RtShootRamp_2 fully completes
-                                                FuelCommands.Auto.poseAlignAndShoot(m_shooter, m_indexer, m_intake, m_drivetrain, m_vision, shootTimeout)
+                                                // FuelCommands.Auto.poseAlignAndShoot(m_shooter, m_indexer, m_intake, m_drivetrain, m_vision, shootTimeout)
+                                                Commands.none() // DISABLED (Limelight removed): was poseAlignAndShoot
                                 ));
 
                 return routine;
@@ -443,7 +457,7 @@ public class AutoRoutines {
                                                 RtRampMiddle_Alliance.cmd(),
 
                                                 // 4. Shoot — starts only after RtShootRamp fully completes
-                                                FuelCommands.Auto.poseAlignAndShoot(m_shooter, m_indexer, m_intake, m_drivetrain, m_vision, shootTimeout),
+                                                // FuelCommands.Auto.poseAlignAndShoot(m_shooter, m_indexer, m_intake, m_drivetrain, m_vision, shootTimeout),
 
                                                 // --- Cycle 2 ---
                                                 // 5. Back to trench
@@ -492,7 +506,7 @@ public class AutoRoutines {
                                                 RtRampMiddle_Alliance.cmd(),
 
                                                 // 4. Shoot — starts only after RtShootRamp fully completes
-                                                FuelCommands.Auto.poseAlignAndShoot(m_shooter, m_indexer, m_intake, m_drivetrain, m_vision, shootTimeout),
+                                                // FuelCommands.Auto.poseAlignAndShoot(m_shooter, m_indexer, m_intake, m_drivetrain, m_vision, shootTimeout),
 
                                                 // --- Cycle 2 ---
                                                 // 5. Back to trench
@@ -528,7 +542,8 @@ public class AutoRoutines {
                                                                 AngryMeepMeep.cmd(),
                                                                 m_intake.intakeFuelTimer(intakeTimeout, intakeDelay)),
 
-                                                FuelCommands.Auto.poseAlignAndShoot(m_shooter, m_indexer, m_intake, m_drivetrain, m_vision, shootTimeout)
+                                                // FuelCommands.Auto.poseAlignAndShoot(m_shooter, m_indexer, m_intake, m_drivetrain, m_vision, shootTimeout)
+                                                Commands.none() // DISABLED (Limelight removed): was poseAlignAndShoot
 
                                 ));
 
@@ -566,7 +581,7 @@ public class AutoRoutines {
                                                 m_drivetrain.stop().withTimeout(0.5),
 
                                                 // Check vision shoot
-                                                FuelCommands.Auto.poseAlignAndShoot(m_shooter, m_indexer, m_intake, m_drivetrain, m_vision, shootTimeout),
+                                                // FuelCommands.Auto.poseAlignAndShoot(m_shooter, m_indexer, m_intake, m_drivetrain, m_vision, shootTimeout),
                                                 LtAlliance_Hide.cmd()
 
                                                 )
@@ -602,7 +617,7 @@ public class AutoRoutines {
                                                 m_drivetrain.stop().withTimeout(0.5),
 
                                                 // Check vision shoot
-                                                FuelCommands.Auto.poseAlignAndShoot(m_shooter, m_indexer, m_intake, m_drivetrain, m_vision, shootTimeout),
+                                                // FuelCommands.Auto.poseAlignAndShoot(m_shooter, m_indexer, m_intake, m_drivetrain, m_vision, shootTimeout),
 
                                                 // ================= Cycle 2 =================
 
@@ -626,7 +641,8 @@ public class AutoRoutines {
                                                 m_drivetrain.stop().withTimeout(0.5),
 
                                                 // Vision shoot
-                                                FuelCommands.Auto.poseAlignAndShoot(m_shooter, m_indexer, m_intake, m_drivetrain, m_vision, shootTimeout)
+                                                // FuelCommands.Auto.poseAlignAndShoot(m_shooter, m_indexer, m_intake, m_drivetrain, m_vision, shootTimeout)
+                                                Commands.none() // DISABLED (Limelight removed): was poseAlignAndShoot
 
                                                 )
                                 );
@@ -660,7 +676,8 @@ public class AutoRoutines {
                                                 m_drivetrain.stop().withTimeout(0.5),
 
                                                 // Check vision shoot
-                                                FuelCommands.Auto.poseAlignAndShoot(m_shooter, m_indexer, m_intake, m_drivetrain, m_vision, shootTimeout)
+                                                // FuelCommands.Auto.poseAlignAndShoot(m_shooter, m_indexer, m_intake, m_drivetrain, m_vision, shootTimeout)
+                                                Commands.none() // DISABLED (Limelight removed): was poseAlignAndShoot
 
                                                 )
                                 );
@@ -691,7 +708,7 @@ public class AutoRoutines {
                                                 LtRampMiddle_Alliance.cmd(),
 
                                                  // Shoot — starts only after LtShootRamp fully completes
-                                                FuelCommands.Auto.poseAlignAndShoot(m_shooter, m_indexer, m_intake, m_drivetrain, m_vision, shootTimeout),
+                                                // FuelCommands.Auto.poseAlignAndShoot(m_shooter, m_indexer, m_intake, m_drivetrain, m_vision, shootTimeout),
 
                                                 // Drive to Trench
                                                 LtShootRamp_Trench.cmd()
@@ -736,7 +753,7 @@ public class AutoRoutines {
                                                 LtShootRamp_Trench.cmd(),
 
                                                 // 4. Shoot — starts only after LtShootRamp fully completes
-                                                FuelCommands.Auto.poseAlignAndShoot(m_shooter, m_indexer, m_intake, m_drivetrain, m_vision, shootTimeout),
+                                                // FuelCommands.Auto.poseAlignAndShoot(m_shooter, m_indexer, m_intake, m_drivetrain, m_vision, shootTimeout),
 
                                                 // --- Cycle 2 ---
                                                 // 5. Back to trench
@@ -751,7 +768,8 @@ public class AutoRoutines {
                                                 LtRampMiddle_Alliance_2.cmd(),
 
                                                 // 8. Shoot (2nd) — starts only after LtShootRamp_2 fully completes
-                                                FuelCommands.Auto.poseAlignAndShoot(m_shooter, m_indexer, m_intake, m_drivetrain, m_vision, shootTimeout)
+                                                // FuelCommands.Auto.poseAlignAndShoot(m_shooter, m_indexer, m_intake, m_drivetrain, m_vision, shootTimeout)
+                                                Commands.none() // DISABLED (Limelight removed): was poseAlignAndShoot
                                 ));
 
                 return routine;
@@ -792,7 +810,7 @@ public class AutoRoutines {
                                                 LtShootRamp_Trench.cmd(),
 
                                                 // 4. Shoot — starts only after LtShootRamp fully completes
-                                                FuelCommands.Auto.poseAlignAndShoot(m_shooter, m_indexer, m_intake, m_drivetrain, m_vision, shootTimeout),
+                                                // FuelCommands.Auto.poseAlignAndShoot(m_shooter, m_indexer, m_intake, m_drivetrain, m_vision, shootTimeout),
 
                                         
                                                 // 5. Back to trench
@@ -809,7 +827,8 @@ public class AutoRoutines {
                                                 LtRampMiddle_Alliance_2.cmd(),
 
                                                 // 8. Shoot (2nd) — starts only after LtShootRamp_2 fully completes
-                                                FuelCommands.Auto.poseAlignAndShoot(m_shooter, m_indexer, m_intake, m_drivetrain, m_vision, shootTimeout)
+                                                // FuelCommands.Auto.poseAlignAndShoot(m_shooter, m_indexer, m_intake, m_drivetrain, m_vision, shootTimeout)
+                                                Commands.none() // DISABLED (Limelight removed): was poseAlignAndShoot
                                 ));
 
                 return routine;
@@ -848,7 +867,7 @@ public class AutoRoutines {
                                                 LtShootRamp_Trench.cmd(),
 
                                                 // 4. Shoot — starts only after LtShootRamp fully completes
-                                                FuelCommands.Auto.poseAlignAndShoot(m_shooter, m_indexer, m_intake, m_drivetrain, m_vision, shootTimeout),
+                                                // FuelCommands.Auto.poseAlignAndShoot(m_shooter, m_indexer, m_intake, m_drivetrain, m_vision, shootTimeout),
 
                                         
                                                 // 5. Back to trench
@@ -900,7 +919,7 @@ public class AutoRoutines {
                                                 LtShootRamp_Trench.cmd(),
 
                                                 // 4. Shoot — starts only after LtShootRamp fully completes
-                                                FuelCommands.Auto.poseAlignAndShoot(m_shooter, m_indexer, m_intake, m_drivetrain, m_vision, shootTimeout),
+                                                // FuelCommands.Auto.poseAlignAndShoot(m_shooter, m_indexer, m_intake, m_drivetrain, m_vision, shootTimeout),
 
                                         
                                                 // 5. Back to trench
@@ -937,7 +956,8 @@ public class AutoRoutines {
                                                 
                                                 RtRampMiddle_Alliance.cmd(),
                                                 
-                                                FuelCommands.Auto.poseAlignAndShoot(m_shooter, m_indexer, m_intake, m_drivetrain, m_vision, shootTimeout)
+                                                // FuelCommands.Auto.poseAlignAndShoot(m_shooter, m_indexer, m_intake, m_drivetrain, m_vision, shootTimeout)
+                                                Commands.none() // DISABLED (Limelight removed): was poseAlignAndShoot
                                                 
 
                                 ));
@@ -959,7 +979,7 @@ public class AutoRoutines {
 
                                                         m_drivetrain.stop().withTimeout(0.5),
 
-                                                        FuelCommands.Auto.poseAlignAndShoot(m_shooter, m_indexer, m_intake, m_drivetrain, m_vision, shootTimeout),
+                                                        // FuelCommands.Auto.poseAlignAndShoot(m_shooter, m_indexer, m_intake, m_drivetrain, m_vision, shootTimeout),
 
                                                         m_drivetrain.stop().withTimeout(6.0)
                                                         
@@ -998,8 +1018,10 @@ public class AutoRoutines {
                                 ));
                 // Routine Events
                 LtTrench_Mid_Trench.atTime("Intake").onTrue(m_intake.intakeFuelTimer(intakeTimeout, intakeDelay));
-                LtTrench_Mid_Trench.atTime("Shoot").onTrue(FuelCommands.Auto.poseAlignAndShoot(m_shooter, m_indexer, m_intake, m_drivetrain, m_vision, shootTimeout));
-                LtTrench_Mid_Trench.atTime("FuelPump").onTrue(FuelCommands.Auto.fuelPumpCycleSensor(m_intake, m_indexer));
+                // DISABLED (Limelight removed): align-and-shoot event.
+                // LtTrench_Mid_Trench.atTime("Shoot").onTrue(FuelCommands.Auto.poseAlignAndShoot(m_shooter, m_indexer, m_intake, m_drivetrain, m_vision, shootTimeout));
+                // DISABLED (slides removed): fuel pump bounced the slide.
+                // LtTrench_Mid_Trench.atTime("FuelPump").onTrue(FuelCommands.Auto.fuelPumpCycleSensor(m_intake, m_indexer));
 
                 return routine;
         }
@@ -1017,7 +1039,8 @@ public class AutoRoutines {
                 // Routine Events
                 Center_MidDepot.atTime("Intake").onTrue(m_intake.intakeFuelTimer(8, intakeDelay));
                 Center_MidDepot.atTime("Shoot").onTrue(FuelCommands.Auto.shootFar(m_shooter, m_indexer, shootTimeout)); // score
-                Center_MidDepot.atTime("FuelPump").onTrue(FuelCommands.Auto.fuelPumpCycleSensor(m_intake, m_indexer));
+                // DISABLED (slides removed): fuel pump bounced the slide.
+                // Center_MidDepot.atTime("FuelPump").onTrue(FuelCommands.Auto.fuelPumpCycleSensor(m_intake, m_indexer));
 
                 return routine;
         }
@@ -1037,9 +1060,11 @@ public class AutoRoutines {
                 RtTrench_RtMid_RtTrench.atTime("Intake").onTrue(m_intake.intakeFuelTimer(intakeTimeout, intakeDelay));
                 
                 // dependencies are fine in this version
-                RtTrench_RtMid_RtTrench.atTime("Shoot")
-                                .onTrue(FuelCommands.Auto.poseAlignAndShoot(m_shooter, m_indexer, m_intake, m_drivetrain, m_vision, shootTimeout));
-                RtTrench_RtMid_RtTrench.atTime("FuelPump").onTrue(FuelCommands.Auto.fuelPumpCycleSensor(m_intake, m_indexer));
+                // DISABLED (Limelight removed): align-and-shoot event.
+                // RtTrench_RtMid_RtTrench.atTime("Shoot")
+                                // .onTrue(FuelCommands.Auto.poseAlignAndShoot(m_shooter, m_indexer, m_intake, m_drivetrain, m_vision, shootTimeout));
+                // DISABLED (slides removed): fuel pump bounced the slide.
+                // RtTrench_RtMid_RtTrench.atTime("FuelPump").onTrue(FuelCommands.Auto.fuelPumpCycleSensor(m_intake, m_indexer));
                 return routine;
                 }
 
@@ -1084,8 +1109,9 @@ public class AutoRoutines {
                         // its own.
                         // Place the "Shoot" event marker at the END of the trajectory segment so the
                         // path finishes before this fires.
-                        Experimental.atTime("Shoot")
-                                        .onTrue(FuelCommands.Auto.poseAlignAndShoot(m_shooter, m_indexer, m_intake, m_drivetrain, m_vision, shootTimeout));
+                        // DISABLED (Limelight removed): align-and-shoot event.
+                        // Experimental.atTime("Shoot")
+                                        // .onTrue(FuelCommands.Auto.poseAlignAndShoot(m_shooter, m_indexer, m_intake, m_drivetrain, m_vision, shootTimeout));
 
                         return routine;
                 }

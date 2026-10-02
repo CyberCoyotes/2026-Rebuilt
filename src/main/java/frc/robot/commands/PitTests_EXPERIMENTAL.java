@@ -82,7 +82,8 @@ public class PitTests_EXPERIMENTAL {
         return Commands.sequence(
             Commands.runOnce(() -> {
                 shooter.setTargetVelocity(preset.rpm);
-                shooter.setTargetHoodPose(preset.hood);
+                // DISABLED (hood removed): no hood to aim.
+                // shooter.setTargetHoodPose(preset.hood);
                 shooter.beginSpinUp();
             }, shooter),
             Commands.waitUntil(shooter::isReady).withTimeout(SPIN_UP_TIMEOUT),

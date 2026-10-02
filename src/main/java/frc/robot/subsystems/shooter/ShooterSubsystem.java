@@ -24,6 +24,9 @@ import frc.robot.subsystems.shooter.ShooterIO.ShooterIOInputs;
  * - EJECT: Flywheel reverse at EJECT_RPM for clearing jams — velocity-gated
  * - POPPER: Low-speed mode for assisted fuel loading
  *
+ * NOTE: The hood is fixed (motor removed) and Limelight auto-aim is disabled. Hood targets, hood
+ * publishers and the vision-driven shot flow below are commented out until the second cleanup pass.
+ *
  * SHOT FLOW:
  * - Driver RT alone → VisionShootCommand (default, auto-aims from distance)
  * - Operator holds A/B/X/Y + Driver RT → fires the corresponding named preset
@@ -55,7 +58,7 @@ public class ShooterSubsystem extends SubsystemBase {
 
         public final String label;
         public final double rpm;
-        public final double hood;
+        public final double hood; // unused: hood is fixed (removed); kept as reference for retuning RPMs
 
         ShotPreset(String label, double rpm, double hood) {
             this.label = label;
@@ -79,10 +82,11 @@ public class ShooterSubsystem extends SubsystemBase {
     private final DoublePublisher  flywheelRpmPublisher;
     private final DoublePublisher  targetRpmPublisher;
     private final DoublePublisher  flywheelErrorPublisher;
-    private final DoublePublisher  hoodRotationsPublisher;
-    private final DoublePublisher  targetHoodRotationsPublisher;
-    private final DoublePublisher  hoodErrorPublisher;
-    private final BooleanPublisher hoodAtPosePublisher;
+    // DISABLED (hood removed): hood publishers.
+    // private final DoublePublisher  hoodRotationsPublisher;
+    // private final DoublePublisher  targetHoodRotationsPublisher;
+    // private final DoublePublisher  hoodErrorPublisher;
+    // private final BooleanPublisher hoodAtPosePublisher;
     private final BooleanPublisher flywheelAtRpmPublisher;
     private final StringPublisher  selectedPresetPublisher;
     private final BooleanPublisher standbyEnabledPublisher;
@@ -96,7 +100,8 @@ public class ShooterSubsystem extends SubsystemBase {
     private String currentStateString     = ShooterState.IDLE.toString();
     // private boolean standbyEnabled        = false; // operator toggled, defaults OFF at boot
     private double targetFlywheelMotorRPM = 0.0;
-    private double targetHoodPoseRot      = 0.0;
+    // DISABLED (hood removed): hood target.
+    // private double targetHoodPoseRot      = 0.0;
 
     // Slow publish divider
     private int periodicCounter = 0;
@@ -115,10 +120,10 @@ public class ShooterSubsystem extends SubsystemBase {
         flywheelRpmPublisher         = shooterTable.getDoubleTopic("FlywheelRPM").publish();
         targetRpmPublisher           = shooterTable.getDoubleTopic("TargetFlywheelRPM").publish();
         flywheelErrorPublisher       = shooterTable.getDoubleTopic("FlywheelError").publish();
-        hoodRotationsPublisher       = shooterTable.getDoubleTopic("HoodRotations").publish();
-        targetHoodRotationsPublisher = shooterTable.getDoubleTopic("TargetHoodRotations").publish();
-        hoodErrorPublisher           = shooterTable.getDoubleTopic("HoodError").publish();
-        hoodAtPosePublisher          = shooterTable.getBooleanTopic("HoodAtPose").publish();
+        // hoodRotationsPublisher       = shooterTable.getDoubleTopic("HoodRotations").publish();
+        // targetHoodRotationsPublisher = shooterTable.getDoubleTopic("TargetHoodRotations").publish();
+        // hoodErrorPublisher           = shooterTable.getDoubleTopic("HoodError").publish();
+        // hoodAtPosePublisher          = shooterTable.getBooleanTopic("HoodAtPose").publish();
         flywheelAtRpmPublisher       = shooterTable.getBooleanTopic("FlywheelAtRPM").publish();
         selectedPresetPublisher       = shooterTable.getStringTopic("SelectedPreset").publish();
         standbyEnabledPublisher       = shooterTable.getBooleanTopic("StandbyEnabled").publish();
@@ -164,10 +169,10 @@ public class ShooterSubsystem extends SubsystemBase {
         flywheelRpmPublisher.set(inputs.flywheelLeaderMotorRPM);
         targetRpmPublisher.set(targetFlywheelMotorRPM);
         flywheelErrorPublisher.set(targetFlywheelMotorRPM - inputs.flywheelLeaderMotorRPM);
-        hoodRotationsPublisher.set(inputs.hoodPositionRotations);
-        targetHoodRotationsPublisher.set(targetHoodPoseRot);
-        hoodErrorPublisher.set(targetHoodPoseRot - inputs.hoodPositionRotations);
-        hoodAtPosePublisher.set(isHoodAtPose());
+        // hoodRotationsPublisher.set(inputs.hoodPositionRotations);
+        // targetHoodRotationsPublisher.set(targetHoodPoseRot);
+        // hoodErrorPublisher.set(targetHoodPoseRot - inputs.hoodPositionRotations);
+        // hoodAtPosePublisher.set(isHoodAtPose());
         flywheelAtRpmPublisher.set(isFlywheelAtVelocity());
         selectedPresetPublisher.set(displayPreset != null ? displayPreset.label : "Vision");
         standbyEnabledPublisher.set(standbyEnabled);
@@ -183,22 +188,23 @@ public class ShooterSubsystem extends SubsystemBase {
                 break;
             case SPINNING_UP:
                 commandFlywheelVelocity(targetFlywheelMotorRPM);
-                io.setHoodPose(targetHoodPoseRot);
+                // DISABLED (hood removed): no hood to move (applies to all setHoodPose calls below).
+                // io.setHoodPose(targetHoodPoseRot);
                 break;
             case READY:
                 commandFlywheelVelocity(targetFlywheelMotorRPM);
-                io.setHoodPose(targetHoodPoseRot);
+                // io.setHoodPose(targetHoodPoseRot);
                 break;
             case PASS:
                 commandFlywheelVelocity(Constants.Shooter.PASS_RPM);
-                io.setHoodPose(Constants.Shooter.PASS_HOOD);
+                // io.setHoodPose(Constants.Shooter.PASS_HOOD);
                 break;
             case EJECT:
                 commandFlywheelVelocity(Constants.Flywheel.EJECT_RPM);
                 break;
             case POPPER:
                 commandFlywheelVelocity(Constants.Flywheel.POPPER_RPM);
-                io.setHoodPose(Constants.Hood.POPPER_HOOD);
+                // io.setHoodPose(Constants.Hood.POPPER_HOOD);
                 break;
         }
     }
@@ -217,12 +223,13 @@ public class ShooterSubsystem extends SubsystemBase {
         switch (newState) {
             case IDLE:
                 io.stopFlywheels();
-                io.setHoodPose(Constants.Hood.MIN_POSE);
+                // DISABLED (hood removed): no hood to move (applies to all setHoodPose calls below).
+                // io.setHoodPose(Constants.Hood.MIN_POSE);
                 break;
 
             case STANDBY:
                 commandFlywheelVelocity(Constants.Flywheel.STANDBY_RPM);
-                io.setHoodPose(Constants.Hood.MIN_POSE);
+                // io.setHoodPose(Constants.Hood.MIN_POSE);
                 break;
 
             // The flywheel and hood targets set, and BOTH flywheel and hood are in progress to getting to those values and READY
@@ -238,21 +245,21 @@ public class ShooterSubsystem extends SubsystemBase {
 
             case READY:
                 commandFlywheelVelocity(targetFlywheelMotorRPM);
-                io.setHoodPose(targetHoodPoseRot);
+                // io.setHoodPose(targetHoodPoseRot);
                 break;
 
             case PASS:
                 commandFlywheelVelocity(Constants.Shooter.PASS_RPM);
-                io.setHoodPose(Constants.Shooter.PASS_HOOD);
+                // io.setHoodPose(Constants.Shooter.PASS_HOOD);
                 break;
 
             case EJECT:
                 commandFlywheelVelocity(Constants.Flywheel.EJECT_RPM);
-                io.setHoodPose(Constants.Hood.MIN_POSE);
+                // io.setHoodPose(Constants.Hood.MIN_POSE);
                 break;
             case POPPER:
                 commandFlywheelVelocity(Constants.Flywheel.POPPER_RPM);
-                io.setHoodPose(Constants.Hood.POPPER_HOOD);
+                // io.setHoodPose(Constants.Hood.POPPER_HOOD);
                 break;
         }
     }
@@ -381,42 +388,43 @@ public class ShooterSubsystem extends SubsystemBase {
         targetFlywheelMotorRPM = Math.min(Math.abs(rpm), Constants.Flywheel.MAX_RPM);
     }
 
-    /**
-     * Sets target hood pose in rotations. Clamped to valid range. Does NOT change state.
-     */
-    public void setTargetHoodPose(double rotations) {
-        targetHoodPoseRot = Math.max(Constants.Hood.MIN_POSE, Math.min(Constants.Hood.MAX_POSE, rotations));
-    }
+    // DISABLED (hood removed): hood target setters.
+    // /**
+     // * Sets target hood pose in rotations. Clamped to valid range. Does NOT change state.
+     // */
+    // public void setTargetHoodPose(double rotations) {
+        // targetHoodPoseRot = Math.max(Constants.Hood.MIN_POSE, Math.min(Constants.Hood.MAX_POSE, rotations));
+    // }
 
     /** Adjusts target flywheel velocity by a delta. */
     public void adjustTargetVelocity(double deltaRPM) {
         setTargetVelocity(targetFlywheelMotorRPM + deltaRPM);
     }
 
-    /**
-     * Adjusts target hood pose by a delta in rotations.
-     * If already in READY state, commands hood to move immediately.
-     */
-    public void adjustTargetHoodPose(double deltaRotations) {
-        setTargetHoodPose(targetHoodPoseRot + deltaRotations);
-        if (currentState == ShooterState.READY) {
-            io.setHoodPose(targetHoodPoseRot);
-        }
-    }
+    // /**
+     // * Adjusts target hood pose by a delta in rotations.
+     // * If already in READY state, commands hood to move immediately.
+     // */
+    // public void adjustTargetHoodPose(double deltaRotations) {
+        // setTargetHoodPose(targetHoodPoseRot + deltaRotations);
+        // if (currentState == ShooterState.READY) {
+            // io.setHoodPose(targetHoodPoseRot);
+        // }
+    // }
 
-    /**
-     * Updates hood position directly while in READY state.
-     * Used by FarShotCommand to continuously adjust hood based on live distance.
-     * Only takes effect if currently in READY state — otherwise silently updates target.
-     *
-     * @param rotations Target hood position in rotations
-     */
-    public void updateHoodForDistance(double rotations) {
-        setTargetHoodPose(rotations);
-        if (currentState == ShooterState.READY) {
-            io.setHoodPose(targetHoodPoseRot);
-        }
-    }
+    // /**
+     // * Updates hood position directly while in READY state.
+     // * Used by FarShotCommand to continuously adjust hood based on live distance.
+     // * Only takes effect if currently in READY state — otherwise silently updates target.
+     // *
+     // * @param rotations Target hood position in rotations
+     // */
+    // public void updateHoodForDistance(double rotations) {
+        // setTargetHoodPose(rotations);
+        // if (currentState == ShooterState.READY) {
+            // io.setHoodPose(targetHoodPoseRot);
+        // }
+    // }
 
     // =====================================================================
     // Status Queries
@@ -434,7 +442,7 @@ public class ShooterSubsystem extends SubsystemBase {
 
     /** Returns true if in PASS state with flywheel and hood at targets. */
     public boolean isPassReady() {
-        return currentState == ShooterState.PASS && isFlywheelAtVelocity() && isHoodAtPose();
+        return currentState == ShooterState.PASS && isFlywheelAtVelocity(); // DISABLED (hood removed): was && isHoodAtPose()
     }
 
     /** Returns true if flywheel is at target velocity within tolerance. */
@@ -446,10 +454,11 @@ public class ShooterSubsystem extends SubsystemBase {
         return Math.abs(inputs.flywheelLeaderMotorRPM - targetFlywheelMotorRPM) < tolerance;
     }
 
-    /** Returns true if hood is at target pose within tolerance. */
-    public boolean isHoodAtPose() {
-        return Math.abs(inputs.hoodPositionRotations - targetHoodPoseRot) < Constants.Hood.TOLERANCE_POSE;
-    }
+    // DISABLED (hood removed): hood is fixed, there is no pose to reach.
+    // /** Returns true if hood is at target pose within tolerance. */
+    // public boolean isHoodAtPose() {
+        // return Math.abs(inputs.hoodPositionRotations - targetHoodPoseRot) < Constants.Hood.TOLERANCE_POSE;
+    // }
 
     /** Returns true if total flywheel current is too high. */
     public boolean isOverCurrent() {
@@ -473,17 +482,18 @@ public class ShooterSubsystem extends SubsystemBase {
         return inputs.flywheelLeaderMotorRPM;
     }
 
-    public double getCurrentHoodPose() {
-        return inputs.hoodPositionRotations;
-    }
+    // DISABLED (hood removed): hood getters.
+    // public double getCurrentHoodPose() {
+        // return inputs.hoodPositionRotations;
+    // }
 
     public double getTargetVelocityRPM() {
         return targetFlywheelMotorRPM;
     }
 
-    public double getTargetHoodPose() {
-        return targetHoodPoseRot;
-    }
+    // public double getTargetHoodPose() {
+        // return targetHoodPoseRot;
+    // }
 
     /**
      * Command that holds SPINNING_UP state while scheduled and returns to IDLE on end.
@@ -521,7 +531,8 @@ public class ShooterSubsystem extends SubsystemBase {
      * Add or remove rows as the shot envelope changes.
      */
     private static final InterpolatingDoubleTreeMap FLYWHEEL_RPM_MAP = new InterpolatingDoubleTreeMap();
-    private static final InterpolatingDoubleTreeMap HOOD_ROT_MAP     = new InterpolatingDoubleTreeMap();
+    // DISABLED (hood removed): distance-to-hood table.
+    // private static final InterpolatingDoubleTreeMap HOOD_ROT_MAP     = new InterpolatingDoubleTreeMap();
 
     static {
         /* Both maps MUST have identical distance keys — they are co-indexed.
@@ -529,17 +540,17 @@ public class ShooterSubsystem extends SubsystemBase {
         * inconsistent RPM/hood pairings at that distance. Always update both.
         */
         FLYWHEEL_RPM_MAP.put(Constants.Shooter.CLOSE_DISTANCE, Constants.Shooter.CLOSE_RPM);
-        HOOD_ROT_MAP.put(Constants.Shooter.CLOSE_DISTANCE, Constants.Shooter.CLOSE_HOOD);
+        // HOOD_ROT_MAP.put(Constants.Shooter.CLOSE_DISTANCE, Constants.Shooter.CLOSE_HOOD);
 
         FLYWHEEL_RPM_MAP.put(Constants.Shooter.TOWER_DISTANCE, Constants.Shooter.TOWER_RPM);
-        HOOD_ROT_MAP.put(Constants.Shooter.TOWER_DISTANCE, Constants.Shooter.TOWER_HOOD);
+        // HOOD_ROT_MAP.put(Constants.Shooter.TOWER_DISTANCE, Constants.Shooter.TOWER_HOOD);
 
         // So close to Tower, it might add confusion
         // FLYWHEEL_RPM_MAP.put(Constants.Shooter.TRENCH_DISTANCE, Constants.Shooter.TRENCH_RPM); 
         // HOOD_ROT_MAP.put(Constants.Shooter.TRENCH_DISTANCE, Constants.Shooter.TRENCH_HOOD);
 
         FLYWHEEL_RPM_MAP.put(Constants.Shooter.FAR_DISTANCE, Constants.Shooter.FAR_RPM);
-        HOOD_ROT_MAP.put(Constants.Shooter.FAR_DISTANCE, Constants.Shooter.FAR_HOOD);
+        // HOOD_ROT_MAP.put(Constants.Shooter.FAR_DISTANCE, Constants.Shooter.FAR_HOOD);
 
         // Find the distances for vision tree
         // FLYWHEEL_RPM_MAP.put(3.50, 2625.0);
@@ -569,12 +580,13 @@ public class ShooterSubsystem extends SubsystemBase {
         double dist = Math.max(Constants.Vision.MIN_DISTANCE_M, Math.min(Constants.Vision.MAX_DISTANCE_M, distanceMeters));
 
         setTargetVelocity(FLYWHEEL_RPM_MAP.get(dist));
-        setTargetHoodPose(HOOD_ROT_MAP.get(dist));
+        // DISABLED (hood removed): hood target from distance.
+        // setTargetHoodPose(HOOD_ROT_MAP.get(dist));
 
         // Push to hardware immediately if already spinning — keeps tracking live
         if (currentState == ShooterState.READY) {
             commandFlywheelVelocity(targetFlywheelMotorRPM);
-            io.setHoodPose(targetHoodPoseRot);
+            // io.setHoodPose(targetHoodPoseRot);
         }
     }
 

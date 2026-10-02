@@ -9,20 +9,21 @@ public interface IntakeIO {
      */
     public static class IntakeIOInputs {
 
+        // DISABLED (slides removed): slide inputs.
         // Slide — position needed for MotionMagic and at-target checks
-        public double slidePositionRotations = 0.0;
+        // public double slidePositionRotations = 0.0;
 
-        /** Slide motor velocity in rotations per second */
-        public double slideVelocityRPS = 0.0;
+        // /** Slide motor velocity in rotations per second */
+        // public double slideVelocityRPS = 0.0;
 
-        /** Slide motor applied voltage */
-        public double slideAppliedVolts = 0.0;
+        // /** Slide motor applied voltage */
+        // public double slideAppliedVolts = 0.0;
 
-        /** Slide motor supply current in amps */
-        public double slideCurrentAmps = 0.0;
+        // /** Slide motor supply current in amps */
+        // public double slideCurrentAmps = 0.0;
 
-        /** Slide motor temperature in Celsius */
-        public double slideTempCelsius = 0.0;
+        // /** Slide motor temperature in Celsius */
+        // public double slideTempCelsius = 0.0;
 
         // // Sensor Data
         // // distance from nearest thing to intake sensor in mm
@@ -46,17 +47,18 @@ public interface IntakeIO {
     void stopRoller();
 
     
+    // DISABLED (slides removed): slide control.
     // ===== Slide methods =====
-    /** Position control via MotionMagic */
-    void setSlidePosition(double position);
+    // /** Position control via MotionMagic */
+    // void setSlidePosition(double position);
     
-    /** Position control via MotionMagic with slower velocity */
-    void setSlidePositionSlow(double position);
+    // /** Position control via MotionMagic with slower velocity */
+    // void setSlidePositionSlow(double position);
 
-    void stopSlide();
+    // void stopSlide();
 
-    /** Zeroes the slide encoder — call when slide is physically at the retracted hard stop. */
-    void resetSlideEncoder();
+    // /** Zeroes the slide encoder — call when slide is physically at the retracted hard stop. */
+    // void resetSlideEncoder();
 
     // double getSlidePosition();
 

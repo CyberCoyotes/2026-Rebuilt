@@ -9,12 +9,13 @@ import org.littletonrobotics.junction.Logger;
 
 import com.ctre.phoenix6.HootAutoReplay;
 
-import edu.wpi.first.math.VecBuilder;
-import edu.wpi.first.math.util.Units;
+// DISABLED (Limelight removed): imports below were only used by the vision pose fusion.
+// import edu.wpi.first.math.VecBuilder;
+// import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
-import frc.robot.subsystems.vision.LimelightHelpers;
+// import frc.robot.subsystems.vision.LimelightHelpers;
 
 public class Robot extends LoggedRobot {
     private Command m_autonomousCommand;
@@ -51,30 +52,31 @@ public class Robot extends LoggedRobot {
         // Update game data telemetry (polls FMS for scoring shift data)
         m_robotContainer.updateGameData();
 
+        // DISABLED (Limelight removed): MegaTag2/MegaTag1 pose fusion. Odometry now runs without vision corrections.
         // Vision pose fusion — weighted std devs so trust drops with distance.
         // SetRobotOrientation is handled by VisionSubsystem (with yaw + yaw rate)
         // so we read immediately; the orientation was set earlier this cycle.
         // Theta std dev = 9999999 for both modes: gyro always owns heading.
-        double omegaRps = Units.radiansToRotations(
-                m_robotContainer.drivetrain.getState().Speeds.omegaRadiansPerSecond);
-        boolean omegaOk = Math.abs(omegaRps) < Constants.Vision.OMEGA_FILTER_MAX_RPS;
+        // double omegaRps = Units.radiansToRotations(
+                // m_robotContainer.drivetrain.getState().Speeds.omegaRadiansPerSecond);
+        // boolean omegaOk = Math.abs(omegaRps) < Constants.Vision.OMEGA_FILTER_MAX_RPS;
 
-        var mt2 = LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2(Constants.Vision.LIMELIGHT4_NAME);
-        if (mt2 != null && mt2.tagCount > 0 && omegaOk) {
-            double xyStdDev = Constants.Vision.VISION_MT2_STD_DEV_COEFF * Math.pow(mt2.avgTagDist, 2.0);
-            m_robotContainer.drivetrain.addVisionMeasurement(
-                    mt2.pose, mt2.timestampSeconds,
-                    VecBuilder.fill(xyStdDev, xyStdDev, 9999999));
-        } else if ((mt2 == null || mt2.tagCount == 0) && omegaOk) {
+        // var mt2 = LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2(Constants.Vision.LIMELIGHT4_NAME);
+        // if (mt2 != null && mt2.tagCount > 0 && omegaOk) {
+            // double xyStdDev = Constants.Vision.VISION_MT2_STD_DEV_COEFF * Math.pow(mt2.avgTagDist, 2.0);
+            // m_robotContainer.drivetrain.addVisionMeasurement(
+                    // mt2.pose, mt2.timestampSeconds,
+                    // VecBuilder.fill(xyStdDev, xyStdDev, 9999999));
+        // } else if ((mt2 == null || mt2.tagCount == 0) && omegaOk) {
             // MT1 fallback (2D) — lower trust, higher std devs
-            var mt1 = LimelightHelpers.getBotPoseEstimate_wpiBlue(Constants.Vision.LIMELIGHT4_NAME);
-            if (mt1 != null && mt1.tagCount > 0) {
-                double xyStdDev = Constants.Vision.VISION_MT1_STD_DEV_COEFF * Math.pow(mt1.avgTagDist, 2.0);
-                m_robotContainer.drivetrain.addVisionMeasurement(
-                        mt1.pose, mt1.timestampSeconds,
-                        VecBuilder.fill(xyStdDev, xyStdDev, 9999999));
-            }
-        }
+            // var mt1 = LimelightHelpers.getBotPoseEstimate_wpiBlue(Constants.Vision.LIMELIGHT4_NAME);
+            // if (mt1 != null && mt1.tagCount > 0) {
+                // double xyStdDev = Constants.Vision.VISION_MT1_STD_DEV_COEFF * Math.pow(mt1.avgTagDist, 2.0);
+                // m_robotContainer.drivetrain.addVisionMeasurement(
+                        // mt1.pose, mt1.timestampSeconds,
+                        // VecBuilder.fill(xyStdDev, xyStdDev, 9999999));
+            // }
+        // }
     }
 
     @Override
