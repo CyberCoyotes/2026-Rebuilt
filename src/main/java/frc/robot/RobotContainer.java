@@ -238,7 +238,7 @@ public class RobotContainer {
                 // ));
 
         // Shot presets: run on their own now that fuel compression is disabled.
-        driver.a().whileTrue(FuelCommands.shootWithPreset(shooter, indexer, ShooterSubsystem.ShotPreset.TRENCH));
+        driver.a().whileTrue(FuelCommands.shootWithPreset(shooter, indexer, ShooterSubsystem.ShotPreset.TRENCH)); // .TRENCH
         driver.b().whileTrue(FuelCommands.shootWithPreset(shooter, indexer, ShooterSubsystem.ShotPreset.CLOSE));
         driver.x().whileTrue(FuelCommands.shootWithPreset(shooter, indexer, ShooterSubsystem.ShotPreset.TOWER_FRONT));
         driver.y().whileTrue(FuelCommands.shootWithPreset(shooter, indexer, ShooterSubsystem.ShotPreset.FAR));
