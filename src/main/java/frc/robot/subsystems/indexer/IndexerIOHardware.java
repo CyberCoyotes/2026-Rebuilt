@@ -3,17 +3,18 @@ package frc.robot.subsystems.indexer;
 import com.ctre.phoenix6.BaseStatusSignal;
 import com.ctre.phoenix6.StatusCode;
 import com.ctre.phoenix6.StatusSignal;
-import com.ctre.phoenix6.configs.CANrangeConfiguration;
+// DISABLED (chute CANrange removed): only used by the chute ToF sensor.
+// import com.ctre.phoenix6.configs.CANrangeConfiguration;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.Follower;
 import com.ctre.phoenix6.controls.VelocityVoltage;
 import com.ctre.phoenix6.controls.VoltageOut;
-import com.ctre.phoenix6.hardware.CANrange;
+// import com.ctre.phoenix6.hardware.CANrange;
 import com.ctre.phoenix6.hardware.TalonFX;
 
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Current;
-import edu.wpi.first.units.measure.Distance;
+// import edu.wpi.first.units.measure.Distance;
 import frc.robot.Constants;
 import frc.robot.utilities.PhoenixUtil;
 
@@ -22,6 +23,11 @@ import frc.robot.utilities.PhoenixUtil;
  *
  * Owns all hardware objects and translates them into the IndexerIOInputs
  * data structure read by IndexerSubsystem.
+ *
+ * DISABLED (chute CANrange removed): the chute ToF is no longer on the robot. updateInputs()
+ * reports "nothing in the chute" (distance = CHUTE_MAX_DISTANCE, detected = false), so
+ * hasSeenFuel never latches and IndexerSubsystem.feedUntilChuteEmpty() always runs for its
+ * full safety timeout. The notes below are kept for when a sensor is added back.
  *
  * CANrange detection strategy:
  * We configure any ToF sensor with a ProximityThreshold and read getIsDetected()
@@ -96,22 +102,24 @@ public class IndexerIOHardware implements IndexerIO {
         return config;
     }
 
-    private static CANrangeConfiguration chuteCANrangeConfig() {
-        CANrangeConfiguration config = new CANrangeConfiguration();
-
-        config.ProximityParams.ProximityThreshold = Constants.Indexer.FUEL_DETECTION_DISTANCE;
-        config.ProximityParams.ProximityHysteresis = Constants.Indexer.ChuteSensorConfig.PROXIMITY_HYSTERESIS;
-        config.FovParams.FOVRangeX = Constants.Indexer.ChuteSensorConfig.FOV_RANGE_X;
-        config.FovParams.FOVRangeY = Constants.Indexer.ChuteSensorConfig.FOV_RANGE_Y;
-
-        return config;
-    }
+    // DISABLED (chute CANrange removed): chute ToF config.
+    // private static CANrangeConfiguration chuteCANrangeConfig() {
+    //     CANrangeConfiguration config = new CANrangeConfiguration();
+    //
+    //     config.ProximityParams.ProximityThreshold = Constants.Indexer.FUEL_DETECTION_DISTANCE;
+    //     config.ProximityParams.ProximityHysteresis = Constants.Indexer.ChuteSensorConfig.PROXIMITY_HYSTERESIS;
+    //     config.FovParams.FOVRangeX = Constants.Indexer.ChuteSensorConfig.FOV_RANGE_X;
+    //     config.FovParams.FOVRangeY = Constants.Indexer.ChuteSensorConfig.FOV_RANGE_Y;
+    //
+    //     return config;
+    // }
 
     // == Hardware =================================================================
     private final TalonFX conveyorMotor;
     private final TalonFX kickerMotorLead;
     private final TalonFX kickerMotorFollow;
-    private final CANrange chuteToF;
+    // DISABLED (chute CANrange removed)
+    // private final CANrange chuteToF;
 
     // == Control Requests ==========================================================
     // Conveyor forward uses VelocityVoltage (Slot 0). Reverse/popper still use VoltageOut.
@@ -133,15 +141,17 @@ public class IndexerIOHardware implements IndexerIO {
     private final StatusSignal<AngularVelocity> kickerFollowVelocity;
     private final StatusSignal<Current> kickerLeadCurrent;
     private final StatusSignal<Current> kickerFollowCurrent;
-    private final StatusSignal<Distance> chuteDistance;
-    private final StatusSignal<Boolean> chuteIsDetected;
+    // DISABLED (chute CANrange removed)
+    // private final StatusSignal<Distance> chuteDistance;
+    // private final StatusSignal<Boolean> chuteIsDetected;
 
     // == Constructor =============================================================
     public IndexerIOHardware() {
         conveyorMotor = new TalonFX(Constants.Indexer.CONVEYOR_MOTOR_ID, Constants.RIO_CANBUS);
         kickerMotorLead  = new TalonFX(Constants.Indexer.KICKER_LEFT_MOTOR_ID,   Constants.RIO_CANBUS);
         kickerMotorFollow = new TalonFX(Constants.Indexer.KICKER_RIGHT_MOTOR_ID,   Constants.RIO_CANBUS);
-        chuteToF      = new CANrange(Constants.Indexer.CHUTE_TOF_ID,       Constants.RIO_CANBUS);
+        // DISABLED (chute CANrange removed)
+        // chuteToF      = new CANrange(Constants.Indexer.CHUTE_TOF_ID,       Constants.RIO_CANBUS);
 
        // Apply configs with retry logic — replaces the single-attempt local helper.
         // Five retries handles devices still booting when apply() is first called.
@@ -156,7 +166,8 @@ public class IndexerIOHardware implements IndexerIO {
             System.out.println("Kicker Follow config result: " + code.getName());
             return code;
         });
-        PhoenixUtil.applyConfig("Chute ToF", () -> chuteToF.getConfigurator().apply(chuteCANrangeConfig()));
+        // DISABLED (chute CANrange removed)
+        // PhoenixUtil.applyConfig("Chute ToF", () -> chuteToF.getConfigurator().apply(chuteCANrangeConfig()));
         // Follower must be set after configs are applied.
         kickerMotorFollow.setControl(kickerFollowerRequest);
 
@@ -166,8 +177,9 @@ public class IndexerIOHardware implements IndexerIO {
         kickerFollowVelocity = kickerMotorFollow.getVelocity();
         kickerLeadCurrent   = kickerMotorLead.getSupplyCurrent();
         kickerFollowCurrent = kickerMotorFollow.getSupplyCurrent();
-        chuteDistance    = chuteToF.getDistance();
-        chuteIsDetected  = chuteToF.getIsDetected();
+        // DISABLED (chute CANrange removed)
+        // chuteDistance    = chuteToF.getDistance();
+        // chuteIsDetected  = chuteToF.getIsDetected();
     }
 
     // == IO Implementation ========================================================
@@ -176,8 +188,8 @@ public class IndexerIOHardware implements IndexerIO {
         BaseStatusSignal.refreshAll(
             conveyorVelocity,       conveyorCurrent,
             kickerLeadVelocity,     kickerLeadCurrent,
-            kickerFollowCurrent,    kickerFollowVelocity,
-            chuteDistance,          chuteIsDetected
+            kickerFollowCurrent,    kickerFollowVelocity
+            // DISABLED (chute CANrange removed): chuteDistance, chuteIsDetected
         );
 
         inputs.conveyorVelocityRPS = conveyorVelocity.getValueAsDouble();
@@ -185,8 +197,12 @@ public class IndexerIOHardware implements IndexerIO {
         inputs.kickerLeadVelocityRPS  = kickerLeadVelocity.getValueAsDouble();
         inputs.kickerLeadCurrentAmps  = kickerLeadCurrent.getValueAsDouble();
         inputs.kickerFollowCurrentAmps = kickerFollowCurrent.getValueAsDouble();
-        inputs.chuteDistanceMeters = chuteDistance.getValueAsDouble();
-        inputs.chuteDetected       = chuteIsDetected.getValue();
+        // DISABLED (chute CANrange removed): report "nothing in the chute". CHUTE_MAX_DISTANCE is
+        // beyond FUEL_DETECTION_DISTANCE, so IndexerSubsystem never sees fuel.
+        // inputs.chuteDistanceMeters = chuteDistance.getValueAsDouble();
+        // inputs.chuteDetected       = chuteIsDetected.getValue();
+        inputs.chuteDistanceMeters = Constants.Indexer.CHUTE_MAX_DISTANCE;
+        inputs.chuteDetected       = false;
     }
 
     @Override

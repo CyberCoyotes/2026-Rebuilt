@@ -58,7 +58,7 @@ public final class Constants {
    * 26 Flywheel Right Kraken X60 (Shooter.FLYWHEEL_RIGHT_MOTOR_ID)
    * 27 Conveyor Kraken X44 (Indexer.CONVEYOR_MOTOR_ID)
    * 28 Hood Minion/FXIS (Shooter.HOOD_MOTOR_ID) - REMOVED (hood is now fixed)
-   * 42 Chute ToF CANrange (Indexer.CHUTE_TOF_ID)
+   * 42 Chute ToF CANrange (Indexer.CHUTE_TOF_ID) - REMOVED (shot feeding is timer-only)
    * 41 CANrange ToF for hopper top REMOVED
    */
 
@@ -226,7 +226,8 @@ public final class Constants {
     // public static final int HOPPER_TOF_ID = 41; 
 
     // CANrange Time of Flight sensor; detects presence of fuel at indexer-kicker
-    public static final int CHUTE_TOF_ID = 42;
+    // DISABLED (chute CANrange removed): sensor is no longer on the robot.
+    // public static final int CHUTE_TOF_ID = 42;
 
 
     /*
