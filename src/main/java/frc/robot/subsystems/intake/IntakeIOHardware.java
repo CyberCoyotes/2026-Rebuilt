@@ -1,15 +1,16 @@
 package frc.robot.subsystems.intake;
 
-import com.ctre.phoenix6.BaseStatusSignal;
-import com.ctre.phoenix6.StatusSignal;
-import com.ctre.phoenix6.configs.MotionMagicConfigs;
+// DISABLED (slides removed): only used by the slide.
+// import com.ctre.phoenix6.BaseStatusSignal;
+// import com.ctre.phoenix6.StatusSignal;
+// import com.ctre.phoenix6.configs.MotionMagicConfigs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 // import com.ctre.phoenix6.controls.Follower;
-import com.ctre.phoenix6.controls.MotionMagicVoltage;
+// import com.ctre.phoenix6.controls.MotionMagicVoltage;
 import com.ctre.phoenix6.controls.VelocityVoltage;
 import com.ctre.phoenix6.hardware.TalonFX;
-import edu.wpi.first.units.measure.Angle;
-import edu.wpi.first.units.measure.AngularVelocity;
+// import edu.wpi.first.units.measure.Angle;
+// import edu.wpi.first.units.measure.AngularVelocity;
 
 import frc.robot.Constants;
 import frc.robot.utilities.PhoenixUtil;
@@ -19,11 +20,11 @@ import frc.robot.utilities.PhoenixUtil;
  *
  * This class interfaces with:
  * - 1x TalonFX (roller) for spinning intake wheels
- * - 1x TalonFX (slide) for extending/retracting intake
+ * - (slide TalonFX removed - intake slide is now fixed)
  *
  * Key features:
  * - Uses centralized TalonFXConfigs for motor configuration
- * - Voltage control for roller, MotionMagic for slide
+ * - Velocity control for roller
  * - All telemetry logged via AdvantageKit
  *
  * @author @Isaak3
@@ -70,106 +71,109 @@ public class IntakeIOHardware implements IntakeIO {
         */
     }
 
+    // DISABLED (slides removed): slide config.
     // == Slide Configuration ======================================
-    private static class SlideConfig {
+    // private static class SlideConfig {
 
-        static TalonFXConfiguration slide() {
-            TalonFXConfiguration config = new TalonFXConfiguration();
+        // static TalonFXConfiguration slide() {
+            // TalonFXConfiguration config = new TalonFXConfiguration();
 
-            config.MotorOutput.NeutralMode = Constants.Intake.SlideConfig.NEUTRAL_MODE;
-            config.MotorOutput.Inverted = Constants.Intake.SlideConfig.INVERTED;
+            // config.MotorOutput.NeutralMode = Constants.Intake.SlideConfig.NEUTRAL_MODE;
+            // config.MotorOutput.Inverted = Constants.Intake.SlideConfig.INVERTED;
 
-            config.CurrentLimits.SupplyCurrentLimit = Constants.Intake.SlideConfig.SUPPLY_CURRENT_LIMIT;
-            config.CurrentLimits.SupplyCurrentLimitEnable = true;
-            config.CurrentLimits.StatorCurrentLimit = Constants.Intake.SlideConfig.STATOR_CURRENT_LIMIT;
-            config.CurrentLimits.StatorCurrentLimitEnable = true;
+            // config.CurrentLimits.SupplyCurrentLimit = Constants.Intake.SlideConfig.SUPPLY_CURRENT_LIMIT;
+            // config.CurrentLimits.SupplyCurrentLimitEnable = true;
+            // config.CurrentLimits.StatorCurrentLimit = Constants.Intake.SlideConfig.STATOR_CURRENT_LIMIT;
+            // config.CurrentLimits.StatorCurrentLimitEnable = true;
 
-            config.SoftwareLimitSwitch.ForwardSoftLimitEnable = true;
-            config.SoftwareLimitSwitch.ForwardSoftLimitThreshold = Constants.Intake.SLIDE_MAX_POS;
-            config.SoftwareLimitSwitch.ReverseSoftLimitEnable = true;
-            config.SoftwareLimitSwitch.ReverseSoftLimitThreshold = Constants.Intake.SlideConfig.REVERSE_SOFT_LIMIT;
+            // config.SoftwareLimitSwitch.ForwardSoftLimitEnable = true;
+            // config.SoftwareLimitSwitch.ForwardSoftLimitThreshold = Constants.Intake.SLIDE_MAX_POS;
+            // config.SoftwareLimitSwitch.ReverseSoftLimitEnable = true;
+            // config.SoftwareLimitSwitch.ReverseSoftLimitThreshold = Constants.Intake.SlideConfig.REVERSE_SOFT_LIMIT;
 
-            config.Slot0.kP = Constants.Intake.SlideConfig.KP;
-            config.Slot0.kI = Constants.Intake.SlideConfig.KI;
-            config.Slot0.kD = Constants.Intake.SlideConfig.KD;
-            config.Slot0.kS = Constants.Intake.SlideConfig.KS;
-            config.Slot0.kV = Constants.Intake.SlideConfig.KV;
-            config.Slot0.kA = Constants.Intake.SlideConfig.KA;
+            // config.Slot0.kP = Constants.Intake.SlideConfig.KP;
+            // config.Slot0.kI = Constants.Intake.SlideConfig.KI;
+            // config.Slot0.kD = Constants.Intake.SlideConfig.KD;
+            // config.Slot0.kS = Constants.Intake.SlideConfig.KS;
+            // config.Slot0.kV = Constants.Intake.SlideConfig.KV;
+            // config.Slot0.kA = Constants.Intake.SlideConfig.KA;
 
-            /* MotionMagic profile — starts with the fast (default) values */
-            config.MotionMagic.MotionMagicCruiseVelocity = Constants.Intake.SLIDE_MM_CRUISE_VELOCITY;
-            config.MotionMagic.MotionMagicAcceleration = Constants.Intake.SLIDE_MM_ACCELERATION;
-            config.MotionMagic.MotionMagicJerk = Constants.Intake.SLIDE_MM_JERK;
+            // /* MotionMagic profile — starts with the fast (default) values */
+            // config.MotionMagic.MotionMagicCruiseVelocity = Constants.Intake.SLIDE_MM_CRUISE_VELOCITY;
+            // config.MotionMagic.MotionMagicAcceleration = Constants.Intake.SLIDE_MM_ACCELERATION;
+            // config.MotionMagic.MotionMagicJerk = Constants.Intake.SLIDE_MM_JERK;
 
-            return config;
-        }
-    }
+            // return config;
+        // }
+    // }
 
     // == Hardware =============================================================
     private final TalonFX rollerLead; // Currently the left roller motor
     // private final TalonFX rollerFollow; // Currently the right motor
-    private final TalonFX slide;
+    // DISABLED (slides removed): slide motor.
+    // private final TalonFX slide;
 
     // == Control Requests =====================================================
     private final VelocityVoltage rollerRequest = new VelocityVoltage(0);
 
     // Single MotionMagic request used for both fast and slow slide movement.
     // The speed difference comes from swapping the motor's MotionMagic config.
-    private final MotionMagicVoltage slideRequest = new MotionMagicVoltage(0);
+    // private final MotionMagicVoltage slideRequest = new MotionMagicVoltage(0);
 
     // == MotionMagic Profile Configs ==========================================
     // Pre-built configs for swapping between fast and slow slide profiles.
     // Only the MotionMagic section is applied — PID, current limits, etc. stay unchanged.
-    private final MotionMagicConfigs fastProfile = new MotionMagicConfigs();
-    private final MotionMagicConfigs slowProfile = new MotionMagicConfigs();
-    private boolean slowProfileActive = false;
+    // private final MotionMagicConfigs fastProfile = new MotionMagicConfigs();
+    // private final MotionMagicConfigs slowProfile = new MotionMagicConfigs();
+    // private boolean slowProfileActive = false;
 
     // == Status Signals =============================================================
     // Current, voltage, and temp are captured by CTRE Hoot for diagnostics.
-    private final StatusSignal<Angle> slidePosition;
-    private final StatusSignal<AngularVelocity> slideVelocity;
+    // private final StatusSignal<Angle> slidePosition;
+    // private final StatusSignal<AngularVelocity> slideVelocity;
 
     public IntakeIOHardware() {
         rollerLead = new TalonFX(Constants.Intake.ROLLER_LEFT_MOTOR_ID, Constants.RIO_CANBUS);
         // rollerFollow = new TalonFX(Constants.Intake.ROLLER_RIGHT_MOTOR_ID, Constants.RIO_CANBUS);
 
-        slide  = new TalonFX(Constants.Intake.SLIDE_MOTOR_ID, Constants.RIO_CANBUS);
+        // slide  = new TalonFX(Constants.Intake.SLIDE_MOTOR_ID, Constants.RIO_CANBUS);
 
         PhoenixUtil.applyConfig("Roller Lead",   () -> rollerLead.getConfigurator().apply(RollerConfig.leader()));
         // PhoenixUtil.applyConfig("Roller Follow", () -> rollerFollow.getConfigurator().apply(RollerConfig.follower()));
-        PhoenixUtil.applyConfig("Slide",         () -> slide.getConfigurator().apply(SlideConfig.slide()));
+        // PhoenixUtil.applyConfig("Slide",         () -> slide.getConfigurator().apply(SlideConfig.slide()));
 
         // Build fast/slow MotionMagic configs for runtime profile swapping
-        fastProfile.MotionMagicCruiseVelocity = Constants.Intake.SLIDE_MM_CRUISE_VELOCITY;
-        fastProfile.MotionMagicAcceleration = Constants.Intake.SLIDE_MM_ACCELERATION;
-        fastProfile.MotionMagicJerk = Constants.Intake.SLIDE_MM_JERK;
+        // fastProfile.MotionMagicCruiseVelocity = Constants.Intake.SLIDE_MM_CRUISE_VELOCITY;
+        // fastProfile.MotionMagicAcceleration = Constants.Intake.SLIDE_MM_ACCELERATION;
+        // fastProfile.MotionMagicJerk = Constants.Intake.SLIDE_MM_JERK;
 
-        slowProfile.MotionMagicCruiseVelocity = Constants.Intake.SLIDE_SLOW_MM_CRUISE_VELOCITY;
-        slowProfile.MotionMagicAcceleration = Constants.Intake.SLIDE_SLOW_MM_ACCELERATION;
-        slowProfile.MotionMagicJerk = Constants.Intake.SLIDE_SLOW_MM_JERK;
+        // slowProfile.MotionMagicCruiseVelocity = Constants.Intake.SLIDE_SLOW_MM_CRUISE_VELOCITY;
+        // slowProfile.MotionMagicAcceleration = Constants.Intake.SLIDE_SLOW_MM_ACCELERATION;
+        // slowProfile.MotionMagicJerk = Constants.Intake.SLIDE_SLOW_MM_JERK;
 
         // Cache signal references — slide needs position and velocity for MotionMagic
         // and at-target checks. Roller has no control-critical signals to read.
-        slidePosition = slide.getPosition();
-        slideVelocity = slide.getVelocity();
+        // slidePosition = slide.getPosition();
+        // slideVelocity = slide.getVelocity();
 
         // rollerFollow.setControl(
         //         new Follower(rollerLead.getDeviceID(), Constants.Intake.RollerFollowerConfig.FOLLOWER_ALIGNMENT));
 
         // Zero slide encoder at startup
-        slide.setPosition(0);
+        // slide.setPosition(0);
     }
 
     @Override
     public void updateInputs(IntakeIO.IntakeIOInputs inputs) {
+        // DISABLED (slides removed): roller has no control-critical signals to read.
         // Refresh cached signals before reading — same pattern as IndexerIOHardware.
         // Without this, slidePositionRotations is always 0 (startup value), so
         // isSlideFullyExtended() / isSlideFullyRetracted() never update correctly.
-        BaseStatusSignal.refreshAll(slidePosition, slideVelocity);
+        // BaseStatusSignal.refreshAll(slidePosition, slideVelocity);
 
         // Slide position and velocity — needed every cycle for MotionMagic and at-target checks
-        inputs.slidePositionRotations = slidePosition.getValueAsDouble();
-        inputs.slideVelocityRPS = slideVelocity.getValueAsDouble();
+        // inputs.slidePositionRotations = slidePosition.getValueAsDouble();
+        // inputs.slideVelocityRPS = slideVelocity.getValueAsDouble();
 
     }
 
@@ -184,24 +188,25 @@ public class IntakeIOHardware implements IntakeIO {
         rollerLead.stopMotor();
     }
 
+    // DISABLED (slides removed): slide control.
     // ==== Slide Methods ====
-    @Override
-    public void setSlidePosition(double position) {
-        if (slowProfileActive) {
-            slide.getConfigurator().apply(fastProfile);
-            slowProfileActive = false;
-        }
-        slide.setControl(slideRequest.withPosition(position));
-    }
+    // @Override
+    // public void setSlidePosition(double position) {
+        // if (slowProfileActive) {
+            // slide.getConfigurator().apply(fastProfile);
+            // slowProfileActive = false;
+        // }
+        // slide.setControl(slideRequest.withPosition(position));
+    // }
 
-    @Override
-    public void setSlidePositionSlow(double position) {
-        if (!slowProfileActive) {
-            slide.getConfigurator().apply(slowProfile);
-            slowProfileActive = true;
-        }
-        slide.setControl(slideRequest.withPosition(position));
-    }
+    // @Override
+    // public void setSlidePositionSlow(double position) {
+        // if (!slowProfileActive) {
+            // slide.getConfigurator().apply(slowProfile);
+            // slowProfileActive = true;
+        // }
+        // slide.setControl(slideRequest.withPosition(position));
+    // }
 
     // This was not following the IO pattern and was being called directly by the subsystem
     // @Override
@@ -209,13 +214,13 @@ public class IntakeIOHardware implements IntakeIO {
     //     return slidePosition.getValueAsDouble();
     // }
 
-    @Override
-    public void stopSlide() {
-        slide.stopMotor();
-    }
+    // @Override
+    // public void stopSlide() {
+        // slide.stopMotor();
+    // }
 
-    @Override
-    public void resetSlideEncoder() {
-        slide.setPosition(0);
-    }
+    // @Override
+    // public void resetSlideEncoder() {
+        // slide.setPosition(0);
+    // }
 }

@@ -3,7 +3,8 @@ package frc.robot;
 import com.ctre.phoenix6.CANBus;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.MotorAlignmentValue;
-import com.ctre.phoenix6.signals.MotorArrangementValue;
+// DISABLED (hood removed): only used by Hood.HoodConfig
+// import com.ctre.phoenix6.signals.MotorArrangementValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 
 import edu.wpi.first.math.geometry.Translation2d;
@@ -25,7 +26,8 @@ public final class Constants {
   // CAN ID Quick Reference
   // =====================================================================
 
-  // candrive (CANivore) bus
+  // Swerve devices - formerly on the candrive CANivore bus. CANivore / CAN FD removed: these now share the
+  // RIO CAN bus with everything in the next list. All IDs across both lists are unique.
   /*
    * Check TunerConstants.java to confirm
    * 
@@ -49,13 +51,13 @@ public final class Constants {
    * 15 CANdle LEDs (Led.CANDLE_ID)
    * 20 Intake Roller Left Kraken X44 (Intake.ROLLER_LEFT_MOTOR_ID)
    * 21 Intake Roller Right Kraken X44 (Intake.ROLLER_RIGHT_MOTOR_ID)
-   * 22 Intake Slide Kraken X44 (Intake.SLIDE_MOTOR_ID)
+   * 22 Intake Slide Kraken X44 (Intake.SLIDE_MOTOR_ID) - REMOVED (slide is now fixed)
    * 23 Kicker Left Kraken X60 (Indexer.KICKER_LEFT_MOTOR_ID)
    * 24 Kicker Right Kraken X60 (Indexer.KICKER_RIGHT_MOTOR_ID)
    * 25 Flywheel Left Kraken X60 (Shooter.FLYWHEEL_LEFT_MOTOR_ID)
    * 26 Flywheel Right Kraken X60 (Shooter.FLYWHEEL_RIGHT_MOTOR_ID)
    * 27 Conveyor Kraken X44 (Indexer.CONVEYOR_MOTOR_ID)
-   * 28 Hood Minion/FXIS (Shooter.HOOD_MOTOR_ID)
+   * 28 Hood Minion/FXIS (Shooter.HOOD_MOTOR_ID) - REMOVED (hood is now fixed)
    * 42 Chute ToF CANrange (Indexer.CHUTE_TOF_ID)
    * 41 CANrange ToF for hopper top REMOVED
    */
@@ -78,25 +80,26 @@ public final class Constants {
     private Intake() {
     }
 
-    /* Kraken X44 with TalonFX controller (x3) */
+    /* Kraken X44 with TalonFX controller (x2 rollers; slide motor removed) */
     public static final int ROLLER_LEFT_MOTOR_ID = 20;
     public static final int ROLLER_RIGHT_MOTOR_ID = 21;
-    public static final int SLIDE_MOTOR_ID = 22;
+    // DISABLED (slides removed): slide motor ID, setpoints, fuel-pump timing and Motion Magic tuning are unused.
+    // public static final int SLIDE_MOTOR_ID = 22;
 
     // Slide setpoints and tuning values
-    public static final double SLIDE_RETRACTED_POS = 0.0;
-    public static final double SLIDE_HOME_POS = 19.18;
-    public static final double SLIDE_EXTENDED_POS = 60.00; //
-    public static final double SLIDE_MAX_POS = 65.75; // Confirmed 4-6-26
-    public static final double SLIDE_ROLLER_SAFE_MARGIN = 1.5;
-    public static final double SLIDE_ROLLER_SAFE_POS = SLIDE_HOME_POS + SLIDE_ROLLER_SAFE_MARGIN;
-    public static final double SLIDE_TOLERANCE = 0.025; // tighter
-    public static final double SLIDE_INCREMENTAL_RETRACT_ROTATIONS = 15.0;
-    public static final double SLIDE_MANUAL_STEP_ROTATIONS = 5.0;
-    public static final double SLIDE_MANUAL_REPEAT_SECONDS = 0.15;
-    public static final double SLIDE_PUMP_OUT_POS = 55.0;
-    public static final double SLIDE_PUMP_IN_POS = 40.0;
-    public static final double SLIDE_FUEL_COMPRESSION_WAIT_SECONDS = 0.0; 
+    // public static final double SLIDE_RETRACTED_POS = 0.0;
+    // public static final double SLIDE_HOME_POS = 19.18;
+    // public static final double SLIDE_EXTENDED_POS = 60.00; //
+    // public static final double SLIDE_MAX_POS = 65.75; // Confirmed 4-6-26
+    // public static final double SLIDE_ROLLER_SAFE_MARGIN = 1.5;
+    // public static final double SLIDE_ROLLER_SAFE_POS = SLIDE_HOME_POS + SLIDE_ROLLER_SAFE_MARGIN;
+    // public static final double SLIDE_TOLERANCE = 0.025; // tighter
+    // public static final double SLIDE_INCREMENTAL_RETRACT_ROTATIONS = 15.0;
+    // public static final double SLIDE_MANUAL_STEP_ROTATIONS = 5.0;
+    // public static final double SLIDE_MANUAL_REPEAT_SECONDS = 0.15;
+    // public static final double SLIDE_PUMP_OUT_POS = 55.0;
+    // public static final double SLIDE_PUMP_IN_POS = 40.0;
+    // public static final double SLIDE_FUEL_COMPRESSION_WAIT_SECONDS = 0.0;
     // Was 1.5
     // 0.5 too quick
     // 1.0 still seems quick
@@ -104,33 +107,33 @@ public final class Constants {
     // Trying 0.25
     // trying 0
 
-    public static final double SLIDE_FUEL_COMPRESSION_DURATION_SECONDS = 3.00;
+    // public static final double SLIDE_FUEL_COMPRESSION_DURATION_SECONDS = 3.00;
     // lowered to 3 at States
     // 2.5 seemed too fast
     // increased to 3.0
 
-    public static final double SLIDE_FUEL_PUMP_WAIT_SECONDS = 3.0;
-    public static final double SLIDE_FUEL_PUMP_OUT_SECONDS = 0.5;
-    public static final double SLIDE_FUEL_PUMP_IN_SECONDS = 0.5;
-    public static final double SLIDE_FUEL_PUMP_SENSOR_TIMEOUT_SECONDS = 5.0;
+    // public static final double SLIDE_FUEL_PUMP_WAIT_SECONDS = 3.0;
+    // public static final double SLIDE_FUEL_PUMP_OUT_SECONDS = 0.5;
+    // public static final double SLIDE_FUEL_PUMP_IN_SECONDS = 0.5;
+    // public static final double SLIDE_FUEL_PUMP_SENSOR_TIMEOUT_SECONDS = 5.0;
 
-    /*
-     * Adjust these motion magic values for normal slide modes.
-     * Normal Motion Magic values for moving the slide quickly to position.
-     * Add an end-of-line "Tuned" note when confirmed.
-     */
-    public static final double SLIDE_MM_CRUISE_VELOCITY = 640;
-    public static final double SLIDE_MM_ACCELERATION = 640;
-    public static final double SLIDE_MM_JERK = 0.0;
+    // /*
+     // * Adjust these motion magic values for normal slide modes.
+     // * Normal Motion Magic values for moving the slide quickly to position.
+     // * Add an end-of-line "Tuned" note when confirmed.
+     // */
+    // public static final double SLIDE_MM_CRUISE_VELOCITY = 640;
+    // public static final double SLIDE_MM_ACCELERATION = 640;
+    // public static final double SLIDE_MM_JERK = 0.0;
 
-    /*
-     * Adjust these motion magic values for slow slide modes.
-     * Slow Motion Magic values for moving the slide slowly to position.
-     * Add an end-of-line "Tuned" note when confirmed.
-     */
-    public static final double SLIDE_SLOW_MM_CRUISE_VELOCITY = 20; // 20 // 8 // 12 
-    public static final double SLIDE_SLOW_MM_ACCELERATION = 30; // 40 // 16 // 18
-    public static final double SLIDE_SLOW_MM_JERK = 0.0;
+    // /*
+     // * Adjust these motion magic values for slow slide modes.
+     // * Slow Motion Magic values for moving the slide slowly to position.
+     // * Add an end-of-line "Tuned" note when confirmed.
+     // */
+    // public static final double SLIDE_SLOW_MM_CRUISE_VELOCITY = 20; // 20 // 8 // 12
+    // public static final double SLIDE_SLOW_MM_ACCELERATION = 30; // 40 // 16 // 18
+    // public static final double SLIDE_SLOW_MM_JERK = 0.0;
 
     // Kraken X44 free speed ~96.7 RPS at 12V; 9V ≈ 72.5 RPS (rounded down to 70).
     // Reverse was -11V ≈ 88.5 RPS.  Tune on hardware.
@@ -166,40 +169,41 @@ public final class Constants {
       public static final MotorAlignmentValue FOLLOWER_ALIGNMENT = MotorAlignmentValue.Opposed;
     }
 
-    public static final class SlideConfig {
-      private SlideConfig() {
-      }
+    // DISABLED (slides removed): slide motor config.
+    // public static final class SlideConfig {
+      // private SlideConfig() {
+      // }
 
-      /*
-       * Changed from Brake to Coast. Idea that slide will push in some vs than
-       * breaking trying to hold position.
-       */
-      public static final NeutralModeValue NEUTRAL_MODE = NeutralModeValue.Coast;
-      public static final InvertedValue INVERTED = InvertedValue.CounterClockwise_Positive;
+      // /*
+       // * Changed from Brake to Coast. Idea that slide will push in some vs than
+       // * breaking trying to hold position.
+       // */
+      // public static final NeutralModeValue NEUTRAL_MODE = NeutralModeValue.Coast;
+      // public static final InvertedValue INVERTED = InvertedValue.CounterClockwise_Positive;
 
-      /* Intake slide Limits */
-      public static final double SUPPLY_CURRENT_LIMIT = 30.0;
+      // /* Intake slide Limits */
+      // public static final double SUPPLY_CURRENT_LIMIT = 30.0;
       // public static final double SUPPLY_CURRENT_LOWER_LIMIT = 40.0;
       // public static final double SUPPLY_CURRENT_LOWER_TIME = 1.0;
-      public static final double STATOR_CURRENT_LIMIT = 60.0;
-      public static final double REVERSE_SOFT_LIMIT = SLIDE_RETRACTED_POS;
-      public static final double FORWARD_SOFT_LIMIT = SLIDE_MAX_POS;
-      public static final double PEAK_FORWARD_VOLTAGE = 12.0;
-      public static final double PEAK_REVERSE_VOLTAGE = -12.0;
+      // public static final double STATOR_CURRENT_LIMIT = 60.0;
+      // public static final double REVERSE_SOFT_LIMIT = SLIDE_RETRACTED_POS;
+      // public static final double FORWARD_SOFT_LIMIT = SLIDE_MAX_POS;
+      // public static final double PEAK_FORWARD_VOLTAGE = 12.0;
+      // public static final double PEAK_REVERSE_VOLTAGE = -12.0;
 
-      /*
-       * Initial PID values for slide position control.
-       * Tune to minimize overshoot and oscillation while being snappy
-       * Add an end-of-line "Tuned" note when confirmed.
-       */
-      public static final double KS = 0.0;
-      public static final double KV = 1.0; // Tuned 4-8-2026
-      public static final double KP = 8.0; // Tuned 4-9-2026
-      public static final double KD = 0.0;
-      public static final double KA = 0.0;
-      public static final double KI = 0.0;
+      // /*
+       // * Initial PID values for slide position control.
+       // * Tune to minimize overshoot and oscillation while being snappy
+       // * Add an end-of-line "Tuned" note when confirmed.
+       // */
+      // public static final double KS = 0.0;
+      // public static final double KV = 1.0; // Tuned 4-8-2026
+      // public static final double KP = 8.0; // Tuned 4-9-2026
+      // public static final double KD = 0.0;
+      // public static final double KA = 0.0;
+      // public static final double KI = 0.0;
 
-    }
+    // }
 
   }
 
@@ -461,9 +465,13 @@ public final class Constants {
     private Hood() {
     }
 
+    // NOTE: Hood motor removed (fixed position). Pose values below are kept only as reference for retuning
+    // shot RPMs; nothing reads them now. Hardware, PID and config constants are commented out.
+
     // IDs
     // Hood motor - Minion with TalonFXS controller, adjusts shot angle.
-    public static final int HOOD_MOTOR_ID = 28;
+    // DISABLED (hood removed): hood motor ID.
+    // public static final int HOOD_MOTOR_ID = 28;
 
     // Mechanism setpoints and tuning
     public static final double MIN_POSE = 0.00; // Mechanical limit, also use to set in Configs
@@ -472,40 +480,45 @@ public final class Constants {
     public static final double TOLERANCE_POSE = 0.05;
 
     // Manual tuning increments used for bring-up and testing.
-    public static final double TEST_INCREMENT = 0.2;
-    public static final double ACCELERATION = 20;
-    public static final double CRUISE_VELOCITY = 40;
+    // DISABLED (hood removed): hood motion tuning.
+    // public static final double TEST_INCREMENT = 0.2;
+    // public static final double ACCELERATION = 20;
+    // public static final double CRUISE_VELOCITY = 40;
 
-    /*
-     * Tune these PID hood values if using motion magic
-     * Currently not being used
-     * NOT a Friday testing priority!
-     */
-    public static final double KP = 1.2;
-    public static final double KI = 0;
-    public static final double KD = 0;
+    // DISABLED (hood removed): hood PID.
+    // /*
+     // * Tune these PID hood values if using motion magic
+     // * Currently not being used
+     // * NOT a Friday testing priority!
+     // */
+    // public static final double KP = 1.2;
+    // public static final double KI = 0;
+    // public static final double KD = 0;
 
     // Hood limits
-    public static final double SUPPLY_CURRENT_LIMIT = 30;
-    public static final double STATOR_CURRENT_LIMIT = 40;
-    public static final double PEAK_FORWARD_VOLTAGE = 8.0;
-    public static final double PEAK_REVERSE_VOLTAGE = -8.0;
-    public static final double ENCODER_ZERO_POSITION = 0.0;
+    // DISABLED (hood removed): hood limits and encoder zero.
+    // public static final double SUPPLY_CURRENT_LIMIT = 30;
+    // public static final double STATOR_CURRENT_LIMIT = 40;
+    // public static final double PEAK_FORWARD_VOLTAGE = 8.0;
+    // public static final double PEAK_REVERSE_VOLTAGE = -8.0;
+    // public static final double ENCODER_ZERO_POSITION = 0.0;
 
-    public static final class HoodConfig {
-      private HoodConfig() {
-      }
+    // DISABLED (hood removed): hood motor config.
+    // public static final class HoodConfig {
+      // private HoodConfig() {
+      // }
 
-      public static final MotorArrangementValue MOTOR_ARRANGEMENT = MotorArrangementValue.Minion_JST;
-      public static final NeutralModeValue NEUTRAL_MODE = NeutralModeValue.Brake;
-      public static final InvertedValue INVERTED = InvertedValue.CounterClockwise_Positive;
-      public static final double REVERSE_SOFT_LIMIT = MIN_POSE;
-      public static final double FORWARD_SOFT_LIMIT = MAX_POSE;
+      // public static final MotorArrangementValue MOTOR_ARRANGEMENT = MotorArrangementValue.Minion_JST;
+      // public static final NeutralModeValue NEUTRAL_MODE = NeutralModeValue.Brake;
+      // public static final InvertedValue INVERTED = InvertedValue.CounterClockwise_Positive;
+      // public static final double REVERSE_SOFT_LIMIT = MIN_POSE;
+      // public static final double FORWARD_SOFT_LIMIT = MAX_POSE;
 
-    }
+    // }
 
-    public static final double JOYSTICK_DEADBAND = 0.1;
-    public static final double MANUAL_STEP = 0.2;
+    // DISABLED (hood removed): manual hood control.
+    // public static final double JOYSTICK_DEADBAND = 0.1;
+    // public static final double MANUAL_STEP = 0.2;
 
     public static final double POPPER_HOOD = 1.0;
 
@@ -516,6 +529,9 @@ public final class Constants {
   // Shooter Presets - These are combos of flywheel, hood values, and distance
   // =====================================================================
   public static final class Shooter {
+
+    // NOTE: Hood is fixed, so the *_HOOD values below are unused. Kept as reference for which hood angle each
+    // *_RPM was tuned against; the RPMs need retuning for the fixed hood angle.
 
     // Bumpers against the hub if possible
     // Increased RPM and - 30 inches on vision distance
@@ -586,6 +602,9 @@ public final class Constants {
   public static final class Vision {
     private Vision() {
     }
+
+    // NOTE: Limelight removed. The alignment commands that used these values are disabled; values are kept
+    // for tuning history until the second cleanup pass.
 
     // Camera configuration
     public static final String LIMELIGHT3_NAME = "limelight-three";

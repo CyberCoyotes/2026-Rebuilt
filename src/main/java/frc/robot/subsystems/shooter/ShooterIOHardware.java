@@ -3,12 +3,13 @@ package frc.robot.subsystems.shooter;
 import com.ctre.phoenix6.BaseStatusSignal;
 import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
-import com.ctre.phoenix6.configs.TalonFXSConfiguration;
+// DISABLED (hood removed): only used by the hood.
+// import com.ctre.phoenix6.configs.TalonFXSConfiguration;
 import com.ctre.phoenix6.controls.Follower;
 import com.ctre.phoenix6.controls.MotionMagicVelocityVoltage;
-import com.ctre.phoenix6.controls.PositionVoltage;
+// import com.ctre.phoenix6.controls.PositionVoltage;
 import com.ctre.phoenix6.hardware.TalonFX;
-import com.ctre.phoenix6.hardware.TalonFXS;
+// import com.ctre.phoenix6.hardware.TalonFXS;
 
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Temperature;
@@ -79,46 +80,48 @@ public class ShooterIOHardware implements ShooterIO {
     }
   }
 
+  // DISABLED (hood removed): hood motor config.
   // == Hood Configuration ==========================================================
-  private static class HoodConfig {
+  // private static class HoodConfig {
 
-    static TalonFXSConfiguration hood() {
-      TalonFXSConfiguration config = new TalonFXSConfiguration();
+    // static TalonFXSConfiguration hood() {
+      // TalonFXSConfiguration config = new TalonFXSConfiguration();
 
-      config.Commutation.MotorArrangement = Constants.Hood.HoodConfig.MOTOR_ARRANGEMENT;
-      config.MotorOutput.NeutralMode = Constants.Hood.HoodConfig.NEUTRAL_MODE;
-      config.MotorOutput.Inverted = Constants.Hood.HoodConfig.INVERTED;
+      // config.Commutation.MotorArrangement = Constants.Hood.HoodConfig.MOTOR_ARRANGEMENT;
+      // config.MotorOutput.NeutralMode = Constants.Hood.HoodConfig.NEUTRAL_MODE;
+      // config.MotorOutput.Inverted = Constants.Hood.HoodConfig.INVERTED;
 
       // Voltage limits capped for safe hood movement and plenty fast for short-range repositioning.
-      config.Voltage.PeakForwardVoltage = Constants.Hood.PEAK_FORWARD_VOLTAGE;
-      config.Voltage.PeakReverseVoltage = Constants.Hood.PEAK_REVERSE_VOLTAGE;
+      // config.Voltage.PeakForwardVoltage = Constants.Hood.PEAK_FORWARD_VOLTAGE;
+      // config.Voltage.PeakReverseVoltage = Constants.Hood.PEAK_REVERSE_VOLTAGE;
 
-      config.CurrentLimits.SupplyCurrentLimit = Constants.Hood.SUPPLY_CURRENT_LIMIT;
-      config.CurrentLimits.SupplyCurrentLimitEnable = true;
+      // config.CurrentLimits.SupplyCurrentLimit = Constants.Hood.SUPPLY_CURRENT_LIMIT;
+      // config.CurrentLimits.SupplyCurrentLimitEnable = true;
 
       // Position PID - Slot 0
-      config.Slot0.kP = Constants.Hood.KP;
-      config.Slot0.kI = Constants.Hood.KI;
-      config.Slot0.kD = Constants.Hood.KD;
+      // config.Slot0.kP = Constants.Hood.KP;
+      // config.Slot0.kI = Constants.Hood.KI;
+      // config.Slot0.kD = Constants.Hood.KD;
 
       // Soft limits
-      config.SoftwareLimitSwitch.ForwardSoftLimitEnable = true;
-      config.SoftwareLimitSwitch.ForwardSoftLimitThreshold = Constants.Hood.MAX_POSE;
-      config.SoftwareLimitSwitch.ReverseSoftLimitEnable = true;
-      config.SoftwareLimitSwitch.ReverseSoftLimitThreshold = Constants.Hood.MIN_POSE;
+      // config.SoftwareLimitSwitch.ForwardSoftLimitEnable = true;
+      // config.SoftwareLimitSwitch.ForwardSoftLimitThreshold = Constants.Hood.MAX_POSE;
+      // config.SoftwareLimitSwitch.ReverseSoftLimitEnable = true;
+      // config.SoftwareLimitSwitch.ReverseSoftLimitThreshold = Constants.Hood.MIN_POSE;
 
-      return config;
-    }
-  }
+      // return config;
+    // }
+  // }
 
   // == Hardware ==============================================================
   private final TalonFX flywheelLeader;
   private final TalonFX flywheelFollower;
-  private final TalonFXS hoodMotor;
+  // DISABLED (hood removed): hood motor.
+  // private final TalonFXS hoodMotor;
 
   // == Control Requests =====================================================
  private final MotionMagicVelocityVoltage flywheelVelocityRequest = new MotionMagicVelocityVoltage(0.0).withEnableFOC(false);
-private final PositionVoltage hoodPositionRequest = new PositionVoltage(0.0).withEnableFOC(false);
+// private final PositionVoltage hoodPositionRequest = new PositionVoltage(0.0).withEnableFOC(false);
 
   // Flywheel follower was mechanically flipped again, so it must oppose the
   // leader's shaft rotation while still producing the same flywheel surface
@@ -133,13 +136,13 @@ private final PositionVoltage hoodPositionRequest = new PositionVoltage(0.0).wit
   private final StatusSignal<Voltage> flywheelLeaderVoltage;
   private final StatusSignal<Temperature> flywheelLeaderTempCelsius;
   private final StatusSignal<Temperature> flywheelFollowerTempCelsius;
-  private final StatusSignal<?> hoodPosition;
+  // private final StatusSignal<?> hoodPosition;
 
   // == Constructor =======================================================
   public ShooterIOHardware() {
     flywheelLeader = new TalonFX(Constants.Flywheel.FLYWHEEL_LEFT_MOTOR_ID, Constants.RIO_CANBUS);
     flywheelFollower = new TalonFX(Constants.Flywheel.FLYWHEEL_RIGHT_MOTOR_ID, Constants.RIO_CANBUS);
-    hoodMotor = new TalonFXS(Constants.Hood.HOOD_MOTOR_ID, Constants.RIO_CANBUS);
+    // hoodMotor = new TalonFXS(Constants.Hood.HOOD_MOTOR_ID, Constants.RIO_CANBUS);
 
     // Apply configs with retry logic - bare apply() can fail silently on RIO CAN
     // bus if the device is still booting. PhoenixUtil retries up to 5 times and
@@ -148,33 +151,33 @@ private final PositionVoltage hoodPositionRequest = new PositionVoltage(0.0).wit
         () -> flywheelLeader.getConfigurator().apply(FlywheelConfig.leader()));
     PhoenixUtil.applyConfig("Flywheel Follower",
         () -> flywheelFollower.getConfigurator().apply(FlywheelConfig.follower()));
-    PhoenixUtil.applyConfig("Hood",
-        () -> hoodMotor.getConfigurator().apply(HoodConfig.hood()));
+    // PhoenixUtil.applyConfig("Hood",
+        // () -> hoodMotor.getConfigurator().apply(HoodConfig.hood()));
 
     // Cache status signal references
     flywheelLeaderVelocity = flywheelLeader.getVelocity();
     flywheelLeaderVoltage = flywheelLeader.getMotorVoltage();
     flywheelLeaderTempCelsius = flywheelLeader.getDeviceTemp();
     flywheelFollowerTempCelsius = flywheelFollower.getDeviceTemp();
-    hoodPosition = hoodMotor.getPosition();
+    // hoodPosition = hoodMotor.getPosition();
 
     // Disable all status frames not explicitly re-enabled below.
     // optimizeBusUtilization() suppresses ALL frames - setUpdateFrequency calls
     // MUST come AFTER this call or they will be cleared.
     flywheelLeader.optimizeBusUtilization();
     flywheelFollower.optimizeBusUtilization();
-    hoodMotor.optimizeBusUtilization();
+    // hoodMotor.optimizeBusUtilization();
 
     BaseStatusSignal.setUpdateFrequencyForAll(
         100.0,
         flywheelLeader.getDutyCycle(),
         flywheelLeaderVoltage);
 
-    // 50Hz - control loop needs fresh velocity and position every cycle.
+    // 50Hz - control loop needs fresh velocity every cycle.
+    // DISABLED (hood removed): hoodPosition was also refreshed at 50Hz here.
     BaseStatusSignal.setUpdateFrequencyForAll(
         50.0,
-        flywheelLeaderVelocity,
-        hoodPosition);
+        flywheelLeaderVelocity);
 
     // 10Hz - temperature health check
     BaseStatusSignal.setUpdateFrequencyForAll(
@@ -187,7 +190,7 @@ private final PositionVoltage hoodPositionRequest = new PositionVoltage(0.0).wit
     flywheelFollower.setControl(flywheelFollowerRequest);
 
     // Initialize hood to known zero position
-    hoodMotor.setPosition(Constants.Hood.ENCODER_ZERO_POSITION);
+    // hoodMotor.setPosition(Constants.Hood.ENCODER_ZERO_POSITION);
   }
 
   // == IO Implementation ==================================================
@@ -202,13 +205,14 @@ private final PositionVoltage hoodPositionRequest = new PositionVoltage(0.0).wit
 
   @Override
   public void updateInputs(ShooterIOInputs inputs) {
-    BaseStatusSignal.refreshAll(flywheelLeaderVelocity, flywheelLeaderVoltage, hoodPosition);
+    BaseStatusSignal.refreshAll(flywheelLeaderVelocity, flywheelLeaderVoltage);
 
     double motorRPS = flywheelLeaderVelocity.getValueAsDouble();
     inputs.flywheelLeaderMotorRPS = motorRPS;
     inputs.flywheelLeaderMotorRPM = rpsToRPM(motorRPS);
     inputs.flywheelAppliedVolts = flywheelLeaderVoltage.getValueAsDouble();
-    inputs.hoodPositionRotations = hoodPosition.getValueAsDouble();
+    // DISABLED (hood removed): hood position input.
+    // inputs.hoodPositionRotations = hoodPosition.getValueAsDouble();
   }
 
   @Override
@@ -225,16 +229,17 @@ private final PositionVoltage hoodPositionRequest = new PositionVoltage(0.0).wit
     flywheelLeader.stopMotor();
   }
 
-  @Override
-  public void setHoodPose(double rawPosition) {
-    hoodMotor.setControl(hoodPositionRequest.withPosition(rawPosition));
-  }
+  // DISABLED (hood removed): hood control.
+  // @Override
+  // public void setHoodPose(double rawPosition) {
+    // hoodMotor.setControl(hoodPositionRequest.withPosition(rawPosition));
+  // }
 
   @Override
   public void stop() {
     // Stop leader only - follower mirrors to neutral automatically (see stopFlywheels).
     flywheelLeader.stopMotor();
-    hoodMotor.stopMotor();
+    // hoodMotor.stopMotor();
   }
 
   // == Unit Conversions ===================================================

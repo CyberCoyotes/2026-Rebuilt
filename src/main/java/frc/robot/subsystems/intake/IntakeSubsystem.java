@@ -2,11 +2,13 @@ package frc.robot.subsystems.intake;
 
 import java.util.function.BooleanSupplier;
 
-import edu.wpi.first.networktables.DoublePublisher;
+// DISABLED (slides removed): only used by the slide position publisher.
+// import edu.wpi.first.networktables.DoublePublisher;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.networktables.StringPublisher;
-import edu.wpi.first.wpilibj.Timer;
+// DISABLED (slides removed): only used by the fuel-pump cycle.
+// import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -41,12 +43,12 @@ public class IntakeSubsystem extends SubsystemBase {
     // Elastic Dashboard Publishers
     // =====================================================================
 
-    // Driver-awareness data: state string, slide position, and at-target booleans.
-    // Raw motor signals are captured automatically by CTRE Hoot — no need to
-    // duplicate them here.
+    // Driver-awareness data: roller state string. Raw motor signals are captured
+    // automatically by CTRE Hoot - no need to duplicate them here.
     private final NetworkTable intakeTable;
     private final StringPublisher intakeStatePublisher;
-    private final DoublePublisher slidePositionPublisher;
+    // DISABLED (slides removed): slide position publisher.
+    // private final DoublePublisher slidePositionPublisher;
 
     // =====================================================================
     // Constructor
@@ -57,7 +59,7 @@ public class IntakeSubsystem extends SubsystemBase {
         NetworkTableInstance inst = NetworkTableInstance.getDefault();
         intakeTable = inst.getTable("Intake");
         intakeStatePublisher = intakeTable.getStringTopic("State").publish();
-        slidePositionPublisher = intakeTable.getDoubleTopic("SlidePosition").publish();
+        // slidePositionPublisher = intakeTable.getDoubleTopic("SlidePosition").publish();
     }
 
     // =====================================================================
@@ -73,7 +75,7 @@ public class IntakeSubsystem extends SubsystemBase {
     // Driver-facing telemetry pushed to NetworkTables for Elastic Dashboard.
     private void publishTelemetry() {
         intakeStatePublisher.set(getIntakeState());
-        slidePositionPublisher.set(inputs.slidePositionRotations);
+        // slidePositionPublisher.set(inputs.slidePositionRotations);
     }
 
     // =====================================================================
@@ -91,43 +93,56 @@ public class IntakeSubsystem extends SubsystemBase {
         return rollerState == RollerState.RUNNING;
     }
 
-    /** True when slide is within tolerance of the extended setpoint. */
-    public boolean isSlideExtended() {
-        return Math.abs(inputs.slidePositionRotations - Constants.Intake.SLIDE_EXTENDED_POS) < Constants.Intake.SLIDE_TOLERANCE;
-    }
+    // DISABLED (slides removed): slide state queries.
+    // /** True when slide is within tolerance of the extended setpoint. */
+    // public boolean isSlideExtended() {
+        // return Math.abs(inputs.slidePositionRotations - Constants.Intake.SLIDE_EXTENDED_POS) < Constants.Intake.SLIDE_TOLERANCE;
+    // }
 
-    /** True when slide is within tolerance of the true startup zero / hard-stop setpoint. */
-    public boolean isSlideRetracted() {
-        return Math.abs(inputs.slidePositionRotations - Constants.Intake.SLIDE_RETRACTED_POS) < Constants.Intake.SLIDE_TOLERANCE;
-    }
+    // /** True when slide is within tolerance of the true startup zero / hard-stop setpoint. */
+    // public boolean isSlideRetracted() {
+        // return Math.abs(inputs.slidePositionRotations - Constants.Intake.SLIDE_RETRACTED_POS) < Constants.Intake.SLIDE_TOLERANCE;
+    // }
 
-    /** True when slide is within tolerance of the normal operating home/stow setpoint. */
-    public boolean isSlideHome() {
-        return Math.abs(inputs.slidePositionRotations - Constants.Intake.SLIDE_HOME_POS) < Constants.Intake.SLIDE_TOLERANCE;
-    }
+    // /** True when slide is within tolerance of the normal operating home/stow setpoint. */
+    // public boolean isSlideHome() {
+        // return Math.abs(inputs.slidePositionRotations - Constants.Intake.SLIDE_HOME_POS) < Constants.Intake.SLIDE_TOLERANCE;
+    // }
 
-    /** True when the slide is safely past the home position for roller operation. */
-    public boolean isSlidePastHome() {
-        return inputs.slidePositionRotations > Constants.Intake.SLIDE_ROLLER_SAFE_POS;
-    }
+    // /** True when the slide is safely past the home position for roller operation. */
+    // public boolean isSlidePastHome() {
+        // return inputs.slidePositionRotations > Constants.Intake.SLIDE_ROLLER_SAFE_POS;
+    // }
 
     // Position accessor for commands and calculations.
-    public double getSlidePositionRotations() {
-        return inputs.slidePositionRotations;
-    }
+    // public double getSlidePositionRotations() {
+        // return inputs.slidePositionRotations;
+    // }
+
+    // DISABLED (slides removed): slide-based state; replaced by a roller-only version below.
+    // public String getIntakeState() {
+        // if (isSlideExtended() && rollerState == RollerState.RUNNING)
+            // return "Intaking";
+        // if (isSlideExtended() && rollerState == RollerState.REVERSED)
+            // return "Ejecting";
+        // if (isSlideExtended())
+            // return "Extended";
+        // if (isSlideHome())
+            // return "Home";
+        // if (isSlideRetracted())
+            // return "Retracted";
+        // return "Moving";
+    // }
 
     public String getIntakeState() {
-        if (isSlideExtended() && rollerState == RollerState.RUNNING)
-            return "Intaking";
-        if (isSlideExtended() && rollerState == RollerState.REVERSED)
-            return "Ejecting";
-        if (isSlideExtended())
-            return "Extended";
-        if (isSlideHome())
-            return "Home";
-        if (isSlideRetracted())
-            return "Retracted";
-        return "Moving";
+        switch (rollerState) {
+            case RUNNING:
+                return "Intaking";
+            case REVERSED:
+                return "Ejecting";
+            default:
+                return "Stopped";
+        }
     }
 
     // =========================================================================
@@ -157,32 +172,33 @@ public class IntakeSubsystem extends SubsystemBase {
         rollerState = RollerState.STOPPED;
     }
 
+    // DISABLED (slides removed): slide actuators.
     // ==== Slide ====
-    /** Fast full extension using the default Motion Magic profile. */
-    public void extendSlidesFast() {
-        io.setSlidePosition(Constants.Intake.SLIDE_EXTENDED_POS);
-    }
+    // /** Fast full extension using the default Motion Magic profile. */
+    // public void extendSlidesFast() {
+        // io.setSlidePosition(Constants.Intake.SLIDE_EXTENDED_POS);
+    // }
 
-    /** Fast full retraction using the default Motion Magic profile. */
-    public void retractSlidesFast() {
-        io.setSlidePosition(Constants.Intake.SLIDE_RETRACTED_POS);
-    }
+    // /** Fast full retraction using the default Motion Magic profile. */
+    // public void retractSlidesFast() {
+        // io.setSlidePosition(Constants.Intake.SLIDE_RETRACTED_POS);
+    // }
 
-    /** Graceful full retraction using the tunable slow DynamicMotionMagic profile. */
-    public void retractSlidesSlow() {
-        io.setSlidePositionSlow(Constants.Intake.SLIDE_RETRACTED_POS);
-    }
+    // /** Graceful full retraction using the tunable slow DynamicMotionMagic profile. */
+    // public void retractSlidesSlow() {
+        // io.setSlidePositionSlow(Constants.Intake.SLIDE_RETRACTED_POS);
+    // }
 
-    /** Graceful full retraction using the tunable slow DynamicMotionMagic profile. */
-    public void retractSlidesPartial() {
-        io.setSlidePositionSlow(Constants.Intake.SLIDE_PUMP_IN_POS); 
+    // /** Graceful full retraction using the tunable slow DynamicMotionMagic profile. */
+    // public void retractSlidesPartial() {
+        // io.setSlidePositionSlow(Constants.Intake.SLIDE_PUMP_IN_POS);
         // Adjust this to a partial retract position if we want a gentler retract that doesn't go all the way to the hard stop.
-    }
+    // }
 
-    /** Fast move to the normal operating home/stow setpoint using the default Motion Magic profile. */
-    public void moveSlidesHome() {
-        io.setSlidePosition(Constants.Intake.SLIDE_HOME_POS);
-    }
+    // /** Fast move to the normal operating home/stow setpoint using the default Motion Magic profile. */
+    // public void moveSlidesHome() {
+        // io.setSlidePosition(Constants.Intake.SLIDE_HOME_POS);
+    // }
 
     // /** Backward-compatible alias for the default full extension mode. */
     // public void extendSlides() {
@@ -194,46 +210,46 @@ public class IntakeSubsystem extends SubsystemBase {
     //     retractSlidesFast();
     // }
 
-    public void stopSlide() {
-        io.stopSlide();
-    }
+    // public void stopSlide() {
+        // io.stopSlide();
+    // }
 
-    /** Zeroes the slide encoder. Call only when the slide is physically at the retracted hard stop. */
-    public void resetSlideEncoder() {
-        io.resetSlideEncoder();
-    }
+    // /** Zeroes the slide encoder. Call only when the slide is physically at the retracted hard stop. */
+    // public void resetSlideEncoder() {
+        // io.resetSlideEncoder();
+    // }
 
-    /**
-     * Moves slide to an arbitrary position via MotionMagic. Motor holds after.
-     * Caller is responsible for clamping to valid range.
-     */
-    public void setSlidesToPosition(double position) {
-        io.setSlidePosition(position);
-    }
+    // /**
+     // * Moves slide to an arbitrary position via MotionMagic. Motor holds after.
+     // * Caller is responsible for clamping to valid range.
+     // */
+    // public void setSlidesToPosition(double position) {
+        // io.setSlidePosition(position);
+    // }
 
-    /**
-     * Nudges the slide by a relative amount, clamped to the allowed travel range.
-     * Useful for manual operator adjustment without committing to a fixed preset.
-     */
-    public void nudgeSlides(double deltaRotations) {
-        double target = Math.max(
-                Constants.Intake.SLIDE_RETRACTED_POS,
-                Math.min(
-                        inputs.slidePositionRotations + deltaRotations,
-                        Constants.Intake.SLIDE_MAX_POS));
-        io.setSlidePosition(target);
-    }
+    // /**
+     // * Nudges the slide by a relative amount, clamped to the allowed travel range.
+     // * Useful for manual operator adjustment without committing to a fixed preset.
+     // */
+    // public void nudgeSlides(double deltaRotations) {
+        // double target = Math.max(
+                // Constants.Intake.SLIDE_RETRACTED_POS,
+                // Math.min(
+                        // inputs.slidePositionRotations + deltaRotations,
+                        // Constants.Intake.SLIDE_MAX_POS));
+        // io.setSlidePosition(target);
+    // }
 
-    /**
-     * Retracts slide by 15 rotations from its current position, clamped to the
-     * true retracted position. Used as a quick incremental jump before slow-finishing.
-     */
-    public void retractSlidesIncremental() {
-        double target = Math.max(
-                inputs.slidePositionRotations - Constants.Intake.SLIDE_INCREMENTAL_RETRACT_ROTATIONS,
-                Constants.Intake.SLIDE_RETRACTED_POS);
-        io.setSlidePosition(target);
-    }
+    // /**
+     // * Retracts slide by 15 rotations from its current position, clamped to the
+     // * true retracted position. Used as a quick incremental jump before slow-finishing.
+     // */
+    // public void retractSlidesIncremental() {
+        // double target = Math.max(
+                // inputs.slidePositionRotations - Constants.Intake.SLIDE_INCREMENTAL_RETRACT_ROTATIONS,
+                // Constants.Intake.SLIDE_RETRACTED_POS);
+        // io.setSlidePosition(target);
+    // }
 
     // =========================================================================
     // COMMAND FACTORIES — ROLLER
@@ -257,42 +273,43 @@ public class IntakeSubsystem extends SubsystemBase {
     // COMMAND FACTORIES — SLIDE
     // =========================================================================
 
-      /**
-     * Sends slide to the extended setpoint (runOnce — MotionMagic holds position).
-     */
-    public Command extendSlidesFastCmd() {
-        return Commands.runOnce(this::extendSlidesFast, this)
-                .withName("ExtendSlides");
-    }
+      // DISABLED (slides removed): slide command factories.
+      // /**
+     // * Sends slide to the extended setpoint (runOnce — MotionMagic holds position).
+     // */
+    // public Command extendSlidesFastCmd() {
+        // return Commands.runOnce(this::extendSlidesFast, this)
+                // .withName("ExtendSlides");
+    // }
 
-    /**
-     * Sends slide to the retracted setpoint (runOnce — MotionMagic holds position).
-     */
-    public Command retractSlidesFastCmd() {
-        return Commands.runOnce(this::retractSlidesFast, this)
-                .withName("RetractSlides");
-    }
+    // /**
+     // * Sends slide to the retracted setpoint (runOnce — MotionMagic holds position).
+     // */
+    // public Command retractSlidesFastCmd() {
+        // return Commands.runOnce(this::retractSlidesFast, this)
+                // .withName("RetractSlides");
+    // }
 
-    /**
-     * Sends slide to the retracted setpoint using the slow profile
-     * (runOnce — MotionMagic holds position).
-     */
-    public Command retractSlidesSlowCmd() {
-        return Commands.runOnce(this::retractSlidesSlow, this)
-                .withName("RetractSlidesSlow");
-    }
+    // /**
+     // * Sends slide to the retracted setpoint using the slow profile
+     // * (runOnce — MotionMagic holds position).
+     // */
+    // public Command retractSlidesSlowCmd() {
+        // return Commands.runOnce(this::retractSlidesSlow, this)
+                // .withName("RetractSlidesSlow");
+    // }
 
-    public Command moveSlidesHomeCmd() {
-        return Commands.runOnce(this::moveSlidesHome, this)
-                .withName("MoveSlidesHome");
-    }
+    // public Command moveSlidesHomeCmd() {
+        // return Commands.runOnce(this::moveSlidesHome, this)
+                // .withName("MoveSlidesHome");
+    // }
 
 
-    /** Re-issues the slow retract profile while held so the slide keeps working toward zero. */
-    public Command retractSlidesSlowHeldCmd() {
-        return Commands.run(this::retractSlidesSlow, this)
-                .withName("RetractSlidesSlowHeld");
-    }
+    // /** Re-issues the slow retract profile while held so the slide keeps working toward zero. */
+    // public Command retractSlidesSlowHeldCmd() {
+        // return Commands.run(this::retractSlidesSlow, this)
+                // .withName("RetractSlidesSlowHeld");
+    // }
 
     // /** Backward-compatible alias for the default full extension command. */
     // public Command extendSlidesCmd() {
@@ -304,41 +321,41 @@ public class IntakeSubsystem extends SubsystemBase {
     //     return retractSlidesFastCmd();
     // }
 
-    /**
-     * Retracts slide by 15 rotations per call. Useful as a single button-tap
-     * to nudge the slide back in stages without committing to full retraction.
-     */
-    public Command retractSlidesIncrementalCmd() {
-        return Commands.runOnce(this::retractSlidesIncremental, this)
-                .withName("RetractSlidesIncremental");
-    }
+    // /**
+     // * Retracts slide by 15 rotations per call. Useful as a single button-tap
+     // * to nudge the slide back in stages without committing to full retraction.
+     // */
+    // public Command retractSlidesIncrementalCmd() {
+        // return Commands.runOnce(this::retractSlidesIncremental, this)
+                // .withName("RetractSlidesIncremental");
+    // }
 
-    /** Repeats a small manual slide nudge while held. */
-    public Command manualSlideNudgeHoldCmd(double deltaRotations) {
-        return Commands.repeatingSequence(
-                Commands.runOnce(() -> nudgeSlides(deltaRotations), this),
-                Commands.waitSeconds(Constants.Intake.SLIDE_MANUAL_REPEAT_SECONDS))
-                .withName(deltaRotations >= 0.0 ? "ManualSlideExtendHold" : "ManualSlideRetractHold");
-    }
+    // /** Repeats a small manual slide nudge while held. */
+    // public Command manualSlideNudgeHoldCmd(double deltaRotations) {
+        // return Commands.repeatingSequence(
+                // Commands.runOnce(() -> nudgeSlides(deltaRotations), this),
+                // Commands.waitSeconds(Constants.Intake.SLIDE_MANUAL_REPEAT_SECONDS))
+                // .withName(deltaRotations >= 0.0 ? "ManualSlideExtendHold" : "ManualSlideRetractHold");
+    // }
 
-    /** Extends the slide in small repeated steps while held. */
-    public Command manualSlideExtendHoldCmd() {
-        return manualSlideNudgeHoldCmd(Constants.Intake.SLIDE_MANUAL_STEP_ROTATIONS);
-    }
+    // /** Extends the slide in small repeated steps while held. */
+    // public Command manualSlideExtendHoldCmd() {
+        // return manualSlideNudgeHoldCmd(Constants.Intake.SLIDE_MANUAL_STEP_ROTATIONS);
+    // }
 
-    /** Retracts the slide in small repeated steps while held. */
-    public Command manualSlideRetractHoldCmd() {
-        return manualSlideNudgeHoldCmd(-Constants.Intake.SLIDE_MANUAL_STEP_ROTATIONS);
-    }
+    // /** Retracts the slide in small repeated steps while held. */
+    // public Command manualSlideRetractHoldCmd() {
+        // return manualSlideNudgeHoldCmd(-Constants.Intake.SLIDE_MANUAL_STEP_ROTATIONS);
+    // }
 
-    /**
-     * Zeroes the slide encoder (runOnce). Use only when the slide is physically
-     * at the retracted hard stop — e.g. during a known-position initialization sequence.
-     */
-    public Command resetSlideEncoderCmd() {
-        return Commands.runOnce(this::resetSlideEncoder, this)
-                .withName("ResetSlideEncoder");
-    }
+    // /**
+     // * Zeroes the slide encoder (runOnce). Use only when the slide is physically
+     // * at the retracted hard stop — e.g. during a known-position initialization sequence.
+     // */
+    // public Command resetSlideEncoderCmd() {
+        // return Commands.runOnce(this::resetSlideEncoder, this)
+                // .withName("ResetSlideEncoder");
+    // }
 
      // =========================================================================
     // COMMAND FACTORIES — TELEOP COMBINATIONS
@@ -347,123 +364,122 @@ public class IntakeSubsystem extends SubsystemBase {
     /**
      * Primary teleop intake command. Bind to a button with whileTrue().
      *
-     * While held:
-     *   1. Extends slides to the full-out setpoint (completes immediately).
-     *   2. Runs roller continuously.
-     * On release:
-     *   - Roller stops. Slides stay extended (MotionMagic holds them).
+     * While held: runs the roller continuously.
+     * On release: roller stops.
      *
-     * Note: extendSlidesFastCmd() (runOnce) is used rather than calling extendSlidesFast()
-     * directly inside a lambda — the runOnce approach was more reliable on hardware.
+     * Slides were removed (fixed position), so there is no extend step anymore.
      */
     public Command intakeFuel() {
         return Commands.sequence(
-                extendSlidesFastCmd(),
+                // DISABLED (slides removed): no slide to extend.
+                // extendSlidesFastCmd(),
                 Commands.run(this::runRoller, this)
                         .finallyDo(this::stopRoller))
                 .withName("IntakeFuel");
     }
 
     /**
-     * Stops roller and retracts slides in a single action.
-     * Bind to a button with onTrue() to cancel intakeFuel() and stow the intake.
+     * Stops the roller in a single action.
+     * Bind to a button with onTrue() to cancel intakeFuel(). Slides were removed, so there is no stow step.
      */
     public Command stopFuel() {
         return Commands.runOnce(
                 () -> {
                     stopRoller();
-                    retractSlidesFast();
+                    // DISABLED (slides removed): no slide to retract.
+                    // retractSlidesFast();
                 }, this)
                 .withName("StopFuel");
     }
 
-    /**
-     * Timed compress — slowly retracts slides using the slow DynamicMotionMagic
-     * profile while running the roller to compact fuel into the hopper.
-     *
-     * Ends automatically after {@code timeoutSeconds}. Good for a timed button
-     * press where you want the action to finish on its own.
-     *
-     * Typical usage:
-     * <pre>
-     *   operator.leftBumper().onTrue(intake.compressFuel(2.0));
-     * </pre>
-     *
-     * @param timeoutSeconds How long to run (~2.0 s matches typical slide travel).
-     */
-    public Command compressFuel(double timeoutSeconds) {
-        return compressFuel(0.0, timeoutSeconds)
-                .withName("CompressFuel");
-    }
+    // DISABLED (slides removed): fuel compression retracted the slide while shooting.
+    // /**
+     // * Timed compress — slowly retracts slides using the slow DynamicMotionMagic
+     // * profile while running the roller to compact fuel into the hopper.
+     // *
+     // * Ends automatically after {@code timeoutSeconds}. Good for a timed button
+     // * press where you want the action to finish on its own.
+     // *
+     // * Typical usage:
+     // * <pre>
+     // *   operator.leftBumper().onTrue(intake.compressFuel(2.0));
+     // * </pre>
+     // *
+     // * @param timeoutSeconds How long to run (~2.0 s matches typical slide travel).
+     // */
+    // public Command compressFuel(double timeoutSeconds) {
+        // return compressFuel(0.0, timeoutSeconds)
+                // .withName("CompressFuel");
+    // }
 
-    /**
-     * Timed fuel compression with an initial settle/wait period before slow
-     * retraction begins.
-     */
-    public Command compressFuel(double initialWaitSeconds, double timeoutSeconds) {
-        return Commands.sequence(
-                Commands.waitSeconds(initialWaitSeconds),
-                Commands.run(
-                        () -> {
-                            retractSlidesSlow();
+    // /**
+     // * Timed fuel compression with an initial settle/wait period before slow
+     // * retraction begins.
+     // */
+    // public Command compressFuel(double initialWaitSeconds, double timeoutSeconds) {
+        // return Commands.sequence(
+                // Commands.waitSeconds(initialWaitSeconds),
+                // Commands.run(
+                        // () -> {
+                            // retractSlidesSlow();
                             // Added to because roller doesn't need to run so aggressive during compression.
-                            runSlowRoller();
-                        }, this)
-                        .withTimeout(timeoutSeconds))
-                .finallyDo(() -> stopRoller())
-                .withName("CompressFuelDelayed");
-    }
+                            // runSlowRoller();
+                        // }, this)
+                        // .withTimeout(timeoutSeconds))
+                // .finallyDo(() -> stopRoller())
+                // .withName("CompressFuelDelayed");
+    // }
 
-    public Command compressFuelCycle(double initialWaitSeconds, double timeoutSeconds) {
-        return Commands.sequence(
-                Commands.waitSeconds(initialWaitSeconds),
-                Commands.run(
-                        () -> {
-                            retractSlidesSlow();
-                            runSlowRoller();
-                        }, this)
-                        .withTimeout(timeoutSeconds))
-                .finallyDo(() -> stopRoller())
-                .withName("CompressFuelCycle");
-    }
+    // public Command compressFuelCycle(double initialWaitSeconds, double timeoutSeconds) {
+        // return Commands.sequence(
+                // Commands.waitSeconds(initialWaitSeconds),
+                // Commands.run(
+                        // () -> {
+                            // retractSlidesSlow();
+                            // runSlowRoller();
+                        // }, this)
+                        // .withTimeout(timeoutSeconds))
+                // .finallyDo(() -> stopRoller())
+                // .withName("CompressFuelCycle");
+    // }
 
-    /** Default fuel-compression recipe for teleop and shot-sequence integration. */
-    public Command fuelCompression() {
-        return compressFuel(
-                Constants.Intake.SLIDE_FUEL_COMPRESSION_WAIT_SECONDS,
-                Constants.Intake.SLIDE_FUEL_COMPRESSION_DURATION_SECONDS)
-                .withName("FuelCompression");
-    }
+    // /** Default fuel-compression recipe for teleop and shot-sequence integration. */
+    // public Command fuelCompression() {
+        // return compressFuel(
+                // Constants.Intake.SLIDE_FUEL_COMPRESSION_WAIT_SECONDS,
+                // Constants.Intake.SLIDE_FUEL_COMPRESSION_DURATION_SECONDS)
+                // .withName("FuelCompression");
+    // }
 
-    /**
-     * Button-held compress — same slow retraction + roller as compressFuel(),
-     * but runs only while the button is held and stops the instant it's released.
-     *
-     * Use this when you want manual control over how long compression runs.
-     * Use compressFuel(seconds) when you want it to self-terminate.
-     *
-     * Typical usage:
-     *   operator.leftBumper().whileTrue(intake.compressFuelHeld());
-     */
-    public Command fuelPumpSlow() {
-        return Commands.runEnd(
-                () -> {
-                    retractSlidesSlow();
-                    runSlowRoller();
-                },
-                this::stopRoller,
-                this)
-                .withName("FuelPumpSlow");
-    }
+    // /**
+     // * Button-held compress — same slow retraction + roller as compressFuel(),
+     // * but runs only while the button is held and stops the instant it's released.
+     // *
+     // * Use this when you want manual control over how long compression runs.
+     // * Use compressFuel(seconds) when you want it to self-terminate.
+     // *
+     // * Typical usage:
+     // *   operator.leftBumper().whileTrue(intake.compressFuelHeld());
+     // */
+    // public Command fuelPumpSlow() {
+        // return Commands.runEnd(
+                // () -> {
+                    // retractSlidesSlow();
+                    // runSlowRoller();
+                // },
+                // this::stopRoller,
+                // this)
+                // .withName("FuelPumpSlow");
+    // }
 
-    /**
-     * Backward-compatible alias for the slow fuel compression/pump command.
-     * Runs only while held and stops immediately on release.
-     */
-    public Command compressFuelHeld() {
-        return fuelPumpSlow()
-                .withName("CompressFuelHeld");
-    }
+    // /**
+     // * Backward-compatible alias for the slow fuel compression/pump command.
+     // * Runs only while held and stops immediately on release.
+     // */
+    // public Command compressFuelHeld() {
+        // return fuelPumpSlow()
+                // .withName("CompressFuelHeld");
+    // }
 
     /**
      * Workaround: multi-step slide retraction that re-sends the retract setpoint
@@ -492,181 +508,182 @@ public class IntakeSubsystem extends SubsystemBase {
     // COMMAND FACTORIES — Fuel Pump
     // =========================================================================
 
-    /* More involved and current default of agitating the fuel during shooting */
-    public Command fuelPump() {
-        return fuelPumpCycleDelayed()
-                .withName("FuelPump");
-    }
+    // DISABLED (slides removed): fuel pump bounced the slide.
+    // /* More involved and current default of agitating the fuel during shooting */
+    // public Command fuelPump() {
+        // return fuelPumpCycleDelayed()
+                // .withName("FuelPump");
+    // }
 
-    /**
-     * Continuously cycles the slides between SLIDE_BOUNCE_DOWN_POS and SLIDE_BOUNCE_UP_POS
-     * while running the roller, for as long as the button is held.
-     *
-     * Use with whileTrue() — the command runs indefinitely and stops cleanly on release.
-     * Replaces fuelPumpBasic().repeatedly() which had roller-stop gaps between cycles.
-     */
-    public Command fuelPumpCycle() {
-        return fuelPumpCycleDelayed(0.0)
-                .withName("FuelPumpCycle");
-    }
+    // /**
+     // * Continuously cycles the slides between SLIDE_BOUNCE_DOWN_POS and SLIDE_BOUNCE_UP_POS
+     // * while running the roller, for as long as the button is held.
+     // *
+     // * Use with whileTrue() — the command runs indefinitely and stops cleanly on release.
+     // * Replaces fuelPumpBasic().repeatedly() which had roller-stop gaps between cycles.
+     // */
+    // public Command fuelPumpCycle() {
+        // return fuelPumpCycleDelayed(0.0)
+                // .withName("FuelPumpCycle");
+    // }
 
-    /** Fuel-pump cycle with an initial wait before slide bouncing starts. */
-    public Command fuelPumpCycleDelayed(double initialWaitSeconds) {
-        Timer cycleTimer = new Timer();
-        return Commands.sequence(
-                Commands.waitSeconds(initialWaitSeconds),
-                Commands.run(() -> {
-                    runRoller();
-                    double t = cycleTimer.get();
-                    if (t < Constants.Intake.SLIDE_FUEL_PUMP_OUT_SECONDS) {
-                        setSlidesToPosition(Constants.Intake.SLIDE_PUMP_OUT_POS);
-                    } else if (t < Constants.Intake.SLIDE_FUEL_PUMP_OUT_SECONDS
-                            + Constants.Intake.SLIDE_FUEL_PUMP_IN_SECONDS) {
-                        setSlidesToPosition(Constants.Intake.SLIDE_PUMP_IN_POS);
-                    } else {
-                        cycleTimer.restart();
-                    }
-                }, this)
-                        .beforeStarting(cycleTimer::restart))
-                .finallyDo(this::stopRoller)
-                .withName("FuelPumpCycleDelayed");
-    }
+    // /** Fuel-pump cycle with an initial wait before slide bouncing starts. */
+    // public Command fuelPumpCycleDelayed(double initialWaitSeconds) {
+        // Timer cycleTimer = new Timer();
+        // return Commands.sequence(
+                // Commands.waitSeconds(initialWaitSeconds),
+                // Commands.run(() -> {
+                    // runRoller();
+                    // double t = cycleTimer.get();
+                    // if (t < Constants.Intake.SLIDE_FUEL_PUMP_OUT_SECONDS) {
+                        // setSlidesToPosition(Constants.Intake.SLIDE_PUMP_OUT_POS);
+                    // } else if (t < Constants.Intake.SLIDE_FUEL_PUMP_OUT_SECONDS
+                            // + Constants.Intake.SLIDE_FUEL_PUMP_IN_SECONDS) {
+                        // setSlidesToPosition(Constants.Intake.SLIDE_PUMP_IN_POS);
+                    // } else {
+                        // cycleTimer.restart();
+                    // }
+                // }, this)
+                        // .beforeStarting(cycleTimer::restart))
+                // .finallyDo(this::stopRoller)
+                // .withName("FuelPumpCycleDelayed");
+    // }
 
-    /** Default delayed fuel-pump recipe for teleop button-hold operation. */
-    public Command fuelPumpCycleDelayed() {
-        return fuelPumpCycleDelayed(Constants.Intake.SLIDE_FUEL_PUMP_WAIT_SECONDS)
-                .withName("FuelPumpCycleDelayedDefault");
-    }
+    // /** Default delayed fuel-pump recipe for teleop button-hold operation. */
+    // public Command fuelPumpCycleDelayed() {
+        // return fuelPumpCycleDelayed(Constants.Intake.SLIDE_FUEL_PUMP_WAIT_SECONDS)
+                // .withName("FuelPumpCycleDelayedDefault");
+    // }
 
-    /**
-     * Runs the fuel pump cycle (bouncing slides + roller) for a fixed duration.
-     * Ends naturally after {@code seconds}, making it safe for autonomous and
-     * Choreo event linking via {@code trajectory.atTime("FuelPump").onTrue(...)}.
-     *
-     * @param seconds How long to run the pump cycle.
-     */
-    public Command fuelPumpCycleAuto(double seconds) {
-        return fuelPumpCycleDelayed(0.0)
-                .withTimeout(seconds)
-                .withName("FuelPumpCycleAuto");
-    }
+    // /**
+     // * Runs the fuel pump cycle (bouncing slides + roller) for a fixed duration.
+     // * Ends naturally after {@code seconds}, making it safe for autonomous and
+     // * Choreo event linking via {@code trajectory.atTime("FuelPump").onTrue(...)}.
+     // *
+     // * @param seconds How long to run the pump cycle.
+     // */
+    // public Command fuelPumpCycleAuto(double seconds) {
+        // return fuelPumpCycleDelayed(0.0)
+                // .withTimeout(seconds)
+                // .withName("FuelPumpCycleAuto");
+    // }
 
-    /**
-     * Sensor-gated pump sequence with an initial wait before bouncing begins.
-     * Ends when the supplied stop condition becomes true or the hard timeout hits.
-     */
-    public Command fuelPumpCycleUntil(BooleanSupplier stopCondition, double initialWaitSeconds, double hardTimeoutSeconds) {
-        return fuelPumpCycleDelayed(initialWaitSeconds)
-                .until(stopCondition)
-                .withTimeout(hardTimeoutSeconds)
-                .withName("FuelPumpCycleUntil");
-    }
+    // /**
+     // * Sensor-gated pump sequence with an initial wait before bouncing begins.
+     // * Ends when the supplied stop condition becomes true or the hard timeout hits.
+     // */
+    // public Command fuelPumpCycleUntil(BooleanSupplier stopCondition, double initialWaitSeconds, double hardTimeoutSeconds) {
+        // return fuelPumpCycleDelayed(initialWaitSeconds)
+                // .until(stopCondition)
+                // .withTimeout(hardTimeoutSeconds)
+                // .withName("FuelPumpCycleUntil");
+    // }
 
     // Loopable and repeatable version of fuelPump() for more manual control over timing and cycles.
-    public Command fuelPumpBasic() {
-        return Commands.sequence(
-                Commands.run(() -> {
-                    runRoller();
-                    setSlidesToPosition(Constants.Intake.SLIDE_PUMP_OUT_POS);
-                }, this)
-                        .withTimeout(0.5),
-                Commands.run(() -> {
-                    runRoller();
-                    setSlidesToPosition(Constants.Intake.SLIDE_PUMP_IN_POS);
-                }, this)
-                        .withTimeout(0.5))
-                .finallyDo(this::stopRoller).withName("FuelPumpBasic");
-    }
+    // public Command fuelPumpBasic() {
+        // return Commands.sequence(
+                // Commands.run(() -> {
+                    // runRoller();
+                    // setSlidesToPosition(Constants.Intake.SLIDE_PUMP_OUT_POS);
+                // }, this)
+                        // .withTimeout(0.5),
+                // Commands.run(() -> {
+                    // runRoller();
+                    // setSlidesToPosition(Constants.Intake.SLIDE_PUMP_IN_POS);
+                // }, this)
+                        // .withTimeout(0.5))
+                // .finallyDo(this::stopRoller).withName("FuelPumpBasic");
+    // }
 
     // Ideally set up to take an argument for number of cycles, but for now just a quick test of multiple repeats of the basic bounce sequence.
-    public Command fuelPumpSetCycles() {
-        return Commands.sequence(
+    // public Command fuelPumpSetCycles() {
+        // return Commands.sequence(
                 // ==== Cycle 1 ====
-                Commands.run(() -> {
-                    runSlowRoller();
-                    setSlidesToPosition(Constants.Intake.SLIDE_PUMP_OUT_POS);
-                }, this)
-                        .withTimeout(0.5),
+                // Commands.run(() -> {
+                    // runSlowRoller();
+                    // setSlidesToPosition(Constants.Intake.SLIDE_PUMP_OUT_POS);
+                // }, this)
+                        // .withTimeout(0.5),
                 // Short pause between down and up to allow fuel to settle before bouncing back up again
-                Commands.waitSeconds(0.1),
-                Commands.run(() -> {
-                    runSlowRoller();
-                    setSlidesToPosition(Constants.Intake.SLIDE_PUMP_IN_POS);
-                }, this)
-                    .withTimeout(0.5),
-                Commands.waitSeconds(0.1),
+                // Commands.waitSeconds(0.1),
+                // Commands.run(() -> {
+                    // runSlowRoller();
+                    // setSlidesToPosition(Constants.Intake.SLIDE_PUMP_IN_POS);
+                // }, this)
+                    // .withTimeout(0.5),
+                // Commands.waitSeconds(0.1),
 
                 // ==== Cycle 2 ====
-                Commands.run(() -> {
-                    runSlowRoller();
-                    setSlidesToPosition(Constants.Intake.SLIDE_PUMP_OUT_POS);
-                }, this)
-                        .withTimeout(0.5),
-                Commands.waitSeconds(0.1),
-                Commands.run(() -> {
-                    runSlowRoller();
-                    setSlidesToPosition(Constants.Intake.SLIDE_PUMP_IN_POS);
-                }, this)
-                        .withTimeout(0.5),
-                Commands.waitSeconds(0.1)
+                // Commands.run(() -> {
+                    // runSlowRoller();
+                    // setSlidesToPosition(Constants.Intake.SLIDE_PUMP_OUT_POS);
+                // }, this)
+                        // .withTimeout(0.5),
+                // Commands.waitSeconds(0.1),
+                // Commands.run(() -> {
+                    // runSlowRoller();
+                    // setSlidesToPosition(Constants.Intake.SLIDE_PUMP_IN_POS);
+                // }, this)
+                        // .withTimeout(0.5),
+                // Commands.waitSeconds(0.1)
 
 
-                .finallyDo(this::stopRoller).withName("FuelPumpBasic"));
-    }
+                // .finallyDo(this::stopRoller).withName("FuelPumpBasic"));
+    // }
 
     // Ideally set up to take an argument for number of cycles, but for now just a quick test of multiple repeats of the basic bounce sequence.
-    public Command fuelPumpSetCyclesAlpha() {
-        return Commands.sequence(
+    // public Command fuelPumpSetCyclesAlpha() {
+        // return Commands.sequence(
                 // ==== Cycle 1 ====
-                Commands.run(() -> {
-                    runSlowRoller();
-                    setSlidesToPosition(Constants.Intake.SLIDE_PUMP_OUT_POS);
-                }, this)
-                        .withTimeout(0.5),
+                // Commands.run(() -> {
+                    // runSlowRoller();
+                    // setSlidesToPosition(Constants.Intake.SLIDE_PUMP_OUT_POS);
+                // }, this)
+                        // .withTimeout(0.5),
                 // Short pause between down and up to allow fuel to settle before bouncing back up again
-                Commands.waitSeconds(0.1),
-                Commands.run(() -> {
-                    runSlowRoller();
-                    setSlidesToPosition(Constants.Intake.SLIDE_PUMP_IN_POS);
-                }, this)
-                    .withTimeout(0.5),
-                Commands.waitSeconds(0.1),
+                // Commands.waitSeconds(0.1),
+                // Commands.run(() -> {
+                    // runSlowRoller();
+                    // setSlidesToPosition(Constants.Intake.SLIDE_PUMP_IN_POS);
+                // }, this)
+                    // .withTimeout(0.5),
+                // Commands.waitSeconds(0.1),
 
                 // ==== Cycle 2 ====
-                Commands.run(() -> {
-                    runSlowRoller();
-                    setSlidesToPosition(Constants.Intake.SLIDE_PUMP_OUT_POS);
-                }, this)
-                        .withTimeout(0.5),
-                Commands.waitSeconds(0.1),
-                Commands.run(() -> {
-                    runSlowRoller();
-                    setSlidesToPosition(Constants.Intake.SLIDE_PUMP_IN_POS);
-                }, this)
-                        .withTimeout(0.5),
-                Commands.waitSeconds(0.1)
+                // Commands.run(() -> {
+                    // runSlowRoller();
+                    // setSlidesToPosition(Constants.Intake.SLIDE_PUMP_OUT_POS);
+                // }, this)
+                        // .withTimeout(0.5),
+                // Commands.waitSeconds(0.1),
+                // Commands.run(() -> {
+                    // runSlowRoller();
+                    // setSlidesToPosition(Constants.Intake.SLIDE_PUMP_IN_POS);
+                // }, this)
+                        // .withTimeout(0.5),
+                // Commands.waitSeconds(0.1)
 
 
-                .finallyDo(this::stopRoller).withName("FuelPumpBasic"));
-    }
+                // .finallyDo(this::stopRoller).withName("FuelPumpBasic"));
+    // }
 
     // Notable that this one is missing roller commands
-    public Command fuelPumpSetCyclesRetract() {
-        return Commands.sequence(
+    // public Command fuelPumpSetCyclesRetract() {
+        // return Commands.sequence(
                 // ==== Cycle 1 ====
-                Commands.runOnce(() -> setSlidesToPosition(Constants.Intake.SLIDE_PUMP_OUT_POS), this),
-                Commands.waitSeconds(0.5),
-                Commands.runOnce(() -> setSlidesToPosition(Constants.Intake.SLIDE_PUMP_IN_POS), this),
-                Commands.waitSeconds(0.5),
+                // Commands.runOnce(() -> setSlidesToPosition(Constants.Intake.SLIDE_PUMP_OUT_POS), this),
+                // Commands.waitSeconds(0.5),
+                // Commands.runOnce(() -> setSlidesToPosition(Constants.Intake.SLIDE_PUMP_IN_POS), this),
+                // Commands.waitSeconds(0.5),
                 // ==== Cycle 2 ====
-                Commands.runOnce(() -> setSlidesToPosition(Constants.Intake.SLIDE_PUMP_OUT_POS), this),
-                Commands.waitSeconds(0.5),
-                Commands.runOnce(() -> setSlidesToPosition(Constants.Intake.SLIDE_PUMP_IN_POS), this),
-                Commands.waitSeconds(0.5),
+                // Commands.runOnce(() -> setSlidesToPosition(Constants.Intake.SLIDE_PUMP_OUT_POS), this),
+                // Commands.waitSeconds(0.5),
+                // Commands.runOnce(() -> setSlidesToPosition(Constants.Intake.SLIDE_PUMP_IN_POS), this),
+                // Commands.waitSeconds(0.5),
                 // ==== Cycle 3 ====
-                Commands.runOnce(() -> setSlidesToPosition(Constants.Intake.SLIDE_HOME_POS), this))
-                .withName("FuelPumpThenRetractSlide");
-    }
+                // Commands.runOnce(() -> setSlidesToPosition(Constants.Intake.SLIDE_HOME_POS), this))
+                // .withName("FuelPumpThenRetractSlide");
+    // }
     // =========================================================================
     // COMMAND FACTORIES — AUTONOMOUS
     // =========================================================================
@@ -696,14 +713,12 @@ public class IntakeSubsystem extends SubsystemBase {
      * Full auton intake sequence.
      *
      * Flow:
-     *   1. Extends slides to the MotionMagic setpoint (runOnce).
-     *   2. Runs roller for {@code intakeTimeout} seconds.
-     *   3. Stops roller on completion or interruption.
+     *   1. Runs roller for {@code intakeTimeout} seconds.
+     *   2. Stops roller on completion or interruption.
      *
-     * Slides remain extended after the command — call stopFuel() or
-     * retractSlidesFastCmd() afterward if stowing is needed.
+     * Slides were removed (fixed position), so there is no extend/retract step.
      *
-     * @param intakeTimeout How long to run the roller after extending.
+     * @param intakeTimeout How long to run the roller.
      */
     public Command intakeFuelTimer(double intakeTimeout) {
         return intakeFuelTimer(intakeTimeout, 0);
@@ -712,7 +727,8 @@ public class IntakeSubsystem extends SubsystemBase {
     public Command intakeFuelTimer(double intakeTimeout, double delay) {
         return Commands.sequence(
                 Commands.waitSeconds(delay),
-                extendSlidesFastCmd(),
+                // DISABLED (slides removed): no slide to extend.
+                // extendSlidesFastCmd(),
                 Commands.run(this::runRoller, this)
                         .withTimeout(intakeTimeout)
                         .finallyDo(this::stopRoller))
@@ -721,7 +737,8 @@ public class IntakeSubsystem extends SubsystemBase {
 
     public Command intakeFuelUntil(BooleanSupplier condition) {
         return Commands.sequence(
-                extendSlidesFastCmd(),
+                // DISABLED (slides removed): no slide to extend.
+                // extendSlidesFastCmd(),
                 Commands.run(this::runRoller, this)
                         .until(condition)
                         .finallyDo(this::stopRoller))

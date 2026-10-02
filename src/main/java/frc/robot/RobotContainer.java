@@ -18,7 +18,8 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.RobotModeTriggers;
-import frc.robot.commands.AlignOnlyCommand;
+// DISABLED (Limelight removed): align commands and vision subsystem are not constructed.
+// import frc.robot.commands.AlignOnlyCommand;
 import frc.robot.commands.FuelCommands;
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
@@ -32,9 +33,9 @@ import frc.robot.subsystems.intake.IntakeSubsystem;
 import frc.robot.subsystems.shooter.ShooterIOHardware;
 import frc.robot.subsystems.shooter.ShooterIOSim;
 import frc.robot.subsystems.shooter.ShooterSubsystem;
-import frc.robot.subsystems.vision.VisionIOLimelight;
-import frc.robot.subsystems.vision.VisionIOSim;
-import frc.robot.subsystems.vision.VisionSubsystem;
+// import frc.robot.subsystems.vision.VisionIOLimelight;
+// import frc.robot.subsystems.vision.VisionIOSim;
+// import frc.robot.subsystems.vision.VisionSubsystem;
 import frc.robot.utilities.GameDataTelemetry;
 import frc.robot.utilities.Telemetry;
 
@@ -71,7 +72,8 @@ public class RobotContainer {
     private final IntakeSubsystem intake;
     private final IndexerSubsystem indexer;
     private final ShooterSubsystem shooter;
-    private final VisionSubsystem vision;
+    // DISABLED (Limelight removed)
+    // private final VisionSubsystem vision;
     private final AutoFactory autoFactory;
     private final AutoRoutines autoRoutines;
     private final AutoChooser autoChooser = new AutoChooser();
@@ -84,22 +86,26 @@ public class RobotContainer {
             indexer = new IndexerSubsystem(new IndexerIOSim());
             intake = new IntakeSubsystem(new IntakeIOSim());
             shooter = new ShooterSubsystem(new ShooterIOSim());
-            vision = new VisionSubsystem(
-                new VisionIOSim(),
-                () -> drivetrain.getState().Pose.getRotation().getDegrees(),
-                () -> Math.toDegrees(drivetrain.getState().Speeds.omegaRadiansPerSecond));
+            // DISABLED (Limelight removed)
+            // vision = new VisionSubsystem(
+                // new VisionIOSim(),
+                // () -> drivetrain.getState().Pose.getRotation().getDegrees(),
+                // () -> Math.toDegrees(drivetrain.getState().Speeds.omegaRadiansPerSecond));
         } else {
             indexer = new IndexerSubsystem(new IndexerIOHardware());
             intake = new IntakeSubsystem(new IntakeIOHardware());
             shooter = new ShooterSubsystem(new ShooterIOHardware());
-            vision = new VisionSubsystem(
-                new VisionIOLimelight(Constants.Vision.LIMELIGHT4_NAME),
-                () -> drivetrain.getState().Pose.getRotation().getDegrees(),
-                () -> Math.toDegrees(drivetrain.getState().Speeds.omegaRadiansPerSecond));
+            // DISABLED (Limelight removed)
+            // vision = new VisionSubsystem(
+                // new VisionIOLimelight(Constants.Vision.LIMELIGHT4_NAME),
+                // () -> drivetrain.getState().Pose.getRotation().getDegrees(),
+                // () -> Math.toDegrees(drivetrain.getState().Speeds.omegaRadiansPerSecond));
         }
 
         autoFactory = drivetrain.createAutoFactory();
-        autoRoutines = new AutoRoutines(autoFactory, drivetrain, indexer, intake, shooter, vision);
+        // DISABLED (Limelight removed): vision is no longer passed to AutoRoutines.
+        // autoRoutines = new AutoRoutines(autoFactory, drivetrain, indexer, intake, shooter, vision);
+        autoRoutines = new AutoRoutines(autoFactory, drivetrain, indexer, intake, shooter);
         SmartDashboard.putData("AutoChooser", autoChooser);
 
         // =====================================================================
@@ -170,25 +176,27 @@ public class RobotContainer {
         // Start: Reset field-centric heading
         driver.start().onTrue(drivetrain.runOnce(drivetrain::seedFieldCentric));
 
+        // DISABLED (Limelight removed): pose reset from Limelight botpose.
         // Back: Reset odometry to Limelight botpose (use when robot rides up on a ball and wheels lose contact)
-        driver.back().onTrue(drivetrain.resetPoseFromVisionCommand());
+        // driver.back().onTrue(drivetrain.resetPoseFromVisionCommand());
 
 
         drivetrain.registerTelemetry(logger::telemeterize);
         
-        driver.rightTrigger(0.5).whileTrue(
-            Commands.deadline(
-                FuelCommands.poseAlignAndShoot(
-                    shooter,
-                    indexer,
-                    drivetrain,
-                    vision,
-                    () -> -driver.getLeftY() * MaxSpeed,
-                    () -> -driver.getLeftX() * MaxSpeed
-                ),
-                FuelCommands.fuelCompressionWhenShooterReady(shooter, intake)
-            )
-        );
+        // DISABLED (Limelight removed): right trigger was pose/AprilTag auto-align + shoot. Unbound until a replacement is chosen.
+        // driver.rightTrigger(0.5).whileTrue(
+            // Commands.deadline(
+                // FuelCommands.poseAlignAndShoot(
+                    // shooter,
+                    // indexer,
+                    // drivetrain,
+                    // vision,
+                    // () -> -driver.getLeftY() * MaxSpeed,
+                    // () -> -driver.getLeftX() * MaxSpeed
+                // ),
+                // FuelCommands.fuelCompressionWhenShooterReady(shooter, intake)
+            // )
+        // );
                 
         
         driver.leftTrigger(0.5).whileTrue(intake.intakeFuel());
@@ -202,31 +210,38 @@ public class RobotContainer {
         //     )
         // );
 
-        driver.a().whileTrue(
-            Commands.deadline(
+        // DISABLED (slides removed): presets used to run in parallel with fuelCompressionWhenShooterReady (slide retract).
+        // driver.a().whileTrue(
+            // Commands.deadline(
                 // drivetrain.applyRequest(() -> xBrake),
-                FuelCommands.shootWithPreset(shooter, indexer, ShooterSubsystem.ShotPreset.TRENCH),
-                FuelCommands.fuelCompressionWhenShooterReady(shooter, intake)
-                ));
+                // FuelCommands.shootWithPreset(shooter, indexer, ShooterSubsystem.ShotPreset.TRENCH),
+                // FuelCommands.fuelCompressionWhenShooterReady(shooter, intake)
+                // ));
 
-        driver.b().whileTrue(
-            Commands.deadline(
+        // driver.b().whileTrue(
+            // Commands.deadline(
                 // drivetrain.applyRequest(() -> xBrake),    
-                FuelCommands.shootWithPreset(shooter, indexer, ShooterSubsystem.ShotPreset.CLOSE),
-                FuelCommands.fuelCompressionWhenShooterReady(shooter, intake)
-                ));
-        driver.x().whileTrue(
-            Commands.deadline(
+                // FuelCommands.shootWithPreset(shooter, indexer, ShooterSubsystem.ShotPreset.CLOSE),
+                // FuelCommands.fuelCompressionWhenShooterReady(shooter, intake)
+                // ));
+        // driver.x().whileTrue(
+            // Commands.deadline(
                 // drivetrain.applyRequest(() -> xBrake),
-                FuelCommands.shootWithPreset(shooter, indexer, ShooterSubsystem.ShotPreset.TOWER_FRONT),
-                FuelCommands.fuelCompressionWhenShooterReady(shooter, intake)
-                ));
-        driver.y().whileTrue(
-            Commands.deadline(
+                // FuelCommands.shootWithPreset(shooter, indexer, ShooterSubsystem.ShotPreset.TOWER_FRONT),
+                // FuelCommands.fuelCompressionWhenShooterReady(shooter, intake)
+                // ));
+        // driver.y().whileTrue(
+            // Commands.deadline(
                 // drivetrain.applyRequest(() -> xBrake),
-                FuelCommands.shootWithPreset(shooter, indexer, ShooterSubsystem.ShotPreset.FAR),
-                FuelCommands.fuelCompressionWhenShooterReady(shooter, intake)
-                ));
+                // FuelCommands.shootWithPreset(shooter, indexer, ShooterSubsystem.ShotPreset.FAR),
+                // FuelCommands.fuelCompressionWhenShooterReady(shooter, intake)
+                // ));
+
+        // Shot presets: run on their own now that fuel compression is disabled.
+        driver.a().whileTrue(FuelCommands.shootWithPreset(shooter, indexer, ShooterSubsystem.ShotPreset.TRENCH));
+        driver.b().whileTrue(FuelCommands.shootWithPreset(shooter, indexer, ShooterSubsystem.ShotPreset.CLOSE));
+        driver.x().whileTrue(FuelCommands.shootWithPreset(shooter, indexer, ShooterSubsystem.ShotPreset.TOWER_FRONT));
+        driver.y().whileTrue(FuelCommands.shootWithPreset(shooter, indexer, ShooterSubsystem.ShotPreset.FAR));
 
     driver.rightBumper().whileTrue(FuelCommands.purgeFuel(intake, indexer));
 
@@ -248,7 +263,8 @@ public class RobotContainer {
         // operator.rightTrigger(0.5).whileTrue(indexer.reverse());
 
 
-        operator.leftBumper().onTrue(intake.retractSlidesIncrementalCmd());
+        // DISABLED (slides removed): incremental slide retract.
+        // operator.leftBumper().onTrue(intake.retractSlidesIncrementalCmd());
        // operator.rightBumper().whileTrue(FuelCommands.purgeFuel(intake, indexer));
         
 
@@ -259,13 +275,15 @@ public class RobotContainer {
         operator.start().onTrue(Commands.runOnce(shooter::toggleStandbyMode, shooter));
 
 
+        // DISABLED (Limelight removed): pose reset from Limelight botpose.
         // Back (View ⧉): Reset odometry to botpose — use when robot rides up on a ball
-        operator.back().onTrue(drivetrain.resetPoseFromVisionCommand());
+        // operator.back().onTrue(drivetrain.resetPoseFromVisionCommand());
     
         operator.povDown().whileTrue(drivetrain.applyRequest(() -> xBrake));
     
+        // DISABLED (slides removed): slide encoder reset.
         // Only use if know to be fully retracted
-        operator.povUp().whileTrue(intake.resetSlideEncoderCmd()); 
+        // operator.povUp().whileTrue(intake.resetSlideEncoderCmd());
         
         // operator.povLeft().onTrue(intake.extendSlidesFastCmd());
         // operator.povRight().whileTrue(intake.fuelPumpCycleDelayed());

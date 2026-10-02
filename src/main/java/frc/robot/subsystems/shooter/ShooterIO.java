@@ -5,7 +5,7 @@ package frc.robot.subsystems.shooter;
  *
  * The shooter launches game pieces using:
  * - Flywheel motors: 2x TalonFX (leader + 1 follower, opposite sides) spin up to launch game pieces
- * - Hood motor: TalonFXS adjusts launch angle for different distances
+ * - (hood motor removed - hood is now fixed)
  *
  * PATTERN: IO Interface
  * - ShooterIO: Interface defining what shooter hardware can do
@@ -39,8 +39,9 @@ public interface ShooterIO {
         /** Flywheel applied voltage */
         public double flywheelAppliedVolts = 0.0;
 
-        /** Hood position in raw motor rotations (0 = home, ~9.14 = max) */
-        public double hoodPositionRotations = 0.0;
+        // DISABLED (hood removed): hood position input.
+        // /** Hood position in raw motor rotations (0 = home, ~9.14 = max) */
+        // public double hoodPositionRotations = 0.0;
 
         // ===== Slow Fields (updated at 10Hz — diagnostics only) =====
         // These are for dashboard display, overcurrent detection, and logging.
@@ -52,20 +53,21 @@ public interface ShooterIO {
         /** Max flywheel motor temperature in Celsius across motors A/B/C */
         public double flywheelMaxTempCelsius = 0.0;
 
-        /** Hood applied voltage */
-        public double hoodAppliedVolts = 0.0;
+        // DISABLED (hood removed): hood diagnostics.
+        // /** Hood applied voltage */
+        // public double hoodAppliedVolts = 0.0;
 
-        /** Hood supply current in amps */
-        public double hoodCurrentAmps = 0.0;
+        // /** Hood supply current in amps */
+        // public double hoodCurrentAmps = 0.0;
 
-        /** Hood angle in degrees (approximate, derived from rotations) */
-        public double hoodAngleDegrees = 0.0;
+        // /** Hood angle in degrees (approximate, derived from rotations) */
+        // public double hoodAngleDegrees = 0.0;
     }
 
     /**
      * Updates control-critical inputs from hardware.
      * Called every cycle (every 20ms) by ShooterSubsystem.
-     * Only refreshes fast signals: flywheel velocity, flywheel voltage, hood position.
+     * Only refreshes fast signals: flywheel velocity, flywheel voltage.
      *
      * @param inputs The ShooterIOInputs object to populate with current data
      */
@@ -90,41 +92,43 @@ public interface ShooterIO {
      */
     default void setFlywheelVelocity(double rpm) {}
 
-    /**
-     * Sets the flywheel target velocity using VelocityTorqueCurrentFOC.
-     *
-     * NOTE: TorqueCurrentFOC requires CAN FD (CANivore bus).
-     * On RIO CAN it will not perform as intended — for comparison testing only
-     * until flywheel motors are moved to CANivore.
-     *
-     * kP units: Amps per RPS (NOT Volts/RPS — retune separately from VelocityVoltage gains).
-     *
-     * @param rpm Target velocity in rotations per minute
-     */
-    default void setFlywheelVelocityTorqueFOC(double rpm) {}
+    // DISABLED (CANivore removed): TorqueCurrentFOC needs CAN FD, which this robot no longer has. Unused.
+    // /**
+     // * Sets the flywheel target velocity using VelocityTorqueCurrentFOC.
+     // *
+     // * NOTE: TorqueCurrentFOC requires CAN FD (CANivore bus).
+     // * On RIO CAN it will not perform as intended — for comparison testing only
+     // * until flywheel motors are moved to CANivore.
+     // *
+     // * kP units: Amps per RPS (NOT Volts/RPS — retune separately from VelocityVoltage gains).
+     // *
+     // * @param rpm Target velocity in rotations per minute
+     // */
+    // default void setFlywheelVelocityTorqueFOC(double rpm) {}
     /**
      * Stops the flywheel motors (velocity = 0).
      */
     default void stopFlywheels() {}
 
-    /**
-     * Sets the hood target pose in raw motor rotations.
-     * Uses position closed-loop control.
-     *
-     * @param rawPosition Target pose in motor rotations (MIN_HOOD_POSE_ROT to MAX_HOOD_POSE_ROT)
-     */
-    default void setHoodPose(double rawPosition) {}
+    // DISABLED (hood removed): hood control.
+    // /**
+     // * Sets the hood target pose in raw motor rotations.
+     // * Uses position closed-loop control.
+     // *
+     // * @param rawPosition Target pose in motor rotations (MIN_HOOD_POSE_ROT to MAX_HOOD_POSE_ROT)
+     // */
+    // default void setHoodPose(double rawPosition) {}
+
+    // /**
+     // * Sets the hood motor to a fixed voltage (open-loop).
+     // * Used for safe, slow movement when finding hood travel limits.
+     // *
+     // * @param volts Voltage to apply (positive = forward, negative = reverse)
+     // */
+    // default void setHoodVoltage(double volts) {}
 
     /**
-     * Sets the hood motor to a fixed voltage (open-loop).
-     * Used for safe, slow movement when finding hood travel limits.
-     *
-     * @param volts Voltage to apply (positive = forward, negative = reverse)
-     */
-    default void setHoodVoltage(double volts) {}
-
-    /**
-     * Stops all shooter motors (flywheels, hood).
+     * Stops all shooter motors (flywheels).
      */
     default void stop() {}
 }
