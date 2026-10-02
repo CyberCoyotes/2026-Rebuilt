@@ -98,7 +98,9 @@ wpi.sim.addDriverstation()
 // knows where to look for our Robot Class.
 jar {
     from { configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) } }
-    from('src') { into 'backup/src' }
+    // Limelight 4 Hailo models (.hef, ~62 MB) are uploaded to the camera, not used by robot code.
+    // Excluded from the source backup so the deployed jar stays small (SFTP upload / roboRIO disk).
+    from('src') { into 'backup/src'; exclude '**/*.hef' }
     from('vendordeps') { into 'backup/vendordeps' }
     from('build.gradle') { into 'backup' }
     manifest edu.wpi.first.gradlerio.GradleRIOPlugin.javaManifest(ROBOT_MAIN_CLASS)
