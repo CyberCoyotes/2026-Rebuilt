@@ -573,7 +573,7 @@ public final class Constants {
     public static final double TRENCH_DISTANCE = Units.inchesToMeters(118 - 60) + HUB_TO_CENTER + LL_TO_FRONT;
 
     // 3050 for the first 2 matches
-    public static final double TRENCH_RPM = 4000; // 3150 was short         2750 on drum testing for ruber wheels
+    public static final double TRENCH_RPM = 2800; // Changed from 4000 to 2800 for school // 3150 was short         2750 on drum testing for ruber wheels
     public static final double TRENCH_HOOD = 6.5;                  //       6.0 on drum testing for ruber wheels
 
     // In a corner by human player station or depot-corner, angled towards the hub
